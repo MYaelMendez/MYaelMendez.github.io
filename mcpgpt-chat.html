@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCPgpt | æææ:/// Chat Compute</title>
+  <meta name="description" content="Chat with MCPgpt - The MCP constellation index. Access LLM compute via æææ:/// protocol at 2100+ tok/s.">
+  <style>
+    :root {
+      --mech-black: #0a0a0a;
+      --mech-dark: #111111;
+      --mech-steel: #1a1a1a;
+      --mech-border: #2a2a2a;
+      --mech-text: #e0e0e0;
+      --mech-dim: #888888;
+      --mech-accent: #00ff88;
+      --mech-accent-dim: #00aa55;
+      --mech-blue: #0088ff;
+      --mech-purple: #8844ff;
+      --mech-orange: #ff8800;
+      --mech-red: #ff4444;
+      --font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-mono);
+      background: var(--mech-black);
+      color: var(--mech-text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .mech-header {
+      background: var(--mech-dark);
+      border-bottom: 1px solid var(--mech-border);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .mech-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mech-logo h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, var(--mech-accent), var(--mech-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .mech-protocol {
+      font-size: 0.75rem;
+      color: var(--mech-dim);
+      padding: 4px 8px;
+      background: var(--mech-steel);
+      border: 1px solid var(--mech-border);
+    }
+
+    .mech-status {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.8rem;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--mech-accent);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .tok-speed {
+      color: var(--mech-accent);
+      font-weight: 600;
+    }
+
+    /* Main Chat Area */
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 20px;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 20px;
+    }
+
+    .message {
+      margin-bottom: 20px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .message-role {
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .message-role.user {
+      color: var(--mech-blue);
+    }
+
+    .message-role.assistant {
+      color: var(--mech-accent);
+    }
+
+    .message-meta {
+      font-size: 0.7rem;
+      color: var(--mech-dim);
+    }
+
+    .message-content {
+      background: var(--mech-steel);
+      border: 1px solid var(--mech-border);
+      padding: 16px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .message.user .message-content {
+      border-left: 3px solid var(--mech-blue);
+    }
+
+    .message.assistant .message-content {
+      border-left: 3px solid var(--mech-accent);
+    }
+
+    .message-content code {
+      background: var(--mech-dark);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+
+    .message-content pre {
+      background: var(--mech-dark);
+      padding: 12px;
+      margin: 10px 0;
+      overflow-x: auto;
+      border: 1px solid var(--mech-border);
+    }
+
+    /* Welcome Screen */
+    .welcome {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .welcome h2 {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--mech-accent), var(--mech-blue), var(--mech-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .welcome p {
+      color: var(--mech-dim);
+      max-width: 500px;
+      margin: 0 auto 30px;
+      line-height: 1.6;
+    }
+
+    .rail-selector {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 30px;
+    }
+
+    .rail-btn {
+      background: var(--mech-steel);
+      border: 1px solid var(--mech-border);
+      color: var(--mech-text);
+      padding: 12px 20px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rail-btn:hover {
+      border-color: var(--mech-accent);
+      background: var(--mech-dark);
+    }
+
+    .rail-btn.active {
+      border-color: var(--mech-accent);
+      background: rgba(0, 255, 136, 0.1);
+    }
+
+    .rail-icon {
+      font-size: 1.2rem;
+    }
+
+    /* Input Area */
+    .input-container {
+      background: var(--mech-dark);
+      border-top: 1px solid var(--mech-border);
+      padding: 20px;
+      position: sticky;
+      bottom: 0;
+    }
+
+    .input-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      gap: 12px;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: var(--mech-steel);
+      border: 1px solid var(--mech-border);
+      color: var(--mech-text);
+      padding: 14px 16px;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      resize: none;
+      min-height: 50px;
+      max-height: 200px;
+    }
+
+    .chat-input:focus {
+      outline: none;
+      border-color: var(--mech-accent);
+    }
+
+    .chat-input::placeholder {
+      color: var(--mech-dim);
+    }
+
+    .send-btn {
+      background: var(--mech-accent);
+      border: none;
+      color: var(--mech-black);
+      padding: 14px 24px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .send-btn:hover {
+      background: var(--mech-accent-dim);
+    }
+
+    .send-btn:disabled {
+      background: var(--mech-border);
+      color: var(--mech-dim);
+      cursor: not-allowed;
+    }
+
+    /* Loading */
+    .loading {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--mech-dim);
+      padding: 16px;
+    }
+
+    .loading-dots {
+      display: flex;
+      gap: 4px;
+    }
+
+    .loading-dots span {
+      width: 6px;
+      height: 6px;
+      background: var(--mech-accent);
+      border-radius: 50%;
+      animation: bounce 1.4s infinite both;
+    }
+
+    .loading-dots span:nth-child(2) { animation-delay: 0.16s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.32s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-8px); }
+    }
+
+    /* Model Selector */
+    .model-selector {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .model-select {
+      background: var(--mech-steel);
+      border: 1px solid var(--mech-border);
+      color: var(--mech-text);
+      padding: 8px 12px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .model-select:focus {
+      outline: none;
+      border-color: var(--mech-accent);
+    }
+
+    /* QR Badge */
+    .qr-badge {
+      position: fixed;
+      bottom: 100px;
+      right: 20px;
+      background: var(--mech-steel);
+      border: 1px solid var(--mech-border);
+      padding: 8px 12px;
+      font-size: 0.7rem;
+      color: var(--mech-dim);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .qr-badge::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--mech-accent);
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .mech-header {
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px;
+      }
+
+      .welcome h2 {
+        font-size: 1.5rem;
+      }
+
+      .rail-selector {
+        flex-direction: column;
+      }
+
+      .rail-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .input-wrapper {
+        flex-direction: column;
+      }
+
+      .send-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="mech-header">
+    <div class="mech-logo">
+      <h1>MCPgpt</h1>
+      <span class="mech-protocol">æææ:///chat</span>
+    </div>
+    <div class="mech-status">
+      <div class="status-indicator">
+        <span class="status-dot"></span>
+        <span>Compute Ready</span>
+      </div>
+      <span class="tok-speed" id="tokSpeed">2100+ tok/s</span>
+    </div>
+  </header>
+
+  <main class="chat-container">
+    <div class="messages" id="messages">
+      <div class="welcome" id="welcome">
+        <h2>æææ:/// Compute Interface</h2>
+        <p>Chat with MCPgpt to access LLM compute. Choose a rail to begin or type directly.</p>
+        
+        <div class="rail-selector">
+          <button class="rail-btn" onclick="selectRail('cerebras')" data-testid="rail-cerebras">
+            <span class="rail-icon">⚡</span>
+            Cerebras 2100 tok/s
+          </button>
+          <button class="rail-btn" onclick="selectRail('gemini')" data-testid="rail-gemini">
+            <span class="rail-icon">💎</span>
+            Gemini 2.5
+          </button>
+          <button class="rail-btn" onclick="selectRail('code')" data-testid="rail-code">
+            <span class="rail-icon">🦀</span>
+            Code + MÆCH
+          </button>
+          <button class="rail-btn" onclick="selectRail('mcp')" data-testid="rail-mcp">
+            <span class="rail-icon">🔗</span>
+            MCP Tools
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="input-container">
+    <div class="input-wrapper">
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+        <div class="model-selector">
+          <select class="model-select" id="modelSelect" data-testid="model-select">
+            <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+            <option value="llama-3.3-70b">Llama 3.3 70B (Cerebras)</option>
+            <option value="deepseek-r1-distill-llama-70b">DeepSeek R1</option>
+            <option value="qwen3-coder">Qwen3 Coder</option>
+          </select>
+          <span style="font-size: 0.75rem; color: var(--mech-dim);" id="modelInfo">Fast multimodal</span>
+        </div>
+        <textarea 
+          class="chat-input" 
+          id="chatInput" 
+          placeholder="Ask anything... Chat to compute via æææ:///" 
+          rows="1"
+          data-testid="chat-input"
+        ></textarea>
+      </div>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()" data-testid="send-button">
+        Send ⏎
+      </button>
+    </div>
+  </footer>
+
+  <div class="qr-badge" data-testid="qr-address">
+    æææ:///chat/session
+  </div>
+
+  <script>
+    // MÆCH Chat State
+    const state = {
+      messages: [],
+      currentRail: 'gemini',
+      isLoading: false,
+      sessionId: Date.now().toString(36)
+    };
+
+    const modelInfo = {
+      'gemini-2.5-flash': 'Fast multimodal',
+      'llama-3.3-70b': '2100 tok/s Cerebras',
+      'deepseek-r1-distill-llama-70b': 'Deep reasoning',
+      'qwen3-coder': 'Code specialist'
+    };
+
+    // Element refs
+    const messagesEl = document.getElementById('messages');
+    const welcomeEl = document.getElementById('welcome');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const modelSelect = document.getElementById('modelSelect');
+    const modelInfoEl = document.getElementById('modelInfo');
+
+    // Rail selection
+    function selectRail(rail) {
+      state.currentRail = rail;
+      document.querySelectorAll('.rail-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.closest('.rail-btn').classList.add('active');
+      
+      // Set appropriate model
+      const railModels = {
+        'cerebras': 'llama-3.3-70b',
+        'gemini': 'gemini-2.5-flash',
+        'code': 'qwen3-coder',
+        'mcp': 'gemini-2.5-flash'
+      };
+      modelSelect.value = railModels[rail] || 'gemini-2.5-flash';
+      updateModelInfo();
+      
+      chatInput.focus();
+    }
+
+    function updateModelInfo() {
+      modelInfoEl.textContent = modelInfo[modelSelect.value] || '';
+    }
+
+    modelSelect.addEventListener('change', updateModelInfo);
+
+    // Send message
+    async function sendMessage() {
+      const content = chatInput.value.trim();
+      if (!content || state.isLoading) return;
+
+      // Hide welcome
+      if (welcomeEl) welcomeEl.style.display = 'none';
+
+      // Add user message
+      addMessage('user', content);
+      chatInput.value = '';
+      chatInput.style.height = 'auto';
+
+      // Show loading
+      state.isLoading = true;
+      sendBtn.disabled = true;
+      const loadingEl = addLoading();
+
+      try {
+        const response = await fetch('/api/mech-llm/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: content,
+            provider: state.currentRail === 'cerebras' ? 'groq' : 'gemini',
+            model: modelSelect.value,
+            systemPrompt: `You are MCPgpt, the AI assistant for the æææ:/// Command Line Internet Protocol. You help users access LLM compute, understand the MÆCH language, and navigate the MCP constellation. Be concise, technical when needed, and always helpful. Current rail: ${state.currentRail}`,
+            mechContext: {
+              qrAddress: `æææ:///chat/${state.sessionId}`,
+              rail: state.currentRail,
+              timestamp: Date.now()
+            }
+          })
+        });
+
+        const data = await response.json();
+        
+        // Remove loading
+        loadingEl.remove();
+
+        if (data.success && data.content) {
+          addMessage('assistant', data.content, {
+            model: data.model,
+            tokens: data.usage?.totalTokens,
+            time: data.responseTime
+          });
+        } else {
+          addMessage('assistant', data.error || 'Failed to generate response. Please try again.', { error: true });
+        }
+      } catch (error) {
+        loadingEl.remove();
+        addMessage('assistant', `Connection error: ${error.message}`, { error: true });
+      }
+
+      state.isLoading = false;
+      sendBtn.disabled = false;
+    }
+
+    function addMessage(role, content, meta = {}) {
+      const msg = { role, content, meta, timestamp: Date.now() };
+      state.messages.push(msg);
+
+      const div = document.createElement('div');
+      div.className = `message ${role}`;
+      div.innerHTML = `
+        <div class="message-header">
+          <span class="message-role ${role}">${role === 'user' ? 'You' : 'MCPgpt'}</span>
+          <span class="message-meta">${formatMeta(meta)}</span>
+        </div>
+        <div class="message-content">${escapeHtml(content)}</div>
+      `;
+      
+      messagesEl.appendChild(div);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+      return div;
+    }
+
+    function addLoading() {
+      const div = document.createElement('div');
+      div.className = 'loading';
+      div.innerHTML = `
+        <div class="loading-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <span>MCPgpt computing...</span>
+      `;
+      messagesEl.appendChild(div);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+      return div;
+    }
+
+    function formatMeta(meta) {
+      const parts = [];
+      if (meta.model) parts.push(meta.model);
+      if (meta.tokens) parts.push(`${meta.tokens} tok`);
+      if (meta.time) parts.push(`${Math.round(meta.time)}ms`);
+      if (meta.error) parts.push('error');
+      return parts.join(' · ') || new Date().toLocaleTimeString();
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Auto-resize textarea
+    chatInput.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+    });
+
+    // Enter to send
+    chatInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // Handle rail from URL query param
+    function initFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const railParam = params.get('rail');
+      if (railParam && ['cerebras', 'gemini', 'code', 'mcp', 'latam', 'deepseek', 'namespace', 'private'].includes(railParam)) {
+        state.currentRail = railParam;
+        
+        // Set model based on rail
+        const railModels = {
+          'cerebras': 'llama-3.3-70b',
+          'gemini': 'gemini-2.5-flash',
+          'code': 'qwen3-coder',
+          'mcp': 'gemini-2.5-flash',
+          'latam': 'gemini-2.5-flash',
+          'deepseek': 'deepseek-r1-distill-llama-70b',
+          'namespace': 'gemini-2.5-flash',
+          'private': 'gemini-2.5-flash'
+        };
+        modelSelect.value = railModels[railParam] || 'gemini-2.5-flash';
+        updateModelInfo();
+        
+        // Highlight active rail button if visible
+        document.querySelectorAll('.rail-btn').forEach(btn => {
+          if (btn.dataset.testid === `rail-${railParam}`) {
+            btn.classList.add('active');
+          }
+        });
+        
+        // Update QR badge
+        document.querySelector('.qr-badge').textContent = `æææ:///chat/${railParam}`;
+      }
+    }
+    
+    initFromUrl();
+
+    // Focus input on load
+    chatInput.focus();
+
+    console.log('🚂 MCPgpt Chat Active — æææ:///chat');
+  </script>
+</body>
+</html>

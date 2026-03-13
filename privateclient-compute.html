@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrivateClient.ai | Sovereign Compute</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0c;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-green: #10b981;
+            --glass: rgba(255, 255, 255, 0.03);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+
+        .protocol-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .protocol-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-pulse {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .column {
+            padding: 1.5rem;
+        }
+
+        .column-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .info-block {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 1rem;
+        }
+
+        .info-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .label-blue { color: var(--accent-blue); }
+        .label-purple { color: var(--accent-purple); }
+        .label-green { color: var(--accent-green); }
+
+        .info-title {
+            font-size: 0.95rem;
+            color: #fff;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-desc {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .compute-terminal {
+            background: #000;
+            border: 1px solid var(--accent-purple);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .terminal-header {
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .terminal-body {
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            min-height: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .terminal-line {
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .terminal-line.prompt { color: var(--accent-blue); }
+        .terminal-line.output { color: #94a3b8; }
+        .terminal-line.success { color: var(--accent-green); }
+        .terminal-line.error { color: #ef4444; }
+
+        .terminal-input-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.75rem 1rem;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .terminal-prompt-symbol {
+            color: var(--accent-purple);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .terminal-input::placeholder {
+            color: #475569;
+        }
+
+        .exec-btn {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border: none;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .exec-btn:hover { opacity: 0.9; }
+        .exec-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .security-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .security-section { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .security-guarantee {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .security-check {
+            color: var(--accent-purple);
+            flex-shrink: 0;
+        }
+
+        .complexity-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+
+        .complexity-item {
+            text-align: center;
+        }
+
+        .complexity-label {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-bottom: 0.25rem;
+        }
+
+        .complexity-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+        }
+
+        .complexity-value.bad { color: #ef4444; }
+        .complexity-value.good { color: var(--accent-green); }
+
+        .complexity-arrow {
+            font-size: 1.5rem;
+            color: #475569;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: #fff; }
+
+        .footer {
+            text-align: center;
+            color: #475569;
+            font-size: 0.8rem;
+            padding: 2rem 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/mech-os" class="back-link" data-testid="link-back-mech-os">← æææ:///mech-os</a>
+
+        <div class="glass-card protocol-header">
+            <div class="protocol-badge">æææ:///private.compute</div>
+            <div style="flex: 1;"></div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="status-pulse"></span>
+                <span class="mono" style="font-size: 0.8rem;" data-testid="status-indicator">SOVEREIGN • E2EE Ready</span>
+            </div>
+        </div>
+
+        <div style="padding: 2rem 1rem;">
+            <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;">
+                <span style="background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">PrivateClient.ai</span>
+            </h1>
+            <p style="color: #64748b; margin-bottom: 2rem;">Sovereign Compute Framework — If it can handle your private messages, it can handle your private compute.</p>
+
+            <div class="stats-grid">
+                <div class="glass-card stat-card">
+                    <div class="stat-value" data-testid="stat-executions" id="stat-executions">0</div>
+                    <div class="stat-label">Executions</div>
+                </div>
+                <div class="glass-card stat-card">
+                    <div class="stat-value" data-testid="stat-languages" id="stat-languages">4</div>
+                    <div class="stat-label">Languages</div>
+                </div>
+                <div class="glass-card stat-card">
+                    <div class="stat-value" data-testid="stat-latency" id="stat-latency">&lt;50ms</div>
+                    <div class="stat-label">Latency</div>
+                </div>
+                <div class="glass-card stat-card">
+                    <div class="stat-value" data-testid="stat-security">E2EE</div>
+                    <div class="stat-label">Security</div>
+                </div>
+            </div>
+
+            <div class="grid-3">
+                <div class="glass-card column" style="border-left: 4px solid var(--accent-blue);">
+                    <div class="column-header">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        ATmosphere Layer
+                    </div>
+                    <div class="info-block">
+                        <div class="info-label label-blue">PDS Interaction</div>
+                        <div class="info-title">chat.bsky.convo Lexicons</div>
+                        <div class="info-desc">DM → Terminal command mapping via AT Protocol</div>
+                    </div>
+                    <div class="info-block">
+                        <div class="info-label label-purple">E2EE Provider</div>
+                        <div class="info-title">Germ DM Bridge (MLS)</div>
+                        <div class="info-desc">KeyPackage advertised in DID records</div>
+                    </div>
+                    <div class="info-block">
+                        <div class="info-label label-green">Compute Bridge</div>
+                        <div class="info-title">SOVEREIGN Interpreter</div>
+                        <div class="info-desc">Natural language → Code execution</div>
+                    </div>
+                </div>
+
+                <div class="glass-card column" style="border-top: 4px solid var(--accent-purple);">
+                    <div class="column-header">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M13 7H7v6h6V7z"></path><path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5v10h10V5H5z" clip-rule="evenodd"></path></svg>
+                        MCP / Local AI
+                    </div>
+                    <div class="info-block" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.2);">
+                        <div class="info-label" style="color: #fff;">Execution Engine</div>
+                        <div class="mono" style="font-size: 0.85rem; color: #94a3b8;">SOVEREIGN Interpreter</div>
+                    </div>
+                    <div class="info-block" style="background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.2);">
+                        <div class="info-label" style="color: #fff;">Inference Provider</div>
+                        <div class="mono" style="font-size: 0.85rem; color: #94a3b8;">Gemini 2.0 Flash</div>
+                        <div class="info-desc" style="margin-top: 0.25rem;">2100 tok/s code generation</div>
+                    </div>
+                    <div class="info-block" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2);">
+                        <div class="info-label" style="color: #fff;">Sandboxed Runtime</div>
+                        <div class="mono" style="font-size: 0.85rem; color: #94a3b8;">JS • Python • Shell • MÆCH</div>
+                    </div>
+                </div>
+
+                <div class="glass-card column" style="border-right: 4px solid #6366f1;">
+                    <div class="column-header">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                        Compute Terminal
+                    </div>
+                    <div class="compute-terminal">
+                        <div class="terminal-header">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            æææ:///private.compute
+                        </div>
+                        <div class="terminal-body" id="terminal-output" data-testid="terminal-output">
+                            <div class="terminal-line output">SOVEREIGN Compute initialized</div>
+                            <div class="terminal-line output">Languages: javascript, python, shell, mech</div>
+                            <div class="terminal-line success">Ready for private compute...</div>
+                        </div>
+                        <div class="terminal-input-row">
+                            <span class="terminal-prompt-symbol">λ</span>
+                            <input type="text" class="terminal-input" id="compute-input" data-testid="input-compute" placeholder="Describe what you want to compute...">
+                            <button class="exec-btn" id="exec-btn" data-testid="button-execute">Execute</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="security-section">
+                <div class="glass-card column">
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">Cryptographic Foundation</h3>
+                    <div class="complexity-box">
+                        <div class="complexity-item">
+                            <div class="complexity-label">Traditional Cloud</div>
+                            <div class="complexity-value bad">O(n)</div>
+                        </div>
+                        <div class="complexity-arrow">→</div>
+                        <div class="complexity-item">
+                            <div class="complexity-label">PrivateClient.ai</div>
+                            <div class="complexity-value good">O(log n)</div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.8rem; color: #64748b; margin-top: 1rem; text-align: center;">
+                        TreeKEM-based key distribution for scalable private compute
+                    </p>
+                </div>
+
+                <div class="glass-card column" style="background: rgba(99, 102, 241, 0.05); border-color: rgba(99, 102, 241, 0.2);">
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">Security Guarantees</h3>
+                    <div class="security-guarantee">
+                        <span class="security-check">✓</span>
+                        <span><strong>Sovereign Execution:</strong> Code runs in isolated sandbox</span>
+                    </div>
+                    <div class="security-guarantee">
+                        <span class="security-check">✓</span>
+                        <span><strong>Zero-Knowledge PDS:</strong> Provider only sees encrypted prompts</span>
+                    </div>
+                    <div class="security-guarantee">
+                        <span class="security-check">✓</span>
+                        <span><strong>DID-Bound:</strong> Compute tied to sovereign identity</span>
+                    </div>
+                    <div class="security-guarantee">
+                        <span class="security-check">✓</span>
+                        <span><strong>Post-Compromise:</strong> Self-healing session state</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card column" style="margin-top: 1.5rem;">
+                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">MCP Tool Schema (compute.sovereign.*)</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                    <div class="info-block">
+                        <div class="info-label label-blue">interpret()</div>
+                        <div class="mono" style="font-size: 0.75rem; color: #64748b;">
+{
+  "name": "interpret",
+  "description": "NL → Code execution",
+  "inputSchema": {
+    "prompt": "string",
+    "language": "js|py|sh|mech"
+  }
+}</div>
+                    </div>
+                    <div class="info-block">
+                        <div class="info-label label-purple">execute()</div>
+                        <div class="mono" style="font-size: 0.75rem; color: #64748b;">
+{
+  "name": "execute",
+  "description": "Sandboxed code run",
+  "inputSchema": {
+    "code": "string",
+    "language": "string"
+  }
+}</div>
+                    </div>
+                    <div class="info-block">
+                        <div class="info-label label-green">history()</div>
+                        <div class="mono" style="font-size: 0.75rem; color: #64748b;">
+{
+  "name": "history",
+  "description": "Compute audit log",
+  "returns": [
+    { "id", "prompt", "result" }
+  ]
+}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Sovereign Compute: Your DM is your terminal. Your compute is yours.</p>
+            <p style="margin-top: 0.5rem;">æææ:///private.compute • Licensed under MIT • Built for the ATmosphere</p>
+        </div>
+    </div>
+
+    <script>
+        const terminalOutput = document.getElementById('terminal-output');
+        const computeInput = document.getElementById('compute-input');
+        const execBtn = document.getElementById('exec-btn');
+        const statExecutions = document.getElementById('stat-executions');
+
+        function addLine(text, type = 'output') {
+            const line = document.createElement('div');
+            line.className = `terminal-line ${type}`;
+            line.textContent = text;
+            terminalOutput.appendChild(line);
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+
+        async function executeCompute() {
+            const prompt = computeInput.value.trim();
+            if (!prompt) return;
+
+            execBtn.disabled = true;
+            addLine(`λ ${prompt}`, 'prompt');
+            computeInput.value = '';
+
+            try {
+                const response = await fetch('/api/interpret', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt, language: 'javascript' })
+                });
+
+                const result = await response.json();
+
+                if (result.code) {
+                    addLine(`Generated: ${result.code}`, 'output');
+                }
+
+                if (result.status === 'executed' && result.result) {
+                    addLine(`Result: ${result.result}`, 'success');
+                } else if (result.status === 'error') {
+                    addLine(`Error: ${result.error}`, 'error');
+                } else {
+                    addLine(result.explanation || 'Executed', 'success');
+                }
+
+                addLine(`Address: ${result.aeeAddress}`, 'output');
+
+            } catch (err) {
+                addLine(`Network error: ${err.message}`, 'error');
+            }
+
+            execBtn.disabled = false;
+            updateStats();
+        }
+
+        async function updateStats() {
+            try {
+                const response = await fetch('/api/interpret/stats');
+                const stats = await response.json();
+                statExecutions.textContent = stats.executions || 0;
+            } catch (err) {
+                console.log('Stats fetch failed');
+            }
+        }
+
+        execBtn.addEventListener('click', executeCompute);
+        computeInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') executeCompute();
+        });
+
+        updateStats();
+        setInterval(updateStats, 5000);
+    </script>
+</body>
+</html>

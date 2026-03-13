@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MÆCH App - React Replacement Demo</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Fira Code', monospace;
+            background: linear-gradient(135deg, #0a0a0a, #1a0033);
+            color: #00ffaa;
+        }
+        
+        .mech-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        .mech-cell {
+            border: 1px solid #00ffaa;
+            padding: 10px;
+            background: rgba(0, 255, 170, 0.1);
+        }
+        
+        .mech-block {
+            margin: 20px;
+            padding: 20px;
+            border: 2px solid #00ffaa;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.8);
+        }
+        
+        button {
+            background: #00ffaa;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: inherit;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #00ff55;
+        }
+        
+        input {
+            background: rgba(0, 255, 170, 0.1);
+            border: 1px solid #00ffaa;
+            color: #00ffaa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+    </style>
+</head>
+<body>
+    <div id="mech-root"></div>
+    
+    <!-- Load MÆCH Interpreter -->
+    <script src="mech-interpreter.js"></script>
+    
+    <!-- MÆCH Application Code (Replaces React Components) -->
+    <script type="text/mech" data-render="mech-root">
+#territory main
+sovereignty	true
+coordinates	x₀y₀z₀t₀
+
+#state
+counter	0
+userName	Guest
+todos	[]
+
+#component Header
+template	<header><h1>MÆCH Application - No React!</h1></header>
+style	background: linear-gradient(90deg, #001122, #002244); padding: 20px; border-bottom: 2px solid #00ffaa;
+
+#component Counter
+template	<div class="counter"><h2>Counter: <span>$counter</span></h2></div>
+style	text-align: center; font-size: 24px;
+
+#component TodoList  
+template	<div class="todos"><h3>Tasks</h3><ul id="todo-items"></ul></div>
+style	padding: 20px;
+
+#render
+Header	top
+Counter	middle
+TodoList	bottom
+    </script>
+    
+    <!-- Interactive MÆCH Code -->
+    <script>
+        // This demonstrates how MÆCH replaces React's functionality
+        
+        // Create reactive counter (like React's useState)
+        const counter = mech.state('counter', 0);
+        
+        // Create increment function (like React event handler)
+        window.incrementCounter = () => {
+            counter.value++;
+            updateDisplay();
+        };
+        
+        // Create todo functionality (like React component with state)
+        const todos = mech.state('todos', []);
+        
+        window.addTodo = () => {
+            const input = document.getElementById('todo-input');
+            if (input && input.value) {
+                todos.value = [...todos.value, {
+                    id: Date.now(),
+                    text: input.value,
+                    completed: false
+                }];
+                input.value = '';
+                updateTodos();
+            }
+        };
+        
+        // Update display (like React's re-render)
+        function updateDisplay() {
+            // Execute MÆCH code to update counter display
+            mech.exec(`
+#component CounterDisplay
+template	<div><h2>Interactive Counter: ${counter.value}</h2><button onclick="incrementCounter()">Increment</button></div>
+style	text-align: center; padding: 20px; background: rgba(0, 255, 170, 0.1); border-radius: 10px;
+            `).forEach(element => {
+                const container = document.getElementById('counter-container');
+                if (container) {
+                    container.innerHTML = '';
+                    if (element instanceof Node) {
+                        container.appendChild(element);
+                    }
+                }
+            });
+        }
+        
+        // Update todos (like React list rendering)
+        function updateTodos() {
+            const todoHtml = todos.value.map(todo => 
+                `<li style="color: ${todo.completed ? '#888' : '#00ffaa'}">
+                    ${todo.text}
+                    <button onclick="toggleTodo(${todo.id})">
+                        ${todo.completed ? 'Undo' : 'Complete'}
+                    </button>
+                </li>`
+            ).join('');
+            
+            const todoContainer = document.getElementById('todo-items');
+            if (todoContainer) {
+                todoContainer.innerHTML = todoHtml;
+            }
+        }
+        
+        window.toggleTodo = (id) => {
+            todos.value = todos.value.map(todo =>
+                todo.id === id ? { ...todo, completed: !todo.completed } : todo
+            );
+            updateTodos();
+        };
+        
+        // Initialize app (like React's initial render)
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add interactive components
+            const root = document.getElementById('mech-root');
+            
+            // Add counter container
+            const counterDiv = document.createElement('div');
+            counterDiv.id = 'counter-container';
+            counterDiv.className = 'mech-block';
+            root.appendChild(counterDiv);
+            
+            // Add todo input
+            const todoDiv = document.createElement('div');
+            todoDiv.className = 'mech-block';
+            todoDiv.innerHTML = `
+                <h3>Todo App (MÆCH Reactive)</h3>
+                <div>
+                    <input type="text" id="todo-input" placeholder="Enter task..." />
+                    <button onclick="addTodo()">Add Task</button>
+                </div>
+                <ul id="todo-items"></ul>
+            `;
+            root.appendChild(todoDiv);
+            
+            // Add MÆCH code editor
+            const editorDiv = document.createElement('div');
+            editorDiv.className = 'mech-block';
+            editorDiv.innerHTML = `
+                <h3>Live MÆCH Editor</h3>
+                <textarea id="mech-editor" style="width: 100%; height: 200px; background: #000; color: #00ffaa; border: 1px solid #00ffaa; padding: 10px; font-family: 'Fira Code', monospace;">
+#component LiveComponent
+template	<div><h4>Live Edited Component</h4><p>Edit the MÆCH code above!</p></div>
+style	padding: 20px; background: rgba(255, 0, 255, 0.1); border: 2px solid #ff00ff;
+                </textarea>
+                <button onclick="executeMechCode()">Execute MÆCH Code</button>
+                <div id="live-output"></div>
+            `;
+            root.appendChild(editorDiv);
+            
+            // Initialize displays
+            updateDisplay();
+            updateTodos();
+        });
+        
+        // Execute live MÆCH code
+        window.executeMechCode = () => {
+            const editor = document.getElementById('mech-editor');
+            const output = document.getElementById('live-output');
+            
+            if (editor && output) {
+                try {
+                    output.innerHTML = '';
+                    const results = mech.exec(editor.value);
+                    
+                    results.forEach(result => {
+                        if (result instanceof Node) {
+                            output.appendChild(result);
+                        }
+                    });
+                } catch (error) {
+                    output.innerHTML = `<div style="color: #ff5555;">Error: ${error.message}</div>`;
+                }
+            }
+        };
+        
+        // Demonstrate MÆCH routing (replaces React Router)
+        mech.route('/', 'HomePage');
+        mech.route('/about', 'AboutPage');
+        mech.route('/contact', 'ContactPage');
+        
+        // Show MÆCH capabilities in console
+        console.log('📊 MÆCH Demo App Loaded');
+        console.log('🔄 Reactive state management active');
+        console.log('🎯 Try incrementing the counter or adding todos');
+        console.log('📝 Edit the MÆCH code in the editor to see live updates');
+    </script>
+</body>
+</html>

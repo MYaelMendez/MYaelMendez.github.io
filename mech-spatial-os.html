@@ -1,0 +1,2454 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MÆCH Spatial OS - True 4D Operating System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background: #000;
+            overflow: hidden;
+            cursor: none;
+        }
+
+        #spatial-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Custom 3D Cursor */
+        .spatial-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00ffaa;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+            transition: all 0.1s;
+        }
+
+        .spatial-cursor::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 4px;
+            height: 4px;
+            background: #00ffaa;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Spatial HUD */
+        .spatial-hud {
+            position: fixed;
+            color: #00ffaa;
+            font-family: 'Fira Code', monospace;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .hud-coordinates {
+            top: 20px;
+            left: 20px;
+            font-size: 14px;
+            text-shadow: 0 0 10px rgba(0, 255, 170, 0.5);
+        }
+
+        .hud-depth {
+            top: 20px;
+            right: 20px;
+            font-size: 18px;
+            text-shadow: 0 0 10px rgba(0, 170, 255, 0.5);
+        }
+
+        .hud-territory {
+            bottom: 20px;
+            left: 20px;
+            font-size: 16px;
+            text-shadow: 0 0 10px rgba(255, 0, 170, 0.5);
+        }
+
+        /* Spatial Menu (floating in 3D space) */
+        .spatial-menu {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 500;
+            perspective: 1000px;
+        }
+
+        .spatial-btn {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 255, 170, 0.1);
+            border: 2px solid #00ffaa;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .spatial-btn:hover {
+            transform: translateZ(20px) rotateX(-10deg);
+            background: rgba(0, 255, 170, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 255, 170, 0.5);
+        }
+
+        .spatial-btn::before {
+            content: attr(data-label);
+            position: absolute;
+            bottom: -25px;
+            font-size: 10px;
+            color: #00ffaa;
+            white-space: nowrap;
+        }
+
+        /* Loading */
+        .loading-3d {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00ffaa;
+            font-size: 24px;
+            z-index: 10000;
+            animation: pulse3d 2s infinite;
+        }
+
+        @keyframes pulse3d {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1.1);
+                opacity: 0.7;
+            }
+        }
+
+        /* 📡 SPATIAL TELEPROMPTER CHASSIS STYLES */
+        #teleprompter-chassis {
+            position: fixed;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            max-width: 900px;
+            background: rgba(0, 20, 40, 0.4);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border: 2px solid rgba(0, 255, 170, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            color: #00ffaa;
+            text-align: center;
+            z-index: 800;
+            pointer-events: none;
+            box-shadow: 0 0 50px rgba(0, 255, 170, 0.1), inset 0 0 20px rgba(0, 255, 170, 0.05);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0.9;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .chassis-header {
+            font-size: 10px;
+            letter-spacing: 5px;
+            color: rgba(0, 255, 170, 0.5);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .chassis-content {
+            font-size: 32px;
+            font-weight: bold;
+            line-height: 1.4;
+            background: linear-gradient(135deg, #00ffaa, #00aaff, #ff00aa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 170, 0.3);
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chassis-footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: rgba(255, 170, 0, 0.7);
+            font-style: italic;
+        }
+
+        .chassis-glow {
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00ffaa, transparent, #ff00aa);
+            border-radius: 24px;
+            z-index: -1;
+            opacity: 0.3;
+            animation: chassis-border-glow 5s linear infinite;
+        }
+
+        @keyframes chassis-border-glow {
+            0% {
+                filter: hue-rotate(0deg);
+            }
+
+            100% {
+                filter: hue-rotate(360deg);
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/6.0.2/fabric.min.js"
+        integrity="sha512-S28wW7LHi8B7duLKUJz+1DGhJvVHzKZRKyOWQSdmq1VhEQNGjqp2CZj6QRmDHzEi+GYMvUjqYbdv9o3MksRgA=="
+        crossorigin="anonymous"></script>
+    <script>
+        // MÆCH Language Fabric.js Interpreter
+        class MechFabricInterpreter {
+            constructor() {
+                this.canvas = null;
+                this.context = null;
+                this.variables = new Map();
+                this.functions = new Map();
+                this.setupMechLanguage();
+                console.log('🎨 MÆCH-Fabric.js Interpreter initialized');
+            }
+
+            setupMechLanguage() {
+                // Define MÆCH visual programming commands
+                this.functions.set('DRAW', (args) => this.mechDraw(args));
+                this.functions.set('CIRCLE', (args) => this.mechCircle(args));
+                this.functions.set('RECT', (args) => this.mechRect(args));
+                this.functions.set('LINE', (args) => this.mechLine(args));
+                this.functions.set('TEXT', (args) => this.mechText(args));
+                this.functions.set('COLOR', (args) => this.mechColor(args));
+                this.functions.set('MOVE', (args) => this.mechMove(args));
+                this.functions.set('SCALE', (args) => this.mechScale(args));
+                this.functions.set('ROTATE', (args) => this.mechRotate(args));
+                this.functions.set('ANIMATE', (args) => this.mechAnimate(args));
+                this.functions.set('SPATIAL', (args) => this.mechSpatial(args));
+                this.functions.set('TERRITORY', (args) => this.mechTerritory(args));
+            }
+
+            setCanvas(fabricCanvas) {
+                this.canvas = fabricCanvas;
+                this.context = {
+                    currentX: 0,
+                    currentY: 0,
+                    currentColor: '#00ffaa',
+                    currentStroke: '#00ffaa',
+                    currentFill: '#00ffaa',
+                    currentWidth: 2,
+                    spatial: { x: 0, y: 0, z: 0, t: 0 }
+                };
+            }
+
+            // MÆCH Core Drawing Commands
+            mechDraw(args) {
+                if (!this.canvas) return null;
+                const [path] = args;
+
+                // Create path from MÆCH coordinates
+                const pathObj = new fabric.Path(path, {
+                    fill: this.context.currentFill,
+                    stroke: this.context.currentStroke,
+                    strokeWidth: this.context.currentWidth,
+                    left: this.context.currentX,
+                    top: this.context.currentY
+                });
+
+                this.canvas.add(pathObj);
+                return pathObj;
+            }
+
+            mechCircle(args) {
+                if (!this.canvas) return null;
+                const [radius, x = this.context.currentX, y = this.context.currentY] = args;
+
+                const circle = new fabric.Circle({
+                    radius: radius,
+                    fill: this.context.currentFill,
+                    stroke: this.context.currentStroke,
+                    strokeWidth: this.context.currentWidth,
+                    left: x,
+                    top: y,
+                    originX: 'center',
+                    originY: 'center'
+                });
+
+                this.canvas.add(circle);
+                this.context.currentX = x;
+                this.context.currentY = y;
+                return circle;
+            }
+
+            mechRect(args) {
+                if (!this.canvas) return null;
+                const [width, height, x = this.context.currentX, y = this.context.currentY] = args;
+
+                const rect = new fabric.Rect({
+                    width: width,
+                    height: height,
+                    fill: this.context.currentFill,
+                    stroke: this.context.currentStroke,
+                    strokeWidth: this.context.currentWidth,
+                    left: x,
+                    top: y
+                });
+
+                this.canvas.add(rect);
+                this.context.currentX = x;
+                this.context.currentY = y;
+                return rect;
+            }
+
+            mechLine(args) {
+                if (!this.canvas) return null;
+                const [x1, y1, x2, y2] = args;
+
+                const line = new fabric.Line([x1, y1, x2, y2], {
+                    stroke: this.context.currentStroke,
+                    strokeWidth: this.context.currentWidth,
+                    selectable: false
+                });
+
+                this.canvas.add(line);
+                this.context.currentX = x2;
+                this.context.currentY = y2;
+                return line;
+            }
+
+            mechText(args) {
+                if (!this.canvas) return null;
+                const [text, x = this.context.currentX, y = this.context.currentY] = args;
+
+                const textObj = new fabric.Text(text, {
+                    left: x,
+                    top: y,
+                    fill: this.context.currentFill,
+                    fontSize: 16,
+                    fontFamily: 'Courier New'
+                });
+
+                this.canvas.add(textObj);
+                this.context.currentX = x;
+                this.context.currentY = y;
+                return textObj;
+            }
+
+            mechColor(args) {
+                const [color] = args;
+                this.context.currentColor = color;
+                this.context.currentStroke = color;
+                this.context.currentFill = color;
+                console.log(`🎨 MÆCH Color set to: ${color}`);
+            }
+
+            mechMove(args) {
+                const [x, y] = args;
+                this.context.currentX = x;
+                this.context.currentY = y;
+                console.log(`📍 MÆCH Move to: (${x}, ${y})`);
+            }
+
+            mechSpatial(args) {
+                const [x, y, z, t] = args;
+                this.context.spatial = { x, y, z, t };
+                console.log(`🌌 MÆCH Spatial coordinates: (${x}, ${y}, ${z}, ${t})`);
+            }
+
+            mechTerritory(args) {
+                const [name] = args;
+                console.log(`🏴 MÆCH Territory: ${name}`);
+            }
+
+            mechScale(args) {
+                if (!this.canvas) return null;
+                const [scaleX, scaleY = scaleX] = args;
+                const activeObjects = this.canvas.getActiveObjects();
+
+                if (activeObjects.length > 0) {
+                    activeObjects.forEach(obj => {
+                        obj.scale(scaleX);
+                        if (scaleY !== scaleX) obj.scaleY = scaleY;
+                    });
+                    this.canvas.renderAll();
+                    console.log(`🔧 MÆCH Scale: ${scaleX}, ${scaleY}`);
+                    return activeObjects;
+                }
+                return null;
+            }
+
+            mechRotate(args) {
+                if (!this.canvas) return null;
+                const [angle] = args;
+                const activeObjects = this.canvas.getActiveObjects();
+
+                if (activeObjects.length > 0) {
+                    activeObjects.forEach(obj => {
+                        obj.rotate(angle);
+                    });
+                    this.canvas.renderAll();
+                    console.log(`🔄 MÆCH Rotate: ${angle}°`);
+                    return activeObjects;
+                }
+                return null;
+            }
+
+            mechAnimate(args) {
+                if (!this.canvas) return null;
+                const [property, value, duration = 1000] = args;
+                const activeObjects = this.canvas.getActiveObjects();
+
+                if (activeObjects.length > 0) {
+                    activeObjects.forEach(obj => {
+                        if (obj.animate) {
+                            obj.animate(property, value, {
+                                duration: duration,
+                                onChange: () => this.canvas.renderAll(),
+                                onComplete: () => console.log(`🎬 MÆCH Animation complete`)
+                            });
+                        }
+                    });
+                    console.log(`🎬 MÆCH Animate: ${property} to ${value} over ${duration}ms`);
+                    return activeObjects;
+                }
+                return null;
+            }
+
+            // MÆCH Code Parser
+            parseMechCode(code) {
+                const lines = code.split('\n').map(line => line.trim()).filter(line => line);
+                const results = [];
+
+                for (const line of lines) {
+                    try {
+                        const result = this.executeMechLine(line);
+                        results.push(result);
+                    } catch (error) {
+                        console.error(`❌ MÆCH Error in line: ${line}`, error);
+                        results.push({ error: error.message, line });
+                    }
+                }
+
+                if (this.canvas) {
+                    this.canvas.renderAll();
+                }
+
+                return results;
+            }
+
+            executeMechLine(line) {
+                // Parse MÆCH command
+                const parts = line.split(/\s+/);
+                const command = parts[0].toUpperCase();
+                const args = parts.slice(1).map(arg => {
+                    // Convert string arguments to appropriate types
+                    if (arg.startsWith('"') && arg.endsWith('"')) {
+                        return arg.slice(1, -1); // String literal
+                    } else if (arg.startsWith('#')) {
+                        return arg; // Color
+                    } else if (!isNaN(parseFloat(arg))) {
+                        return parseFloat(arg); // Number
+                    } else {
+                        return this.variables.get(arg) || arg; // Variable or literal
+                    }
+                });
+
+                // Execute MÆCH function
+                const func = this.functions.get(command);
+                if (func) {
+                    const result = func(args);
+                    console.log(`⚡ MÆCH executed: ${command}(${args.join(', ')})`);
+                    return { command, args, result };
+                } else {
+                    throw new Error(`Unknown MÆCH command: ${command}`);
+                }
+            }
+
+            // Visual MÆCH Program Examples
+            getExamplePrograms() {
+                return {
+                    'Hello MÆCH': `
+                        COLOR #00ffaa
+                        TEXT "Hello MÆCH World!" 100 100
+                        CIRCLE 50 200 200
+                    `,
+                    'Spatial Drawing': `
+                        SPATIAL 0 0 0 0
+                        COLOR #ff00aa
+                        RECT 100 50 50 50
+                        MOVE 200 100
+                        CIRCLE 30
+                        LINE 50 50 250 150
+                    `,
+                    'Territory Map': `
+                        TERRITORY "MÆCH-Zone-Alpha"
+                        COLOR #00aaff
+                        CIRCLE 40 100 100
+                        COLOR #ffaa00
+                        CIRCLE 40 200 100
+                        COLOR #aa00ff
+                        CIRCLE 40 150 150
+                        TEXT "MÆCH Territories" 50 250
+                    `
+                };
+            }
+        }
+
+        // Global MÆCH interpreter instance
+        window.mechInterpreter = new MechFabricInterpreter();
+
+        // 📡 MÆCH SPATIAL TELEPROMPTER CHASSIS
+        class TeleprompterChassis {
+            constructor() {
+                this.element = document.getElementById('teleprompter-chassis');
+                this.content = document.getElementById('chassis-content');
+                this.footer = document.getElementById('chassis-footer');
+                this.state = {
+                    currentPrompt: "CONNECTING TO CHASSIS SERVICE...",
+                    script: [],
+                    index: 0
+                };
+                this.startSync();
+            }
+
+            async updateState() {
+                try {
+                    const response = await fetch('/api/chassis/state');
+                    const newState = await response.json();
+
+                    if (newState.currentPrompt !== this.state.currentPrompt) {
+                        this.animateText(newState.currentPrompt);
+                    }
+                    this.state = newState;
+                    this.footer.textContent = `x₀y₀z₀ INDEX: ${this.state.index} • t: ${Math.round(Date.now() / 1000)}`;
+                } catch (err) {
+                    console.error('Chassis sync failed', err);
+                }
+            }
+
+            animateText(text) {
+                this.content.style.opacity = 0;
+                this.content.style.transform = 'translateY(10px)';
+
+                setTimeout(() => {
+                    this.content.textContent = text;
+                    this.content.style.opacity = 1;
+                    this.content.style.transform = 'translateY(0)';
+                }, 300);
+            }
+
+            startSync() {
+                setInterval(() => this.updateState(), 3000);
+                this.updateState(); // Initial sync
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <!-- 3D Container -->
+    <div id="spatial-container"></div>
+
+    <!-- 📡 Teleprompter Chassis -->
+    <div id="teleprompter-chassis">
+        <div class="chassis-glow"></div>
+        <div class="chassis-header">MÆCH SPATIAL CHASSIS :: v4.1</div>
+        <div class="chassis-content" id="chassis-content">INITIALIZING...</div>
+        <div class="chassis-footer" id="chassis-footer">Searching for x₀y₀z₀ coordinate focus...</div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="spatial-cursor" id="spatialCursor"></div>
+
+    <!-- Spatial HUD -->
+    <div class="spatial-hud hud-coordinates" id="hudCoords">
+        X: <span id="coordX">0</span> |
+        Y: <span id="coordY">0</span> |
+        Z: <span id="coordZ">0</span> |
+        T: <span id="coordT">0</span>
+    </div>
+
+    <div class="spatial-hud hud-depth" id="hudDepth">
+        Depth: <span id="depthValue">0</span>m
+    </div>
+
+    <div class="spatial-hud hud-territory" id="hudTerritory">
+        Territory: <span id="territoryName">x₀y₀z₀t₀</span>
+    </div>
+
+    <!-- Spatial Menu -->
+    <div class="spatial-menu">
+        <div class="spatial-btn" data-label="Navigate" onclick="spatialOS.toggleNavigate()">🧭</div>
+        <div class="spatial-btn" data-label="Create" onclick="spatialOS.createObject()">➕</div>
+        <div class="spatial-btn" data-label="Terminal" onclick="spatialOS.openTerminal()">💻</div>
+        <div class="spatial-btn" data-label="Layers" onclick="spatialOS.toggleLayers()">📚</div>
+        <div class="spatial-btn" data-label="Time" onclick="spatialOS.toggleTime()">⏰</div>
+        <div class="spatial-btn" data-label="GraphRAG" onclick="spatialOS.toggleGraphRAG()">🧠</div>
+        <div class="spatial-btn" data-label="Draw" onclick="spatialOS.toggleHandDrawing()">✍️</div>
+        <div class="spatial-btn" data-label="MÆCH" onclick="spatialOS.toggleMechInterpreter()">🎯</div>
+    </div>
+
+    <!-- GraphRAG Query Interface -->
+    <div id="graphrag-panel" style="
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.9);
+        border: 2px solid #00ffaa;
+        border-radius: 15px;
+        padding: 20px;
+        display: none;
+        z-index: 1000;
+        backdrop-filter: blur(15px);
+        width: 500px;
+    ">
+        <h3 style="color: #00ffaa; margin: 0 0 15px 0; text-align: center;">🧠 GraphRAG Knowledge Query</h3>
+        <input type="text" id="knowledge-query"
+            placeholder="Query GraphRAG servers: neural, revolutionary, asymptotic..." style="
+                width: 100%;
+                background: rgba(0,0,0,0.8);
+                border: 2px solid #00ffaa;
+                color: #00ffaa;
+                padding: 12px;
+                border-radius: 8px;
+                font-family: 'Courier New', monospace;
+                font-size: 14px;
+                margin-bottom: 15px;
+            " />
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <button onclick="spatialOS.performKnowledgeQuery()" style="
+                background: rgba(0,255,170,0.2);
+                border: 2px solid #00ffaa;
+                color: #00ffaa;
+                padding: 10px 20px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-family: 'Courier New', monospace;
+                transition: all 0.3s;
+            ">🔍 Query</button>
+            <button onclick="spatialOS.closeGraphRAG()" style="
+                background: rgba(255,0,0,0.2);
+                border: 2px solid #ff4444;
+                color: #ff4444;
+                padding: 10px 20px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-family: 'Courier New', monospace;
+                transition: all 0.3s;
+            ">❌ Close</button>
+        </div>
+        <div id="query-results" style="
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        "></div>
+    </div>
+
+    <!-- MÆCH 4D Hand-Drawing Interface -->
+    <div id="drawing-panel" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.1);
+        display: none;
+        z-index: 400;
+        backdrop-filter: blur(2px);
+        pointer-events: none;
+    ">
+        <div style="
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.9);
+            border: 2px solid #00ffaa;
+            border-radius: 15px;
+            padding: 15px;
+            color: #00ffaa;
+            font-family: 'Courier New', monospace;
+            pointer-events: auto;
+        ">
+            <h3 style="margin: 0 0 10px 0;">✍️ MÆCH 4D Hand-Drawing</h3>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <button onclick="spatialOS.setDrawingMode('pen')" id="pen-btn" style="
+                    background: rgba(0,255,170,0.3);
+                    border: 2px solid #00ffaa;
+                    color: #00ffaa;
+                    padding: 8px 15px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                ">✏️ Pen</button>
+                <button onclick="spatialOS.setDrawingMode('spatial')" id="spatial-btn" style="
+                    background: rgba(0,0,0,0.3);
+                    border: 2px solid #00ffaa;
+                    color: #00ffaa;
+                    padding: 8px 15px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                ">🌌 Spatial</button>
+                <button onclick="spatialOS.setDrawingMode('erase')" id="erase-btn" style="
+                    background: rgba(0,0,0,0.3);
+                    border: 2px solid #ff4444;
+                    color: #ff4444;
+                    padding: 8px 15px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                ">🗑️ Erase</button>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <label>Time Slice: <span id="time-slice-value">0.0</span></label><br>
+                <input type="range" id="time-slice-slider" min="0" max="10" step="0.1" value="0"
+                    style="width: 200px;" />
+            </div>
+            <div>
+                <button onclick="spatialOS.clearDrawing()" style="
+                    background: rgba(255,0,0,0.2);
+                    border: 2px solid #ff4444;
+                    color: #ff4444;
+                    padding: 8px 15px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                ">🗑️ Clear All</button>
+                <button onclick="spatialOS.toggleHandDrawing()" style="
+                    background: rgba(255,170,0,0.2);
+                    border: 2px solid #ffaa00;
+                    color: #ffaa00;
+                    padding: 8px 15px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                ">❌ Close</button>
+            </div>
+        </div>
+
+        <!-- 4D Drawing Canvas Overlay -->
+        <canvas id="drawing-canvas" style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: auto;
+        " onmousedown="event.stopPropagation();" onmousemove="event.stopPropagation();"
+            ontouchstart="event.stopPropagation();"></canvas>
+    </div>
+
+    <!-- MÆCH Code Interpreter Panel -->
+    <div id="mech-interpreter-panel" style="
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 400px;
+        height: 500px;
+        background: rgba(0,0,0,0.95);
+        border: 2px solid #00ffaa;
+        border-radius: 15px;
+        padding: 15px;
+        color: #00ffaa;
+        font-family: 'Courier New', monospace;
+        display: none;
+        z-index: 450;
+        pointer-events: auto;
+        backdrop-filter: blur(5px);
+    ">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h3 style="margin: 0; color: #00ffaa;">🎯 MÆCH Code Interpreter</h3>
+            <button onclick="spatialOS.toggleMechInterpreter()" style="
+                background: rgba(255,0,0,0.7); color: white; border: none; 
+                border-radius: 50%; width: 25px; height: 25px; cursor: pointer;
+                font-size: 12px; line-height: 1;
+            ">×</button>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <label style="font-size: 12px;">Example Programs:</label>
+            <select id="mech-examples" onchange="spatialOS.loadMechExample()" style="
+                width: 100%; background: rgba(0,255,170,0.1); border: 1px solid #00ffaa;
+                color: #00ffaa; padding: 5px; border-radius: 5px; font-family: inherit;
+            ">
+                <option value="">Select an example...</option>
+                <option value="hello">Hello MÆCH</option>
+                <option value="spatial">Spatial Drawing</option>
+                <option value="territory">Territory Map</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <label style="font-size: 12px;">MÆCH Code:</label>
+            <textarea id="mech-code-editor" style="
+                width: 100%; height: 200px; 
+                background: rgba(0,0,0,0.8); border: 1px solid #00ffaa;
+                color: #00ffaa; padding: 10px; border-radius: 5px;
+                font-family: 'Courier New', monospace; font-size: 12px;
+                resize: vertical;
+            " placeholder="# MÆCH Visual Programming Language
+# Example:
+COLOR #00ffaa
+TEXT &quot;Hello World&quot; 100 100  
+CIRCLE 50 200 200
+RECT 100 50 50 150"></textarea>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <button onclick="spatialOS.executeMechCode()" style="
+                flex: 1; background: rgba(0,255,170,0.2); border: 1px solid #00ffaa;
+                color: #00ffaa; padding: 8px; border-radius: 5px; cursor: pointer;
+                font-family: inherit;
+            ">▶ Execute</button>
+            <button onclick="spatialOS.clearMechCanvas()" style="
+                background: rgba(255,100,100,0.2); border: 1px solid #ff6464;
+                color: #ff6464; padding: 8px; border-radius: 5px; cursor: pointer;
+                font-family: inherit;
+            ">🗑️ Clear</button>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <label style="font-size: 12px;">Output Console:</label>
+            <div id="mech-console" style="
+                height: 120px; background: rgba(0,0,0,0.5); border: 1px solid #555;
+                color: #aaa; padding: 8px; border-radius: 5px; overflow-y: auto;
+                font-size: 11px; line-height: 1.3;
+            ">Ready to execute MÆCH code...</div>
+        </div>
+
+        <div style="font-size: 11px; opacity: 0.7;">
+            <strong>Commands:</strong> COLOR, CIRCLE, RECT, LINE, TEXT, MOVE, SPATIAL, TERRITORY
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-3d" id="loading3D">Initializing Spatial OS...</div>
+
+    <script>
+        // MÆCH Spatial OS - True 3D/4D Operating System
+        class MechSpatialOS {
+            constructor() {
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.territories = [];
+                this.objects = [];
+                this.currentTerritory = { x: 0, y: 0, z: 0, t: 0 };
+                this.timeSlice = 0;
+                this.navigationMode = 'fly';
+                this.selectedObject = null;
+
+                // 4D-specific with asymptotic evolution
+                this.dimensions = 4;
+                this.wCoordinate = 0; // 4th dimension
+
+                // 🧠 ROBOTIC COGNITION SYSTEM + GRAPHRAG INTEGRATION
+                this.cognitiveState = {
+                    thoughtIntensity: 1.0,
+                    processingSpeed: 1.0,
+                    memoryDepth: 1.0,
+                    learningRate: 0.01,
+                    synapticStrength: 1.0,
+                    neuralActivity: new Array(12000).fill(0), // Match particle count
+                    knowledgeGraphDensity: 0.0,
+                    semanticConnections: 0,
+                    entityRelations: 0,
+                    graphRAGEvolution: 1.0
+                };
+
+                // Asymptotic improvement factors + GraphRAG
+                this.evolutionCycles = 0;
+                this.asymptoteTarget = 10.0;
+                this.improvementFactor = 1.0;
+                this.knowledgeEvolutionRate = 0.01;
+
+                // GraphRAG 4D Integration
+                this.graphRAGServers = this.initializeGraphRAGServers();
+                this.knowledgeGraph = new Map();
+                this.entityRelations = new Map();
+                this.semanticEmbeddings = new Map();
+                this.cognitiveParticles = null;
+
+                // 🎨 MÆCH 4D Hand-Drawing System
+                this.drawingCanvas = null;
+                this.fabricCanvas = null;
+                this.drawingMode = 'pen';
+                this.isDrawingActive = false;
+                this.currentTimeSlice = 0;
+                this.drawingLayers = new Map(); // Store drawings per time slice
+                this.spatialDrawings = new Map(); // Store 3D spatial drawings
+                this.drawingEvolution = 1.0;
+
+                // Initialize Teleprompter Chassis
+                this.chassis = null;
+
+                this.init();
+            }
+
+            init() {
+                try {
+                    // Check WebGL support first
+                    if (!this.checkWebGLSupport()) {
+                        this.initFallbackMode();
+                        return;
+                    }
+
+                    // Boot the Chassis
+                    this.chassis = new TeleprompterChassis();
+
+                    // Initialize Three.js
+                    this.scene = new THREE.Scene();
+                    this.scene.fog = new THREE.FogExp2(0x000011, 0.002);
+
+                    // Camera with perspective
+                    this.camera = new THREE.PerspectiveCamera(
+                        75,
+                        window.innerWidth / window.innerHeight,
+                        0.1,
+                        10000
+                    );
+                    this.camera.position.set(0, 50, 200);
+
+                    // Renderer with WebGL context error handling
+                    this.renderer = new THREE.WebGLRenderer({
+                        antialias: true,
+                        alpha: true,
+                        failIfMajorPerformanceCaveat: false
+                    });
+
+                    // Check if renderer creation was successful
+                    if (!this.renderer || !this.renderer.domElement) {
+                        throw new Error('Failed to create WebGL renderer');
+                    }
+
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                    this.renderer.setPixelRatio(window.devicePixelRatio);
+                    this.renderer.shadowMap.enabled = true;
+                    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+                    const container = document.getElementById('spatial-container');
+                    container.appendChild(this.renderer.domElement);
+
+                    // Lighting
+                    this.setupLighting();
+
+                    // Create spatial environment
+                    this.createSpatialEnvironment();
+
+                    // Create territories
+                    this.createTerritories();
+
+                    // Initialize 4D drawing system
+                    this.initializeDrawingSystem();
+
+                    // Setup controls
+                    this.setupControls();
+
+                    // Start animation
+                    this.animate();
+
+                    // Hide loading
+                    setTimeout(() => {
+                        document.getElementById('loading3D').style.display = 'none';
+                    }, 2000);
+
+                } catch (error) {
+                    console.error('WebGL initialization failed:', error);
+                    this.initFallbackMode();
+                }
+            }
+
+            checkWebGLSupport() {
+                try {
+                    const canvas = document.createElement('canvas');
+                    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                    return gl !== null;
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            initFallbackMode() {
+                console.log('🌌 Initializing Spatial OS in Fallback Mode (No WebGL)');
+
+                const container = document.getElementById('spatial-container');
+                container.innerHTML = `
+                    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; color: #00ffaa; text-align: center;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🌌</div>
+                        <h2 style="font-size: 24px; margin-bottom: 10px;">MÆCH Spatial OS</h2>
+                        <p style="font-size: 16px; margin-bottom: 20px;">Flagship 4D Operating System</p>
+                        <p style="font-size: 14px; color: rgba(0,255,170,0.7); margin-bottom: 30px;">
+                            WebGL not available. Running in 2D compatibility mode.
+                        </p>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; max-width: 800px;">
+                            <div style="border: 1px solid #00ffaa; padding: 20px; border-radius: 10px; cursor: pointer;" onclick="this.style.background='rgba(0,255,170,0.1)'">
+                                <div style="font-size: 24px; margin-bottom: 10px;">🧭</div>
+                                <h3>Navigate</h3>
+                                <p style="font-size: 12px; color: rgba(0,255,170,0.7);">4D Navigation System</p>
+                            </div>
+                            <div style="border: 1px solid #00ffaa; padding: 20px; border-radius: 10px; cursor: pointer;" onclick="this.style.background='rgba(0,255,170,0.1)'">
+                                <div style="font-size: 24px; margin-bottom: 10px;">➕</div>
+                                <h3>Create</h3>
+                                <p style="font-size: 12px; color: rgba(0,255,170,0.7);">Object Creation</p>
+                            </div>
+                            <div style="border: 1px solid #00ffaa; padding: 20px; border-radius: 10px; cursor: pointer;" onclick="this.style.background='rgba(0,255,170,0.1)'">
+                                <div style="font-size: 24px; margin-bottom: 10px;">💻</div>
+                                <h3>Terminal</h3>
+                                <p style="font-size: 12px; color: rgba(0,255,170,0.7);">3D Terminal</p>
+                            </div>
+                            <div style="border: 1px solid #00ffaa; padding: 20px; border-radius: 10px; cursor: pointer;" onclick="this.style.background='rgba(0,255,170,0.1)'">
+                                <div style="font-size: 24px; margin-bottom: 10px;">⏰</div>
+                                <h3>Time</h3>
+                                <p style="font-size: 12px; color: rgba(0,255,170,0.7);">Temporal Navigation</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Update HUD with fallback data
+                this.updateHUDFallback();
+
+                // Hide loading
+                setTimeout(() => {
+                    document.getElementById('loading3D').style.display = 'none';
+                }, 1000);
+            }
+
+            updateHUDFallback() {
+                // Simulate coordinate updates for fallback mode
+                setInterval(() => {
+                    document.getElementById('coordX').textContent = Math.floor(Math.random() * 1000);
+                    document.getElementById('coordY').textContent = Math.floor(Math.random() * 500);
+                    document.getElementById('coordZ').textContent = Math.floor(Math.random() * 800);
+                    document.getElementById('coordT').textContent = (Math.random() * 10).toFixed(1);
+                    document.getElementById('depthValue').textContent = Math.floor(Math.random() * 2000);
+
+                    const territories = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon'];
+                    const territory = territories[Math.floor(Math.random() * territories.length)];
+                    document.getElementById('territoryName').textContent = `Territory_${territory}`;
+                }, 2000);
+            }
+
+            setupLighting() {
+                // Ambient light
+                const ambientLight = new THREE.AmbientLight(0x0066ff, 0.2);
+                this.scene.add(ambientLight);
+
+                // Directional light (sun)
+                const directionalLight = new THREE.DirectionalLight(0x00ffaa, 0.8);
+                directionalLight.position.set(100, 200, 100);
+                directionalLight.castShadow = true;
+                directionalLight.shadow.camera.left = -500;
+                directionalLight.shadow.camera.right = 500;
+                directionalLight.shadow.camera.top = 500;
+                directionalLight.shadow.camera.bottom = -500;
+                this.scene.add(directionalLight);
+
+                // Point lights for atmosphere
+                const colors = [0x00ffaa, 0x00aaff, 0xff00aa];
+                for (let i = 0; i < 3; i++) {
+                    const pointLight = new THREE.PointLight(colors[i], 0.5, 200);
+                    pointLight.position.set(
+                        Math.random() * 400 - 200,
+                        Math.random() * 200,
+                        Math.random() * 400 - 200
+                    );
+                    this.scene.add(pointLight);
+                }
+            }
+
+            createSpatialEnvironment() {
+                // Create 3D grid (not 2D!)
+                const gridHelper = new THREE.GridHelper(1000, 50, 0x00ffaa, 0x003333);
+                this.scene.add(gridHelper);
+
+                // Create vertical grids for true 3D space
+                const verticalGrid1 = new THREE.GridHelper(1000, 50, 0x00aaff, 0x003366);
+                verticalGrid1.rotation.x = Math.PI / 2;
+                verticalGrid1.position.z = -500;
+                this.scene.add(verticalGrid1);
+
+                const verticalGrid2 = new THREE.GridHelper(1000, 50, 0xff00aa, 0x660033);
+                verticalGrid2.rotation.z = Math.PI / 2;
+                verticalGrid2.position.x = -500;
+                this.scene.add(verticalGrid2);
+
+                // Create COGNITIVE PARTICLES for robotic thought processing
+                const particleCount = 12000; // Asymptotic increase
+                const particles = new THREE.BufferGeometry();
+                const positions = new Float32Array(particleCount * 3);
+                const colors = new Float32Array(particleCount * 3);
+                const velocities = new Float32Array(particleCount * 3);
+                const thoughts = new Float32Array(particleCount); // Thought intensity
+
+                for (let i = 0; i < particleCount * 3; i += 3) {
+                    // Distribute cognitive particles in quantum thought space
+                    const r = Math.random() * 1500;
+                    const theta = Math.random() * Math.PI * 2;
+                    const phi = Math.random() * Math.PI;
+
+                    positions[i] = r * Math.sin(phi) * Math.cos(theta);
+                    positions[i + 1] = r * Math.sin(phi) * Math.sin(theta) + Math.random() * 800;
+                    positions[i + 2] = r * Math.cos(phi);
+
+                    // Velocity for thought propagation
+                    velocities[i] = (Math.random() - 0.5) * 2;
+                    velocities[i + 1] = (Math.random() - 0.5) * 1;
+                    velocities[i + 2] = (Math.random() - 0.5) * 2;
+
+                    // Thought intensity based on cognitive depth
+                    thoughts[i / 3] = Math.random();
+
+                    // Neural network coloring - thoughts have different frequencies
+                    const thoughtIntensity = thoughts[i / 3];
+                    const spatialInfluence = positions[i + 1] / 1500; // Height influence
+                    colors[i] = 0.2 + thoughtIntensity * 0.8; // Red - processing intensity
+                    colors[i + 1] = 0.6 + thoughtIntensity * 0.4 + spatialInfluence * 0.3; // Green - active thought 
+                    colors[i + 2] = 0.9 - thoughtIntensity * 0.3; // Blue - potential energy
+                }
+
+                particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                particles.setAttribute('velocity', new THREE.BufferAttribute(velocities, 3));
+                particles.setAttribute('thought', new THREE.BufferAttribute(thoughts, 1));
+
+                // Advanced cognitive particle material with neural glow
+                const particleMaterial = new THREE.PointsMaterial({
+                    size: 3, // Increased for better visibility
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 0.8,
+                    blending: THREE.AdditiveBlending,
+                    sizeAttenuation: true
+                });
+
+                const particleSystem = new THREE.Points(particles, particleMaterial);
+                particleSystem.userData = {
+                    type: 'cognitive-particles',
+                    thoughtFrequency: 0.1,
+                    propagationSpeed: 2.0,
+                    synapticStrength: 1.0
+                };
+
+                this.scene.add(particleSystem);
+                this.cognitiveParticles = particleSystem; // Store reference for updates
+            }
+
+            initializeGraphRAGServers() {
+                // 🌐 REVOLUTIONARY GRAPHRAG 4D SERVER MESH
+                return [
+                    {
+                        id: 'mech-genesis-core',
+                        name: 'MECH Genesis Core Server',
+                        x: 0, y: 0, z: 0, // Origin point
+                        intelligence: 99.9,
+                        graphrag_capabilities: ['Origin coordination', 'Universal QR addressing', 'Neural enhancement', 'Asymptotic optimization'],
+                        server_type: 'core',
+                        neural_enhancement: 99.9,
+                        mesh_connections: ['*'],
+                        cognitiveRadius: 300
+                    },
+                    {
+                        id: 'qwen3-mech-brain',
+                        name: 'Qwen3-MECH Brain Server',
+                        x: 400, y: -200, z: -300,
+                        intelligence: 99.1,
+                        graphrag_capabilities: ['Self-programming', 'Neural architecture', 'Autonomous synthesis', 'Context development'],
+                        server_type: 'intelligence',
+                        neural_enhancement: 99.1,
+                        mesh_connections: ['mech-genesis-core', 'qr-os-patterns', 'asymptotic-server'],
+                        cognitiveRadius: 250
+                    },
+                    {
+                        id: 'mech-revolutionary-server',
+                        name: 'MECH Revolutionary Server',
+                        x: -300, y: 350, z: -500,
+                        intelligence: 99.5,
+                        graphrag_capabilities: ['Boundary pushing', 'Impossible achievements', 'Paradigm shift', 'Revolutionary synthesis'],
+                        server_type: 'compute',
+                        neural_enhancement: 99.5,
+                        mesh_connections: ['mech-genesis-core', 'asymptotic-server'],
+                        cognitiveRadius: 280
+                    },
+                    {
+                        id: 'asymptotic-server',
+                        name: 'Asymptotic Evolution Server',
+                        x: -200, y: -300, z: -150,
+                        intelligence: 99.0,
+                        graphrag_capabilities: ['Continuous improvement', 'Elemental QR addressing', 'Temporal coordination', 'Global sync'],
+                        server_type: 'coordination',
+                        neural_enhancement: 99.0,
+                        mesh_connections: ['mech-genesis-core', 'mech-revolutionary-server', 'qwen3-mech-brain'],
+                        cognitiveRadius: 220
+                    }
+                ];
+            }
+
+            createTerritories() {
+                // Create 3D COGNITIVE TERRITORIES + GRAPHRAG SERVERS
+                const territorySize = 200;
+                const gap = 50;
+
+                // First create GraphRAG server territories
+                this.createGraphRAGTerritories();
+
+                for (let x = -2; x <= 2; x++) {
+                    for (let y = 0; y <= 2; y++) {
+                        for (let z = -2; z <= 2; z++) {
+                            // Create territorial cube
+                            const geometry = new THREE.BoxGeometry(
+                                territorySize,
+                                territorySize,
+                                territorySize
+                            );
+
+                            // Wireframe for visibility
+                            const edges = new THREE.EdgesGeometry(geometry);
+                            const lineMaterial = new THREE.LineBasicMaterial({
+                                color: new THREE.Color().setHSL(
+                                    (x + 2) / 4,
+                                    1,
+                                    0.5
+                                ),
+                                transparent: true,
+                                opacity: 0.3
+                            });
+                            const lineSegments = new THREE.LineSegments(edges, lineMaterial);
+
+                            lineSegments.position.set(
+                                x * (territorySize + gap),
+                                y * (territorySize + gap) + territorySize / 2,
+                                z * (territorySize + gap)
+                            );
+
+                            this.scene.add(lineSegments);
+
+                            // Create volumetric content inside territory
+                            this.createTerritorialContent(lineSegments.position, x, y, z);
+
+                            // Store territory
+                            this.territories.push({
+                                mesh: lineSegments,
+                                coords: { x, y, z, t: 0 },
+                                qr: `QR:X${x + 2}Y${y}Z${z + 2}T0`
+                            });
+                        }
+                    }
+                }
+            }
+
+            createGraphRAGTerritories() {
+                // 🧠🌐 CREATE GRAPHRAG SERVER TERRITORIES WITH COGNITIVE CONNECTIONS
+                this.graphRAGServers.forEach(server => {
+                    // Create server territory as a cognitive node
+                    const geometry = new THREE.SphereGeometry(server.cognitiveRadius, 16, 12);
+                    const edges = new THREE.EdgesGeometry(geometry);
+
+                    // Color based on server type and intelligence
+                    const hue = server.intelligence / 100 * 0.6; // Blue to cyan range
+                    const lineMaterial = new THREE.LineBasicMaterial({
+                        color: new THREE.Color().setHSL(hue, 1, 0.7),
+                        transparent: true,
+                        opacity: 0.4
+                    });
+
+                    const serverMesh = new THREE.LineSegments(edges, lineMaterial);
+                    serverMesh.position.set(server.x, server.y, server.z);
+
+                    // Add pulsing effect for cognitive activity
+                    serverMesh.userData = {
+                        type: 'graphrag-server',
+                        server: server,
+                        baseCognitiveRadius: server.cognitiveRadius,
+                        pulsePhase: Math.random() * Math.PI * 2,
+                        cognitiveActivity: server.intelligence / 100
+                    };
+
+                    this.scene.add(serverMesh);
+
+                    // Create server label
+                    this.createServerLabel(server, serverMesh.position);
+
+                    // Create cognitive connections to other servers
+                    this.createCognitiveConnections(server);
+                });
+            }
+
+            createServerLabel(server, position) {
+                // Create floating text label for GraphRAG server
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = 512;
+                canvas.height = 128;
+
+                context.fillStyle = '#000022';
+                context.fillRect(0, 0, canvas.width, canvas.height);
+
+                context.fillStyle = '#00ffff';
+                context.font = 'bold 32px Arial';
+                context.textAlign = 'center';
+                context.fillText(server.name, canvas.width / 2, 50);
+
+                context.fillStyle = '#ffff00';
+                context.font = '24px Arial';
+                context.fillText(`Intelligence: ${server.intelligence}%`, canvas.width / 2, 85);
+
+                const texture = new THREE.CanvasTexture(canvas);
+                const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
+                const sprite = new THREE.Sprite(spriteMaterial);
+
+                sprite.position.set(position.x, position.y + server.cognitiveRadius + 80, position.z);
+                sprite.scale.set(200, 50, 1);
+
+                this.scene.add(sprite);
+            }
+
+            createCognitiveConnections(server) {
+                // Create knowledge flow connections between GraphRAG servers
+                server.mesh_connections.forEach(targetId => {
+                    if (targetId === '*') return; // Skip universal connection indicator
+
+                    const targetServer = this.graphRAGServers.find(s => s.id === targetId);
+                    if (!targetServer) return;
+
+                    // Create flowing knowledge connection
+                    const points = [
+                        new THREE.Vector3(server.x, server.y, server.z),
+                        new THREE.Vector3(
+                            (server.x + targetServer.x) / 2,
+                            (server.y + targetServer.y) / 2 + 100,
+                            (server.z + targetServer.z) / 2
+                        ),
+                        new THREE.Vector3(targetServer.x, targetServer.y, targetServer.z)
+                    ];
+
+                    const curve = new THREE.CatmullRomCurve3(points);
+                    const geometry = new THREE.TubeGeometry(curve, 20, 2, 8, false);
+
+                    const material = new THREE.MeshBasicMaterial({
+                        color: 0x00ffaa,
+                        transparent: true,
+                        opacity: 0.3,
+                        wireframe: true
+                    });
+
+                    const connectionMesh = new THREE.Mesh(geometry, material);
+                    connectionMesh.userData = {
+                        type: 'cognitive-connection',
+                        source: server.id,
+                        target: targetId,
+                        knowledgeFlow: 0
+                    };
+
+                    this.scene.add(connectionMesh);
+                });
+            }
+
+            createTerritorialContent(position, x, y, z) {
+                // Create floating objects inside each territory
+                const objectCount = 5;
+
+                for (let i = 0; i < objectCount; i++) {
+                    const geometries = [
+                        new THREE.TetrahedronGeometry(10),
+                        new THREE.OctahedronGeometry(10),
+                        new THREE.IcosahedronGeometry(10),
+                        new THREE.SphereGeometry(10, 8, 6),
+                        new THREE.BoxGeometry(15, 15, 15)
+                    ];
+
+                    const geometry = geometries[Math.floor(Math.random() * geometries.length)];
+                    const material = new THREE.MeshPhongMaterial({
+                        color: new THREE.Color().setHSL(Math.random(), 1, 0.5),
+                        emissive: new THREE.Color().setHSL(Math.random(), 1, 0.2),
+                        emissiveIntensity: 0.5,
+                        transparent: true,
+                        opacity: 0.8,
+                        wireframe: Math.random() > 0.5
+                    });
+
+                    const mesh = new THREE.Mesh(geometry, material);
+                    mesh.position.set(
+                        position.x + (Math.random() - 0.5) * 150,
+                        position.y + (Math.random() - 0.5) * 150,
+                        position.z + (Math.random() - 0.5) * 150
+                    );
+
+                    mesh.userData = {
+                        type: 'territorial-object',
+                        territory: `x${x}y${y}z${z}t0`,
+                        rotationSpeed: {
+                            x: Math.random() * 0.01,
+                            y: Math.random() * 0.01,
+                            z: Math.random() * 0.01
+                        }
+                    };
+
+                    this.scene.add(mesh);
+                    this.objects.push(mesh);
+                }
+            }
+
+            setupControls() {
+                // Mouse movement
+                document.addEventListener('mousemove', (e) => {
+                    // Update cursor
+                    const cursor = document.getElementById('spatialCursor');
+                    cursor.style.left = e.clientX + 'px';
+                    cursor.style.top = e.clientY + 'px';
+
+                    // Camera look-around
+                    if (this.navigationMode === 'fly') {
+                        const x = (e.clientX / window.innerWidth) * 2 - 1;
+                        const y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+                        this.camera.rotation.y = -x * 0.5;
+                        this.camera.rotation.x = y * 0.3;
+                    }
+                });
+
+                // Keyboard controls for true 3D navigation
+                document.addEventListener('keydown', (e) => {
+                    const speed = 10;
+
+                    switch (e.key) {
+                        case 'w': // Forward (into screen)
+                            this.camera.position.z -= speed;
+                            break;
+                        case 's': // Backward
+                            this.camera.position.z += speed;
+                            break;
+                        case 'a': // Left
+                            this.camera.position.x -= speed;
+                            break;
+                        case 'd': // Right
+                            this.camera.position.x += speed;
+                            break;
+                        case 'q': // Up (true 3D!)
+                            this.camera.position.y += speed;
+                            break;
+                        case 'e': // Down
+                            this.camera.position.y -= speed;
+                            break;
+                        case 'r': // Rotate time (4th dimension)
+                            this.timeSlice += 0.1;
+                            this.updateTimeSlice();
+                            break;
+                        case 'f': // Reverse time
+                            this.timeSlice -= 0.1;
+                            this.updateTimeSlice();
+                            break;
+                    }
+
+                    this.updateHUD();
+                });
+
+                // Mouse wheel for zoom
+                document.addEventListener('wheel', (e) => {
+                    this.camera.position.z += e.deltaY * 0.5;
+                    this.updateHUD();
+                });
+
+                // Window resize
+                window.addEventListener('resize', () => {
+                    this.camera.aspect = window.innerWidth / window.innerHeight;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+            }
+
+            updateTimeSlice() {
+                // Rotate objects in 4D space
+                this.objects.forEach(obj => {
+                    // 4D rotation affects visibility and position
+                    const t = this.timeSlice;
+                    obj.material.opacity = 0.8 * Math.cos(t + obj.position.x * 0.01);
+                    obj.position.y += Math.sin(t) * 0.5;
+                });
+
+                document.getElementById('coordT').textContent = this.timeSlice.toFixed(1);
+            }
+
+            updateHUD() {
+                // Update coordinate display with cognitive enhancement
+                document.getElementById('coordX').textContent = Math.round(this.camera.position.x);
+                document.getElementById('coordY').textContent = Math.round(this.camera.position.y);
+                document.getElementById('coordZ').textContent = Math.round(this.camera.position.z);
+
+                // Calculate cognitive depth (enhanced with processing power)
+                const depth = Math.sqrt(
+                    this.camera.position.x ** 2 +
+                    this.camera.position.y ** 2 +
+                    this.camera.position.z ** 2
+                ) * this.cognitiveState.processingSpeed;
+                document.getElementById('depthValue').textContent = Math.round(depth);
+
+                // Update territory with cognitive evolution indicator
+                const tx = Math.floor((this.camera.position.x + 500) / 250);
+                const ty = Math.floor(this.camera.position.y / 250);
+                const tz = Math.floor((this.camera.position.z + 500) / 250);
+                const evolutionLevel = Math.floor(this.improvementFactor * 10) / 10;
+                const graphRAGLevel = Math.floor(this.cognitiveState.graphRAGEvolution * 10) / 10;
+                document.getElementById('territoryName').textContent = `x${tx}y${ty}z${tz}t${Math.round(this.timeSlice)} ∞${evolutionLevel} G${graphRAGLevel}`;
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+
+                // 🧠 ASYMPTOTIC COGNITIVE EVOLUTION
+                this.evolveCognition();
+
+                // Update cognitive particles (thought flow)
+                this.updateCognitiveParticles();
+
+                // Update GraphRAG servers with cognitive evolution
+                this.updateGraphRAGServers();
+
+                // Update drawing system with GraphRAG cognitive influence
+                this.updateDrawingWithGraphRAG();
+
+                // Rotate objects with cognitive influence
+                this.objects.forEach(obj => {
+                    if (obj.userData.rotationSpeed) {
+                        const cognitiveInfluence = this.cognitiveState.thoughtIntensity * 0.1;
+                        obj.rotation.x += obj.userData.rotationSpeed.x * cognitiveInfluence;
+                        obj.rotation.y += obj.userData.rotationSpeed.y * cognitiveInfluence;
+                        obj.rotation.z += obj.userData.rotationSpeed.z * cognitiveInfluence;
+
+                        // Pulse effect based on neural activity + GraphRAG evolution
+                        const pulse = Math.sin(Date.now() * 0.001) * 0.1 + 1.0;
+                        const graphRAGInfluence = this.cognitiveState.graphRAGEvolution * 0.1;
+                        obj.scale.setScalar(pulse * this.cognitiveState.processingSpeed * (1 + graphRAGInfluence));
+                    }
+                });
+
+                // 4D temporal navigation evolution
+                this.evolveTemporalNavigation();
+
+                // Render with cognitive enhancement
+                this.renderer.render(this.scene, this.camera);
+            }
+
+            evolveCognition() {
+                // Asymptotic improvement towards cognitive perfection
+                this.evolutionCycles += 1;
+
+                // Asymptotic formula: f(x) = target * (1 - e^(-rate * x))
+                const rate = 0.001;
+                const progress = 1 - Math.exp(-rate * this.evolutionCycles);
+
+                this.improvementFactor = 1.0 + (this.asymptoteTarget - 1.0) * progress;
+
+                // Update cognitive parameters asymptotically + GraphRAG evolution
+                this.cognitiveState.thoughtIntensity = Math.min(
+                    this.cognitiveState.thoughtIntensity * (1 + this.cognitiveState.learningRate),
+                    this.improvementFactor
+                );
+
+                this.cognitiveState.processingSpeed = Math.min(
+                    this.cognitiveState.processingSpeed * (1 + 0.005),
+                    this.improvementFactor * 1.2
+                );
+
+                this.cognitiveState.synapticStrength = Math.min(
+                    this.cognitiveState.synapticStrength * (1 + 0.003),
+                    this.improvementFactor * 0.8
+                );
+
+                // 🧠 GraphRAG Knowledge Evolution
+                this.cognitiveState.graphRAGEvolution = Math.min(
+                    this.cognitiveState.graphRAGEvolution * (1 + this.knowledgeEvolutionRate),
+                    this.improvementFactor * 1.5
+                );
+
+                // Evolve knowledge graph density
+                this.cognitiveState.knowledgeGraphDensity += this.cognitiveState.graphRAGEvolution * 0.001;
+                this.cognitiveState.semanticConnections += Math.floor(this.improvementFactor * 0.1);
+                this.cognitiveState.entityRelations += Math.floor(this.cognitiveState.graphRAGEvolution * 0.05);
+
+                // Neural activity evolution
+                for (let i = 0; i < this.cognitiveState.neuralActivity.length; i++) {
+                    this.cognitiveState.neuralActivity[i] += Math.sin(Date.now() * 0.001 + i * 0.1) * 0.01;
+                    this.cognitiveState.neuralActivity[i] = Math.max(0, Math.min(1, this.cognitiveState.neuralActivity[i]));
+                }
+            }
+
+            updateCognitiveParticles() {
+                if (!this.cognitiveParticles) return;
+
+                const positions = this.cognitiveParticles.geometry.attributes.position.array;
+                const colors = this.cognitiveParticles.geometry.attributes.color.array;
+                const velocities = this.cognitiveParticles.geometry.attributes.velocity.array;
+                const thoughts = this.cognitiveParticles.geometry.attributes.thought.array;
+
+                // Simulate thought propagation through particle system
+                for (let i = 0; i < positions.length; i += 3) {
+                    const particleIndex = i / 3;
+
+                    // Update position based on cognitive velocity
+                    positions[i] += velocities[i] * this.cognitiveState.processingSpeed;
+                    positions[i + 1] += velocities[i + 1] * this.cognitiveState.processingSpeed;
+                    positions[i + 2] += velocities[i + 2] * this.cognitiveState.processingSpeed;
+
+                    // Boundary wrapping (thoughts cycle through space)
+                    if (Math.abs(positions[i]) > 1500) velocities[i] *= -0.8;
+                    if (Math.abs(positions[i + 1]) > 1000) velocities[i + 1] *= -0.8;
+                    if (Math.abs(positions[i + 2]) > 1500) velocities[i + 2] *= -0.8;
+
+                    // Update thought intensity
+                    thoughts[particleIndex] += this.cognitiveState.neuralActivity[particleIndex] * 0.1;
+                    thoughts[particleIndex] = Math.sin(thoughts[particleIndex]) * 0.5 + 0.5;
+
+                    // Update colors based on evolved cognition
+                    const thoughtIntensity = thoughts[particleIndex];
+                    const evolutionInfluence = this.improvementFactor * 0.1;
+
+                    colors[i] = 0.2 + thoughtIntensity * 0.8 + evolutionInfluence; // Red - processing
+                    colors[i + 1] = 0.6 + thoughtIntensity * 0.4 + evolutionInfluence; // Green - active thought
+                    colors[i + 2] = 0.9 - thoughtIntensity * 0.3 + evolutionInfluence; // Blue - potential
+                }
+
+                // Mark attributes for update
+                this.cognitiveParticles.geometry.attributes.position.needsUpdate = true;
+                this.cognitiveParticles.geometry.attributes.color.needsUpdate = true;
+                this.cognitiveParticles.geometry.attributes.velocity.needsUpdate = true;
+                this.cognitiveParticles.geometry.attributes.thought.needsUpdate = true;
+            }
+
+            evolveTemporalNavigation() {
+                // Enhanced 4D navigation with cognitive evolution
+                const cognitiveTimeRate = this.cognitiveState.processingSpeed * 0.01;
+                this.timeSlice += cognitiveTimeRate;
+
+                // Update temporal coordinate display
+                document.getElementById('coordT').textContent = this.timeSlice.toFixed(2);
+
+                // Evolve territories temporally
+                this.territories.forEach(territory => {
+                    if (territory.mesh && territory.mesh.material) {
+                        const temporalPhase = this.timeSlice * 0.1 + territory.coords.x + territory.coords.z;
+                        territory.mesh.material.opacity = 0.3 + Math.sin(temporalPhase) * 0.2;
+                    }
+                });
+            }
+
+            updateGraphRAGServers() {
+                // 🧠🌐 Update GraphRAG server territories with cognitive evolution
+                this.scene.children.forEach(child => {
+                    if (child.userData.type === 'graphrag-server') {
+                        const server = child.userData.server;
+
+                        // Cognitive pulsing based on intelligence and evolution
+                        child.userData.pulsePhase += 0.02 * this.cognitiveState.processingSpeed;
+                        const pulseIntensity = Math.sin(child.userData.pulsePhase) * 0.3 + 1.0;
+                        const cognitiveScale = pulseIntensity * this.cognitiveState.graphRAGEvolution * 0.1;
+
+                        child.scale.setScalar(1 + cognitiveScale);
+
+                        // Update opacity based on cognitive activity
+                        if (child.material) {
+                            child.material.opacity = 0.4 + (server.intelligence / 100) * 0.4 * this.improvementFactor * 0.1;
+                        }
+
+                        // Evolve server intelligence asymptotically
+                        server.intelligence = Math.min(
+                            server.intelligence * (1 + 0.0001),
+                            99.99
+                        );
+                    } else if (child.userData.type === 'cognitive-connection') {
+                        // Update knowledge flow through connections
+                        child.userData.knowledgeFlow += this.cognitiveState.graphRAGEvolution * 0.01;
+                        if (child.material) {
+                            const flowIntensity = Math.sin(child.userData.knowledgeFlow) * 0.5 + 0.5;
+                            child.material.opacity = 0.3 + flowIntensity * 0.4;
+                        }
+                    }
+                });
+            }
+
+            queryKnowledgeGraph(query) {
+                // 🔍 4D Spatial Knowledge Query System
+                const results = [];
+                const queryTerms = query.toLowerCase().split(/\s+/);
+
+                // Search in GraphRAG servers
+                this.graphRAGServers.forEach(server => {
+                    let relevance = 0;
+
+                    // Check server capabilities
+                    server.graphrag_capabilities.forEach(capability => {
+                        if (queryTerms.some(term => capability.toLowerCase().includes(term))) {
+                            relevance += 0.8;
+                        }
+                    });
+
+                    // Check server name
+                    if (queryTerms.some(term => server.name.toLowerCase().includes(term))) {
+                        relevance += 0.6;
+                    }
+
+                    if (relevance > 0) {
+                        results.push({
+                            type: 'graphrag-server',
+                            server: server,
+                            relevance: relevance,
+                            coordinates: `(${server.x}, ${server.y}, ${server.z})`,
+                            distance: Math.sqrt(server.x ** 2 + server.y ** 2 + server.z ** 2)
+                        });
+                    }
+                });
+
+                return results.sort((a, b) => b.relevance - a.relevance);
+            }
+
+            navigateToKnowledgeNode(server) {
+                // 🚀 Navigate camera to GraphRAG server location
+                const targetPos = new THREE.Vector3(server.x, server.y, server.z);
+
+                // Smooth camera movement
+                const startPos = this.camera.position.clone();
+                const duration = 2000; // 2 seconds
+                const startTime = Date.now();
+
+                const animateNavigation = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+
+                    // Easing function for smooth movement
+                    const easedProgress = 1 - Math.pow(1 - progress, 3);
+
+                    this.camera.position.lerpVectors(startPos, targetPos, easedProgress);
+                    this.camera.position.add(new THREE.Vector3(0, 100, 100)); // Offset for better view
+                    this.camera.lookAt(targetPos);
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animateNavigation);
+                    }
+                };
+
+                animateNavigation();
+            }
+
+            // Interface methods
+            toggleNavigate() {
+                this.navigationMode = this.navigationMode === 'fly' ? 'walk' : 'fly';
+                console.log('Navigation mode:', this.navigationMode);
+            }
+
+            createObject() {
+                // Create new object at camera position
+                const geometry = new THREE.IcosahedronGeometry(20);
+                const material = new THREE.MeshPhongMaterial({
+                    color: 0x00ffaa,
+                    emissive: 0x00ff55,
+                    emissiveIntensity: 0.3
+                });
+
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.position.copy(this.camera.position);
+                mesh.position.z -= 100;
+
+                this.scene.add(mesh);
+                this.objects.push(mesh);
+            }
+
+            openTerminal() {
+                console.log('Opening 3D terminal...');
+                // Would open a 3D terminal floating in space
+            }
+
+            toggleLayers() {
+                // Show/hide dimensional layers
+                this.territories.forEach(t => {
+                    t.mesh.visible = !t.mesh.visible;
+                });
+            }
+
+            toggleTime() {
+                // Animate through time dimension
+                this.timeSlice += 0.1;
+                this.updateTimeSlice();
+            }
+
+            // 🎨 MÆCH 4D Hand-Drawing System Methods
+            initializeDrawingSystem() {
+                console.log('🎨 Initializing MÆCH 4D Hand-Drawing System...');
+
+                // Initialize drawing state
+                this.drawingLayers = new Map();
+                this.spatialDrawings = new Map();
+                this.isDrawingActive = false;
+                this.drawingMode = 'pen';
+                this.currentTimeSlice = 0.0;
+
+                // Get drawing canvas
+                this.drawingCanvas = document.getElementById('drawing-canvas');
+                if (!this.drawingCanvas) {
+                    console.warn('🚨 Drawing canvas not found');
+                    this.showDrawingError('Canvas element not found');
+                    return false;
+                }
+
+                // Check if Fabric.js is available
+                if (typeof fabric === 'undefined') {
+                    console.error('🚨 Fabric.js not loaded from CDN');
+                    this.showDrawingError('Fabric.js library not available');
+                    return false;
+                }
+
+                try {
+                    // Set canvas size
+                    this.resizeDrawingCanvas();
+
+                    // Initialize Fabric.js canvas
+                    this.fabricCanvas = new fabric.Canvas('drawing-canvas', {
+                        isDrawingMode: true,
+                        width: window.innerWidth,
+                        height: window.innerHeight,
+                        backgroundColor: 'transparent',
+                        selection: false
+                    });
+
+                    // Set initial drawing brush
+                    this.fabricCanvas.freeDrawingBrush = new fabric.PencilBrush(this.fabricCanvas);
+                    this.fabricCanvas.freeDrawingBrush.width = 3;
+                    this.fabricCanvas.freeDrawingBrush.color = '#00ffaa';
+                    this.fabricCanvas.freeDrawingBrush.shadowBlur = 5;
+                    this.fabricCanvas.freeDrawingBrush.shadowColor = '#00ffaa';
+
+                    // Setup drawing event handlers
+                    this.setupDrawingEventHandlers();
+
+                    // Setup time slice control
+                    this.setupTimeSliceControl();
+
+                    // Setup resize handler
+                    this.setupResizeHandler();
+
+                    console.log('✅ MÆCH 4D Drawing System initialized successfully!');
+                    return true;
+                } catch (error) {
+                    console.error('🚨 Failed to initialize Fabric.js:', error);
+                    this.showDrawingError('Failed to initialize drawing system: ' + error.message);
+                    return false;
+                }
+            }
+
+            showDrawingError(message) {
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = `
+                    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                    background: rgba(255,0,0,0.9); color: white; padding: 20px;
+                    border-radius: 10px; z-index: 9999; font-family: monospace;
+                    text-align: center; border: 2px solid #ff0000;
+                `;
+                errorDiv.innerHTML = `
+                    <h3>🚨 Drawing System Error</h3>
+                    <p>${message}</p>
+                    <p>Please refresh the page to retry</p>
+                    <button onclick="this.parentElement.remove()" style="
+                        background: #ff0000; color: white; border: none; 
+                        padding: 10px 20px; border-radius: 5px; cursor: pointer;
+                    ">Close</button>
+                `;
+                document.body.appendChild(errorDiv);
+
+                // Auto remove after 10 seconds
+                setTimeout(() => {
+                    if (errorDiv.parentElement) {
+                        errorDiv.remove();
+                    }
+                }, 10000);
+            }
+
+            resizeDrawingCanvas() {
+                if (this.drawingCanvas) {
+                    this.drawingCanvas.width = window.innerWidth;
+                    this.drawingCanvas.height = window.innerHeight;
+                }
+                if (this.fabricCanvas) {
+                    this.fabricCanvas.setDimensions({
+                        width: window.innerWidth,
+                        height: window.innerHeight
+                    });
+                }
+            }
+
+            setupResizeHandler() {
+                window.addEventListener('resize', () => {
+                    this.resizeDrawingCanvas();
+                });
+            }
+
+            setupDrawingEventHandlers() {
+                if (!this.fabricCanvas) return;
+
+                // Drawing start event
+                this.fabricCanvas.on('path:created', (event) => {
+                    const path = event.path;
+
+                    // Add 4D metadata to drawing
+                    path.set({
+                        timeSlice: this.currentTimeSlice,
+                        spatialCoords: {
+                            x: this.camera.position.x,
+                            y: this.camera.position.y,
+                            z: this.camera.position.z,
+                            t: this.timeSlice
+                        },
+                        cognitiveLevel: this.cognitiveState.thoughtIntensity,
+                        graphRAGInfluence: this.cognitiveState.graphRAGEvolution,
+                        drawingMode: this.drawingMode,
+                        timestamp: Date.now()
+                    });
+
+                    // Store in 4D layers
+                    this.storeDrawingIn4D(path);
+
+                    console.log(`🎨 New 4D drawing created at time slice ${this.currentTimeSlice}`);
+                });
+            }
+
+            setupTimeSliceControl() {
+                const slider = document.getElementById('time-slice-slider');
+                const valueDisplay = document.getElementById('time-slice-value');
+
+                if (slider && valueDisplay) {
+                    slider.addEventListener('input', (e) => {
+                        const newTimeSlice = parseFloat(e.target.value);
+                        this.switchTimeSlice(newTimeSlice);
+                        valueDisplay.textContent = newTimeSlice.toFixed(1);
+                    });
+                }
+            }
+
+            switchTimeSlice(newTimeSlice) {
+                if (!this.fabricCanvas) return;
+
+                // Save current time slice before switching
+                this.saveCurrentTimeSlice();
+
+                // Switch to new time slice
+                this.currentTimeSlice = newTimeSlice;
+
+                // Load drawings for new time slice
+                this.loadDrawingsForTimeSlice(newTimeSlice);
+
+                console.log(`⏰ Switched to time slice: ${newTimeSlice.toFixed(1)}`);
+            }
+
+            saveCurrentTimeSlice() {
+                if (!this.fabricCanvas || this.fabricCanvas.isEmpty()) return;
+
+                try {
+                    // Serialize current canvas to JSON
+                    const canvasJSON = this.fabricCanvas.toJSON(['timeSlice', 'spatialCoords', 'cognitiveLevel', 'graphRAGInfluence']);
+
+                    // Store in drawing layers
+                    this.drawingLayers.set(this.currentTimeSlice, {
+                        json: canvasJSON,
+                        timestamp: Date.now(),
+                        spatial: {
+                            x: this.camera.position.x,
+                            y: this.camera.position.y,
+                            z: this.camera.position.z
+                        }
+                    });
+
+                    console.log(`💾 Saved time slice ${this.currentTimeSlice.toFixed(1)} with ${canvasJSON.objects.length} objects`);
+                } catch (error) {
+                    console.error('Failed to save time slice:', error);
+                }
+            }
+
+            storeDrawingIn4D(path) {
+                const timeSlice = path.timeSlice || this.currentTimeSlice;
+
+                if (!this.drawingLayers.has(timeSlice)) {
+                    this.drawingLayers.set(timeSlice, []);
+                }
+
+                this.drawingLayers.get(timeSlice).push({
+                    path: path,
+                    serialized: JSON.stringify(path.toObject()),
+                    metadata: path.spatialCoords || {},
+                    cognitive: {
+                        level: path.cognitiveLevel || 1.0,
+                        graphRAG: path.graphRAGInfluence || 1.0
+                    }
+                });
+            }
+
+            loadDrawingsForTimeSlice(timeSlice) {
+                if (!this.fabricCanvas) return;
+
+                // Clear current canvas
+                this.fabricCanvas.clear();
+
+                // Load drawings for this time slice
+                const sliceData = this.drawingLayers.get(timeSlice);
+                if (sliceData && sliceData.json) {
+                    try {
+                        this.fabricCanvas.loadFromJSON(sliceData.json, () => {
+                            this.fabricCanvas.renderAll();
+                            console.log(`📥 Loaded time slice ${timeSlice.toFixed(1)} with ${this.fabricCanvas.getObjects().length} objects`);
+                        });
+                    } catch (error) {
+                        console.error('Failed to load time slice:', error);
+                    }
+                } else {
+                    console.log(`📄 Time slice ${timeSlice.toFixed(1)} is empty`);
+                }
+            }
+
+            toggleHandDrawing() {
+                const panel = document.getElementById('drawing-panel');
+                if (!panel) {
+                    console.warn('Drawing panel not found');
+                    return;
+                }
+
+                this.isDrawingActive = !this.isDrawingActive;
+                panel.style.display = this.isDrawingActive ? 'block' : 'none';
+
+                if (this.isDrawingActive) {
+                    // Initialize drawing system if not already done
+                    if (!this.fabricCanvas) {
+                        if (!this.initializeDrawingSystem()) {
+                            this.isDrawingActive = false;
+                            panel.style.display = 'none';
+                            return;
+                        }
+                    }
+
+                    // Enable drawing mode
+                    this.fabricCanvas.isDrawingMode = true;
+
+                    console.log('✍️ 4D Hand-Drawing Mode Activated');
+                    this.syncDrawingWithSpatialOS();
+                } else {
+                    // Save current work before deactivating
+                    this.saveCurrentTimeSlice();
+
+                    // Disable drawing mode
+                    if (this.fabricCanvas) {
+                        this.fabricCanvas.isDrawingMode = false;
+                    }
+
+                    console.log('❌ 4D Hand-Drawing Mode Deactivated');
+                }
+            }
+
+            setDrawingMode(mode) {
+                this.drawingMode = mode;
+
+                // Update button states
+                ['pen-btn', 'spatial-btn', 'erase-btn'].forEach(id => {
+                    const btn = document.getElementById(id);
+                    if (btn) {
+                        btn.style.background = 'rgba(0,0,0,0.3)';
+                    }
+                });
+
+                const activeBtn = document.getElementById(`${mode}-btn`);
+                if (activeBtn) {
+                    activeBtn.style.background = 'rgba(0,255,170,0.3)';
+                }
+
+                if (!this.fabricCanvas) {
+                    console.warn('Canvas not initialized, cannot set drawing mode');
+                    return;
+                }
+
+                switch (mode) {
+                    case 'pen':
+                        this.fabricCanvas.isDrawingMode = true;
+                        if (this.fabricCanvas.freeDrawingBrush) {
+                            this.fabricCanvas.freeDrawingBrush.color = '#00ffaa';
+                            this.fabricCanvas.freeDrawingBrush.width = 3;
+                            this.fabricCanvas.freeDrawingBrush.shadowColor = '#00ffaa';
+                            this.fabricCanvas.freeDrawingBrush.shadowBlur = 3;
+                        }
+                        break;
+                    case 'spatial':
+                        this.fabricCanvas.isDrawingMode = true;
+                        if (this.fabricCanvas.freeDrawingBrush) {
+                            this.fabricCanvas.freeDrawingBrush.color = '#ff00aa';
+                            this.fabricCanvas.freeDrawingBrush.width = 5;
+                            this.fabricCanvas.freeDrawingBrush.shadowColor = '#ff00aa';
+                            this.fabricCanvas.freeDrawingBrush.shadowBlur = 5;
+                        }
+                        break;
+                    case 'erase':
+                        this.fabricCanvas.isDrawingMode = false;
+                        this.fabricCanvas.selection = true;
+                        break;
+                }
+
+                // Sync with GraphRAG after mode change
+                this.updateDrawingWithGraphRAG();
+
+                console.log(`🎨 Drawing mode changed to: ${mode}`);
+            }
+
+            clearDrawing() {
+                if (!this.fabricCanvas) {
+                    console.warn('Canvas not initialized');
+                    return;
+                }
+
+                // Clear current canvas
+                this.fabricCanvas.clear();
+
+                // Clear current time slice from storage
+                this.drawingLayers.delete(this.currentTimeSlice);
+
+                console.log(`🗑️ Time slice ${this.currentTimeSlice.toFixed(1)} cleared`);
+            }
+
+            clearAllDrawings() {
+                if (this.fabricCanvas) {
+                    this.fabricCanvas.clear();
+                }
+                this.drawingLayers.clear();
+                this.spatialDrawings.clear();
+                console.log('🗑️ All 4D drawings cleared');
+            }
+
+            // 🎯 MÆCH Interpreter Integration Methods
+            toggleMechInterpreter() {
+                const panel = document.getElementById('mech-interpreter-panel');
+                if (!panel) {
+                    console.warn('MÆCH interpreter panel not found');
+                    return;
+                }
+
+                const isVisible = panel.style.display === 'block';
+                panel.style.display = isVisible ? 'none' : 'block';
+
+                if (!isVisible) {
+                    // Initialize MÆCH interpreter with current drawing canvas
+                    this.initializeMechInterpreter();
+                    console.log('🎯 MÆCH Code Interpreter Activated');
+                } else {
+                    console.log('❌ MÆCH Code Interpreter Deactivated');
+                }
+            }
+
+            initializeMechInterpreter() {
+                // Connect MÆCH interpreter to the drawing system
+                if (window.mechInterpreter) {
+                    // If drawing system isn't initialized, do it now
+                    if (!this.fabricCanvas) {
+                        const success = this.initializeDrawingSystem();
+                        if (!success) {
+                            this.logToMechConsole('❌ Failed to initialize drawing system');
+                            return;
+                        }
+                    }
+
+                    if (this.fabricCanvas) {
+                        window.mechInterpreter.setCanvas(this.fabricCanvas);
+                        this.logToMechConsole('✅ MÆCH Interpreter connected to Fabric.js canvas');
+                        this.logToMechConsole('🎯 Ready to execute MÆCH visual programs');
+                    } else {
+                        this.logToMechConsole('❌ Failed to initialize drawing canvas');
+                    }
+                } else {
+                    this.logToMechConsole('❌ MÆCH Interpreter not found');
+                }
+            }
+
+            loadMechExample() {
+                const select = document.getElementById('mech-examples');
+                const editor = document.getElementById('mech-code-editor');
+
+                if (!select || !editor || !window.mechInterpreter) return;
+
+                const examples = window.mechInterpreter.getExamplePrograms();
+                const exampleKey = select.value;
+
+                if (exampleKey && examples) {
+                    const exampleNames = {
+                        'hello': 'Hello MÆCH',
+                        'spatial': 'Spatial Drawing',
+                        'territory': 'Territory Map'
+                    };
+
+                    const exampleCode = examples[exampleNames[exampleKey]];
+                    if (exampleCode) {
+                        editor.value = exampleCode.trim();
+                        this.logToMechConsole(`📖 Loaded example: ${exampleNames[exampleKey]}`);
+                    }
+                }
+            }
+
+            executeMechCode() {
+                const editor = document.getElementById('mech-code-editor');
+                if (!editor || !window.mechInterpreter) {
+                    this.logToMechConsole('❌ Editor or interpreter not available');
+                    return;
+                }
+
+                const code = editor.value.trim();
+                if (!code) {
+                    this.logToMechConsole('⚠️ No code to execute');
+                    return;
+                }
+
+                this.logToMechConsole('🚀 Executing MÆCH code...');
+                this.logToMechConsole('────────────────────────');
+
+                try {
+                    const results = window.mechInterpreter.parseMechCode(code);
+
+                    let successCount = 0;
+                    let errorCount = 0;
+
+                    results.forEach(result => {
+                        if (result.error) {
+                            this.logToMechConsole(`❌ Error: ${result.error}`);
+                            this.logToMechConsole(`   Line: ${result.line}`);
+                            errorCount++;
+                        } else {
+                            this.logToMechConsole(`✅ ${result.command}(${result.args.join(', ')})`);
+                            successCount++;
+                        }
+                    });
+
+                    this.logToMechConsole('────────────────────────');
+                    this.logToMechConsole(`📊 Results: ${successCount} success, ${errorCount} errors`);
+
+                    // Sync with spatial coordinates if drawing was created
+                    if (this.fabricCanvas && this.fabricCanvas.getObjects().length > 0) {
+                        this.syncDrawingWithSpatialOS();
+                    }
+
+                } catch (error) {
+                    this.logToMechConsole(`💥 Critical Error: ${error.message}`);
+                }
+            }
+
+            clearMechCanvas() {
+                if (this.fabricCanvas) {
+                    this.fabricCanvas.clear();
+                    this.logToMechConsole('🗑️ Canvas cleared');
+                } else {
+                    this.logToMechConsole('⚠️ No canvas to clear');
+                }
+            }
+
+            logToMechConsole(message) {
+                const console = document.getElementById('mech-console');
+                if (console) {
+                    const timestamp = new Date().toLocaleTimeString();
+                    console.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+                    console.scrollTop = console.scrollHeight;
+                }
+            }
+
+            syncDrawingWithSpatialOS() {
+                // Sync drawing canvas with current 3D spatial position
+                if (this.fabricCanvas) {
+                    const spatial = {
+                        x: this.camera.position.x,
+                        y: this.camera.position.y,
+                        z: this.camera.position.z,
+                        t: this.timeSlice
+                    };
+
+                    // Update brush properties based on spatial position + GraphRAG influence
+                    const distanceFromOrigin = Math.sqrt(spatial.x ** 2 + spatial.y ** 2 + spatial.z ** 2);
+                    const baseBrushWidth = Math.max(2, Math.min(10, distanceFromOrigin / 50));
+                    const graphRAGInfluence = this.cognitiveState.graphRAGEvolution * 0.3;
+
+                    this.fabricCanvas.freeDrawingBrush.width = baseBrushWidth * (1 + graphRAGInfluence);
+
+                    console.log('🌌 Drawing synced with spatial coordinates:', spatial);
+                }
+            }
+
+            // 🧠🎨 GraphRAG Drawing Bridge Methods
+            updateDrawingWithGraphRAG() {
+                if (!this.fabricCanvas || !this.isDrawingActive) return;
+
+                // Get nearest GraphRAG server influence
+                const nearestServer = this.findNearestGraphRAGServer();
+                if (nearestServer) {
+                    // Influence brush properties with server intelligence
+                    const intelligenceInfluence = nearestServer.intelligence / 100;
+                    const distance = nearestServer.distance || 1000;
+                    const proximity = Math.max(0, 1 - (distance / 500)); // 500 unit influence radius
+
+                    // Dynamic brush properties based on GraphRAG proximity and intelligence
+                    const hue = (intelligenceInfluence * 0.6); // Blue to cyan spectrum
+                    const saturation = 0.8 + (proximity * 0.2);
+                    const lightness = 0.5 + (this.cognitiveState.thoughtIntensity * 0.3);
+
+                    // Convert HSL to hex for Fabric.js
+                    const brushColor = this.hslToHex(hue, saturation, lightness);
+
+                    if (this.fabricCanvas.freeDrawingBrush) {
+                        this.fabricCanvas.freeDrawingBrush.color = brushColor;
+                        this.fabricCanvas.freeDrawingBrush.shadowColor = brushColor;
+                        this.fabricCanvas.freeDrawingBrush.shadowBlur = 3 + (intelligenceInfluence * 7);
+
+                        // Opacity influenced by cognitive state
+                        const opacityInfluence = this.cognitiveState.graphRAGEvolution * 0.3 + 0.7;
+                        this.fabricCanvas.freeDrawingBrush.globalCompositeOperation = 'source-over';
+                    }
+
+                    console.log(`🧠🎨 Drawing influenced by ${nearestServer.server.name} - Intelligence: ${nearestServer.intelligence}%, Distance: ${distance.toFixed(1)}`);
+                }
+            }
+
+            findNearestGraphRAGServer() {
+                let nearest = null;
+                let minDistance = Infinity;
+
+                this.graphRAGServers.forEach(server => {
+                    const distance = Math.sqrt(
+                        Math.pow(this.camera.position.x - server.x, 2) +
+                        Math.pow(this.camera.position.y - server.y, 2) +
+                        Math.pow(this.camera.position.z - server.z, 2)
+                    );
+
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        nearest = {
+                            server: server,
+                            intelligence: server.intelligence,
+                            distance: distance
+                        };
+                    }
+                });
+
+                return nearest;
+            }
+
+            hslToHex(h, s, l) {
+                // Convert HSL to RGB then to hex
+                const hue = h * 360;
+                const c = (1 - Math.abs(2 * l - 1)) * s;
+                const x = c * (1 - Math.abs((hue / 60) % 2 - 1));
+                const m = l - c / 2;
+
+                let r, g, b;
+                if (hue >= 0 && hue < 60) { r = c; g = x; b = 0; }
+                else if (hue >= 60 && hue < 120) { r = x; g = c; b = 0; }
+                else if (hue >= 120 && hue < 180) { r = 0; g = c; b = x; }
+                else if (hue >= 180 && hue < 240) { r = 0; g = x; b = c; }
+                else if (hue >= 240 && hue < 300) { r = x; g = 0; b = c; }
+                else { r = c; g = 0; b = x; }
+
+                const red = Math.round((r + m) * 255);
+                const green = Math.round((g + m) * 255);
+                const blue = Math.round((b + m) * 255);
+
+                return `#${red.toString(16).padStart(2, '0')}${green.toString(16).padStart(2, '0')}${blue.toString(16).padStart(2, '0')}`;
+            }
+
+            // GraphRAG Drawing Analysis and Feedback
+            analyzeDrawingWithGraphRAG(drawing) {
+                // Analyze hand-drawn content and provide GraphRAG insights
+                const metadata = drawing.spatialCoords || {};
+                const cognitive = drawing.cognitiveLevel || 1.0;
+
+                // Find relevant GraphRAG servers based on drawing location
+                const relevantServers = this.graphRAGServers.filter(server => {
+                    const distance = Math.sqrt(
+                        Math.pow(metadata.x - server.x, 2) +
+                        Math.pow(metadata.y - server.y, 2) +
+                        Math.pow(metadata.z - server.z, 2)
+                    );
+                    return distance < 400; // Within influence range
+                });
+
+                if (relevantServers.length > 0) {
+                    console.log(`🧠 Drawing analyzed by ${relevantServers.length} GraphRAG servers:`,
+                        relevantServers.map(s => s.name).join(', '));
+
+                    // Return analysis results
+                    return {
+                        servers: relevantServers,
+                        cognitiveLevel: cognitive,
+                        spatialContext: metadata,
+                        insights: this.generateDrawingInsights(drawing, relevantServers)
+                    };
+                }
+
+                return null;
+            }
+
+            generateDrawingInsights(drawing, servers) {
+                // Generate insights based on drawing and nearby GraphRAG servers
+                const insights = [];
+
+                servers.forEach(server => {
+                    switch (server.server_type) {
+                        case 'core':
+                            insights.push('🎯 Drawing at system origin - high computational significance');
+                            break;
+                        case 'intelligence':
+                            insights.push('🧠 Drawing in neural processing zone - enhanced cognitive patterns');
+                            break;
+                        case 'compute':
+                            insights.push('⚡ Drawing in revolutionary computation area - breakthrough potential');
+                            break;
+                        case 'coordination':
+                            insights.push('🌐 Drawing in coordination space - asymptotic improvement zone');
+                            break;
+                    }
+                });
+
+                return insights;
+            }
+        }
+
+        // Initialize Spatial OS
+        const spatialOS = new MechSpatialOS();
+
+        // Try to initialize drawing system
+        setTimeout(() => {
+            spatialOS.initializeDrawingSystem();
+            // Initialize MÆCH interpreter connection
+            if (window.mechInterpreter && spatialOS.fabricCanvas) {
+                window.mechInterpreter.setCanvas(spatialOS.fabricCanvas);
+                console.log('🎯 MÆCH Interpreter connected to Spatial OS');
+            }
+        }, 1000);
+
+        console.log('🌌 MÆCH Spatial OS initialized');
+        console.log('🎮 Controls: WASD=move, QE=up/down, RF=time, Mouse=look');
+        console.log('📦 True 3D environment with territorial volumes');
+    </script>
+</body>
+
+</html>

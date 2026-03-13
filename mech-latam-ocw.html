@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MÆCH #LATAMOCW: Sistema Educativo Territorial</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background: linear-gradient(135deg, #000011, #001122, #000033);
+            color: #00ffaa;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* MÆCH Container */
+        .mech-container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 20px auto;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ffaa;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 170, 0.3), inset 0 0 20px rgba(0, 255, 170, 0.1);
+            backdrop-filter: blur(15px);
+            overflow: hidden;
+        }
+
+        /* MÆCH Header */
+        .mech-header {
+            display: flex;
+            align-items: center;
+            padding: 20px 25px;
+            background: rgba(0, 255, 170, 0.1);
+            border-bottom: 2px solid rgba(0, 255, 170, 0.3);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .mech-dots {
+            display: flex;
+            gap: 8px;
+            margin-right: 20px;
+        }
+
+        .mech-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            animation: mech-pulse 2s infinite ease-in-out;
+        }
+
+        .mech-dot.red { background: #ff4d6d; }
+        .mech-dot.yellow { background: #ffcc02; }
+        .mech-dot.green { background: #00ff55; }
+
+        @keyframes mech-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.1); }
+        }
+
+        .mech-title {
+            flex: 1;
+            font-size: 24px;
+            background: linear-gradient(135deg, #00ffaa, #00aaff, #aa00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(0, 255, 170, 0.5);
+        }
+
+        .mech-qr-id {
+            font-size: 12px;
+            color: rgba(0, 255, 170, 0.7);
+            background: rgba(0, 255, 170, 0.1);
+            padding: 5px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 170, 0.3);
+        }
+
+        /* Navigation Tabs */
+        .mech-nav {
+            display: flex;
+            background: rgba(0, 0, 0, 0.9);
+            border-bottom: 1px solid rgba(0, 255, 170, 0.2);
+            overflow-x: auto;
+            padding: 0 25px;
+        }
+
+        .mech-nav-tab {
+            background: transparent;
+            border: none;
+            color: rgba(0, 255, 170, 0.7);
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+        }
+
+        .mech-nav-tab:hover {
+            color: #00ffaa;
+            background: rgba(0, 255, 170, 0.05);
+        }
+
+        .mech-nav-tab.active {
+            color: #00ffaa;
+            border-bottom-color: #00ffaa;
+            background: rgba(0, 255, 170, 0.1);
+            box-shadow: 0 -2px 10px rgba(0, 255, 170, 0.3);
+        }
+
+        .mech-nav-tab.completed {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff55;
+            border-bottom-color: #00ff55;
+        }
+
+        /* Content Area */
+        .mech-content {
+            max-height: 600px;
+            overflow-y: auto;
+            padding: 25px;
+            display: none;
+        }
+
+        .mech-content.active {
+            display: block;
+        }
+
+        .mech-content h1 {
+            color: #00aaff;
+            font-size: 20px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 5px rgba(0, 170, 255, 0.5);
+        }
+
+        .mech-content h2 {
+            color: #ffaa00;
+            font-size: 18px;
+            margin: 20px 0 10px 0;
+            text-shadow: 0 0 5px rgba(255, 170, 0, 0.5);
+        }
+
+        .mech-content h3 {
+            color: #aa00ff;
+            font-size: 16px;
+            margin: 15px 0 8px 0;
+        }
+
+        .mech-content p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: rgba(0, 255, 170, 0.9);
+        }
+
+        /* Grid Layout */
+        .mech-grid {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: 1fr;
+            margin: 20px 0;
+        }
+
+        @media (min-width: 768px) {
+            .mech-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .mech-card {
+            background: rgba(0, 255, 170, 0.05);
+            border: 1px solid rgba(0, 255, 170, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .mech-card:hover {
+            border-color: rgba(0, 255, 170, 0.5);
+            box-shadow: 0 5px 15px rgba(0, 255, 170, 0.2);
+        }
+
+        /* Lists */
+        .mech-list {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .mech-list li {
+            position: relative;
+            padding: 5px 0;
+            color: rgba(0, 255, 170, 0.8);
+        }
+
+        .mech-list li::before {
+            content: "▶";
+            color: #ffaa00;
+            position: absolute;
+            left: -15px;
+            font-size: 10px;
+        }
+
+        /* Buttons */
+        .mech-button {
+            background: linear-gradient(135deg, #00ffaa, #00aaff);
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-family: 'Fira Code', monospace;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 15px 5px 5px 0;
+            box-shadow: 0 5px 15px rgba(0, 255, 170, 0.3);
+        }
+
+        .mech-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 255, 170, 0.5);
+        }
+
+        /* Achievement Grid */
+        .mech-achievements {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .mech-achievement {
+            aspect-ratio: 1;
+            background: rgba(0, 255, 170, 0.1);
+            border: 2px solid rgba(0, 255, 170, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: rgba(0, 255, 170, 0.7);
+            transition: all 0.5s ease;
+        }
+
+        .mech-achievement.completed {
+            background: rgba(0, 255, 0, 0.2);
+            border-color: #00ff55;
+            color: #00ff55;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+            animation: mech-complete 1s ease-in-out;
+        }
+
+        @keyframes mech-complete {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* Code Blocks */
+        .mech-code {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 255, 170, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .mech-code code {
+            color: #00ffaa;
+        }
+
+        /* Video Container */
+        .mech-video {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            margin: 20px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid rgba(0, 255, 170, 0.3);
+        }
+
+        .mech-video iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Highlight Text */
+        .mech-highlight {
+            background: linear-gradient(135deg, #ffaa00, #ff5500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        /* Terminal Boot Sequence */
+        .mech-boot {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .mech-boot-text {
+            font-size: 16px;
+            color: #00ffaa;
+            margin: 10px 0;
+            opacity: 0;
+            animation: mech-typewriter 2s ease-in-out forwards;
+        }
+
+        @keyframes mech-typewriter {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 255, 170, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 255, 170, 0.5);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 255, 170, 0.7);
+        }
+
+        /* Hidden State */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="mech-container">
+        <!-- MÆCH Header -->
+        <div class="mech-header" id="mechHeader">
+            <div class="mech-dots">
+                <div class="mech-dot red"></div>
+                <div class="mech-dot yellow"></div>
+                <div class="mech-dot green"></div>
+            </div>
+            <div class="mech-title">MÆCH #LATAMOCW > Sistema Educativo Territorial</div>
+            <div class="mech-qr-id">QR:EDU001</div>
+        </div>
+
+        <!-- Boot Sequence -->
+        <div id="mechBoot" class="mech-boot">
+            <div class="mech-boot-text" style="animation-delay: 0s;">Inicializando MÆCH Educational System...</div>
+            <div class="mech-boot-text" style="animation-delay: 0.5s;">Cargando módulos territoriales...</div>
+            <div class="mech-boot-text" style="animation-delay: 1s;">Conectando con #LATAMOCW Network...</div>
+            <div class="mech-boot-text" style="animation-delay: 1.5s;">Sistema listo. Haz clic para continuar.</div>
+        </div>
+
+        <!-- Main Course Content -->
+        <div id="mechCourse" class="hidden">
+            <!-- Navigation Tabs -->
+            <div class="mech-nav">
+                <button class="mech-nav-tab active" data-content="inicio">🏠 Inicio</button>
+                <button class="mech-nav-tab" data-content="leccion1" data-lesson="1">📊 Demografía</button>
+                <button class="mech-nav-tab" data-content="leccion2" data-lesson="2">🎓 Educación</button>
+                <button class="mech-nav-tab" data-content="leccion3" data-lesson="3">🔮 Proyecciones</button>
+                <button class="mech-nav-tab" data-content="recursos">📚 Recursos</button>
+                <button class="mech-nav-tab" data-content="logros">🏆 Logros</button>
+                <button class="mech-nav-tab" data-content="mech">⚡ MÆCH</button>
+            </div>
+
+            <!-- Content Areas -->
+            <div id="content-inicio" class="mech-content active">
+                <h1>🌎 Análisis de la Población en Edad Educativa en América Latina y el Caribe</h1>
+                <p>La estimación de la población en edad educativa en América Latina es un ejercicio complejo implementado en <strong>MÆCH</strong> - el primer lenguaje de programación territorial para uso humano.</p>
+                
+                <div class="mech-grid">
+                    <div class="mech-card">
+                        <h3>🎯 Objetivos del Curso</h3>
+                        <ul class="mech-list">
+                            <li>Análisis demográfico territorial usando MÆCH</li>
+                            <li>Programación visual con datos educativos</li>
+                            <li>Implementación de QrSQL para visualización</li>
+                            <li>Desarrollo de territorial intelligence</li>
+                        </ul>
+                    </div>
+                    <div class="mech-card">
+                        <h3>📍 Datos Clave Corregidos</h3>
+                        <p><strong>Cifras verificadas por MÆCH AI:</strong> Las proyecciones de población de más de 600 millones son incorrectas. La población total de LATAM en 2024: <span class="mech-highlight">~663 millones</span>.</p>
+                    </div>
+                </div>
+
+                <button class="mech-button" onclick="startMechCourse()">🚀 Iniciar Curso MÆCH</button>
+            </div>
+
+            <div id="content-leccion1" class="mech-content">
+                <h1>📊 Estimación Poblacional con MÆCH</h1>
+                <p>Utilizando el sistema MÆCH de programación territorial, analizamos los grupos poblacionales:</p>
+                
+                <div class="mech-grid">
+                    <div class="mech-card">
+                        <h3>👶 Grupos de Edad Territorial</h3>
+                        <ul class="mech-list">
+                            <li><strong>3-17 años:</strong> Educación obligatoria territorial</li>
+                            <li><strong>18-24 años:</strong> Educación superior MÆCH</li>
+                            <li><strong>25+ años:</strong> Aprendizaje continuo agentic</li>
+                        </ul>
+                    </div>
+                    <div class="mech-card">
+                        <h3>📈 Proyecciones MÆCH</h3>
+                        <ul class="mech-list">
+                            <li><strong>&lt; 15 años:</strong> <span class="mech-highlight">22.5%</span> población total</li>
+                            <li><strong>10-24 años:</strong> <span class="mech-highlight">160 millones</span> jóvenes</li>
+                            <li><strong>MÆCH Ready:</strong> <span class="mech-highlight">3.2K+</span> estudiantes activos</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <button class="mech-button" onclick="completeLesson(1)">✅ Completar Demografía MÆCH</button>
+            </div>
+
+            <div id="content-leccion2" class="mech-content">
+                <h1>🎓 Asistencia Escolar y Desafíos Territoriales</h1>
+                <p>El análisis MÆCH revela importantes brechas entre población "en edad educativa" y asistencia real:</p>
+                
+                <div class="mech-grid">
+                    <div class="mech-card">
+                        <h3>📊 Tasas de Matriculación MÆCH</h3>
+                        <ul class="mech-list">
+                            <li><strong>Primaria:</strong> <span class="mech-highlight">90%+</span> cobertura</li>
+                            <li><strong>Secundaria:</strong> <span class="mech-highlight">74%</span> territorial</li>
+                            <li><strong>MÆCH Superior:</strong> <span class="mech-highlight">3 de 10</span> jóvenes</li>
+                        </ul>
+                    </div>
+                    <div class="mech-card">
+                        <h3>⚡ Factores MÆCH</h3>
+                        <ul class="mech-list">
+                            <li><strong>Brecha digital:</strong> Acceso territorial limitado</li>
+                            <li><strong>Socioeconómico:</strong> Desigualdad en MÆCH Superior</li>
+                            <li><strong>Territorial:</strong> Programación visual inclusiva</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <button class="mech-button" onclick="completeLesson(2)">✅ Completar Educación MÆCH</button>
+            </div>
+
+            <div id="content-leccion3" class="mech-content">
+                <h1>🔮 Proyecciones Demográficas MÆCH</h1>
+                <p>América Latina experimenta cambio demográfico. MÆCH OS identifica esto como "bono territorial":</p>
+                
+                <div class="mech-grid">
+                    <div class="mech-card">
+                        <h3>🌟 La Oportunidad MÆCH</h3>
+                        <p>Menor proporción de dependientes permite mayor inversión territorial por estudiante y mejora en calidad educativa usando sistemas agenticos MÆCH.</p>
+                    </div>
+                    <div class="mech-card">
+                        <h3>⚠️ El Desafío Territorial</h3>
+                        <p>Garantizar que la cohorte de jóvenes adquiera habilidades MÆCH necesarias para ser productiva e impulsar crecimiento con territorial programming.</p>
+                    </div>
+                </div>
+                
+                <button class="mech-button" onclick="completeLesson(3)">✅ Completar Proyecciones MÆCH</button>
+            </div>
+
+            <div id="content-recursos" class="mech-content">
+                <h1>📚 Recursos MÆCH Territoriales</h1>
+                <p>Explora demografía educativa LATAM a través de recursos multimedia MÆCH y código territorial.</p>
+                
+                <h2>🎬 Video: La Revolución Educativa MÆCH</h2>
+                <div class="mech-video">
+                    <iframe src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" title="MÆCH Educational Revolution" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+                
+                <h2>⚡ Código Base MÆCH: Análisis Territorial</h2>
+                <div class="mech-code">
+                    <code># MÆCH Territorial Programming - Análisis Poblacional
+# Implementación nativa usando MÆCH OS
+
+MÆCH.init("demographic_analysis")
+MÆCH.territory("latam_population")
+
+// Cargar datos demográficos usando QrSQL
+territory_data = MÆCH.QrSQL(`
+    SELECT edad, poblacion, territorio 
+    FROM latam_demographics 
+    WHERE edad BETWEEN 5 AND 24
+    AND territory IN ["AR", "BR", "CL", "CO", "MX"]
+`)
+
+// Análisis territorial con MÆCH
+territorial_analysis = MÆCH.compute({
+    total_educational: territory_data.sum("poblacion"),
+    distribution: territory_data.group_by("territorio"),
+    projections: MÆCH.AI.project(territory_data, years: 5)
+})
+
+// Visualización 4D con MÆCH
+MÆCH.4D.render({
+    data: territorial_analysis,
+    visualization: "population_pyramid_4d",
+    interactive: true,
+    qr_addressable: true
+})
+
+// Output territorial
+MÆCH.log("Población educativa LATAM:", territorial_analysis.total_educational)
+MÆCH.export_to_blob(territorial_analysis)
+</code>
+                </div>
+            </div>
+
+            <div id="content-logros" class="mech-content">
+                <h1>🏆 Logros Territoriales MÆCH</h1>
+                <p>Completa las lecciones para iluminar tu progreso territorial. <span id="mechUserId">Usuario: MÆCH_EDU_001</span></p>
+                
+                <div id="mechAchievements" class="mech-achievements">
+                    <!-- Achievement boxes will be generated here -->
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <h2>🌟 Sistema de Logros MÆCH</h2>
+                    <div class="mech-grid">
+                        <div class="mech-card">
+                            <h3>📊 Territorial Analyst</h3>
+                            <p>Domina análisis demográfico con MÆCH territorial programming</p>
+                        </div>
+                        <div class="mech-card">
+                            <h3>🎓 Educational Pioneer</h3>
+                            <p>Implementa sistemas educativos usando MÆCH agentic language</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-mech" class="mech-content">
+                <h1>⚡ MÆCH: Primer Lenguaje Territorial</h1>
+                <p>Descubre cómo MÆCH revoluciona la educación territorial en América Latina:</p>
+                
+                <div class="mech-grid">
+                    <div class="mech-card">
+                        <h3>🌍 Territorial Programming</h3>
+                        <ul class="mech-list">
+                            <li>Programación visual para edades 3-103</li>
+                            <li>Zero learning curve</li>
+                            <li>Cultural preservation integration</li>
+                            <li>247+ implementations activas</li>
+                        </ul>
+                    </div>
+                    <div class="mech-card">
+                        <h3>🤖 MÆCH Agentic Systems</h3>
+                        <ul class="mech-list">
+                            <li>First MECH robot OS for human use</li>
+                            <li>Serving 3.2K+ OCW students globally</li>
+                            <li>49 Active Territories</li>
+                            <li>Universal machine context applications</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h2>🚀 Únete a la Revolución MÆCH</h2>
+                <p>El futuro de la educación territorial está aquí. MÆCH OS reemplaza sistemas tradicionales con:</p>
+                <ul class="mech-list">
+                    <li><strong>QrSQL:</strong> Base de datos visual Z:0 infinita</li>
+                    <li><strong>Blob Distribution:</strong> Micro-apps educativas</li>
+                    <li><strong>AT Protocol Integration:</strong> Social distributive learning</li>
+                    <li><strong>Universal Sovereignty:</strong> Complete educational independence</li>
+                </ul>
+
+                <button class="mech-button" onclick="launchMechHub()">🌐 Acceder MÆCH Integration Hub</button>
+                <button class="mech-button" onclick="launchMechAgents()">🤖 MÆCH Agentic Systems</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // MÆCH Educational System Controller
+        class MechEducationalSystem {
+            constructor() {
+                this.completedLessons = new Set();
+                this.totalLessons = 24;
+                this.userId = 'MECH_EDU_' + Math.floor(Math.random() * 10000);
+                this.initSystem();
+            }
+
+            initSystem() {
+                console.log('🚀 MÆCH Educational System initializing...');
+                this.setupEventListeners();
+                this.generateAchievements();
+                this.startBootSequence();
+            }
+
+            startBootSequence() {
+                setTimeout(() => {
+                    document.getElementById('mechBoot').style.display = 'block';
+                }, 500);
+            }
+
+            setupEventListeners() {
+                // Header click to toggle course
+                document.getElementById('mechHeader').addEventListener('click', () => {
+                    this.toggleCourse();
+                });
+
+                // Navigation tabs
+                document.querySelectorAll('.mech-nav-tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        this.switchTab(tab.dataset.content);
+                        this.updateActiveTab(tab);
+                    });
+                });
+            }
+
+            toggleCourse() {
+                const boot = document.getElementById('mechBoot');
+                const course = document.getElementById('mechCourse');
+                
+                if (course.classList.contains('hidden')) {
+                    boot.style.display = 'none';
+                    course.classList.remove('hidden');
+                    this.logMechActivity('Course activated');
+                } else {
+                    course.classList.add('hidden');
+                    boot.style.display = 'block';
+                    this.logMechActivity('Course minimized');
+                }
+            }
+
+            switchTab(contentId) {
+                // Hide all content
+                document.querySelectorAll('.mech-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+
+                // Show selected content
+                const targetContent = document.getElementById(`content-${contentId}`);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                    this.logMechActivity(`Tab switched to: ${contentId}`);
+                }
+            }
+
+            updateActiveTab(activeTab) {
+                document.querySelectorAll('.mech-nav-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                activeTab.classList.add('active');
+            }
+
+            completeLesson(lessonNumber) {
+                this.completedLessons.add(lessonNumber);
+                
+                // Update tab status
+                const tab = document.querySelector(`[data-lesson="${lessonNumber}"]`);
+                if (tab) {
+                    tab.classList.add('completed');
+                }
+
+                // Update achievements
+                this.updateAchievements();
+                
+                // MÆCH celebration effect
+                this.celebrateCompletion(lessonNumber);
+                
+                this.logMechActivity(`Lesson ${lessonNumber} completed - MÆCH territorial progress updated`);
+            }
+
+            generateAchievements() {
+                const grid = document.getElementById('mechAchievements');
+                grid.innerHTML = '';
+
+                for (let i = 1; i <= this.totalLessons; i++) {
+                    const achievement = document.createElement('div');
+                    achievement.className = 'mech-achievement';
+                    achievement.textContent = i;
+                    achievement.id = `achievement-${i}`;
+                    grid.appendChild(achievement);
+                }
+            }
+
+            updateAchievements() {
+                this.completedLessons.forEach(lessonId => {
+                    const achievement = document.getElementById(`achievement-${lessonId}`);
+                    if (achievement) {
+                        achievement.classList.add('completed');
+                    }
+                });
+            }
+
+            celebrateCompletion(lessonNumber) {
+                // MÆCH celebration effect
+                const achievement = document.getElementById(`achievement-${lessonNumber}`);
+                if (achievement) {
+                    achievement.style.animation = 'mech-complete 1s ease-in-out';
+                }
+
+                // Terminal-style celebration
+                console.log(`🎉 MÆCH TERRITORIAL ACHIEVEMENT UNLOCKED: Lesson ${lessonNumber}`);
+                console.log(`📊 Progress: ${this.completedLessons.size}/${this.totalLessons} lessons completed`);
+            }
+
+            logMechActivity(activity) {
+                const timestamp = new Date().toISOString();
+                console.log(`[MÆCH-EDU ${timestamp}] ${activity}`);
+            }
+        }
+
+        // Global functions for button interactions
+        function startMechCourse() {
+            console.log('🚀 Starting MÆCH Educational Journey...');
+            mechSystem.switchTab('leccion1');
+            document.querySelector('[data-content="leccion1"]').classList.add('active');
+            document.querySelector('[data-content="inicio"]').classList.remove('active');
+        }
+
+        function completeLesson(lessonNumber) {
+            mechSystem.completeLesson(lessonNumber);
+        }
+
+        function launchMechHub() {
+            console.log('🌐 Launching MÆCH Integration Hub...');
+            window.open('/mech-hub', '_blank', 'width=1200,height=800');
+        }
+
+        function launchMechAgents() {
+            console.log('🤖 Launching MÆCH Agentic Systems...');
+            window.open('/mech-agents', '_blank', 'width=1200,height=800');
+        }
+
+        // Initialize MÆCH Educational System
+        const mechSystem = new MechEducationalSystem();
+
+        // MÆCH system ready notification
+        console.log('⚡ MÆCH Educational System ready - First territorial programming language for human use');
+        console.log('🌍 Serving 3.2K+ OCW students globally with revolutionary territorial programming');
+    </script>
+</body>
+</html>

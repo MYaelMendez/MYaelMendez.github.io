@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#ff3366">
+    <title>📱 ÆL📺net Mobile - TV Station Creator for Students</title>
+    <meta name="description" content="🎓 Mobile-first revolutionary TV network for K-12 students with 24/7 broadcasting and McKinsey strategic framework - MÆCH Territorial Sovereignty"
+    <style>
+        :root {
+            --aelnet-primary: #ff3366;
+            --aelnet-secondary: #00ff88;
+            --aelnet-tv: #8844ff;
+            --aelnet-background: #0a0a0a;
+            --aelnet-surface: #1a1a1a;
+            --aelnet-text: #ffffff;
+            --aelnet-accent: #33ccff;
+            --aelnet-territorial: #ffaa00;
+            --aelnet-mckinsey: #ff6b35;
+            --gradient-aelnet: linear-gradient(135deg, var(--aelnet-primary), var(--aelnet-tv));
+            --gradient-territorial: linear-gradient(45deg, var(--aelnet-territorial), var(--aelnet-secondary));
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--aelnet-background);
+            color: var(--aelnet-text);
+            overflow-x: hidden;
+            min-height: 100vh;
+            /* 📱 MOBILE-FIRST OPTIMIZATION */
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            /* Mobile-friendly font sizing */
+            font-size: clamp(14px, 4vw, 16px);
+            line-height: 1.5;
+        }
+
+        .aelnet-tv-system {
+            width: 100vw;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
+        }
+
+        /* 📱 MOBILE-FIRST HEADER */
+        .aelnet-header {
+            height: clamp(50px, 12vw, 60px);
+            background: var(--gradient-aelnet);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 clamp(12px, 4vw, 24px);
+            font-size: clamp(12px, 3.5vw, 16px);
+            font-weight: bold;
+            color: white;
+            z-index: 1000;
+            border-bottom: 2px solid var(--aelnet-territorial);
+            /* Mobile touch optimizations */
+            touch-action: manipulation;
+            user-select: none;
+            box-shadow: 0 2px 10px rgba(255, 51, 102, 0.3);
+        }
+
+        .network-branding {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .aelnet-logo {
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .territorial-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .territorial-pulse {
+            width: 8px;
+            height: 8px;
+            background: var(--aelnet-territorial);
+            border-radius: 2px;
+            animation: territorial-pulse 2s infinite;
+        }
+
+        @keyframes territorial-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        /* 📱 MOBILE-FIRST MAIN CONTAINER */
+        .tv-creator-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: clamp(12px, 4vw, 24px);
+            position: relative;
+            /* Enhanced mobile scrolling */
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 📱 MOBILE-FIRST STATION CREATOR */
+        .station-creation-wizard {
+            background: var(--aelnet-surface);
+            border: 2px solid var(--aelnet-tv);
+            border-radius: clamp(16px, 5vw, 24px);
+            padding: clamp(16px, 5vw, 30px);
+            margin-bottom: clamp(16px, 4vw, 24px);
+            position: relative;
+            /* Mobile touch enhancements */
+            box-shadow: 0 4px 20px rgba(136, 68, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .station-creation-wizard::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 10px;
+            height: 10px;
+            background: var(--aelnet-tv);
+            border-radius: 2px;
+            animation: tv-blink 3s infinite;
+        }
+
+        @keyframes tv-blink {
+            0%, 85% { opacity: 1; }
+            90%, 95% { opacity: 0; }
+        }
+
+        .wizard-title {
+            font-size: 20px;
+            color: var(--aelnet-tv);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .wizard-step {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(26, 26, 26, 0.6);
+            border: 1px solid var(--aelnet-accent);
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .wizard-step.active {
+            border-color: var(--aelnet-primary);
+            background: rgba(255, 51, 102, 0.1);
+        }
+
+        .step-title {
+            font-size: 16px;
+            color: var(--aelnet-primary);
+            margin-bottom: 15px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 📱 MOBILE-FIRST FORM SYSTEM */
+        .form-group {
+            margin-bottom: clamp(12px, 4vw, 18px);
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            font-size: clamp(12px, 3.5vw, 14px);
+            color: var(--aelnet-secondary);
+            margin-bottom: clamp(6px, 2vw, 8px);
+            font-weight: 600;
+            /* Mobile touch-friendly labels */
+            line-height: 1.3;
+            padding: 2px 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: clamp(14px, 4.5vw, 18px);
+            background: rgba(26, 26, 26, 0.9);
+            border: 2px solid var(--aelnet-accent);
+            border-radius: clamp(10px, 3.5vw, 14px);
+            color: var(--aelnet-text);
+            font-family: inherit;
+            font-size: clamp(14px, 4vw, 16px);
+            transition: all 0.25s ease-out;
+            /* Mobile touch optimizations */
+            min-height: 48px;
+            touch-action: manipulation;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--aelnet-secondary);
+            box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.3), 0 4px 12px rgba(255, 51, 102, 0.2);
+            background: rgba(26, 26, 26, 0.98);
+            transform: scale(1.01);
+        }
+        
+        /* Mobile-friendly placeholders */
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: clamp(13px, 3.5vw, 15px);
+        }
+
+        /* 📱 MOBILE-FIRST TEXTAREA ELEMENTS */
+        .form-textarea {
+            width: 100%;
+            padding: clamp(14px, 4.5vw, 18px);
+            background: rgba(26, 26, 26, 0.9);
+            border: 2px solid var(--aelnet-accent);
+            border-radius: clamp(10px, 3.5vw, 14px);
+            color: var(--aelnet-text);
+            font-family: inherit;
+            font-size: clamp(14px, 4vw, 16px);
+            min-height: clamp(80px, 20vw, 100px);
+            resize: vertical;
+            transition: all 0.25s ease-out;
+            /* Mobile textarea optimizations */
+            touch-action: manipulation;
+            line-height: 1.5;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--aelnet-secondary);
+            box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.3), 0 4px 12px rgba(255, 51, 102, 0.2);
+            background: rgba(26, 26, 26, 0.98);
+        }
+        
+        .form-textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: clamp(13px, 3.5vw, 15px);
+            line-height: 1.4;
+        }
+
+        /* 📱 MOBILE-FIRST SELECT ELEMENTS */
+        .form-select {
+            width: 100%;
+            padding: clamp(14px, 4.5vw, 18px);
+            background: rgba(26, 26, 26, 0.9);
+            border: 2px solid var(--aelnet-accent);
+            border-radius: clamp(10px, 3.5vw, 14px);
+            color: var(--aelnet-text);
+            font-family: inherit;
+            font-size: clamp(14px, 4vw, 16px);
+            cursor: pointer;
+            /* Mobile select optimizations */
+            min-height: 48px;
+            -webkit-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffffff"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            padding-right: 40px;
+            touch-action: manipulation;
+            transition: all 0.25s ease-out;
+        }
+        
+        .form-select:focus {
+            outline: none;
+            border-color: var(--aelnet-secondary);
+            box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.3);
+            background-color: rgba(26, 26, 26, 0.98);
+        }
+
+        /* 📱 MOBILE-FIRST BUTTON SYSTEM */
+        .aelnet-button {
+            background: var(--gradient-aelnet);
+            border: none;
+            color: white;
+            padding: clamp(16px, 5vw, 20px) clamp(24px, 7vw, 35px);
+            border-radius: clamp(12px, 4vw, 18px);
+            font-size: clamp(14px, 4vw, 18px);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.25s ease-out;
+            margin: clamp(6px, 2vw, 10px);
+            position: relative;
+            touch-action: manipulation;
+            display: inline-flex;
+            align-items: center;
+            gap: clamp(8px, 2.5vw, 12px);
+            /* Mobile touch optimizations */
+            min-height: 48px;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            /* Enhanced mobile button */
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: clamp(0.5px, 0.2vw, 1.2px);
+            box-shadow: 0 4px 15px rgba(255, 51, 102, 0.4);
+        }
+
+        .aelnet-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 25px rgba(255, 51, 102, 0.7);
+        }
+        
+        /* Enhanced mobile button interactions */
+        .aelnet-button:hover:not(:active) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 51, 102, 0.5);
+        }
+        
+        @media (max-width: 768px) {
+            .aelnet-button:hover:not(:active) {
+                transform: none; /* Remove hover effects on mobile */
+            }
+        }
+
+        .aelnet-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .aelnet-button.secondary {
+            background: var(--gradient-territorial);
+            color: black;
+        }
+
+        .wizard-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mckinsey-framework-panel {
+            background: rgba(255, 107, 53, 0.1);
+            border: 2px solid var(--aelnet-mckinsey);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .framework-title {
+            color: var(--aelnet-mckinsey);
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .framework-component {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--aelnet-mckinsey);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .component-title {
+            font-size: 12px;
+            color: var(--aelnet-mckinsey);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .component-description {
+            font-size: 11px;
+            color: var(--aelnet-accent);
+        }
+
+        .territorial-preview {
+            background: rgba(255, 170, 0, 0.1);
+            border: 2px solid var(--aelnet-territorial);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .territorial-title {
+            color: var(--aelnet-territorial);
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .territorial-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .territorial-detail {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--aelnet-territorial);
+        }
+
+        .detail-label {
+            font-size: 10px;
+            color: var(--aelnet-territorial);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 12px;
+            color: var(--aelnet-text);
+        }
+
+        .progress-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .progress-step {
+            width: 12px;
+            height: 12px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .progress-step.active {
+            background: var(--aelnet-primary);
+            box-shadow: 0 0 10px rgba(255, 51, 102, 0.5);
+        }
+
+        .progress-step.completed {
+            background: var(--aelnet-secondary);
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .aelnet-footer {
+            background: rgba(26, 26, 26, 0.9);
+            border-top: 2px solid var(--aelnet-primary);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(15px);
+        }
+
+        .footer-link {
+            color: var(--aelnet-territorial);
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--aelnet-secondary);
+        }
+
+        .network-stats {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 11px;
+            color: var(--aelnet-accent);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid var(--aelnet-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-animation {
+            animation: success-pulse 0.6s ease-out;
+        }
+
+        @keyframes success-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 480px) {
+            .aelnet-header {
+                padding: 0 15px;
+                font-size: 12px;
+            }
+            
+            .tv-creator-main {
+                padding: 15px;
+            }
+            
+            .wizard-step {
+                padding: 15px;
+            }
+            
+            .form-input, .form-select, .form-textarea {
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+            
+            .network-stats {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="aelnet-tv-system" id="aelnetTVSystem">
+        <!-- ÆL📺net Header -->
+        <div class="aelnet-header">
+            <div class="network-branding">
+                <div class="aelnet-logo">ÆL📺net</div>
+                <div class="territorial-indicator">
+                    <div class="territorial-pulse"></div>
+                    <span>TERRITORIAL</span>
+                </div>
+            </div>
+            <div>🎓 ESTUDIANTES</div>
+            <div>📺 TV ESTACIONES</div>
+            <div>🌍 LATAM</div>
+        </div>
+
+        <!-- TV Creator Main -->
+        <div class="tv-creator-main">
+            <!-- Station Creation Wizard -->
+            <div class="station-creation-wizard">
+                <div class="wizard-title">
+                    📺🎓 Crear Tu Estación TV Estudiantil
+                </div>
+
+                <!-- Progress Indicator -->
+                <div class="progress-indicator">
+                    <div class="progress-step active" data-step="1"></div>
+                    <div class="progress-step" data-step="2"></div>
+                    <div class="progress-step" data-step="3"></div>
+                    <div class="progress-step" data-step="4"></div>
+                </div>
+
+                <!-- Step 1: Student Information -->
+                <div class="wizard-step active" id="step1">
+                    <div class="step-title">
+                        👨‍🎓 Información del Estudiante Fundador
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Nombre Completo</label>
+                            <input type="text" class="form-input" id="studentName" placeholder="Tu nombre" data-testid="input-student-name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Edad</label>
+                            <input type="number" class="form-input" id="studentAge" placeholder="12" min="5" max="18" data-testid="input-student-age">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Grado Escolar</label>
+                            <select class="form-select" id="gradeLevel" data-testid="select-grade-level">
+                                <option value="">Selecciona tu grado</option>
+                                <option value="preescolar">Preescolar (3-5 años)</option>
+                                <option value="primaria-baja">Primaria Baja (6-9 años)</option>
+                                <option value="primaria-alta">Primaria Alta (10-12 años)</option>
+                                <option value="secundaria">Secundaria (13-15 años)</option>
+                                <option value="preparatoria">Preparatoria (16-18 años)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">País/Región</label>
+                            <select class="form-select" id="studentRegion" data-testid="select-student-region">
+                                <option value="mexico">México</option>
+                                <option value="colombia">Colombia</option>
+                                <option value="argentina">Argentina</option>
+                                <option value="chile">Chile</option>
+                                <option value="peru">Perú</option>
+                                <option value="otros">Otros LATAM</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Station Concept -->
+                <div class="wizard-step" id="step2" style="display: none;">
+                    <div class="step-title">
+                        📺 Concepto de tu Estación TV
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Nombre de la Estación</label>
+                        <input type="text" class="form-input" id="stationName" placeholder="Ej: EduKids TV, CienciaJoven, MateMax" data-testid="input-station-name">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Eslogan de la Estación</label>
+                        <input type="text" class="form-input" id="stationSlogan" placeholder="Ej: Aprendiendo Juntos, Educación del Futuro" data-testid="input-station-slogan">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Materia Principal</label>
+                            <select class="form-select" id="primarySubject" data-testid="select-primary-subject">
+                                <option value="">Selecciona materia</option>
+                                <option value="matematicas">Matemáticas</option>
+                                <option value="ciencias">Ciencias</option>
+                                <option value="historia">Historia</option>
+                                <option value="idiomas">Idiomas</option>
+                                <option value="arte">Arte y Creatividad</option>
+                                <option value="tecnologia">Tecnología</option>
+                                <option value="deportes">Deportes y Salud</option>
+                                <option value="musica">Música</option>
+                                <option value="general">Educación General</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Segmento de Mercado</label>
+                            <select class="form-select" id="marketSegment" data-testid="select-market-segment">
+                                <option value="elementary">Primaria (6-12 años)</option>
+                                <option value="middle">Secundaria (13-15 años)</option>
+                                <option value="high">Preparatoria (16-18 años)</option>
+                                <option value="universal">Universal (6-18 años)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Propuesta de Valor (¿Qué hace única tu estación?)</label>
+                        <textarea class="form-textarea" id="valueProposition" placeholder="Ej: Enseñamos matemáticas de forma divertida usando juegos y ejemplos de la vida real..." data-testid="textarea-value-proposition"></textarea>
+                    </div>
+                </div>
+
+                <!-- Step 3: Strategic Framework -->
+                <div class="wizard-step" id="step3" style="display: none;">
+                    <div class="step-title">
+                        🎯 Marco Estratégico (Inspirado en McKinsey)
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Necesidad del Mercado (¿Qué problema resuelves?)</label>
+                        <textarea class="form-textarea" id="marketNeed" placeholder="Ej: Los estudiantes necesitan apoyo extra en matemáticas de forma entretenida..." data-testid="textarea-market-need"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Audiencia Objetivo Específica</label>
+                        <input type="text" class="form-input" id="targetAudience" placeholder="Ej: Estudiantes de primaria que luchan con matemáticas básicas" data-testid="input-target-audience">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Ventaja Competitiva (¿Qué te diferencia?)</label>
+                        <textarea class="form-textarea" id="competitiveAdvantage" placeholder="Ej: Soy estudiante como ellos, hablo su idioma, uso ejemplos que entienden..." data-testid="textarea-competitive-advantage"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Meta de Espectadores (Primer Año)</label>
+                            <input type="number" class="form-input" id="viewerTarget" placeholder="100" min="50" max="10000" data-testid="input-viewer-target">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Programas Planeados</label>
+                            <input type="number" class="form-input" id="programTarget" placeholder="10" min="5" max="100" data-testid="input-program-target">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Broadcasting Setup -->
+                <div class="wizard-step" id="step4" style="display: none;">
+                    <div class="step-title">
+                        📡 Configuración de Broadcasting 24/7
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Zona Horaria</label>
+                            <select class="form-select" id="timezone" data-testid="select-timezone">
+                                <option value="America/Mexico_City">México (CST)</option>
+                                <option value="America/Bogota">Colombia (COT)</option>
+                                <option value="America/Argentina/Buenos_Aires">Argentina (ART)</option>
+                                <option value="America/Santiago">Chile (CLT)</option>
+                                <option value="America/Lima">Perú (PET)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Automatización</label>
+                            <select class="form-select" id="automationLevel" data-testid="select-automation-level">
+                                <option value="basic">Básica (Manual con ayuda)</option>
+                                <option value="advanced">Avanzada (Semi-automática)</option>
+                                <option value="fully_automated">Total (Completamente automática)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Horarios de Transmisión en Vivo Preferidos</label>
+                        <input type="text" class="form-input" id="liveSlots" placeholder="Ej: 16:00-17:00 lunes a viernes" data-testid="input-live-slots">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Tipo de Contenido Filler (Para llenar 24 horas)</label>
+                        <select class="form-select" id="fillerContent" data-testid="select-filler-content">
+                            <option value="educational">Videos educativos relacionados</option>
+                            <option value="music">Música instrumental/concentración</option>
+                            <option value="mixed">Mezcla de educativo y entretenimiento</option>
+                            <option value="custom">Personalizado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Wizard Navigation -->
+                <div class="wizard-navigation">
+                    <button class="aelnet-button" id="prevBtn" onclick="changeStep(-1)" style="display: none;" data-testid="button-previous">
+                        ⬅️ Anterior
+                    </button>
+                    <button class="aelnet-button" id="nextBtn" onclick="changeStep(1)" data-testid="button-next">
+                        Siguiente ➡️
+                    </button>
+                    <button class="aelnet-button" id="createStationBtn" onclick="createTVStation()" style="display: none;" data-testid="button-create-station">
+                        🚀 Crear Estación TV
+                    </button>
+                </div>
+            </div>
+
+            <!-- McKinsey Framework Panel -->
+            <div class="mckinsey-framework-panel" id="frameworkPanel" style="display: none;">
+                <div class="framework-title">
+                    📊 Marco Estratégico McKinsey Aplicado
+                </div>
+                <div class="framework-component">
+                    <div class="component-title">Oportunidad de Mercado</div>
+                    <div class="component-description" id="marketOpportunityPreview">Se analizará tu oportunidad de mercado específica</div>
+                </div>
+                <div class="framework-component">
+                    <div class="component-title">Propuesta de Valor</div>
+                    <div class="component-description" id="valuePropositionPreview">Se evaluará tu propuesta de valor única</div>
+                </div>
+                <div class="framework-component">
+                    <div class="component-title">Estrategia de Nicho</div>
+                    <div class="component-description" id="nicheStrategyPreview">Se desarrollará tu estrategia de especialización</div>
+                </div>
+            </div>
+
+            <!-- Territorial Preview -->
+            <div class="territorial-preview" id="territorialPanel" style="display: none;">
+                <div class="territorial-title">
+                    🗺️ Vista Previa Territorial
+                </div>
+                <div class="territorial-info">
+                    <div class="territorial-detail">
+                        <div class="detail-label">Territorio</div>
+                        <div class="detail-value" id="territoryPreview">-</div>
+                    </div>
+                    <div class="territorial-detail">
+                        <div class="detail-label">QR Address</div>
+                        <div class="detail-value" id="qrAddressPreview">-</div>
+                    </div>
+                    <div class="territorial-detail">
+                        <div class="detail-label">Red</div>
+                        <div class="detail-value">ÆL📺net</div>
+                    </div>
+                    <div class="territorial-detail">
+                        <div class="detail-label">Broadcasting</div>
+                        <div class="detail-value">24/7 RTMP + HLS</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÆL📺net Footer -->
+        <div class="aelnet-footer">
+            <a href="https://neuromitosis.com" class="footer-link" target="_blank" data-testid="link-neuromitosis">
+                ÆL.net @ neuromitosis.com
+            </a>
+            <div class="network-stats">
+                <div class="stat-item">
+                    <span>📺</span>
+                    <span>Estaciones: <span id="networkStations">-</span></span>
+                </div>
+                <div class="stat-item">
+                    <span>🔴</span>
+                    <span>En Vivo: <span id="liveStations">-</span></span>
+                </div>
+                <div class="stat-item">
+                    <span>🗺️</span>
+                    <span>Territorios: <span id="territoryCount">-</span></span>
+                </div>
+            </div>
+            <div style="font-size: 12px; color: var(--aelnet-secondary);">
+                📡 ÆL📺net Territorial Broadcasting
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class AELnetTVStationCreator {
+            constructor() {
+                this.currentStep = 1;
+                this.totalSteps = 4;
+                this.stationData = {
+                    studentInfo: {},
+                    stationConcept: {},
+                    strategicPlan: {},
+                    broadcastingSetup: {}
+                };
+                this.territorialSovereignty = true;
+                this.culturalContext = "LATAM";
+                
+                this.initialize();
+                
+                console.log('📺🎓 ÆL📺net TV Station Creator initialized');
+                console.log('🌍 Network: ÆL📺net');
+                console.log('🗺️ Territorial sovereignty: Active');
+                console.log('🎯 McKinsey framework: Ready');
+                console.log('👨‍🎓 Target: Student broadcasters K-12');
+            }
+
+            initialize() {
+                // Update network stats
+                this.updateNetworkStats();
+                
+                // Setup form validation
+                this.setupFormValidation();
+                
+                // Initialize step 1
+                this.updateStepDisplay();
+                
+                console.log('✅ ÆL📺net creator ready for student TV stations');
+            }
+
+            updateNetworkStats() {
+                // Mock network stats - in real implementation would fetch from API
+                document.getElementById('networkStations').textContent = '12';
+                document.getElementById('liveStations').textContent = '8';
+                document.getElementById('territoryCount').textContent = '5';
+            }
+
+            setupFormValidation() {
+                const inputs = document.querySelectorAll('.form-input, .form-select, .form-textarea');
+                inputs.forEach(input => {
+                    input.addEventListener('input', this.validateCurrentStep.bind(this));
+                    input.addEventListener('change', this.validateCurrentStep.bind(this));
+                });
+            }
+
+            validateCurrentStep() {
+                const isValid = this.validateStep(this.currentStep);
+                this.updateNavigationButtons(isValid);
+                return isValid;
+            }
+
+            validateStep(step) {
+                switch(step) {
+                    case 1:
+                        return this.validateStudentInfo();
+                    case 2:
+                        return this.validateStationConcept();
+                    case 3:
+                        return this.validateStrategicPlan();
+                    case 4:
+                        return this.validateBroadcastingSetup();
+                    default:
+                        return false;
+                }
+            }
+
+            validateStudentInfo() {
+                const name = document.getElementById('studentName').value.trim();
+                const age = document.getElementById('studentAge').value;
+                const grade = document.getElementById('gradeLevel').value;
+                const region = document.getElementById('studentRegion').value;
+                
+                return name.length > 0 && age >= 5 && age <= 18 && grade && region;
+            }
+
+            validateStationConcept() {
+                const name = document.getElementById('stationName').value.trim();
+                const subject = document.getElementById('primarySubject').value;
+                const segment = document.getElementById('marketSegment').value;
+                const value = document.getElementById('valueProposition').value.trim();
+                
+                return name.length > 0 && subject && segment && value.length > 10;
+            }
+
+            validateStrategicPlan() {
+                const need = document.getElementById('marketNeed').value.trim();
+                const audience = document.getElementById('targetAudience').value.trim();
+                const advantage = document.getElementById('competitiveAdvantage').value.trim();
+                
+                return need.length > 10 && audience.length > 5 && advantage.length > 10;
+            }
+
+            validateBroadcastingSetup() {
+                const timezone = document.getElementById('timezone').value;
+                const automation = document.getElementById('automationLevel').value;
+                const filler = document.getElementById('fillerContent').value;
+                
+                return timezone && automation && filler;
+            }
+
+            updateNavigationButtons(isValid) {
+                const nextBtn = document.getElementById('nextBtn');
+                const createBtn = document.getElementById('createStationBtn');
+                
+                if (this.currentStep < this.totalSteps) {
+                    nextBtn.disabled = !isValid;
+                } else {
+                    createBtn.disabled = !isValid;
+                }
+            }
+
+            updateStepDisplay() {
+                // Hide all steps
+                for (let i = 1; i <= this.totalSteps; i++) {
+                    const step = document.getElementById(`step${i}`);
+                    const progressStep = document.querySelector(`[data-step="${i}"]`);
+                    
+                    if (i === this.currentStep) {
+                        step.style.display = 'block';
+                        step.classList.add('active');
+                        progressStep.classList.add('active');
+                    } else {
+                        step.style.display = 'none';
+                        step.classList.remove('active');
+                        progressStep.classList.remove('active');
+                        
+                        if (i < this.currentStep) {
+                            progressStep.classList.add('completed');
+                        } else {
+                            progressStep.classList.remove('completed');
+                        }
+                    }
+                }
+
+                // Update navigation buttons
+                const prevBtn = document.getElementById('prevBtn');
+                const nextBtn = document.getElementById('nextBtn');
+                const createBtn = document.getElementById('createStationBtn');
+
+                prevBtn.style.display = this.currentStep > 1 ? 'inline-flex' : 'none';
+                
+                if (this.currentStep < this.totalSteps) {
+                    nextBtn.style.display = 'inline-flex';
+                    createBtn.style.display = 'none';
+                } else {
+                    nextBtn.style.display = 'none';
+                    createBtn.style.display = 'inline-flex';
+                }
+
+                // Update preview panels
+                this.updatePreviewPanels();
+                
+                // Validate current step
+                this.validateCurrentStep();
+            }
+
+            updatePreviewPanels() {
+                if (this.currentStep >= 2) {
+                    this.updateTerritorialPreview();
+                    document.getElementById('territorialPanel').style.display = 'block';
+                }
+                
+                if (this.currentStep >= 3) {
+                    this.updateMcKinseyPreview();
+                    document.getElementById('frameworkPanel').style.display = 'block';
+                }
+            }
+
+            updateTerritorialPreview() {
+                const stationName = document.getElementById('stationName').value.trim();
+                const primarySubject = document.getElementById('primarySubject').value;
+                const marketSegment = document.getElementById('marketSegment').value;
+                const studentName = document.getElementById('studentName').value.trim();
+                
+                if (stationName && primarySubject && marketSegment) {
+                    const territory = `${primarySubject}_${marketSegment}_${studentName.toLowerCase().replace(/\s+/g, '')}`;
+                    const qrAddress = `qr://tvstation/${territory.toLowerCase()}/station_id`;
+                    
+                    document.getElementById('territoryPreview').textContent = territory;
+                    document.getElementById('qrAddressPreview').textContent = qrAddress;
+                }
+            }
+
+            updateMcKinseyPreview() {
+                const marketNeed = document.getElementById('marketNeed').value.trim();
+                const valueProposition = document.getElementById('valueProposition').value.trim();
+                const competitiveAdvantage = document.getElementById('competitiveAdvantage').value.trim();
+                
+                if (marketNeed) {
+                    document.getElementById('marketOpportunityPreview').textContent = marketNeed.substring(0, 80) + '...';
+                }
+                if (valueProposition) {
+                    document.getElementById('valuePropositionPreview').textContent = valueProposition.substring(0, 80) + '...';
+                }
+                if (competitiveAdvantage) {
+                    document.getElementById('nicheStrategyPreview').textContent = competitiveAdvantage.substring(0, 80) + '...';
+                }
+            }
+
+            changeStep(direction) {
+                if (direction === 1 && !this.validateCurrentStep()) {
+                    alert('Por favor completa todos los campos requeridos antes de continuar.');
+                    return;
+                }
+
+                this.currentStep += direction;
+                
+                if (this.currentStep < 1) {
+                    this.currentStep = 1;
+                } else if (this.currentStep > this.totalSteps) {
+                    this.currentStep = this.totalSteps;
+                }
+                
+                this.updateStepDisplay();
+            }
+
+            async createTVStation() {
+                if (!this.validateCurrentStep()) {
+                    alert('Por favor completa toda la información requerida.');
+                    return;
+                }
+
+                // Collect all data
+                this.collectStationData();
+
+                // Show loading
+                const createBtn = document.getElementById('createStationBtn');
+                const originalText = createBtn.innerHTML;
+                createBtn.innerHTML = '🚀 Creando Estación... <span class="loading-spinner"></span>';
+                createBtn.disabled = true;
+
+                try {
+                    console.log('📺 Creating student TV station...');
+                    console.log('🎓 Student:', this.stationData.studentInfo.name);
+                    console.log('📺 Station:', this.stationData.stationConcept.name);
+                    console.log('🌍 ÆL📺net integration: Active');
+
+                    const response = await fetch('/api/mech-tv-station/create-tv-station', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            studentInfo: this.stationData.studentInfo,
+                            stationConcept: this.stationData.stationConcept,
+                            strategicPlan: this.stationData.strategicPlan,
+                            territorialSovereignty: this.territorialSovereignty,
+                            culturalContext: this.culturalContext
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.handleStationCreated(result);
+                        console.log('✅ Student TV station created successfully');
+                        console.log('🌍 ÆL📺net: Station registered');
+                    } else {
+                        throw new Error(result.error || 'Error creating TV station');
+                    }
+
+                } catch (error) {
+                    console.error('🚨 TV station creation error:', error);
+                    alert('Error al crear la estación TV: ' + error.message);
+                } finally {
+                    createBtn.innerHTML = originalText;
+                    createBtn.disabled = false;
+                }
+            }
+
+            collectStationData() {
+                this.stationData = {
+                    studentInfo: {
+                        name: document.getElementById('studentName').value.trim(),
+                        age: parseInt(document.getElementById('studentAge').value),
+                        gradeLevel: document.getElementById('gradeLevel').value,
+                        region: document.getElementById('studentRegion').value,
+                        id: `student_${Date.now()}`
+                    },
+                    stationConcept: {
+                        name: document.getElementById('stationName').value.trim(),
+                        slogan: document.getElementById('stationSlogan').value.trim(),
+                        primarySubject: document.getElementById('primarySubject').value,
+                        marketSegment: document.getElementById('marketSegment').value,
+                        valueProposition: document.getElementById('valueProposition').value.trim(),
+                        timezone: document.getElementById('timezone').value
+                    },
+                    strategicPlan: {
+                        marketNeed: document.getElementById('marketNeed').value.trim(),
+                        targetAudience: document.getElementById('targetAudience').value.trim(),
+                        competitiveAdvantage: document.getElementById('competitiveAdvantage').value.trim(),
+                        viewerTarget: parseInt(document.getElementById('viewerTarget').value) || 100,
+                        programTarget: parseInt(document.getElementById('programTarget').value) || 10
+                    },
+                    broadcastingSetup: {
+                        timezone: document.getElementById('timezone').value,
+                        automationLevel: document.getElementById('automationLevel').value,
+                        liveSlots: document.getElementById('liveSlots').value.trim(),
+                        fillerContent: document.getElementById('fillerContent').value
+                    }
+                };
+            }
+
+            handleStationCreated(result) {
+                // Add success animation
+                document.querySelector('.station-creation-wizard').classList.add('success-animation');
+                
+                // Show success message
+                const successMessage = `
+                    🎉 ¡Felicidades! Tu estación TV "${result.tvStation.tvStation.stationName}" ha sido creada exitosamente.
+                    
+                    📺 Station ID: ${result.tvStation.stationId}
+                    🗺️ Territorio: ${result.tvStation.tvStation.territorialSovereignty.territory}
+                    📱 QR Address: ${result.tvStation.tvStation.territorialSovereignty.qrAddress}
+                    🌍 Red: ÆL📺net
+                    
+                    ¿Quieres lanzar tu estación para broadcasting 24/7 ahora?
+                `;
+                
+                if (confirm(successMessage)) {
+                    this.launchStation(result.tvStation.stationId);
+                } else {
+                    alert('Tu estación está lista. Puedes lanzarla cuando estés preparado desde el panel de control.');
+                }
+                
+                // Update network stats
+                this.updateNetworkStats();
+            }
+
+            async launchStation(stationId) {
+                console.log('🚀📺 Launching TV station:', stationId);
+                
+                try {
+                    const response = await fetch('/api/mech-tv-station/launch-tv-station', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            stationId: stationId,
+                            territorialSovereignty: this.territorialSovereignty
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert(`🔴 ¡Tu estación está EN VIVO 24/7!
+                        
+📡 Broadcasting URL: ${result.launch.broadcastingUrls.hls}
+📱 Acceso para espectadores: ${result.launch.viewerAccess.qrCode}
+🌍 Red: ÆL📺net
+                        
+Los estudiantes pueden acceder usando el código QR territorial.`);
+                        
+                        console.log('✅ TV station launched successfully');
+                        console.log('🔴 Status: LIVE 24/7 on ÆL📺net');
+                    } else {
+                        throw new Error(result.error || 'Error launching station');
+                    }
+
+                } catch (error) {
+                    console.error('🚨 Station launch error:', error);
+                    alert('Error al lanzar la estación: ' + error.message);
+                }
+            }
+        }
+
+        // Global functions for HTML onclick events
+        window.changeStep = function(direction) {
+            window.aelnetCreator.changeStep(direction);
+        };
+
+        window.createTVStation = function() {
+            window.aelnetCreator.createTVStation();
+        };
+
+        // Initialize ÆL📺net TV Station Creator
+        document.addEventListener('DOMContentLoaded', () => {
+            window.aelnetCreator = new AELnetTVStationCreator();
+        });
+
+        // Prevent default behaviors for mobile optimization
+        document.addEventListener('touchstart', (e) => {
+            // Allow normal touch behavior
+        }, { passive: true });
+
+        // Service worker for offline capabilities
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(console.error);
+        }
+    </script>
+</body>
+</html>

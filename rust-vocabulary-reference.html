@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rust ↔ MÆCH Vocabulary Reference | Complete Mapping</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Fira Code', 'Courier New', monospace;
+      background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+      color: #00ff88;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .vocab-container {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      padding: 40px 20px;
+      background: linear-gradient(90deg, rgba(255,107,0,0.2), rgba(0,255,136,0.2));
+      border-radius: 20px;
+      margin-bottom: 40px;
+      border: 2px solid #00ff88;
+    }
+
+    .header h1 {
+      font-size: 2.8rem;
+      margin-bottom: 15px;
+      text-shadow: 0 0 20px rgba(0,255,136,0.5);
+    }
+
+    .header .subtitle {
+      font-size: 1.4rem;
+      color: #ff6b00;
+      margin-bottom: 20px;
+    }
+
+    .search-bar {
+      max-width: 600px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding: 15px 50px 15px 20px;
+      background: rgba(0,0,0,0.5);
+      border: 2px solid #00ff88;
+      border-radius: 12px;
+      color: #00ff88;
+      font-family: 'Fira Code', monospace;
+      font-size: 1.1rem;
+    }
+
+    .search-bar input:focus {
+      outline: none;
+      box-shadow: 0 0 20px rgba(0,255,136,0.3);
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.5rem;
+    }
+
+    /* Category Sections */
+    .category-section {
+      margin-bottom: 50px;
+    }
+
+    .category-header {
+      background: linear-gradient(90deg, rgba(0,255,136,0.2), transparent);
+      padding: 20px;
+      border-left: 5px solid #00ff88;
+      border-radius: 10px;
+      margin-bottom: 25px;
+    }
+
+    .category-title {
+      font-size: 2rem;
+      color: #00ff88;
+      margin-bottom: 8px;
+    }
+
+    .category-desc {
+      font-size: 1.1rem;
+      opacity: 0.8;
+    }
+
+    /* Vocabulary Grid */
+    .vocab-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 20px;
+    }
+
+    .vocab-card {
+      background: rgba(0,0,0,0.4);
+      border: 2px solid;
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .vocab-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,255,136,0.3);
+    }
+
+    .vocab-card.ownership {
+      border-color: #ff6b00;
+    }
+
+    .vocab-card.types {
+      border-color: #00ff88;
+    }
+
+    .vocab-card.control {
+      border-color: #00bfff;
+    }
+
+    .vocab-card.concurrency {
+      border-color: #ff1493;
+    }
+
+    .vocab-card.modules {
+      border-color: #ffd700;
+    }
+
+    .vocab-mapping {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .rust-keyword {
+      flex: 1;
+      background: rgba(255,107,0,0.2);
+      border: 1px solid #ff6b00;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1.1rem;
+      color: #ff6b00;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .arrow {
+      font-size: 1.5rem;
+      color: #00ff88;
+    }
+
+    .mech-syntax {
+      flex: 1;
+      background: rgba(0,255,136,0.2);
+      border: 1px solid #00ff88;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1.1rem;
+      color: #00ff88;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .vocab-description {
+      color: #ccc;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .vocab-example {
+      background: #000;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.9rem;
+      border: 1px solid rgba(0,255,136,0.3);
+      margin-top: 10px;
+    }
+
+    .example-rust {
+      color: #ff6b00;
+      margin-bottom: 8px;
+    }
+
+    .example-mech {
+      color: #00ff88;
+    }
+
+    .qr-badge {
+      display: inline-block;
+      background: rgba(0,255,136,0.1);
+      border: 1px solid #00ff88;
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-size: 0.85rem;
+      margin-top: 10px;
+    }
+
+    /* Filter Buttons */
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .filter-btn {
+      padding: 10px 20px;
+      border: 2px solid;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.95rem;
+      transition: all 0.3s;
+    }
+
+    .filter-btn.ownership {
+      border-color: #ff6b00;
+      color: #ff6b00;
+    }
+
+    .filter-btn.types {
+      border-color: #00ff88;
+      color: #00ff88;
+    }
+
+    .filter-btn.control {
+      border-color: #00bfff;
+      color: #00bfff;
+    }
+
+    .filter-btn.concurrency {
+      border-color: #ff1493;
+      color: #ff1493;
+    }
+
+    .filter-btn.modules {
+      border-color: #ffd700;
+      color: #ffd700;
+    }
+
+    .filter-btn.active {
+      background: currentColor;
+      color: #000;
+    }
+
+    .filter-btn:hover:not(.active) {
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* Stats */
+    .stats-bar {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+      margin: 30px 0;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #00ff88;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-top: 5px;
+    }
+
+    @media (max-width: 768px) {
+      .vocab-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="vocab-container">
+    <!-- Header -->
+    <div class="header">
+      <h1 data-testid="title-vocab">🦀 ↔ 💚 Rust-MÆCH Vocabulary</h1>
+      <div class="subtitle" data-testid="subtitle-vocab">Complete Keyword Mapping Reference</div>
+      
+      <div class="search-bar">
+        <input 
+          type="text" 
+          id="search-input" 
+          placeholder="Search keywords, concepts..." 
+          data-testid="search-input"
+        />
+        <span class="search-icon">🔍</span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-bar" data-testid="stats-bar">
+      <div class="stat-item">
+        <div class="stat-number" data-testid="total-mappings" id="total-mappings">20</div>
+        <div class="stat-label">Total Mappings</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="total-categories">5</div>
+        <div class="stat-label">Categories</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">100%</div>
+        <div class="stat-label">QR Addressed</div>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar" data-testid="filter-bar">
+      <button class="filter-btn" data-filter="all" data-testid="filter-all">Show All (20)</button>
+      <button class="filter-btn ownership" data-filter="ownership" data-testid="filter-ownership">🔒 Ownership (4)</button>
+      <button class="filter-btn types" data-filter="types" data-testid="filter-types">📦 Types (4)</button>
+      <button class="filter-btn control" data-filter="control" data-testid="filter-control">🎛️ Control Flow (4)</button>
+      <button class="filter-btn concurrency" data-filter="concurrency" data-testid="filter-concurrency">⚡ Concurrency (4)</button>
+      <button class="filter-btn modules" data-filter="modules" data-testid="filter-modules">🗂️ Modules (4)</button>
+    </div>
+
+    <!-- Category: Ownership & Borrowing -->
+    <div class="category-section" data-category="ownership">
+      <div class="category-header">
+        <div class="category-title">🔒 Ownership & Borrowing</div>
+        <div class="category-desc">Rust's core memory safety concepts in MÆCH</div>
+      </div>
+      
+      <div class="vocab-grid">
+        <div class="vocab-card ownership" data-testid="vocab-card-let">
+          <div class="vocab-mapping">
+            <div class="rust-keyword">let</div>
+            <div class="arrow">↔</div>
+            <div class="mech-syntax">[|var|]</div>
+          </div>
+          <div class="vocab-description">Variable binding - creates owned value</div>
+          <div class="vocab-example">
+            <div class="example-rust">let x = 5;</div>
+            <div class="example-mech">x = [|value: 5|]</div>
+          </div>
+          <div class="qr-badge">QR://vocab/ownership/let</div>
+        </div>
+
+        <div class="vocab-card ownership" data-testid="vocab-card-mut">
+          <div class="vocab-mapping">
+            <div class="rust-keyword">mut</div>
+            <div class="arrow">↔</div>
+            <div class="mech-syntax">~></div>
+          </div>
+          <div class="vocab-description">Mutable binding - value can change</div>
+          <div class="vocab-example">
+            <div class="example-rust">let mut x = 5;</div>
+            <div class="example-mech">x ~> 5 #mutable</div>
+          </div>
+          <div class="qr-badge">QR://vocab/ownership/mut</div>
+        </div>
+
+        <div class="vocab-card ownership" data-testid="vocab-card-ref">
+          <div class="vocab-mapping">
+            <div class="rust-keyword">&</div>
+            <div class="arrow">↔</div>
+            <div class="mech-syntax">@</div>
+          </div>
+          <div class="vocab-description">Immutable reference - borrow without taking ownership</div>
+          <div class="vocab-example">
+            <div class="example-rust">let ref = &value;</div>
+            <div class="example-mech">ref = @value #borrow</div>
+          </div>
+          <div class="qr-badge">QR://vocab/ownership/ref</div>
+        </div>
+
+        <div class="vocab-card ownership">
+          <div class="vocab-mapping">
+            <div class="rust-keyword">&mut</div>
+            <div class="arrow">↔</div>
+            <div class="mech-syntax">@~</div>
+          </div>
+          <div class="vocab-description">Mutable reference - borrow with modification rights</div>
+          <div class="vocab-example">
+            <div class="example-rust">let ref = &mut value;</div>
+            <div class="example-mech">ref = @~value #borrow-mut</div>
+          </div>
+          <div class="qr-badge">QR://vocab/ownership/mut-ref</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category: Types & Structures -->
+    <div class="category-section" data-category="types">
+      <div class="category-header">
+        <div class="category-title">📦 Types & Structures</div>
+        <div class="category-desc">Data structures mapped to MÆCH tables</div>
+      </div>
+      
+      <div class="vocab-grid">
+        <div class="vocab-card types">
+          <div class="vocab-mapping">
+            <div class="rust-keyword">struct</div>
+            <div class="arrow">↔</div>
+            <div class="mech-syntax">Table[|cols|]</div>
+          </div>
+          <div class="vocab-description">Data structure - collection of fields</div>
+          <div class="vocab-example">
+            <div class="example-rust">struct User { name: String }</div>
+            <div class="example-mech">User = [|name, age, email|]</div>
+          </div>
+          <div class="qr-badge">QR://vocab/types/struct</div>
+        </div>
+
+        <div class="vocab-card types">
+          <div class="vocab-mapping">
+            <div class="rust-keyword">enum</div>
+            <div class="arrow">↔</div>
+            <div class="mech-syntax">Choice{|opts|}</div>
+          </div>
+          <div class="vocab-description">Enumeration - one of many variants</div>
+          <div class="vocab-example">
+            <div class="example-rust">enum Color { Red, Blue }</div>
+            <div class="example-mech">Color = {|Red, Blue, Green|}</div>
+          </div>
+          <div class="qr-badge">QR://vocab/types/enum</div>
+        </div>
+
+        <div class="vocab-card types">
+          <div class="vocab-mapping">
+            <div class="rust-keyword">impl</div>
+            <div class="arrow">↔</div>
+            <div class="mech-syntax">extend Table</div>
+          </div>
+          <div class="vocab-description">Implementation block - add methods</div>
+          <div class="vocab-example">
+            <div class="example-rust">impl User { fn new() }</div>
+            <div class="example-mech">extend User [|methods|]</div>
+          </div>
+          <div class="qr-badge">QR://vocab/types/impl</div>
+        </div>
+
+        <div class="vocab-card types">
+          <div class="vocab-mapping">
+            <div class="rust-keyword">Vec&lt;T&gt;</div>
+            <div class="arrow">↔</div>
+            <div class="mech-syntax">[T]*</div>
+          </div>
+          <div class="vocab-description">Dynamic array - growable collection</div>
+          <div class="vocab-example">
+            <div class="example-rust">let v: Vec&lt;i32&gt; = vec![1,2,3];</div>
+            <div class="example-mech">v = [1, 2, 3]* #dynamic</div>
+          </div>
+          <div class="qr-badge">QR://vocab/types/vec</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category: Control Flow -->
+    <div class="category-section" data-category="control">
+      <div class="category-header">
+        <div class="category-title">🎛️ Control Flow</div>
+        <div class="category-desc">Program flow control in MÆCH syntax</div>
+      </div>
+      
+      <div class="vocab-grid">
+        <div class="vocab-card control">
+          <div class="vocab-mapping">
+            <div class="rust-keyword">if</div>
+            <div class="arrow">↔</div>
+            <div class="mech-syntax">when</div>
+          </div>
+          <div class="vocab-description">Conditional execution</div>
+          <div class="vocab-example">
+            <div class="example-rust">if x > 0 { ... }</div>
+            <div class="example-mech">when x > 0 => { ... }</div>
+          </div>
+          <div class="qr-badge">QR://vocab/control/if</div>
+        </div>
+
+        <div class="vocab-card control">
+          <div class="vocab-mapping">
+            <div class="rust-keyword">match</div>
+            <div class="arrow">↔</div>
+            <div class="mech-syntax">case</div>
+          </div>
+          <div class="vocab-description">Pattern matching</div>
+          <div class="vocab-example">
+            <div class="example-rust">match x { ... }</div>
+            <div class="example-mech">case x { pattern => result }</div>
+          </div>
+          <div class="qr-badge">QR://vocab/control/match</div>
+        </div>
+
+        <div class="vocab-card control">
+          <div class="vocab-mapping">
+            <div class="rust-keyword">loop</div>
+            <div class="arrow">↔</div>
+            <div class="mech-syntax">repeat</div>
+          </div>
+          <div class="vocab-description">Infinite loop</div>
+          <div class="vocab-example">
+            <div class="example-rust">loop { ... }</div>
+            <div class="example-mech">repeat { ... } #infinite</div>
+          </div>
+          <div class="qr-badge">QR://vocab/control/loop</div>
+        </div>
+
+        <div class="vocab-card control">
+          <div class="vocab-mapping">
+            <div class="rust-keyword">for</div>
+            <div class="arrow">↔</div>
+            <div class="mech-syntax">each</div>
+          </div>
+          <div class="vocab-description">Iterator loop</div>
+          <div class="vocab-example">
+            <div class="example-rust">for item in list { ... }</div>
+            <div class="example-mech">each item in list => { ... }</div>
+          </div>
+          <div class="qr-badge">QR://vocab/control/for</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category: Concurrency -->
+    <div class="category-section" data-category="concurrency">
+      <div class="category-header">
+        <div class="category-title">⚡ Concurrency</div>
+        <div class="category-desc">Safe concurrent programming in MÆCH</div>
+      </div>
+      
+      <div class="vocab-grid">
+        <div class="vocab-card concurrency">
+          <div class="vocab-mapping">
+            <div class="rust-keyword">async</div>
+            <div class="arrow">↔</div>
+            <div class="mech-syntax">~async</div>
+          </div>
+          <div class="vocab-description">Asynchronous function - non-blocking execution</div>
+          <div class="vocab-example">
+            <div class="example-rust">async fn fetch() { ... }</div>
+            <div class="example-mech">fetch = ~async [|url| ...]</div>
+          </div>
+          <div class="qr-badge">QR://vocab/concurrency/async</div>
+        </div>
+
+        <div class="vocab-card concurrency">
+          <div class="vocab-mapping">
+            <div class="rust-keyword">await</div>
+            <div class="arrow">↔</div>
+            <div class="mech-syntax">~wait</div>
+          </div>
+          <div class="vocab-description">Wait for async result</div>
+          <div class="vocab-example">
+            <div class="example-rust">let data = fetch().await;</div>
+            <div class="example-mech">data = ~wait fetch()</div>
+          </div>
+          <div class="qr-badge">QR://vocab/concurrency/await</div>
+        </div>
+
+        <div class="vocab-card concurrency">
+          <div class="vocab-mapping">
+            <div class="rust-keyword">thread</div>
+            <div class="arrow">↔</div>
+            <div class="mech-syntax">parallel</div>
+          </div>
+          <div class="vocab-description">Separate thread of execution</div>
+          <div class="vocab-example">
+            <div class="example-rust">thread::spawn(|| { ... })</div>
+            <div class="example-mech">parallel { ... } #spawn</div>
+          </div>
+          <div class="qr-badge">QR://vocab/concurrency/thread</div>
+        </div>
+
+        <div class="vocab-card concurrency">
+          <div class="vocab-mapping">
+            <div class="rust-keyword">Arc&lt;T&gt;</div>
+            <div class="arrow">↔</div>
+            <div class="mech-syntax">@shared[T]</div>
+          </div>
+          <div class="vocab-description">Thread-safe reference counting</div>
+          <div class="vocab-example">
+            <div class="example-rust">let data = Arc::new(value);</div>
+            <div class="example-mech">data = @shared[value]</div>
+          </div>
+          <div class="qr-badge">QR://vocab/concurrency/arc</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category: Modules & Organization -->
+    <div class="category-section" data-category="modules">
+      <div class="category-header">
+        <div class="category-title">🗂️ Modules & Organization</div>
+        <div class="category-desc">Code organization in MÆCH territories</div>
+      </div>
+      
+      <div class="vocab-grid">
+        <div class="vocab-card modules">
+          <div class="vocab-mapping">
+            <div class="rust-keyword">mod</div>
+            <div class="arrow">↔</div>
+            <div class="mech-syntax">#Territory</div>
+          </div>
+          <div class="vocab-description">Module declaration - code territory</div>
+          <div class="vocab-example">
+            <div class="example-rust">mod utils { ... }</div>
+            <div class="example-mech">#Territory_Utils { ... }</div>
+          </div>
+          <div class="qr-badge">QR://vocab/modules/mod</div>
+        </div>
+
+        <div class="vocab-card modules">
+          <div class="vocab-mapping">
+            <div class="rust-keyword">use</div>
+            <div class="arrow">↔</div>
+            <div class="mech-syntax">import</div>
+          </div>
+          <div class="vocab-description">Import items from modules</div>
+          <div class="vocab-example">
+            <div class="example-rust">use std::collections::HashMap;</div>
+            <div class="example-mech">import HashMap from std</div>
+          </div>
+          <div class="qr-badge">QR://vocab/modules/use</div>
+        </div>
+
+        <div class="vocab-card modules">
+          <div class="vocab-mapping">
+            <div class="rust-keyword">pub</div>
+            <div class="arrow">↔</div>
+            <div class="mech-syntax">public</div>
+          </div>
+          <div class="vocab-description">Public visibility - export from module</div>
+          <div class="vocab-example">
+            <div class="example-rust">pub fn helper() { ... }</div>
+            <div class="example-mech">public helper = [|...|]</div>
+          </div>
+          <div class="qr-badge">QR://vocab/modules/pub</div>
+        </div>
+
+        <div class="vocab-card modules">
+          <div class="vocab-mapping">
+            <div class="rust-keyword">crate::</div>
+            <div class="arrow">↔</div>
+            <div class="mech-syntax">root::</div>
+          </div>
+          <div class="vocab-description">Root crate reference</div>
+          <div class="vocab-example">
+            <div class="example-rust">use crate::utils;</div>
+            <div class="example-mech">import root::utils</div>
+          </div>
+          <div class="qr-badge">QR://vocab/modules/crate</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Search functionality (reset filter on search)
+    const searchInput = document.getElementById('search-input');
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      
+      if (query) {
+        // Show all categories when searching
+        document.querySelectorAll('.category-section').forEach(s => s.style.display = 'block');
+        
+        // Filter individual cards
+        document.querySelectorAll('.vocab-card').forEach(card => {
+          const text = card.textContent.toLowerCase();
+          card.style.display = text.includes(query) ? 'block' : 'none';
+        });
+        
+        // Reset filter buttons
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      } else {
+        // Clear search - show all
+        document.querySelectorAll('.vocab-card').forEach(card => {
+          card.style.display = 'block';
+        });
+      }
+    });
+
+    // Filter functionality
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const filter = this.dataset.filter;
+        
+        // Clear search on filter
+        searchInput.value = '';
+        
+        // Update active state
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Show all cards
+        document.querySelectorAll('.vocab-card').forEach(c => c.style.display = 'block');
+        
+        // Filter categories
+        if (filter === 'all') {
+          document.querySelectorAll('.category-section').forEach(s => s.style.display = 'block');
+        } else {
+          document.querySelectorAll('.category-section').forEach(s => {
+            s.style.display = s.dataset.category === filter ? 'block' : 'none';
+          });
+        }
+      });
+    });
+
+    console.log('🦀💚 Rust-MÆCH Vocabulary Reference initialized!');
+    console.log('QR://vocab/rust-mech/x₀y₀z₀');
+  </script>
+</body>
+</html>

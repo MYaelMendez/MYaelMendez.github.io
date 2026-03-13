@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MÆCH DeepCode: Open Agentic Coding</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background: linear-gradient(135deg, #0f1419, #1e293b, #0f172a);
+            color: #00ffaa;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* MÆCH DeepCode Container */
+        .mech-deepcode-container {
+            width: 95%;
+            max-width: 1400px;
+            margin: 20px auto;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #3b82f6;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.3), inset 0 0 30px rgba(59, 130, 246, 0.1);
+            backdrop-filter: blur(15px);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .mech-header {
+            display: flex;
+            align-items: center;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(0, 255, 170, 0.1));
+            border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .mech-logo {
+            font-size: 32px;
+            margin-right: 20px;
+        }
+
+        .mech-title {
+            flex: 1;
+        }
+
+        .mech-title h1 {
+            font-size: 28px;
+            background: linear-gradient(135deg, #3b82f6, #00ffaa, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .mech-subtitle {
+            color: rgba(59, 130, 246, 0.8);
+            font-size: 14px;
+        }
+
+        .mech-qr {
+            background: rgba(59, 130, 246, 0.2);
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            font-size: 12px;
+        }
+
+        /* Navigation */
+        .mech-nav {
+            display: flex;
+            background: rgba(0, 0, 0, 0.9);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+            overflow-x: auto;
+        }
+
+        .mech-nav-item {
+            background: transparent;
+            border: none;
+            color: rgba(59, 130, 246, 0.7);
+            font-family: 'Fira Code', monospace;
+            padding: 20px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mech-nav-item:hover {
+            color: #3b82f6;
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .mech-nav-item.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        /* Content */
+        .mech-content {
+            padding: 30px;
+            min-height: 600px;
+            display: none;
+        }
+
+        .mech-content.active {
+            display: block;
+        }
+
+        /* Feature Cards */
+        .mech-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .mech-feature-card {
+            background: rgba(59, 130, 246, 0.05);
+            border: 2px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mech-feature-card:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+        }
+
+        .mech-feature-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .mech-feature-title {
+            color: #3b82f6;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .mech-feature-desc {
+            color: rgba(0, 255, 170, 0.8);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        /* Buttons */
+        .mech-button {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-family: 'Fira Code', monospace;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mech-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+        }
+
+        .mech-button.secondary {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+        }
+
+        /* Terminal Interface */
+        .mech-terminal {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .mech-terminal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .mech-terminal-dots {
+            display: flex;
+            gap: 8px;
+            margin-right: 15px;
+        }
+
+        .mech-terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .mech-terminal-dot.red { background: #ff5f56; }
+        .mech-terminal-dot.yellow { background: #ffbd2e; }
+        .mech-terminal-dot.green { background: #27c93f; }
+
+        .mech-terminal-title {
+            color: #3b82f6;
+            font-weight: bold;
+        }
+
+        .mech-terminal-line {
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .mech-terminal-prompt {
+            color: #00ffaa;
+            margin-right: 10px;
+        }
+
+        .mech-terminal-command {
+            color: #3b82f6;
+        }
+
+        .mech-terminal-output {
+            color: rgba(0, 255, 170, 0.8);
+            margin-left: 20px;
+        }
+
+        /* Workflow Visual */
+        .mech-workflow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .mech-workflow-step {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+
+        .mech-workflow-step::after {
+            content: "→";
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: #3b82f6;
+        }
+
+        .mech-workflow-step:last-child::after {
+            display: none;
+        }
+
+        .mech-workflow-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .mech-workflow-title {
+            color: #3b82f6;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .mech-workflow-desc {
+            color: rgba(0, 255, 170, 0.7);
+            font-size: 12px;
+        }
+
+        /* Status Indicators */
+        .mech-status {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .mech-status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(59, 130, 246, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .mech-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #27c93f;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Code Examples */
+        .mech-code {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+
+        .mech-code-header {
+            color: #3b82f6;
+            font-size: 12px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .mech-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .mech-workflow {
+                flex-direction: column;
+            }
+            
+            .mech-workflow-step::after {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mech-deepcode-container">
+        <!-- Header -->
+        <div class="mech-header">
+            <div class="mech-logo">🧬</div>
+            <div class="mech-title">
+                <h1>MÆCH DeepCode: Open Agentic Coding</h1>
+                <div class="mech-subtitle">Transform research papers into production-ready code with territorial AI agents</div>
+            </div>
+            <div class="mech-qr">QR:DC001</div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="mech-nav">
+            <button class="mech-nav-item active" data-content="overview">
+                <span>🏠</span> Overview
+            </button>
+            <button class="mech-nav-item" data-content="features">
+                <span>⚡</span> Features
+            </button>
+            <button class="mech-nav-item" data-content="workflow">
+                <span>🔄</span> Workflow
+            </button>
+            <button class="mech-nav-item" data-content="terminal">
+                <span>💻</span> Terminal
+            </button>
+            <button class="mech-nav-item" data-content="integration">
+                <span>🔗</span> MÆCH Integration
+            </button>
+        </div>
+
+        <!-- Content Areas -->
+        <div id="content-overview" class="mech-content active">
+            <h1>🧬 DeepCode: Revolutionary Agentic Coding System</h1>
+            <p style="font-size: 18px; color: rgba(0, 255, 170, 0.9); margin: 20px 0;">Where AI Agents Transform Ideas into Production-Ready Code</p>
+
+            <div class="mech-status">
+                <div class="mech-status-item">
+                    <div class="mech-status-dot"></div>
+                    <span>Multi-Agent System: Active</span>
+                </div>
+                <div class="mech-status-item">
+                    <div class="mech-status-dot"></div>
+                    <span>MÆCH Integration: Ready</span>
+                </div>
+                <div class="mech-status-item">
+                    <div class="mech-status-dot"></div>
+                    <span>Territorial Programming: Enabled</span>
+                </div>
+            </div>
+
+            <div class="mech-features">
+                <div class="mech-feature-card">
+                    <span class="mech-feature-icon">📄</span>
+                    <h3 class="mech-feature-title">Paper2Code</h3>
+                    <p class="mech-feature-desc">Convierte automáticamente papers de investigación complejos en código de producción de alta calidad usando agentes territoriales MÆCH.</p>
+                    <button class="mech-button" onclick="launchPaper2Code()">🚀 Launch Paper2Code</button>
+                </div>
+
+                <div class="mech-feature-card">
+                    <span class="mech-feature-icon">🎨</span>
+                    <h3 class="mech-feature-title">Text2Web</h3>
+                    <p class="mech-feature-desc">Genera interfaces web completas y funcionales desde descripciones de texto usando programación territorial visual.</p>
+                    <button class="mech-button" onclick="launchText2Web()">🌐 Launch Text2Web</button>
+                </div>
+
+                <div class="mech-feature-card">
+                    <span class="mech-feature-icon">⚙️</span>
+                    <h3 class="mech-feature-title">Text2Backend</h3>
+                    <p class="mech-feature-desc">Crea sistemas backend escalables y eficientes desde especificaciones simples con arquitectura agentic MÆCH.</p>
+                    <button class="mech-button" onclick="launchText2Backend()">🔧 Launch Text2Backend</button>
+                </div>
+            </div>
+
+            <h2 style="color: #3b82f6; margin: 30px 0 15px 0;">🎯 Autonomous Multi-Agent Workflow</h2>
+            <p style="color: rgba(0, 255, 170, 0.8); line-height: 1.6;">DeepCode implementa un sistema de agentes territoriales MÆCH que trabajan autónomamente para resolver los desafíos más complejos del desarrollo de software, desde la investigación hasta la implementación en producción.</p>
+
+            <button class="mech-button" onclick="startDeepCodeSystem()" style="margin-top: 20px;">
+                🧬 Start DeepCode Agentic System
+            </button>
+            <button class="mech-button secondary" onclick="viewDocumentation()">
+                📚 View Documentation
+            </button>
+        </div>
+
+        <div id="content-features" class="mech-content">
+            <h1>⚡ DeepCode Features & Capabilities</h1>
+
+            <div class="mech-workflow">
+                <div class="mech-workflow-step">
+                    <span class="mech-workflow-icon">📝</span>
+                    <div class="mech-workflow-title">Input Processing</div>
+                    <div class="mech-workflow-desc">Papers, text descriptions, requirements</div>
+                </div>
+                <div class="mech-workflow-step">
+                    <span class="mech-workflow-icon">🤖</span>
+                    <div class="mech-workflow-title">Agent Analysis</div>
+                    <div class="mech-workflow-desc">Multi-agent territorial intelligence</div>
+                </div>
+                <div class="mech-workflow-step">
+                    <span class="mech-workflow-icon">⚡</span>
+                    <div class="mech-workflow-title">Code Generation</div>
+                    <div class="mech-workflow-desc">Production-ready implementation</div>
+                </div>
+                <div class="mech-workflow-step">
+                    <span class="mech-workflow-icon">🚀</span>
+                    <div class="mech-workflow-title">Deployment</div>
+                    <div class="mech-workflow-desc">Automatic testing & deployment</div>
+                </div>
+            </div>
+
+            <h2 style="color: #3b82f6; margin: 30px 0 15px 0;">🛠️ Advanced Capabilities</h2>
+
+            <div class="mech-features">
+                <div class="mech-feature-card">
+                    <span class="mech-feature-icon">🧠</span>
+                    <h3 class="mech-feature-title">Neural Code Synthesis</h3>
+                    <p class="mech-feature-desc">Advanced neural networks trained on millions of code repositories to generate optimal implementations.</p>
+                </div>
+
+                <div class="mech-feature-card">
+                    <span class="mech-feature-icon">🔍</span>
+                    <h3 class="mech-feature-title">Intelligent Pattern Recognition</h3>
+                    <p class="mech-feature-desc">Recognizes complex algorithmic patterns and architectural designs from research papers.</p>
+                </div>
+
+                <div class="mech-feature-card">
+                    <span class="mech-feature-icon">🎯</span>
+                    <h3 class="mech-feature-title">Context-Aware Generation</h3>
+                    <p class="mech-feature-desc">Understands project context and generates code that integrates seamlessly with existing systems.</p>
+                </div>
+
+                <div class="mech-feature-card">
+                    <span class="mech-feature-icon">⚡</span>
+                    <h3 class="mech-feature-title">Real-time Optimization</h3>
+                    <p class="mech-feature-desc">Continuously optimizes generated code for performance, security, and maintainability.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="content-workflow" class="mech-content">
+            <h1>🔄 MÆCH DeepCode Workflow</h1>
+
+            <div class="mech-terminal">
+                <div class="mech-terminal-header">
+                    <div class="mech-terminal-dots">
+                        <div class="mech-terminal-dot red"></div>
+                        <div class="mech-terminal-dot yellow"></div>
+                        <div class="mech-terminal-dot green"></div>
+                    </div>
+                    <div class="mech-terminal-title">MÆCH DeepCode Agent Orchestrator</div>
+                </div>
+
+                <div class="mech-terminal-line">
+                    <span class="mech-terminal-prompt">mæch@deepcode:~$</span>
+                    <span class="mech-terminal-command">deepcode init --mode territorial</span>
+                </div>
+                <div class="mech-terminal-output">✅ MÆCH territorial agents initialized</div>
+                <div class="mech-terminal-output">🤖 Agent pool: [paper-analyst, code-generator, territory-optimizer]</div>
+
+                <div class="mech-terminal-line">
+                    <span class="mech-terminal-prompt">mæch@deepcode:~$</span>
+                    <span class="mech-terminal-command">deepcode paper2code --input research.pdf --output territorial_impl/</span>
+                </div>
+                <div class="mech-terminal-output">📄 Analyzing research paper...</div>
+                <div class="mech-terminal-output">🧠 Extracting algorithmic patterns...</div>
+                <div class="mech-terminal-output">⚡ Generating MÆCH territorial implementation...</div>
+                <div class="mech-terminal-output">✅ Code generated: 3,247 lines | 12 modules | 100% test coverage</div>
+
+                <div class="mech-terminal-line">
+                    <span class="mech-terminal-prompt">mæch@deepcode:~$</span>
+                    <span class="mech-terminal-command">deepcode text2web --description "E-commerce platform with AI recommendations"</span>
+                </div>
+                <div class="mech-terminal-output">🎨 Designing UI/UX with territorial programming...</div>
+                <div class="mech-terminal-output">⚡ Generating React components with MÆCH integration...</div>
+                <div class="mech-terminal-output">🚀 Web application ready for deployment</div>
+            </div>
+
+            <h2 style="color: #3b82f6; margin: 30px 0 15px 0;">🏗️ Architecture Overview</h2>
+            <p style="color: rgba(0, 255, 170, 0.8); line-height: 1.6; margin-bottom: 20px;">
+                DeepCode utiliza un sistema de agentes territoriales MÆCH que trabajan en coordinación para analizar, generar y optimizar código de forma autónoma.
+            </p>
+
+            <div class="mech-code">
+                <div class="mech-code-header">MÆCH DeepCode Agent Configuration</div>
+                <pre style="color: #00ffaa; margin: 0;">
+# MÆCH Territorial Agent System
+agents:
+  paper_analyst:
+    territory: "research_analysis"
+    capabilities: ["pdf_parsing", "algorithm_extraction", "pattern_recognition"]
+    
+  code_generator:
+    territory: "implementation"
+    capabilities: ["multi_language_gen", "optimization", "testing"]
+    
+  territory_optimizer:
+    territory: "deployment"
+    capabilities: ["performance_tuning", "scalability", "monitoring"]
+
+workflow:
+  - stage: "analysis"
+    agent: "paper_analyst"
+    output: "algorithmic_specification"
+    
+  - stage: "implementation"
+    agent: "code_generator"
+    input: "algorithmic_specification"
+    output: "territorial_codebase"
+    
+  - stage: "optimization"
+    agent: "territory_optimizer"
+    input: "territorial_codebase"
+    output: "production_ready_system"
+                </pre>
+            </div>
+        </div>
+
+        <div id="content-terminal" class="mech-content">
+            <h1>💻 MÆCH DeepCode Terminal Interface</h1>
+            
+            <div class="mech-terminal" style="height: 400px; overflow-y: auto;" id="deepcodeTerminal">
+                <div class="mech-terminal-header">
+                    <div class="mech-terminal-dots">
+                        <div class="mech-terminal-dot red"></div>
+                        <div class="mech-terminal-dot yellow"></div>
+                        <div class="mech-terminal-dot green"></div>
+                    </div>
+                    <div class="mech-terminal-title">DeepCode Agentic Terminal</div>
+                </div>
+
+                <div id="terminalOutput">
+                    <div class="mech-terminal-line">
+                        <span class="mech-terminal-prompt">deepcode@mæch:~$</span>
+                        <span class="mech-terminal-command">status</span>
+                    </div>
+                    <div class="mech-terminal-output">🧬 DeepCode Agentic System Status:</div>
+                    <div class="mech-terminal-output">✅ Multi-Agent Framework: Online</div>
+                    <div class="mech-terminal-output">✅ MÆCH Territorial Integration: Active</div>
+                    <div class="mech-terminal-output">✅ Paper2Code Agent: Ready</div>
+                    <div class="mech-terminal-output">✅ Text2Web Agent: Ready</div>
+                    <div class="mech-terminal-output">✅ Text2Backend Agent: Ready</div>
+                    <div class="mech-terminal-output">📊 Active Projects: 0</div>
+                    <div class="mech-terminal-output">🚀 Ready for territorial programming tasks</div>
+                    
+                    <div class="mech-terminal-line">
+                        <span class="mech-terminal-prompt">deepcode@mæch:~$</span>
+                        <span class="mech-terminal-command">help</span>
+                    </div>
+                    <div class="mech-terminal-output">🧬 DeepCode Available Commands:</div>
+                    <div class="mech-terminal-output">  paper2code &lt;file&gt; - Convert research paper to code</div>
+                    <div class="mech-terminal-output">  text2web &lt;description&gt; - Generate web application</div>
+                    <div class="mech-terminal-output">  text2backend &lt;spec&gt; - Create backend system</div>
+                    <div class="mech-terminal-output">  mech-integrate - Connect with MÆCH ecosystem</div>
+                    <div class="mech-terminal-output">  status - Show system status</div>
+                    <div class="mech-terminal-output">  deploy - Deploy generated code</div>
+                </div>
+
+                <div class="mech-terminal-line" style="margin-top: 20px;">
+                    <span class="mech-terminal-prompt">deepcode@mæch:~$</span>
+                    <input type="text" id="terminalInput" style="background: transparent; border: none; color: #3b82f6; font-family: inherit; flex: 1; outline: none;" placeholder="Enter command...">
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button class="mech-button" onclick="simulateCommand('paper2code research.pdf')">
+                    📄 Demo Paper2Code
+                </button>
+                <button class="mech-button" onclick="simulateCommand('text2web &quot;AI chatbot interface&quot;')">
+                    🌐 Demo Text2Web
+                </button>
+                <button class="mech-button" onclick="simulateCommand('text2backend &quot;REST API with auth&quot;')">
+                    ⚙️ Demo Text2Backend
+                </button>
+            </div>
+        </div>
+
+        <div id="content-integration" class="mech-content">
+            <h1>🔗 MÆCH Integration & Deployment</h1>
+            
+            <h2 style="color: #3b82f6; margin: 30px 0 15px 0;">🌐 Integration with MÆCH Ecosystem</h2>
+            
+            <div class="mech-features">
+                <div class="mech-feature-card">
+                    <span class="mech-feature-icon">🤖</span>
+                    <h3 class="mech-feature-title">Agentic Systems</h3>
+                    <p class="mech-feature-desc">DeepCode agents se integran seamlessly con el sistema agentic MÆCH para territorial programming colaborativo.</p>
+                    <button class="mech-button" onclick="connectAgenticSystems()">🔗 Connect Systems</button>
+                </div>
+
+                <div class="mech-feature-card">
+                    <span class="mech-feature-icon">🌐</span>
+                    <h3 class="mech-feature-title">Integration Hub</h3>
+                    <p class="mech-feature-desc">Acceso directo desde el MÆCH Integration Hub para gestionar todas las implementaciones DeepCode.</p>
+                    <button class="mech-button" onclick="openIntegrationHub()">🌐 Open Hub</button>
+                </div>
+
+                <div class="mech-feature-card">
+                    <span class="mech-feature-icon">🎓</span>
+                    <h3 class="mech-feature-title">Educational Integration</h3>
+                    <p class="mech-feature-desc">Integración con #LATAMOCW para enseñar programación territorial using DeepCode examples.</p>
+                    <button class="mech-button" onclick="openEducationalSystem()">🎓 Launch Education</button>
+                </div>
+            </div>
+
+            <h2 style="color: #3b82f6; margin: 30px 0 15px 0;">⚡ Real-time Deployment Pipeline</h2>
+            
+            <div class="mech-code">
+                <div class="mech-code-header">MÆCH DeepCode Integration Script</div>
+                <pre style="color: #00ffaa; margin: 0;">
+// MÆCH DeepCode Integration
+MÆCH.init("deepcode_integration")
+
+// Initialize DeepCode agents with territorial programming
+const deepcodeAgents = MÆCH.Agentic.create({
+    agents: ["paper_analyst", "code_generator", "territory_optimizer"],
+    territorial_mode: true,
+    integration_hub: "/mech-hub",
+    qr_addressable: true
+})
+
+// Paper2Code with MÆCH
+async function paper2Code(pdfPath, outputDir) {
+    const analysis = await deepcodeAgents.paper_analyst.analyze(pdfPath)
+    const code = await deepcodeAgents.code_generator.implement(analysis, {
+        language: "MÆCH",
+        territorial: true,
+        output: outputDir
+    })
+    
+    return MÆCH.Territory.deploy(code)
+}
+
+// Text2Web with territorial UI
+async function text2Web(description) {
+    const webApp = await deepcodeAgents.code_generator.createWeb({
+        description: description,
+        framework: "MÆCH_UI",
+        territorial_routing: true,
+        qr_navigation: true
+    })
+    
+    return MÆCH.WebApp.deploy(webApp)
+}
+
+// Export to MÆCH ecosystem
+MÆCH.Registry.add("deepcode", {
+    qr: "DC001",
+    agents: deepcodeAgents,
+    capabilities: ["paper2code", "text2web", "text2backend"],
+    territorial: true
+})
+                </pre>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <button class="mech-button" onclick="deployToMech()" style="font-size: 18px; padding: 15px 30px;">
+                    🚀 Deploy DeepCode to MÆCH OS
+                </button>
+                <button class="mech-button secondary" onclick="viewIntegrationDocs()">
+                    📚 Integration Documentation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // MÆCH DeepCode Controller
+        class MechDeepCodeController {
+            constructor() {
+                this.activeContent = 'overview';
+                this.terminalHistory = [];
+                this.init();
+            }
+
+            init() {
+                this.setupNavigation();
+                this.setupTerminal();
+                console.log('🧬 MÆCH DeepCode System initialized');
+            }
+
+            setupNavigation() {
+                document.querySelectorAll('.mech-nav-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const contentId = item.dataset.content;
+                        this.switchContent(contentId);
+                        this.updateActiveNav(item);
+                    });
+                });
+            }
+
+            switchContent(contentId) {
+                // Hide all content
+                document.querySelectorAll('.mech-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+
+                // Show selected content
+                const targetContent = document.getElementById(`content-${contentId}`);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                    this.activeContent = contentId;
+                }
+            }
+
+            updateActiveNav(activeItem) {
+                document.querySelectorAll('.mech-nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                activeItem.classList.add('active');
+            }
+
+            setupTerminal() {
+                const input = document.getElementById('terminalInput');
+                if (input) {
+                    input.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            this.executeCommand(input.value.trim());
+                            input.value = '';
+                        }
+                    });
+                }
+            }
+
+            executeCommand(command) {
+                if (!command) return;
+
+                this.addTerminalLine('deepcode@mæch:~$', command);
+                this.terminalHistory.push(command);
+
+                // Simulate command execution
+                setTimeout(() => {
+                    this.processCommand(command);
+                }, 500);
+            }
+
+            processCommand(command) {
+                const output = document.getElementById('terminalOutput');
+                
+                if (command.startsWith('paper2code')) {
+                    this.addTerminalOutput('📄 Analyzing research paper...');
+                    setTimeout(() => {
+                        this.addTerminalOutput('🧠 Extracting algorithms with territorial agents...');
+                        setTimeout(() => {
+                            this.addTerminalOutput('⚡ Generating MÆCH implementation...');
+                            setTimeout(() => {
+                                this.addTerminalOutput('✅ Code generated successfully!');
+                                this.addTerminalOutput('📁 Output: ./territorial_impl/');
+                            }, 1000);
+                        }, 1000);
+                    }, 1000);
+                } else if (command.startsWith('text2web')) {
+                    this.addTerminalOutput('🎨 Designing territorial UI...');
+                    setTimeout(() => {
+                        this.addTerminalOutput('⚡ Generating MÆCH web components...');
+                        setTimeout(() => {
+                            this.addTerminalOutput('🚀 Web application ready!');
+                            this.addTerminalOutput('🌐 URL: http://localhost:3000');
+                        }, 1000);
+                    }, 1000);
+                } else if (command.startsWith('text2backend')) {
+                    this.addTerminalOutput('⚙️ Architecting backend system...');
+                    setTimeout(() => {
+                        this.addTerminalOutput('🔧 Generating API endpoints...');
+                        setTimeout(() => {
+                            this.addTerminalOutput('✅ Backend system deployed!');
+                            this.addTerminalOutput('📡 API: http://localhost:8000/api');
+                        }, 1000);
+                    }, 1000);
+                } else if (command === 'mech-integrate') {
+                    this.addTerminalOutput('🔗 Connecting to MÆCH ecosystem...');
+                    setTimeout(() => {
+                        this.addTerminalOutput('✅ Integration successful!');
+                        this.addTerminalOutput('🌐 Available at: /mech-hub');
+                    }, 1000);
+                } else {
+                    this.addTerminalOutput(`❌ Command not found: ${command}`);
+                    this.addTerminalOutput('💡 Type "help" for available commands');
+                }
+            }
+
+            addTerminalLine(prompt, command) {
+                const output = document.getElementById('terminalOutput');
+                const line = document.createElement('div');
+                line.className = 'mech-terminal-line';
+                line.innerHTML = `
+                    <span class="mech-terminal-prompt">${prompt}</span>
+                    <span class="mech-terminal-command">${command}</span>
+                `;
+                output.appendChild(line);
+                output.scrollTop = output.scrollHeight;
+            }
+
+            addTerminalOutput(text) {
+                const output = document.getElementById('terminalOutput');
+                const line = document.createElement('div');
+                line.className = 'mech-terminal-output';
+                line.textContent = text;
+                output.appendChild(line);
+                output.scrollTop = output.scrollHeight;
+            }
+        }
+
+        // Global functions for button interactions
+        function launchPaper2Code() {
+            console.log('📄 Launching Paper2Code agent...');
+            simulateCommand('paper2code research.pdf');
+        }
+
+        function launchText2Web() {
+            console.log('🌐 Launching Text2Web agent...');
+            simulateCommand('text2web "AI-powered dashboard"');
+        }
+
+        function launchText2Backend() {
+            console.log('⚙️ Launching Text2Backend agent...');
+            simulateCommand('text2backend "microservices architecture"');
+        }
+
+        function startDeepCodeSystem() {
+            console.log('🧬 Starting DeepCode Agentic System...');
+            alert('🧬 DeepCode Agentic System\n\n✅ Multi-agent framework activated\n⚡ Territorial programming enabled\n🚀 Ready for autonomous code generation\n\nUse the Terminal tab to interact with agents!');
+        }
+
+        function viewDocumentation() {
+            console.log('📚 Opening DeepCode documentation...');
+            window.open('https://github.com/MYaelMendez/deepcode', '_blank');
+        }
+
+        function simulateCommand(command) {
+            mechDeepCode.executeCommand(command);
+            // Switch to terminal tab
+            const terminalTab = document.querySelector('[data-content="terminal"]');
+            if (terminalTab) {
+                terminalTab.click();
+            }
+        }
+
+        function connectAgenticSystems() {
+            console.log('🤖 Connecting to MÆCH Agentic Systems...');
+            window.open('/mech-agents', '_blank', 'width=1200,height=800');
+        }
+
+        function openIntegrationHub() {
+            console.log('🌐 Opening MÆCH Integration Hub...');
+            window.open('/mech-hub', '_blank', 'width=1200,height=800');
+        }
+
+        function openEducationalSystem() {
+            console.log('🎓 Opening #LATAMOCW Educational System...');
+            window.open('/mech-latamocw', '_blank', 'width=1200,height=800');
+        }
+
+        function deployToMech() {
+            console.log('🚀 Deploying DeepCode to MÆCH OS...');
+            alert('🚀 DeepCode Integration Deployment\n\n✅ Territorial agents registered\n🤖 Multi-agent system connected\n🌐 Integration Hub updated\n📡 API endpoints configured\n\nDeepCode is now part of the MÆCH ecosystem!');
+        }
+
+        function viewIntegrationDocs() {
+            console.log('📚 Viewing integration documentation...');
+            alert('📚 MÆCH DeepCode Integration\n\nDocumentation includes:\n• Agent configuration\n• Territorial programming patterns\n• API reference\n• Deployment guides\n• Examples and tutorials\n\nAccess via MÆCH Integration Hub!');
+        }
+
+        // Initialize MÆCH DeepCode System
+        const mechDeepCode = new MechDeepCodeController();
+
+        console.log('🧬 MÆCH DeepCode: Open Agentic Coding System ready');
+        console.log('⚡ Revolutionary AI agents for territorial programming');
+    </script>
+</body>
+</html>

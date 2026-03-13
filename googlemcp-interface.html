@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google MCP — Model Context Protocol Servers | æææ:///mcp</title>
+    <meta name="description" content="Google's official MCP servers integrated into the æææ:/// Command Line Internet Protocol. BigQuery, Maps, GKE, Workspace, and more.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --google-blue: #4285f4;
+            --google-red: #ea4335;
+            --google-yellow: #fbbc04;
+            --google-green: #34a853;
+            --mcp-primary: #00ff99;
+            --bg-dark: #0a0a0a;
+            --bg-card: #111;
+            --text-primary: #fff;
+            --text-secondary: #888;
+        }
+        
+        body {
+            font-family: 'SF Mono', 'Fira Code', 'Monaco', monospace;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        
+        .mcp-header {
+            background: linear-gradient(180deg, #111 0%, #0a0a0a 100%);
+            border-bottom: 2px solid var(--mcp-primary);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .mcp-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .google-heart {
+            font-size: 20px;
+            display: flex;
+            gap: 2px;
+        }
+        
+        .g-blue { color: var(--google-blue); }
+        .g-red { color: var(--google-red); }
+        .g-yellow { color: var(--google-yellow); }
+        .g-green { color: var(--google-green); }
+        
+        .mcp-title {
+            font-size: 18px;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--google-blue), var(--google-green), var(--mcp-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .mcp-subtitle {
+            font-size: 10px;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+        }
+        
+        .back-btn {
+            background: transparent;
+            border: 1px solid #333;
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+        
+        .back-btn:hover {
+            border-color: var(--mcp-primary);
+            color: var(--mcp-primary);
+        }
+        
+        .mcp-hero {
+            text-align: center;
+            padding: 50px 24px 40px;
+            border-bottom: 1px solid #222;
+            background: radial-gradient(ellipse at center, rgba(0,255,153,0.05) 0%, transparent 70%);
+        }
+        
+        .hero-badge {
+            display: inline-block;
+            background: linear-gradient(90deg, rgba(66,133,244,0.2), rgba(52,168,83,0.2));
+            border: 1px solid var(--google-blue);
+            color: var(--google-blue);
+            padding: 6px 16px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+        
+        .hero-title {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        
+        .hero-title .google { color: var(--google-blue); }
+        .hero-title .heart { color: var(--google-red); }
+        .hero-title .mcp { color: var(--mcp-primary); }
+        
+        .hero-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 24px;
+            line-height: 1.7;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            padding: 20px 24px;
+            background: #0d0d0d;
+            border-bottom: 1px solid #222;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title .badge {
+            background: var(--mcp-primary);
+            color: #000;
+            padding: 2px 8px;
+            font-size: 9px;
+            font-weight: 800;
+        }
+        
+        .servers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+            padding: 24px;
+        }
+        
+        .server-card {
+            background: var(--bg-card);
+            border: 1px solid #222;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .server-card:hover {
+            border-color: var(--mcp-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,255,153,0.1);
+        }
+        
+        .server-card.remote {
+            border-left: 3px solid var(--google-blue);
+        }
+        
+        .server-card.opensource {
+            border-left: 3px solid var(--google-green);
+        }
+        
+        .server-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .server-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        .server-name {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .server-type {
+            font-size: 9px;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .server-desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        
+        .server-endpoint {
+            background: #000;
+            border: 1px solid #333;
+            padding: 10px 12px;
+            font-size: 10px;
+            color: var(--mcp-primary);
+            margin-bottom: 12px;
+            overflow-x: auto;
+        }
+        
+        .server-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .server-btn {
+            background: transparent;
+            border: 1px solid #333;
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            font-size: 9px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            text-decoration: none;
+        }
+        
+        .server-btn:hover {
+            border-color: var(--mcp-primary);
+            color: var(--mcp-primary);
+        }
+        
+        .server-btn.primary {
+            background: var(--mcp-primary);
+            border-color: var(--mcp-primary);
+            color: #000;
+        }
+        
+        .server-btn.primary:hover {
+            background: #00cc7a;
+        }
+        
+        .integration-section {
+            background: #0d0d0d;
+            border-top: 1px solid #222;
+            padding: 30px 24px;
+        }
+        
+        .integration-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .integration-card {
+            background: var(--bg-card);
+            border: 1px solid #222;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .integration-card:hover {
+            border-color: #444;
+        }
+        
+        .integration-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .integration-name {
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        
+        .integration-proto {
+            font-size: 9px;
+            color: var(--mcp-primary);
+        }
+        
+        .mcp-footer {
+            border-top: 1px solid #222;
+            padding: 30px 24px;
+            text-align: center;
+        }
+        
+        .footer-proto {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+        
+        .footer-proto a {
+            color: var(--mcp-primary);
+            text-decoration: none;
+        }
+        
+        .repo-links {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .repo-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: 1px solid #333;
+            color: var(--text-primary);
+            padding: 10px 20px;
+            font-size: 11px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .repo-link:hover {
+            border-color: var(--google-blue);
+            color: var(--google-blue);
+        }
+    </style>
+</head>
+<body>
+    <header class="mcp-header">
+        <div class="mcp-logo">
+            <span class="google-heart">
+                <span class="g-blue">G</span>
+                <span class="g-red">o</span>
+                <span class="g-yellow">o</span>
+                <span class="g-blue">g</span>
+                <span class="g-green">l</span>
+                <span class="g-red">e</span>
+                <span style="color:#fff;margin:0 4px">💚</span>
+                <span style="color:var(--mcp-primary)">MCP</span>
+            </span>
+            <div>
+                <div class="mcp-title">Model Context Protocol</div>
+                <div class="mcp-subtitle">GOOGLE OFFICIAL SERVERS</div>
+            </div>
+        </div>
+        <a href="/mech-os.html" class="back-btn" data-testid="back-to-mech">
+            <span>←</span>
+            <span>æææ:///</span>
+        </a>
+    </header>
+    
+    <section class="mcp-hero">
+        <div class="hero-badge">FORK: MYaelMendez/Googlemcp — Apache-2.0</div>
+        <h1 class="hero-title">
+            <span class="google">Google</span> <span class="heart">💚</span> <span class="mcp">MCP</span>
+        </h1>
+        <p class="hero-desc">
+            Google's official Model Context Protocol servers for AI applications. 
+            Connect to BigQuery, Maps, Kubernetes, Workspace, and more. 
+            Remote and open-source servers available for the æææ:/// Command Line Internet.
+        </p>
+    </section>
+    
+    <div class="section-title">
+        <span>⚡ REMOTE MCP SERVERS</span>
+        <span class="badge">MANAGED BY GOOGLE</span>
+    </div>
+    
+    <div class="servers-grid">
+        <article class="server-card remote" data-testid="server-maps">
+            <div class="server-header">
+                <span class="server-icon">🗺️</span>
+                <div>
+                    <div class="server-name">Google Maps (Grounding Lite)</div>
+                    <div class="server-type">Remote Server</div>
+                </div>
+            </div>
+            <p class="server-desc">Location intelligence, directions, places search, and geocoding for AI agents.</p>
+            <div class="server-endpoint">æææ:///mcp/google/maps</div>
+            <div class="server-actions">
+                <a href="https://developers.google.com/maps/ai/grounding-lite" target="_blank" class="server-btn primary">Docs</a>
+                <button class="server-btn" data-testid="btn-connect-maps">Connect</button>
+            </div>
+        </article>
+        
+        <article class="server-card remote" data-testid="server-bigquery">
+            <div class="server-header">
+                <span class="server-icon">📊</span>
+                <div>
+                    <div class="server-name">BigQuery</div>
+                    <div class="server-type">Remote Server</div>
+                </div>
+            </div>
+            <p class="server-desc">Query petabyte-scale data warehouse with natural language. Schema exploration and SQL generation.</p>
+            <div class="server-endpoint">æææ:///mcp/google/bigquery</div>
+            <div class="server-actions">
+                <a href="https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp" target="_blank" class="server-btn primary">Docs</a>
+                <button class="server-btn">Connect</button>
+            </div>
+        </article>
+        
+        <article class="server-card remote" data-testid="server-gke">
+            <div class="server-header">
+                <span class="server-icon">☸️</span>
+                <div>
+                    <div class="server-name">Kubernetes Engine (GKE)</div>
+                    <div class="server-type">Remote Server</div>
+                </div>
+            </div>
+            <p class="server-desc">Manage Kubernetes clusters, deployments, and services through MCP tools.</p>
+            <div class="server-endpoint">æææ:///mcp/google/gke</div>
+            <div class="server-actions">
+                <a href="https://docs.cloud.google.com/kubernetes-engine/docs/reference/mcp" target="_blank" class="server-btn primary">Docs</a>
+                <button class="server-btn">Connect</button>
+            </div>
+        </article>
+        
+        <article class="server-card remote" data-testid="server-gce">
+            <div class="server-header">
+                <span class="server-icon">💻</span>
+                <div>
+                    <div class="server-name">Compute Engine (GCE)</div>
+                    <div class="server-type">Remote Server</div>
+                </div>
+            </div>
+            <p class="server-desc">Virtual machines, instances, and compute resources management via MCP.</p>
+            <div class="server-endpoint">æææ:///mcp/google/gce</div>
+            <div class="server-actions">
+                <a href="https://docs.cloud.google.com/compute/docs/reference/mcp" target="_blank" class="server-btn primary">Docs</a>
+                <button class="server-btn">Connect</button>
+            </div>
+        </article>
+    </div>
+    
+    <div class="section-title">
+        <span>🔓 OPEN-SOURCE MCP SERVERS</span>
+        <span class="badge">SELF-HOSTED</span>
+    </div>
+    
+    <div class="servers-grid">
+        <article class="server-card opensource" data-testid="server-workspace">
+            <div class="server-header">
+                <span class="server-icon">📝</span>
+                <div>
+                    <div class="server-name">Google Workspace</div>
+                    <div class="server-type">Open Source</div>
+                </div>
+            </div>
+            <p class="server-desc">Docs, Sheets, Slides, Calendar, Gmail — full productivity suite access.</p>
+            <div class="server-endpoint">github.com/gemini-cli-extensions/workspace</div>
+            <div class="server-actions">
+                <a href="https://github.com/gemini-cli-extensions/workspace" target="_blank" class="server-btn primary">GitHub</a>
+                <button class="server-btn">Deploy</button>
+            </div>
+        </article>
+        
+        <article class="server-card opensource" data-testid="server-firebase">
+            <div class="server-header">
+                <span class="server-icon">🔥</span>
+                <div>
+                    <div class="server-name">Firebase</div>
+                    <div class="server-type">Open Source</div>
+                </div>
+            </div>
+            <p class="server-desc">Firestore, Auth, Functions, Hosting — backend-as-a-service tooling.</p>
+            <div class="server-endpoint">github.com/gemini-cli-extensions/firebase</div>
+            <div class="server-actions">
+                <a href="https://github.com/gemini-cli-extensions/firebase" target="_blank" class="server-btn primary">GitHub</a>
+                <button class="server-btn">Deploy</button>
+            </div>
+        </article>
+        
+        <article class="server-card opensource" data-testid="server-cloudrun">
+            <div class="server-header">
+                <span class="server-icon">🚀</span>
+                <div>
+                    <div class="server-name">Cloud Run</div>
+                    <div class="server-type">Open Source</div>
+                </div>
+            </div>
+            <p class="server-desc">Serverless container deployment and management.</p>
+            <div class="server-endpoint">github.com/GoogleCloudPlatform/cloud-run-mcp</div>
+            <div class="server-actions">
+                <a href="https://github.com/GoogleCloudPlatform/cloud-run-mcp" target="_blank" class="server-btn primary">GitHub</a>
+                <button class="server-btn">Deploy</button>
+            </div>
+        </article>
+        
+        <article class="server-card opensource" data-testid="server-analytics">
+            <div class="server-header">
+                <span class="server-icon">📈</span>
+                <div>
+                    <div class="server-name">Google Analytics</div>
+                    <div class="server-type">Open Source</div>
+                </div>
+            </div>
+            <p class="server-desc">Analytics data queries, reports, and insights via MCP.</p>
+            <div class="server-endpoint">github.com/googleanalytics/google-analytics-mcp</div>
+            <div class="server-actions">
+                <a href="https://github.com/googleanalytics/google-analytics-mcp" target="_blank" class="server-btn primary">GitHub</a>
+                <button class="server-btn">Deploy</button>
+            </div>
+        </article>
+        
+        <article class="server-card opensource" data-testid="server-toolbox">
+            <div class="server-header">
+                <span class="server-icon">🗃️</span>
+                <div>
+                    <div class="server-name">MCP Toolbox for Databases</div>
+                    <div class="server-type">Open Source</div>
+                </div>
+            </div>
+            <p class="server-desc">BigQuery, Cloud SQL, AlloyDB, Spanner, Firestore unified access.</p>
+            <div class="server-endpoint">github.com/googleapis/genai-toolbox</div>
+            <div class="server-actions">
+                <a href="https://github.com/googleapis/genai-toolbox" target="_blank" class="server-btn primary">GitHub</a>
+                <button class="server-btn">Deploy</button>
+            </div>
+        </article>
+        
+        <article class="server-card opensource" data-testid="server-gcs">
+            <div class="server-header">
+                <span class="server-icon">🪣</span>
+                <div>
+                    <div class="server-name">Google Cloud Storage</div>
+                    <div class="server-type">Open Source</div>
+                </div>
+            </div>
+            <p class="server-desc">Object storage buckets, files, and blob management.</p>
+            <div class="server-endpoint">github.com/googleapis/gcloud-mcp/storage-mcp</div>
+            <div class="server-actions">
+                <a href="https://github.com/googleapis/gcloud-mcp/tree/main/packages/storage-mcp" target="_blank" class="server-btn primary">GitHub</a>
+                <button class="server-btn">Deploy</button>
+            </div>
+        </article>
+        
+        <article class="server-card opensource" data-testid="server-genmedia">
+            <div class="server-header">
+                <span class="server-icon">🎨</span>
+                <div>
+                    <div class="server-name">Genmedia (Imagen + Veo)</div>
+                    <div class="server-type">Open Source</div>
+                </div>
+            </div>
+            <p class="server-desc">AI image and video generation models via Vertex AI.</p>
+            <div class="server-endpoint">github.com/GoogleCloudPlatform/vertex-ai-creative-studio</div>
+            <div class="server-actions">
+                <a href="https://github.com/GoogleCloudPlatform/vertex-ai-creative-studio/tree/main/experiments/mcp-genmedia" target="_blank" class="server-btn primary">GitHub</a>
+                <button class="server-btn">Deploy</button>
+            </div>
+        </article>
+        
+        <article class="server-card opensource" data-testid="server-flutter">
+            <div class="server-header">
+                <span class="server-icon">🎯</span>
+                <div>
+                    <div class="server-name">Flutter/Dart</div>
+                    <div class="server-type">Open Source</div>
+                </div>
+            </div>
+            <p class="server-desc">Dart language server and Flutter development tools.</p>
+            <div class="server-endpoint">github.com/dart-lang/ai/dart_mcp_server</div>
+            <div class="server-actions">
+                <a href="https://github.com/dart-lang/ai/tree/main/pkgs/dart_mcp_server" target="_blank" class="server-btn primary">GitHub</a>
+                <button class="server-btn">Deploy</button>
+            </div>
+        </article>
+    </div>
+    
+    <section class="integration-section">
+        <div class="section-title" style="background:transparent;border:0;padding-left:0">
+            <span>⚡ æææ:/// RAIL INTEGRATIONS</span>
+        </div>
+        <div class="integration-grid">
+            <div class="integration-card">
+                <div class="integration-icon">🎭</div>
+                <div class="integration-name">A2UI</div>
+                <div class="integration-proto">æææ:///a2ui</div>
+            </div>
+            <div class="integration-card">
+                <div class="integration-icon">🔗</div>
+                <div class="integration-name">A2A</div>
+                <div class="integration-proto">æææ:///a2a</div>
+            </div>
+            <div class="integration-card">
+                <div class="integration-icon">⚡</div>
+                <div class="integration-name">MCP Native</div>
+                <div class="integration-proto">æææ:///mcp</div>
+            </div>
+            <div class="integration-card">
+                <div class="integration-icon">🖼️</div>
+                <div class="integration-name">RENDER</div>
+                <div class="integration-proto">æææ:///render</div>
+            </div>
+        </div>
+    </section>
+    
+    <footer class="mcp-footer">
+        <p class="footer-proto">
+            Google MCP Servers on <a href="/mech-os.html">æææ:///</a> Command Line Internet Protocol
+        </p>
+        <div class="repo-links">
+            <a href="https://github.com/MYaelMendez/Googlemcp" target="_blank" rel="noopener" class="repo-link" data-testid="github-fork">
+                <span>📂</span>
+                <span>MYaelMendez/Googlemcp (Your Fork)</span>
+            </a>
+            <a href="https://github.com/google/mcp" target="_blank" rel="noopener" class="repo-link">
+                <span>🔗</span>
+                <span>google/mcp (Upstream)</span>
+            </a>
+        </div>
+    </footer>
+    
+    <script>
+        console.log('⚡ Google MCP Rail Active — æææ:///mcp');
+        console.log('📊 Remote Servers: Maps, BigQuery, GKE, GCE');
+        console.log('🔓 Open-Source: Workspace, Firebase, Cloud Run, Analytics, Toolbox, GCS, Genmedia, Flutter');
+    </script>
+</body>
+</html>

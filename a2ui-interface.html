@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A2UI — Agent-to-User Interface | æææ:///a2ui</title>
+    <meta name="description" content="A2UI Agent-to-User Interface rail on the æææ:/// Command Line Internet Protocol. Agents speak UI via declarative JSON.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --a2ui-primary: #ff3366;
+            --a2ui-secondary: #9933ff;
+            --a2ui-accent: #00ff99;
+            --bg-dark: #0a0a0a;
+            --bg-card: #111;
+            --text-primary: #fff;
+            --text-secondary: #888;
+        }
+        
+        body {
+            font-family: 'SF Mono', 'Fira Code', 'Monaco', monospace;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .a2ui-header {
+            background: linear-gradient(180deg, #111 0%, #0a0a0a 100%);
+            border-bottom: 2px solid var(--a2ui-primary);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .a2ui-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .a2ui-icon {
+            font-size: 28px;
+        }
+        
+        .a2ui-title {
+            font-size: 18px;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--a2ui-primary), var(--a2ui-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .a2ui-subtitle {
+            font-size: 10px;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+        }
+        
+        .a2ui-nav {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .a2ui-nav-btn {
+            background: transparent;
+            border: 1px solid #333;
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        
+        .a2ui-nav-btn:hover {
+            border-color: var(--a2ui-primary);
+            color: var(--a2ui-primary);
+        }
+        
+        .a2ui-nav-btn.active {
+            background: var(--a2ui-primary);
+            border-color: var(--a2ui-primary);
+            color: #000;
+        }
+        
+        .back-btn {
+            background: transparent;
+            border: 1px solid #333;
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .back-btn:hover {
+            border-color: #00ffff;
+            color: #00ffff;
+        }
+        
+        .a2ui-hero {
+            text-align: center;
+            padding: 60px 24px 40px;
+            border-bottom: 1px solid #222;
+        }
+        
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255, 51, 102, 0.15);
+            border: 1px solid var(--a2ui-primary);
+            color: var(--a2ui-primary);
+            padding: 6px 16px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+        
+        .hero-title {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        
+        .hero-title .gradient {
+            background: linear-gradient(90deg, var(--a2ui-primary), var(--a2ui-secondary), var(--a2ui-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-desc {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+        }
+        
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--a2ui-primary);
+        }
+        
+        .stat-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+        }
+        
+        .a2ui-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+            padding: 40px 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .a2ui-card {
+            background: var(--bg-card);
+            border: 1px solid #222;
+            padding: 24px;
+            transition: all 0.3s;
+        }
+        
+        .a2ui-card:hover {
+            border-color: var(--a2ui-primary);
+            box-shadow: 0 0 30px rgba(255, 51, 102, 0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .card-icon {
+            font-size: 24px;
+        }
+        
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+        }
+        
+        .card-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .card-code {
+            background: #000;
+            border: 1px solid #333;
+            padding: 16px;
+            font-size: 11px;
+            overflow-x: auto;
+            margin-bottom: 16px;
+        }
+        
+        .card-code .key { color: var(--a2ui-secondary); }
+        .card-code .string { color: var(--a2ui-accent); }
+        .card-code .number { color: var(--a2ui-primary); }
+        
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            background: transparent;
+            border: 1px solid var(--a2ui-primary);
+            color: var(--a2ui-primary);
+            padding: 8px 16px;
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        
+        .action-btn:hover {
+            background: var(--a2ui-primary);
+            color: #000;
+        }
+        
+        .action-btn.secondary {
+            border-color: #333;
+            color: var(--text-secondary);
+        }
+        
+        .action-btn.secondary:hover {
+            border-color: var(--a2ui-secondary);
+            color: var(--a2ui-secondary);
+            background: transparent;
+        }
+        
+        .a2ui-demo {
+            background: var(--bg-card);
+            border: 1px solid var(--a2ui-primary);
+            padding: 30px;
+            margin: 0 24px 40px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .demo-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .demo-title .live {
+            background: var(--a2ui-accent);
+            color: #000;
+            padding: 2px 8px;
+            font-size: 8px;
+            font-weight: 800;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        @media (max-width: 768px) {
+            .demo-grid { grid-template-columns: 1fr; }
+        }
+        
+        .demo-input {
+            background: #000;
+            border: 1px solid #333;
+            padding: 20px;
+        }
+        
+        .demo-input-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .demo-textarea {
+            width: 100%;
+            min-height: 200px;
+            background: transparent;
+            border: none;
+            color: var(--a2ui-accent);
+            font-family: inherit;
+            font-size: 11px;
+            resize: vertical;
+        }
+        
+        .demo-textarea:focus {
+            outline: none;
+        }
+        
+        .demo-output {
+            background: #000;
+            border: 1px solid var(--a2ui-primary);
+            padding: 20px;
+        }
+        
+        .demo-output-label {
+            font-size: 10px;
+            color: var(--a2ui-primary);
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .demo-rendered {
+            min-height: 200px;
+        }
+        
+        .rendered-card {
+            background: #111;
+            border: 1px solid #333;
+            padding: 16px;
+            border-radius: 8px;
+        }
+        
+        .rendered-card h3 {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .rendered-card p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+        
+        .rendered-btn {
+            background: var(--a2ui-primary);
+            border: none;
+            color: #000;
+            padding: 8px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        .a2ui-footer {
+            border-top: 1px solid #222;
+            padding: 30px 24px;
+            text-align: center;
+        }
+        
+        .footer-proto {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .footer-proto a {
+            color: var(--a2ui-primary);
+            text-decoration: none;
+        }
+        
+        .repo-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: 1px solid #333;
+            color: var(--text-primary);
+            padding: 10px 20px;
+            font-size: 12px;
+            text-decoration: none;
+            margin-top: 20px;
+            transition: all 0.2s;
+        }
+        
+        .repo-link:hover {
+            border-color: var(--a2ui-primary);
+            color: var(--a2ui-primary);
+        }
+    </style>
+</head>
+<body>
+    <header class="a2ui-header">
+        <div class="a2ui-logo">
+            <span class="a2ui-icon">🎭</span>
+            <div>
+                <div class="a2ui-title">A2UI</div>
+                <div class="a2ui-subtitle">AGENT-TO-USER INTERFACE</div>
+            </div>
+        </div>
+        <nav class="a2ui-nav">
+            <button class="a2ui-nav-btn active" data-testid="nav-overview">OVERVIEW</button>
+            <button class="a2ui-nav-btn" data-testid="nav-spec">SPEC</button>
+            <button class="a2ui-nav-btn" data-testid="nav-renderers">RENDERERS</button>
+            <button class="a2ui-nav-btn" data-testid="nav-samples">SAMPLES</button>
+        </nav>
+        <a href="/mech-os.html" class="back-btn" data-testid="back-to-mech">
+            <span>←</span>
+            <span>æææ:///</span>
+        </a>
+    </header>
+    
+    <section class="a2ui-hero">
+        <div class="hero-badge">v0.8 PUBLIC PREVIEW — FORK: MYaelMendez/a2ui</div>
+        <h1 class="hero-title">
+            Agents that <span class="gradient">Speak UI</span>
+        </h1>
+        <p class="hero-desc">
+            A2UI is an open standard for agent-generated user interfaces. 
+            Agents send declarative JSON describing UI intent. Clients render with native components.
+            <strong>Safe like data, expressive like code.</strong>
+        </p>
+        <div class="hero-stats">
+            <div class="stat">
+                <div class="stat-value">250</div>
+                <div class="stat-label">COMMITS</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">4</div>
+                <div class="stat-label">RENDERERS</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">v0.8</div>
+                <div class="stat-label">SPEC VERSION</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">Apache-2.0</div>
+                <div class="stat-label">LICENSE</div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="a2ui-demo" data-testid="a2ui-demo">
+        <div class="demo-title">
+            <span>🧪 LIVE A2UI PLAYGROUND</span>
+            <span class="live">LIVE</span>
+        </div>
+        <div class="demo-grid">
+            <div class="demo-input">
+                <label class="demo-input-label">A2UI JSON INPUT</label>
+                <textarea class="demo-textarea" id="a2uiInput" data-testid="a2ui-json-input">{
+  "type": "card",
+  "id": "demo-card-1",
+  "props": {
+    "title": "Welcome to A2UI",
+    "description": "This card was generated by an AI agent using declarative JSON.",
+    "actions": [
+      {
+        "type": "button",
+        "label": "Get Started",
+        "action": "navigate",
+        "target": "/docs"
+      }
+    ]
+  }
+}</textarea>
+            </div>
+            <div class="demo-output">
+                <label class="demo-output-label">RENDERED OUTPUT — MÆCH NATIVE</label>
+                <div class="demo-rendered" id="a2uiOutput" data-testid="a2ui-rendered-output">
+                    <div class="rendered-card">
+                        <h3>Welcome to A2UI</h3>
+                        <p>This card was generated by an AI agent using declarative JSON.</p>
+                        <button class="rendered-btn">Get Started</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <main class="a2ui-content">
+        <article class="a2ui-card" data-testid="card-philosophy">
+            <div class="card-header">
+                <span class="card-icon">🔒</span>
+                <span class="card-title">Security First</span>
+            </div>
+            <p class="card-desc">
+                A2UI is a declarative data format, not executable code. Your client maintains a 
+                catalog of trusted, pre-approved UI components. Agents can only request to render 
+                components from that catalog.
+            </p>
+            <div class="card-code">
+<span class="key">"type"</span>: <span class="string">"card"</span>  <span style="color:#555">// must exist in registry</span>
+<span class="key">"props"</span>: { ... }     <span style="color:#555">// validated against schema</span>
+            </div>
+            <div class="card-actions">
+                <button class="action-btn" data-testid="btn-read-spec">Read Spec</button>
+                <button class="action-btn secondary">Security Guide</button>
+            </div>
+        </article>
+        
+        <article class="a2ui-card" data-testid="card-llm-friendly">
+            <div class="card-header">
+                <span class="card-icon">🧠</span>
+                <span class="card-title">LLM-Friendly Format</span>
+            </div>
+            <p class="card-desc">
+                UI represented as flat list of components with ID references. Easy for LLMs to 
+                generate incrementally, enabling progressive rendering and responsive UX.
+            </p>
+            <div class="card-code">
+<span class="key">"components"</span>: [
+  { <span class="key">"id"</span>: <span class="string">"header-1"</span>, <span class="key">"type"</span>: <span class="string">"text"</span> },
+  { <span class="key">"id"</span>: <span class="string">"form-1"</span>, <span class="key">"parent"</span>: <span class="string">"header-1"</span> }
+]
+            </div>
+            <div class="card-actions">
+                <button class="action-btn" data-testid="btn-try-demo">Try Demo</button>
+                <button class="action-btn secondary">View Examples</button>
+            </div>
+        </article>
+        
+        <article class="a2ui-card" data-testid="card-portable">
+            <div class="card-header">
+                <span class="card-icon">🌐</span>
+                <span class="card-title">Framework Agnostic</span>
+            </div>
+            <p class="card-desc">
+                Same A2UI JSON renders on multiple clients: Web Components, Flutter widgets, 
+                React, SwiftUI, or MÆCH Native. The agent sends structure, clients render natively.
+            </p>
+            <div class="card-code">
+<span style="color:#00ffff">Lit</span> → Web Components
+<span style="color:#00aaff">Flutter</span> → Material Widgets  
+<span style="color:#ff6600">Angular</span> → Angular Components
+<span style="color:#ff3366">MÆCH</span> → Native Territorial
+            </div>
+            <div class="card-actions">
+                <button class="action-btn" data-testid="btn-renderers">View Renderers</button>
+                <button class="action-btn secondary">Add Renderer</button>
+            </div>
+        </article>
+        
+        <article class="a2ui-card" data-testid="card-mech-integration">
+            <div class="card-header">
+                <span class="card-icon">⚡</span>
+                <span class="card-title">MÆCH Integration</span>
+            </div>
+            <p class="card-desc">
+                A2UI powers MÆCH territorial programming. Agents generate UI with QR-addressable 
+                coordinates. Each component maps to x₀y₀z₀ machine context.
+            </p>
+            <div class="card-code">
+<span class="key">"mech"</span>: {
+  <span class="key">"coord"</span>: <span class="string">"x₀y₀z₄"</span>,
+  <span class="key">"territorial"</span>: <span class="number">true</span>,
+  <span class="key">"qr_address"</span>: <span class="string">"æææ:///a2ui/demo"</span>
+}
+            </div>
+            <div class="card-actions">
+                <button class="action-btn" data-testid="btn-mech-docs">MÆCH Docs</button>
+                <button class="action-btn secondary">Territorial Guide</button>
+            </div>
+        </article>
+    </main>
+    
+    <footer class="a2ui-footer">
+        <p class="footer-proto">
+            A2UI Rail on <a href="/mech-os.html">æææ:///</a> Command Line Internet Protocol
+        </p>
+        <a href="https://github.com/MYaelMendez/a2ui" target="_blank" rel="noopener" class="repo-link" data-testid="github-repo-link">
+            <span>📂</span>
+            <span>github.com/MYaelMendez/a2ui</span>
+        </a>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('a2uiInput');
+            const output = document.getElementById('a2uiOutput');
+            
+            function renderA2UI(json) {
+                try {
+                    const data = JSON.parse(json);
+                    if (data.type === 'card') {
+                        const props = data.props || {};
+                        let actionsHtml = '';
+                        if (props.actions && props.actions.length > 0) {
+                            actionsHtml = props.actions.map(a => 
+                                `<button class="rendered-btn">${a.label || 'Action'}</button>`
+                            ).join('');
+                        }
+                        output.innerHTML = `
+                            <div class="rendered-card">
+                                <h3>${props.title || 'Untitled'}</h3>
+                                <p>${props.description || ''}</p>
+                                ${actionsHtml}
+                            </div>
+                        `;
+                    } else {
+                        output.innerHTML = `<div style="color:#888">Unknown type: ${data.type}</div>`;
+                    }
+                } catch (e) {
+                    output.innerHTML = `<div style="color:#ff3366">Parse error: ${e.message}</div>`;
+                }
+            }
+            
+            input.addEventListener('input', () => {
+                renderA2UI(input.value);
+            });
+            
+            console.log('🎭 A2UI Rail Active — æææ:///a2ui');
+        });
+    </script>
+</body>
+</html>

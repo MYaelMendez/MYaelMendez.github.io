@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#000000">
+  <title>æææ:/// Command Line Internet - 4D Prompt Descent | RFC-00</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+    }
+    
+    body {
+      font-family: 'Fira Code', 'SF Mono', monospace;
+      background: #000;
+      color: #00ffaa;
+      overflow: hidden;
+      touch-action: pan-y;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: contain;
+    }
+    
+    #canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+    
+    .hud-top {
+      position: fixed;
+      top: calc(var(--safe-top) + clamp(10px, 3vw, 20px));
+      left: calc(var(--safe-left) + clamp(10px, 3vw, 20px));
+      right: calc(var(--safe-right) + clamp(10px, 3vw, 20px));
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: clamp(8px, 2vw, 15px);
+      pointer-events: none;
+    }
+    
+    .hud-panel {
+      background: rgba(0, 0, 0, 0.92);
+      border: 1.5px solid #00ffaa;
+      border-radius: clamp(8px, 2vw, 12px);
+      padding: clamp(10px, 3vw, 20px);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      pointer-events: auto;
+      max-width: 48%;
+    }
+    
+    .hud-title {
+      font-size: clamp(14px, 4vw, 24px);
+      font-weight: bold;
+      background: linear-gradient(135deg, #00ffaa, #ff00aa, #00aaff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+    }
+    
+    .hud-subtitle {
+      font-size: clamp(9px, 2.5vw, 12px);
+      color: #ff00aa;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+    
+    .coordinate-display {
+      font-size: clamp(12px, 3.5vw, 18px);
+      color: #ffaa00;
+      margin-top: clamp(6px, 2vw, 10px);
+    }
+    
+    .hud-right {
+      text-align: right;
+    }
+    
+    .combinator-label {
+      font-size: clamp(10px, 2.5vw, 14px);
+      color: #ff00aa;
+    }
+    
+    .combinator-formula {
+      font-size: clamp(12px, 3vw, 20px);
+      color: #00ffaa;
+      margin-top: 4px;
+    }
+    
+    .combinator-desc {
+      font-size: clamp(9px, 2vw, 12px);
+      color: #888;
+      margin-top: 4px;
+    }
+    
+    .layer-indicator {
+      position: fixed;
+      z-index: 100;
+    }
+    
+    @media (min-width: 769px) {
+      .layer-indicator {
+        right: clamp(15px, 3vw, 25px);
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .descent-line {
+        position: absolute;
+        left: 50%;
+        width: 2px;
+        height: calc(100% - 50px);
+        background: linear-gradient(to bottom, #ff00ff, #00ffff, #ffff00, #00ff00, #ff8800, #00ffaa);
+        transform: translateX(-50%);
+        z-index: -1;
+        top: 25px;
+      }
+      
+      .layer-node {
+        margin: 12px 0;
+      }
+      
+      .layer-label {
+        position: absolute;
+        right: 60px;
+        white-space: nowrap;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .layer-indicator {
+        bottom: calc(var(--safe-bottom) + 180px);
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: clamp(6px, 2vw, 12px);
+        padding: clamp(8px, 2vw, 12px);
+        background: rgba(0, 0, 0, 0.9);
+        border-radius: 30px;
+        border: 1.5px solid rgba(0, 255, 170, 0.4);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+      }
+      
+      .descent-line {
+        display: none;
+      }
+      
+      .layer-node {
+        margin: 0;
+      }
+      
+      .layer-label {
+        display: none;
+      }
+      
+      .hud-panel {
+        max-width: 55%;
+      }
+      
+      .hud-right {
+        display: none;
+      }
+    }
+    
+    .layer-node {
+      width: clamp(36px, 10vw, 48px);
+      height: clamp(36px, 10vw, 48px);
+      min-width: 44px;
+      min-height: 44px;
+      border-radius: 50%;
+      border: 2px solid;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(12px, 3vw, 16px);
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    .layer-node:active {
+      transform: scale(0.92);
+    }
+    
+    @media (hover: hover) {
+      .layer-node:hover {
+        transform: scale(1.15);
+        box-shadow: 0 0 25px currentColor;
+      }
+      
+      .layer-node:hover .layer-label {
+        opacity: 1;
+      }
+    }
+    
+    .layer-node.cosmic { border-color: #ff00ff; color: #ff00ff; }
+    .layer-node.ael { border-color: #00ffff; color: #00ffff; }
+    .layer-node.models { border-color: #ffff00; color: #ffff00; }
+    .layer-node.llmstore { border-color: #00ff00; color: #00ff00; }
+    .layer-node.operator { border-color: #ff8800; color: #ff8800; }
+    .layer-node.shell { border-color: #00ffaa; color: #00ffaa; }
+    
+    .layer-node.active {
+      background: currentColor;
+      color: #000;
+      box-shadow: 0 0 30px currentColor;
+      transform: scale(1.1);
+    }
+    
+    .layer-label {
+      font-size: 11px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      background: rgba(0,0,0,0.95);
+      padding: 6px 12px;
+      border-radius: 6px;
+      pointer-events: none;
+    }
+    
+    .controls {
+      position: fixed;
+      bottom: calc(var(--safe-bottom) + clamp(15px, 4vw, 25px));
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: flex;
+      gap: clamp(8px, 2vw, 15px);
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 95vw;
+    }
+    
+    .control-btn {
+      background: linear-gradient(135deg, rgba(0,255,170,0.15), rgba(255,0,170,0.15));
+      border: 1.5px solid #00ffaa;
+      color: #00ffaa;
+      padding: clamp(12px, 3vw, 15px) clamp(16px, 4vw, 25px);
+      border-radius: clamp(8px, 2vw, 12px);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: clamp(12px, 3vw, 14px);
+      transition: all 0.2s;
+      min-height: 48px;
+      min-width: 48px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    .control-btn:active {
+      background: #00ffaa;
+      color: #000;
+      transform: scale(0.95);
+    }
+    
+    @media (hover: hover) {
+      .control-btn:hover {
+        background: #00ffaa;
+        color: #000;
+        box-shadow: 0 0 25px rgba(0,255,170,0.5);
+      }
+    }
+    
+    .prompt-input {
+      position: fixed;
+      bottom: calc(var(--safe-bottom) + clamp(70px, 18vw, 90px));
+      left: 50%;
+      transform: translateX(-50%);
+      width: clamp(280px, 85vw, 600px);
+      z-index: 100;
+    }
+    
+    .prompt-field {
+      width: 100%;
+      background: rgba(0,0,0,0.95);
+      border: 1.5px solid #00ffaa;
+      border-radius: 25px;
+      padding: clamp(12px, 3vw, 16px) clamp(18px, 5vw, 25px);
+      color: #00ffaa;
+      font-family: inherit;
+      font-size: 16px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    
+    .prompt-field::placeholder {
+      color: rgba(0,255,170,0.4);
+      font-size: clamp(12px, 3vw, 14px);
+    }
+    
+    .prompt-field:focus {
+      box-shadow: 0 0 25px rgba(0,255,170,0.3);
+      border-color: #00ffaa;
+    }
+    
+    .info-panel {
+      position: fixed;
+      z-index: 150;
+      background: rgba(0,0,0,0.98);
+      border: 2px solid #ff00aa;
+      padding: clamp(15px, 4vw, 20px);
+      display: none;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    
+    @media (min-width: 769px) {
+      .info-panel {
+        left: clamp(15px, 3vw, 25px);
+        bottom: 120px;
+        width: clamp(260px, 25vw, 320px);
+        border-radius: 12px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .info-panel {
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 20px 20px 0 0;
+        border-bottom: none;
+        max-height: 45vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: calc(var(--safe-bottom) + 20px);
+      }
+      
+      .info-panel::before {
+        content: '';
+        display: block;
+        width: 40px;
+        height: 4px;
+        background: rgba(255,255,255,0.3);
+        border-radius: 2px;
+        margin: 0 auto 15px;
+      }
+    }
+    
+    .info-panel.active { display: block; }
+    
+    .info-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: rgba(255,0,170,0.2);
+      color: #ff00aa;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .info-title {
+      font-size: clamp(14px, 4vw, 18px);
+      color: #ff00aa;
+      margin-bottom: 10px;
+      padding-right: 40px;
+    }
+    
+    .info-content {
+      font-size: clamp(12px, 3vw, 13px);
+      line-height: 1.6;
+      color: #ccc;
+    }
+    
+    .info-code {
+      background: rgba(0,255,170,0.08);
+      border: 1px solid rgba(0,255,170,0.3);
+      border-radius: 8px;
+      padding: clamp(10px, 3vw, 12px);
+      margin-top: 12px;
+      font-size: clamp(11px, 2.5vw, 12px);
+      color: #00ffaa;
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+    
+    .combinator-display {
+      position: fixed;
+      left: 50%;
+      top: 45%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(28px, 8vw, 48px);
+      font-weight: bold;
+      color: #ff00aa;
+      text-shadow: 0 0 40px #ff00aa;
+      opacity: 0;
+      transition: opacity 0.4s;
+      pointer-events: none;
+      z-index: 200;
+      text-align: center;
+      max-width: 90vw;
+      word-break: break-word;
+    }
+    
+    .combinator-display.active {
+      opacity: 1;
+      animation: pulse-glow 0.8s infinite;
+    }
+    
+    @keyframes pulse-glow {
+      0%, 100% { text-shadow: 0 0 40px #ff00aa; }
+      50% { text-shadow: 0 0 80px #ff00aa, 0 0 120px #00ffaa; }
+    }
+    
+    .philosophy {
+      position: fixed;
+      left: clamp(8px, 2vw, 20px);
+      top: 50%;
+      transform: translateY(-50%);
+      writing-mode: vertical-rl;
+      font-size: clamp(10px, 2.5vw, 14px);
+      color: rgba(255,170,0,0.4);
+      letter-spacing: 3px;
+      pointer-events: none;
+    }
+    
+    @media (max-width: 768px) {
+      .philosophy {
+        display: none;
+      }
+    }
+    
+    .swipe-hint {
+      position: fixed;
+      bottom: calc(var(--safe-bottom) + 250px);
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: rgba(0,255,170,0.5);
+      text-align: center;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 0.5s;
+    }
+    
+    .swipe-hint.hidden {
+      opacity: 0;
+    }
+    
+    @media (min-width: 769px) {
+      .swipe-hint { display: none; }
+    }
+    
+    .current-layer-mobile {
+      display: none;
+    }
+    
+    @media (max-width: 768px) {
+      .current-layer-mobile {
+        display: block;
+        position: fixed;
+        top: calc(var(--safe-top) + 80px);
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        z-index: 90;
+      }
+      
+      .current-layer-name {
+        font-size: clamp(18px, 5vw, 24px);
+        font-weight: bold;
+        text-shadow: 0 0 20px currentColor;
+      }
+      
+      .current-layer-desc {
+        font-size: clamp(11px, 3vw, 13px);
+        color: #888;
+        margin-top: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" data-testid="cli-4d-canvas"></canvas>
+  
+  <div class="philosophy">SOLA INTENTIONE</div>
+  
+  <div class="hud-top">
+    <div class="hud-panel">
+      <div class="hud-title" data-testid="title-cli">æææ:/// CLI</div>
+      <div class="hud-subtitle">RFC-00 Prompt Descent</div>
+      <div class="coordinate-display" data-testid="coordinates">
+        x₀y₀z₀ · <span id="current-layer">SHELL</span>
+      </div>
+    </div>
+    
+    <div class="hud-panel hud-right">
+      <div class="combinator-label">Æ-COMBINATOR</div>
+      <div class="combinator-formula">Æ[prompt] = output</div>
+      <div class="combinator-desc">intention → execution</div>
+    </div>
+  </div>
+  
+  <div class="current-layer-mobile" id="mobile-layer-display">
+    <div class="current-layer-name" id="mobile-layer-name" style="color: #00ffaa;">SHELL</div>
+    <div class="current-layer-desc" id="mobile-layer-desc">x₀y₀z₀ Origin</div>
+  </div>
+  
+  <div class="layer-indicator" data-testid="layer-indicator">
+    <div class="descent-line"></div>
+    <div class="layer-node cosmic" data-layer="cosmic" data-testid="layer-cosmic">∞</div>
+    <div class="layer-node ael" data-layer="ael" data-testid="layer-ael">ÆL</div>
+    <div class="layer-node models" data-layer="models" data-testid="layer-models">🧠</div>
+    <div class="layer-node llmstore" data-layer="llmstore" data-testid="layer-llmstore">📦</div>
+    <div class="layer-node operator" data-layer="operator" data-testid="layer-operator">Æ</div>
+    <div class="layer-node shell active" data-layer="shell" data-testid="layer-shell">⌘</div>
+  </div>
+  
+  <div class="swipe-hint" id="swipe-hint">↕ Swipe to navigate layers</div>
+  
+  <div class="combinator-display" id="combinator">Æ[prompt]</div>
+  
+  <div class="prompt-input">
+    <input type="text" class="prompt-field" id="prompt-field" 
+           placeholder="Ask anything... Hello | What is AI? | Write a poem" 
+           data-testid="prompt-input"
+           autocomplete="off"
+           autocorrect="off"
+           autocapitalize="off"
+           spellcheck="false">
+  </div>
+  
+  <div class="controls">
+    <button class="control-btn" id="btn-ascend" data-testid="btn-ascend">↑ Up</button>
+    <button class="control-btn" id="btn-invoke" data-testid="btn-invoke">⚡ Invoke</button>
+    <button class="control-btn" id="btn-descend" data-testid="btn-descend">↓ Down</button>
+    <a href="/domain-empire" class="control-btn" data-testid="btn-domains" style="text-decoration:none;">🏛️ Domains</a>
+  </div>
+  
+  <div class="info-panel" id="info-panel">
+    <button class="info-close" id="info-close" data-testid="info-close">×</button>
+    <div class="info-title" id="info-title">Layer Information</div>
+    <div class="info-desc" id="info-desc" style="font-size: 12px; color: #888; margin-bottom: 8px;"></div>
+    <div class="info-content" id="info-content"></div>
+    <div class="info-code" id="info-code"></div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    const layers = ['shell', 'operator', 'llmstore', 'models', 'ael', 'cosmic'];
+    let currentLayerIndex = 0;
+    let targetZ = 0;
+    let currentZ = 0;
+    let time = 0;
+    let isVisible = true;
+    let isMobile = window.innerWidth <= 768;
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let animationId = null;
+    
+    const layerData = {
+      cosmic: {
+        z: 5, color: '#ff00ff',
+        title: 'COSMIC — Pure Intention',
+        shortTitle: 'COSMIC',
+        desc: 'Pure Intention',
+        content: 'The origin of all computation. Human intention exists here as pure potential.',
+        code: 'intention → ∞\n// Unbounded potential'
+      },
+      ael: {
+        z: 4, color: '#00ffff',
+        title: 'ÆL Protocol',
+        shortTitle: 'ÆL',
+        desc: 'Transport Layer',
+        content: 'The successor to HTTP. ÆL transports intention across the global substrate.',
+        code: 'æææ://ael/invoke\nProtocol: ÆL/1.0'
+      },
+      models: {
+        z: 3, color: '#ffff00',
+        title: 'MODELS',
+        shortTitle: 'MODELS',
+        desc: 'Intelligence Substrate',
+        content: 'Gemini, Claude, GPT, and all LLMs exist here as computational intelligences.',
+        code: 'models = [\n  gemini-2.5,\n  claude-4\n]'
+      },
+      llmstore: {
+        z: 2, color: '#00ff00',
+        title: 'LLM.store',
+        shortTitle: 'LLM.store',
+        desc: 'Universal Registry',
+        content: 'The planetary registry of intelligence. All models and agents are catalogued here.',
+        code: 'LLM.store.register({\n  id: "agent-001"\n})'
+      },
+      operator: {
+        z: 1, color: '#ff8800',
+        title: 'OPERATOR',
+        shortTitle: 'OPERATOR',
+        desc: 'Identity Layer',
+        content: 'PrivateClient.ai enables portable identity with cryptographic verification.',
+        code: 'Æ = {\n  identity: sovereign\n}'
+      },
+      shell: {
+        z: 0, color: '#00ffaa',
+        title: 'SHELL',
+        shortTitle: 'SHELL',
+        desc: 'x₀y₀z₀ Origin',
+        content: 'You are here. The Command Line Shell where intention becomes execution.',
+        code: 'shell> prompt\n→ computation()\n// Sola Intentione'
+      }
+    };
+    
+    let touchStartY = 0;
+    let touchStartTime = 0;
+    let swipeHintShown = true;
+    
+    function resize() {
+      isMobile = window.innerWidth <= 768;
+      dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2);
+      
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+      ctx.scale(dpr, dpr);
+    }
+    resize();
+    
+    window.addEventListener('resize', () => {
+      resize();
+    });
+    
+    window.addEventListener('orientationchange', () => {
+      setTimeout(resize, 100);
+    });
+    
+    document.addEventListener('visibilitychange', () => {
+      isVisible = !document.hidden;
+      if (isVisible && !animationId) {
+        animate();
+      }
+    });
+    
+    function drawGrid(z) {
+      const gridSize = 50 + z * 15;
+      const perspective = 1 + z * 0.15;
+      const w = canvas.width / dpr;
+      const h = canvas.height / dpr;
+      const centerX = w / 2;
+      const centerY = h / 2;
+      const gridCount = isMobile ? 12 : 20;
+      
+      ctx.strokeStyle = `rgba(0, 255, 170, ${0.08 - z * 0.012})`;
+      ctx.lineWidth = 1;
+      
+      for (let x = -gridCount; x <= gridCount; x++) {
+        const px = centerX + (x * gridSize) / perspective;
+        ctx.beginPath();
+        ctx.moveTo(px, 0);
+        ctx.lineTo(px, h);
+        ctx.stroke();
+      }
+      
+      for (let y = -gridCount; y <= gridCount; y++) {
+        const py = centerY + (y * gridSize) / perspective;
+        ctx.beginPath();
+        ctx.moveTo(0, py);
+        ctx.lineTo(w, py);
+        ctx.stroke();
+      }
+    }
+    
+    function drawPromptPath() {
+      const w = canvas.width / dpr;
+      const h = canvas.height / dpr;
+      const centerX = w / 2;
+      const startY = isMobile ? 120 : 100;
+      const endY = h - (isMobile ? 280 : 200);
+      const pathLength = endY - startY;
+      
+      const gradient = ctx.createLinearGradient(centerX, startY, centerX, endY);
+      gradient.addColorStop(0, '#ff00ff');
+      gradient.addColorStop(0.2, '#00ffff');
+      gradient.addColorStop(0.4, '#ffff00');
+      gradient.addColorStop(0.6, '#00ff00');
+      gradient.addColorStop(0.8, '#ff8800');
+      gradient.addColorStop(1, '#00ffaa');
+      
+      ctx.strokeStyle = gradient;
+      ctx.lineWidth = isMobile ? 2 : 3;
+      ctx.setLineDash([8, 8]);
+      ctx.lineDashOffset = -time * 1.5;
+      
+      ctx.beginPath();
+      ctx.moveTo(centerX, startY);
+      ctx.lineTo(centerX, endY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      
+      const currentY = startY + (pathLength * (currentZ / 5));
+      const pulseSize = (isMobile ? 12 : 15) + Math.sin(time * 0.08) * 4;
+      
+      ctx.beginPath();
+      ctx.arc(centerX, currentY, pulseSize, 0, Math.PI * 2);
+      ctx.fillStyle = layerData[layers[currentLayerIndex]].color;
+      ctx.fill();
+      
+      ctx.beginPath();
+      ctx.arc(centerX, currentY, pulseSize + 8, 0, Math.PI * 2);
+      ctx.strokeStyle = layerData[layers[currentLayerIndex]].color;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+    
+    function drawLayerVisualization() {
+      const layer = layers[currentLayerIndex];
+      const data = layerData[layer];
+      const w = canvas.width / dpr;
+      const h = canvas.height / dpr;
+      const centerX = w / 2;
+      const centerY = h / 2 - (isMobile ? 20 : 0);
+      
+      const baseRadius = isMobile ? 80 : 120;
+      const radius = baseRadius + Math.sin(time * 0.04) * 15;
+      const hexPoints = 6;
+      
+      ctx.beginPath();
+      for (let i = 0; i < hexPoints; i++) {
+        const angle = (i / hexPoints) * Math.PI * 2 - Math.PI / 2;
+        const x = centerX + Math.cos(angle) * radius;
+        const y = centerY + Math.sin(angle) * radius;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = data.color;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      
+      ctx.fillStyle = data.color + '15';
+      ctx.fill();
+      
+      const orbitCount = isMobile ? 2 : 3;
+      for (let i = 0; i < orbitCount; i++) {
+        const orbitRadius = (isMobile ? 120 : 180) + i * 40;
+        const orbitSpeed = 0.015 - i * 0.004;
+        const angle = time * orbitSpeed + (i * Math.PI * 2 / 3);
+        const x = centerX + Math.cos(angle) * orbitRadius;
+        const y = centerY + Math.sin(angle) * orbitRadius * 0.4;
+        
+        ctx.beginPath();
+        ctx.arc(x, y, isMobile ? 3 : 4, 0, Math.PI * 2);
+        ctx.fillStyle = data.color;
+        ctx.fill();
+      }
+      
+      if (layer === 'shell') {
+        ctx.fillStyle = '#00ffaa';
+        ctx.font = `bold ${isMobile ? 18 : 24}px Fira Code, monospace`;
+        ctx.textAlign = 'center';
+        ctx.fillText('x₀y₀z₀', centerX, centerY);
+        ctx.font = `${isMobile ? 11 : 14}px Fira Code, monospace`;
+        ctx.fillStyle = '#888';
+        ctx.fillText('YOU ARE HERE', centerX, centerY + 22);
+      }
+    }
+    
+    function drawParticles() {
+      const layer = layers[currentLayerIndex];
+      const color = layerData[layer].color;
+      const w = canvas.width / dpr;
+      const h = canvas.height / dpr;
+      const particleCount = isMobile ? 20 : 40;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const x = (Math.sin(time * 0.008 + i) * 0.5 + 0.5) * w;
+        const y = (Math.cos(time * 0.008 + i * 1.5) * 0.5 + 0.5) * h;
+        const size = 1 + Math.sin(time * 0.04 + i) * 0.8;
+        const alpha = 0.25 + Math.sin(time * 0.015 + i) * 0.15;
+        
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fillStyle = color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+        ctx.fill();
+      }
+    }
+    
+    function animate() {
+      if (!isVisible) {
+        animationId = null;
+        return;
+      }
+      
+      time++;
+      currentZ += (targetZ - currentZ) * 0.06;
+      
+      const w = canvas.width / dpr;
+      const h = canvas.height / dpr;
+      
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+      
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+      ctx.fillRect(0, 0, w, h);
+      
+      drawGrid(currentZ);
+      drawParticles();
+      drawPromptPath();
+      drawLayerVisualization();
+      
+      animationId = requestAnimationFrame(animate);
+    }
+    
+    function setLayer(layerName) {
+      const index = layers.indexOf(layerName);
+      if (index !== -1) {
+        currentLayerIndex = index;
+        targetZ = layerData[layerName].z;
+        
+        document.querySelectorAll('.layer-node').forEach(n => n.classList.remove('active'));
+        document.querySelector(`[data-layer="${layerName}"]`).classList.add('active');
+        
+        document.getElementById('current-layer').textContent = layerName.toUpperCase();
+        
+        const data = layerData[layerName];
+        document.getElementById('info-title').textContent = data.title;
+        document.getElementById('info-content').textContent = data.content;
+        document.getElementById('info-code').textContent = data.code;
+        document.getElementById('info-panel').classList.add('active');
+        
+        if (isMobile) {
+          const mobileDisplay = document.getElementById('mobile-layer-display');
+          document.getElementById('mobile-layer-name').textContent = data.shortTitle;
+          document.getElementById('mobile-layer-name').style.color = data.color;
+          document.getElementById('mobile-layer-desc').textContent = data.desc;
+        }
+        
+        if (swipeHintShown) {
+          document.getElementById('swipe-hint').classList.add('hidden');
+          swipeHintShown = false;
+        }
+      }
+    }
+    
+    async function invokeCombinator() {
+      const promptField = document.getElementById('prompt-field');
+      const prompt = promptField.value || 'intention';
+      const combinator = document.getElementById('combinator');
+      const infoPanel = document.getElementById('info-panel');
+      const infoTitle = document.getElementById('info-title');
+      const infoDesc = document.getElementById('info-desc');
+      const infoCode = document.getElementById('info-code');
+      
+      combinator.textContent = `Æ[${prompt.substring(0, 20)}${prompt.length > 20 ? '...' : ''}]`;
+      combinator.classList.add('active');
+      
+      if ('vibrate' in navigator) {
+        navigator.vibrate(50);
+      }
+      
+      // Show loading state
+      combinator.textContent = `⚡ Cerebras @ 2100 tok/s...`;
+      
+      try {
+        const response = await fetch('/api/llm-store/inference', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model_id: 'llama-3.3-70b', prompt: prompt })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          combinator.textContent = `✓ ${data.inference.tokens_per_second} tok/s`;
+          combinator.style.color = '#00ffaa';
+          
+          // Show response in info panel
+          infoTitle.textContent = '⚡ Cerebras Response';
+          infoDesc.textContent = `${data.inference.tokens_per_second} tok/s | ${data.inference.latency_ms}ms | llama-3.3-70b`;
+          infoCode.textContent = data.inference.response;
+          infoPanel.classList.add('active');
+        } else {
+          combinator.textContent = `✗ Error`;
+          combinator.style.color = '#ff4466';
+          infoTitle.textContent = 'Error';
+          infoDesc.textContent = data.error || 'Inference failed';
+          infoCode.textContent = '';
+          infoPanel.classList.add('active');
+        }
+      } catch (err) {
+        combinator.textContent = `✗ Network Error`;
+        combinator.style.color = '#ff4466';
+      }
+      
+      setTimeout(() => {
+        combinator.classList.remove('active');
+        combinator.style.color = '#ff00aa';
+        combinator.textContent = 'æ ⊕ (intention)';
+      }, 3000);
+      
+      promptField.value = '';
+    }
+    
+    document.querySelectorAll('.layer-node').forEach(node => {
+      node.addEventListener('click', () => setLayer(node.dataset.layer));
+      node.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        setLayer(node.dataset.layer);
+      }, { passive: false });
+    });
+    
+    document.getElementById('btn-ascend').addEventListener('click', () => {
+      if (currentLayerIndex < layers.length - 1) {
+        setLayer(layers[currentLayerIndex + 1]);
+      }
+    });
+    
+    document.getElementById('btn-descend').addEventListener('click', () => {
+      if (currentLayerIndex > 0) {
+        setLayer(layers[currentLayerIndex - 1]);
+      }
+    });
+    
+    document.getElementById('btn-invoke').addEventListener('click', invokeCombinator);
+    
+    document.getElementById('prompt-field').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        invokeCombinator();
+      }
+    });
+    
+    document.getElementById('info-close').addEventListener('click', () => {
+      document.getElementById('info-panel').classList.remove('active');
+    });
+    
+    canvas.addEventListener('touchstart', (e) => {
+      touchStartY = e.touches[0].clientY;
+      touchStartTime = Date.now();
+    }, { passive: true });
+    
+    canvas.addEventListener('touchend', (e) => {
+      const touchEndY = e.changedTouches[0].clientY;
+      const deltaY = touchStartY - touchEndY;
+      const deltaTime = Date.now() - touchStartTime;
+      
+      if (Math.abs(deltaY) > 50 && deltaTime < 400) {
+        if (deltaY > 0 && currentLayerIndex < layers.length - 1) {
+          setLayer(layers[currentLayerIndex + 1]);
+          if ('vibrate' in navigator) navigator.vibrate(30);
+        } else if (deltaY < 0 && currentLayerIndex > 0) {
+          setLayer(layers[currentLayerIndex - 1]);
+          if ('vibrate' in navigator) navigator.vibrate(30);
+        }
+      }
+    }, { passive: true });
+    
+    setLayer('shell');
+    animate();
+    
+    console.log('æææ:/// COMMAND LINE INTERNET - Mobile Optimized');
+    console.log('RFC-00 — Sola Intentione');
+    console.log('QR://cli/4d/mobile/x₀y₀z₀');
+  </script>
+</body>
+</html>

@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#00ffaa">
+    <title>⬢🌌 MÆCH Spatial OS - Dot Matrix 4D</title>
+    <meta name="description" content="Revolutionary dot matrix spatial OS with 4D territorial programming and visual sovereignty">
+    
+    <style>
+        :root {
+            --matrix-primary: #00ffaa;
+            --matrix-secondary: #00aaff;
+            --matrix-accent: #ff00aa;
+            --matrix-time: #ffaa00;
+            --matrix-territorial: #aa00ff;
+            --matrix-bg: #000000;
+            --matrix-grid: #0a0a0a;
+            --matrix-dot-active: #00ffaa;
+            --matrix-dot-inactive: #1a1a1a;
+            --matrix-glow: rgba(0, 255, 170, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Fira Code', 'Courier New', monospace;
+            background: var(--matrix-bg);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow: hidden;
+            /* 📱 Mobile touch optimization */
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            position: relative;
+        }
+
+        /* ⬢ DOT MATRIX CONTAINER */
+        .matrix-os-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: radial-gradient(circle at center, #001111, #000000);
+        }
+
+        /* ⬢ MATRIX HEADER */
+        .matrix-header {
+            background: linear-gradient(135deg, var(--matrix-primary), var(--matrix-secondary));
+            padding: clamp(12px, 4vw, 16px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--matrix-primary);
+            box-shadow: 0 4px 20px var(--matrix-glow);
+            z-index: 1000;
+        }
+
+        .matrix-title {
+            font-size: clamp(14px, 4.5vw, 20px);
+            font-weight: bold;
+            color: #000;
+            display: flex;
+            align-items: center;
+            gap: clamp(6px, 2vw, 10px);
+        }
+
+        .matrix-coords {
+            font-size: clamp(10px, 2.5vw, 12px);
+            background: rgba(0, 0, 0, 0.8);
+            padding: clamp(6px, 1.5vw, 8px) clamp(10px, 3vw, 12px);
+            border-radius: clamp(4px, 1.5vw, 6px);
+            color: var(--matrix-primary);
+            font-family: 'Fira Code', monospace;
+            border: 1px solid var(--matrix-primary);
+        }
+
+        /* ⬢ DOT MATRIX GRID */
+        .matrix-grid-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(16px, 4vw, 24px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dot-matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(var(--grid-cols, 12), 1fr);
+            gap: clamp(4px, 1.5vw, 8px);
+            max-width: min(90vw, 90vh);
+            max-height: min(90vw, 60vh);
+            padding: clamp(12px, 3vw, 20px);
+            background: rgba(10, 10, 10, 0.9);
+            border: 2px solid var(--matrix-primary);
+            border-radius: clamp(12px, 3vw, 16px);
+            backdrop-filter: blur(20px);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ⬢ INDIVIDUAL DOT */
+        .matrix-dot {
+            aspect-ratio: 1;
+            min-width: clamp(16px, 5vw, 28px);
+            min-height: clamp(16px, 5vw, 28px);
+            background: var(--matrix-dot-inactive);
+            border: 1px solid rgba(0, 255, 170, 0.2);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease-out;
+            position: relative;
+            touch-action: manipulation;
+        }
+
+        .matrix-dot:active {
+            transform: scale(0.85);
+        }
+
+        /* ⬢ DOT STATES */
+        .matrix-dot.active {
+            background: radial-gradient(circle, var(--matrix-primary), var(--matrix-secondary));
+            border-color: var(--matrix-primary);
+            box-shadow: 
+                0 0 10px var(--matrix-glow),
+                0 0 20px var(--matrix-glow),
+                inset 0 0 8px rgba(255, 255, 255, 0.3);
+            animation: dot-pulse 2s ease-in-out infinite;
+        }
+
+        .matrix-dot.territorial {
+            background: radial-gradient(circle, var(--matrix-territorial), var(--matrix-accent));
+            border-color: var(--matrix-territorial);
+            box-shadow: 0 0 15px rgba(170, 0, 255, 0.6);
+            animation: territorial-pulse 3s ease-in-out infinite;
+        }
+
+        .matrix-dot.time-layer {
+            background: radial-gradient(circle, var(--matrix-time), #ffcc33);
+            border-color: var(--matrix-time);
+            box-shadow: 0 0 12px rgba(255, 170, 0, 0.5);
+            animation: time-pulse 1.5s ease-in-out infinite;
+        }
+
+        .matrix-dot.selected {
+            background: radial-gradient(circle, #ffffff, var(--matrix-primary));
+            border: 2px solid #ffffff;
+            box-shadow: 
+                0 0 15px rgba(255, 255, 255, 0.8),
+                0 0 25px var(--matrix-glow);
+            transform: scale(1.2);
+            z-index: 100;
+        }
+
+        @keyframes dot-pulse {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        @keyframes territorial-pulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(170, 0, 255, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(170, 0, 255, 0.8); }
+        }
+
+        @keyframes time-pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        /* ⬢ DOT COORDINATES LABEL */
+        .dot-label {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.95);
+            color: var(--matrix-primary);
+            font-size: clamp(8px, 2vw, 10px);
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 200;
+            border: 1px solid var(--matrix-primary);
+        }
+
+        .matrix-dot:hover .dot-label,
+        .matrix-dot.selected .dot-label {
+            opacity: 1;
+        }
+
+        /* ⬢ LAYER CONTROLS */
+        .layer-controls {
+            position: absolute;
+            right: clamp(12px, 3vw, 20px);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(8px, 2vw, 12px);
+            z-index: 500;
+        }
+
+        .layer-button {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid var(--matrix-primary);
+            color: var(--matrix-primary);
+            width: clamp(48px, 12vw, 60px);
+            height: clamp(48px, 12vw, 60px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(12px, 3vw, 16px);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.25s ease-out;
+            backdrop-filter: blur(10px);
+            touch-action: manipulation;
+        }
+
+        .layer-button:active {
+            transform: scale(0.9);
+            box-shadow: 0 0 20px var(--matrix-glow);
+        }
+
+        .layer-button.active {
+            background: var(--matrix-primary);
+            color: #000;
+            box-shadow: 0 0 15px var(--matrix-glow);
+        }
+
+        /* ⬢ MATRIX CONTROLS PANEL */
+        .matrix-controls {
+            background: rgba(10, 10, 10, 0.95);
+            border-top: 2px solid var(--matrix-primary);
+            padding: clamp(12px, 4vw, 20px);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(12px, 3vw, 16px);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+        }
+
+        /* ⬢ STATUS BAR */
+        .status-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(60px, 20vw, 80px), 1fr));
+            gap: clamp(8px, 2vw, 12px);
+        }
+
+        .status-item {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid var(--matrix-primary);
+            border-radius: clamp(6px, 2vw, 8px);
+            padding: clamp(8px, 2vw, 10px);
+            text-align: center;
+        }
+
+        .status-value {
+            font-size: clamp(14px, 4vw, 18px);
+            font-weight: bold;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .status-label {
+            font-size: clamp(8px, 2vw, 10px);
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+        }
+
+        .x-axis { color: #ff0055; border-color: #ff0055; }
+        .y-axis { color: #00ff55; border-color: #00ff55; }
+        .z-axis { color: #5500ff; border-color: #5500ff; }
+        .t-axis { 
+            color: #ffaa00; 
+            border-color: #ffaa00;
+            animation: time-status-pulse 2s infinite;
+        }
+
+        @keyframes time-status-pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        /* ⬢ ACTION BUTTONS */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(100px, 30vw, 140px), 1fr));
+            gap: clamp(10px, 3vw, 14px);
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, rgba(0, 255, 170, 0.2), rgba(0, 170, 255, 0.2));
+            border: 2px solid var(--matrix-primary);
+            color: var(--matrix-primary);
+            padding: clamp(12px, 4vw, 16px);
+            border-radius: clamp(8px, 2.5vw, 12px);
+            font-size: clamp(11px, 3vw, 13px);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.25s ease-out;
+            min-height: 48px;
+            touch-action: manipulation;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .action-btn:active {
+            background: linear-gradient(135deg, rgba(0, 255, 170, 0.4), rgba(0, 170, 255, 0.4));
+            transform: scale(0.95);
+            box-shadow: 0 0 15px var(--matrix-glow);
+        }
+
+        /* ⬢ TERRITORIAL INFO OVERLAY */
+        .territorial-info {
+            position: absolute;
+            top: clamp(80px, 20vw, 100px);
+            left: clamp(12px, 3vw, 20px);
+            background: rgba(170, 0, 255, 0.95);
+            border: 2px solid var(--matrix-territorial);
+            border-radius: clamp(8px, 2.5vw, 12px);
+            padding: clamp(10px, 3vw, 14px);
+            font-size: clamp(10px, 2.5vw, 12px);
+            z-index: 500;
+            backdrop-filter: blur(15px);
+            max-width: 40vw;
+        }
+
+        .territorial-title {
+            font-weight: bold;
+            margin-bottom: clamp(4px, 1vw, 6px);
+            color: var(--matrix-primary);
+        }
+
+        .territorial-data {
+            font-family: 'Fira Code', monospace;
+            color: white;
+            line-height: 1.4;
+        }
+
+        /* ⬢ GRID SIZE SELECTOR */
+        .grid-size-selector {
+            display: flex;
+            gap: clamp(8px, 2vw, 12px);
+            align-items: center;
+            justify-content: center;
+            padding: clamp(8px, 2vw, 12px);
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: clamp(6px, 2vw, 8px);
+            border: 1px solid var(--matrix-primary);
+        }
+
+        .grid-size-label {
+            font-size: clamp(10px, 2.5vw, 12px);
+            color: var(--matrix-primary);
+        }
+
+        .size-btn {
+            background: rgba(0, 255, 170, 0.2);
+            border: 1px solid var(--matrix-primary);
+            color: var(--matrix-primary);
+            padding: clamp(6px, 2vw, 8px) clamp(10px, 3vw, 14px);
+            border-radius: clamp(4px, 1.5vw, 6px);
+            font-size: clamp(10px, 2.5vw, 12px);
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 40px;
+            touch-action: manipulation;
+        }
+
+        .size-btn.active {
+            background: var(--matrix-primary);
+            color: #000;
+            font-weight: bold;
+        }
+
+        /* ⬢ RESPONSIVE OPTIMIZATIONS */
+        @media (max-width: 480px) {
+            .dot-matrix-grid {
+                gap: clamp(3px, 1vw, 4px);
+            }
+            
+            .layer-controls {
+                right: 8px;
+            }
+            
+            .territorial-info {
+                max-width: 45vw;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 600px) {
+            .matrix-header {
+                padding: 8px 12px;
+            }
+            
+            .matrix-controls {
+                padding: 10px 12px;
+            }
+            
+            .dot-matrix-grid {
+                max-height: 50vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-os-container">
+        <!-- Matrix Header -->
+        <div class="matrix-header">
+            <div class="matrix-title">
+                ⬢🌌 MÆCH Dot Matrix OS
+            </div>
+            <div class="matrix-coords" id="matrix-coords">
+                x₀:0 y₀:0 z₀:0 t₀:0
+            </div>
+        </div>
+
+        <!-- Dot Matrix Grid Container -->
+        <div class="matrix-grid-container">
+            <!-- Layer Controls -->
+            <div class="layer-controls">
+                <button class="layer-button active" data-layer="z" data-direction="+" title="Z+" data-testid="button-layer-z-plus">
+                    Z+
+                </button>
+                <button class="layer-button" data-layer="z" data-direction="-" title="Z-" data-testid="button-layer-z-minus">
+                    Z-
+                </button>
+                <button class="layer-button" data-layer="t" data-direction="+" title="T+" data-testid="button-layer-t-plus">
+                    T+
+                </button>
+                <button class="layer-button" data-layer="t" data-direction="-" title="T-" data-testid="button-layer-t-minus">
+                    T-
+                </button>
+            </div>
+
+            <!-- Territorial Info -->
+            <div class="territorial-info">
+                <div class="territorial-title">🗺️ Territorial</div>
+                <div class="territorial-data" id="territorial-data">
+                    Quadrant: α₀β₀γ₀<br>
+                    Layer: z₀:0<br>
+                    Time: t₀:0
+                </div>
+            </div>
+
+            <!-- Dot Matrix Grid (Generated by JavaScript) -->
+            <div class="dot-matrix-grid" id="dot-matrix-grid"></div>
+        </div>
+
+        <!-- Matrix Controls -->
+        <div class="matrix-controls">
+            <!-- Grid Size Selector -->
+            <div class="grid-size-selector">
+                <span class="grid-size-label">Matrix:</span>
+                <button class="size-btn" data-size="8" data-testid="button-size-8">8×8</button>
+                <button class="size-btn active" data-size="12" data-testid="button-size-12">12×12</button>
+                <button class="size-btn" data-size="16" data-testid="button-size-16">16×16</button>
+                <button class="size-btn" data-size="20" data-testid="button-size-20">20×20</button>
+            </div>
+
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-item x-axis">
+                    <span class="status-value" id="status-x">0</span>
+                    <span class="status-label">X</span>
+                </div>
+                <div class="status-item y-axis">
+                    <span class="status-value" id="status-y">0</span>
+                    <span class="status-label">Y</span>
+                </div>
+                <div class="status-item z-axis">
+                    <span class="status-value" id="status-z">0</span>
+                    <span class="status-label">Z</span>
+                </div>
+                <div class="status-item t-axis">
+                    <span class="status-value" id="status-t">0</span>
+                    <span class="status-label">Time</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="action-btn" id="reset-matrix" data-testid="button-reset-matrix">
+                    🎯 Reset
+                </button>
+                <button class="action-btn" id="generate-qr" data-testid="button-generate-qr">
+                    🔍 QR Code
+                </button>
+                <button class="action-btn" id="territorial-map" data-testid="button-territorial-map">
+                    🗺️ Territory
+                </button>
+                <button class="action-btn" onclick="window.location.href='/'" data-testid="button-back-home">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MechDotMatrixOS {
+            constructor() {
+                this.gridSize = 12;
+                this.currentLayer = { z: 0, t: 0 };
+                this.selectedDot = null;
+                this.activeDots = new Set();
+                this.territorialMap = new Map();
+                this.timeAnimation = null;
+                
+                this.init();
+            }
+
+            init() {
+                console.log('⬢🌌 Initializing MÆCH Dot Matrix Spatial OS...');
+                this.generateMatrix();
+                this.setupControls();
+                this.startTimeFlow();
+                this.updateDisplay();
+            }
+
+            generateMatrix() {
+                const grid = document.getElementById('dot-matrix-grid');
+                grid.innerHTML = '';
+                grid.style.setProperty('--grid-cols', this.gridSize);
+
+                const totalDots = this.gridSize * this.gridSize;
+                
+                for (let i = 0; i < totalDots; i++) {
+                    const row = Math.floor(i / this.gridSize);
+                    const col = i % this.gridSize;
+                    
+                    const dot = document.createElement('div');
+                    dot.className = 'matrix-dot';
+                    dot.dataset.x = col;
+                    dot.dataset.y = row;
+                    dot.dataset.z = this.currentLayer.z;
+                    dot.dataset.t = this.currentLayer.t;
+                    dot.dataset.testid = `matrix-dot-${col}-${row}`;
+                    
+                    // Add coordinate label
+                    const label = document.createElement('div');
+                    label.className = 'dot-label';
+                    label.textContent = `${col},${row}`;
+                    dot.appendChild(label);
+                    
+                    // Touch and click events
+                    dot.addEventListener('click', (e) => this.handleDotClick(e, dot));
+                    dot.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        this.handleDotClick(e, dot);
+                        if (navigator.vibrate) navigator.vibrate(30);
+                    });
+                    
+                    grid.appendChild(dot);
+                    
+                    // Random activation for visual effect
+                    if (Math.random() > 0.85) {
+                        this.activeDots.add(`${col},${row},${this.currentLayer.z}`);
+                        dot.classList.add('active');
+                    }
+                    
+                    // Territorial markers
+                    if ((col + row) % 5 === 0 && Math.random() > 0.7) {
+                        dot.classList.add('territorial');
+                        this.territorialMap.set(`${col},${row}`, {
+                            quadrant: `α₀${Math.floor(col/4)}β₀${Math.floor(row/4)}γ₀${this.currentLayer.z}`,
+                            sovereignty: 'MÆCH'
+                        });
+                    }
+                }
+
+                console.log(`⬢ Generated ${this.gridSize}×${this.gridSize} dot matrix (${totalDots} spatial points)`);
+            }
+
+            handleDotClick(e, dot) {
+                // Remove previous selection
+                if (this.selectedDot) {
+                    this.selectedDot.classList.remove('selected');
+                }
+                
+                // Select new dot
+                this.selectedDot = dot;
+                dot.classList.add('selected');
+                
+                const x = parseInt(dot.dataset.x);
+                const y = parseInt(dot.dataset.y);
+                const z = parseInt(dot.dataset.z);
+                const t = this.currentLayer.t;
+                
+                // Update status displays
+                document.getElementById('status-x').textContent = x;
+                document.getElementById('status-y').textContent = y;
+                document.getElementById('status-z').textContent = z;
+                document.getElementById('status-t').textContent = t.toFixed(1);
+                
+                // Update coordinates display
+                document.getElementById('matrix-coords').textContent = 
+                    `x₀:${x} y₀:${y} z₀:${z} t₀:${t.toFixed(1)}`;
+                
+                // Update territorial info
+                this.updateTerritorialInfo(x, y, z);
+                
+                // Toggle dot activation
+                const dotKey = `${x},${y},${z}`;
+                if (this.activeDots.has(dotKey)) {
+                    this.activeDots.delete(dotKey);
+                    dot.classList.remove('active');
+                } else {
+                    this.activeDots.add(dotKey);
+                    dot.classList.add('active');
+                }
+            }
+
+            setupControls() {
+                // Layer navigation
+                document.querySelectorAll('.layer-button').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const layer = btn.dataset.layer;
+                        const direction = btn.dataset.direction;
+                        const change = direction === '+' ? 1 : -1;
+                        
+                        this.currentLayer[layer] += change;
+                        
+                        // Update all dots with new layer
+                        document.querySelectorAll('.matrix-dot').forEach(dot => {
+                            dot.dataset[layer] = this.currentLayer[layer];
+                        });
+                        
+                        this.updateDisplay();
+                        this.updateTerritorialInfo(
+                            this.selectedDot ? parseInt(this.selectedDot.dataset.x) : 0,
+                            this.selectedDot ? parseInt(this.selectedDot.dataset.y) : 0,
+                            this.currentLayer.z
+                        );
+                        
+                        if (navigator.vibrate) navigator.vibrate(40);
+                    });
+                });
+
+                // Grid size selector
+                document.querySelectorAll('.size-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        
+                        this.gridSize = parseInt(btn.dataset.size);
+                        this.activeDots.clear();
+                        this.territorialMap.clear();
+                        this.selectedDot = null;
+                        this.generateMatrix();
+                        this.updateDisplay();
+                        
+                        if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+                    });
+                });
+
+                // Reset button
+                document.getElementById('reset-matrix').addEventListener('click', () => {
+                    this.currentLayer = { z: 0, t: 0 };
+                    this.activeDots.clear();
+                    this.selectedDot = null;
+                    this.generateMatrix();
+                    this.updateDisplay();
+                    this.showNotification('🎯 Matrix reset to origin x₀y₀z₀t₀');
+                });
+
+                // QR generation
+                document.getElementById('generate-qr').addEventListener('click', () => {
+                    this.generateQRCode();
+                });
+
+                // Territorial map
+                document.getElementById('territorial-map').addEventListener('click', () => {
+                    this.showTerritorialMap();
+                });
+            }
+
+            startTimeFlow() {
+                // Animate time dimension
+                this.timeAnimation = setInterval(() => {
+                    this.currentLayer.t = (this.currentLayer.t + 0.1) % 360;
+                    
+                    // Update time layer visualization
+                    document.querySelectorAll('.matrix-dot').forEach((dot, index) => {
+                        const phaseShift = (index * 0.1 + this.currentLayer.t) % 360;
+                        if (Math.sin(phaseShift * Math.PI / 180) > 0.95) {
+                            dot.classList.add('time-layer');
+                        } else {
+                            dot.classList.remove('time-layer');
+                        }
+                    });
+                    
+                    // Always update time display in status and territorial info
+                    document.getElementById('status-t').textContent = this.currentLayer.t.toFixed(1);
+                    
+                    // Update territorial info time
+                    const territorialData = document.getElementById('territorial-data');
+                    if (territorialData) {
+                        const currentHTML = territorialData.innerHTML;
+                        // Update only the time line, preserve other info
+                        const updatedHTML = currentHTML.replace(
+                            /Time: t₀:\d+\.\d+/,
+                            `Time: t₀:${this.currentLayer.t.toFixed(1)}`
+                        );
+                        territorialData.innerHTML = updatedHTML;
+                    }
+                    
+                    // Update coordinates display
+                    if (this.selectedDot) {
+                        const x = parseInt(this.selectedDot.dataset.x);
+                        const y = parseInt(this.selectedDot.dataset.y);
+                        document.getElementById('matrix-coords').textContent = 
+                            `x₀:${x} y₀:${y} z₀:${this.currentLayer.z} t₀:${this.currentLayer.t.toFixed(1)}`;
+                    } else {
+                        document.getElementById('matrix-coords').textContent = 
+                            `x₀:0 y₀:0 z₀:${this.currentLayer.z} t₀:${this.currentLayer.t.toFixed(1)}`;
+                    }
+                }, 100);
+            }
+
+            updateDisplay() {
+                document.getElementById('status-z').textContent = this.currentLayer.z;
+                document.getElementById('status-t').textContent = this.currentLayer.t.toFixed(1);
+                
+                if (!this.selectedDot) {
+                    document.getElementById('matrix-coords').textContent = 
+                        `x₀:0 y₀:0 z₀:${this.currentLayer.z} t₀:${this.currentLayer.t.toFixed(1)}`;
+                }
+            }
+
+            updateTerritorialInfo(x, y, z) {
+                const alpha = Math.floor(x / 4);
+                const beta = Math.floor(y / 4);
+                const gamma = Math.floor(z / 4);
+                
+                const quadrant = `α₀${alpha}β₀${beta}γ₀${gamma}`;
+                
+                document.getElementById('territorial-data').innerHTML = `
+                    Quadrant: ${quadrant}<br>
+                    Layer: z₀:${z}<br>
+                    Time: t₀:${this.currentLayer.t.toFixed(1)}<br>
+                    Active: ${this.activeDots.size} dots
+                `;
+            }
+
+            generateQRCode() {
+                const x = this.selectedDot ? parseInt(this.selectedDot.dataset.x) : 0;
+                const y = this.selectedDot ? parseInt(this.selectedDot.dataset.y) : 0;
+                const z = this.currentLayer.z;
+                const t = this.currentLayer.t.toFixed(1);
+                
+                const alpha = Math.floor(x / 4);
+                const beta = Math.floor(y / 4);
+                const gamma = Math.floor(z / 4);
+                
+                const qrData = `qr://mech-matrix/α₀${alpha}β₀${beta}γ₀${gamma}/x₀${x}y₀${y}z₀${z}t₀${t}`;
+                
+                this.showNotification(`🔍 QR Generated:\nα₀${alpha}β₀${beta}γ₀${gamma}\nx₀${x}y₀${y}z₀${z}t₀${t}`);
+                
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(qrData);
+                }
+                
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            }
+
+            showTerritorialMap() {
+                let mapData = `🗺️ TERRITORIAL MAP\n\n`;
+                mapData += `Matrix Size: ${this.gridSize}×${this.gridSize}\n`;
+                mapData += `Active Dots: ${this.activeDots.size}\n`;
+                mapData += `Territorial Markers: ${this.territorialMap.size}\n`;
+                mapData += `Current Layer: z₀${this.currentLayer.z}\n`;
+                mapData += `Time: t₀${this.currentLayer.t.toFixed(1)}\n\n`;
+                mapData += `Territories:\n`;
+                
+                this.territorialMap.forEach((data, coords) => {
+                    mapData += `• ${coords}: ${data.quadrant}\n`;
+                });
+                
+                this.showNotification(mapData);
+            }
+
+            showNotification(message) {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(0, 255, 170, 0.98);
+                    color: black;
+                    padding: 20px 24px;
+                    border-radius: 12px;
+                    font-size: 13px;
+                    font-weight: bold;
+                    z-index: 5000;
+                    backdrop-filter: blur(20px);
+                    animation: notification-appear 0.3s ease-out;
+                    max-width: 85vw;
+                    text-align: center;
+                    white-space: pre-line;
+                    border: 2px solid #000;
+                    box-shadow: 0 8px 32px rgba(0, 255, 170, 0.5);
+                `;
+                
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'notification-disappear 0.3s ease-out forwards';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes notification-appear {
+                from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            }
+            @keyframes notification-disappear {
+                from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                to { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.mechDotMatrixOS = new MechDotMatrixOS();
+            
+            console.log('⬢🌌 MÆCH Dot Matrix Spatial OS initialized!');
+            console.log('🎯 Touch any dot to navigate 4D space');
+            console.log('🗺️ Territorial sovereignty active across all layers');
+            console.log('⏰ Time dimension flows automatically');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MÆCH Integration Hub - Universal Application Registry</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background: linear-gradient(135deg, #000011, #001133, #000033);
+            color: #00ffaa;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .hub-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 2px solid #00ffaa;
+            backdrop-filter: blur(10px);
+        }
+
+        .hub-title {
+            font-size: 32px;
+            background: linear-gradient(135deg, #00ffaa, #00aaff, #ff00aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .flagship-banner {
+            background: linear-gradient(135deg, #4d00ff, #7700ff, #aa00ff);
+            padding: 15px;
+            margin: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #00ffaa;
+            box-shadow: 0 0 30px rgba(77, 0, 255, 0.5);
+        }
+
+        .flagship-title {
+            font-size: 24px;
+            color: white;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
+        .hub-subtitle {
+            font-size: 14px;
+            color: rgba(0, 255, 170, 0.7);
+        }
+
+        /* Stats Dashboard */
+        .stats-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            margin: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 255, 170, 0.2);
+            border-radius: 10px;
+        }
+
+        .stat-card {
+            padding: 15px;
+            background: rgba(0, 255, 170, 0.05);
+            border: 1px solid rgba(0, 255, 170, 0.3);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #00ffaa;
+            text-shadow: 0 0 10px rgba(0, 255, 170, 0.5);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: rgba(0, 255, 170, 0.6);
+            margin-top: 5px;
+        }
+
+        /* Integration Categories */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .category-card {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(0, 255, 170, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 170, 0.3);
+            border-color: #00ffaa;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .category-icon {
+            font-size: 24px;
+        }
+
+        .category-name {
+            font-size: 18px;
+            color: #00aaff;
+        }
+
+        .category-count {
+            margin-left: auto;
+            background: rgba(0, 255, 170, 0.2);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .implementation-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .implementation-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(0, 255, 170, 0.05);
+            border-left: 3px solid #00ffaa;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .implementation-item:hover {
+            background: rgba(0, 255, 170, 0.1);
+            transform: translateX(5px);
+        }
+
+        /* Implementation Registry Table */
+        .registry-section {
+            margin: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(0, 255, 170, 0.2);
+            border-radius: 10px;
+        }
+
+        .registry-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            flex: 1;
+            padding: 10px;
+            background: rgba(0, 255, 170, 0.05);
+            border: 1px solid rgba(0, 255, 170, 0.3);
+            border-radius: 5px;
+            color: #00ffaa;
+            font-family: inherit;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: rgba(0, 255, 170, 0.1);
+            border: 1px solid rgba(0, 255, 170, 0.3);
+            border-radius: 5px;
+            color: #00ffaa;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            background: rgba(0, 255, 170, 0.2);
+        }
+
+        .registry-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .registry-table th {
+            background: rgba(0, 255, 170, 0.1);
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #00ffaa;
+            color: #00aaff;
+        }
+
+        .registry-table td {
+            padding: 10px;
+            border-bottom: 1px solid rgba(0, 255, 170, 0.1);
+        }
+
+        .registry-table tr:hover {
+            background: rgba(0, 255, 170, 0.05);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+        }
+
+        .status-active {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+
+        .status-pending {
+            background: rgba(255, 255, 0, 0.2);
+            color: #ffff00;
+        }
+
+        .status-archived {
+            background: rgba(128, 128, 128, 0.2);
+            color: #888888;
+        }
+
+        /* Integration API Panel */
+        .api-panel {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 400px;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            border-left: 2px solid #00ffaa;
+            padding: 20px;
+            transition: right 0.3s;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .api-panel.active {
+            right: 0;
+        }
+
+        .api-header {
+            font-size: 20px;
+            color: #ff00aa;
+            margin-bottom: 20px;
+        }
+
+        .api-endpoint {
+            background: rgba(0, 255, 170, 0.05);
+            border: 1px solid rgba(0, 255, 170, 0.2);
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .api-method {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .method-get { background: #4CAF50; color: white; }
+        .method-post { background: #2196F3; color: white; }
+        .method-put { background: #FF9800; color: white; }
+        .method-delete { background: #f44336; color: white; }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #00ffaa, #00aaff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0, 255, 170, 0.5);
+            transition: all 0.3s;
+            z-index: 999;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(0, 255, 170, 0.7);
+        }
+
+        .fab-icon {
+            font-size: 24px;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="hub-header">
+        <h1 class="hub-title">MÆCH Integration Hub</h1>
+        <p class="hub-subtitle">Universal Registry for 247+ MÆCH Implementations | OCW Global Access</p>
+    </div>
+
+    <!-- 🌌 FLAGSHIP BANNER -->
+    <div class="flagship-banner">
+        <h2 class="flagship-title">🌌 FLAGSHIP: MÆCH Spatial OS</h2>
+        <p style="color: rgba(255,255,255,0.9); margin: 10px 0;">Revolutionary 4D Spatial Operating System | 38,240 Students | True 4th Dimensional Navigation</p>
+        <button onclick="window.location.href='/mech-spatial-os'" 
+                style="background: #00ffaa; color: #000; padding: 12px 24px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin: 10px;">
+            🚀 LAUNCH SPATIAL OS
+        </button>
+        <button onclick="window.location.href='/spatial'" 
+                style="background: rgba(255,255,255,0.2); color: white; padding: 12px 24px; border: 1px solid white; border-radius: 6px; font-weight: bold; cursor: pointer; margin: 10px;">
+            Quick Access: /spatial
+        </button>
+    </div>
+
+    <!-- Stats Dashboard -->
+    <div class="stats-dashboard">
+        <div class="stat-card">
+            <div class="stat-value" id="totalImplementations">247</div>
+            <div class="stat-label">Total Implementations</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="activeModules">186</div>
+            <div class="stat-label">Active Modules</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="ocwStudents">3.2K</div>
+            <div class="stat-label">OCW Students</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="apiCalls">1.5M</div>
+            <div class="stat-label">API Calls Today</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="territories">49</div>
+            <div class="stat-label">Active Territories</div>
+        </div>
+    </div>
+
+    <!-- Integration Categories -->
+    <div class="categories-grid">
+        <div class="category-card">
+            <div class="category-header">
+                <span class="category-icon">🧠</span>
+                <span class="category-name">AI & ML</span>
+                <span class="category-count">42</span>
+            </div>
+            <div class="implementation-list">
+                <div class="implementation-item">MÆCH Vision Recognition</div>
+                <div class="implementation-item">Quantum Neural Networks</div>
+                <div class="implementation-item">MCP Agent Controller</div>
+                <div class="implementation-item">GPT-MÆCH Bridge</div>
+                <div class="implementation-item">Gemini Integration</div>
+            </div>
+        </div>
+
+        <div class="category-card">
+            <div class="category-header">
+                <span class="category-icon">🌐</span>
+                <span class="category-name">Network & Communication</span>
+                <span class="category-count">38</span>
+            </div>
+            <div class="implementation-list">
+                <div class="implementation-item">Bluesky AT Protocol</div>
+                <div class="implementation-item">WebRTC MÆCH Mesh</div>
+                <div class="implementation-item">P2P Territory Network</div>
+                <div class="implementation-item">QR Address Router</div>
+                <div class="implementation-item">IPFS Integration</div>
+            </div>
+        </div>
+
+        <div class="category-card">
+            <div class="category-header">
+                <span class="category-icon">📊</span>
+                <span class="category-name">Data & Visualization</span>
+                <span class="category-count">56</span>
+            </div>
+            <div class="implementation-list">
+                <div class="implementation-item">4D HoloMesh Renderer</div>
+                <div class="implementation-item">Tabular IDE</div>
+                <div class="implementation-item">QrSQL Database</div>
+                <div class="implementation-item">GraphRAG Engine</div>
+                <div class="implementation-item">D3.js MÆCH Adapter</div>
+            </div>
+        </div>
+
+        <div class="category-card">
+            <div class="category-header">
+                <span class="category-icon">🎮</span>
+                <span class="category-name">Spatial Computing</span>
+                <span class="category-count">33</span>
+            </div>
+            <div class="implementation-list">
+                <div class="implementation-item">3D Territory Navigator</div>
+                <div class="implementation-item">WebGL Spatial OS</div>
+                <div class="implementation-item">Unity MÆCH Bridge</div>
+                <div class="implementation-item">AR Territory Viewer</div>
+                <div class="implementation-item">VR MÆCH Environment</div>
+            </div>
+        </div>
+
+        <div class="category-card">
+            <div class="category-header">
+                <span class="category-icon">🔧</span>
+                <span class="category-name">Developer Tools</span>
+                <span class="category-count">45</span>
+            </div>
+            <div class="implementation-list">
+                <div class="implementation-item">MÆCH Compiler</div>
+                <div class="implementation-item">VSCode Extension</div>
+                <div class="implementation-item">Git Visual Controller</div>
+                <div class="implementation-item">Jupyter MÆCH Kernel</div>
+                <div class="implementation-item">FFmpeg MÆCH Processor</div>
+            </div>
+        </div>
+
+        <div class="category-card">
+            <div class="category-header">
+                <span class="category-icon">🎓</span>
+                <span class="category-name">Educational</span>
+                <span class="category-count">33</span>
+            </div>
+            <div class="implementation-list">
+                <div class="implementation-item">OCW Studio Integration</div>
+                <div class="implementation-item">NOTÆBOOK System</div>
+                <div class="implementation-item">Interactive Tutorials</div>
+                <div class="implementation-item">MÆCH Playground</div>
+                <div class="implementation-item">Visual Programming</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Implementation Registry -->
+    <div class="registry-section">
+        <h2 style="color: #00aaff; margin-bottom: 20px;">Implementation Registry</h2>
+        
+        <div class="registry-controls">
+            <input type="text" class="search-box" placeholder="Search implementations..." id="searchBox">
+            <button class="filter-btn" onclick="filterByStatus('active')">Active</button>
+            <button class="filter-btn" onclick="filterByStatus('pending')">Pending</button>
+            <button class="filter-btn" onclick="filterByStatus('all')">All</button>
+            <button class="filter-btn" onclick="toggleAPIPanel()" style="background: linear-gradient(135deg, #ff00aa, #00aaff);">API Docs</button>
+        </div>
+
+        <table class="registry-table">
+            <thead>
+                <tr>
+                    <th>QR</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Version</th>
+                    <th>Status</th>
+                    <th>Route</th>
+                    <th>Students</th>
+                </tr>
+            </thead>
+            <tbody id="registryBody">
+                <tr>
+                    <td style="font-family: monospace;">M001</td>
+                    <td>MÆCH Interpreter</td>
+                    <td>Core</td>
+                    <td>1.0.0</td>
+                    <td><span class="status-badge status-active">Active</span></td>
+                    <td>/mech-interpreter</td>
+                    <td>2,341</td>
+                </tr>
+                <tr>
+                    <td style="font-family: monospace;">H002</td>
+                    <td>4D HoloMesh</td>
+                    <td>Visualization</td>
+                    <td>0.9.5</td>
+                    <td><span class="status-badge status-active">Active</span></td>
+                    <td>/mech-4d-holomesh</td>
+                    <td>1,892</td>
+                </tr>
+                <tr>
+                    <td style="font-family: monospace;">S003</td>
+                    <td>Spatial OS</td>
+                    <td>System</td>
+                    <td>1.0.0</td>
+                    <td><span class="status-badge status-active">Active</span></td>
+                    <td>/mech-spatial-os</td>
+                    <td>1,567</td>
+                </tr>
+                <tr>
+                    <td style="font-family: monospace;">V004</td>
+                    <td>vÆ Asymptotic</td>
+                    <td>Core</td>
+                    <td>1.0.0</td>
+                    <td><span class="status-badge status-active">Active</span></td>
+                    <td>/mech-os-vae</td>
+                    <td>923</td>
+                </tr>
+                <tr>
+                    <td style="font-family: monospace;">B005</td>
+                    <td>Bluesky Bridge</td>
+                    <td>Network</td>
+                    <td>0.8.0</td>
+                    <td><span class="status-badge status-pending">Pending</span></td>
+                    <td>/mech-bluesky</td>
+                    <td>456</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- API Documentation Panel -->
+    <div class="api-panel" id="apiPanel">
+        <h2 class="api-header">MÆCH Integration API</h2>
+        
+        <div class="api-endpoint">
+            <span class="api-method method-get">GET</span>
+            /api/mech/implementations
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="api-method method-post">POST</span>
+            /api/mech/register
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="api-method method-get">GET</span>
+            /api/mech/implementation/:qr
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="api-method method-put">PUT</span>
+            /api/mech/implementation/:qr/update
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="api-method method-post">POST</span>
+            /api/mech/territory/create
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="api-method method-get">GET</span>
+            /api/mech/ocw/students
+        </div>
+
+        <h3 style="color: #00aaff; margin-top: 30px;">WebSocket Events</h3>
+        
+        <div class="api-endpoint">
+            ws://localhost:5000/mech-socket
+        </div>
+        
+        <p style="font-size: 12px; color: rgba(0, 255, 170, 0.7); margin-top: 20px;">
+            Events: implementation.created, implementation.updated, territory.changed, student.joined
+        </p>
+
+        <h3 style="color: #00aaff; margin-top: 30px;">Integration Example</h3>
+        
+        <pre style="background: rgba(0, 255, 170, 0.05); padding: 15px; border-radius: 5px; font-size: 11px; overflow-x: auto;">
+// Register new implementation
+const implementation = {
+    name: "My MÆCH Module",
+    category: "Custom",
+    version: "1.0.0",
+    route: "/my-module",
+    qr: "C999",
+    territory: "x0y0z0t0"
+};
+
+fetch('/api/mech/register', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(implementation)
+})
+.then(res => res.json())
+.then(data => console.log(data));
+        </pre>
+    </div>
+
+    <!-- Floating Action Button -->
+    <div class="fab" onclick="addNewImplementation()">
+        <span class="fab-icon">+</span>
+    </div>
+
+    <script>
+        // MÆCH Integration Hub Controller
+        class IntegrationHub {
+            constructor() {
+                this.implementations = [];
+                this.categories = new Map();
+                this.activeFilter = 'all';
+                this.searchTerm = '';
+                
+                this.init();
+            }
+
+            init() {
+                this.loadImplementations();
+                this.setupEventListeners();
+                this.startRealtimeUpdates();
+                this.updateStats();
+            }
+
+            loadImplementations() {
+                // In production, this would fetch from the actual API
+                // For now, we use the registry data shown
+                this.implementations = [
+                    { qr: 'M001', name: 'MÆCH Interpreter', category: 'Core', version: '1.0.0', status: 'active', route: '/mech-interpreter', students: 2341 },
+                    { qr: 'H002', name: '4D HoloMesh', category: 'Visualization', version: '0.9.5', status: 'active', route: '/mech-4d-holomesh', students: 1892 },
+                    { qr: 'S003', name: 'Spatial OS', category: 'System', version: '1.0.0', status: 'active', route: '/mech-spatial-os', students: 1567 },
+                    { qr: 'V004', name: 'vÆ Asymptotic', category: 'Core', version: '1.0.0', status: 'active', route: '/mech-os-vae', students: 923 },
+                    { qr: 'B005', name: 'Bluesky Bridge', category: 'Network', version: '0.8.0', status: 'pending', route: '/mech-bluesky', students: 456 }
+                ];
+                
+                this.categorizeImplementations();
+            }
+
+            categorizeImplementations() {
+                this.implementations.forEach(impl => {
+                    if (!this.categories.has(impl.category)) {
+                        this.categories.set(impl.category, []);
+                    }
+                    this.categories.get(impl.category).push(impl);
+                });
+            }
+
+            setupEventListeners() {
+                // Search functionality
+                document.getElementById('searchBox').addEventListener('input', (e) => {
+                    this.searchTerm = e.target.value.toLowerCase();
+                    this.filterImplementations();
+                });
+                
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        this.closeAPIPanel();
+                    }
+                    if (e.ctrlKey && e.key === 'k') {
+                        e.preventDefault();
+                        document.getElementById('searchBox').focus();
+                    }
+                });
+            }
+
+            filterImplementations() {
+                const tbody = document.getElementById('registryBody');
+                const filtered = this.implementations.filter(impl => {
+                    const matchesSearch = impl.name.toLowerCase().includes(this.searchTerm) ||
+                                         impl.qr.toLowerCase().includes(this.searchTerm) ||
+                                         impl.category.toLowerCase().includes(this.searchTerm);
+                    const matchesStatus = this.activeFilter === 'all' || impl.status === this.activeFilter;
+                    
+                    return matchesSearch && matchesStatus;
+                });
+                
+                this.renderRegistry(filtered);
+            }
+
+            renderRegistry(implementations) {
+                const tbody = document.getElementById('registryBody');
+                tbody.innerHTML = implementations.map(impl => `
+                    <tr onclick="hub.selectImplementation('${impl.qr}')" style="cursor: pointer;">
+                        <td style="font-family: monospace;">${impl.qr}</td>
+                        <td>${impl.name}</td>
+                        <td>${impl.category}</td>
+                        <td>${impl.version}</td>
+                        <td><span class="status-badge status-${impl.status}">${impl.status.charAt(0).toUpperCase() + impl.status.slice(1)}</span></td>
+                        <td>${impl.route}</td>
+                        <td>${impl.students.toLocaleString()}</td>
+                    </tr>
+                `).join('');
+            }
+
+            selectImplementation(qr) {
+                const impl = this.implementations.find(i => i.qr === qr);
+                if (impl && impl.status === 'active') {
+                    window.location.href = impl.route;
+                } else {
+                    console.log('Implementation selected:', qr);
+                }
+            }
+
+            startRealtimeUpdates() {
+                // Simulate real-time updates
+                setInterval(() => {
+                    this.updateStats();
+                }, 5000);
+            }
+
+            updateStats() {
+                // Simulate dynamic stats
+                const stats = {
+                    totalImplementations: 247 + Math.floor(Math.random() * 5),
+                    activeModules: 186 + Math.floor(Math.random() * 10),
+                    ocwStudents: (3200 + Math.floor(Math.random() * 100)),
+                    apiCalls: (1500000 + Math.floor(Math.random() * 100000)),
+                    territories: 49 + Math.floor(Math.random() * 3)
+                };
+                
+                document.getElementById('totalImplementations').textContent = stats.totalImplementations;
+                document.getElementById('activeModules').textContent = stats.activeModules;
+                document.getElementById('ocwStudents').textContent = (stats.ocwStudents / 1000).toFixed(1) + 'K';
+                document.getElementById('apiCalls').textContent = (stats.apiCalls / 1000000).toFixed(1) + 'M';
+                document.getElementById('territories').textContent = stats.territories;
+            }
+
+            closeAPIPanel() {
+                document.getElementById('apiPanel').classList.remove('active');
+            }
+        }
+
+        // Global functions
+        function filterByStatus(status) {
+            hub.activeFilter = status;
+            hub.filterImplementations();
+        }
+
+        function toggleAPIPanel() {
+            document.getElementById('apiPanel').classList.toggle('active');
+        }
+
+        function addNewImplementation() {
+            alert('Opening MÆCH Implementation Creator...');
+            // In production, this would open a modal or navigate to creation page
+        }
+
+        // Initialize hub
+        const hub = new IntegrationHub();
+        
+        console.log('🚀 MÆCH Integration Hub initialized');
+        console.log('📚 247 implementations registered');
+        console.log('🌍 Serving 3.2K OCW students globally');
+    </script>
+</body>
+</html>

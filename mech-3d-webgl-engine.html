@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#00ffaa">
+    <title>🌌⚡ MÆCH 3D WebGL Engine - Territorial Sovereignty</title>
+    <meta name="description" content="Revolutionary WebGL engine with territorial sovereignty, 4D coordinates, and QR addressing">
+    
+    <style>
+        :root {
+            --mech-primary: #00ffaa;
+            --mech-secondary: #00aaff;
+            --mech-accent: #ff00aa;
+            --mech-territorial: #aa00ff;
+            --mech-sovereign: #ffaa00;
+            --mech-bg: #000000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Fira Code', 'Courier New', monospace;
+            background: var(--mech-bg);
+            color: #ffffff;
+            overflow: hidden;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        #mech-canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, #001111, #000000);
+        }
+
+        /* HUD System */
+        .mech-hud {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: clamp(60px, 15vw, 80px);
+            background: linear-gradient(135deg, rgba(0, 255, 170, 0.95), rgba(0, 170, 255, 0.95));
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 clamp(12px, 4vw, 20px);
+            z-index: 1000;
+            border-bottom: 2px solid var(--mech-primary);
+            box-shadow: 0 4px 20px rgba(0, 255, 170, 0.4);
+        }
+
+        .hud-title {
+            font-size: clamp(14px, 4vw, 18px);
+            font-weight: bold;
+            color: #000;
+            display: flex;
+            align-items: center;
+            gap: clamp(6px, 2vw, 10px);
+        }
+
+        .hud-coords {
+            font-size: clamp(9px, 2.2vw, 11px);
+            background: rgba(0, 0, 0, 0.8);
+            padding: clamp(6px, 1.5vw, 8px) clamp(8px, 2.5vw, 12px);
+            border-radius: clamp(4px, 1.5vw, 6px);
+            color: var(--mech-primary);
+            font-family: 'Fira Code', monospace;
+            border: 1px solid var(--mech-primary);
+        }
+
+        /* Territorial Info Panel */
+        .territorial-panel {
+            position: fixed;
+            top: clamp(80px, 20vw, 100px);
+            left: clamp(12px, 3vw, 20px);
+            background: rgba(170, 0, 255, 0.95);
+            border: 2px solid var(--mech-territorial);
+            border-radius: clamp(8px, 2.5vw, 12px);
+            padding: clamp(10px, 3vw, 14px);
+            font-size: clamp(10px, 2.5vw, 12px);
+            z-index: 900;
+            backdrop-filter: blur(15px);
+            min-width: clamp(140px, 35vw, 200px);
+        }
+
+        .panel-title {
+            font-weight: bold;
+            color: var(--mech-primary);
+            margin-bottom: clamp(4px, 1vw, 6px);
+        }
+
+        .panel-data {
+            font-family: 'Fira Code', monospace;
+            color: white;
+            line-height: 1.4;
+        }
+
+        /* Performance Stats */
+        .stats-panel {
+            position: fixed;
+            top: clamp(80px, 20vw, 100px);
+            right: clamp(12px, 3vw, 20px);
+            background: rgba(0, 255, 170, 0.95);
+            border: 2px solid var(--mech-primary);
+            border-radius: clamp(8px, 2.5vw, 12px);
+            padding: clamp(10px, 3vw, 14px);
+            font-size: clamp(10px, 2.5vw, 12px);
+            z-index: 900;
+            backdrop-filter: blur(15px);
+            min-width: clamp(100px, 25vw, 150px);
+        }
+
+        .stat-line {
+            display: flex;
+            justify-content: space-between;
+            margin: 2px 0;
+        }
+
+        .stat-label {
+            color: #000;
+            font-weight: bold;
+        }
+
+        .stat-value {
+            color: #000;
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* Controls Panel */
+        .controls-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 10, 0.95);
+            border-top: 2px solid var(--mech-primary);
+            padding: clamp(12px, 4vw, 20px);
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(80px, 25vw, 120px), 1fr));
+            gap: clamp(8px, 2vw, 12px);
+            margin-bottom: clamp(8px, 2vw, 12px);
+        }
+
+        .control-btn {
+            background: linear-gradient(135deg, rgba(0, 255, 170, 0.2), rgba(0, 170, 255, 0.2));
+            border: 2px solid var(--mech-primary);
+            color: var(--mech-primary);
+            padding: clamp(12px, 4vw, 16px);
+            border-radius: clamp(8px, 2.5vw, 12px);
+            font-size: clamp(11px, 3vw, 13px);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.25s ease-out;
+            min-height: 48px;
+            touch-action: manipulation;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .control-btn:active {
+            background: linear-gradient(135deg, rgba(0, 255, 170, 0.4), rgba(0, 170, 255, 0.4));
+            transform: scale(0.95);
+            box-shadow: 0 0 15px rgba(0, 255, 170, 0.6);
+        }
+
+        .control-btn.active {
+            background: linear-gradient(135deg, var(--mech-primary), var(--mech-secondary));
+            color: #000;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #000000, #001111);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-logo {
+            font-size: clamp(24px, 8vw, 48px);
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--mech-primary), var(--mech-secondary), var(--mech-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: clamp(20px, 5vw, 30px);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .loading-text {
+            font-size: clamp(12px, 3vw, 16px);
+            color: var(--mech-primary);
+            margin-bottom: clamp(20px, 5vw, 30px);
+        }
+
+        .loading-bar {
+            width: clamp(200px, 60vw, 400px);
+            height: clamp(4px, 1vw, 6px);
+            background: rgba(0, 255, 170, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .loading-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--mech-primary), var(--mech-secondary));
+            width: 0%;
+            transition: width 0.3s ease-out;
+            box-shadow: 0 0 10px rgba(0, 255, 170, 0.6);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        /* Mobile Landscape Optimization */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .mech-hud { height: 50px; padding: 0 10px; }
+            .controls-panel { padding: 10px; }
+            .territorial-panel, .stats-panel { font-size: 9px; padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loading-screen">
+        <div class="loading-logo">🌌⚡ MÆCH 3D</div>
+        <div class="loading-text">Initializing Territorial WebGL Engine...</div>
+        <div class="loading-bar">
+            <div class="loading-progress" id="loading-progress"></div>
+        </div>
+    </div>
+
+    <!-- WebGL Canvas -->
+    <canvas id="mech-canvas"></canvas>
+
+    <!-- HUD System -->
+    <div class="mech-hud">
+        <div class="hud-title">
+            🌌⚡ MÆCH 3D Engine
+        </div>
+        <div class="hud-coords" id="hud-coords">
+            x₀:0 y₀:0 z₀:0 t₀:0
+        </div>
+    </div>
+
+    <!-- Territorial Info Panel -->
+    <div class="territorial-panel">
+        <div class="panel-title">🗺️ Territorial Sovereignty</div>
+        <div class="panel-data" id="territorial-data">
+            Quadrant: α₀0β₀0γ₀0<br>
+            Objects: 0<br>
+            QR: qr://mech-3d/origin
+        </div>
+    </div>
+
+    <!-- Performance Stats -->
+    <div class="stats-panel">
+        <div class="panel-title">⚡ Performance</div>
+        <div class="stat-line">
+            <span class="stat-label">FPS:</span>
+            <span class="stat-value" id="fps-value">60</span>
+        </div>
+        <div class="stat-line">
+            <span class="stat-label">Draws:</span>
+            <span class="stat-value" id="draws-value">0</span>
+        </div>
+        <div class="stat-line">
+            <span class="stat-label">Tris:</span>
+            <span class="stat-value" id="tris-value">0</span>
+        </div>
+    </div>
+
+    <!-- Controls Panel -->
+    <div class="controls-panel">
+        <div class="control-grid">
+            <button class="control-btn" id="add-territory" data-testid="button-add-territory">
+                ➕ Territory
+            </button>
+            <button class="control-btn" id="toggle-lighting" data-testid="button-toggle-lighting">
+                💡 Lighting
+            </button>
+            <button class="control-btn" id="toggle-rotation" data-testid="button-toggle-rotation">
+                🔄 Rotation
+            </button>
+            <button class="control-btn" id="generate-qr" data-testid="button-generate-qr">
+                🔍 QR Code
+            </button>
+            <button class="control-btn" id="reset-scene" data-testid="button-reset-scene">
+                🎯 Reset
+            </button>
+            <button class="control-btn" onclick="window.location.href='/'" data-testid="button-back-home">
+                🏠 Home
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // MÆCH 3D WebGL ENGINE
+        // Revolutionary Territorial 3D Engine
+        // ========================================
+
+        class MechWebGLEngine {
+            constructor() {
+                this.canvas = document.getElementById('mech-canvas');
+                this.gl = null;
+                this.ctx2d = null;
+                this.fallbackMode = false;
+                this.program = null;
+                this.territories = [];
+                this.coordinates = { x: 0, y: 0, z: 0, t: 0 };
+                this.camera = { x: 0, y: 0, z: 5, rotX: 0, rotY: 0 };
+                this.lighting = true;
+                this.autoRotate = true;
+                this.stats = { fps: 0, draws: 0, triangles: 0 };
+                this.lastTime = performance.now();
+                this.frameCount = 0;
+                
+                this.init();
+            }
+
+            async init() {
+                console.log('🌌⚡ Initializing MÆCH 3D WebGL Engine...');
+                
+                // Update loading progress
+                this.updateLoadingProgress(20);
+                
+                // Initialize WebGL (or fallback mode)
+                const webglSuccess = this.initWebGL();
+                if (!webglSuccess) {
+                    console.warn('⚠️ WebGL not available, using 2D fallback mode');
+                }
+                
+                this.updateLoadingProgress(40);
+                
+                // Compile shaders only if WebGL is available
+                if (!this.fallbackMode && webglSuccess) {
+                    if (!this.initShaders()) {
+                        console.error('❌ Shader compilation failed, switching to fallback');
+                        this.enableFallbackMode();
+                    }
+                }
+                
+                this.updateLoadingProgress(60);
+                
+                // Setup scene (works in both modes)
+                this.setupScene();
+                this.updateLoadingProgress(80);
+                
+                // Setup controls (works in both modes)
+                this.setupControls();
+                this.updateLoadingProgress(90);
+                
+                // Resize canvas
+                this.resizeCanvas();
+                
+                // Start render loop
+                this.updateLoadingProgress(100);
+                
+                setTimeout(() => {
+                    document.getElementById('loading-screen').classList.add('hidden');
+                    this.startRenderLoop();
+                }, 500);
+                
+                const mode = this.fallbackMode ? '2D Fallback' : 'WebGL';
+                console.log(`✅ MÆCH 3D Engine initialized successfully in ${mode} mode!`);
+            }
+
+            initWebGL() {
+                try {
+                    // Try multiple context options for compatibility
+                    const contextOptions = {
+                        alpha: false,
+                        depth: true,
+                        stencil: false,
+                        antialias: true,
+                        premultipliedAlpha: true,
+                        preserveDrawingBuffer: false,
+                        powerPreference: 'high-performance',
+                        failIfMajorPerformanceCaveat: false
+                    };
+                    
+                    this.gl = this.canvas.getContext('webgl2', contextOptions) || 
+                              this.canvas.getContext('webgl', contextOptions) ||
+                              this.canvas.getContext('experimental-webgl', contextOptions);
+                    
+                    if (!this.gl) {
+                        console.error('❌ WebGL not available in this environment');
+                        console.warn('⚠️ This may be due to headless browser mode or hardware limitations');
+                        // Enable fallback mode
+                        this.enableFallbackMode();
+                        return false;
+                    }
+                    
+                    // Resize canvas to full screen
+                    this.resizeCanvas();
+                    window.addEventListener('resize', () => this.resizeCanvas());
+                    
+                    // Enable depth testing
+                    this.gl.enable(this.gl.DEPTH_TEST);
+                    this.gl.depthFunc(this.gl.LEQUAL);
+                    
+                    // Enable face culling
+                    this.gl.enable(this.gl.CULL_FACE);
+                    this.gl.cullFace(this.gl.BACK);
+                    
+                    console.log('✅ WebGL initialized:', this.gl.getParameter(this.gl.VERSION));
+                    console.log('🌌 MÆCH 3D Engine ready with GPU acceleration');
+                    return true;
+                } catch (e) {
+                    console.error('❌ WebGL initialization error:', e);
+                    this.enableFallbackMode();
+                    return false;
+                }
+            }
+
+            enableFallbackMode() {
+                console.log('🎨 Enabling 2D Canvas fallback mode...');
+                this.fallbackMode = true;
+                
+                // Get 2D context for fallback rendering
+                this.ctx2d = this.canvas.getContext('2d');
+                
+                if (this.ctx2d) {
+                    console.log('✅ 2D Canvas fallback mode enabled');
+                    // Draw fallback message
+                    this.drawFallbackMessage();
+                } else {
+                    console.error('❌ Unable to get any rendering context');
+                }
+            }
+
+            drawFallbackMessage() {
+                if (!this.ctx2d) return;
+                
+                const ctx = this.ctx2d;
+                const w = this.canvas.width;
+                const h = this.canvas.height;
+                
+                // Clear canvas
+                ctx.fillStyle = '#001111';
+                ctx.fillRect(0, 0, w, h);
+                
+                // Draw gradient background
+                const gradient = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, Math.max(w, h)/2);
+                gradient.addColorStop(0, '#00ffaa33');
+                gradient.addColorStop(1, '#00000000');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, w, h);
+                
+                // Draw territorial cubes in 2D
+                const time = performance.now() * 0.001;
+                this.territories.forEach((territory, i) => {
+                    const x = w/2 + territory.position.x * 50 + Math.sin(time + i) * 20;
+                    const y = h/2 + territory.position.y * 50 + Math.cos(time + i) * 20;
+                    const size = 60 + Math.sin(time * 2 + i) * 10;
+                    
+                    // Draw cube representation
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.rotate(time + i * 0.5);
+                    
+                    // Cube face
+                    const colorStr = `rgb(${territory.color[0]*255}, ${territory.color[1]*255}, ${territory.color[2]*255})`;
+                    ctx.fillStyle = colorStr;
+                    ctx.fillRect(-size/2, -size/2, size, size);
+                    
+                    // Border
+                    ctx.strokeStyle = '#00ffaa';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(-size/2, -size/2, size, size);
+                    
+                    // Glow effect
+                    ctx.shadowColor = '#00ffaa';
+                    ctx.shadowBlur = 20;
+                    ctx.strokeRect(-size/2, -size/2, size, size);
+                    
+                    ctx.restore();
+                });
+                
+                // Draw message
+                ctx.save();
+                ctx.fillStyle = '#00ffaa';
+                ctx.font = 'bold 16px "Fira Code", monospace';
+                ctx.textAlign = 'center';
+                ctx.shadowColor = '#00ffaa';
+                ctx.shadowBlur = 10;
+                ctx.fillText('🎨 2D Fallback Mode', w/2, h - 60);
+                ctx.font = '12px "Fira Code", monospace';
+                ctx.fillText('(WebGL not available in this environment)', w/2, h - 35);
+                ctx.restore();
+            }
+
+            initShaders() {
+                // Vertex Shader with Territorial Coordinates
+                const vertexShaderSource = `
+                    attribute vec3 aPosition;
+                    attribute vec3 aNormal;
+                    attribute vec3 aTerritorialCoord;
+                    
+                    uniform mat4 uModelViewMatrix;
+                    uniform mat4 uProjectionMatrix;
+                    uniform mat4 uNormalMatrix;
+                    uniform float uTime;
+                    
+                    varying vec3 vNormal;
+                    varying vec3 vPosition;
+                    varying vec3 vTerritorialCoord;
+                    varying float vTime;
+                    
+                    void main() {
+                        vNormal = normalize((uNormalMatrix * vec4(aNormal, 0.0)).xyz);
+                        vPosition = (uModelViewMatrix * vec4(aPosition, 1.0)).xyz;
+                        vTerritorialCoord = aTerritorialCoord;
+                        vTime = uTime;
+                        
+                        gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);
+                    }
+                `;
+
+                // Fragment Shader with Territorial Sovereignty
+                const fragmentShaderSource = `
+                    precision mediump float;
+                    
+                    varying vec3 vNormal;
+                    varying vec3 vPosition;
+                    varying vec3 vTerritorialCoord;
+                    varying float vTime;
+                    
+                    uniform vec3 uLightDirection;
+                    uniform vec3 uLightColor;
+                    uniform vec3 uTerritorialColor;
+                    uniform bool uLightingEnabled;
+                    
+                    void main() {
+                        vec3 baseColor = uTerritorialColor;
+                        
+                        // Territorial sovereignty glow
+                        float territorialGlow = sin(vTerritorialCoord.x * 5.0 + vTime * 2.0) * 0.5 + 0.5;
+                        territorialGlow *= sin(vTerritorialCoord.y * 5.0 + vTime * 3.0) * 0.5 + 0.5;
+                        territorialGlow *= sin(vTerritorialCoord.z * 5.0 + vTime * 4.0) * 0.5 + 0.5;
+                        
+                        vec3 glowColor = vec3(0.0, 1.0, 0.67) * territorialGlow * 0.3;
+                        
+                        if (uLightingEnabled) {
+                            // Diffuse lighting
+                            vec3 normal = normalize(vNormal);
+                            float diffuse = max(dot(normal, normalize(uLightDirection)), 0.0);
+                            
+                            // Ambient lighting
+                            float ambient = 0.3;
+                            
+                            // Specular lighting
+                            vec3 viewDir = normalize(-vPosition);
+                            vec3 reflectDir = reflect(-normalize(uLightDirection), normal);
+                            float specular = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
+                            
+                            vec3 lighting = (ambient + diffuse) * uLightColor + specular * vec3(1.0);
+                            gl_FragColor = vec4(baseColor * lighting + glowColor, 1.0);
+                        } else {
+                            gl_FragColor = vec4(baseColor + glowColor, 1.0);
+                        }
+                    }
+                `;
+
+                // Compile shaders
+                const vertexShader = this.compileShader(vertexShaderSource, this.gl.VERTEX_SHADER);
+                const fragmentShader = this.compileShader(fragmentShaderSource, this.gl.FRAGMENT_SHADER);
+                
+                if (!vertexShader || !fragmentShader) {
+                    return false;
+                }
+                
+                // Create program
+                this.program = this.gl.createProgram();
+                this.gl.attachShader(this.program, vertexShader);
+                this.gl.attachShader(this.program, fragmentShader);
+                this.gl.linkProgram(this.program);
+                
+                if (!this.gl.getProgramParameter(this.program, this.gl.LINK_STATUS)) {
+                    console.error('❌ Program linking failed:', this.gl.getProgramInfoLog(this.program));
+                    return false;
+                }
+                
+                this.gl.useProgram(this.program);
+                
+                // Get attribute and uniform locations
+                this.programInfo = {
+                    attribLocations: {
+                        position: this.gl.getAttribLocation(this.program, 'aPosition'),
+                        normal: this.gl.getAttribLocation(this.program, 'aNormal'),
+                        territorialCoord: this.gl.getAttribLocation(this.program, 'aTerritorialCoord')
+                    },
+                    uniformLocations: {
+                        modelViewMatrix: this.gl.getUniformLocation(this.program, 'uModelViewMatrix'),
+                        projectionMatrix: this.gl.getUniformLocation(this.program, 'uProjectionMatrix'),
+                        normalMatrix: this.gl.getUniformLocation(this.program, 'uNormalMatrix'),
+                        time: this.gl.getUniformLocation(this.program, 'uTime'),
+                        lightDirection: this.gl.getUniformLocation(this.program, 'uLightDirection'),
+                        lightColor: this.gl.getUniformLocation(this.program, 'uLightColor'),
+                        territorialColor: this.gl.getUniformLocation(this.program, 'uTerritorialColor'),
+                        lightingEnabled: this.gl.getUniformLocation(this.program, 'uLightingEnabled')
+                    }
+                };
+                
+                console.log('✅ Shaders compiled successfully');
+                return true;
+            }
+
+            compileShader(source, type) {
+                const shader = this.gl.createShader(type);
+                this.gl.shaderSource(shader, source);
+                this.gl.compileShader(shader);
+                
+                if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
+                    console.error('❌ Shader compilation failed:', this.gl.getShaderInfoLog(shader));
+                    this.gl.deleteShader(shader);
+                    return null;
+                }
+                
+                return shader;
+            }
+
+            setupScene() {
+                // Create initial territorial cube
+                this.addTerritory(0, 0, 0, [0, 1, 0.67]);
+                
+                // Add some initial territories
+                this.addTerritory(2, 0, 0, [1, 0, 0.33]);
+                this.addTerritory(-2, 0, 0, [0, 0.67, 1]);
+                this.addTerritory(0, 2, 0, [1, 0.67, 0]);
+                
+                console.log('✅ Scene setup complete with', this.territories.length, 'territories');
+            }
+
+            addTerritory(x, y, z, color = [0, 1, 0.67]) {
+                // Create territory object
+                const territory = {
+                    position: { x, y, z },
+                    color: color,
+                    rotation: { x: 0, y: 0, z: 0 },
+                    qrAddress: this.generateQRAddress(x, y, z),
+                    quadrant: this.calculateQuadrant(x, y, z)
+                };
+                
+                // Create WebGL geometry only if not in fallback mode
+                if (!this.fallbackMode && this.gl) {
+                    const geometry = this.createTerritorialCube();
+                    Object.assign(territory, geometry);
+                }
+                
+                this.territories.push(territory);
+                this.updateTerritorialInfo();
+                
+                if (navigator.vibrate) {
+                    navigator.vibrate(30);
+                }
+                
+                return territory;
+            }
+
+            createTerritorialCube() {
+                // Cube vertices
+                const positions = [
+                    // Front face
+                    -1, -1,  1,   1, -1,  1,   1,  1,  1,  -1,  1,  1,
+                    // Back face
+                    -1, -1, -1,  -1,  1, -1,   1,  1, -1,   1, -1, -1,
+                    // Top face
+                    -1,  1, -1,  -1,  1,  1,   1,  1,  1,   1,  1, -1,
+                    // Bottom face
+                    -1, -1, -1,   1, -1, -1,   1, -1,  1,  -1, -1,  1,
+                    // Right face
+                     1, -1, -1,   1,  1, -1,   1,  1,  1,   1, -1,  1,
+                    // Left face
+                    -1, -1, -1,  -1, -1,  1,  -1,  1,  1,  -1,  1, -1
+                ];
+
+                // Cube normals
+                const normals = [
+                    // Front
+                     0,  0,  1,   0,  0,  1,   0,  0,  1,   0,  0,  1,
+                    // Back
+                     0,  0, -1,   0,  0, -1,   0,  0, -1,   0,  0, -1,
+                    // Top
+                     0,  1,  0,   0,  1,  0,   0,  1,  0,   0,  1,  0,
+                    // Bottom
+                     0, -1,  0,   0, -1,  0,   0, -1,  0,   0, -1,  0,
+                    // Right
+                     1,  0,  0,   1,  0,  0,   1,  0,  0,   1,  0,  0,
+                    // Left
+                    -1,  0,  0,  -1,  0,  0,  -1,  0,  0,  -1,  0,  0
+                ];
+
+                // Territorial coordinates (unique for each vertex)
+                const territorialCoords = [];
+                for (let i = 0; i < 24; i++) {
+                    territorialCoords.push(
+                        Math.random(),
+                        Math.random(),
+                        Math.random()
+                    );
+                }
+
+                // Indices
+                const indices = [
+                    0,  1,  2,   0,  2,  3,  // front
+                    4,  5,  6,   4,  6,  7,  // back
+                    8,  9, 10,   8, 10, 11,  // top
+                   12, 13, 14,  12, 14, 15,  // bottom
+                   16, 17, 18,  16, 18, 19,  // right
+                   20, 21, 22,  20, 22, 23   // left
+                ];
+
+                // Create buffers
+                const positionBuffer = this.gl.createBuffer();
+                this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer);
+                this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(positions), this.gl.STATIC_DRAW);
+
+                const normalBuffer = this.gl.createBuffer();
+                this.gl.bindBuffer(this.gl.ARRAY_BUFFER, normalBuffer);
+                this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(normals), this.gl.STATIC_DRAW);
+
+                const territorialBuffer = this.gl.createBuffer();
+                this.gl.bindBuffer(this.gl.ARRAY_BUFFER, territorialBuffer);
+                this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(territorialCoords), this.gl.STATIC_DRAW);
+
+                const indexBuffer = this.gl.createBuffer();
+                this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+                this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), this.gl.STATIC_DRAW);
+
+                return {
+                    positionBuffer,
+                    normalBuffer,
+                    territorialBuffer,
+                    indexBuffer,
+                    indexCount: indices.length
+                };
+            }
+
+            render(time) {
+                // Update time dimension
+                this.coordinates.t = (time * 0.001) % 360;
+                
+                // Calculate FPS
+                this.frameCount++;
+                if (time - this.lastTime >= 1000) {
+                    this.stats.fps = this.frameCount;
+                    this.frameCount = 0;
+                    this.lastTime = time;
+                    this.updateStats();
+                }
+                
+                // Use fallback rendering if WebGL is not available
+                if (this.fallbackMode) {
+                    this.renderFallback(time);
+                    this.updateHUD();
+                    return;
+                }
+                
+                // WebGL rendering
+                if (!this.gl) return;
+                
+                // Clear canvas
+                this.gl.clearColor(0, 0.067, 0.067, 1);
+                this.gl.clearDepth(1.0);
+                this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+                
+                // Setup projection matrix
+                const projectionMatrix = this.createPerspectiveMatrix(
+                    45 * Math.PI / 180,
+                    this.canvas.width / this.canvas.height,
+                    0.1,
+                    100.0
+                );
+                
+                // Update camera rotation if auto-rotate is enabled
+                if (this.autoRotate) {
+                    this.camera.rotY = time * 0.0005;
+                }
+                
+                // Reset stats
+                this.stats.draws = 0;
+                this.stats.triangles = 0;
+                
+                // Render each territory
+                this.territories.forEach((territory, index) => {
+                    const modelViewMatrix = this.createModelViewMatrix(territory, time);
+                    const normalMatrix = this.createNormalMatrix(modelViewMatrix);
+                    
+                    this.renderTerritory(territory, modelViewMatrix, projectionMatrix, normalMatrix, time);
+                    
+                    // Update rotation
+                    if (this.autoRotate) {
+                        territory.rotation.y = time * 0.001 + index * 0.5;
+                        territory.rotation.x = Math.sin(time * 0.0005 + index) * 0.3;
+                    }
+                });
+                
+                // Update HUD
+                this.updateHUD();
+            }
+
+            renderFallback(time) {
+                if (!this.ctx2d) return;
+                
+                // Draw fallback visualization
+                this.drawFallbackMessage();
+                
+                // Update rotation
+                if (this.autoRotate) {
+                    this.territories.forEach((territory, index) => {
+                        territory.rotation.y = time * 0.001 + index * 0.5;
+                        territory.rotation.x = Math.sin(time * 0.0005 + index) * 0.3;
+                    });
+                }
+                
+                // Update stats for fallback mode
+                this.stats.draws = this.territories.length;
+                this.stats.triangles = this.territories.length * 12; // Simulated
+            }
+
+            renderTerritory(territory, modelViewMatrix, projectionMatrix, normalMatrix, time) {
+                // Bind position buffer
+                this.gl.bindBuffer(this.gl.ARRAY_BUFFER, territory.positionBuffer);
+                this.gl.vertexAttribPointer(this.programInfo.attribLocations.position, 3, this.gl.FLOAT, false, 0, 0);
+                this.gl.enableVertexAttribArray(this.programInfo.attribLocations.position);
+                
+                // Bind normal buffer
+                this.gl.bindBuffer(this.gl.ARRAY_BUFFER, territory.normalBuffer);
+                this.gl.vertexAttribPointer(this.programInfo.attribLocations.normal, 3, this.gl.FLOAT, false, 0, 0);
+                this.gl.enableVertexAttribArray(this.programInfo.attribLocations.normal);
+                
+                // Bind territorial coordinate buffer
+                this.gl.bindBuffer(this.gl.ARRAY_BUFFER, territory.territorialBuffer);
+                this.gl.vertexAttribPointer(this.programInfo.attribLocations.territorialCoord, 3, this.gl.FLOAT, false, 0, 0);
+                this.gl.enableVertexAttribArray(this.programInfo.attribLocations.territorialCoord);
+                
+                // Bind index buffer
+                this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, territory.indexBuffer);
+                
+                // Set uniforms
+                this.gl.uniformMatrix4fv(this.programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
+                this.gl.uniformMatrix4fv(this.programInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
+                this.gl.uniformMatrix4fv(this.programInfo.uniformLocations.normalMatrix, false, normalMatrix);
+                this.gl.uniform1f(this.programInfo.uniformLocations.time, time * 0.001);
+                this.gl.uniform3fv(this.programInfo.uniformLocations.lightDirection, [0.5, 0.7, 1.0]);
+                this.gl.uniform3fv(this.programInfo.uniformLocations.lightColor, [1.0, 1.0, 1.0]);
+                this.gl.uniform3fv(this.programInfo.uniformLocations.territorialColor, territory.color);
+                this.gl.uniform1i(this.programInfo.uniformLocations.lightingEnabled, this.lighting);
+                
+                // Draw
+                this.gl.drawElements(this.gl.TRIANGLES, territory.indexCount, this.gl.UNSIGNED_SHORT, 0);
+                
+                // Update stats
+                this.stats.draws++;
+                this.stats.triangles += territory.indexCount / 3;
+            }
+
+            createModelViewMatrix(territory, time) {
+                const mat = this.createIdentityMatrix();
+                
+                // Camera transform
+                this.translateMatrix(mat, 0, 0, -this.camera.z);
+                this.rotateMatrixX(mat, this.camera.rotX);
+                this.rotateMatrixY(mat, this.camera.rotY);
+                
+                // Territory transform
+                this.translateMatrix(mat, territory.position.x, territory.position.y, territory.position.z);
+                this.rotateMatrixX(mat, territory.rotation.x);
+                this.rotateMatrixY(mat, territory.rotation.y);
+                this.rotateMatrixZ(mat, territory.rotation.z);
+                this.scaleMatrix(mat, 0.5, 0.5, 0.5);
+                
+                return mat;
+            }
+
+            createNormalMatrix(modelViewMatrix) {
+                // For simplicity, using the same matrix (should be inverse transpose)
+                return modelViewMatrix;
+            }
+
+            // Matrix operations
+            createIdentityMatrix() {
+                return [
+                    1, 0, 0, 0,
+                    0, 1, 0, 0,
+                    0, 0, 1, 0,
+                    0, 0, 0, 1
+                ];
+            }
+
+            createPerspectiveMatrix(fov, aspect, near, far) {
+                const f = 1.0 / Math.tan(fov / 2);
+                const rangeInv = 1 / (near - far);
+                
+                return [
+                    f / aspect, 0, 0, 0,
+                    0, f, 0, 0,
+                    0, 0, (near + far) * rangeInv, -1,
+                    0, 0, near * far * rangeInv * 2, 0
+                ];
+            }
+
+            translateMatrix(mat, x, y, z) {
+                mat[12] += mat[0] * x + mat[4] * y + mat[8] * z;
+                mat[13] += mat[1] * x + mat[5] * y + mat[9] * z;
+                mat[14] += mat[2] * x + mat[6] * y + mat[10] * z;
+                mat[15] += mat[3] * x + mat[7] * y + mat[11] * z;
+            }
+
+            rotateMatrixX(mat, angle) {
+                const c = Math.cos(angle);
+                const s = Math.sin(angle);
+                const mv1 = mat[1], mv5 = mat[5], mv9 = mat[9];
+                
+                mat[1] = mat[1] * c - mat[2] * s;
+                mat[5] = mat[5] * c - mat[6] * s;
+                mat[9] = mat[9] * c - mat[10] * s;
+                mat[2] = mat[2] * c + mv1 * s;
+                mat[6] = mat[6] * c + mv5 * s;
+                mat[10] = mat[10] * c + mv9 * s;
+            }
+
+            rotateMatrixY(mat, angle) {
+                const c = Math.cos(angle);
+                const s = Math.sin(angle);
+                const mv0 = mat[0], mv4 = mat[4], mv8 = mat[8];
+                
+                mat[0] = c * mat[0] + s * mat[2];
+                mat[4] = c * mat[4] + s * mat[6];
+                mat[8] = c * mat[8] + s * mat[10];
+                mat[2] = c * mat[2] - s * mv0;
+                mat[6] = c * mat[6] - s * mv4;
+                mat[10] = c * mat[10] - s * mv8;
+            }
+
+            rotateMatrixZ(mat, angle) {
+                const c = Math.cos(angle);
+                const s = Math.sin(angle);
+                const mv0 = mat[0], mv4 = mat[4], mv8 = mat[8];
+                
+                mat[0] = c * mat[0] - s * mat[1];
+                mat[4] = c * mat[4] - s * mat[5];
+                mat[8] = c * mat[8] - s * mat[9];
+                mat[1] = s * mv0 + c * mat[1];
+                mat[5] = s * mv4 + c * mat[5];
+                mat[9] = s * mv8 + c * mat[9];
+            }
+
+            scaleMatrix(mat, x, y, z) {
+                mat[0] *= x; mat[1] *= x; mat[2] *= x; mat[3] *= x;
+                mat[4] *= y; mat[5] *= y; mat[6] *= y; mat[7] *= y;
+                mat[8] *= z; mat[9] *= z; mat[10] *= z; mat[11] *= z;
+            }
+
+            generateQRAddress(x, y, z) {
+                const alpha = Math.floor(x);
+                const beta = Math.floor(y);
+                const gamma = Math.floor(z);
+                return `qr://mech-3d/α₀${alpha}β₀${beta}γ₀${gamma}`;
+            }
+
+            calculateQuadrant(x, y, z) {
+                const alpha = Math.floor(x / 2);
+                const beta = Math.floor(y / 2);
+                const gamma = Math.floor(z / 2);
+                return `α₀${alpha}β₀${beta}γ₀${gamma}`;
+            }
+
+            setupControls() {
+                // Add territory button
+                document.getElementById('add-territory').addEventListener('click', () => {
+                    const x = (Math.random() - 0.5) * 6;
+                    const y = (Math.random() - 0.5) * 6;
+                    const z = (Math.random() - 0.5) * 6;
+                    const color = [Math.random(), Math.random(), Math.random()];
+                    this.addTerritory(x, y, z, color);
+                    this.showNotification('🗺️ Territory Added!');
+                });
+                
+                // Toggle lighting button
+                document.getElementById('toggle-lighting').addEventListener('click', (e) => {
+                    this.lighting = !this.lighting;
+                    e.target.classList.toggle('active', this.lighting);
+                    this.showNotification(this.lighting ? '💡 Lighting ON' : '💡 Lighting OFF');
+                });
+                
+                // Toggle rotation button
+                document.getElementById('toggle-rotation').addEventListener('click', (e) => {
+                    this.autoRotate = !this.autoRotate;
+                    e.target.classList.toggle('active', this.autoRotate);
+                    this.showNotification(this.autoRotate ? '🔄 Rotation ON' : '🔄 Rotation OFF');
+                });
+                
+                // Generate QR button
+                document.getElementById('generate-qr').addEventListener('click', () => {
+                    this.generateQRCode();
+                });
+                
+                // Reset scene button
+                document.getElementById('reset-scene').addEventListener('click', () => {
+                    this.resetScene();
+                });
+                
+                // Touch controls for camera
+                let touchStartX = 0, touchStartY = 0;
+                
+                this.canvas.addEventListener('touchstart', (e) => {
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
+                });
+                
+                this.canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    const deltaX = e.touches[0].clientX - touchStartX;
+                    const deltaY = e.touches[0].clientY - touchStartY;
+                    
+                    this.camera.rotY += deltaX * 0.005;
+                    this.camera.rotX += deltaY * 0.005;
+                    
+                    // Clamp X rotation
+                    this.camera.rotX = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, this.camera.rotX));
+                    
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
+                });
+                
+                // Mouse controls for desktop
+                let mouseDown = false;
+                
+                this.canvas.addEventListener('mousedown', () => {
+                    mouseDown = true;
+                });
+                
+                this.canvas.addEventListener('mouseup', () => {
+                    mouseDown = false;
+                });
+                
+                this.canvas.addEventListener('mousemove', (e) => {
+                    if (mouseDown) {
+                        this.camera.rotY += e.movementX * 0.005;
+                        this.camera.rotX += e.movementY * 0.005;
+                        this.camera.rotX = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, this.camera.rotX));
+                    }
+                });
+                
+                // Pinch zoom
+                this.canvas.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    this.camera.z += e.deltaY * 0.01;
+                    this.camera.z = Math.max(2, Math.min(20, this.camera.z));
+                });
+                
+                console.log('✅ Controls setup complete');
+            }
+
+            startRenderLoop() {
+                const renderFrame = (time) => {
+                    this.render(time);
+                    requestAnimationFrame(renderFrame);
+                };
+                requestAnimationFrame(renderFrame);
+            }
+
+            updateHUD() {
+                document.getElementById('hud-coords').textContent = 
+                    `x₀:${this.camera.rotY.toFixed(2)} y₀:${this.camera.rotX.toFixed(2)} z₀:${this.camera.z.toFixed(2)} t₀:${this.coordinates.t.toFixed(1)}`;
+            }
+
+            updateTerritorialInfo() {
+                const totalObjects = this.territories.length;
+                const lastTerritory = this.territories[this.territories.length - 1];
+                
+                document.getElementById('territorial-data').innerHTML = `
+                    Quadrant: ${lastTerritory ? lastTerritory.quadrant : 'α₀0β₀0γ₀0'}<br>
+                    Objects: ${totalObjects}<br>
+                    QR: ${lastTerritory ? lastTerritory.qrAddress : 'qr://mech-3d/origin'}
+                `;
+            }
+
+            updateStats() {
+                document.getElementById('fps-value').textContent = this.stats.fps;
+                document.getElementById('draws-value').textContent = this.stats.draws;
+                document.getElementById('tris-value').textContent = Math.floor(this.stats.triangles);
+            }
+
+            generateQRCode() {
+                const lastTerritory = this.territories[this.territories.length - 1];
+                if (lastTerritory) {
+                    this.showNotification(`🔍 QR Generated:\n${lastTerritory.quadrant}\n${lastTerritory.qrAddress}`);
+                    
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(lastTerritory.qrAddress);
+                    }
+                    
+                    if (navigator.vibrate) {
+                        navigator.vibrate([100, 50, 100]);
+                    }
+                }
+            }
+
+            resetScene() {
+                this.territories = [];
+                this.camera = { x: 0, y: 0, z: 5, rotX: 0, rotY: 0 };
+                this.setupScene();
+                this.showNotification('🎯 Scene Reset!');
+                
+                if (navigator.vibrate) {
+                    navigator.vibrate([100, 50, 100, 50, 100]);
+                }
+            }
+
+            resizeCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+            }
+
+            updateLoadingProgress(percent) {
+                document.getElementById('loading-progress').style.width = percent + '%';
+            }
+
+            showNotification(message) {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(0, 255, 170, 0.98);
+                    color: black;
+                    padding: 20px 24px;
+                    border-radius: 12px;
+                    font-size: 14px;
+                    font-weight: bold;
+                    z-index: 5000;
+                    backdrop-filter: blur(20px);
+                    max-width: 85vw;
+                    text-align: center;
+                    white-space: pre-line;
+                    border: 2px solid #000;
+                    box-shadow: 0 8px 32px rgba(0, 255, 170, 0.5);
+                    animation: notification-appear 0.3s ease-out;
+                `;
+                
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'notification-disappear 0.3s ease-out forwards';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 2000);
+            }
+
+            showError(message) {
+                console.error('❌', message);
+                document.getElementById('loading-text').textContent = '❌ Error: ' + message;
+                document.getElementById('loading-text').style.color = '#ff0055';
+            }
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes notification-appear {
+                from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            }
+            @keyframes notification-disappear {
+                from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                to { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize engine when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.mechEngine = new MechWebGLEngine();
+        });
+    </script>
+</body>
+</html>

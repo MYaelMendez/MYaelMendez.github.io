@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MÆCH Model Combinator — Universal LLM Fusion | x₀y₀z₀</title>
+    <meta name="description" content="Universal Model Combinator - Combine 800K+ models visually in 3D space with parallel processing and QR-addressable combinations.">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #0a0a0a;
+            --cyan: #00ffaa;
+            --pink: #ff00aa;
+            --gold: #ffaa00;
+            --blue: #00d4ff;
+            --purple: #aa00ff;
+            --border: rgba(0, 255, 170, 0.2);
+        }
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: #fff;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* MÆCH HEADER + OMNIBOX CLI                                       */
+        /* ═══════════════════════════════════════════════════════════════ */
+        .mech-header {
+            background: linear-gradient(180deg, #1a1a1a, #0f0f0f);
+            border-bottom: 2px solid var(--cyan);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px;
+            height: 44px;
+        }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .mech-logo {
+            font-size: 14px;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--cyan), var(--pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        .mech-tag {
+            font-size: 8px;
+            background: rgba(0, 255, 170, 0.15);
+            color: var(--cyan);
+            padding: 2px 6px;
+            border: 1px solid var(--cyan);
+        }
+        .home-link {
+            font-size: 10px;
+            color: var(--gold);
+            text-decoration: none;
+            padding: 4px 10px;
+            border: 1px solid var(--gold);
+            transition: all 0.2s;
+        }
+        .home-link:hover {
+            background: var(--gold);
+            color: #000;
+        }
+
+        /* OMNIBOX CLI */
+        .omnibox {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 20px;
+            position: relative;
+        }
+        .omnibox-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border);
+            color: var(--cyan);
+            font-family: inherit;
+            font-size: 12px;
+            padding: 8px 40px 8px 12px;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .omnibox-input:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 15px rgba(0, 255, 170, 0.2);
+        }
+        .omnibox-input::placeholder { color: #555; }
+        .omnibox-submit {
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--cyan);
+            border: none;
+            color: #000;
+            font-size: 10px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+        .omnibox-submit:hover { background: #00ddaa; }
+
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* COMBINATOR LAYOUT                                               */
+        /* ═══════════════════════════════════════════════════════════════ */
+        .combinator-main {
+            display: grid;
+            grid-template-columns: 320px 1fr 280px;
+            height: calc(100vh - 44px);
+        }
+
+        /* LEFT: Model Preview Grid */
+        .model-panel {
+            background: rgba(0, 0, 0, 0.9);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 16px;
+        }
+        .panel-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--cyan);
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* PREVIEW-STYLE MODEL CARDS */
+        .model-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .model-preview {
+            background: rgba(10, 10, 10, 0.95);
+            border: 1px solid rgba(0, 255, 170, 0.25);
+            padding: 16px 12px;
+            cursor: grab;
+            transition: all 0.2s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 110px;
+        }
+        .model-preview:hover {
+            border-color: var(--cyan);
+            background: rgba(0, 255, 170, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 255, 170, 0.15);
+        }
+        .model-preview.selected {
+            border-color: var(--pink);
+            background: rgba(255, 0, 170, 0.08);
+        }
+
+        /* Blinking status indicator */
+        .model-status {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 8px;
+            height: 8px;
+            background: var(--cyan);
+            animation: blink 2s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Large centered icon */
+        .model-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+
+        /* Model name */
+        .model-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        /* æ address at bottom */
+        .model-addr {
+            font-size: 9px;
+            color: var(--gold);
+            opacity: 0.8;
+        }
+
+        /* Provider section headers */
+        .provider-section {
+            margin-bottom: 20px;
+        }
+        .provider-header {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 6px 10px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .provider-header.cerebras { background: linear-gradient(90deg, rgba(0, 255, 0, 0.15), transparent); border-left: 3px solid #00ff00; }
+        .provider-header.huggingface { background: linear-gradient(90deg, rgba(255, 170, 0, 0.15), transparent); border-left: 3px solid var(--gold); }
+        .provider-header.poe { background: linear-gradient(90deg, rgba(170, 0, 255, 0.15), transparent); border-left: 3px solid var(--purple); }
+        .provider-header.arena { background: linear-gradient(90deg, rgba(0, 170, 255, 0.15), transparent); border-left: 3px solid var(--blue); }
+        .provider-stat { margin-left: auto; font-size: 7px; opacity: 0.7; }
+
+        /* CENTER: 3D Canvas */
+        .canvas-container {
+            position: relative;
+            background: radial-gradient(ellipse at center, #001122, #000008);
+        }
+        #combinator-canvas { width: 100%; height: 100%; }
+
+        .pipeline-hud {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid var(--border);
+            padding: 12px;
+            font-size: 10px;
+            z-index: 10;
+        }
+        .pipeline-stat { margin-bottom: 6px; display: flex; justify-content: space-between; gap: 16px; }
+        .pipeline-stat .label { color: #888; }
+        .pipeline-stat .value { color: var(--cyan); font-weight: 600; }
+
+        /* RIGHT: Pipeline Builder */
+        .pipeline-panel {
+            background: rgba(0, 0, 0, 0.9);
+            border-left: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 16px;
+        }
+        .pipeline-slot {
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            padding: 16px;
+            margin-bottom: 8px;
+            min-height: 70px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        .pipeline-slot.active {
+            border-color: var(--cyan);
+            border-style: solid;
+            background: rgba(0, 255, 170, 0.05);
+        }
+        .pipeline-slot.drag-over {
+            border-color: var(--pink);
+            background: rgba(255, 0, 170, 0.1);
+        }
+        .slot-label { font-size: 8px; color: #666; margin-bottom: 4px; }
+        .slot-empty { font-size: 9px; color: #444; }
+        .slot-model { font-size: 11px; font-weight: 600; color: var(--cyan); }
+        .slot-arrow { text-align: center; color: var(--pink); font-size: 18px; margin: 6px 0; }
+
+        .execute-btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 16px;
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            border: none;
+            color: #000;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .execute-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 20px rgba(0, 255, 170, 0.4);
+        }
+        .execute-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .qr-output {
+            margin-top: 16px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+            font-size: 9px;
+            word-break: break-all;
+            display: none;
+        }
+        .qr-label { color: #888; margin-bottom: 4px; }
+        .qr-value { color: var(--gold); font-weight: 600; }
+
+        .result-panel {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            right: 12px;
+            background: rgba(0, 0, 0, 0.95);
+            border: 1px solid var(--cyan);
+            padding: 16px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 20;
+        }
+        .result-panel.active { display: block; }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .result-title { font-size: 11px; font-weight: 700; color: var(--cyan); }
+        .result-close { cursor: pointer; color: #888; }
+        .result-content { font-size: 11px; line-height: 1.6; color: #ccc; }
+
+        /* Mobile */
+        @media (max-width: 1000px) {
+            .combinator-main { grid-template-columns: 1fr; }
+            .model-panel, .pipeline-panel { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER + OMNIBOX CLI -->
+    <header class="mech-header">
+        <div class="header-left">
+            <a href="/" class="mech-logo">◉ MÆCH COMBINATOR</a>
+            <span class="mech-tag">3D FUSION</span>
+        </div>
+        
+        <!-- OMNIBOX CLI -->
+        <div class="omnibox">
+            <input type="text" class="omnibox-input" id="omnibox" 
+                   placeholder="→ combine llama-3.3-70b + mistral-7b | help | clear" 
+                   data-testid="input-omnibox">
+            <button class="omnibox-submit" onclick="combinator.executeCommand()" data-testid="button-omnibox-submit">⚡</button>
+        </div>
+        
+        <a href="/" class="home-link" data-testid="link-home">← llm.store</a>
+    </header>
+
+    <!-- MAIN LAYOUT -->
+    <main class="combinator-main">
+        <!-- LEFT: Model Previews -->
+        <aside class="model-panel" id="modelPanel">
+            <div class="panel-title">📊 MODEL INDEX <span class="mech-tag">800K+</span></div>
+            
+            <!-- CEREBRAS -->
+            <div class="provider-section">
+                <div class="provider-header cerebras">⚡ CEREBRAS <span class="provider-stat">2100 tok/s</span></div>
+                <div class="model-grid">
+                    <div class="model-preview" draggable="true" data-model="llama-3.3-70b" data-provider="cerebras" data-speed="2100" data-testid="model-cerebras-llama70b">
+                        <div class="model-status"></div>
+                        <div class="model-icon">🦙</div>
+                        <div class="model-name">Llama-3.3-70B</div>
+                        <div class="model-addr">æ:0:0:0</div>
+                    </div>
+                    <div class="model-preview" draggable="true" data-model="llama-3.1-8b" data-provider="cerebras" data-speed="4200" data-testid="model-cerebras-llama8b">
+                        <div class="model-status"></div>
+                        <div class="model-icon">⚡</div>
+                        <div class="model-name">Llama-3.1-8B</div>
+                        <div class="model-addr">æ:0:0:1</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HUGGINGFACE -->
+            <div class="provider-section">
+                <div class="provider-header huggingface">🤗 HUGGINGFACE <span class="provider-stat">800K models</span></div>
+                <div class="model-grid">
+                    <div class="model-preview" draggable="true" data-model="mistral-7b" data-provider="huggingface" data-speed="150" data-testid="model-hf-mistral">
+                        <div class="model-status"></div>
+                        <div class="model-icon">🌀</div>
+                        <div class="model-name">Mistral-7B</div>
+                        <div class="model-addr">æ:0:0:2</div>
+                    </div>
+                    <div class="model-preview" draggable="true" data-model="qwen2.5-72b" data-provider="huggingface" data-speed="120" data-testid="model-hf-qwen">
+                        <div class="model-status"></div>
+                        <div class="model-icon">🏆</div>
+                        <div class="model-name">Qwen2.5-72B</div>
+                        <div class="model-addr">æ:0:0:3</div>
+                    </div>
+                    <div class="model-preview" draggable="true" data-model="gemma-2-9b" data-provider="huggingface" data-speed="180" data-testid="model-hf-gemma">
+                        <div class="model-status"></div>
+                        <div class="model-icon">💎</div>
+                        <div class="model-name">Gemma-2-9B</div>
+                        <div class="model-addr">æ:0:0:4</div>
+                    </div>
+                    <div class="model-preview" draggable="true" data-model="phi-3-mini" data-provider="huggingface" data-speed="200" data-testid="model-hf-phi">
+                        <div class="model-status"></div>
+                        <div class="model-icon">📱</div>
+                        <div class="model-name">Phi-3-Mini</div>
+                        <div class="model-addr">æ:0:0:5</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POE -->
+            <div class="provider-section">
+                <div class="provider-header poe">🔮 POE <span class="provider-stat">100+ models</span></div>
+                <div class="model-grid">
+                    <div class="model-preview" draggable="true" data-model="claude-sonnet-4" data-provider="poe" data-speed="80" data-testid="model-poe-claude">
+                        <div class="model-status"></div>
+                        <div class="model-icon">🧠</div>
+                        <div class="model-name">Claude-Sonnet-4</div>
+                        <div class="model-addr">æ:0:0:6</div>
+                    </div>
+                    <div class="model-preview" draggable="true" data-model="gpt-4o" data-provider="poe" data-speed="70" data-testid="model-poe-gpt4o">
+                        <div class="model-status"></div>
+                        <div class="model-icon">🎨</div>
+                        <div class="model-name">GPT-4o</div>
+                        <div class="model-addr">æ:0:0:7</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ARENA -->
+            <div class="provider-section">
+                <div class="provider-header arena">🏆 LM ARENA <span class="provider-stat">Elo Ranked</span></div>
+                <div class="model-grid">
+                    <div class="model-preview" draggable="true" data-model="grok-3" data-provider="arena" data-speed="100" data-testid="model-arena-grok">
+                        <div class="model-status"></div>
+                        <div class="model-icon">🚀</div>
+                        <div class="model-name">Grok-3</div>
+                        <div class="model-addr">æ:0:0:8</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CENTER: 3D Canvas -->
+        <section class="canvas-container">
+            <div id="combinator-canvas"></div>
+            
+            <div class="pipeline-hud">
+                <div class="pipeline-stat">
+                    <span class="label">Pipeline Nodes</span>
+                    <span class="value" id="nodeCount">0</span>
+                </div>
+                <div class="pipeline-stat">
+                    <span class="label">Est. Tokens/s</span>
+                    <span class="value" id="estSpeed">-</span>
+                </div>
+                <div class="pipeline-stat">
+                    <span class="label">Mode</span>
+                    <span class="value" id="parallelMode">Sequential</span>
+                </div>
+            </div>
+
+            <div class="result-panel" id="resultPanel">
+                <div class="result-header">
+                    <span class="result-title">⚡ FUSION OUTPUT</span>
+                    <span class="result-close" onclick="combinator.closeResult()">✕</span>
+                </div>
+                <div class="result-content" id="resultContent"></div>
+            </div>
+        </section>
+
+        <!-- RIGHT: Pipeline Builder -->
+        <aside class="pipeline-panel" id="pipelinePanel">
+            <div class="panel-title">🔗 PIPELINE BUILDER</div>
+            
+            <div class="slot-label">STAGE 1: PRIMARY</div>
+            <div class="pipeline-slot" id="slot1" data-slot="1" data-testid="slot-1">
+                <span class="slot-empty">Drop Model Here</span>
+            </div>
+            
+            <div class="slot-arrow">↓</div>
+            
+            <div class="slot-label">STAGE 2: REFINER</div>
+            <div class="pipeline-slot" id="slot2" data-slot="2" data-testid="slot-2">
+                <span class="slot-empty">Drop Model Here</span>
+            </div>
+            
+            <div class="slot-arrow">↓</div>
+            
+            <div class="slot-label">STAGE 3: VALIDATOR</div>
+            <div class="pipeline-slot" id="slot3" data-slot="3" data-testid="slot-3">
+                <span class="slot-empty">Drop Model Here</span>
+            </div>
+
+            <button class="execute-btn" id="executeBtn" onclick="combinator.execute()" disabled data-testid="button-execute">
+                ⚡ EXECUTE FUSION
+            </button>
+
+            <div class="qr-output" id="qrOutput">
+                <div class="qr-label">QR Address:</div>
+                <div class="qr-value" id="qrAddress"></div>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+    // ═══════════════════════════════════════════════════════════════════
+    // MÆCH MODEL COMBINATOR — With Omnibox CLI
+    // ═══════════════════════════════════════════════════════════════════
+    const combinator = {
+        pipeline: [null, null, null],
+        scene: null,
+        camera: null,
+        renderer: null,
+        nodes: [],
+        connections: [],
+        modelMap: {},
+
+        init() {
+            this.buildModelMap();
+            this.setup3D();
+            this.setupDragDrop();
+            this.setupOmnibox();
+            this.checkUrlCommand();
+            this.animate();
+            console.log('🔗 MÆCH Model Combinator with Omnibox CLI initialized');
+        },
+
+        checkUrlCommand() {
+            // Check for command passed from front page
+            const params = new URLSearchParams(window.location.search);
+            const cmd = params.get('cmd');
+            if (cmd) {
+                // Pre-fill omnibox and execute
+                const input = document.getElementById('omnibox');
+                input.value = cmd;
+                setTimeout(() => this.executeCommand(), 300);
+            }
+        },
+
+        buildModelMap() {
+            document.querySelectorAll('.model-preview').forEach(card => {
+                this.modelMap[card.dataset.model] = {
+                    provider: card.dataset.provider,
+                    speed: parseInt(card.dataset.speed)
+                };
+            });
+        },
+
+        setupOmnibox() {
+            const input = document.getElementById('omnibox');
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') this.executeCommand();
+            });
+        },
+
+        executeCommand() {
+            const input = document.getElementById('omnibox');
+            const cmd = input.value.trim().toLowerCase();
+            
+            if (!cmd) return;
+
+            // Parse commands
+            if (cmd === 'help') {
+                this.showHelp();
+            } else if (cmd === 'clear') {
+                this.clearPipeline();
+            } else if (cmd.startsWith('combine ')) {
+                this.parseCombine(cmd.substring(8));
+            } else if (cmd.startsWith('add ')) {
+                this.addModelByName(cmd.substring(4).trim());
+            } else if (cmd === 'execute' || cmd === 'run') {
+                this.execute();
+            } else if (cmd === 'list' || cmd === 'models') {
+                this.listModels();
+            } else {
+                this.showError(`Unknown command: ${cmd}`);
+            }
+            
+            input.value = '';
+        },
+
+        parseCombine(str) {
+            // Parse: model1 + model2 + model3
+            const models = str.split(/\s*\+\s*/).map(m => m.trim());
+            this.clearPipeline();
+            
+            models.forEach((modelName, i) => {
+                if (i < 3) {
+                    this.addModelToSlot(modelName, i + 1);
+                }
+            });
+        },
+
+        addModelByName(name) {
+            const nextSlot = this.pipeline.findIndex(p => p === null) + 1;
+            if (nextSlot > 3) {
+                this.showError('Pipeline full. Use "clear" first.');
+                return;
+            }
+            this.addModelToSlot(name, nextSlot);
+        },
+
+        addModelToSlot(modelName, slot) {
+            const model = this.findModel(modelName);
+            if (!model) {
+                this.showError(`Model not found: ${modelName}`);
+                return;
+            }
+
+            this.pipeline[slot - 1] = model;
+            
+            const slotEl = document.getElementById(`slot${slot}`);
+            slotEl.innerHTML = `<span class="slot-model">${model.name}</span>`;
+            slotEl.classList.add('active');
+
+            this.addNode(model.name, model.provider, slot);
+            this.checkExecutable();
+        },
+
+        findModel(name) {
+            const n = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+            for (const [key, val] of Object.entries(this.modelMap)) {
+                if (key.toLowerCase().replace(/[^a-z0-9]/g, '').includes(n)) {
+                    return { name: key, ...val };
+                }
+            }
+            return null;
+        },
+
+        showHelp() {
+            document.getElementById('resultContent').innerHTML = `
+<strong>OMNIBOX COMMANDS:</strong>
+• <code>combine model1 + model2</code> - Build pipeline
+• <code>add modelname</code> - Add to next slot
+• <code>clear</code> - Reset pipeline
+• <code>execute</code> / <code>run</code> - Execute fusion
+• <code>list</code> / <code>models</code> - Show available models
+• <code>help</code> - Show this help
+
+<strong>EXAMPLES:</strong>
+• combine llama-3.3-70b + mistral-7b
+• add qwen2.5-72b
+• run
+            `;
+            document.getElementById('resultPanel').classList.add('active');
+        },
+
+        listModels() {
+            const models = Object.keys(this.modelMap).join(', ');
+            document.getElementById('resultContent').innerHTML = `<strong>Available Models:</strong> ${models}`;
+            document.getElementById('resultPanel').classList.add('active');
+        },
+
+        showError(msg) {
+            document.getElementById('resultContent').innerHTML = `<span style="color:#f55;">Error:</span> ${msg}`;
+            document.getElementById('resultPanel').classList.add('active');
+        },
+
+        clearPipeline() {
+            this.pipeline = [null, null, null];
+            [1, 2, 3].forEach(i => {
+                const slot = document.getElementById(`slot${i}`);
+                slot.innerHTML = '<span class="slot-empty">Drop Model Here</span>';
+                slot.classList.remove('active');
+            });
+            this.nodes.forEach(n => this.scene.remove(n));
+            this.connections.forEach(c => this.scene.remove(c));
+            this.nodes = [];
+            this.connections = [];
+            this.updateHUD();
+            document.getElementById('executeBtn').disabled = true;
+            console.log('🔄 Pipeline cleared');
+        },
+
+        setup3D() {
+            const container = document.getElementById('combinator-canvas');
+            const width = container.offsetWidth;
+            const height = container.offsetHeight;
+
+            this.scene = new THREE.Scene();
+            this.scene.fog = new THREE.FogExp2(0x000022, 0.002);
+
+            this.camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 2000);
+            this.camera.position.set(0, 100, 300);
+            this.camera.lookAt(0, 0, 0);
+
+            try {
+                this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                this.renderer.setSize(width, height);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                container.appendChild(this.renderer.domElement);
+            } catch(e) {
+                container.innerHTML = '<div style="padding:20px;color:#0fa;text-align:center;">3D View</div>';
+                return;
+            }
+
+            const ambient = new THREE.AmbientLight(0x001144, 0.5);
+            this.scene.add(ambient);
+            const point = new THREE.PointLight(0x00ffaa, 1, 500);
+            point.position.set(0, 100, 100);
+            this.scene.add(point);
+
+            const grid = new THREE.GridHelper(400, 20, 0x00ffaa, 0x003322);
+            grid.position.y = -50;
+            this.scene.add(grid);
+
+            const originGeo = new THREE.SphereGeometry(5, 16, 16);
+            const originMat = new THREE.MeshBasicMaterial({ color: 0xff00aa, wireframe: true });
+            this.scene.add(new THREE.Mesh(originGeo, originMat));
+
+            window.addEventListener('resize', () => {
+                const w = container.offsetWidth, h = container.offsetHeight;
+                this.camera.aspect = w / h;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(w, h);
+            });
+        },
+
+        addNode(model, provider, slot) {
+            const colors = { cerebras: 0x00ff00, huggingface: 0xffaa00, poe: 0xaa00ff, arena: 0x00ddff };
+            const geometry = new THREE.BoxGeometry(30, 30, 30);
+            const material = new THREE.MeshPhongMaterial({
+                color: colors[provider] || 0x00ffaa,
+                emissive: colors[provider] || 0x00ffaa,
+                emissiveIntensity: 0.3
+            });
+            const node = new THREE.Mesh(geometry, material);
+
+            const positions = [{ x: -80, y: 50, z: 0 }, { x: 0, y: 0, z: 0 }, { x: 80, y: -50, z: 0 }];
+            const pos = positions[slot - 1];
+            node.position.set(pos.x, pos.y, pos.z);
+            node.userData = { model, provider, slot };
+
+            this.scene.add(node);
+            this.nodes.push(node);
+
+            if (slot > 1 && this.nodes.length > 1) {
+                const prevNode = this.nodes[this.nodes.length - 2];
+                if (prevNode) {
+                    const points = [prevNode.position, node.position];
+                    const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
+                    const lineMat = new THREE.LineBasicMaterial({ color: 0xff00aa });
+                    const line = new THREE.Line(lineGeo, lineMat);
+                    this.scene.add(line);
+                    this.connections.push(line);
+                }
+            }
+            this.updateHUD();
+        },
+
+        setupDragDrop() {
+            const cards = document.querySelectorAll('.model-preview');
+            const slots = document.querySelectorAll('.pipeline-slot');
+
+            cards.forEach(card => {
+                card.addEventListener('dragstart', e => {
+                    e.dataTransfer.setData('model', card.dataset.model);
+                    e.dataTransfer.setData('provider', card.dataset.provider);
+                    e.dataTransfer.setData('speed', card.dataset.speed);
+                    card.classList.add('selected');
+                });
+                card.addEventListener('dragend', () => card.classList.remove('selected'));
+            });
+
+            slots.forEach(slot => {
+                slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('drag-over'); });
+                slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'));
+                slot.addEventListener('drop', e => {
+                    e.preventDefault();
+                    slot.classList.remove('drag-over');
+                    
+                    const model = e.dataTransfer.getData('model');
+                    const provider = e.dataTransfer.getData('provider');
+                    const speed = e.dataTransfer.getData('speed');
+                    const slotNum = parseInt(slot.dataset.slot);
+
+                    this.pipeline[slotNum - 1] = { model, provider, speed: parseInt(speed) };
+                    slot.innerHTML = `<span class="slot-model">${model}</span>`;
+                    slot.classList.add('active');
+                    this.addNode(model, provider, slotNum);
+                    this.checkExecutable();
+                });
+            });
+        },
+
+        checkExecutable() {
+            document.getElementById('executeBtn').disabled = !this.pipeline.some(p => p !== null);
+        },
+
+        updateHUD() {
+            const active = this.pipeline.filter(p => p !== null);
+            document.getElementById('nodeCount').textContent = active.length;
+            if (active.length > 0) {
+                const minSpeed = Math.min(...active.map(p => p.speed));
+                document.getElementById('estSpeed').textContent = minSpeed + ' t/s';
+                document.getElementById('parallelMode').textContent = active.length > 1 ? 'Parallel Fusion' : 'Single';
+            } else {
+                document.getElementById('estSpeed').textContent = '-';
+                document.getElementById('parallelMode').textContent = 'Sequential';
+            }
+        },
+
+        generateQRAddress() {
+            const active = this.pipeline.filter(p => p !== null);
+            const models = active.map(p => p.model).join('__');
+            return `qr://combinator/${models}__${Date.now().toString(36)}`;
+        },
+
+        async execute() {
+            const active = this.pipeline.filter(p => p !== null);
+            if (active.length === 0) return;
+
+            const btn = document.getElementById('executeBtn');
+            btn.textContent = '⏳ PROCESSING...';
+            btn.disabled = true;
+
+            const qrAddress = this.generateQRAddress();
+            document.getElementById('qrAddress').textContent = qrAddress;
+            document.getElementById('qrOutput').style.display = 'block';
+
+            await new Promise(r => setTimeout(r, 1200));
+
+            document.getElementById('resultContent').innerHTML = `
+<strong>🔗 Multi-Model Fusion Complete</strong>
+Pipeline: ${active.map(p => p.model).join(' → ')}
+Combined Speed: ${Math.min(...active.map(p => p.speed))} tok/s
+QR: ${qrAddress}
+            `;
+            document.getElementById('resultPanel').classList.add('active');
+
+            btn.textContent = '⚡ EXECUTE FUSION';
+            btn.disabled = false;
+        },
+
+        closeResult() {
+            document.getElementById('resultPanel').classList.remove('active');
+        },
+
+        animate() {
+            requestAnimationFrame(() => this.animate());
+            this.nodes.forEach(node => { node.rotation.y += 0.01; node.rotation.x += 0.005; });
+            const time = Date.now() * 0.0001;
+            this.camera.position.x = Math.sin(time) * 300;
+            this.camera.position.z = Math.cos(time) * 300;
+            this.camera.lookAt(0, 0, 0);
+            if (this.renderer) this.renderer.render(this.scene, this.camera);
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => combinator.init());
+    </script>
+</body>
+</html>

@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MÆCH OS vÆ - Asymptotic Convergence System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background: #000;
+            overflow: hidden;
+            color: #00ffaa;
+        }
+
+        #vae-container {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Asymptotic HUD */
+        .asymptotic-display {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ffaa;
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .convergence-value {
+            font-size: 24px;
+            color: #00ffaa;
+            text-shadow: 0 0 10px rgba(0, 255, 170, 0.5);
+        }
+
+        .iteration-counter {
+            font-size: 14px;
+            color: #00aaff;
+            margin-top: 5px;
+        }
+
+        .asymptote-limit {
+            font-size: 12px;
+            color: #ff00aa;
+            margin-top: 5px;
+        }
+
+        /* Territorial Matrix */
+        .territorial-matrix {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: grid;
+            grid-template-columns: repeat(7, 40px);
+            grid-template-rows: repeat(7, 40px);
+            gap: 2px;
+            z-index: 1000;
+            transform: perspective(600px) rotateX(20deg);
+            transform-style: preserve-3d;
+        }
+
+        .matrix-cell {
+            background: rgba(0, 255, 170, 0.1);
+            border: 1px solid rgba(0, 255, 170, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            transition: all 0.3s;
+            transform-style: preserve-3d;
+        }
+
+        .matrix-cell.active {
+            background: rgba(0, 255, 170, 0.5);
+            transform: translateZ(20px);
+            box-shadow: 0 0 20px rgba(0, 255, 170, 0.8);
+        }
+
+        /* Asymptotic Graph */
+        #asymptotic-graph {
+            position: fixed;
+            top: 100px;
+            left: 20px;
+            width: 300px;
+            height: 150px;
+            border: 1px solid #00ffaa;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00aaff;
+            border-radius: 10px;
+            padding: 20px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-slider {
+            width: 200px;
+            margin: 10px 0;
+        }
+
+        .control-label {
+            font-size: 12px;
+            color: #00aaff;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Dimensional Layers */
+        .dimensional-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* Convergence Particles */
+        .convergence-particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #00ffaa;
+            border-radius: 50%;
+            animation: converge 10s infinite;
+        }
+
+        @keyframes converge {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--target-x), var(--target-y)) scale(0.1);
+                opacity: 0;
+            }
+        }
+
+        /* Loading */
+        .loading-vae {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #00ffaa;
+            z-index: 10000;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Info Panel */
+        .info-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ff00aa;
+            border-radius: 10px;
+            padding: 15px;
+            max-width: 300px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .formula {
+            font-family: 'Courier New', monospace;
+            color: #ffaa00;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <!-- Main Container -->
+    <div id="vae-container"></div>
+
+    <!-- Asymptotic Display -->
+    <div class="asymptotic-display">
+        <div class="convergence-value">λ = <span id="lambda">0.000</span></div>
+        <div class="iteration-counter">Iteration: <span id="iteration">0</span></div>
+        <div class="asymptote-limit">Asymptote: <span id="asymptote">1.000</span></div>
+    </div>
+
+    <!-- Asymptotic Graph -->
+    <canvas id="asymptotic-graph"></canvas>
+
+    <!-- Info Panel -->
+    <div class="info-panel">
+        <h3 style="color: #ff00aa; margin-bottom: 10px;">MÆCH OS vÆ</h3>
+        <p style="font-size: 12px; margin-bottom: 10px;">Asymptotic Convergence Engine</p>
+        <div class="formula">
+            f(n) = 1 - e^(-λn)
+        </div>
+        <div style="font-size: 11px; color: #00aaff;">
+            <div>Territory Growth: <span id="growth">0.00</span>%</div>
+            <div>Convergence Rate: <span id="rate">0.00</span></div>
+            <div>Dimensional Stability: <span id="stability">0.00</span></div>
+        </div>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="control-panel">
+        <label class="control-label">
+            Lambda (λ): <span id="lambdaValue">0.1</span>
+            <input type="range" class="control-slider" id="lambdaSlider" 
+                   min="0.01" max="1" step="0.01" value="0.1">
+        </label>
+        <label class="control-label">
+            Time Dilation: <span id="timeValue">1.0</span>
+            <input type="range" class="control-slider" id="timeSlider" 
+                   min="0.1" max="3" step="0.1" value="1">
+        </label>
+        <label class="control-label">
+            Dimensional Depth: <span id="depthValue">4</span>
+            <input type="range" class="control-slider" id="depthSlider" 
+                   min="3" max="7" step="1" value="4">
+        </label>
+    </div>
+
+    <!-- Territorial Matrix -->
+    <div class="territorial-matrix" id="territorialMatrix"></div>
+
+    <!-- Loading -->
+    <div class="loading-vae" id="loadingVae">Initializing vÆ...</div>
+
+    <script>
+        // MÆCH OS vÆ - Asymptotic Convergence System
+        class MechOSVae {
+            constructor() {
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                
+                // Asymptotic parameters
+                this.lambda = 0.1; // Convergence rate
+                this.iteration = 0;
+                this.asymptote = 1.0;
+                this.convergenceValue = 0;
+                this.timeDilation = 1.0;
+                this.dimensionalDepth = 4;
+                
+                // Territorial system
+                this.territories = [];
+                this.activeTerritory = null;
+                this.territorialGrowth = [];
+                
+                // Graph data
+                this.graphData = [];
+                this.maxGraphPoints = 100;
+                
+                this.init();
+            }
+
+            init() {
+                // Initialize Three.js
+                this.setupThreeJS();
+                
+                // Initialize territories
+                this.initTerritories();
+                
+                // Setup controls
+                this.setupControls();
+                
+                // Initialize graph
+                this.initGraph();
+                
+                // Start asymptotic iteration
+                this.startAsymptoticLoop();
+                
+                // Hide loading after initialization
+                setTimeout(() => {
+                    document.getElementById('loadingVae').style.display = 'none';
+                }, 2000);
+            }
+
+            setupThreeJS() {
+                // Scene
+                this.scene = new THREE.Scene();
+                this.scene.fog = new THREE.FogExp2(0x000033, 0.001);
+                
+                // Camera
+                this.camera = new THREE.PerspectiveCamera(
+                    60,
+                    window.innerWidth / window.innerHeight,
+                    0.1,
+                    5000
+                );
+                this.camera.position.set(0, 200, 500);
+                this.camera.lookAt(0, 0, 0);
+                
+                // Renderer
+                this.renderer = new THREE.WebGLRenderer({ 
+                    antialias: true, 
+                    alpha: true 
+                });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(window.devicePixelRatio);
+                
+                const container = document.getElementById('vae-container');
+                container.appendChild(this.renderer.domElement);
+                
+                // Lighting
+                this.setupLighting();
+                
+                // Create asymptotic mesh
+                this.createAsymptoticMesh();
+                
+                // Window resize
+                window.addEventListener('resize', () => this.onWindowResize());
+            }
+
+            setupLighting() {
+                // Ambient
+                const ambient = new THREE.AmbientLight(0x001133, 0.3);
+                this.scene.add(ambient);
+                
+                // Directional
+                const directional = new THREE.DirectionalLight(0x00ffaa, 0.7);
+                directional.position.set(100, 200, 100);
+                this.scene.add(directional);
+                
+                // Point lights with asymptotic intensity
+                for (let i = 0; i < 5; i++) {
+                    const light = new THREE.PointLight(
+                        new THREE.Color().setHSL(i / 5, 1, 0.5),
+                        0.5,
+                        300
+                    );
+                    light.position.set(
+                        Math.cos(i * Math.PI * 2 / 5) * 200,
+                        100,
+                        Math.sin(i * Math.PI * 2 / 5) * 200
+                    );
+                    this.scene.add(light);
+                    
+                    // Store for asymptotic animation
+                    light.userData = {
+                        baseIntensity: 0.5,
+                        phase: i / 5
+                    };
+                }
+            }
+
+            createAsymptoticMesh() {
+                // Create spiral that converges asymptotically
+                const points = [];
+                const iterations = 500;
+                
+                for (let i = 0; i < iterations; i++) {
+                    const t = i / iterations;
+                    const convergence = 1 - Math.exp(-this.lambda * i);
+                    
+                    // Asymptotic spiral
+                    const radius = 300 * convergence;
+                    const angle = t * Math.PI * 10;
+                    const height = t * 400 - 200;
+                    
+                    points.push(new THREE.Vector3(
+                        radius * Math.cos(angle),
+                        height,
+                        radius * Math.sin(angle)
+                    ));
+                }
+                
+                // Create curve
+                const curve = new THREE.CatmullRomCurve3(points);
+                const geometry = new THREE.TubeGeometry(curve, 100, 3, 8, false);
+                
+                // Gradient material
+                const material = new THREE.MeshPhongMaterial({
+                    color: 0x00ffaa,
+                    emissive: 0x001155,
+                    emissiveIntensity: 0.3,
+                    shininess: 100,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                
+                this.asymptoticMesh = new THREE.Mesh(geometry, material);
+                this.scene.add(this.asymptoticMesh);
+                
+                // Add particles along the curve
+                this.createConvergenceParticles(points);
+            }
+
+            createConvergenceParticles(points) {
+                const particleGeometry = new THREE.BufferGeometry();
+                const particleCount = points.length;
+                const positions = new Float32Array(particleCount * 3);
+                const colors = new Float32Array(particleCount * 3);
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const point = points[i];
+                    positions[i * 3] = point.x;
+                    positions[i * 3 + 1] = point.y;
+                    positions[i * 3 + 2] = point.z;
+                    
+                    // Color based on convergence
+                    const convergence = 1 - Math.exp(-this.lambda * i);
+                    colors[i * 3] = convergence;
+                    colors[i * 3 + 1] = 1 - convergence * 0.5;
+                    colors[i * 3 + 2] = 1 - convergence;
+                }
+                
+                particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                
+                const particleMaterial = new THREE.PointsMaterial({
+                    size: 5,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 0.8,
+                    blending: THREE.AdditiveBlending
+                });
+                
+                this.particles = new THREE.Points(particleGeometry, particleMaterial);
+                this.scene.add(this.particles);
+            }
+
+            initTerritories() {
+                const matrix = document.getElementById('territorialMatrix');
+                
+                for (let i = 0; i < 49; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'matrix-cell';
+                    cell.textContent = '0';
+                    
+                    // Initialize with asymptotic growth
+                    const growth = 1 - Math.exp(-this.lambda * i / 10);
+                    cell.style.opacity = 0.3 + growth * 0.7;
+                    
+                    cell.addEventListener('click', () => this.activateTerritory(i));
+                    matrix.appendChild(cell);
+                    
+                    this.territories.push({
+                        element: cell,
+                        value: 0,
+                        growth: growth,
+                        active: false
+                    });
+                }
+            }
+
+            activateTerritory(index) {
+                this.territories.forEach(t => {
+                    t.active = false;
+                    t.element.classList.remove('active');
+                });
+                
+                this.territories[index].active = true;
+                this.territories[index].element.classList.add('active');
+                this.activeTerritory = index;
+            }
+
+            initGraph() {
+                const canvas = document.getElementById('asymptotic-graph');
+                this.graphCtx = canvas.getContext('2d');
+                canvas.width = 300;
+                canvas.height = 150;
+            }
+
+            updateGraph() {
+                const canvas = this.graphCtx.canvas;
+                const ctx = this.graphCtx;
+                
+                // Clear
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw asymptote line
+                ctx.strokeStyle = '#ff00aa';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(0, 20);
+                ctx.lineTo(canvas.width, 20);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                // Draw convergence curve
+                ctx.strokeStyle = '#00ffaa';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                for (let i = 0; i < this.graphData.length; i++) {
+                    const x = (i / this.maxGraphPoints) * canvas.width;
+                    const y = canvas.height - (this.graphData[i] * (canvas.height - 40) + 20);
+                    
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                
+                ctx.stroke();
+            }
+
+            setupControls() {
+                // Lambda slider
+                document.getElementById('lambdaSlider').addEventListener('input', (e) => {
+                    this.lambda = parseFloat(e.target.value);
+                    document.getElementById('lambdaValue').textContent = this.lambda.toFixed(2);
+                    this.recreateAsymptoticMesh();
+                });
+                
+                // Time dilation slider
+                document.getElementById('timeSlider').addEventListener('input', (e) => {
+                    this.timeDilation = parseFloat(e.target.value);
+                    document.getElementById('timeValue').textContent = this.timeDilation.toFixed(1);
+                });
+                
+                // Dimensional depth slider
+                document.getElementById('depthSlider').addEventListener('input', (e) => {
+                    this.dimensionalDepth = parseInt(e.target.value);
+                    document.getElementById('depthValue').textContent = this.dimensionalDepth;
+                });
+            }
+
+            recreateAsymptoticMesh() {
+                // Remove old mesh
+                if (this.asymptoticMesh) {
+                    this.scene.remove(this.asymptoticMesh);
+                    this.scene.remove(this.particles);
+                }
+                
+                // Create new with updated lambda
+                this.createAsymptoticMesh();
+            }
+
+            startAsymptoticLoop() {
+                const animate = () => {
+                    requestAnimationFrame(animate);
+                    
+                    // Update iteration with time dilation
+                    this.iteration += this.timeDilation;
+                    
+                    // Calculate asymptotic convergence
+                    this.convergenceValue = 1 - Math.exp(-this.lambda * this.iteration / 100);
+                    
+                    // Update display
+                    document.getElementById('lambda').textContent = this.convergenceValue.toFixed(3);
+                    document.getElementById('iteration').textContent = Math.floor(this.iteration);
+                    
+                    // Update graph data
+                    this.graphData.push(this.convergenceValue);
+                    if (this.graphData.length > this.maxGraphPoints) {
+                        this.graphData.shift();
+                    }
+                    this.updateGraph();
+                    
+                    // Update territories with asymptotic growth
+                    this.updateTerritories();
+                    
+                    // Animate 3D scene
+                    this.animate3D();
+                    
+                    // Update info panel
+                    this.updateInfo();
+                    
+                    // Render
+                    this.renderer.render(this.scene, this.camera);
+                };
+                
+                animate();
+            }
+
+            updateTerritories() {
+                this.territories.forEach((territory, index) => {
+                    // Asymptotic growth for each territory
+                    const phase = index / this.territories.length;
+                    const localGrowth = 1 - Math.exp(-this.lambda * (this.iteration / 100 + phase));
+                    
+                    territory.value = localGrowth;
+                    territory.element.textContent = (localGrowth * 100).toFixed(0);
+                    territory.element.style.background = `rgba(0, 255, 170, ${localGrowth * 0.5})`;
+                    
+                    // Pulse active territory
+                    if (territory.active) {
+                        const pulse = 0.5 + Math.sin(this.iteration * 0.05) * 0.5;
+                        territory.element.style.transform = `translateZ(${20 + pulse * 10}px)`;
+                    }
+                });
+            }
+
+            animate3D() {
+                // Rotate asymptotic mesh
+                if (this.asymptoticMesh) {
+                    this.asymptoticMesh.rotation.y += 0.001 * this.timeDilation;
+                    
+                    // Asymptotic scaling
+                    const scale = 1 + this.convergenceValue * 0.5;
+                    this.asymptoticMesh.scale.set(scale, scale, scale);
+                }
+                
+                // Animate particles
+                if (this.particles) {
+                    this.particles.rotation.y -= 0.002 * this.timeDilation;
+                    
+                    // Pulsate based on convergence
+                    const positions = this.particles.geometry.attributes.position.array;
+                    for (let i = 0; i < positions.length; i += 3) {
+                        const convergence = 1 - Math.exp(-this.lambda * i / 300);
+                        const pulse = Math.sin(this.iteration * 0.01 + i) * 5 * (1 - convergence);
+                        positions[i + 1] += pulse * 0.1;
+                    }
+                    this.particles.geometry.attributes.position.needsUpdate = true;
+                }
+                
+                // Camera orbit with asymptotic radius
+                const orbitRadius = 500 * (2 - this.convergenceValue);
+                const angle = this.iteration * 0.001;
+                this.camera.position.x = Math.cos(angle) * orbitRadius;
+                this.camera.position.z = Math.sin(angle) * orbitRadius;
+                this.camera.lookAt(0, 0, 0);
+                
+                // Update lights
+                this.scene.traverse((child) => {
+                    if (child.isPointLight && child.userData.baseIntensity) {
+                        const phase = child.userData.phase;
+                        const intensity = child.userData.baseIntensity * 
+                            (1 + Math.sin(this.iteration * 0.02 + phase * Math.PI * 2) * 0.3);
+                        child.intensity = intensity * this.convergenceValue;
+                    }
+                });
+            }
+
+            updateInfo() {
+                // Calculate metrics
+                const growth = (this.convergenceValue * 100).toFixed(2);
+                const rate = (this.lambda * Math.exp(-this.lambda * this.iteration / 100)).toFixed(4);
+                const stability = (1 - Math.abs(this.convergenceValue - this.asymptote)).toFixed(3);
+                
+                // Update display
+                document.getElementById('growth').textContent = growth;
+                document.getElementById('rate').textContent = rate;
+                document.getElementById('stability').textContent = stability;
+            }
+
+            onWindowResize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        }
+
+        // Initialize MÆCH OS vÆ
+        const mechOSVae = new MechOSVae();
+        
+        console.log('∞ MÆCH OS vÆ initialized');
+        console.log('📈 Asymptotic convergence: f(n) = 1 - e^(-λn)');
+        console.log('🌀 Non-linear, non-exponential growth active');
+    </script>
+</body>
+</html>

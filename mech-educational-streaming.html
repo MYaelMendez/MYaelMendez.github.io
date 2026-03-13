@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>MÆCH Educational Streaming - Creación de Cursos por Estudiantes</title>
+    <meta name="description" content="Sistema revolucionario para que estudiantes creen sus propios cursos con transmisión en vivo">
+    <style>
+        :root {
+            --mech-primary: #00ff88;
+            --mech-secondary: #ff3366;
+            --mech-background: #0a0a0a;
+            --mech-surface: #1a1a1a;
+            --mech-text: #ffffff;
+            --mech-accent: #33ccff;
+            --mech-territorial: #ffaa00;
+            --mech-educational: #8844ff;
+            --gradient-educational: linear-gradient(135deg, var(--mech-educational), var(--mech-primary));
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--mech-background);
+            color: var(--mech-text);
+            overflow-x: hidden;
+            min-height: 100vh;
+            touch-action: pan-x pan-y;
+        }
+
+        .educational-streaming-system {
+            width: 100vw;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
+        }
+
+        .territorial-header {
+            height: 40px;
+            background: var(--gradient-educational);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            font-size: 12px;
+            font-weight: bold;
+            color: black;
+            z-index: 1000;
+        }
+
+        .header-sovereignty {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .qr-pulse {
+            width: 10px;
+            height: 10px;
+            background: #000;
+            border-radius: 2px;
+            animation: qr-pulse 2s infinite;
+        }
+
+        @keyframes qr-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .streaming-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            position: relative;
+        }
+
+        .course-creation-section {
+            background: var(--mech-surface);
+            border: 2px solid var(--mech-educational);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .course-creation-section::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 8px;
+            height: 8px;
+            background: var(--mech-educational);
+            border-radius: 1px;
+            animation: educational-blink 3s infinite;
+        }
+
+        @keyframes educational-blink {
+            0%, 90% { opacity: 1; }
+            95% { opacity: 0; }
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: var(--mech-educational);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            color: var(--mech-primary);
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(26, 26, 26, 0.8);
+            border: 1px solid var(--mech-accent);
+            border-radius: 8px;
+            color: var(--mech-text);
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--mech-educational);
+            box-shadow: 0 0 10px rgba(136, 68, 255, 0.3);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(26, 26, 26, 0.8);
+            border: 1px solid var(--mech-accent);
+            border-radius: 8px;
+            color: var(--mech-text);
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .educational-button {
+            background: var(--gradient-educational);
+            border: none;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+            position: relative;
+            touch-action: manipulation;
+        }
+
+        .educational-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 20px rgba(136, 68, 255, 0.6);
+        }
+
+        .educational-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .streaming-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .status-panel {
+            background: rgba(26, 26, 26, 0.6);
+            border: 1px solid var(--mech-primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .status-value {
+            color: var(--mech-primary);
+            font-weight: bold;
+        }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            background: rgba(255, 51, 102, 0.2);
+            border: 1px solid var(--mech-secondary);
+            border-radius: 15px;
+            font-size: 10px;
+            font-weight: bold;
+            color: var(--mech-secondary);
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--mech-secondary);
+            border-radius: 50%;
+            animation: live-pulse 1s infinite;
+        }
+
+        @keyframes live-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .android-sdk-info {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--mech-primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .sdk-title {
+            color: var(--mech-primary);
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sdk-detail {
+            font-size: 11px;
+            margin-bottom: 5px;
+            color: var(--mech-accent);
+        }
+
+        .qr-access-panel {
+            background: rgba(255, 170, 0, 0.1);
+            border: 1px solid var(--mech-territorial);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .qr-address {
+            font-family: monospace;
+            font-size: 10px;
+            color: var(--mech-territorial);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px;
+            border-radius: 5px;
+            margin-top: 10px;
+            word-break: break-all;
+        }
+
+        .educational-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            background: rgba(136, 68, 255, 0.1);
+            border: 1px solid var(--mech-educational);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .feature-title {
+            font-size: 11px;
+            color: var(--mech-educational);
+            font-weight: bold;
+        }
+
+        .territorial-footer {
+            background: rgba(26, 26, 26, 0.8);
+            border-top: 1px solid var(--mech-primary);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .footer-link {
+            color: var(--mech-territorial);
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .mcp-integration {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            color: var(--mech-accent);
+        }
+
+        @media (max-width: 480px) {
+            .streaming-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .educational-features {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .form-input, .form-select {
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid var(--mech-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="educational-streaming-system" id="educationalSystem">
+        <!-- Territorial Header -->
+        <div class="territorial-header">
+            <div class="header-sovereignty">
+                <div class="qr-pulse"></div>
+                <span>MÆCH Educational Streaming</span>
+            </div>
+            <div>📹 ESTUDIANTES</div>
+            <div>🎓 CURSOS</div>
+        </div>
+
+        <!-- Streaming Main -->
+        <div class="streaming-main">
+            <!-- Course Creation Section -->
+            <div class="course-creation-section">
+                <div class="section-title">
+                    🎓 Crear Nuevo Curso
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Nombre del Estudiante/Instructor</label>
+                    <input type="text" class="form-input" id="studentName" placeholder="Tu nombre" data-testid="input-student-name">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Título del Curso</label>
+                    <input type="text" class="form-input" id="courseTitle" placeholder="Ej: Matemáticas Básicas" data-testid="input-course-title">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Materia</label>
+                    <select class="form-select" id="courseSubject" data-testid="select-course-subject">
+                        <option value="matematicas">Matemáticas</option>
+                        <option value="ciencias">Ciencias</option>
+                        <option value="historia">Historia</option>
+                        <option value="idiomas">Idiomas</option>
+                        <option value="arte">Arte</option>
+                        <option value="tecnologia">Tecnología</option>
+                        <option value="deportes">Deportes</option>
+                        <option value="musica">Música</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Edad Objetivo</label>
+                    <select class="form-select" id="targetAge" data-testid="select-target-age">
+                        <option value="3-6">3-6 años (Preescolar)</option>
+                        <option value="6-12">6-12 años (Primaria)</option>
+                        <option value="12-18">12-18 años (Secundaria)</option>
+                        <option value="18-25">18-25 años (Universidad)</option>
+                        <option value="25-103">25-103 años (Adultos)</option>
+                        <option value="3-103">3-103 años (Universal)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Duración Estimada (minutos)</label>
+                    <input type="number" class="form-input" id="courseDuration" value="30" min="5" max="180" data-testid="input-course-duration">
+                </div>
+
+                <div class="streaming-controls">
+                    <button class="educational-button" id="createCourseBtn" data-testid="button-create-course">
+                        📚 Crear Curso
+                    </button>
+                    <button class="educational-button" id="startBroadcastBtn" disabled data-testid="button-start-broadcast">
+                        🔴 Iniciar Transmisión
+                    </button>
+                </div>
+            </div>
+
+            <!-- Status Panel -->
+            <div class="status-panel" id="statusPanel">
+                <div class="status-item">
+                    <span>Estado del Sistema:</span>
+                    <span class="status-value" id="systemStatus">Listo</span>
+                </div>
+                <div class="status-item">
+                    <span>Soberanía Territorial:</span>
+                    <span class="status-value">✅ LATAM</span>
+                </div>
+                <div class="status-item">
+                    <span>Optimización Móvil:</span>
+                    <span class="status-value">✅ Activa</span>
+                </div>
+                <div class="status-item">
+                    <span>ID de Transmisión:</span>
+                    <span class="status-value" id="streamId">-</span>
+                </div>
+            </div>
+
+            <!-- Android SDK Info -->
+            <div class="android-sdk-info" id="androidSDKInfo" style="display: none;">
+                <div class="sdk-title">
+                    📱 Configuración Android SDK
+                </div>
+                <div class="sdk-detail">LiveVideoBroadcaster SDK Compatible</div>
+                <div class="sdk-detail">RTMP URL: <span id="rtmpUrl">-</span></div>
+                <div class="sdk-detail">Hardware H264 Encoding: ✅</div>
+                <div class="sdk-detail">Ant Media Server: ✅</div>
+            </div>
+
+            <!-- Live Status -->
+            <div class="live-indicator" id="liveIndicator" style="display: none;">
+                <div class="live-dot"></div>
+                EN VIVO
+            </div>
+
+            <!-- QR Access Panel -->
+            <div class="qr-access-panel" id="qrPanel" style="display: none;">
+                <div style="color: var(--mech-territorial); font-weight: bold; font-size: 12px;">
+                    📱 Acceso QR Territorial
+                </div>
+                <div class="qr-address" id="qrAddress">-</div>
+                <div style="font-size: 10px; margin-top: 8px; color: var(--mech-accent);">
+                    Los estudiantes pueden acceder usando este código QR
+                </div>
+            </div>
+
+            <!-- Educational Features -->
+            <div class="educational-features">
+                <div class="feature-card">
+                    <div class="feature-icon">🎥</div>
+                    <div class="feature-title">Transmisión RTMP</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <div class="feature-title">Móvil Nativo</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🗺️</div>
+                    <div class="feature-title">Soberanía Territorial</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌍</div>
+                    <div class="feature-title">LATAM Optimizado</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Territorial Footer -->
+        <div class="territorial-footer">
+            <a href="https://neuromitosis.com" class="footer-link" target="_blank" data-testid="link-neuromitosis">
+                ÆL.net @ neuromitosis.com
+            </a>
+            <div class="mcp-integration">
+                <span>🔗 MCP Mobile OS</span>
+            </div>
+            <div style="font-size: 10px; color: var(--mech-primary);">
+                ⚡ Asymptotic
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MECHEducationalStreaming {
+            constructor() {
+                this.currentSession = null;
+                this.streamingActive = false;
+                this.territorialSovereignty = true;
+                this.culturalContext = "LATAM";
+                
+                this.initialize();
+                
+                console.log('🎓📹 MÆCH Educational Streaming initialized');
+                console.log('🌍 Cultural context: LATAM');
+                console.log('🗺️ Territorial sovereignty: Active');
+                console.log('📱 LiveVideoBroadcaster SDK: Compatible');
+            }
+
+            initialize() {
+                // Button event listeners
+                document.getElementById('createCourseBtn').addEventListener('click', this.createCourse.bind(this));
+                document.getElementById('startBroadcastBtn').addEventListener('click', this.startBroadcast.bind(this));
+                
+                // Form validation
+                this.setupFormValidation();
+                
+                // Initialize system status
+                this.updateSystemStatus('Listo para crear cursos');
+            }
+
+            setupFormValidation() {
+                const requiredFields = ['studentName', 'courseTitle'];
+                requiredFields.forEach(fieldId => {
+                    document.getElementById(fieldId).addEventListener('input', this.validateForm.bind(this));
+                });
+            }
+
+            validateForm() {
+                const studentName = document.getElementById('studentName').value.trim();
+                const courseTitle = document.getElementById('courseTitle').value.trim();
+                
+                const isValid = studentName.length > 0 && courseTitle.length > 0;
+                document.getElementById('createCourseBtn').disabled = !isValid;
+                
+                return isValid;
+            }
+
+            async createCourse() {
+                if (!this.validateForm()) {
+                    alert('Por favor completa el nombre del estudiante y título del curso');
+                    return;
+                }
+
+                this.updateSystemStatus('Creando sesión de curso...', true);
+
+                const studentInfo = {
+                    name: document.getElementById('studentName').value.trim(),
+                    id: `student_${Date.now()}`
+                };
+
+                const courseDetails = {
+                    title: document.getElementById('courseTitle').value.trim(),
+                    subject: document.getElementById('courseSubject').value,
+                    targetAge: document.getElementById('targetAge').value,
+                    estimatedDuration: parseInt(document.getElementById('courseDuration').value),
+                    culturalContext: this.culturalContext,
+                    language: 'es'
+                };
+
+                const streamConfig = {
+                    quality: 'mobile_optimized',
+                    orientation: 'portrait',
+                    territorialSovereignty: this.territorialSovereignty,
+                    culturalOptimization: this.culturalContext
+                };
+
+                try {
+                    const response = await fetch('/api/mech-educational-broadcasting/create-course', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            studentInfo,
+                            courseDetails,
+                            streamConfig,
+                            territorialSovereignty: this.territorialSovereignty,
+                            culturalContext: this.culturalContext
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.currentSession = result.courseSession;
+                        this.displayCourseSession(result.courseSession);
+                        this.updateSystemStatus('Curso creado exitosamente');
+                        
+                        document.getElementById('startBroadcastBtn').disabled = false;
+                        document.getElementById('createCourseBtn').disabled = true;
+                        
+                        console.log('✅ Course session created:', result.courseSession);
+                    } else {
+                        throw new Error(result.error || 'Error creating course');
+                    }
+
+                } catch (error) {
+                    console.error('🚨 Course creation error:', error);
+                    this.updateSystemStatus('Error al crear curso');
+                    alert('Error al crear el curso: ' + error.message);
+                }
+            }
+
+            displayCourseSession(sessionData) {
+                // Update stream ID
+                document.getElementById('streamId').textContent = sessionData.streamId;
+                
+                // Show Android SDK info
+                const sdkInfo = document.getElementById('androidSDKInfo');
+                sdkInfo.style.display = 'block';
+                document.getElementById('rtmpUrl').textContent = sessionData.streamUrls.rtmp;
+                
+                // Show QR access panel
+                const qrPanel = document.getElementById('qrPanel');
+                qrPanel.style.display = 'block';
+                document.getElementById('qrAddress').textContent = sessionData.educationalStream.qrAddress;
+                
+                console.log('📱 Android SDK Config:', sessionData.androidSDKConfig);
+                console.log('🌐 Stream URLs:', sessionData.streamUrls);
+                console.log('📱 QR Address:', sessionData.educationalStream.qrAddress);
+            }
+
+            async startBroadcast() {
+                if (!this.currentSession) {
+                    alert('Primero debes crear un curso');
+                    return;
+                }
+
+                this.updateSystemStatus('Iniciando transmisión en vivo...', true);
+
+                try {
+                    const response = await fetch('/api/mech-educational-broadcasting/start-broadcast', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            streamId: this.currentSession.streamId,
+                            territorialSovereignty: this.territorialSovereignty
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.streamingActive = true;
+                        this.showLiveIndicator();
+                        this.updateSystemStatus('🔴 EN VIVO');
+                        
+                        document.getElementById('startBroadcastBtn').textContent = '⏹️ Detener Transmisión';
+                        document.getElementById('startBroadcastBtn').onclick = this.stopBroadcast.bind(this);
+                        
+                        console.log('✅ Broadcast started successfully');
+                        console.log('🔴 Status: LIVE');
+                        console.log('👁️ Viewer access:', result.broadcast.viewerAccess);
+                        
+                        // Show instructions for Android app
+                        this.showAndroidInstructions();
+                        
+                    } else {
+                        throw new Error(result.error || 'Error starting broadcast');
+                    }
+
+                } catch (error) {
+                    console.error('🚨 Broadcast start error:', error);
+                    this.updateSystemStatus('Error al iniciar transmisión');
+                    alert('Error al iniciar transmisión: ' + error.message);
+                }
+            }
+
+            async stopBroadcast() {
+                this.updateSystemStatus('Deteniendo transmisión...', true);
+
+                try {
+                    const response = await fetch('/api/mech-educational-broadcasting/stop-broadcast', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            streamId: this.currentSession.streamId,
+                            territorialSovereignty: this.territorialSovereignty
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.streamingActive = false;
+                        this.hideLiveIndicator();
+                        this.updateSystemStatus('Curso grabado y archivado');
+                        
+                        document.getElementById('startBroadcastBtn').textContent = '📚 Crear Nuevo Curso';
+                        document.getElementById('startBroadcastBtn').onclick = this.resetForNewCourse.bind(this);
+                        
+                        console.log('✅ Broadcast stopped successfully');
+                        console.log('📚 Course recording:', result.courseRecording);
+                        
+                        alert('¡Curso completado! Tu clase ha sido grabada y está disponible para estudiantes.');
+                        
+                    } else {
+                        throw new Error(result.error || 'Error stopping broadcast');
+                    }
+
+                } catch (error) {
+                    console.error('🚨 Broadcast stop error:', error);
+                    this.updateSystemStatus('Error al detener transmisión');
+                    alert('Error al detener transmisión: ' + error.message);
+                }
+            }
+
+            showLiveIndicator() {
+                document.getElementById('liveIndicator').style.display = 'inline-flex';
+            }
+
+            hideLiveIndicator() {
+                document.getElementById('liveIndicator').style.display = 'none';
+            }
+
+            showAndroidInstructions() {
+                setTimeout(() => {
+                    alert(`📱 Instrucciones para Android:\n\n1. Abre tu app LiveVideoBroadcaster\n2. Configura RTMP URL: ${this.currentSession.streamUrls.rtmp}\n3. Usa Stream ID: ${this.currentSession.streamId}\n4. ¡Inicia tu transmisión!\n\nLos estudiantes pueden ver tu clase usando el código QR.`);
+                }, 1000);
+            }
+
+            updateSystemStatus(status, loading = false) {
+                const statusElement = document.getElementById('systemStatus');
+                statusElement.textContent = status;
+                
+                if (loading) {
+                    statusElement.innerHTML = status + '<span class="loading-spinner"></span>';
+                }
+            }
+
+            resetForNewCourse() {
+                // Reset form
+                document.getElementById('studentName').value = '';
+                document.getElementById('courseTitle').value = '';
+                document.getElementById('courseDuration').value = '30';
+                
+                // Hide panels
+                document.getElementById('androidSDKInfo').style.display = 'none';
+                document.getElementById('qrPanel').style.display = 'none';
+                
+                // Reset buttons
+                document.getElementById('createCourseBtn').disabled = false;
+                document.getElementById('startBroadcastBtn').disabled = true;
+                document.getElementById('startBroadcastBtn').textContent = '🔴 Iniciar Transmisión';
+                document.getElementById('startBroadcastBtn').onclick = this.startBroadcast.bind(this);
+                
+                // Reset session
+                this.currentSession = null;
+                this.streamingActive = false;
+                
+                // Update status
+                this.updateSystemStatus('Listo para crear nuevos cursos');
+                document.getElementById('streamId').textContent = '-';
+                
+                console.log('🔄 Reset for new course');
+            }
+        }
+
+        // Initialize MÆCH Educational Streaming
+        document.addEventListener('DOMContentLoaded', () => {
+            window.mechEducationalStreaming = new MECHEducationalStreaming();
+        });
+
+        // Prevent default behaviors for mobile optimization
+        document.addEventListener('touchstart', (e) => {
+            // Allow normal touch behavior
+        }, { passive: true });
+
+        // Service worker for offline capabilities
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(console.error);
+        }
+    </script>
+</body>
+</html>

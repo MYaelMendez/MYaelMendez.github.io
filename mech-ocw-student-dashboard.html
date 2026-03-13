@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MÆCH OCW Global Student Dashboard - Ages 3-103</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #000011 0%, #001122 50%, #000033 100%);
+            color: #00ffaa;
+            min-height: 100vh;
+            overflow-x: hidden;
+            /* MOBILE-FIRST OPTIMIZATION */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            font-size: 16px; /* Prevent zoom on iOS */
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-areas: 
+                "header header header"
+                "stats learning progress"
+                "territorial achievements community";
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 100px 300px 1fr;
+            height: 100vh;
+            gap: 15px;
+            padding: 15px;
+        }
+
+        /* 📱 MOBILE DASHBOARD OPTIMIZATION */
+        @media (max-width: 1024px) {
+            .dashboard-container {
+                grid-template-areas:
+                    "header"
+                    "stats"
+                    "learning"
+                    "progress"
+                    "territorial"
+                    "achievements"
+                    "community";
+                grid-template-columns: 1fr;
+                grid-template-rows: auto repeat(6, minmax(200px, auto));
+                height: auto;
+                min-height: 100vh;
+                gap: 10px;
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 8px;
+                gap: 8px;
+            }
+            
+            .dashboard-header {
+                padding: 15px;
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .student-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .avatar {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            
+            .global-stats {
+                text-align: center;
+                font-size: 12px;
+            }
+            
+            .stats-panel, .learning-panel, .progress-panel, 
+            .territorial-panel, .achievements-panel, .community-panel {
+                padding: 15px;
+            }
+            
+            .stat-card {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+            
+            .stat-number {
+                font-size: 24px;
+            }
+            
+            .path-item, .achievement-badge, .community-member {
+                padding: 10px;
+                margin: 6px 0;
+            }
+            
+            .territorial-map {
+                min-height: 120px;
+            }
+            
+            .territory-node {
+                width: 15px;
+                height: 15px;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            
+            .action-btn {
+                padding: 10px 8px;
+                font-size: 11px;
+                min-width: 44px;
+                min-height: 44px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                font-size: 14px;
+            }
+            
+            .dashboard-container {
+                padding: 5px;
+                gap: 5px;
+            }
+            
+            .dashboard-header {
+                padding: 10px;
+            }
+            
+            .student-info h2 {
+                font-size: 18px;
+            }
+            
+            .age-group-indicator {
+                font-size: 10px;
+                padding: 2px 6px;
+            }
+            
+            .global-stats {
+                font-size: 11px;
+            }
+            
+            .global-stats p {
+                margin: 2px 0;
+            }
+            
+            .stats-panel, .learning-panel, .progress-panel, 
+            .territorial-panel, .achievements-panel, .community-panel {
+                padding: 10px;
+            }
+            
+            .stat-card {
+                padding: 8px;
+                margin-bottom: 8px;
+            }
+            
+            .stat-number {
+                font-size: 20px;
+                margin-bottom: 4px;
+            }
+            
+            .stat-label {
+                font-size: 11px;
+            }
+            
+            .learning-streak {
+                padding: 8px;
+                font-size: 12px;
+            }
+            
+            .path-item {
+                padding: 8px;
+                margin: 4px 0;
+                font-size: 12px;
+            }
+            
+            .achievement-badge {
+                padding: 6px 10px;
+                margin: 4px 0;
+                font-size: 11px;
+            }
+            
+            .achievement-icon {
+                font-size: 16px;
+            }
+            
+            .community-member {
+                padding: 8px;
+                margin: 4px 0;
+            }
+            
+            .member-avatar {
+                width: 30px;
+                height: 30px;
+                font-size: 10px;
+            }
+            
+            .territorial-map {
+                min-height: 100px;
+                padding: 10px;
+            }
+            
+            .territory-node {
+                width: 12px;
+                height: 12px;
+            }
+            
+            .live-feed {
+                max-height: 150px;
+                padding: 8px;
+            }
+            
+            .feed-item {
+                font-size: 10px;
+                padding: 3px 0;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+            
+            .action-btn {
+                padding: 8px 6px;
+                font-size: 10px;
+                min-width: 40px;
+                min-height: 40px;
+            }
+            
+            .progress-bar {
+                height: 20px;
+            }
+            
+            .progress-text {
+                font-size: 10px;
+            }
+        }
+
+        .dashboard-header {
+            grid-area: header;
+            background: rgba(0, 255, 170, 0.1);
+            border: 2px solid #00ffaa;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .student-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00ffaa, #0066ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .global-stats {
+            text-align: right;
+            font-size: 14px;
+        }
+
+        .stats-panel {
+            grid-area: stats;
+            background: rgba(0, 255, 170, 0.05);
+            border: 2px solid #00ffaa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .learning-panel {
+            grid-area: learning;
+            background: rgba(0, 255, 170, 0.05);
+            border: 2px solid #00ffaa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .progress-panel {
+            grid-area: progress;
+            background: rgba(0, 255, 170, 0.05);
+            border: 2px solid #00ffaa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .territorial-panel {
+            grid-area: territorial;
+            background: rgba(0, 255, 170, 0.05);
+            border: 2px solid #00ffaa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .achievements-panel {
+            grid-area: achievements;
+            background: rgba(0, 255, 170, 0.05);
+            border: 2px solid #00ffaa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .community-panel {
+            grid-area: community;
+            background: rgba(0, 255, 170, 0.05);
+            border: 2px solid #00ffaa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .stat-card {
+            background: rgba(0, 255, 170, 0.1);
+            border: 1px solid #00ffaa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            background: rgba(0, 255, 170, 0.2);
+            transform: scale(1.02);
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #00ffaa;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: rgba(0, 255, 170, 0.8);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: rgba(0, 255, 170, 0.1);
+            border: 1px solid #00ffaa;
+            border-radius: 12px;
+            margin: 10px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ffaa, #00cc88);
+            border-radius: 12px;
+            transition: width 0.8s ease;
+            position: relative;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+            font-weight: bold;
+            color: #000;
+            z-index: 10;
+        }
+
+        .learning-path {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .path-item {
+            background: rgba(0, 255, 170, 0.1);
+            border: 1px solid #00ffaa;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .path-item:hover {
+            background: rgba(0, 255, 170, 0.2);
+            transform: translateX(5px);
+        }
+
+        .path-item.completed {
+            border-color: #00ff66;
+            background: rgba(0, 255, 102, 0.1);
+        }
+
+        .path-item.current {
+            border-color: #ff6600;
+            background: rgba(255, 102, 0, 0.1);
+            box-shadow: 0 0 15px rgba(255, 102, 0, 0.3);
+        }
+
+        .achievement-badge {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 255, 170, 0.1);
+            border: 1px solid #00ffaa;
+            border-radius: 25px;
+            padding: 8px 15px;
+            margin: 8px 0;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .achievement-badge:hover {
+            background: rgba(0, 255, 170, 0.2);
+            transform: scale(1.05);
+        }
+
+        .achievement-icon {
+            font-size: 20px;
+        }
+
+        .age-group-indicator {
+            background: rgba(255, 102, 0, 0.2);
+            border: 1px solid #ff6600;
+            border-radius: 15px;
+            padding: 5px 12px;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        .territorial-map {
+            background: rgba(0, 255, 170, 0.05);
+            border: 1px solid #00ffaa;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            min-height: 150px;
+            position: relative;
+        }
+
+        .territory-node {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #00ffaa;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .territory-node:hover {
+            transform: scale(1.5);
+            box-shadow: 0 0 15px #00ffaa;
+        }
+
+        .territory-node.active {
+            background: #ff6600;
+            box-shadow: 0 0 15px #ff6600;
+        }
+
+        .community-member {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(0, 255, 170, 0.1);
+            border-radius: 8px;
+            margin: 8px 0;
+        }
+
+        .member-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00ffaa, #0066ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .online-indicator {
+            width: 8px;
+            height: 8px;
+            background: #00ff66;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .action-btn {
+            background: rgba(0, 255, 170, 0.2);
+            border: 2px solid #00ffaa;
+            color: #00ffaa;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .action-btn:hover {
+            background: rgba(0, 255, 170, 0.4);
+            transform: scale(1.05);
+        }
+
+        .live-feed {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid rgba(0, 255, 170, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            margin: 15px 0;
+        }
+
+        .feed-item {
+            font-size: 11px;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(0, 255, 170, 0.1);
+            color: rgba(0, 255, 170, 0.8);
+        }
+
+        .feed-item:last-child {
+            border-bottom: none;
+        }
+
+        .timestamp {
+            color: rgba(0, 255, 170, 0.5);
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #00ffaa;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 8s infinite linear;
+        }
+
+        @keyframes float {
+            from {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            to {
+                transform: translateY(-100px) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        .learning-streak {
+            background: linear-gradient(45deg, #ff6600, #ff9900);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Particles -->
+    <div class="floating-particles" id="particles"></div>
+
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="student-info">
+                <div class="avatar" id="studentAvatar">👩‍🎓</div>
+                <div>
+                    <h2 id="studentName">Maria González</h2>
+                    <div class="age-group-indicator" id="ageGroup">Age 25 • Advanced Level</div>
+                    <p>Territory: LATAM-Mexico • Streak: 15 days 🔥</p>
+                </div>
+            </div>
+            <div class="global-stats">
+                <h3>🌍 MÆCH OCW Global Network</h3>
+                <p><strong>3,247</strong> students online</p>
+                <p><strong>49</strong> territories active</p>
+                <p><strong>247+</strong> implementations</p>
+                <p><strong>1.5M+</strong> daily API calls</p>
+            </div>
+        </div>
+
+        <!-- Stats Panel -->
+        <div class="stats-panel">
+            <h3>📊 Personal Statistics</h3>
+            <div class="stat-card">
+                <div class="stat-number" id="lessonsCompleted">42</div>
+                <div class="stat-label">Lessons Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="aiDrawings">127</div>
+                <div class="stat-label">AI Drawings Created</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="mechPrograms">86</div>
+                <div class="stat-label">MÆCH Programs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="infraConcepts">23</div>
+                <div class="stat-label">Infrastructure Concepts</div>
+            </div>
+        </div>
+
+        <!-- Learning Panel -->
+        <div class="learning-panel">
+            <h3>🎯 Current Learning Path</h3>
+            
+            <div class="learning-streak">
+                🔥 15 Day Learning Streak!
+                <br><small>You're on fire! Keep it up!</small>
+            </div>
+
+            <div class="learning-path">
+                <div class="path-item completed" onclick="openLesson('infrastructure')">
+                    ✅ Infrastructure Basics ($106T Overview)
+                </div>
+                <div class="path-item completed" onclick="openLesson('ai-basics')">
+                    ✅ AI by Hand - Neural Networks
+                </div>
+                <div class="path-item current" onclick="openLesson('transformers')">
+                    🔄 Transformer Architecture Drawing
+                </div>
+                <div class="path-item" onclick="openLesson('infrastructure-ai')">
+                    ⏳ AI + Infrastructure Integration
+                </div>
+                <div class="path-item" onclick="openLesson('territorial-programming')">
+                    ⏳ MÆCH Territorial Programming
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <button class="action-btn" onclick="continueCurrentLesson()">
+                    ▶️ Continue Learning
+                </button>
+                <button class="action-btn" onclick="openAIByHand()">
+                    ✍️ AI by Hand
+                </button>
+                <button class="action-btn" onclick="openMechSpatialOS()">
+                    🌌 Spatial OS
+                </button>
+                <button class="action-btn" onclick="openEducationHub()">
+                    🎓 Education Hub
+                </button>
+            </div>
+        </div>
+
+        <!-- Progress Panel -->
+        <div class="progress-panel">
+            <h3>📈 Learning Progress</h3>
+            
+            <div>
+                <strong>Infrastructure Concepts</strong>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 85%"></div>
+                    <div class="progress-text">85% Complete</div>
+                </div>
+            </div>
+
+            <div>
+                <strong>AI by Hand Skills</strong>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 72%"></div>
+                    <div class="progress-text">72% Complete</div>
+                </div>
+            </div>
+
+            <div>
+                <strong>MÆCH Programming</strong>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 68%"></div>
+                    <div class="progress-text">68% Complete</div>
+                </div>
+            </div>
+
+            <div>
+                <strong>Territorial Programming</strong>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 45%"></div>
+                    <div class="progress-text">45% Complete</div>
+                </div>
+            </div>
+
+            <div>
+                <strong>Overall Mastery</strong>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 67%"></div>
+                    <div class="progress-text">67% Complete</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Territorial Panel -->
+        <div class="territorial-panel">
+            <h3>🗺️ Territorial Programming</h3>
+            
+            <div class="territorial-map" id="territorialMap">
+                <div class="territory-node active" style="top: 30%; left: 20%;" title="LATAM-Mexico"></div>
+                <div class="territory-node" style="top: 40%; left: 35%;" title="LATAM-Colombia"></div>
+                <div class="territory-node" style="top: 60%; left: 25%;" title="LATAM-Brasil"></div>
+                <div class="territory-node" style="top: 25%; left: 50%;" title="Europe-Spain"></div>
+                <div class="territory-node" style="top: 45%; left: 70%;" title="Asia-Singapore"></div>
+                <div class="territory-node" style="top: 35%; left: 80%;" title="Oceania-Australia"></div>
+            </div>
+
+            <div style="margin-top: 15px;">
+                <strong>Your Territory:</strong> LATAM-Mexico<br>
+                <strong>Students in Territory:</strong> 284<br>
+                <strong>Rank:</strong> #12 (Regional Advanced)<br>
+                <strong>Contribution:</strong> 847 territorial programs
+            </div>
+
+            <div class="live-feed">
+                <div class="feed-item">
+                    <span class="timestamp">[14:32]</span> Carlos completed "Neural Network Visualization" in LATAM-Colombia
+                </div>
+                <div class="feed-item">
+                    <span class="timestamp">[14:28]</span> Ana created AI infrastructure diagram in Europe-Spain
+                </div>
+                <div class="feed-item">
+                    <span class="timestamp">[14:25]</span> Territory LATAM-Mexico gained 3 new students
+                </div>
+                <div class="feed-item">
+                    <span class="timestamp">[14:22]</span> Global milestone: 1M+ AI drawings created!
+                </div>
+                <div class="feed-item">
+                    <span class="timestamp">[14:20]</span> Kim shared transformer architecture in Asia-Singapore
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievements Panel -->
+        <div class="achievements-panel">
+            <h3>🏆 Achievements</h3>
+            
+            <div class="achievement-badge">
+                <div class="achievement-icon">🏗️</div>
+                <div>
+                    <strong>Infrastructure Explorer</strong><br>
+                    <small>Completed all $106T infrastructure modules</small>
+                </div>
+            </div>
+
+            <div class="achievement-badge">
+                <div class="achievement-icon">🧠</div>
+                <div>
+                    <strong>Neural Architect</strong><br>
+                    <small>Hand-drew 50+ neural networks</small>
+                </div>
+            </div>
+
+            <div class="achievement-badge">
+                <div class="achievement-icon">🎯</div>
+                <div>
+                    <strong>MÆCH Master</strong><br>
+                    <small>Created 100+ MÆCH programs</small>
+                </div>
+            </div>
+
+            <div class="achievement-badge">
+                <div class="achievement-icon">🔥</div>
+                <div>
+                    <strong>Learning Streak</strong><br>
+                    <small>15 consecutive days of learning</small>
+                </div>
+            </div>
+
+            <div class="achievement-badge">
+                <div class="achievement-icon">🌍</div>
+                <div>
+                    <strong>Global Contributor</strong><br>
+                    <small>Shared knowledge across territories</small>
+                </div>
+            </div>
+
+            <div class="achievement-badge">
+                <div class="achievement-icon">🤖</div>
+                <div>
+                    <strong>AI by Hand Pioneer</strong><br>
+                    <small>First 100 students to master visual AI</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Community Panel -->
+        <div class="community-panel">
+            <h3>👥 Learning Community</h3>
+            
+            <div style="margin-bottom: 15px;">
+                <strong>Study Groups Active:</strong> 12<br>
+                <strong>Collaborative Projects:</strong> 8<br>
+                <strong>Peer Mentoring Sessions:</strong> 3
+            </div>
+
+            <h4>📍 Recently Active Students</h4>
+            
+            <div class="community-member">
+                <div class="member-avatar">CL</div>
+                <div>
+                    <strong>Carlos Lima</strong> (Age 19)<br>
+                    <small>Just completed Transformer lesson</small>
+                </div>
+                <div class="online-indicator"></div>
+            </div>
+
+            <div class="community-member">
+                <div class="member-avatar">AS</div>
+                <div>
+                    <strong>Ana Silva</strong> (Age 34)<br>
+                    <small>Working on infrastructure + AI</small>
+                </div>
+                <div class="online-indicator"></div>
+            </div>
+
+            <div class="community-member">
+                <div class="member-avatar">KP</div>
+                <div>
+                    <strong>Kim Park</strong> (Age 67)<br>
+                    <small>Teaching neural network basics</small>
+                </div>
+                <div class="online-indicator"></div>
+            </div>
+
+            <div class="community-member">
+                <div class="member-avatar">JR</div>
+                <div>
+                    <strong>José Rodriguez</strong> (Age 8)<br>
+                    <small>Drawing first neural networks!</small>
+                </div>
+                <div class="online-indicator"></div>
+            </div>
+
+            <div class="quick-actions" style="margin-top: 15px;">
+                <button class="action-btn" onclick="joinStudyGroup()">
+                    👥 Join Study Group
+                </button>
+                <button class="action-btn" onclick="startMentoring()">
+                    🎓 Mentor Others
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // MÆCH OCW Student Dashboard System
+        class MechOCWDashboard {
+            constructor() {
+                this.studentData = {
+                    name: 'Maria González',
+                    age: 25,
+                    territory: 'LATAM-Mexico',
+                    level: 'Advanced',
+                    streak: 15,
+                    stats: {
+                        lessons: 42,
+                        drawings: 127,
+                        programs: 86,
+                        concepts: 23
+                    }
+                };
+                
+                this.init();
+                this.startLiveUpdates();
+                this.createParticles();
+            }
+
+            init() {
+                this.loadStudentProfile();
+                this.setupTerritorialMap();
+                this.simulateProgressUpdates();
+                
+                console.log('🎓 MÆCH OCW Student Dashboard initialized');
+                console.log(`👩‍🎓 Welcome back, ${this.studentData.name}!`);
+                console.log(`🌍 Connected to ${this.studentData.territory} territory`);
+            }
+
+            loadStudentProfile() {
+                // Simulate different age groups and adapt interface
+                const ages = [5, 12, 25, 45, 67, 89];
+                const randomAge = ages[Math.floor(Math.random() * ages.length)];
+                
+                this.adaptInterfaceForAge(randomAge);
+                this.updateGlobalStats();
+            }
+
+            adaptInterfaceForAge(age) {
+                const ageGroups = {
+                    '3-8': { avatar: '👶', complexity: 'Simple', color: '#ff6bb3' },
+                    '9-17': { avatar: '🧒', complexity: 'Basic', color: '#4ecdc4' },
+                    '18-35': { avatar: '👨‍🎓', complexity: 'Intermediate', color: '#45b7d1' },
+                    '36-65': { avatar: '👩‍💼', complexity: 'Advanced', color: '#f7b801' },
+                    '65-103': { avatar: '👴', complexity: 'Expert', color: '#5f27cd' }
+                };
+
+                let group = '18-35'; // default
+                if (age <= 8) group = '3-8';
+                else if (age <= 17) group = '9-17';
+                else if (age <= 35) group = '18-35';
+                else if (age <= 65) group = '36-65';
+                else group = '65-103';
+
+                const config = ageGroups[group];
+                document.getElementById('studentAvatar').textContent = config.avatar;
+                document.getElementById('ageGroup').textContent = `Age ${age} • ${config.complexity} Level`;
+                
+                console.log(`🎯 Interface adapted for age ${age} (${group})`);
+            }
+
+            setupTerritorialMap() {
+                const nodes = document.querySelectorAll('.territory-node');
+                nodes.forEach(node => {
+                    node.addEventListener('click', () => {
+                        // Remove active from all nodes
+                        nodes.forEach(n => n.classList.remove('active'));
+                        // Add active to clicked node
+                        node.classList.add('active');
+                        
+                        const territory = node.getAttribute('title');
+                        console.log(`🗺️ Switched to territory: ${territory}`);
+                        
+                        // Show territory info
+                        this.showTerritoryInfo(territory);
+                    });
+                });
+            }
+
+            showTerritoryInfo(territory) {
+                const territoryData = {
+                    'LATAM-Mexico': { students: 284, rank: 12, programs: 847 },
+                    'LATAM-Colombia': { students: 193, rank: 8, programs: 623 },
+                    'LATAM-Brasil': { students: 456, rank: 3, programs: 1247 },
+                    'Europe-Spain': { students: 218, rank: 15, programs: 578 },
+                    'Asia-Singapore': { students: 387, rank: 5, programs: 1089 },
+                    'Oceania-Australia': { students: 145, rank: 22, programs: 432 }
+                };
+
+                const data = territoryData[territory] || territoryData['LATAM-Mexico'];
+                // Update territory info display
+                console.log(`🌍 Territory ${territory}: ${data.students} students, rank #${data.rank}`);
+            }
+
+            simulateProgressUpdates() {
+                // Simulate real-time progress updates
+                setInterval(() => {
+                    const stats = ['lessonsCompleted', 'aiDrawings', 'mechPrograms', 'infraConcepts'];
+                    const randomStat = stats[Math.floor(Math.random() * stats.length)];
+                    const element = document.getElementById(randomStat);
+                    
+                    if (Math.random() > 0.95) { // 5% chance per interval
+                        const currentValue = parseInt(element.textContent);
+                        element.textContent = currentValue + 1;
+                        element.style.color = '#ff6600';
+                        setTimeout(() => element.style.color = '#00ffaa', 2000);
+                    }
+                }, 3000);
+            }
+
+            startLiveUpdates() {
+                // Simulate live feed updates
+                const activities = [
+                    'completed "Neural Network Basics" in LATAM-Colombia',
+                    'created infrastructure diagram in Europe-Spain', 
+                    'shared transformer drawing in Asia-Singapore',
+                    'achieved 30-day learning streak in LATAM-Brasil',
+                    'joined collaborative AI project in Oceania-Australia',
+                    'mentored 5 new students in LATAM-Mexico',
+                    'published territorial programming guide in Europe-Spain',
+                    'solved advanced MÆCH challenge in Asia-Singapore'
+                ];
+
+                const names = ['Carlos', 'Ana', 'Kim', 'José', 'Maria', 'David', 'Sophie', 'Chen', 'Isabella'];
+
+                setInterval(() => {
+                    const feedContainer = document.querySelector('.live-feed');
+                    const timestamp = new Date().toLocaleTimeString('en-US', {
+                        hour12: false,
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    const randomName = names[Math.floor(Math.random() * names.length)];
+                    const randomActivity = activities[Math.floor(Math.random() * activities.length)];
+                    
+                    const feedItem = document.createElement('div');
+                    feedItem.className = 'feed-item';
+                    feedItem.innerHTML = `
+                        <span class="timestamp">[${timestamp}]</span> ${randomName} ${randomActivity}
+                    `;
+                    
+                    feedContainer.insertBefore(feedItem, feedContainer.firstChild);
+                    
+                    // Keep only last 8 items
+                    while (feedContainer.children.length > 8) {
+                        feedContainer.removeChild(feedContainer.lastChild);
+                    }
+                }, 15000);
+            }
+
+            updateGlobalStats() {
+                // Simulate increasing global stats
+                const globalElements = {
+                    students: () => 3247 + Math.floor(Math.random() * 10),
+                    territories: () => 49,
+                    implementations: () => 247 + Math.floor(Math.random() * 3),
+                    apiCalls: () => (1.5 + Math.random() * 0.1).toFixed(1) + 'M+'
+                };
+
+                setInterval(() => {
+                    // Update one random stat
+                    const stats = Object.keys(globalElements);
+                    const randomStat = stats[Math.floor(Math.random() * stats.length)];
+                    // This would update the header stats in a real implementation
+                }, 30000);
+            }
+
+            createParticles() {
+                const particlesContainer = document.getElementById('particles');
+                
+                setInterval(() => {
+                    if (document.querySelectorAll('.particle').length < 15) {
+                        const particle = document.createElement('div');
+                        particle.className = 'particle';
+                        particle.style.left = Math.random() * window.innerWidth + 'px';
+                        particle.style.animationDelay = Math.random() * 2 + 's';
+                        particle.style.animationDuration = (6 + Math.random() * 4) + 's';
+                        particlesContainer.appendChild(particle);
+                        
+                        setTimeout(() => {
+                            particle.remove();
+                        }, 8000);
+                    }
+                }, 500);
+            }
+        }
+
+        // Global navigation functions
+        function openLesson(lessonType) {
+            console.log(`📚 Opening lesson: ${lessonType}`);
+            
+            const lessonUrls = {
+                'infrastructure': '/mech-education-hub',
+                'ai-basics': '/mech-ai-by-hand',
+                'transformers': '/mech-ai-by-hand',
+                'infrastructure-ai': '/mech-education-hub',
+                'territorial-programming': '/mech-territorial-programming'
+            };
+            
+            const url = lessonUrls[lessonType] || '/mech-education-hub';
+            window.open(url, '_blank');
+        }
+
+        function continueCurrentLesson() {
+            console.log('▶️ Continuing current lesson...');
+            window.open('/mech-ai-by-hand', '_blank');
+        }
+
+        function openAIByHand() {
+            console.log('✍️ Opening AI by Hand lessons...');
+            window.open('/mech-ai-by-hand', '_blank');
+        }
+
+        function openMechSpatialOS() {
+            console.log('🌌 Opening MÆCH Spatial OS...');
+            window.open('/mech-spatial-os', '_blank');
+        }
+
+        function openEducationHub() {
+            console.log('🎓 Opening Education Hub...');
+            window.open('/mech-education-hub', '_blank');
+        }
+
+        function joinStudyGroup() {
+            console.log('👥 Joining study group...');
+            alert('🎓 Study group matching... You\'ll be connected with students in your territory working on similar topics!');
+        }
+
+        function startMentoring() {
+            console.log('🎓 Starting mentoring session...');
+            alert('👨‍🏫 Mentoring system activated! We\'ve found 3 students who could benefit from your expertise in AI by Hand.');
+        }
+
+        // Initialize dashboard
+        const dashboard = new MechOCWDashboard();
+        
+        console.log('🌍 MÆCH OCW Global Student Dashboard Ready');
+        console.log('👥 Connecting to worldwide learning community...');
+        console.log('🎯 Ready to continue your learning journey!');
+    </script>
+</body>
+</html>

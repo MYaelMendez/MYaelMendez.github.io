@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <title>MÆCH Map Native | QR://c3f6q7h Navigator</title>
+    <meta name="description" content="Navigate the MÆCH Æcosystem - QR addressable satellite network with qr://c3f6q7h protocol">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #000;
+            --cyan: #00ffaa;
+            --pink: #ff00aa;
+            --gold: #ffaa00;
+            --blue: #00aaff;
+            --purple: #aa00ff;
+            --red: #ff4444;
+            --text: #fff;
+            --dim: rgba(255,255,255,0.6);
+            --qr-protocol: #00d4ff;
+        }
+        
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        #map { width: 100%; height: 100%; background: #0a0a0a; }
+        .leaflet-container { background: #0a0a0a; }
+        .leaflet-tile { filter: invert(1) hue-rotate(180deg) saturate(0.3) brightness(0.8); }
+        
+        .nav-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.98), rgba(0,0,0,0.9), transparent);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--cyan);
+        }
+        
+        .nav-logo-icon {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, var(--qr-protocol), var(--pink));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            animation: qr-pulse 2s infinite;
+        }
+        
+        @keyframes qr-pulse {
+            0%, 100% { box-shadow: 0 0 12px rgba(0,212,255,0.5); }
+            50% { box-shadow: 0 0 24px rgba(0,212,255,0.8), 0 0 40px rgba(255,0,170,0.4); }
+        }
+        
+        .nav-title { font-size: 14px; font-weight: 700; }
+        .nav-protocol {
+            font-size: 9px;
+            color: var(--qr-protocol);
+            font-family: monospace;
+            background: rgba(0,212,255,0.1);
+            padding: 2px 6px;
+        }
+        
+        .nav-search {
+            flex: 1;
+            max-width: 320px;
+            position: relative;
+        }
+        
+        .nav-search input {
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(0,212,255,0.3);
+            padding: 8px 32px 8px 12px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 12px;
+            outline: none;
+        }
+        
+        .nav-search input:focus {
+            border-color: var(--qr-protocol);
+            background: rgba(0,212,255,0.05);
+        }
+        
+        .nav-search input::placeholder { color: var(--dim); font-size: 11px; }
+        .nav-search-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--qr-protocol); font-size: 12px; }
+        
+        .nav-stats {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 10px;
+        }
+        
+        .nav-stat {
+            background: rgba(0,212,255,0.1);
+            border: 1px solid rgba(0,212,255,0.2);
+            padding: 4px 10px;
+        }
+        
+        .nav-stat-value { color: var(--qr-protocol); font-weight: 600; }
+        .nav-stat-label { color: var(--dim); font-size: 8px; }
+        
+        .status-live {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+        }
+        
+        .status-dot {
+            width: 6px; height: 6px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 54px;
+            bottom: 70px;
+            width: 320px;
+            background: rgba(0,0,0,0.98);
+            border-right: 1px solid rgba(0,212,255,0.15);
+            z-index: 1000;
+            overflow-y: auto;
+            transform: translateX(0);
+            transition: transform 0.3s;
+        }
+        
+        .sidebar.collapsed { transform: translateX(-280px); }
+        
+        .sidebar-toggle {
+            position: absolute;
+            right: -32px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px; height: 44px;
+            background: rgba(0,0,0,0.95);
+            border: 1px solid rgba(0,212,255,0.3);
+            border-left: none;
+            color: var(--qr-protocol);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .sidebar-header {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0,212,255,0.03);
+        }
+        
+        .sidebar-header-title {
+            font-size: 11px;
+            color: var(--qr-protocol);
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        
+        .sidebar-header-protocol {
+            font-size: 10px;
+            color: var(--dim);
+            font-family: monospace;
+        }
+        
+        .sidebar-section {
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.02);
+            transition: background 0.2s;
+        }
+        
+        .section-header:hover {
+            background: rgba(0,212,255,0.05);
+        }
+        
+        .section-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-icon { font-size: 14px; }
+        
+        .section-title {
+            font-size: 10px;
+            color: var(--text);
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        
+        .section-count {
+            font-size: 9px;
+            background: rgba(0,212,255,0.15);
+            color: var(--qr-protocol);
+            padding: 2px 6px;
+            min-width: 20px;
+            text-align: center;
+        }
+        
+        .section-toggle {
+            font-size: 10px;
+            color: var(--dim);
+            transition: transform 0.2s;
+        }
+        
+        .section-header.expanded .section-toggle {
+            transform: rotate(90deg);
+        }
+        
+        .section-content {
+            display: none;
+            padding: 4px 8px 8px;
+        }
+        
+        .section-header.expanded + .section-content {
+            display: block;
+        }
+        
+        .qr-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: rgba(255,255,255,0.01);
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .qr-item:hover {
+            background: rgba(0,212,255,0.08);
+            border-color: rgba(0,212,255,0.3);
+        }
+        
+        .qr-item.active {
+            background: rgba(0,212,255,0.12);
+            border-color: var(--qr-protocol);
+        }
+        
+        .qr-item-icon {
+            font-size: 16px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .qr-item-info { flex: 1; min-width: 0; }
+        
+        .qr-item-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .qr-item-address {
+            font-size: 9px;
+            color: var(--qr-protocol);
+            font-family: monospace;
+            opacity: 0.8;
+        }
+        
+        .qr-item-btn {
+            width: 22px; height: 22px;
+            background: rgba(0,212,255,0.1);
+            border: 1px solid rgba(0,212,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+            color: var(--qr-protocol);
+            transition: all 0.2s;
+        }
+        
+        .qr-item-btn:hover {
+            background: var(--qr-protocol);
+            color: #000;
+        }
+        
+        .qr-item-status {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: var(--cyan);
+        }
+        
+        .qr-item-status.education { background: var(--gold); }
+        .qr-item-status.provider { background: var(--pink); }
+        .qr-item-status.domain { background: var(--purple); }
+        .qr-item-status.file { background: var(--blue); }
+        
+        .bottom-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: linear-gradient(to top, rgba(0,0,0,0.98), rgba(0,0,0,0.9), transparent);
+            padding: 12px 16px;
+        }
+        
+        .qr-address-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .qr-address-display {
+            background: rgba(0,212,255,0.08);
+            border: 1px solid rgba(0,212,255,0.25);
+            padding: 8px 16px;
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--qr-protocol);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .qr-address-display .protocol { color: var(--gold); }
+        .qr-address-display .path { color: var(--text); }
+        
+        .telemetry-mini {
+            display: flex;
+            gap: 16px;
+            font-size: 10px;
+        }
+        
+        .tel-item {
+            text-align: center;
+        }
+        
+        .tel-value { color: var(--qr-protocol); font-weight: 600; }
+        .tel-label { color: var(--dim); font-size: 8px; }
+        
+        .custom-marker { background: transparent; border: none; }
+        
+        .marker-qr {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, var(--qr-protocol), var(--cyan));
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            box-shadow: 0 0 12px rgba(0,212,255,0.5);
+            cursor: pointer;
+            animation: marker-glow 2s infinite;
+        }
+        
+        .marker-qr.origin {
+            width: 48px; height: 48px;
+            font-size: 22px;
+            background: linear-gradient(135deg, var(--gold), var(--pink), var(--qr-protocol));
+            box-shadow: 0 0 30px rgba(255,170,0,0.5);
+            border-radius: 0;
+        }
+        
+        .marker-qr.education { background: linear-gradient(135deg, var(--gold), #ff8800); }
+        .marker-qr.provider { background: linear-gradient(135deg, var(--pink), var(--purple)); }
+        .marker-qr.domain { background: linear-gradient(135deg, var(--purple), var(--blue)); }
+        .marker-qr.file { background: linear-gradient(135deg, var(--blue), var(--cyan)); border-radius: 50%; }
+        
+        @keyframes marker-glow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .origin-ring {
+            position: absolute;
+            width: 120px; height: 120px;
+            border: 1px solid var(--qr-protocol);
+            animation: ring-expand 3s infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes ring-expand {
+            0% { transform: scale(0.4); opacity: 1; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+        
+        .leaflet-popup-content-wrapper {
+            background: rgba(0,0,0,0.97);
+            border: 1px solid rgba(0,212,255,0.4);
+            border-radius: 0;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .leaflet-popup-tip {
+            background: rgba(0,0,0,0.97);
+            border: 1px solid rgba(0,212,255,0.4);
+        }
+        
+        .popup-content { padding: 8px; min-width: 240px; }
+        
+        .popup-qr-header {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .popup-qr-code {
+            width: 64px; height: 64px;
+            background: #fff;
+            padding: 4px;
+        }
+        
+        .popup-qr-code canvas { width: 100% !important; height: 100% !important; }
+        
+        .popup-qr-info { flex: 1; }
+        .popup-qr-title { font-size: 13px; font-weight: 700; color: var(--qr-protocol); margin-bottom: 4px; }
+        .popup-qr-address {
+            font-size: 9px;
+            color: var(--gold);
+            font-family: monospace;
+            background: rgba(255,170,0,0.1);
+            padding: 3px 6px;
+            display: inline-block;
+            word-break: break-all;
+        }
+        
+        .popup-qr-z {
+            font-size: 10px;
+            color: var(--dim);
+            margin-top: 4px;
+        }
+        
+        .popup-desc { font-size: 11px; color: var(--text); margin-bottom: 10px; line-height: 1.4; }
+        
+        .popup-btn {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            background: var(--qr-protocol);
+            color: #000;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 10px;
+        }
+        
+        .popup-btn:hover { box-shadow: 0 0 16px rgba(0,212,255,0.5); }
+        
+        .qr-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .qr-modal.active { display: flex; }
+        
+        .qr-modal-content {
+            background: rgba(5,5,10,0.98);
+            border: 1px solid rgba(0,212,255,0.4);
+            padding: 20px;
+            text-align: center;
+            max-width: 360px;
+        }
+        
+        .qr-modal-title { font-size: 14px; color: var(--qr-protocol); margin-bottom: 4px; }
+        .qr-modal-address {
+            font-size: 10px;
+            color: var(--gold);
+            background: rgba(255,170,0,0.1);
+            padding: 6px 12px;
+            margin-bottom: 12px;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        .qr-modal-canvas { background: #fff; padding: 12px; margin-bottom: 12px; }
+        .qr-modal-z { font-size: 11px; color: var(--dim); margin-bottom: 12px; }
+        
+        .qr-modal-close {
+            background: transparent;
+            border: 1px solid var(--qr-protocol);
+            color: var(--qr-protocol);
+            padding: 8px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 11px;
+        }
+        
+        .qr-modal-close:hover {
+            background: var(--qr-protocol);
+            color: #000;
+        }
+        
+        .legend {
+            position: fixed;
+            right: 16px;
+            bottom: 80px;
+            background: rgba(0,0,0,0.95);
+            border: 1px solid rgba(0,212,255,0.25);
+            padding: 10px;
+            z-index: 1000;
+            font-size: 9px;
+        }
+        
+        .legend-title { color: var(--dim); letter-spacing: 1px; margin-bottom: 8px; }
+        .legend-item { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+        .legend-dot { width: 8px; height: 8px; }
+        .legend-dot.origin { background: linear-gradient(135deg, var(--gold), var(--pink)); }
+        .legend-dot.core { background: var(--qr-protocol); border-radius: 2px; }
+        .legend-dot.education { background: var(--gold); border-radius: 2px; }
+        .legend-dot.provider { background: var(--pink); border-radius: 2px; }
+        .legend-dot.domain { background: var(--purple); border-radius: 2px; }
+        .legend-dot.file { background: var(--blue); border-radius: 50%; }
+        
+        @media (max-width: 768px) {
+            .sidebar { width: 280px; transform: translateX(-248px); }
+            .sidebar.collapsed { transform: translateX(-248px); }
+            .sidebar.expanded { transform: translateX(0); }
+            .nav-search { max-width: 180px; }
+            .nav-stats { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav-overlay" data-testid="nav-map">
+        <a href="/" class="nav-logo" data-testid="link-origin">
+            <div class="nav-logo-icon">◫</div>
+            <div>
+                <div class="nav-title">MÆCH Map Native</div>
+                <div class="nav-protocol">qr://c3f6q7h</div>
+            </div>
+        </a>
+        
+        <div class="nav-search" data-testid="search-container">
+            <input type="text" id="search-input" placeholder="Search QR addresses..." data-testid="input-search">
+            <span class="nav-search-icon">◫</span>
+        </div>
+        
+        <div class="nav-stats">
+            <div class="nav-stat">
+                <div class="nav-stat-value" id="total-indexed">2,899</div>
+                <div class="nav-stat-label">INDEXED</div>
+            </div>
+            <div class="nav-stat">
+                <div class="nav-stat-value" id="z-axis">Z:0</div>
+                <div class="nav-stat-label">GENESIS</div>
+            </div>
+            <div class="status-live">
+                <div class="status-dot"></div>
+                <span>LIVE</span>
+            </div>
+        </div>
+    </nav>
+
+    <aside class="sidebar" id="sidebar" data-testid="sidebar-qr">
+        <button class="sidebar-toggle" id="sidebar-toggle" data-testid="btn-toggle-sidebar">◀</button>
+        
+        <div class="sidebar-header">
+            <div class="sidebar-header-title">QR ADDRESS DATABASE</div>
+            <div class="sidebar-header-protocol">qr://c3f6q7h/...</div>
+        </div>
+        
+        <div class="sidebar-section" data-category="origin">
+            <div class="section-header" data-testid="section-origin">
+                <div class="section-header-left">
+                    <span class="section-icon">🏛️</span>
+                    <span class="section-title">ORIGIN x₀y₀z₀</span>
+                </div>
+                <span class="section-count">1</span>
+                <span class="section-toggle">▶</span>
+            </div>
+            <div class="section-content" id="origin-list"></div>
+        </div>
+        
+        <div class="sidebar-section" data-category="core">
+            <div class="section-header" data-testid="section-core">
+                <div class="section-header-left">
+                    <span class="section-icon">⚙️</span>
+                    <span class="section-title">CORE SYSTEMS</span>
+                </div>
+                <span class="section-count">11</span>
+                <span class="section-toggle">▶</span>
+            </div>
+            <div class="section-content" id="core-list"></div>
+        </div>
+        
+        <div class="sidebar-section" data-category="education">
+            <div class="section-header" data-testid="section-education">
+                <div class="section-header-left">
+                    <span class="section-icon">🎓</span>
+                    <span class="section-title">LATAM OCW</span>
+                </div>
+                <span class="section-count">6</span>
+                <span class="section-toggle">▶</span>
+            </div>
+            <div class="section-content" id="education-list"></div>
+        </div>
+        
+        <div class="sidebar-section" data-category="provider">
+            <div class="section-header" data-testid="section-provider">
+                <div class="section-header-left">
+                    <span class="section-icon">🧠</span>
+                    <span class="section-title">LLM PROVIDERS</span>
+                </div>
+                <span class="section-count">8</span>
+                <span class="section-toggle">▶</span>
+            </div>
+            <div class="section-content" id="provider-list"></div>
+        </div>
+        
+        <div class="sidebar-section" data-category="domain">
+            <div class="section-header" data-testid="section-domain">
+                <div class="section-header-left">
+                    <span class="section-icon">🌐</span>
+                    <span class="section-title">DOMAIN EMPIRE</span>
+                </div>
+                <span class="section-count">8</span>
+                <span class="section-toggle">▶</span>
+            </div>
+            <div class="section-content" id="domain-list"></div>
+        </div>
+        
+        <div class="sidebar-section" data-category="files">
+            <div class="section-header" data-testid="section-files">
+                <div class="section-header-left">
+                    <span class="section-icon">📁</span>
+                    <span class="section-title">INDEXED FILES</span>
+                </div>
+                <span class="section-count" id="files-count">0</span>
+                <span class="section-toggle">▶</span>
+            </div>
+            <div class="section-content" id="files-list"></div>
+        </div>
+    </aside>
+
+    <div id="map" data-testid="map-container"></div>
+
+    <div class="legend" data-testid="map-legend">
+        <div class="legend-title">QR ADDRESS TYPES</div>
+        <div class="legend-item"><div class="legend-dot origin"></div><span>Origin</span></div>
+        <div class="legend-item"><div class="legend-dot core"></div><span>Core</span></div>
+        <div class="legend-item"><div class="legend-dot education"></div><span>OCW</span></div>
+        <div class="legend-item"><div class="legend-dot provider"></div><span>LLM</span></div>
+        <div class="legend-item"><div class="legend-dot domain"></div><span>Domain</span></div>
+        <div class="legend-item"><div class="legend-dot file"></div><span>File</span></div>
+    </div>
+
+    <div class="bottom-bar" data-testid="bottom-bar">
+        <div class="qr-address-bar">
+            <div class="qr-address-display" id="current-address">
+                <span class="protocol">qr://</span>
+                <span class="path">c3f6q7h/origin/x0y0z0</span>
+            </div>
+            <div class="telemetry-mini">
+                <div class="tel-item">
+                    <div class="tel-value" id="tel-nodes">34</div>
+                    <div class="tel-label">NODES</div>
+                </div>
+                <div class="tel-item">
+                    <div class="tel-value" id="tel-files">2,899</div>
+                    <div class="tel-label">FILES</div>
+                </div>
+                <div class="tel-item">
+                    <div class="tel-value" id="tel-routes">∞</div>
+                    <div class="tel-label">ROUTES</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="qr-modal" id="qr-modal" data-testid="qr-modal">
+        <div class="qr-modal-content">
+            <div class="qr-modal-title" id="qr-modal-title">Origin</div>
+            <div class="qr-modal-address" id="qr-modal-address">qr://c3f6q7h/origin</div>
+            <div class="qr-modal-canvas" id="qr-modal-canvas"></div>
+            <div class="qr-modal-z" id="qr-modal-z">Z-Axis: 0 (Genesis)</div>
+            <button class="qr-modal-close" id="qr-modal-close" data-testid="btn-close-qr">CLOSE</button>
+        </div>
+    </div>
+
+    <script>
+        const QR_PROTOCOL = 'qr://c3f6q7h';
+        
+        const QR_DATABASE = {
+            origin: [
+                { id: 'origin', name: 'llm.store Origin', qr: `${QR_PROTOCOL}/origin/x0y0z0`, lat: 0, lng: 0, emoji: '🏛️', route: '/', desc: 'Universal Origin Point x₀y₀z₀', zAxis: 0 }
+            ],
+            core: [
+                { id: '3d-os', name: 'MÆCH 3D OS', qr: `${QR_PROTOCOL}/core/3d-os/0/interface`, lat: 40.7, lng: -74, emoji: '🖥️', route: '/mech-3d-os', desc: '4D territorial interface', zAxis: 0 },
+                { id: 'spatial', name: 'Spatial OS', qr: `${QR_PROTOCOL}/core/spatial/0/canvas`, lat: 37.7, lng: -122.4, emoji: '🌌', route: '/mech-spatial-os', desc: 'Infinite canvas programming', zAxis: 0 },
+                { id: 'hub', name: 'Integration Hub', qr: `${QR_PROTOCOL}/core/hub/0/fulcrum`, lat: 51.5, lng: -0.1, emoji: '🔗', route: '/mech-hub', desc: 'MÆCH language fulcrum', zAxis: 0 },
+                { id: 'terminal', name: 'Terminal Browser', qr: `${QR_PROTOCOL}/core/terminal/0/cli`, lat: 35.6, lng: 139.6, emoji: '⌨️', route: '/mech-terminal', desc: 'CLI-first browser', zAxis: 0 },
+                { id: 'notebook', name: 'NOTÆBOOK', qr: `${QR_PROTOCOL}/core/notebook/0/jupyter`, lat: 52.5, lng: 13.4, emoji: '📓', route: '/mech-notebook', desc: 'Territorial programming', zAxis: 0 },
+                { id: 'timeline', name: 'Timeline Engine', qr: `${QR_PROTOCOL}/core/timeline/0/genesis`, lat: 55.7, lng: 37.6, emoji: '⏳', route: '/mech-timeline', desc: 'Z:0 Genesis system', zAxis: 0 },
+                { id: 'qrsql', name: 'QrSQL Database', qr: `${QR_PROTOCOL}/core/qrsql/0/database`, lat: 25.2, lng: 55.3, emoji: '🗃️', route: '/qrsql', desc: '4B layer visual DB', zAxis: 0 },
+                { id: 'latamocw', name: 'LATAM OCW Hub', qr: `${QR_PROTOCOL}/core/latamocw/0/education`, lat: -15.8, lng: -47.9, emoji: '🎓', route: '/mech-latamocw', desc: 'Lutheran mission hub', zAxis: 0 },
+                { id: 'blob', name: 'Blob^MCP', qr: `${QR_PROTOCOL}/core/blob/0/mcp`, lat: 1.3, lng: 103.8, emoji: '🫧', route: '/mech-blob', desc: 'Distributive compute', zAxis: 0 },
+                { id: 'agentic', name: 'Agentic Runtime', qr: `${QR_PROTOCOL}/core/agentic/0/runtime`, lat: -33.9, lng: 18.4, emoji: '🤖', route: '/mech-agentic', desc: '21 absorbed patterns', zAxis: 0 },
+                { id: 'typography', name: 'Typography Engine', qr: `${QR_PROTOCOL}/core/typography/0/firacode`, lat: 41.9, lng: 12.5, emoji: '🔤', route: '/mech-typography', desc: 'FiraCode ligatures', zAxis: 0 }
+            ],
+            education: [
+                { id: 'brazil', name: 'São Paulo Hub', qr: `${QR_PROTOCOL}/latam/br/sp/0/campus`, lat: -23.5, lng: -46.6, emoji: '🇧🇷', route: '/mech-latamocw', desc: 'Brazil flagship', students: 12847, zAxis: 0 },
+                { id: 'mexico', name: 'CDMX Node', qr: `${QR_PROTOCOL}/latam/mx/df/0/node`, lat: 19.4, lng: -99.1, emoji: '🇲🇽', route: '/mech-latamocw', desc: 'Mexico City center', students: 8420, zAxis: 0 },
+                { id: 'argentina', name: 'Buenos Aires', qr: `${QR_PROTOCOL}/latam/ar/ba/0/campus`, lat: -34.6, lng: -58.4, emoji: '🇦🇷', route: '/mech-latamocw', desc: 'Argentina network', students: 6240, zAxis: 0 },
+                { id: 'peru', name: 'Lima Campus', qr: `${QR_PROTOCOL}/latam/pe/li/0/campus`, lat: -12, lng: -77, emoji: '🇵🇪', route: '/mech-latamocw', desc: 'Peru hub', students: 4180, zAxis: 0 },
+                { id: 'colombia', name: 'Bogotá Center', qr: `${QR_PROTOCOL}/latam/co/bo/0/center`, lat: 4.6, lng: -74.1, emoji: '🇨🇴', route: '/mech-latamocw', desc: 'Colombia center', students: 3890, zAxis: 0 },
+                { id: 'chile', name: 'Santiago', qr: `${QR_PROTOCOL}/latam/cl/sc/0/campus`, lat: -33.4, lng: -70.6, emoji: '🇨🇱', route: '/mech-latamocw', desc: 'Chile campus', students: 2670, zAxis: 0 }
+            ],
+            provider: [
+                { id: 'poe', name: 'Poe Platform', qr: `${QR_PROTOCOL}/llm/poe/0/multi`, lat: 37.4, lng: -122.1, emoji: '🦜', route: '/', desc: '100+ models', models: '100+', zAxis: 0 },
+                { id: 'huggingface', name: 'Hugging Face', qr: `${QR_PROTOCOL}/llm/hf/0/hub`, lat: 48.8, lng: 2.3, emoji: '🤗', route: '/', desc: '800K+ models', models: '800K+', zAxis: 0 },
+                { id: 'lmarena', name: 'LM Arena', qr: `${QR_PROTOCOL}/llm/arena/0/benchmark`, lat: 37.8, lng: -122.3, emoji: '🏟️', route: '/', desc: '90+ benchmarked', models: '90+', zAxis: 0 },
+                { id: 'openai', name: 'OpenAI', qr: `${QR_PROTOCOL}/llm/openai/0/gpt`, lat: 37.77, lng: -122.42, emoji: '🧠', route: '/', desc: 'GPT family', models: '10+', zAxis: 0 },
+                { id: 'anthropic', name: 'Anthropic', qr: `${QR_PROTOCOL}/llm/anthropic/0/claude`, lat: 37.78, lng: -122.41, emoji: '🔬', route: '/', desc: 'Claude family', models: '5+', zAxis: 0 },
+                { id: 'google', name: 'Google AI', qr: `${QR_PROTOCOL}/llm/google/0/gemini`, lat: 37.42, lng: -122.08, emoji: '🔷', route: '/', desc: 'Gemini models', models: '8+', zAxis: 0 },
+                { id: 'meta', name: 'Meta AI', qr: `${QR_PROTOCOL}/llm/meta/0/llama`, lat: 37.48, lng: -122.15, emoji: '🌐', route: '/', desc: 'Llama models', models: '12+', zAxis: 0 },
+                { id: 'mistral', name: 'Mistral AI', qr: `${QR_PROTOCOL}/llm/mistral/0/mixtral`, lat: 48.85, lng: 2.35, emoji: '💨', route: '/', desc: 'Mistral models', models: '6+', zAxis: 0 }
+            ],
+            domain: [
+                { id: 'aeae', name: 'æææ.com', qr: `${QR_PROTOCOL}/domain/aeae/0/protocol`, lat: 64.1, lng: -21.9, emoji: '🌀', route: '/', desc: 'MÆCH substrate', zAxis: 0 },
+                { id: 'aelnet', name: 'æl.net', qr: `${QR_PROTOCOL}/domain/aelnet/0/neural`, lat: 60.2, lng: 24.9, emoji: '🌐', route: '/', desc: 'Neural interface', zAxis: 0 },
+                { id: 'neuro', name: 'neuromitosis.com', qr: `${QR_PROTOCOL}/domain/neuro/0/cognitive`, lat: 59.9, lng: 10.7, emoji: '🧬', route: '/', desc: 'Cognitive division', zAxis: 0 },
+                { id: 'private', name: 'privateclient.ai', qr: `${QR_PROTOCOL}/domain/private/0/enterprise`, lat: 55.9, lng: -3.2, emoji: '🔐', route: '/', desc: 'Enterprise gateway', zAxis: 0 },
+                { id: 'iaamano', name: 'iaAmano.com', qr: `${QR_PROTOCOL}/domain/iaamano/0/legal`, lat: 45.4, lng: -75.7, emoji: '✋', route: '/', desc: 'Legal framework', zAxis: 0 },
+                { id: 'daollc', name: 'Daollc.ai', qr: `${QR_PROTOCOL}/domain/daollc/0/data`, lat: 47.6, lng: -122.3, emoji: '🏢', route: '/', desc: 'Data service', zAxis: 0 },
+                { id: 'mech', name: 'mech.dev', qr: `${QR_PROTOCOL}/domain/mech/0/spec`, lat: 52.2, lng: 21.0, emoji: '⚙️', route: '/', desc: 'Language spec', zAxis: 0 },
+                { id: 'qrblob', name: 'qr.blob', qr: `${QR_PROTOCOL}/domain/qrblob/0/storage`, lat: 50.1, lng: 14.4, emoji: '📱', route: '/', desc: 'QR storage', zAxis: 0 }
+            ],
+            files: []
+        };
+
+        let indexedFiles = [];
+
+        async function loadQRIndex() {
+            try {
+                const response = await fetch('/qr-complete-index.json');
+                const data = await response.json();
+                indexedFiles = data.files || [];
+                
+                document.getElementById('total-indexed').textContent = data.totalFiles?.toLocaleString() || '2,899';
+                document.getElementById('tel-files').textContent = data.totalFiles?.toLocaleString() || '2,899';
+                document.getElementById('files-count').textContent = Math.min(indexedFiles.length, 50);
+                
+                const filesHtml = indexedFiles.slice(0, 50).map(file => `
+                    <div class="qr-item" data-qr="${file.qrCode}" data-testid="file-${file.id}">
+                        <div class="qr-item-icon">${file.type === 'ui-component' ? '🎨' : file.type === 'route' ? '🛤️' : '📄'}</div>
+                        <div class="qr-item-info">
+                            <div class="qr-item-name">${file.name}</div>
+                            <div class="qr-item-address">${file.qrCode}</div>
+                        </div>
+                        <div class="qr-item-btn" data-qr="${file.qrCode}" title="Show QR">◫</div>
+                        <div class="qr-item-status file"></div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('files-list').innerHTML = filesHtml;
+                
+                console.log(`📁 Loaded ${indexedFiles.length} indexed files from QR database`);
+            } catch (err) {
+                console.log('📁 QR index not available, using satellite data only');
+            }
+        }
+
+        const map = L.map('map', { zoomControl: false, attributionControl: false }).setView([15, -20], 2);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+        const markers = {};
+
+        function createMarker(type) {
+            return L.divIcon({
+                className: 'custom-marker',
+                html: type === 'origin' 
+                    ? `<div class="marker-qr origin">🏛️</div><div class="origin-ring"></div><div class="origin-ring" style="animation-delay:1s"></div>`
+                    : `<div class="marker-qr ${type}"></div>`,
+                iconSize: type === 'origin' ? [48, 48] : [32, 32],
+                iconAnchor: type === 'origin' ? [24, 24] : [16, 16],
+                popupAnchor: [0, type === 'origin' ? -24 : -16]
+            });
+        }
+
+        function createPopup(item, type) {
+            const stats = item.students ? `<div style="color:var(--gold);font-size:11px;margin-bottom:8px;">${item.students.toLocaleString()} students</div>` 
+                        : item.models ? `<div style="color:var(--pink);font-size:11px;margin-bottom:8px;">${item.models} models</div>` : '';
+            
+            return `
+                <div class="popup-content">
+                    <div class="popup-qr-header">
+                        <div class="popup-qr-code" id="popup-qr-${item.id}"></div>
+                        <div class="popup-qr-info">
+                            <div class="popup-qr-title">${item.emoji} ${item.name}</div>
+                            <div class="popup-qr-address">${item.qr}</div>
+                            <div class="popup-qr-z">Z-Axis: ${item.zAxis}</div>
+                        </div>
+                    </div>
+                    <div class="popup-desc">${item.desc}</div>
+                    ${stats}
+                    <a href="${item.route}" class="popup-btn" data-testid="btn-launch-${item.id}">LAUNCH →</a>
+                </div>
+            `;
+        }
+
+        function addQRMarker(item, type) {
+            const icon = L.divIcon({
+                className: 'custom-marker',
+                html: type === 'origin' 
+                    ? `<div class="marker-qr origin">${item.emoji}</div><div class="origin-ring"></div><div class="origin-ring" style="animation-delay:1s"></div><div class="origin-ring" style="animation-delay:2s"></div>`
+                    : `<div class="marker-qr ${type}">${item.emoji}</div>`,
+                iconSize: type === 'origin' ? [48, 48] : [32, 32],
+                iconAnchor: type === 'origin' ? [24, 24] : [16, 16],
+                popupAnchor: [0, type === 'origin' ? -24 : -16]
+            });
+            
+            const marker = L.marker([item.lat, item.lng], { icon }).addTo(map);
+            marker.bindPopup(createPopup(item, type), { maxWidth: 300 });
+            
+            marker.on('popupopen', () => {
+                setTimeout(() => {
+                    const el = document.getElementById(`popup-qr-${item.id}`);
+                    if (el && typeof QRCode !== 'undefined') {
+                        QRCode.toCanvas(el, item.qr, { width: 56, margin: 0 }).catch(() => {});
+                    }
+                }, 50);
+            });
+
+            if (type !== 'origin') {
+                L.polyline([[0, 0], [item.lat, item.lng]], {
+                    color: type === 'education' ? '#ffaa00' : type === 'provider' ? '#ff00aa' : type === 'domain' ? '#aa00ff' : '#00d4ff',
+                    weight: 1,
+                    opacity: 0.2,
+                    dashArray: '4, 6'
+                }).addTo(map);
+            }
+
+            markers[item.id] = marker;
+        }
+
+        function renderQRItem(item, type) {
+            return `
+                <div class="qr-item" data-id="${item.id}" data-lat="${item.lat}" data-lng="${item.lng}" data-qr="${item.qr}" data-testid="qr-${item.id}">
+                    <div class="qr-item-icon">${item.emoji}</div>
+                    <div class="qr-item-info">
+                        <div class="qr-item-name">${item.name}</div>
+                        <div class="qr-item-address">${item.qr}</div>
+                    </div>
+                    <div class="qr-item-btn" data-qr="${item.qr}" data-name="${item.name}" data-z="${item.zAxis}" title="Show QR">◫</div>
+                    <div class="qr-item-status ${type}"></div>
+                </div>
+            `;
+        }
+
+        function initQRDatabase() {
+            Object.entries(QR_DATABASE).forEach(([type, items]) => {
+                if (type === 'files') return;
+                
+                const listEl = document.getElementById(`${type}-list`);
+                if (listEl && items.length) {
+                    listEl.innerHTML = items.map(item => renderQRItem(item, type)).join('');
+                    items.forEach(item => addQRMarker(item, type));
+                }
+            });
+        }
+
+        document.querySelectorAll('.section-header').forEach(header => {
+            header.addEventListener('click', function() {
+                this.classList.toggle('expanded');
+            });
+        });
+
+        function showQRModal(qr, name, zAxis = 0) {
+            const modal = document.getElementById('qr-modal');
+            document.getElementById('qr-modal-title').textContent = name;
+            document.getElementById('qr-modal-address').textContent = qr;
+            document.getElementById('qr-modal-z').textContent = `Z-Axis: ${zAxis} (Genesis)`;
+            
+            const canvas = document.getElementById('qr-modal-canvas');
+            canvas.innerHTML = '';
+            
+            if (typeof QRCode !== 'undefined') {
+                const qrCanvas = document.createElement('canvas');
+                canvas.appendChild(qrCanvas);
+                QRCode.toCanvas(qrCanvas, qr, { width: 180, margin: 2 }).catch(() => {});
+            }
+            
+            modal.classList.add('active');
+        }
+
+        document.getElementById('qr-modal-close').addEventListener('click', () => {
+            document.getElementById('qr-modal').classList.remove('active');
+        });
+
+        document.getElementById('qr-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'qr-modal') {
+                document.getElementById('qr-modal').classList.remove('active');
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            const qrBtn = e.target.closest('.qr-item-btn');
+            if (qrBtn) {
+                const qr = qrBtn.dataset.qr;
+                const name = qrBtn.dataset.name || qr.split('/').pop();
+                const z = qrBtn.dataset.z || 0;
+                showQRModal(qr, name, z);
+                return;
+            }
+            
+            const qrItem = e.target.closest('.qr-item');
+            if (qrItem && !e.target.closest('.qr-item-btn')) {
+                const lat = parseFloat(qrItem.dataset.lat);
+                const lng = parseFloat(qrItem.dataset.lng);
+                const id = qrItem.dataset.id;
+                const qr = qrItem.dataset.qr;
+                
+                document.querySelectorAll('.qr-item').forEach(i => i.classList.remove('active'));
+                qrItem.classList.add('active');
+                
+                document.querySelector('#current-address .path').textContent = qr.replace('qr://', '');
+                
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    map.flyTo([lat, lng], lat === 0 && lng === 0 ? 3 : 6, { duration: 1 });
+                    if (markers[id]) {
+                        setTimeout(() => markers[id].openPopup(), 1100);
+                    }
+                }
+            }
+        });
+
+        const searchInput = document.getElementById('search-input');
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            
+            if (!query) {
+                document.querySelectorAll('.qr-item').forEach(item => {
+                    item.style.display = 'flex';
+                });
+                document.querySelectorAll('.section-header').forEach(header => {
+                    header.classList.remove('expanded');
+                });
+                return;
+            }
+            
+            document.querySelectorAll('.qr-item').forEach(item => {
+                const name = item.querySelector('.qr-item-name').textContent.toLowerCase();
+                const qr = item.querySelector('.qr-item-address').textContent.toLowerCase();
+                const matches = name.includes(query) || qr.includes(query);
+                item.style.display = matches ? 'flex' : 'none';
+            });
+            
+            document.querySelectorAll('.sidebar-section').forEach(section => {
+                const header = section.querySelector('.section-header');
+                const hasVisible = Array.from(section.querySelectorAll('.qr-item')).some(item => item.style.display !== 'none');
+                if (hasVisible) {
+                    header.classList.add('expanded');
+                } else {
+                    header.classList.remove('expanded');
+                }
+            });
+        });
+
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('sidebar-toggle');
+        
+        toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            toggle.textContent = sidebar.classList.contains('collapsed') ? '▶' : '◀';
+        });
+
+        map.on('zoom', function() {
+            document.getElementById('z-axis').textContent = `Z:${map.getZoom()}`;
+        });
+
+        initQRDatabase();
+        loadQRIndex();
+        
+        console.log('◫ MÆCH Map Native — QR://c3f6q7h Navigator');
+        console.log('🏛️ Origin: qr://c3f6q7h/origin/x0y0z0');
+        console.log(`📡 Nodes: ${Object.values(QR_DATABASE).flat().length}`);
+    </script>
+</body>
+</html>

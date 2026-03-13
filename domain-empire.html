@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#000000">
+  <title>Command Line Internet — Domain Empire | æææ.com</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+    }
+    
+    body {
+      font-family: 'Fira Code', 'SF Mono', monospace;
+      background: #000;
+      color: #00ffaa;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: clamp(20px, 5vw, 40px);
+      padding-top: calc(var(--safe-top) + clamp(20px, 5vw, 40px));
+      padding-bottom: calc(var(--safe-bottom) + clamp(40px, 10vw, 80px));
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: clamp(30px, 8vw, 60px);
+    }
+    
+    .header-title {
+      font-size: clamp(24px, 7vw, 48px);
+      font-weight: bold;
+      background: linear-gradient(135deg, #00ffaa, #ff00aa, #00aaff, #ffaa00);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+    
+    .header-subtitle {
+      font-size: clamp(12px, 3vw, 18px);
+      color: #888;
+    }
+    
+    .philosophy {
+      text-align: center;
+      font-size: clamp(14px, 3.5vw, 20px);
+      color: #ffaa00;
+      margin-bottom: clamp(30px, 8vw, 50px);
+      font-style: italic;
+    }
+    
+    .empire-visual {
+      position: relative;
+      margin-bottom: clamp(40px, 10vw, 80px);
+    }
+    
+    .central-domain {
+      text-align: center;
+      margin-bottom: clamp(30px, 8vw, 50px);
+    }
+    
+    .central-card {
+      display: inline-block;
+      background: linear-gradient(135deg, rgba(0,255,170,0.15), rgba(255,0,170,0.15));
+      border: 3px solid #00ffaa;
+      border-radius: clamp(15px, 4vw, 25px);
+      padding: clamp(25px, 6vw, 45px) clamp(35px, 8vw, 70px);
+      position: relative;
+      animation: pulse-border 3s infinite;
+    }
+    
+    @keyframes pulse-border {
+      0%, 100% { box-shadow: 0 0 30px rgba(0,255,170,0.3); }
+      50% { box-shadow: 0 0 60px rgba(0,255,170,0.6), 0 0 100px rgba(255,0,170,0.3); }
+    }
+    
+    .central-name {
+      font-size: clamp(32px, 10vw, 72px);
+      font-weight: bold;
+      color: #00ffaa;
+      text-shadow: 0 0 30px rgba(0,255,170,0.5);
+    }
+    
+    .central-role {
+      font-size: clamp(12px, 3vw, 18px);
+      color: #ff00aa;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-top: 10px;
+    }
+    
+    .central-desc {
+      font-size: clamp(11px, 2.5vw, 14px);
+      color: #888;
+      margin-top: 8px;
+    }
+    
+    .domain-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(clamp(140px, 40vw, 280px), 1fr));
+      gap: clamp(15px, 4vw, 25px);
+      margin-bottom: clamp(30px, 8vw, 50px);
+    }
+    
+    .domain-card {
+      background: rgba(0, 0, 0, 0.9);
+      border: 2px solid;
+      border-radius: clamp(10px, 3vw, 15px);
+      padding: clamp(15px, 4vw, 25px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .domain-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, currentColor, transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .domain-card:hover::before,
+    .domain-card:active::before {
+      opacity: 1;
+    }
+    
+    .domain-card:hover,
+    .domain-card:active {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 30px currentColor;
+    }
+    
+    .domain-card.philosophy { border-color: #ff00ff; color: #ff00ff; }
+    .domain-card.protocol { border-color: #00ffff; color: #00ffff; }
+    .domain-card.registry { border-color: #00ff00; color: #00ff00; }
+    .domain-card.identity { border-color: #ff8800; color: #ff8800; }
+    .domain-card.shell { border-color: #00aaff; color: #00aaff; }
+    .domain-card.portal { border-color: #ffff00; color: #ffff00; }
+    .domain-card.business { border-color: #ff0066; color: #ff0066; }
+    
+    .domain-icon {
+      font-size: clamp(24px, 6vw, 36px);
+      margin-bottom: 10px;
+    }
+    
+    .domain-name {
+      font-size: clamp(16px, 4vw, 22px);
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    
+    .domain-role {
+      font-size: clamp(10px, 2.5vw, 12px);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.8;
+      margin-bottom: 8px;
+    }
+    
+    .domain-desc {
+      font-size: clamp(11px, 2.5vw, 13px);
+      color: #888;
+      line-height: 1.5;
+    }
+    
+    .domain-tld {
+      position: absolute;
+      top: clamp(10px, 3vw, 15px);
+      right: clamp(10px, 3vw, 15px);
+      font-size: clamp(9px, 2vw, 11px);
+      background: rgba(255,255,255,0.1);
+      padding: 3px 8px;
+      border-radius: 10px;
+      opacity: 0.6;
+    }
+    
+    .connection-section {
+      text-align: center;
+      padding: clamp(30px, 8vw, 50px) 0;
+      border-top: 1px solid rgba(0,255,170,0.2);
+      border-bottom: 1px solid rgba(0,255,170,0.2);
+      margin-bottom: clamp(30px, 8vw, 50px);
+    }
+    
+    .connection-title {
+      font-size: clamp(16px, 4vw, 24px);
+      color: #00ffaa;
+      margin-bottom: 20px;
+    }
+    
+    .connection-diagram {
+      font-size: clamp(11px, 2.5vw, 14px);
+      color: #888;
+      line-height: 2;
+    }
+    
+    .connection-diagram .highlight {
+      color: #00ffaa;
+      font-weight: bold;
+    }
+    
+    .connection-diagram .arrow {
+      color: #ff00aa;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(clamp(100px, 25vw, 150px), 1fr));
+      gap: clamp(15px, 4vw, 25px);
+      text-align: center;
+    }
+    
+    .stat-item {
+      background: rgba(0,255,170,0.05);
+      border: 1px solid rgba(0,255,170,0.2);
+      border-radius: clamp(8px, 2vw, 12px);
+      padding: clamp(15px, 4vw, 25px);
+    }
+    
+    .stat-number {
+      font-size: clamp(28px, 7vw, 42px);
+      font-weight: bold;
+      color: #00ffaa;
+    }
+    
+    .stat-label {
+      font-size: clamp(10px, 2.5vw, 12px);
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 5px;
+    }
+    
+    .footer {
+      text-align: center;
+      padding-top: clamp(30px, 8vw, 50px);
+      border-top: 1px solid rgba(0,255,170,0.2);
+    }
+    
+    .footer-text {
+      font-size: clamp(12px, 3vw, 16px);
+      color: #888;
+    }
+    
+    .footer-text .accent {
+      color: #ff00aa;
+    }
+    
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      padding: clamp(12px, 3vw, 15px) clamp(20px, 5vw, 30px);
+      background: linear-gradient(135deg, rgba(0,255,170,0.1), rgba(255,0,170,0.1));
+      border: 1.5px solid #00ffaa;
+      border-radius: 25px;
+      color: #00ffaa;
+      text-decoration: none;
+      font-size: clamp(12px, 3vw, 14px);
+      transition: all 0.3s;
+    }
+    
+    .back-link:hover,
+    .back-link:active {
+      background: #00ffaa;
+      color: #000;
+      box-shadow: 0 0 30px rgba(0,255,170,0.5);
+    }
+    
+    .qr-badge {
+      position: fixed;
+      bottom: calc(var(--safe-bottom) + 15px);
+      right: calc(var(--safe-right) + 15px);
+      font-size: 10px;
+      color: rgba(0,255,170,0.4);
+      background: rgba(0,0,0,0.8);
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1 class="header-title" data-testid="title">DOMAIN EMPIRE</h1>
+      <p class="header-subtitle">Command Line Internet Infrastructure</p>
+    </header>
+    
+    <div class="philosophy">
+      "Sola Intentione — By Intention Alone"
+    </div>
+    
+    <div class="empire-visual">
+      <div class="central-domain">
+        <div class="central-card" data-testid="central-domain">
+          <div class="central-name">æææ.com</div>
+          <div class="central-role">The Substrate</div>
+          <div class="central-desc">Root of all computation — where everything converges</div>
+        </div>
+      </div>
+      
+      <div class="domain-grid" data-testid="domain-grid">
+        <div class="domain-card philosophy" data-testid="domain-teologia">
+          <span class="domain-tld">.ai</span>
+          <div class="domain-icon">🙏</div>
+          <div class="domain-name">teologia.ai</div>
+          <div class="domain-role">Philosophy Layer</div>
+          <div class="domain-desc">The doctrine of Sola Intentione. The "why" behind the Command Line Internet.</div>
+        </div>
+        
+        <div class="domain-card protocol" data-testid="domain-ael">
+          <span class="domain-tld">.net</span>
+          <div class="domain-icon">🔗</div>
+          <div class="domain-name">æl.net</div>
+          <div class="domain-role">Protocol Layer</div>
+          <div class="domain-desc">ÆL Protocol — the successor to HTTP. Transport layer for intention.</div>
+        </div>
+        
+        <div class="domain-card registry" data-testid="domain-llmstore">
+          <span class="domain-tld">.store</span>
+          <div class="domain-icon">🏪</div>
+          <div class="domain-name">llm.store</div>
+          <div class="domain-role">Model Registry</div>
+          <div class="domain-desc">Large Language Models Store. Universal registry for all AI models and agents.</div>
+        </div>
+        
+        <div class="domain-card identity" data-testid="domain-privateclient">
+          <span class="domain-tld">.ai</span>
+          <div class="domain-icon">🔐</div>
+          <div class="domain-name">PrivateClient.ai</div>
+          <div class="domain-role">Identity Layer</div>
+          <div class="domain-desc">Sovereign identity. Multi-client authentication with cryptographic verification.</div>
+        </div>
+        
+        <div class="domain-card shell" data-testid="domain-commandprompt">
+          <span class="domain-tld">.ai</span>
+          <div class="domain-icon">⌘</div>
+          <div class="domain-name">commandprompt.ai</div>
+          <div class="domain-role">Operator Shell</div>
+          <div class="domain-desc">The interface where intention becomes execution. User-facing computation layer.</div>
+        </div>
+        
+        <div class="domain-card portal" data-testid="domain-yael">
+          <span class="domain-tld">.com</span>
+          <div class="domain-icon">📚</div>
+          <div class="domain-name">yæl.com</div>
+          <div class="domain-role">Developer Portal</div>
+          <div class="domain-desc">Documentation, tutorials, and onboarding. "Why ÆL" explained.</div>
+        </div>
+        
+        <div class="domain-card business" data-testid="domain-daollc">
+          <span class="domain-tld">.ai</span>
+          <div class="domain-icon">🏛️</div>
+          <div class="domain-name">DAOLLC.ai</div>
+          <div class="domain-role">Business Entity</div>
+          <div class="domain-desc">DAO + LLC structure. Legal framework for the Command Line Internet.</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="connection-section">
+      <h2 class="connection-title">Unified Architecture</h2>
+      <div class="connection-diagram">
+        <span class="highlight">llm.store</span> <span class="arrow">→</span> æææ.com/llm-store<br>
+        <span class="highlight">PrivateClient.ai</span> <span class="arrow">→</span> æææ.com/identity<br>
+        <span class="highlight">commandprompt.ai</span> <span class="arrow">→</span> æææ.com/shell<br>
+        <span class="highlight">æl.net</span> <span class="arrow">→</span> æææ.com/protocol<br>
+        <span class="highlight">teologia.ai</span> <span class="arrow">→</span> æææ.com/philosophy<br>
+        <span class="highlight">yæl.com</span> <span class="arrow">→</span> æææ.com/docs<br>
+        <span class="highlight">DAOLLC.ai</span> <span class="arrow">→</span> æææ.com/dao
+      </div>
+    </div>
+    
+    <div class="stats-grid" data-testid="stats-grid">
+      <div class="stat-item">
+        <div class="stat-number">8</div>
+        <div class="stat-label">Domains Owned</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">7</div>
+        <div class="stat-label">Stack Layers</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">1</div>
+        <div class="stat-label">Unified Substrate</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">∞</div>
+        <div class="stat-label">Computation</div>
+      </div>
+    </div>
+    
+    <footer class="footer">
+      <p class="footer-text">
+        All roads lead to <span class="accent">æææ</span>
+      </p>
+      <a href="/cli-4d" class="back-link" data-testid="link-cli4d">← View 4D Prompt Descent</a>
+    </footer>
+  </div>
+  
+  <div class="qr-badge">QR://domains/empire/x₀y₀z₀</div>
+  
+  <script>
+    document.querySelectorAll('.domain-card').forEach(card => {
+      card.addEventListener('click', function() {
+        const name = this.querySelector('.domain-name').textContent;
+        const role = this.querySelector('.domain-role').textContent;
+        
+        if ('vibrate' in navigator) {
+          navigator.vibrate(30);
+        }
+        
+        console.log(`Domain selected: ${name} (${role})`);
+      });
+    });
+    
+    console.log('🏛️ Command Line Internet - Domain Empire');
+    console.log('QR://domains/empire/x₀y₀z₀');
+    console.log('Domains: æææ.com, llm.store, æl.net, yæl.com, commandprompt.ai, PrivateClient.ai, teologia.ai, DAOLLC.ai');
+  </script>
+</body>
+</html>

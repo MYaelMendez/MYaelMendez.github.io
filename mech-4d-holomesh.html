@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#00ffaa">
+    <title>📱🌌 MÆCH 4D HoloMesh - Mobile Territorial Sovereignty</title>
+    <meta name="description" content="Revolutionary 4D spatial programming with time dimension navigation and territorial sovereignty"
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fira Code', 'Courier New', monospace;
+            background: #000;
+            color: #00ffaa;
+            overflow: hidden;
+            position: relative;
+            /* 📱 MOBILE-FIRST 4D OPTIMIZATION */
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            font-size: clamp(12px, 3.5vw, 14px);
+        }
+
+        /* 4D HoloMesh Canvas */
+        #holomesh-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* HUD Overlay */
+        .hud {
+            position: fixed;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .hud > * {
+            pointer-events: auto;
+        }
+
+        /* 📱 MOBILE-FIRST 4D HUD */
+        .hud-top {
+            top: clamp(12px, 3vw, 20px);
+            left: clamp(12px, 3vw, 20px);
+            right: clamp(12px, 3vw, 20px);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: clamp(8px, 2vw, 12px);
+        }
+
+        .hud-info {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ffaa;
+            padding: clamp(10px, 3vw, 15px);
+            border-radius: clamp(8px, 2.5vw, 12px);
+            font-size: clamp(11px, 3vw, 14px);
+            backdrop-filter: blur(15px);
+            /* Mobile 4D HUD optimizations */
+            min-width: clamp(120px, 30vw, 200px);
+            max-width: 90vw;
+        }
+
+        .hud-title {
+            font-size: clamp(16px, 5vw, 24px);
+            font-weight: bold;
+            background: linear-gradient(45deg, #00ffaa, #00aaff, #ff00aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: clamp(6px, 2vw, 10px);
+            line-height: 1.2;
+        }
+
+        /* 📱 MOBILE-FIRST 4D CONTROLS */
+        .controls-panel {
+            position: fixed;
+            bottom: clamp(12px, 3vw, 20px);
+            left: 50%;
+            transform: translateX(-50%);
+            /* Mobile 4D touch optimization */
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #00ffaa;
+            border-radius: clamp(12px, 4vw, 18px);
+            padding: clamp(15px, 4vw, 20px);
+            backdrop-filter: blur(20px);
+            /* Mobile 4D touch panel */
+            max-width: 95vw;
+            box-shadow: 0 8px 32px rgba(0, 255, 170, 0.3);
+            z-index: 200;
+            display: flex;
+            gap: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-label {
+            font-size: 12px;
+            color: #00ff55;
+            text-transform: uppercase;
+        }
+
+        .slider {
+            width: 150px;
+            height: 6px;
+            background: rgba(0, 255, 170, 0.2);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #00ffaa;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #00ffaa;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        .button {
+            background: linear-gradient(45deg, #00ffaa, #00aaff);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 170, 0.5);
+        }
+
+        /* Tabular Code Panel */
+        .tabular-panel {
+            position: fixed;
+            right: 20px;
+            top: 100px;
+            width: 400px;
+            max-height: 60vh;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ff00aa;
+            border-radius: 10px;
+            padding: 15px;
+            z-index: 150;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s;
+        }
+
+        .tabular-panel.collapsed {
+            transform: translateX(420px);
+        }
+
+        .tabular-block {
+            background: rgba(255, 0, 170, 0.1);
+            border: 1px solid #ff00aa;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+
+        .tabular-row {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 10px;
+            margin: 5px 0;
+        }
+
+        .tabular-cell {
+            padding: 5px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #ff00aa;
+        }
+
+        .tabular-cell:first-child {
+            color: #ffaa00;
+            font-weight: bold;
+        }
+
+        /* Node Info Popup */
+        .node-popup {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #00ffaa;
+            border-radius: 10px;
+            padding: 15px;
+            min-width: 200px;
+            z-index: 300;
+            display: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .node-popup.active {
+            display: block;
+        }
+
+        .node-qr {
+            font-family: monospace;
+            color: #ffaa00;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        /* MCP Status */
+        .mcp-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00aaff;
+            border-radius: 10px;
+            padding: 15px;
+            z-index: 150;
+            backdrop-filter: blur(10px);
+        }
+
+        .mcp-indicator {
+            width: 12px;
+            height: 12px;
+            background: #00ff00;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 1s;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-text {
+            font-size: 24px;
+            margin-bottom: 20px;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 10px #00ffaa; }
+            50% { text-shadow: 0 0 20px #00ffaa, 0 0 30px #00ffaa; }
+        }
+
+        .loading-bar {
+            width: 300px;
+            height: 4px;
+            background: rgba(0, 255, 170, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .loading-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #00ffaa, #00aaff, #ff00aa);
+            animation: loading 2s ease-in-out infinite;
+        }
+
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(400%); }
+        }
+
+        /* Territory Grid */
+        .territory-grid {
+            position: fixed;
+            left: 20px;
+            bottom: 150px;
+            display: grid;
+            grid-template-columns: repeat(5, 30px);
+            gap: 5px;
+            z-index: 150;
+        }
+
+        .territory-cell {
+            width: 30px;
+            height: 30px;
+            background: rgba(0, 255, 170, 0.1);
+            border: 1px solid #00ffaa;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .territory-cell:hover {
+            background: rgba(0, 255, 170, 0.3);
+            transform: scale(1.1);
+        }
+
+        .territory-cell.active {
+            background: rgba(0, 255, 170, 0.5);
+            box-shadow: 0 0 10px #00ffaa;
+        }
+
+        .territory-label {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 8px;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-text">Initializing MÆCH 4D HoloMesh...</div>
+        <div class="loading-bar">
+            <div class="loading-progress"></div>
+        </div>
+    </div>
+
+    <!-- Main Canvas -->
+    <canvas id="holomesh-canvas"></canvas>
+
+    <!-- HUD -->
+    <div class="hud hud-top">
+        <div class="hud-info">
+            <div class="hud-title">MÆCH 4D HoloMesh</div>
+            <div>Territory: <span id="currentTerritory">x₀y₀z₀t₀</span></div>
+            <div>Nodes: <span id="nodeCount">0</span></div>
+            <div>Time: <span id="timeCoord">t₀</span></div>
+            <div>FPS: <span id="fps">60</span></div>
+        </div>
+    </div>
+
+    <!-- MCP Status -->
+    <div class="mcp-status">
+        <div><span class="mcp-indicator"></span>MCP Active</div>
+        <div style="font-size: 12px; margin-top: 5px;">Model: mech-agentic-v1</div>
+        <div style="font-size: 12px;">Tabular Acceleration: ON</div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-panel">
+        <div class="control-group">
+            <div class="control-label">Time (T₀)</div>
+            <input type="range" class="slider" id="timeSlider" min="-100" max="300" value="0">
+            <div id="timeValue">0</div>
+        </div>
+        <div class="control-group">
+            <div class="control-label">Zoom</div>
+            <input type="range" class="slider" id="zoomSlider" min="0.5" max="3" step="0.1" value="1">
+            <div id="zoomValue">100%</div>
+        </div>
+        <div class="control-group">
+            <div class="control-label">Rotation Speed</div>
+            <input type="range" class="slider" id="speedSlider" min="0" max="2" step="0.1" value="1">
+        </div>
+        <button class="button" onclick="toggleTabular()">📊 Tabular</button>
+        <button class="button" onclick="resetView()">🔄 Reset</button>
+        <button class="button" onclick="toggleMode()">🌐 Mode</button>
+    </div>
+
+    <!-- Territory Grid -->
+    <div class="territory-grid" id="territoryGrid"></div>
+
+    <!-- Tabular Code Panel -->
+    <div class="tabular-panel" id="tabularPanel">
+        <h3 style="color: #ff00aa; margin-bottom: 10px;">Tabular Code Blocks</h3>
+        <div class="tabular-block">
+            <div class="tabular-row">
+                <div class="tabular-cell">#data</div>
+                <div class="tabular-cell">sensor-grid</div>
+            </div>
+            <div class="tabular-row">
+                <div class="tabular-cell">nodes</div>
+                <div class="tabular-cell">125</div>
+            </div>
+            <div class="tabular-row">
+                <div class="tabular-cell">dimension</div>
+                <div class="tabular-cell">4D</div>
+            </div>
+        </div>
+        <div class="tabular-block">
+            <div class="tabular-row">
+                <div class="tabular-cell">#transform</div>
+                <div class="tabular-cell">normalize</div>
+            </div>
+            <div class="tabular-row">
+                <div class="tabular-cell">input</div>
+                <div class="tabular-cell">sensor-grid</div>
+            </div>
+            <div class="tabular-row">
+                <div class="tabular-cell">output</div>
+                <div class="tabular-cell">mesh-data</div>
+            </div>
+        </div>
+        <div class="tabular-block">
+            <div class="tabular-row">
+                <div class="tabular-cell">#compute</div>
+                <div class="tabular-cell">holomesh</div>
+            </div>
+            <div class="tabular-row">
+                <div class="tabular-cell">algorithm</div>
+                <div class="tabular-cell">stereographic</div>
+            </div>
+            <div class="tabular-row">
+                <div class="tabular-cell">acceleration</div>
+                <div class="tabular-cell">WebGL</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Node Popup -->
+    <div class="node-popup" id="nodePopup">
+        <div class="node-qr" id="nodeQR">QR:X0Y0Z0T0</div>
+        <div>Type: <span id="nodeType">sensor</span></div>
+        <div>Value: <span id="nodeValue">0</span></div>
+        <div>Territory: <span id="nodeTerritory">x₀y₀z₀t₀</span></div>
+    </div>
+
+    <!-- Load MÆCH Interpreter -->
+    <script src="mech-interpreter.js"></script>
+
+    <script>
+        // MÆCH 4D HoloMesh Engine
+        class HoloMesh4D {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.nodes = [];
+                this.edges = [];
+                this.rotation = { x: 0, y: 0, z: 0, w: 0 };
+                this.zoom = 1;
+                this.timeSlice = 0;
+                this.currentTerritory = 'x₀y₀z₀t₀';
+                this.animationSpeed = 1;
+                this.selectedNode = null;
+                this.renderMode = 'wireframe';
+                this.tabularBlocks = [];
+                
+                // Performance tracking
+                this.fps = 60;
+                this.lastTime = performance.now();
+                this.frameCount = 0;
+                
+                this.init();
+            }
+
+            init() {
+                // Resize canvas
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                
+                // Generate 4D mesh
+                this.generateMesh();
+                
+                // Initialize territories
+                this.initTerritories();
+                
+                // Mouse interaction
+                this.canvas.addEventListener('click', (e) => this.handleClick(e));
+                this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+                
+                // Start animation
+                this.animate();
+                
+                // Hide loading screen
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').classList.add('hidden');
+                }, 2000);
+            }
+
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+
+            generateMesh() {
+                const size = 5;
+                const spacing = 100;
+                
+                // Generate 4D grid of nodes
+                for (let x = 0; x < size; x++) {
+                    for (let y = 0; y < size; y++) {
+                        for (let z = 0; z < size; z++) {
+                            for (let t = 0; t < 3; t++) {
+                                const node = {
+                                    id: `node-${x}-${y}-${z}-${t}`,
+                                    x: x * spacing - (size * spacing) / 2,
+                                    y: y * spacing - (size * spacing) / 2,
+                                    z: z * spacing - (size * spacing) / 2,
+                                    w: t * spacing,
+                                    type: ['sensor', 'compute', 'storage', 'network'][Math.floor(Math.random() * 4)],
+                                    value: Math.random() * 100,
+                                    qr: `QR:X${x}Y${y}Z${z}T${t}`,
+                                    territory: `x${x}y${y}z${z}t${t}`,
+                                    color: this.getNodeColor(x, y, z, t)
+                                };
+                                
+                                this.nodes.push(node);
+                                
+                                // Create edges to nearby nodes
+                                if (x > 0) this.edges.push([node.id, `node-${x-1}-${y}-${z}-${t}`]);
+                                if (y > 0) this.edges.push([node.id, `node-${x}-${y-1}-${z}-${t}`]);
+                                if (z > 0) this.edges.push([node.id, `node-${x}-${y}-${z-1}-${t}`]);
+                                if (t > 0) this.edges.push([node.id, `node-${x}-${y}-${z}-${t-1}`]);
+                            }
+                        }
+                    }
+                }
+                
+                // Update node count
+                document.getElementById('nodeCount').textContent = this.nodes.length;
+            }
+
+            getNodeColor(x, y, z, t) {
+                const hue = (x * 60 + y * 120 + z * 180 + t * 240) % 360;
+                return `hsl(${hue}, 100%, 50%)`;
+            }
+
+            project4Dto2D(node) {
+                // Apply 4D rotation
+                let x1 = node.x;
+                let y1 = node.y;
+                let z1 = node.z;
+                let w1 = node.w - this.timeSlice;
+                
+                // Rotate in XY plane
+                const cosX = Math.cos(this.rotation.x);
+                const sinX = Math.sin(this.rotation.x);
+                let x2 = x1 * cosX - y1 * sinX;
+                let y2 = x1 * sinX + y1 * cosX;
+                
+                // Rotate in ZW plane
+                const cosZ = Math.cos(this.rotation.z);
+                const sinZ = Math.sin(this.rotation.z);
+                let z2 = z1 * cosZ - w1 * sinZ;
+                let w2 = z1 * sinZ + w1 * cosZ;
+                
+                // Rotate in XZ plane
+                const cosY = Math.cos(this.rotation.y);
+                const sinY = Math.sin(this.rotation.y);
+                let x3 = x2 * cosY - z2 * sinY;
+                let z3 = x2 * sinY + z2 * cosY;
+                
+                // 4D to 3D stereographic projection
+                const distance = 800;
+                const scale4d = distance / (distance - w2);
+                const x3d = x3 * scale4d;
+                const y3d = y2 * scale4d;
+                const z3d = z3 * scale4d;
+                
+                // 3D to 2D perspective projection
+                const perspective = 500;
+                const scale2d = perspective / (perspective - z3d);
+                const x2d = x3d * scale2d * this.zoom + this.canvas.width / 2;
+                const y2d = y3d * scale2d * this.zoom + this.canvas.height / 2;
+                
+                // Calculate opacity based on time proximity
+                const timeProximity = Math.max(0, 1 - Math.abs(node.w - this.timeSlice) / 200);
+                
+                return {
+                    x: x2d,
+                    y: y2d,
+                    scale: scale2d,
+                    opacity: timeProximity,
+                    depth: z3d
+                };
+            }
+
+            render() {
+                // Clear canvas
+                this.ctx.fillStyle = '#000';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Sort nodes by depth for proper rendering
+                const projectedNodes = this.nodes.map(node => ({
+                    node,
+                    projection: this.project4Dto2D(node)
+                })).sort((a, b) => b.projection.depth - a.projection.depth);
+                
+                // Draw edges
+                this.ctx.strokeStyle = '#00ffaa';
+                this.ctx.lineWidth = 0.5;
+                
+                for (const [fromId, toId] of this.edges) {
+                    const fromNode = this.nodes.find(n => n.id === fromId);
+                    const toNode = this.nodes.find(n => n.id === toId);
+                    
+                    if (fromNode && toNode) {
+                        const proj1 = this.project4Dto2D(fromNode);
+                        const proj2 = this.project4Dto2D(toNode);
+                        
+                        this.ctx.globalAlpha = Math.min(proj1.opacity, proj2.opacity) * 0.3;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(proj1.x, proj1.y);
+                        this.ctx.lineTo(proj2.x, proj2.y);
+                        
+                        // Create gradient for edges
+                        const gradient = this.ctx.createLinearGradient(proj1.x, proj1.y, proj2.x, proj2.y);
+                        gradient.addColorStop(0, fromNode.color);
+                        gradient.addColorStop(1, toNode.color);
+                        this.ctx.strokeStyle = gradient;
+                        this.ctx.stroke();
+                    }
+                }
+                
+                // Draw nodes
+                for (const { node, projection } of projectedNodes) {
+                    this.ctx.globalAlpha = projection.opacity;
+                    
+                    // Node glow effect
+                    const gradient = this.ctx.createRadialGradient(
+                        projection.x, projection.y, 0,
+                        projection.x, projection.y, 10 * projection.scale
+                    );
+                    
+                    if (node === this.selectedNode) {
+                        gradient.addColorStop(0, '#ffaa00');
+                        gradient.addColorStop(1, 'transparent');
+                    } else {
+                        gradient.addColorStop(0, node.color);
+                        gradient.addColorStop(1, 'transparent');
+                    }
+                    
+                    this.ctx.fillStyle = gradient;
+                    this.ctx.beginPath();
+                    this.ctx.arc(projection.x, projection.y, 5 * projection.scale, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    
+                    // Draw QR label for selected node
+                    if (node === this.selectedNode) {
+                        this.ctx.globalAlpha = 1;
+                        this.ctx.fillStyle = '#ffaa00';
+                        this.ctx.font = '12px monospace';
+                        this.ctx.fillText(node.qr, projection.x + 10, projection.y - 10);
+                    }
+                }
+                
+                this.ctx.globalAlpha = 1;
+            }
+
+            animate() {
+                // Update rotation
+                this.rotation.x += 0.005 * this.animationSpeed;
+                this.rotation.y += 0.007 * this.animationSpeed;
+                this.rotation.z += 0.003 * this.animationSpeed;
+                this.rotation.w += 0.002 * this.animationSpeed;
+                
+                // Render
+                this.render();
+                
+                // Calculate FPS
+                this.frameCount++;
+                const currentTime = performance.now();
+                if (currentTime - this.lastTime > 1000) {
+                    this.fps = Math.round(this.frameCount * 1000 / (currentTime - this.lastTime));
+                    document.getElementById('fps').textContent = this.fps;
+                    this.frameCount = 0;
+                    this.lastTime = currentTime;
+                }
+                
+                requestAnimationFrame(() => this.animate());
+            }
+
+            handleClick(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Find clicked node
+                let closestNode = null;
+                let closestDistance = Infinity;
+                
+                for (const node of this.nodes) {
+                    const proj = this.project4Dto2D(node);
+                    const distance = Math.sqrt((x - proj.x) ** 2 + (y - proj.y) ** 2);
+                    
+                    if (distance < 20 * proj.scale && distance < closestDistance && proj.opacity > 0.3) {
+                        closestNode = node;
+                        closestDistance = distance;
+                    }
+                }
+                
+                this.selectedNode = closestNode;
+                
+                if (closestNode) {
+                    this.showNodeInfo(closestNode, x, y);
+                }
+            }
+
+            handleMouseMove(e) {
+                // Update node popup position if visible
+                const popup = document.getElementById('nodePopup');
+                if (popup.classList.contains('active')) {
+                    popup.style.left = e.clientX + 10 + 'px';
+                    popup.style.top = e.clientY + 10 + 'px';
+                }
+            }
+
+            showNodeInfo(node, x, y) {
+                const popup = document.getElementById('nodePopup');
+                document.getElementById('nodeQR').textContent = node.qr;
+                document.getElementById('nodeType').textContent = node.type;
+                document.getElementById('nodeValue').textContent = node.value.toFixed(2);
+                document.getElementById('nodeTerritory').textContent = node.territory;
+                
+                popup.style.left = x + 10 + 'px';
+                popup.style.top = y + 10 + 'px';
+                popup.classList.add('active');
+                
+                setTimeout(() => popup.classList.remove('active'), 3000);
+            }
+
+            initTerritories() {
+                const grid = document.getElementById('territoryGrid');
+                
+                for (let i = 0; i < 25; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'territory-cell';
+                    if (i === 0) cell.classList.add('active');
+                    
+                    const x = i % 5;
+                    const y = Math.floor(i / 5);
+                    const territory = `x${x}y${y}z₀t₀`;
+                    
+                    cell.onclick = () => this.switchTerritory(territory);
+                    grid.appendChild(cell);
+                }
+            }
+
+            switchTerritory(territory) {
+                this.currentTerritory = territory;
+                document.getElementById('currentTerritory').textContent = territory;
+                
+                // Update territory grid
+                const cells = document.querySelectorAll('.territory-cell');
+                cells.forEach(cell => cell.classList.remove('active'));
+                // Mark active cell based on territory
+            }
+
+            setTimeSlice(value) {
+                this.timeSlice = parseFloat(value);
+                document.getElementById('timeCoord').textContent = `t${Math.round(this.timeSlice)}`;
+            }
+
+            setZoom(value) {
+                this.zoom = parseFloat(value);
+                document.getElementById('zoomValue').textContent = Math.round(this.zoom * 100) + '%';
+            }
+
+            setSpeed(value) {
+                this.animationSpeed = parseFloat(value);
+            }
+
+            toggleRenderMode() {
+                const modes = ['wireframe', 'solid', 'points'];
+                const currentIndex = modes.indexOf(this.renderMode);
+                this.renderMode = modes[(currentIndex + 1) % modes.length];
+            }
+        }
+
+        // Initialize HoloMesh
+        let holomesh;
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('holomesh-canvas');
+            holomesh = new HoloMesh4D(canvas);
+            
+            // Connect controls
+            document.getElementById('timeSlider').addEventListener('input', (e) => {
+                holomesh.setTimeSlice(e.target.value);
+                document.getElementById('timeValue').textContent = e.target.value;
+            });
+            
+            document.getElementById('zoomSlider').addEventListener('input', (e) => {
+                holomesh.setZoom(e.target.value);
+            });
+            
+            document.getElementById('speedSlider').addEventListener('input', (e) => {
+                holomesh.setSpeed(e.target.value);
+            });
+        });
+
+        // Control functions
+        function toggleTabular() {
+            const panel = document.getElementById('tabularPanel');
+            panel.classList.toggle('collapsed');
+        }
+
+        function resetView() {
+            holomesh.rotation = { x: 0, y: 0, z: 0, w: 0 };
+            holomesh.zoom = 1;
+            holomesh.timeSlice = 0;
+            document.getElementById('timeSlider').value = 0;
+            document.getElementById('zoomSlider').value = 1;
+            document.getElementById('speedSlider').value = 1;
+        }
+
+        function toggleMode() {
+            holomesh.toggleRenderMode();
+        }
+    </script>
+</body>
+</html>

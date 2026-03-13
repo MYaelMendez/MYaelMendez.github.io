@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rust Territory Tables | MÆCH Interactive Practice</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Fira Code', 'Courier New', monospace;
+      background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+      color: #00ff88;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .territory-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 30px 20px;
+      background: linear-gradient(90deg, rgba(0,255,136,0.2), rgba(255,107,0,0.2));
+      border-radius: 20px;
+      margin-bottom: 40px;
+      border: 2px solid #00ff88;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      text-shadow: 0 0 20px rgba(0,255,136,0.5);
+    }
+
+    .header .subtitle {
+      font-size: 1.3rem;
+      color: #ff6b00;
+    }
+
+    /* Territory Grid */
+    .territory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+
+    .territory-card {
+      background: rgba(0,0,0,0.4);
+      border: 2px solid;
+      border-radius: 15px;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+
+    .territory-card.struct {
+      border-color: #00ff88;
+    }
+
+    .territory-card.function {
+      border-color: #ff6b00;
+    }
+
+    .territory-card.enum {
+      border-color: #00bfff;
+    }
+
+    .territory-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,255,136,0.3);
+    }
+
+    .territory-header {
+      padding: 20px;
+      background: rgba(0,255,136,0.1);
+      border-bottom: 2px solid;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .struct .territory-header {
+      border-bottom-color: #00ff88;
+    }
+
+    .function .territory-header {
+      border-bottom-color: #ff6b00;
+      background: rgba(255,107,0,0.1);
+    }
+
+    .enum .territory-header {
+      border-bottom-color: #00bfff;
+      background: rgba(0,191,255,0.1);
+    }
+
+    .territory-title {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .territory-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .struct .territory-icon {
+      background: #00ff88;
+      color: #000;
+    }
+
+    .function .territory-icon {
+      background: #ff6b00;
+      color: #fff;
+    }
+
+    .enum .territory-icon {
+      background: #00bfff;
+      color: #fff;
+    }
+
+    .qr-badge {
+      background: rgba(255,255,255,0.1);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      border: 1px solid;
+    }
+
+    .struct .qr-badge {
+      border-color: #00ff88;
+      color: #00ff88;
+    }
+
+    .function .qr-badge {
+      border-color: #ff6b00;
+      color: #ff6b00;
+    }
+
+    .enum .qr-badge {
+      border-color: #00bfff;
+      color: #00bfff;
+    }
+
+    /* Table Content */
+    .territory-table {
+      padding: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 2px solid;
+      font-size: 1.1rem;
+    }
+
+    .struct th {
+      border-bottom-color: #00ff88;
+      color: #00ff88;
+    }
+
+    .function th {
+      border-bottom-color: #ff6b00;
+      color: #ff6b00;
+    }
+
+    .enum th {
+      border-bottom-color: #00bfff;
+      color: #00bfff;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    td input {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(0,255,136,0.3);
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: #00ff88;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.95rem;
+      width: 100%;
+    }
+
+    td input:focus {
+      outline: none;
+      border-color: #00ff88;
+      box-shadow: 0 0 10px rgba(0,255,136,0.3);
+    }
+
+    /* Action Bar */
+    .territory-actions {
+      padding: 20px;
+      background: rgba(0,0,0,0.3);
+      border-top: 2px solid;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .struct .territory-actions {
+      border-top-color: #00ff88;
+    }
+
+    .function .territory-actions {
+      border-top-color: #ff6b00;
+    }
+
+    .enum .territory-actions {
+      border-top-color: #00bfff;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: 2px solid;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.95rem;
+      font-weight: bold;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      border-color: #00ff88;
+      color: #00ff88;
+    }
+
+    .btn-primary:hover {
+      background: #00ff88;
+      color: #000;
+    }
+
+    .btn-secondary {
+      border-color: #ff6b00;
+      color: #ff6b00;
+    }
+
+    .btn-secondary:hover {
+      background: #ff6b00;
+      color: #fff;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Code Output */
+    .code-output {
+      background: #000;
+      border: 2px solid #00ff88;
+      border-radius: 12px;
+      padding: 25px;
+      margin-top: 30px;
+      font-family: 'Fira Code', monospace;
+      white-space: pre;
+      overflow-x: auto;
+      line-height: 1.8;
+      font-size: 1rem;
+    }
+
+    .code-output.rust {
+      border-color: #ff6b00;
+      color: #ff6b00;
+    }
+
+    .code-output.mech {
+      border-color: #00ff88;
+      color: #00ff88;
+    }
+
+    /* Add Row Button */
+    .add-row-btn {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      border: 2px dashed;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.95rem;
+      transition: all 0.3s;
+    }
+
+    .struct .add-row-btn {
+      border-color: #00ff88;
+      color: #00ff88;
+    }
+
+    .function .add-row-btn {
+      border-color: #ff6b00;
+      color: #ff6b00;
+    }
+
+    .enum .add-row-btn {
+      border-color: #00bfff;
+      color: #00bfff;
+    }
+
+    .add-row-btn:hover {
+      background: rgba(0,255,136,0.1);
+    }
+
+    /* Status */
+    .status-bar {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.9);
+      border: 2px solid #00ff88;
+      border-radius: 10px;
+      padding: 15px 20px;
+      z-index: 1000;
+      min-width: 250px;
+    }
+
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+
+    .status-value {
+      color: #00ff88;
+      font-weight: bold;
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .territory-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header h1 {
+        font-size: 1.8rem;
+      }
+
+      .status-bar {
+        position: static;
+        margin-bottom: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="territory-container">
+    <!-- Header -->
+    <div class="header">
+      <h1 data-testid="title-territory">🗺️ Rust Territory Tables</h1>
+      <div class="subtitle" data-testid="subtitle-territory">LAYER 2: Interactive Practice - Build & Compile Rust</div>
+    </div>
+
+    <!-- Territory Grid -->
+    <div class="territory-grid" data-testid="territory-grid">
+      
+      <!-- Struct Territory -->
+      <div class="territory-card struct" data-testid="territory-struct">
+        <div class="territory-header">
+          <div class="territory-title">
+            <div class="territory-icon">📦</div>
+            <span>Struct Territory</span>
+          </div>
+          <div class="qr-badge">QR://rust.territory/struct/x₀y₀z₀</div>
+        </div>
+        
+        <div class="territory-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Field Name</th>
+                <th>Type</th>
+                <th>Icon</th>
+              </tr>
+            </thead>
+            <tbody id="struct-fields">
+              <tr>
+                <td><input type="text" value="name" data-testid="struct-field-name-0" /></td>
+                <td><input type="text" value="String" data-testid="struct-field-type-0" /></td>
+                <td>📝</td>
+              </tr>
+              <tr>
+                <td><input type="text" value="age" data-testid="struct-field-name-1" /></td>
+                <td><input type="text" value="u32" data-testid="struct-field-type-1" /></td>
+                <td>🔢</td>
+              </tr>
+            </tbody>
+          </table>
+          <button class="add-row-btn" onclick="addStructField()" data-testid="add-struct-field">+ Add Field</button>
+        </div>
+        
+        <div class="territory-actions">
+          <button class="btn btn-primary" onclick="compileStruct()" data-testid="compile-struct">
+            🦀 Generate Rust
+          </button>
+          <button class="btn btn-secondary" onclick="translateStructToMech()" data-testid="translate-struct-mech">
+            💚 To MÆCH
+          </button>
+        </div>
+      </div>
+
+      <!-- Function Territory -->
+      <div class="territory-card function" data-testid="territory-function">
+        <div class="territory-header">
+          <div class="territory-title">
+            <div class="territory-icon">⚡</div>
+            <span>Function Territory</span>
+          </div>
+          <div class="qr-badge">QR://rust.territory/fn/x₀y₀z₀</div>
+        </div>
+        
+        <div class="territory-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Icon</th>
+              </tr>
+            </thead>
+            <tbody id="fn-params">
+              <tr>
+                <td><input type="text" value="x" data-testid="fn-param-name-0" /></td>
+                <td><input type="text" value="i32" data-testid="fn-param-type-0" /></td>
+                <td>🔢</td>
+              </tr>
+              <tr>
+                <td><input type="text" value="y" data-testid="fn-param-name-1" /></td>
+                <td><input type="text" value="i32" data-testid="fn-param-type-1" /></td>
+                <td>🔢</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="margin-top: 15px;">
+            <label style="display: block; margin-bottom: 8px; color: #ff6b00;">Return Type:</label>
+            <input type="text" value="i32" id="fn-return" data-testid="fn-return-type" style="width: 100%;" />
+          </div>
+          <button class="add-row-btn" onclick="addFunctionParam()" data-testid="add-fn-param">+ Add Parameter</button>
+        </div>
+        
+        <div class="territory-actions">
+          <button class="btn btn-primary" onclick="compileFunction()" data-testid="compile-function">
+            🦀 Generate Rust
+          </button>
+          <button class="btn btn-secondary" onclick="translateFunctionToMech()" data-testid="translate-fn-mech">
+            💚 To MÆCH
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Code Output -->
+    <div class="code-output rust" id="rust-output" data-testid="rust-output" style="display: none;"></div>
+    <div class="code-output mech" id="mech-output" data-testid="mech-output" style="display: none;"></div>
+
+    <!-- Status Bar -->
+    <div class="status-bar" data-testid="status-bar">
+      <div class="status-item">
+        <span>Active Territory:</span>
+        <span class="status-value" id="active-territory" data-testid="active-territory">None</span>
+      </div>
+      <div class="status-item">
+        <span>Territories Created:</span>
+        <span class="status-value" id="territories-count" data-testid="territories-count">0</span>
+      </div>
+      <div class="status-item">
+        <span>QR Layer:</span>
+        <span class="status-value">rust.territory</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let territoriesCount = 0;
+
+    // Add struct field
+    function addStructField() {
+      const tbody = document.getElementById('struct-fields');
+      const row = tbody.insertRow();
+      const index = tbody.rows.length - 1;
+      row.innerHTML = `
+        <td><input type="text" placeholder="field_name" data-testid="struct-field-name-${index}" /></td>
+        <td><input type="text" placeholder="Type" data-testid="struct-field-type-${index}" /></td>
+        <td>📌</td>
+      `;
+    }
+
+    // Add function parameter
+    function addFunctionParam() {
+      const tbody = document.getElementById('fn-params');
+      const row = tbody.insertRow();
+      const index = tbody.rows.length - 1;
+      row.innerHTML = `
+        <td><input type="text" placeholder="param_name" data-testid="fn-param-name-${index}" /></td>
+        <td><input type="text" placeholder="Type" data-testid="fn-param-type-${index}" /></td>
+        <td>📌</td>
+      `;
+    }
+
+    // Compile struct to Rust
+    function compileStruct() {
+      const fields = [];
+      const rows = document.getElementById('struct-fields').rows;
+      
+      for (let row of rows) {
+        const name = row.cells[0].querySelector('input').value;
+        const type = row.cells[1].querySelector('input').value;
+        if (name && type) {
+          fields.push(`    pub ${name}: ${type}`);
+        }
+      }
+
+      const structName = 'MyStruct';
+      const rustCode = `struct ${structName} {\n${fields.join(',\n')}\n}\n\nimpl ${structName} {\n    pub fn new() -> Self {\n        Self {\n${fields.map(f => {
+          const name = f.match(/pub (\w+):/)[1];
+          return `            ${name}: Default::default()`;
+        }).join(',\n')}\n        }\n    }\n}`;
+
+      showOutput('rust', rustCode);
+      updateStatus('Struct', territoriesCount + 1);
+    }
+
+    // Compile function to Rust
+    function compileFunction() {
+      const params = [];
+      const rows = document.getElementById('fn-params').rows;
+      
+      for (let row of rows) {
+        const name = row.cells[0].querySelector('input').value;
+        const type = row.cells[1].querySelector('input').value;
+        if (name && type) {
+          params.push(`${name}: ${type}`);
+        }
+      }
+
+      const returnType = document.getElementById('fn-return').value;
+      const fnName = 'my_function';
+      const rustCode = `fn ${fnName}(${params.join(', ')}) -> ${returnType} {\n    // Function body\n    todo!()\n}`;
+
+      showOutput('rust', rustCode);
+      updateStatus('Function', territoriesCount + 1);
+    }
+
+    // Translate struct to MÆCH
+    async function translateStructToMech() {
+      const fields = [];
+      const rows = document.getElementById('struct-fields').rows;
+      
+      for (let row of rows) {
+        const name = row.cells[0].querySelector('input').value;
+        const type = row.cells[1].querySelector('input').value;
+        if (name && type) {
+          fields.push(`    pub ${name}: ${type}`);
+        }
+      }
+
+      const rustCode = `struct MyStruct {\n${fields.join(',\n')}\n}`;
+
+      try {
+        const response = await fetch('/api/mech-rust-translator/rust-to-mech', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            rust_code: rustCode, 
+            preserve_qr: true,
+            tabular_format: true 
+          })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          showOutput('mech', result.data.translated_code);
+        }
+      } catch (error) {
+        console.error('Translation error:', error);
+      }
+    }
+
+    // Translate function to MÆCH
+    async function translateFunctionToMech() {
+      const params = [];
+      const rows = document.getElementById('fn-params').rows;
+      
+      for (let row of rows) {
+        const name = row.cells[0].querySelector('input').value;
+        const type = row.cells[1].querySelector('input').value;
+        if (name && type) {
+          params.push(`${name}: ${type}`);
+        }
+      }
+
+      const returnType = document.getElementById('fn-return').value;
+      const rustCode = `fn my_function(${params.join(', ')}) -> ${returnType} { }`;
+
+      try {
+        const response = await fetch('/api/mech-rust-translator/rust-to-mech', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            rust_code: rustCode, 
+            preserve_qr: true,
+            tabular_format: true 
+          })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          showOutput('mech', result.data.translated_code);
+        }
+      } catch (error) {
+        console.error('Translation error:', error);
+      }
+    }
+
+    // Show output
+    function showOutput(type, code) {
+      const rustOutput = document.getElementById('rust-output');
+      const mechOutput = document.getElementById('mech-output');
+
+      if (type === 'rust') {
+        rustOutput.textContent = code;
+        rustOutput.style.display = 'block';
+        mechOutput.style.display = 'none';
+      } else {
+        mechOutput.textContent = code;
+        mechOutput.style.display = 'block';
+        rustOutput.style.display = 'none';
+      }
+    }
+
+    // Update status
+    function updateStatus(territory, count) {
+      territoriesCount = count;
+      document.getElementById('active-territory').textContent = territory;
+      document.getElementById('territories-count').textContent = count;
+    }
+
+    console.log('🗺️ Rust Territory Tables initialized!');
+    console.log('QR://rust.territory/x₀y₀z₀');
+  </script>
+</body>
+</html>

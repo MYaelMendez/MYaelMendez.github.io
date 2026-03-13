@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>æææ:/// MECH-OS</title>
+    <style>
+        :root {
+            /* METALLIC GRAYSCALE PALETTE */
+            --bg-color: #080808;
+            --metal-dark: #1a1a1a;
+            --metal-mid: #333333;
+            --metal-light: #555555;
+            --metal-highlight: #888888;
+
+            /* Keep Neon for Data Contrast */
+            --primary-color: #00ffea;
+            --secondary-color: #ff9d00;
+            --dim-color: #003b36;
+
+            --grid-color: rgba(100, 100, 100, 0.1);
+            --scanline-color: rgba(0, 0, 0, 0.5);
+            --font-main: 'Courier New', Courier, monospace;
+
+            /* TYPOGRAPHY EVOLUTION STACK (MÆCH v4.1) */
+            --font-foundation: 'Courier New', monospace;
+            --font-transition: 'SF Mono', monospace;
+            --font-enhancement: 'Fira Code', monospace;
+            --font-revolutionary: 'MÆCH Typography', 'Fira Code', monospace;
+
+            --font-current: var(--font-foundation);
+            --transition-speed: 0.8s;
+        }
+
+        @font-face {
+            font-family: 'MÆCH Typography';
+            src: local('Fira Code');
+            /* Fallback to Fira Code for ligatures */
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            font-family: var(--font-main);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* --- CRT / SCANLINE EFFECTS --- */
+        #crt-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            animation: flicker 0.15s infinite;
+        }
+
+        @keyframes flicker {
+            0% {
+                opacity: 0.95;
+            }
+
+            50% {
+                opacity: 0.85;
+            }
+
+            100% {
+                opacity: 0.95;
+            }
+        }
+
+        /* --- BACKGROUND GRID --- */
+        #bg-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 200%;
+            background-image:
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            perspective: 500px;
+            transform: perspective(500px) rotateX(20deg) translateY(-50px) translateZ(-100px);
+            opacity: 0.3;
+            z-index: 0;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% {
+                transform: perspective(500px) rotateX(20deg) translateY(0) translateZ(-100px);
+            }
+
+            100% {
+                transform: perspective(500px) rotateX(20deg) translateY(40px) translateZ(-100px);
+            }
+        }
+
+        /* --- BOOT SCREEN --- */
+        #boot-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 50px;
+            font-size: 1.2rem;
+        }
+
+        .boot-line {
+            opacity: 0;
+            margin-bottom: 5px;
+            text-shadow: 0 0 5px var(--primary-color);
+        }
+
+        /* --- DESKTOP --- */
+        #desktop {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            padding: 40px;
+            z-index: 10;
+            display: none;
+            /* Hidden until boot finishes */
+        }
+
+        #top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            /* Dark Metal Header */
+            background: linear-gradient(to bottom, #2a2a2a, #000);
+            border-bottom: 2px solid var(--metal-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+            z-index: 50;
+        }
+
+        .window {
+            position: absolute;
+            /* METALLIC BODY: Dark Grayscale Gradient */
+            background: linear-gradient(135deg, var(--metal-mid) 0%, var(--metal-dark) 100%);
+            border: 1px solid var(--metal-light);
+            color: var(--primary-color);
+            min-width: 300px;
+            min-height: 200px;
+            /* White/Silver Glow instead of Cyan */
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            /* Sci-fi corners */
+            clip-path: polygon(10px 0, 100% 0,
+                    100% calc(100% - 10px), calc(100% - 10px) 100%,
+                    0 100%, 0 10px);
+            z-index: 10;
+            transition: font-family var(--transition-speed) ease-in-out;
+        }
+
+        .window-header {
+            /* BRUSHED METAL HEADER */
+            background: linear-gradient(to right, var(--metal-dark), var(--metal-light), var(--metal-dark));
+            padding: 5px 10px;
+            cursor: grab;
+            border-bottom: 1px solid var(--metal-highlight);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-shadow: 0 1px 2px black;
+        }
+
+        .window-header:active {
+            cursor: grabbing;
+        }
+
+        .window-title {
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .window-content {
+            padding: 15px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-top: 10px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--primary-color);
+            color: var(--bg-color);
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        .text-warning {
+            color: var(--secondary-color);
+        }
+
+        .blink {
+            animation: blinker 1s linear infinite;
+        }
+
+        @keyframes blinker {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* --- BOTTOM TICKER --- */
+        #bottom-ticker {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            background: var(--dim-color);
+            border-top: 1px solid var(--primary-color);
+            white-space: nowrap;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            z-index: 90;
+            font-size: 0.8rem;
+        }
+
+        #ticker-track {
+            display: inline-block;
+            white-space: nowrap;
+            animation: tickerMove 30s linear infinite;
+        }
+
+        .ticker-item {
+            display: inline-block;
+            padding: 0 20px;
+        }
+
+        @keyframes tickerMove {
+            0% {
+                transform: translateX(100vw);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        /* --- SIDE RAILS --- */
+        .rail-container {
+            position: absolute;
+            top: 60px;
+            /* Below top bar */
+            bottom: 40px;
+            /* Above ticker */
+            width: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 80;
+        }
+
+        #rail-left {
+            left: 0;
+            border-right: 1px solid rgba(0, 255, 234, 0.3);
+        }
+
+        #rail-right {
+            right: 0;
+            border-left: 1px solid rgba(0, 255, 234, 0.3);
+        }
+
+        .rail-segment {
+            width: 10px;
+            height: 6px;
+            background: rgba(0, 255, 234, 0.1);
+            margin: 2px 0;
+            transition: background 0.1s, box-shadow 0.1s;
+        }
+
+        .rail-segment.active {
+            background: var(--primary-color);
+            box-shadow: 0 0 5px var(--primary-color);
+        }
+
+        /* --- CLOCK --- */
+        #clock {
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px var(--primary-color);
+        }
+
+        /* --- RESPONSIVE / BURNER PHONE OPTIMIZATION --- */
+        @media (max-width: 768px) {
+
+            /* Stack windows vertically */
+            .window {
+                position: relative !important;
+                top: auto !important;
+                left: auto !important;
+                width: 100% !important;
+                margin-bottom: 15px;
+                height: auto;
+            }
+
+            /* Container for stacked layout */
+            body {
+                display: flex;
+                flex-direction: column;
+                padding-top: 60px;
+                /* Space for top bar */
+                overflow-y: auto;
+            }
+
+            /* Adjust Top Bar */
+            #top-bar {
+                font-size: 0.8rem;
+                padding: 10px;
+            }
+
+            /* Adjust Rails */
+            #left-rail,
+            #right-rail {
+                display: none;
+                /* Hide rails on small screens */
+            }
+
+            /* Touch Optimized Targets */
+            .window-controls {
+                font-size: 1.2rem;
+                padding: 10px;
+            }
+
+            .btn {
+                padding: 12px 20px;
+                /* Larger touch target */
+                width: 100%;
+                margin-bottom: 5px;
+            }
+
+            /* Combinator Window Height */
+            #combinator-list,
+            #protocol-root-list {
+                height: 150px;
+                /* Reduce fixed height */
+            }
+
+            #boot-screen {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="crt-overlay"></div>
+    <div id="bg-grid"></div>
+
+    <!-- BOOT SEQUENCE -->
+    <div id="boot-screen">
+        <div class="boot-line">> INITIALIZING MÆCH KERNEL...</div>
+        <div class="boot-line">> LOADING [| "MODULES", "MEM", "CPU", "NET" |]</div>
+        <div class="boot-line text-warning">> WARNING: UNSECURED CONNECTION DETECTED</div>
+        <div class="boot-line">> CONNECTING TO TRIPLE-ASHE PROCOTOL (æææ:///) ... SUCCESS</div>
+        <div class="boot-line">> USER: YAELM... ACCESS GRANTED</div>
+        <div class="boot-line">> STARTING MECH-OS GUI...</div>
+    </div>
+
+    <!-- MAIN DESKTOP -->
+    <div id="desktop">
+
+        <!-- LEFT RAIL -->
+        <div id="rail-left" class="rail-container">
+            <!-- Segments injected by JS -->
+        </div>
+
+        <!-- RIGHT RAIL -->
+        <div id="rail-right" class="rail-container">
+            <!-- Segments injected by JS -->
+        </div>
+
+        <div id="top-bar">
+            <div>æææ:/// MECH-OS // SYSTEMS ONLINE</div>
+            <div id="clock">00:00:00</div>
+        </div>
+
+        <!-- Draggable Window 1 -->
+        <div class="window" style="top: 100px; left: 100px; width: 400px;">
+            <div class="window-header">
+                <span class="window-title">SYSTEM_STATUS</span>
+                <span class="window-controls">[x]</span>
+            </div>
+            <div class="window-content">
+                <p>CPU_LOAD: <span id="cpu-load">12</span>%</p>
+                <p>MEM_USAGE: <span id="mem-load">456</span> MB</p>
+                <div style="width: 100%; height: 10px; border: 1px solid var(--primary-color); margin-top: 5px;">
+                    <div id="load-bar" style="width: 12%; height: 100%; background: var(--primary-color);"></div>
+                </div>
+                <p class="text-warning blink" style="margin-top: 20px;">>> SYSTEM OPTIMAL</p>
+
+                <button class="btn" onclick="randomizeStatus()">REFRESH_DATA</button>
+            </div>
+        </div>
+
+        <!-- Draggable Window 2 -->
+        <div class="window" style="top: 200px; left: 600px; width: 350px;">
+            <div class="window-header">
+                <span class="window-title">COMM_LOGS</span>
+                <span class="window-controls">[x]</span>
+            </div>
+            <div class="window-content">
+                <div id="logs" style="height: 150px; overflow-y: auto; overflow-x: hidden; font-size: 0.85rem;">
+                    <div>[| "BOOT", "SYSTEM_READY", "QR://sys/boot/0" |]</div>
+                    <div>[| "NET", "ESTABLISHED", "QR://net/link/0" |]</div>
+                </div>
+                <div style="position: relative; margin-top: 10px; border-bottom: 1px solid var(--primary-color);">
+                    <span
+                        style="position: absolute; left: 5px; top: 50%; transform: translateY(-50%); color: var(--primary-color); font-weight: bold;">æææ:///</span>
+                    <input type="text" id="cmd-input" placeholder="ENTER ADDRESS..."
+                        style="width: 100%; background: transparent; border: none; color: var(--primary-color); font-family: inherit; font-size: 1rem; padding: 5px 5px 5px 70px; outline: none;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Draggable Window 3: MODEL COMBINATOR -->
+        <div class="window" style="top: 150px; left: 50px; width: 500px; z-index: 15;">
+            <div class="window-header">
+                <span class="window-title">MODEL_COMBINATOR</span>
+                <span class="window-controls">[x]</span>
+            </div>
+            <div class="window-content">
+                <div style="margin-bottom: 10px; border-bottom: 1px solid var(--primary-color); padding-bottom: 5px;">
+                    [| "MODEL", "SPECS", "STATUS", "QR_ADDR" |]
+                </div>
+                <div id="combinator-list" style="height: 200px; overflow-y: auto; font-size: 0.85rem;">
+                    <!-- Populated by JS -->
+                </div>
+                <div style="margin-top: 10px; display: flex; gap: 10px;">
+                    <button class="btn"
+                        onclick="addLog('[| &quot;SYS&quot;, &quot;COMBINING_MODELS...&quot;, &quot;QR://proc/mix/active&quot; |]')">INITIATE_FUSION</button>
+                    <button class="btn" onclick="renderCombinatorData()">REFRESH_FEED</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Draggable Window 4: æææ:/// PROTOCOL ROOT -->
+        <div class="window" style="top: 50px; left: 600px; width: 450px; z-index: 10;">
+            <div class="window-header">
+                <span class="window-title">æææ:/// ROOT_ENDPOINT</span>
+                <span class="window-controls">[x]</span>
+            </div>
+            <div class="window-content">
+                <div style="margin-bottom: 10px; border-bottom: 1px solid var(--primary-color);">
+                    [| "DOMAIN", "MODULE", "STATUS", "DIMENSION" |]
+                </div>
+                <div id="protocol-root-list" style="height: 250px; overflow-y: auto; font-size: 0.85rem;">
+                    <!-- Populated by JS -->
+                </div>
+                <div style="margin-top: 10px; font-size: 0.7rem; color: #0ff;">
+                    >> UNIFIED_SUBSTRATE: ACTIVE<br>
+                    >> PDS: SOVEREIGN<br>
+                    >> ENDPOINT: <a href="https://æ.store"
+                        style="color:#0ff; text-decoration:none;">https://æ.store</a><br>
+                    >> SUBSTRATE_LINK: æææ:///origin
+                </div>
+            </div>
+        </div>
+
+        <!-- Draggable Window 5: GOOGLE LIVE MCP -->
+        <div id="google-window" class="window"
+            style="top: 150px; left: 250px; width: 500px; z-index: 10; display: none; border: 1px solid #0f9d58; box-shadow: 0 0 15px rgba(15, 157, 88, 0.3);">
+            <div class="window-header" style="background: rgba(0, 51, 17, 0.9); border-bottom: 1px solid #0f9d58;">
+                <span class="window-title" style="color: #0f9d58;">GOOGLE_LIVE_MCP</span>
+                <span class="window-controls" onclick="this.parentElement.parentElement.style.display='none'"
+                    style="cursor:pointer">[x]</span>
+            </div>
+            <div class="window-content">
+                <div
+                    style="margin-bottom: 10px; border-bottom: 1px solid #0f9d58; padding-bottom: 5px; color: #0f9d58;">
+                    [| "SOURCE", "DATA_STREAM", "STATUS", "QR_REF" |]
+                </div>
+                <div id="google-live-list" style="height: 180px; overflow-y: auto; font-size: 0.85rem; color: #0f9d58;">
+                    <!-- Populated by JS -->
+                </div>
+                <div style="margin-top: 10px; display: flex; gap: 10px;">
+                    <button class="btn" style="border-color: #0f9d58; color: #0f9d58;"
+                        onclick="addLog('[| &quot;GOOG&quot;, &quot;GROUNDING_REQ&quot;, &quot;QR://maps/locate&quot; |]')">LOCATE</button>
+                    <button class="btn" style="border-color: #0f9d58; color: #0f9d58;"
+                        onclick="addLog('[| &quot;GOOG&quot;, &quot;SEARCH_INDEX&quot;, &quot;QR://search/new&quot; |]')">INDEX_BLOB</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Draggable Window 6: VISUAL ROBOT MCP -->
+        <div id="robot-window" class="window"
+            style="top: 250px; left: 450px; width: 400px; z-index: 12; display: none;">
+            <div class="window-header">
+                <span class="window-title">VISUAL_ROBOT_MCP</span>
+                <span class="window-controls" onclick="this.parentElement.parentElement.style.display='none'"
+                    style="cursor:pointer">[x]</span>
+            </div>
+            <div class="window-content">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.8rem;">
+                    <span>[| POS: <span id="robot-pos">X:0 Y:0</span> |]</span>
+                    <span>[| BAT: <span id="robot-bat">100%</span> |]</span>
+                </div>
+                <div
+                    style="background: #000; border: 1px solid var(--metal-light); width: 100%; height: 200px; position: relative; overflow: hidden;">
+                    <canvas id="robot-canvas" width="370" height="198" style="width: 100%; height: 100%;"></canvas>
+                </div>
+                <div style="margin-top: 10px; display: flex; gap: 10px;">
+                    <button class="btn" onclick="executeRobotPath()">EXECUTE_PATH</button>
+                    <button class="btn" style="color: var(--secondary-color); border-color: var(--secondary-color);"
+                        onclick="scramRobot()">SCRAM</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Draggable Window 7: SPATIAL_GATEWAY (MÆCH 4D) -->
+        <div id="spatial-window" class="window"
+            style="top: 50px; left: 150px; width: 800px; height: 500px; z-index: 25; display: none; border: 1px solid var(--secondary-color);">
+            <div class="window-header"
+                style="background: linear-gradient(to right, #000, var(--secondary-color), #000);">
+                <span class="window-title">SPATIAL_GATEWAY :: 4D_CORE</span>
+                <span class="window-controls" onclick="this.parentElement.parentElement.style.display='none'"
+                    style="cursor:pointer">[x]</span>
+            </div>
+            <div class="window-content" style="padding: 0; height: calc(100% - 30px); overflow: hidden;">
+                <iframe id="spatial-frame" src="about:blank"
+                    style="width: 100%; height: 100%; border: none; background: #000;"></iframe>
+            </div>
+        </div>
+
+        <!-- BOTTOM TICKER -->
+        <div id="bottom-ticker">
+            <div id="ticker-track">
+                <span class="ticker-item">SYSTEM_STATUS: NOMINAL</span>
+                <span class="ticker-item">NET_LATENCY: 12ms</span>
+                <span class="ticker-item">ENCRYPTION: AES-4096 [ACTIVE]</span>
+                <span class="ticker-item text-warning">WARNING: EXTERNAL SCAN DETECTED SECTOR 7</span>
+                <span class="ticker-item">CPU_TEMP: 45C</span>
+                <span class="ticker-item">MEM_INTEGRITY: 100%</span>
+                <span class="ticker-item">UPTIME: 99.999%</span>
+                <span class="ticker-item" style="color: var(--primary-color);">[| Æ.STORE: ONLINE |]</span>
+                <span class="ticker-item" style="color: var(--primary-color);">[| TYPOGRAPHY_SVR: ACTIVE |]</span>
+                <!-- Duplicate for seamless loop effect -->
+                <span class="ticker-item">SYSTEM_STATUS: NOMINAL</span>
+                <span class="ticker-item">NET_LATENCY: 12ms</span>
+                <span class="ticker-item">ENCRYPTION: AES-4096 [ACTIVE]</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        /* --- CLOCK --- */
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+            document.getElementById('clock').innerText = timeString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        /* --- BOOT SEQUENCE --- */
+        const bootLines = document.querySelectorAll('.boot-line');
+        const bootScreen = document.getElementById('boot-screen');
+        const desktop = document.getElementById('desktop');
+
+        let delay = 300;
+        bootLines.forEach((line, index) => {
+            setTimeout(() => {
+                line.style.opacity = 1;
+            }, delay);
+            delay += Math.floor(Math.random() * 800) + 200;
+        });
+
+        setTimeout(() => {
+            bootScreen.style.opacity = '0';
+            setTimeout(() => {
+                bootScreen.style.display = 'none';
+                desktop.style.display = 'block';
+                // Trigger an initial "open" animation for desktop
+                desktop.style.opacity = 0;
+                let fade = 0;
+                const fader = setInterval(() => {
+                    fade += 0.1;
+                    desktop.style.opacity = fade;
+                    if (fade >= 1) clearInterval(fader);
+                }, 50);
+            }, 1000);
+        }, delay + 1000);
+
+        /* --- DRAGGABLE WINDOWS --- */
+        let draggedElement = null;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        document.querySelectorAll('.window-header').forEach(header => {
+            header.addEventListener('mousedown', (e) => {
+                draggedElement = header.parentElement;
+                const rect = draggedElement.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+
+                // Bring to front
+                document.querySelectorAll('.window').forEach(w => w.style.zIndex = 10);
+                draggedElement.style.zIndex = 20;
+            });
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (draggedElement) {
+                draggedElement.style.left = (e.clientX - offsetX) + 'px';
+                draggedElement.style.top = (e.clientY - offsetY) + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            draggedElement = null;
+        });
+
+        /* --- SIMULATION UTILS --- */
+        function randomizeStatus() {
+            const cpu = Math.floor(Math.random() * 100);
+            const mem = Math.floor(Math.random() * 16000);
+            document.getElementById('cpu-load').innerText = cpu;
+            document.getElementById('mem-load').innerText = mem;
+            document.getElementById('load-bar').style.width = cpu + '%';
+
+            const qr = `QR://sys/stats/${Date.now().toString().slice(-4)}`;
+            addLog(`[| "STATS", "CPU:${cpu}%", "${qr}" |]`);
+        }
+
+        setInterval(randomizeStatus, 5000);
+
+        /* --- COMMAND INPUT --- */
+        const cmdInput = document.getElementById('cmd-input');
+        const logsDiv = document.getElementById('logs');
+
+        function addLog(text) {
+            // const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            // MÆCH style logs might not need duplication of time if it's in the data, but let's keep it simple
+            const div = document.createElement('div');
+            // Check if text already has brackets, if not wrap it (for manual commands)
+            if (!text.startsWith('[')) {
+                text = `[| "LOG", "${text}" |]`;
+            }
+            div.innerText = text;
+            logsDiv.appendChild(div);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+
+        cmdInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const val = cmdInput.value.trim();
+                if (val) {
+                    addLog(`[| "CMD", "> ${val}" |]`);
+                    if (val.toUpperCase() === 'CLEAR') {
+                        logsDiv.innerHTML = '';
+                        addLog('Logs cleared.');
+                    } else if (val.toUpperCase() === 'REBOOT') {
+                        location.reload();
+                    } else if (val.toUpperCase().startsWith('COMBINE')) {
+                        addLog(`[| "SYS", "COMBINATOR_ACTIVE", "QR://module/combinator" |]`);
+                    } else {
+                        // Echo as if it's a MÆCH response
+                        setTimeout(() => {
+                            addLog(`[| "RES", "UNKNOWN_CMD", "QR://err/404" |]`);
+                        }, 200);
+                    }
+                    cmdInput.value = '';
+                }
+            }
+        });
+
+        /* --- RAILS ANIMATION --- */
+        const railLeft = document.getElementById('rail-left');
+        const railRight = document.getElementById('rail-right');
+        const segmentCount = 40;
+
+        function createRail(container) {
+            for (let i = 0; i < segmentCount; i++) {
+                const seg = document.createElement('div');
+                seg.className = 'rail-segment';
+                container.appendChild(seg);
+            }
+        }
+
+        createRail(railLeft);
+        createRail(railRight);
+
+        function animateRails() {
+            const leftSegs = railLeft.children;
+            const rightSegs = railRight.children;
+
+            // Random equalizer effect for left
+            for (let i = 0; i < segmentCount; i++) {
+                if (Math.random() > 0.8) {
+                    leftSegs[i].classList.toggle('active');
+                }
+            }
+
+            // Traveling pulse for right
+            for (let i = 0; i < segmentCount; i++) {
+                if (Math.random() > 0.9) {
+                    rightSegs[i].classList.add('active');
+                    setTimeout(() => rightSegs[i].classList.remove('active'), 200);
+                }
+            }
+        }
+
+        setInterval(animateRails, 100);
+
+        /* --- COMBINATOR DATA --- */
+        const combinatorData = [
+            { model: "Mistral Large 3", specs: "675B MoE", status: "RELEASED", qr: "mistral/l3" },
+            { model: "DeepSeek V3", specs: "671B MoE", status: "TRENDING", qr: "deepseek/v3" },
+            { model: "Qwen 2.5", specs: "72B Dense", status: "ACTIVE", qr: "qwen/2.5" },
+            { model: "Kimi K2", specs: "Thinking", status: "NEW", qr: "kimi/k2" },
+            { model: "GPT-4o", specs: "Omni", status: "ONLINE", qr: "openai/4o" },
+            { model: "Claude 3.5", specs: "Sonnet", status: "OPTIMAL", qr: "anthropic/s35" }
+        ];
+
+        function renderCombinatorData() {
+            const list = document.getElementById('combinator-list');
+            list.innerHTML = '';
+            combinatorData.forEach(item => {
+                const row = document.createElement('div');
+                row.style.marginBottom = '4px';
+                row.style.whiteSpace = 'nowrap';
+                // MÆCH Tabular Format
+                row.innerText = `[| "${item.model}", "${item.specs}", "${item.status}", "QR://${item.qr}" |]`;
+                list.appendChild(row);
+            });
+        }
+
+        // Initial render
+        renderCombinatorData();
+
+        /* --- GOOGLE LIVE MCP --- */
+        const googleLiveData = [
+            { type: "MAPS", data: "LAT: 37.7749 / LON: -122.4194", status: "GROUNDED", qr: "google/maps/sf" },
+            { type: "SEARCH", data: "QUERY: 'MÆCH OS docs'", status: "INDEXING", qr: "google/search/q1" },
+            { type: "LIVE", data: "TRAFFIC: CONGESTED <SECTOR_7>", status: "REALTIME", qr: "google/traffic/s7" },
+            { type: "GEMINI", data: "CTX: 'User preference: Dark Mode'", status: "LEARNING", qr: "google/gemini/mem" }
+        ];
+
+        function renderGoogleLive() {
+            const list = document.getElementById('google-live-list');
+            list.innerHTML = '';
+            googleLiveData.forEach(item => {
+                const row = document.createElement('div');
+                row.style.marginBottom = '6px';
+                row.style.whiteSpace = 'nowrap';
+                row.style.fontFamily = "'Courier New', monospace";
+                row.innerHTML = `<span style="color:#0f0;">[| "${item.type}", "${item.data}", "${item.status}", "${item.qr}" |]</span>`;
+                list.appendChild(row);
+            });
+
+            // Simulate "Live" updates
+            setInterval(() => {
+                const list = document.getElementById('google-live-list');
+                if (!list) return;
+                const rows = list.children;
+                if (rows.length === 0) return;
+
+                const randIdx = Math.floor(Math.random() * rows.length);
+                if (rows[randIdx]) {
+                    rows[randIdx].style.color = '#fff'; // Flash white
+                    rows[randIdx].style.textShadow = '0 0 8px #fff';
+                    setTimeout(() => {
+                        rows[randIdx].style.color = '#0f9d58'; // Return to green
+                        rows[randIdx].style.textShadow = 'none';
+                    }, 300);
+                }
+            }, 1200);
+        }
+
+        function openGoogleWindow() {
+            const win = document.getElementById('google-window');
+            if (win) {
+                win.style.display = 'block';
+                win.style.top = '150px';
+                win.style.left = '300px';
+                // Bring to front
+                document.querySelectorAll('.window').forEach(w => w.style.zIndex = 10);
+                win.style.zIndex = 30;
+                renderGoogleLive();
+                addLog(`[| "SYS", "GOOGLE_MCP_INIT", "QR://google/live" |]`);
+            }
+        }
+
+        /* --- VISUAL ROBOT MCP --- */
+        let robotCtx = null;
+        let robotX = 50;
+        let robotY = 50;
+        let robotPath = [];
+        let robotInterval = null;
+
+        function initRobotCanvas() {
+            const canvas = document.getElementById('robot-canvas');
+            if (canvas) {
+                // Adjust for high DPI if needed, but simple for now
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                robotCtx = canvas.getContext('2d');
+                drawRobot();
+            }
+        }
+
+        function drawRobot() {
+            if (!robotCtx) return;
+            const w = robotCtx.canvas.width;
+            const h = robotCtx.canvas.height;
+            robotCtx.clearRect(0, 0, w, h);
+
+            // Grid
+            robotCtx.strokeStyle = '#333';
+            robotCtx.lineWidth = 1;
+            for (let x = 0; x < w; x += 20) {
+                robotCtx.beginPath(); robotCtx.moveTo(x, 0); robotCtx.lineTo(x, h); robotCtx.stroke();
+            }
+            for (let y = 0; y < h; y += 20) {
+                robotCtx.beginPath(); robotCtx.moveTo(0, y); robotCtx.lineTo(w, y); robotCtx.stroke();
+            }
+
+            // Path
+            if (robotPath.length > 0) {
+                robotCtx.strokeStyle = 'var(--primary-color)';
+                robotCtx.lineWidth = 2;
+                robotCtx.beginPath();
+                robotCtx.moveTo(robotPath[0].x, robotPath[0].y);
+                for (let i = 1; i < robotPath.length; i++) {
+                    robotCtx.lineTo(robotPath[i].x, robotPath[i].y);
+                }
+                robotCtx.stroke();
+            }
+
+            // Robot
+            robotCtx.fillStyle = '#ff0000'; // Red dot for visibility
+            robotCtx.beginPath();
+            robotCtx.arc(robotX, robotY, 5, 0, Math.PI * 2);
+            robotCtx.fill();
+
+            // HUD
+            robotCtx.fillStyle = 'var(--primary-color)';
+            robotCtx.font = '10px Courier New';
+            robotCtx.fillText(`TGT: ${robotPath.length > 0 ? 'ACTIVE' : 'IDLE'}`, 10, h - 10);
+        }
+
+        function executeRobotPath() {
+            if (robotInterval) return; // Already running
+            addLog('[| "ROBOT", "EXECISING_PATH_PLAN", "QR://robot/move" |]');
+
+            // Generate random path
+            robotPath = [{ x: robotX, y: robotY }];
+            for (let i = 0; i < 5; i++) {
+                robotPath.push({
+                    x: Math.random() * 300 + 20,
+                    y: Math.random() * 150 + 20
+                });
+            }
+
+            let pathIndex = 0;
+            robotInterval = setInterval(() => {
+                if (pathIndex >= robotPath.length) {
+                    clearInterval(robotInterval);
+                    robotInterval = null;
+                    addLog('[| "ROBOT", "TARGET_REACHED", "STATUS:OK" |]');
+                    return;
+                }
+
+                const target = robotPath[pathIndex];
+                const dx = target.x - robotX;
+                const dy = target.y - robotY;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < 5) {
+                    pathIndex++;
+                } else {
+                    robotX += (dx / dist) * 5;
+                    robotY += (dy / dist) * 5;
+                }
+
+                // Update Info
+                document.getElementById('robot-pos').innerText = `X:${Math.floor(robotX)} Y:${Math.floor(robotY)}`;
+                document.getElementById('robot-bat').innerText = `${Math.floor(90 + Math.random() * 10)}%`;
+
+                drawRobot();
+            }, 50);
+        }
+
+        function scramRobot() {
+            if (robotInterval) {
+                clearInterval(robotInterval);
+                robotInterval = null;
+                addLog('[| "ROBOT", "EMERGENCY_STOP", "SCRAM_TRIGGERED" |]');
+                robotCtx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+                robotCtx.fillRect(0, 0, robotCtx.canvas.width, robotCtx.canvas.height);
+            }
+        }
+
+        function openRobotWindow() {
+            const win = document.getElementById('robot-window');
+            if (win) {
+                win.style.display = 'block';
+                // Bring to front
+                document.querySelectorAll('.window').forEach(w => w.style.zIndex = 10);
+                win.style.zIndex = 50;
+
+                // Initialize canvas after visible
+                setTimeout(initRobotCanvas, 100);
+                addLog(`[| "SYS", "VISUAL_ROBOT_INIT", "QR://mcp/robotics" |]`);
+            }
+        }
+
+        function openSpatialWindow() {
+            const win = document.getElementById('spatial-window');
+            const frame = document.getElementById('spatial-frame');
+            if (win && frame) {
+                win.style.display = 'block';
+                if (frame.src === 'about:blank' || frame.src.endsWith('about:blank')) {
+                    frame.src = '/mech-spatial-os';
+                }
+                // Bring to front
+                document.querySelectorAll('.window').forEach(w => w.style.zIndex = 10);
+                win.style.zIndex = 60;
+                addLog(`[| "SYS", "SPATIAL_GATEWAY_INIT", "QR://mcp/spatial" |]`);
+            }
+        }
+        const protocolRegistry = [
+            { id: 'core', name: 'MÆCH Core', type: 'COMPUTE', status: 'ACTIVE', qr: 'æææ:///mcp/core' },
+            { id: 'robotics', name: 'Visual Robot', type: 'SPATIAL', status: 'ACTIVE', qr: 'æææ:///mcp/robotics' },
+            { id: 'social', name: 'MCP Social', type: 'AGENTIC', status: 'PARTNER', qr: 'æææ:///mcp/social' },
+            { id: 'blob', name: 'Blob Browser', type: 'COMMERCE', status: 'ACTIVE', qr: 'æææ:///mcp/blob' },
+            { id: 'edu', name: 'ÆL.NET Edu', type: 'EDUCATION', status: 'LIVE', qr: 'æææ:///mcp/education' },
+            { id: 'agentic', name: 'Agent Dominance', type: 'AGENTIC', status: 'ACTIVE', qr: 'æææ:///mcp/agentic' },
+            { id: 'android', name: 'Android Kernel', type: 'AGENTIC', status: 'RESTRICTED', qr: 'æææ:///mcp/android' },
+            { id: 'google', name: 'Google MCP', type: 'INTEGRATION', status: 'ACTIVE', qr: 'æææ:///mcp/google' },
+            { id: 'spatial', name: 'Spatial 4D', type: 'MOBILITY', status: 'REVOLUTIONARY', qr: 'æææ:///mcp/spatial' }
+        ];
+
+        function renderProtocolRoot() {
+            const list = document.getElementById('protocol-root-list');
+            list.innerHTML = '';
+            protocolRegistry.forEach(item => {
+                const row = document.createElement('div');
+                row.style.marginBottom = '4px';
+                row.style.whiteSpace = 'nowrap';
+                row.style.cursor = 'pointer';
+                row.className = 'hover-highlight';
+                row.onclick = () => {
+                    const cmd = item.qr;
+                    addLog(`[| "NAV", "RESOLVING...", "${cmd}" |]`);
+                    document.getElementById('cmd-input').value = cmd;
+                    if (cmd.includes('google')) {
+                        openGoogleWindow();
+                    } else if (cmd.includes('robotics')) {
+                        openRobotWindow();
+                    } else if (cmd.includes('spatial')) {
+                        openSpatialWindow();
+                    }
+                };
+                // Highlight Google item
+                if (item.id === 'google') {
+                    row.style.color = '#0f9d58';
+                    row.style.fontWeight = 'bold';
+                }
+                row.innerText = `[| "${item.id}", "${item.name}", "${item.status}", "#${item.type}" |]`;
+                list.appendChild(row);
+            });
+        }
+
+        renderProtocolRoot();
+
+        /* --- TYPOGRAPHY EVOLUTION (MÆCH v4.1) --- */
+        const fontStack = [
+            'var(--font-foundation)',
+            'var(--font-transition)',
+            'var(--font-enhancement)',
+            'var(--font-revolutionary)'
+        ];
+        let currentFontIndex = 0;
+
+        function evolveTypography() {
+            currentFontIndex = (currentFontIndex + 1) % fontStack.length;
+            document.documentElement.style.setProperty('--font-current', fontStack[currentFontIndex]);
+            document.body.style.fontFamily = fontStack[currentFontIndex];
+
+            const fontNames = ['MONOSPACE', 'TRANSITION', 'ENHANCEMENT', 'REVOLUTIONARY'];
+            addLog(`[| "SYS", "TYPOGRAPHY_EVOLVED", "${fontNames[currentFontIndex]}" |]`);
+
+            // Update ticker or HUD if needed
+            const tickerItem = document.querySelector('.ticker-item[style*="var(--primary-color)"]');
+            if (tickerItem) {
+                tickerItem.innerText = `[| TYPOGRAPHY_LVL: ${fontNames[currentFontIndex]} |]`;
+            }
+        }
+
+        // Auto-evolve every 10 seconds or via command
+        setInterval(evolveTypography, 30000);
+
+        /* --- 4D SPATIAL SYNC --- */
+        let spatialCoords = { x: 0, y: 0, z: 0, t: 0 };
+
+        function syncSpatialState() {
+            // Fetch latest from local API
+            fetch('/api/spatial/init')
+                .then(res => res.json())
+                .then(data => {
+                    addLog(`[| "SYNC", "SPATIAL_GATEWAY", "VER:${data.version}" |]`);
+                })
+                .catch(err => console.error('Spatial sync failed', err));
+        }
+
+        setTimeout(syncSpatialState, 2000);
+
+        // Enhance command input to handle typography
+        const originalInputHandler = cmdInput.onkeypress;
+        cmdInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const val = cmdInput.value.trim().toUpperCase();
+                if (val === 'EVOLVE') {
+                    evolveTypography();
+                    cmdInput.value = '';
+                    e.stopImmediatePropagation();
+                } else if (val === 'SPATIAL') {
+                    openSpatialWindow();
+                    cmdInput.value = '';
+                    e.stopImmediatePropagation();
+                }
+            }
+        });
+
+    </script>
+</body>
+
+</html>

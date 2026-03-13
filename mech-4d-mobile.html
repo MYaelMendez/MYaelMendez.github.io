@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#00ffaa">
+    <title>📱🌌 MÆCH Mobile 4D - x₀y₀z₀t₀ Navigation</title>
+    <meta name="description" content="Revolutionary mobile 4D spatial programming with time dimension and territorial sovereignty">
+    
+    <style>
+        :root {
+            --4d-primary: #00ffaa;
+            --4d-secondary: #00aaff;
+            --4d-accent: #ff00aa;
+            --4d-time: #ffaa00;
+            --4d-territorial: #aa00ff;
+            --4d-background: #0a0a0a;
+            --4d-surface: #1a1a1a;
+            --4d-text: #ffffff;
+            --gradient-4d: linear-gradient(135deg, var(--4d-primary), var(--4d-secondary), var(--4d-accent));
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background: var(--4d-background);
+            color: var(--4d-text);
+            min-height: 100vh;
+            overflow: hidden;
+            /* 📱 MOBILE-FIRST 4D OPTIMIZATION */
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            font-size: clamp(12px, 3.5vw, 14px);
+            position: relative;
+        }
+
+        /* 📱 4D MOBILE CANVAS */
+        .mobile-4d-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: radial-gradient(circle at center, #000011, #000000);
+            overflow: hidden;
+        }
+
+        .canvas-4d {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, 
+                transparent 0%, 
+                rgba(0, 255, 170, 0.03) 25%, 
+                transparent 50%, 
+                rgba(0, 170, 255, 0.03) 75%, 
+                transparent 100%);
+            animation: dimensional-shift 20s linear infinite;
+        }
+
+        @keyframes dimensional-shift {
+            0% { background-position: 0% 0%; }
+            25% { background-position: 100% 0%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+
+        /* 📱 MOBILE 4D HUD SYSTEM */
+        .hud-mobile-4d {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: clamp(60px, 15vw, 80px);
+            background: linear-gradient(135deg, 
+                rgba(0, 255, 170, 0.9), 
+                rgba(0, 170, 255, 0.9));
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 clamp(12px, 4vw, 20px);
+            z-index: 1000;
+            border-bottom: 2px solid var(--4d-primary);
+            box-shadow: 0 4px 20px rgba(0, 255, 170, 0.3);
+        }
+
+        .hud-title-4d {
+            font-size: clamp(16px, 5vw, 22px);
+            font-weight: bold;
+            color: #000;
+            display: flex;
+            align-items: center;
+            gap: clamp(8px, 2vw, 12px);
+        }
+
+        .coordinates-display {
+            font-size: clamp(10px, 2.5vw, 12px);
+            background: rgba(0, 0, 0, 0.7);
+            padding: clamp(6px, 1.5vw, 8px) clamp(10px, 3vw, 12px);
+            border-radius: clamp(6px, 2vw, 8px);
+            color: var(--4d-primary);
+            font-family: 'Fira Code', monospace;
+            border: 1px solid var(--4d-primary);
+        }
+
+        /* 📱 4D COORDINATE SYSTEM */
+        .coordinate-grid {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: clamp(300px, 80vw, 400px);
+            height: clamp(300px, 80vw, 400px);
+            perspective: 1000px;
+            z-index: 10;
+        }
+
+        .axis-4d {
+            position: absolute;
+            transform-style: preserve-3d;
+            animation: rotate-4d 30s linear infinite;
+        }
+
+        @keyframes rotate-4d {
+            0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            25% { transform: rotateX(90deg) rotateY(45deg) rotateZ(15deg); }
+            50% { transform: rotateX(180deg) rotateY(90deg) rotateZ(30deg); }
+            75% { transform: rotateX(270deg) rotateY(135deg) rotateZ(45deg); }
+            100% { transform: rotateX(360deg) rotateY(180deg) rotateZ(60deg); }
+        }
+
+        .axis-line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, var(--4d-primary), transparent);
+            height: 2px;
+            width: 200px;
+            top: 50%;
+            left: 50%;
+            transform-origin: left center;
+        }
+
+        .axis-x { 
+            background: linear-gradient(90deg, transparent, #ff0055, transparent);
+            transform: translate(-50%, -50%) rotateZ(0deg);
+        }
+        .axis-y { 
+            background: linear-gradient(90deg, transparent, #00ff55, transparent);
+            transform: translate(-50%, -50%) rotateZ(90deg);
+        }
+        .axis-z { 
+            background: linear-gradient(90deg, transparent, #5500ff, transparent);
+            transform: translate(-50%, -50%) rotateX(90deg);
+        }
+        .axis-t { 
+            background: linear-gradient(90deg, transparent, #ffaa00, transparent);
+            transform: translate(-50%, -50%) rotateY(90deg);
+            animation: time-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes time-pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        /* 📱 MOBILE TOUCH CONTROLS */
+        .touch-controls-4d {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 2px solid var(--4d-primary);
+            padding: clamp(16px, 5vw, 24px);
+            z-index: 1000;
+        }
+
+        .control-sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(16px, 4vw, 20px);
+            margin-bottom: clamp(16px, 4vw, 20px);
+        }
+
+        .control-section {
+            text-align: center;
+        }
+
+        .section-label {
+            font-size: clamp(12px, 3vw, 14px);
+            color: var(--4d-primary);
+            margin-bottom: clamp(8px, 2vw, 12px);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .coordinate-controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: clamp(8px, 2vw, 12px);
+        }
+
+        .coord-button {
+            background: var(--gradient-4d);
+            border: none;
+            color: #000;
+            padding: clamp(12px, 4vw, 16px);
+            border-radius: clamp(8px, 2.5vw, 12px);
+            font-size: clamp(12px, 3.5vw, 14px);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.25s ease-out;
+            /* Mobile touch optimization */
+            min-height: 48px;
+            touch-action: manipulation;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .coord-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 20px rgba(0, 255, 170, 0.6);
+        }
+
+        .coord-button.x-axis { background: linear-gradient(135deg, #ff0055, #ff3377); }
+        .coord-button.y-axis { background: linear-gradient(135deg, #00ff55, #33ff77); }
+        .coord-button.z-axis { background: linear-gradient(135deg, #5500ff, #7733ff); }
+        .coord-button.t-axis { 
+            background: linear-gradient(135deg, #ffaa00, #ffcc33);
+            animation: time-button-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes time-button-glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 170, 0, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(255, 170, 0, 0.7); }
+        }
+
+        /* 📱 4D NAVIGATION JOYSTICK */
+        .joystick-4d {
+            position: relative;
+            width: clamp(100px, 25vw, 130px);
+            height: clamp(100px, 25vw, 130px);
+            background: radial-gradient(circle, rgba(0, 255, 170, 0.1), rgba(0, 170, 255, 0.1));
+            border: 3px solid var(--4d-primary);
+            border-radius: 50%;
+            margin: 0 auto clamp(16px, 4vw, 20px);
+            cursor: grab;
+            touch-action: none;
+        }
+
+        .joystick-4d:active {
+            cursor: grabbing;
+        }
+
+        .joystick-handle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: clamp(30px, 8vw, 40px);
+            height: clamp(30px, 8vw, 40px);
+            background: var(--gradient-4d);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid #000;
+            box-shadow: 0 4px 15px rgba(0, 255, 170, 0.5);
+            transition: all 0.1s ease-out;
+        }
+
+        /* 📱 4D STATUS INDICATORS */
+        .status-indicators {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: clamp(8px, 2vw, 12px);
+            margin-bottom: clamp(12px, 3vw, 16px);
+        }
+
+        .status-indicator {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--4d-primary);
+            border-radius: clamp(6px, 2vw, 8px);
+            padding: clamp(8px, 2.5vw, 12px);
+            text-align: center;
+        }
+
+        .status-value {
+            font-size: clamp(14px, 4vw, 18px);
+            font-weight: bold;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .status-label {
+            font-size: clamp(8px, 2vw, 10px);
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .x-value { color: #ff0055; }
+        .y-value { color: #00ff55; }
+        .z-value { color: #5500ff; }
+        .t-value { color: #ffaa00; animation: time-value-pulse 2s infinite; }
+
+        @keyframes time-value-pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        /* 📱 4D ACTION BUTTONS */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(10px, 3vw, 14px);
+        }
+
+        .action-btn {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid var(--4d-accent);
+            color: var(--4d-accent);
+            padding: clamp(12px, 4vw, 16px);
+            border-radius: clamp(8px, 2.5vw, 12px);
+            font-size: clamp(11px, 3vw, 13px);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.25s ease-out;
+            /* Mobile optimization */
+            min-height: 48px;
+            touch-action: manipulation;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .action-btn:active {
+            background: rgba(255, 0, 170, 0.2);
+            border-color: var(--4d-primary);
+            color: var(--4d-primary);
+            transform: scale(0.95);
+        }
+
+        /* 📱 4D TERRITORIAL SOVEREIGNTY OVERLAY */
+        .territorial-overlay {
+            position: absolute;
+            top: clamp(80px, 20vw, 100px);
+            right: clamp(12px, 3vw, 20px);
+            background: rgba(170, 0, 255, 0.9);
+            border: 2px solid var(--4d-territorial);
+            border-radius: clamp(10px, 3vw, 14px);
+            padding: clamp(12px, 4vw, 16px);
+            font-size: clamp(10px, 2.5vw, 12px);
+            z-index: 500;
+            backdrop-filter: blur(15px);
+            animation: territorial-pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes territorial-pulse {
+            0%, 100% { 
+                border-color: var(--4d-territorial); 
+                box-shadow: 0 0 10px rgba(170, 0, 255, 0.3); 
+            }
+            50% { 
+                border-color: var(--4d-primary); 
+                box-shadow: 0 0 20px rgba(0, 255, 170, 0.5); 
+            }
+        }
+
+        .sovereignty-title {
+            font-weight: bold;
+            margin-bottom: clamp(6px, 2vw, 8px);
+            color: var(--4d-primary);
+        }
+
+        .sovereignty-coords {
+            font-family: 'Fira Code', monospace;
+            color: white;
+            line-height: 1.3;
+        }
+
+        /* 📱 MOBILE RESPONSIVE OPTIMIZATIONS */
+        @media (max-width: 480px) {
+            .control-sections {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .coordinate-controls {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 6px;
+            }
+            
+            .status-indicators {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+        }
+
+        /* 📱 LANDSCAPE OPTIMIZATIONS */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .touch-controls-4d {
+                padding: 12px;
+            }
+            
+            .hud-mobile-4d {
+                height: 50px;
+            }
+            
+            .coordinate-grid {
+                width: clamp(200px, 50vw, 300px);
+                height: clamp(200px, 50vw, 300px);
+            }
+        }
+
+        /* 📱 TABLET OPTIMIZATIONS */
+        @media (min-width: 768px) {
+            .control-sections {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .status-indicators {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .action-buttons {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* 📱 HIGH-DPI DISPLAYS */
+        @media (-webkit-min-device-pixel-ratio: 2) {
+            .axis-line, .joystick-handle {
+                box-shadow: 0 0 10px rgba(0, 255, 170, 0.3);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-4d-container">
+        <!-- 4D Canvas -->
+        <div class="canvas-4d" id="canvas-4d"></div>
+
+        <!-- Mobile 4D HUD -->
+        <div class="hud-mobile-4d">
+            <div class="hud-title-4d">
+                🌌📱 MÆCH 4D
+            </div>
+            <div class="coordinates-display" id="coordinates-display">
+                x₀:0 y₀:0 z₀:0 t₀:0
+            </div>
+        </div>
+
+        <!-- 4D Coordinate Visualization -->
+        <div class="coordinate-grid">
+            <div class="axis-4d">
+                <div class="axis-line axis-x"></div>
+                <div class="axis-line axis-y"></div>
+                <div class="axis-line axis-z"></div>
+                <div class="axis-line axis-t"></div>
+            </div>
+        </div>
+
+        <!-- Territorial Sovereignty Overlay -->
+        <div class="territorial-overlay">
+            <div class="sovereignty-title">🗺️ Territorial Sovereignty</div>
+            <div class="sovereignty-coords" id="sovereignty-coords">
+                Territory: MÆCH-4D<br>
+                Quadrant: α₀β₀γ₀<br>
+                Status: Sovereign
+            </div>
+        </div>
+
+        <!-- Mobile Touch Controls -->
+        <div class="touch-controls-4d">
+            <!-- Status Indicators -->
+            <div class="status-indicators">
+                <div class="status-indicator">
+                    <span class="status-value x-value" id="x-value">0</span>
+                    <span class="status-label">X Axis</span>
+                </div>
+                <div class="status-indicator">
+                    <span class="status-value y-value" id="y-value">0</span>
+                    <span class="status-label">Y Axis</span>
+                </div>
+                <div class="status-indicator">
+                    <span class="status-value z-value" id="z-value">0</span>
+                    <span class="status-label">Z Axis</span>
+                </div>
+                <div class="status-indicator">
+                    <span class="status-value t-value" id="t-value">0</span>
+                    <span class="status-label">Time</span>
+                </div>
+            </div>
+
+            <!-- Control Sections -->
+            <div class="control-sections">
+                <!-- Coordinate Navigation -->
+                <div class="control-section">
+                    <div class="section-label">🎯 Navigate</div>
+                    <div class="coordinate-controls">
+                        <button class="coord-button x-axis" data-axis="x" data-direction="+" data-testid="button-x-plus">
+                            X+
+                        </button>
+                        <button class="coord-button x-axis" data-axis="x" data-direction="-" data-testid="button-x-minus">
+                            X-
+                        </button>
+                        <button class="coord-button y-axis" data-axis="y" data-direction="+" data-testid="button-y-plus">
+                            Y+
+                        </button>
+                        <button class="coord-button y-axis" data-axis="y" data-direction="-" data-testid="button-y-minus">
+                            Y-
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Z-Axis & Time -->
+                <div class="control-section">
+                    <div class="section-label">🌀 Z-Time</div>
+                    <div class="coordinate-controls">
+                        <button class="coord-button z-axis" data-axis="z" data-direction="+" data-testid="button-z-plus">
+                            Z+
+                        </button>
+                        <button class="coord-button z-axis" data-axis="z" data-direction="-" data-testid="button-z-minus">
+                            Z-
+                        </button>
+                        <button class="coord-button t-axis" data-axis="t" data-direction="+" data-testid="button-t-plus">
+                            T+
+                        </button>
+                        <button class="coord-button t-axis" data-axis="t" data-direction="-" data-testid="button-t-minus">
+                            T-
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4D Navigation Joystick -->
+            <div class="joystick-4d" id="joystick-4d">
+                <div class="joystick-handle" id="joystick-handle"></div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="action-btn" id="reset-coords" data-testid="button-reset-coordinates">
+                    🎯 Reset
+                </button>
+                <button class="action-btn" id="generate-qr" data-testid="button-generate-qr">
+                    🔍 QR
+                </button>
+                <button class="action-btn" id="back-home" onclick="window.location.href='/'" data-testid="button-back-home">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MechMobile4D {
+            constructor() {
+                // 4D Coordinate system
+                this.coordinates = { x: 0, y: 0, z: 0, t: 0 };
+                this.isDragging = false;
+                this.startPos = { x: 0, y: 0 };
+                this.territorialSovereignty = {
+                    territory: 'MÆCH-4D',
+                    quadrant: 'α₀β₀γ₀',
+                    status: 'Sovereign'
+                };
+                
+                this.init();
+            }
+
+            init() {
+                console.log('🚀📱 Initializing MÆCH Mobile 4D System...');
+                this.setupTouchControls();
+                this.setupJoystick();
+                this.startTimeAnimation();
+                this.start4DVisualization();
+                this.updateDisplay();
+            }
+
+            setupTouchControls() {
+                // Coordinate buttons
+                document.querySelectorAll('.coord-button').forEach(button => {
+                    button.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        this.handleCoordinateChange(button);
+                        
+                        // Haptic feedback
+                        if (navigator.vibrate) {
+                            navigator.vibrate(50);
+                        }
+                    });
+
+                    button.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.handleCoordinateChange(button);
+                    });
+                });
+
+                // Reset button
+                document.getElementById('reset-coords').addEventListener('click', () => {
+                    this.resetCoordinates();
+                });
+
+                // QR Generation
+                document.getElementById('generate-qr').addEventListener('click', () => {
+                    this.generateTerritorialQR();
+                });
+            }
+
+            setupJoystick() {
+                const joystick = document.getElementById('joystick-4d');
+                const handle = document.getElementById('joystick-handle');
+                const rect = joystick.getBoundingClientRect();
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const maxRadius = rect.width / 2 - 20;
+
+                // Touch events
+                joystick.addEventListener('touchstart', (e) => {
+                    this.isDragging = true;
+                    const touch = e.touches[0];
+                    const rect = joystick.getBoundingClientRect();
+                    this.startPos = {
+                        x: touch.clientX - rect.left,
+                        y: touch.clientY - rect.top
+                    };
+                    e.preventDefault();
+                });
+
+                joystick.addEventListener('touchmove', (e) => {
+                    if (!this.isDragging) return;
+                    
+                    const touch = e.touches[0];
+                    const rect = joystick.getBoundingClientRect();
+                    const currentX = touch.clientX - rect.left;
+                    const currentY = touch.clientY - rect.top;
+                    
+                    const deltaX = currentX - centerX;
+                    const deltaY = currentY - centerY;
+                    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                    
+                    if (distance <= maxRadius) {
+                        handle.style.transform = `translate(calc(-50% + ${deltaX}px), calc(-50% + ${deltaY}px))`;
+                        
+                        // Update coordinates based on joystick position
+                        this.coordinates.x = Math.round(deltaX / 10);
+                        this.coordinates.y = Math.round(-deltaY / 10); // Invert Y for proper orientation
+                        this.updateDisplay();
+                    }
+                    
+                    e.preventDefault();
+                });
+
+                joystick.addEventListener('touchend', (e) => {
+                    this.isDragging = false;
+                    // Snap back to center
+                    handle.style.transform = 'translate(-50%, -50%)';
+                    e.preventDefault();
+                });
+
+                // Mouse events for desktop testing
+                joystick.addEventListener('mousedown', (e) => {
+                    this.isDragging = true;
+                    e.preventDefault();
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!this.isDragging) return;
+                    
+                    const rect = joystick.getBoundingClientRect();
+                    const currentX = e.clientX - rect.left;
+                    const currentY = e.clientY - rect.top;
+                    
+                    const deltaX = currentX - centerX;
+                    const deltaY = currentY - centerY;
+                    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                    
+                    if (distance <= maxRadius) {
+                        handle.style.transform = `translate(calc(-50% + ${deltaX}px), calc(-50% + ${deltaY}px))`;
+                        this.coordinates.x = Math.round(deltaX / 10);
+                        this.coordinates.y = Math.round(-deltaY / 10);
+                        this.updateDisplay();
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    this.isDragging = false;
+                    handle.style.transform = 'translate(-50%, -50%)';
+                });
+            }
+
+            handleCoordinateChange(button) {
+                const axis = button.dataset.axis;
+                const direction = button.dataset.direction;
+                const change = direction === '+' ? 1 : -1;
+                
+                this.coordinates[axis] += change;
+                
+                // Keep coordinates within reasonable bounds
+                this.coordinates[axis] = Math.max(-100, Math.min(100, this.coordinates[axis]));
+                
+                this.updateDisplay();
+                this.updateTerritorialSovereignty();
+                
+                // Visual feedback
+                button.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    button.style.transform = 'scale(1)';
+                }, 100);
+            }
+
+            startTimeAnimation() {
+                setInterval(() => {
+                    // Automatically advance time dimension
+                    this.coordinates.t = (this.coordinates.t + 0.1) % 360;
+                    this.updateDisplay();
+                }, 100);
+            }
+
+            start4DVisualization() {
+                // Create dynamic 4D visualization
+                const canvas = document.getElementById('canvas-4d');
+                
+                setInterval(() => {
+                    const time = Date.now() * 0.001;
+                    const x = Math.sin(time * 0.5 + this.coordinates.x * 0.1) * 0.1;
+                    const y = Math.cos(time * 0.3 + this.coordinates.y * 0.1) * 0.1;
+                    const z = Math.sin(time * 0.7 + this.coordinates.z * 0.1) * 0.1;
+                    
+                    canvas.style.transform = `
+                        translateX(${x}px) 
+                        translateY(${y}px) 
+                        rotateZ(${z}deg)
+                        scale(${1 + Math.sin(time + this.coordinates.t * 0.1) * 0.05})
+                    `;
+                }, 16);
+            }
+
+            updateDisplay() {
+                // Update coordinate display
+                document.getElementById('coordinates-display').textContent = 
+                    `x₀:${this.coordinates.x} y₀:${this.coordinates.y} z₀:${this.coordinates.z} t₀:${this.coordinates.t.toFixed(1)}`;
+                
+                // Update status indicators
+                document.getElementById('x-value').textContent = this.coordinates.x;
+                document.getElementById('y-value').textContent = this.coordinates.y;
+                document.getElementById('z-value').textContent = this.coordinates.z;
+                document.getElementById('t-value').textContent = this.coordinates.t.toFixed(1);
+            }
+
+            updateTerritorialSovereignty() {
+                // Generate territorial coordinates based on 4D position
+                const alpha = Math.floor(this.coordinates.x / 10) % 10;
+                const beta = Math.floor(this.coordinates.y / 10) % 10;
+                const gamma = Math.floor(this.coordinates.z / 10) % 10;
+                
+                this.territorialSovereignty.quadrant = `α₀${alpha}β₀${beta}γ₀${gamma}`;
+                
+                document.getElementById('sovereignty-coords').innerHTML = `
+                    Territory: ${this.territorialSovereignty.territory}<br>
+                    Quadrant: ${this.territorialSovereignty.quadrant}<br>
+                    Status: ${this.territorialSovereignty.status}
+                `;
+            }
+
+            resetCoordinates() {
+                this.coordinates = { x: 0, y: 0, z: 0, t: 0 };
+                this.updateDisplay();
+                this.updateTerritorialSovereignty();
+                
+                this.showNotification('🎯 Coordinates reset to origin x₀y₀z₀t₀');
+                
+                // Haptic feedback
+                if (navigator.vibrate) {
+                    navigator.vibrate([100, 50, 100]);
+                }
+            }
+
+            generateTerritorialQR() {
+                // Generate unique 4D territorial QR code
+                const qrData = `qr://mech-4d/${this.territorialSovereignty.quadrant}/x₀${this.coordinates.x}y₀${this.coordinates.y}z₀${this.coordinates.z}t₀${this.coordinates.t.toFixed(1)}`;
+                
+                this.showNotification(`🔍 4D Territorial QR Generated:\n${this.territorialSovereignty.quadrant}`);
+                
+                // Copy to clipboard if available
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(qrData);
+                }
+            }
+
+            showNotification(message) {
+                // Create temporary notification
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 90px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: rgba(0, 255, 170, 0.95);
+                    color: black;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: bold;
+                    z-index: 3000;
+                    backdrop-filter: blur(10px);
+                    animation: notification-appear 0.3s ease-out;
+                    max-width: 90vw;
+                    text-align: center;
+                `;
+                
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'notification-disappear 0.3s ease-out forwards';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes notification-appear {
+                from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+                to { opacity: 1; transform: translateX(-50%) translateY(0); }
+            }
+            @keyframes notification-disappear {
+                from { opacity: 1; transform: translateX(-50%) translateY(0); }
+                to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check for WebGL support
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            
+            if (!gl) {
+                console.warn('🌌 WebGL not available, using 4D fallback mode');
+            }
+
+            // Initialize the 4D system
+            window.mechMobile4D = new MechMobile4D();
+            
+            console.log('🌌📱 MÆCH Mobile 4D System initialized successfully!');
+            console.log('🎯 Navigate through 4D space with touch controls and joystick');
+            console.log('🗺️ Territorial sovereignty maintained across all dimensions');
+        });
+    </script>
+</body>
+</html>

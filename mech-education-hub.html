@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MÆCH Education Hub - Infrastructure + AI by Hand (Ages 3-103)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #000011 0%, #001122 50%, #000033 100%);
+            color: #00ffaa;
+            min-height: 100vh;
+            overflow-x: hidden;
+            /* MOBILE-FIRST OPTIMIZATION */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            font-size: 16px; /* Prevent zoom on iOS */
+        }
+
+        .education-container {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            grid-template-rows: 80px 1fr;
+            height: 100vh;
+            gap: 10px;
+            padding: 10px;
+        }
+
+        /* 📱 MOBILE RESPONSIVE LAYOUT */
+        @media (max-width: 1024px) {
+            .education-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto 1fr auto;
+                height: auto;
+                min-height: 100vh;
+                gap: 8px;
+                padding: 8px;
+            }
+            
+            .sidebar {
+                max-height: 250px;
+                overflow-y: auto;
+            }
+            
+            .main-content {
+                min-height: 60vh;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .education-container {
+                padding: 5px;
+                gap: 5px;
+            }
+            
+            .header {
+                padding: 10px;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .age-selector {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 5px;
+            }
+            
+            .age-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+                min-width: 44px; /* Touch-friendly */
+                min-height: 44px;
+            }
+            
+            .sidebar {
+                padding: 15px;
+                max-height: 200px;
+            }
+            
+            .main-content {
+                padding: 15px;
+                min-height: 50vh;
+            }
+            
+            .lesson-card {
+                padding: 12px;
+                margin-bottom: 10px;
+            }
+            
+            .lesson-title {
+                font-size: 16px;
+            }
+            
+            .drawing-canvas {
+                height: 300px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                font-size: 14px;
+            }
+            
+            .education-container {
+                padding: 3px;
+                gap: 3px;
+            }
+            
+            .header {
+                padding: 8px;
+            }
+            
+            .age-btn {
+                padding: 5px 10px;
+                font-size: 11px;
+                min-width: 40px;
+                min-height: 40px;
+            }
+            
+            .sidebar {
+                padding: 10px;
+                max-height: 180px;
+            }
+            
+            .main-content {
+                padding: 10px;
+                min-height: 45vh;
+            }
+            
+            .lesson-card {
+                padding: 10px;
+                margin-bottom: 8px;
+            }
+            
+            .lesson-title {
+                font-size: 14px;
+            }
+            
+            .drawing-canvas {
+                height: 250px !important;
+            }
+            
+            .age-indicator {
+                font-size: 10px;
+                padding: 1px 6px;
+            }
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            background: rgba(0, 255, 170, 0.1);
+            border: 2px solid #00ffaa;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .age-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .age-btn {
+            background: rgba(0, 255, 170, 0.2);
+            border: 2px solid #00ffaa;
+            color: #00ffaa;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+
+        .age-btn:hover, .age-btn.active {
+            background: rgba(0, 255, 170, 0.4);
+            transform: scale(1.05);
+        }
+
+        .sidebar {
+            background: rgba(0, 255, 170, 0.05);
+            border: 2px solid #00ffaa;
+            border-radius: 10px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .main-content {
+            background: rgba(0, 255, 170, 0.05);
+            border: 2px solid #00ffaa;
+            border-radius: 10px;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lesson-card {
+            background: rgba(0, 255, 170, 0.1);
+            border: 1px solid #00ffaa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .lesson-card:hover {
+            background: rgba(0, 255, 170, 0.2);
+            transform: translateX(5px);
+        }
+
+        .lesson-card.active {
+            border-color: #ff6600;
+            background: rgba(255, 102, 0, 0.1);
+        }
+
+        .lesson-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .age-indicator {
+            background: rgba(0, 255, 170, 0.3);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .drawing-canvas {
+            width: 100%;
+            height: 400px;
+            border: 2px solid #00ffaa;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            margin: 20px 0;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: rgba(0, 255, 170, 0.2);
+            border: 2px solid #00ffaa;
+            color: #00ffaa;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 255, 170, 0.4);
+            transform: scale(1.05);
+        }
+
+        .mech-code-editor {
+            background: rgba(0, 20, 40, 0.9);
+            border: 2px solid #00ffaa;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            color: #00ffaa;
+            min-height: 200px;
+            resize: vertical;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(0, 255, 170, 0.1);
+            border: 1px solid #00ffaa;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ffaa, #00cc88);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .student-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(0, 255, 170, 0.1);
+            border: 1px solid #00ffaa;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00ffaa;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: rgba(0, 255, 170, 0.7);
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #00ffaa;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 6s infinite linear;
+        }
+
+        @keyframes float {
+            from {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            to {
+                transform: translateY(-100px) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        .lesson-content {
+            display: none;
+        }
+
+        .lesson-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .infrastructure-visual {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .infra-item {
+            background: rgba(0, 255, 170, 0.1);
+            border: 1px solid #00ffaa;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .infra-item:hover {
+            background: rgba(0, 255, 170, 0.2);
+            transform: scale(1.05);
+        }
+
+        .infra-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .infra-amount {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff6600;
+        }
+
+        .neural-network {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            min-height: 200px;
+        }
+
+        .nn-layer {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nn-node {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #00ffaa;
+            border-radius: 50%;
+            background: rgba(0, 255, 170, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nn-node:hover {
+            background: rgba(0, 255, 170, 0.4);
+            transform: scale(1.1);
+        }
+
+        .connection-line {
+            position: absolute;
+            height: 2px;
+            background: rgba(0, 255, 170, 0.5);
+            transform-origin: left center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Particles Animation -->
+    <div class="floating-particles" id="particles"></div>
+
+    <div class="education-container">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1>🎓 MÆCH Education Hub</h1>
+                <p>Infrastructure + AI by Hand • Universal Learning System</p>
+            </div>
+            <div class="age-selector">
+                <span>Age Level:</span>
+                <button class="age-btn active" data-age="3-8">👶 3-8</button>
+                <button class="age-btn" data-age="9-17">🧒 9-17</button>
+                <button class="age-btn" data-age="18-65">👨 18-65</button>
+                <button class="age-btn" data-age="65-103">👴 65-103</button>
+            </div>
+        </div>
+
+        <!-- Left Sidebar - Lessons -->
+        <div class="sidebar">
+            <h3>📚 Learning Modules</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="overallProgress"></div>
+            </div>
+            
+            <div class="lesson-card active" data-lesson="infrastructure">
+                <div class="age-indicator">All Ages</div>
+                <div class="lesson-title">🏗️ Infrastructure Basics</div>
+                <p>Learn about the $106 trillion infrastructure world</p>
+            </div>
+
+            <div class="lesson-card" data-lesson="ai-basics">
+                <div class="age-indicator">5+</div>
+                <div class="lesson-title">🧠 AI by Hand</div>
+                <p>Draw neural networks and understand AI</p>
+            </div>
+
+            <div class="lesson-card" data-lesson="mech-programming">
+                <div class="age-indicator">8+</div>
+                <div class="lesson-title">🎯 MÆCH Programming</div>
+                <p>Visual programming with MÆCH language</p>
+            </div>
+
+            <div class="lesson-card" data-lesson="digital-infrastructure">
+                <div class="age-indicator">12+</div>
+                <div class="lesson-title">💻 Digital Infrastructure</div>
+                <p>Data centers, fiber networks, and AI compute</p>
+            </div>
+
+            <div class="lesson-card" data-lesson="transformers">
+                <div class="age-indicator">15+</div>
+                <div class="lesson-title">🤖 Transformer Architecture</div>
+                <p>Hand-draw attention mechanisms</p>
+            </div>
+
+            <div class="lesson-card" data-lesson="infrastructure-ai">
+                <div class="age-indicator">18+</div>
+                <div class="lesson-title">🌐 Infrastructure + AI</div>
+                <p>How AI transforms global infrastructure</p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Infrastructure Basics Lesson -->
+            <div class="lesson-content active" id="infrastructure">
+                <h2>🏗️ Global Infrastructure: The $106 Trillion Foundation</h2>
+                <p>Infrastructure is everything that makes our world work! Let's explore the seven key types:</p>
+                
+                <div class="infrastructure-visual">
+                    <div class="infra-item" data-info="transportation">
+                        <div class="infra-icon">🚗</div>
+                        <div>Transportation</div>
+                        <div class="infra-amount">$36T</div>
+                    </div>
+                    <div class="infra-item" data-info="energy">
+                        <div class="infra-icon">⚡</div>
+                        <div>Energy & Power</div>
+                        <div class="infra-amount">$23T</div>
+                    </div>
+                    <div class="infra-item" data-info="digital">
+                        <div class="infra-icon">💻</div>
+                        <div>Digital</div>
+                        <div class="infra-amount">$19T</div>
+                    </div>
+                    <div class="infra-item" data-info="social">
+                        <div class="infra-icon">🏥</div>
+                        <div>Social</div>
+                        <div class="infra-amount">$16T</div>
+                    </div>
+                    <div class="infra-item" data-info="water">
+                        <div class="infra-icon">💧</div>
+                        <div>Water & Waste</div>
+                        <div class="infra-amount">$6T</div>
+                    </div>
+                    <div class="infra-item" data-info="agriculture">
+                        <div class="infra-icon">🌾</div>
+                        <div>Agriculture</div>
+                        <div class="infra-amount">$5T</div>
+                    </div>
+                    <div class="infra-item" data-info="defense">
+                        <div class="infra-icon">🛡️</div>
+                        <div>Defense</div>
+                        <div class="infra-amount">$2T</div>
+                    </div>
+                </div>
+
+                <canvas class="drawing-canvas" id="infraCanvas"></canvas>
+                
+                <div class="controls">
+                    <button class="control-btn" onclick="drawInfrastructure()">🎨 Draw Infrastructure</button>
+                    <button class="control-btn" onclick="explainForAge()">🗣️ Explain for My Age</button>
+                    <button class="control-btn" onclick="startMechProgram()">🎯 Try MÆCH Code</button>
+                </div>
+
+                <textarea class="mech-code-editor" id="infraCode" placeholder="// MÆCH Code - Draw infrastructure
+COLOR blue
+CIRCLE 100 100 50
+TEXT 'Data Center' 80 160
+COLOR green  
+RECT 200 50 100 100
+TEXT 'Power Grid' 220 170">
+                </textarea>
+            </div>
+
+            <!-- AI Basics Lesson -->
+            <div class="lesson-content" id="ai-basics">
+                <h2>🧠 AI by Hand: Understanding Neural Networks</h2>
+                <p>Let's draw AI concepts by hand to really understand them!</p>
+
+                <div class="neural-network" id="simpleNN">
+                    <div class="nn-layer">
+                        <div class="nn-node">X₁</div>
+                        <div class="nn-node">X₂</div>
+                        <div class="nn-node">X₃</div>
+                    </div>
+                    <div class="nn-layer">
+                        <div class="nn-node">H₁</div>
+                        <div class="nn-node">H₂</div>
+                    </div>
+                    <div class="nn-layer">
+                        <div class="nn-node">Y</div>
+                    </div>
+                </div>
+
+                <canvas class="drawing-canvas" id="aiCanvas"></canvas>
+                
+                <div class="controls">
+                    <button class="control-btn" onclick="drawNeuralNetwork()">🧠 Draw Neural Net</button>
+                    <button class="control-btn" onclick="animateForward()">▶️ Forward Pass</button>
+                    <button class="control-btn" onclick="drawByHand()">✍️ Hand Drawing Mode</button>
+                </div>
+
+                <textarea class="mech-code-editor" id="aiCode" placeholder="// MÆCH Code - Neural Network
+COLOR red
+CIRCLE 50 50 30    // Input neuron
+COLOR blue
+CIRCLE 200 50 30   // Hidden neuron  
+COLOR green
+LINE 80 50 170 50  // Connection
+TEXT 'w=0.5' 120 40">
+                </textarea>
+            </div>
+
+            <!-- Add more lesson contents here -->
+        </div>
+
+        <!-- Right Sidebar - Progress -->
+        <div class="sidebar">
+            <h3>📊 Your Progress</h3>
+            
+            <div class="student-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="lessonsCompleted">3</div>
+                    <div class="stat-label">Lessons</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="drawingsCreated">12</div>
+                    <div class="stat-label">Drawings</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="mechPrograms">8</div>
+                    <div class="stat-label">MÆCH Programs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="studyDays">5</div>
+                    <div class="stat-label">Days</div>
+                </div>
+            </div>
+
+            <h4>🎯 Achievements</h4>
+            <div class="lesson-card">
+                <div class="lesson-title">🏗️ Infrastructure Explorer</div>
+                <p>Completed infrastructure basics</p>
+            </div>
+
+            <div class="lesson-card">
+                <div class="lesson-title">🧠 Neural Architect</div>
+                <p>Drew first neural network</p>
+            </div>
+
+            <div class="lesson-card">
+                <div class="lesson-title">🎯 MÆCH Programmer</div>
+                <p>Wrote first MÆCH program</p>
+            </div>
+
+            <h4>🌍 Global OCW Community</h4>
+            <p style="font-size: 14px; color: rgba(0,255,170,0.8);">
+                📍 3,247 students online<br>
+                🌐 49 territories active<br>
+                📚 247+ implementations<br>
+                🎓 Ages 3-103 learning together
+            </p>
+        </div>
+    </div>
+
+    <!-- Fabric.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js" 
+            integrity="sha512-CeIsOAsgJnmevfCi2C7Zsyy6bQKi43utIjdA87Q0ZY84oDqnI0uwfM9+bKiIkI75lUeI00WG/+uJzOmuHlesMA==" 
+            crossorigin="anonymous" 
+            referrerpolicy="no-referrer"></script>
+
+    <script>
+        // MÆCH Education System Core
+        class MechEducationSystem {
+            constructor() {
+                this.currentAge = '3-8';
+                this.currentLesson = 'infrastructure';
+                this.canvas = null;
+                this.progress = {
+                    lessons: 0,
+                    drawings: 0,
+                    programs: 0,
+                    days: 1
+                };
+                
+                this.init();
+                this.createFloatingParticles();
+            }
+
+            init() {
+                // Initialize Fabric.js canvas
+                this.initCanvas();
+                
+                // Set up event listeners
+                this.setupEventListeners();
+                
+                // Load initial lesson
+                this.loadLesson('infrastructure');
+                
+                console.log('🎓 MÆCH Education System Initialized');
+                console.log('📊 Serving OCW students worldwide: Ages 3-103');
+            }
+
+            initCanvas() {
+                const canvasElement = document.getElementById('infraCanvas');
+                if (canvasElement) {
+                    this.canvas = new fabric.Canvas('infraCanvas', {
+                        width: canvasElement.parentElement.clientWidth - 40,
+                        height: 400,
+                        backgroundColor: 'white'
+                    });
+                    
+                    console.log('🎨 Drawing canvas initialized');
+                }
+            }
+
+            setupEventListeners() {
+                // Age selector buttons
+                document.querySelectorAll('.age-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.setAgeLevel(e.target.dataset.age);
+                    });
+                });
+
+                // Lesson cards
+                document.querySelectorAll('.lesson-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        const lesson = e.currentTarget.dataset.lesson;
+                        if (lesson) {
+                            this.loadLesson(lesson);
+                        }
+                    });
+                });
+
+                // Infrastructure items
+                document.querySelectorAll('.infra-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        this.explainInfrastructure(e.currentTarget.dataset.info);
+                    });
+                });
+            }
+
+            setAgeLevel(age) {
+                this.currentAge = age;
+                
+                // Update active button
+                document.querySelectorAll('.age-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-age="${age}"]`).classList.add('active');
+                
+                // Update content complexity
+                this.updateContentForAge(age);
+                
+                console.log(`🎯 Age level set to: ${age}`);
+            }
+
+            updateContentForAge(age) {
+                const ageRanges = {
+                    '3-8': 'simple',
+                    '9-17': 'intermediate', 
+                    '18-65': 'advanced',
+                    '65-103': 'expert'
+                };
+                
+                const complexity = ageRanges[age];
+                
+                // Update lesson visibility
+                document.querySelectorAll('.lesson-card').forEach(card => {
+                    const ageIndicator = card.querySelector('.age-indicator').textContent;
+                    const minAge = parseInt(ageIndicator.match(/\d+/)?.[0] || '0');
+                    const currentMinAge = parseInt(age.split('-')[0]);
+                    
+                    if (minAge <= currentMinAge) {
+                        card.style.opacity = '1';
+                        card.style.pointerEvents = 'auto';
+                    } else {
+                        card.style.opacity = '0.5';
+                        card.style.pointerEvents = 'none';
+                    }
+                });
+                
+                console.log(`🧠 Content adapted for complexity: ${complexity}`);
+            }
+
+            loadLesson(lessonId) {
+                this.currentLesson = lessonId;
+                
+                // Update active lesson card
+                document.querySelectorAll('.lesson-card').forEach(card => {
+                    card.classList.remove('active');
+                });
+                document.querySelector(`[data-lesson="${lessonId}"]`).classList.add('active');
+                
+                // Update content
+                document.querySelectorAll('.lesson-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(lessonId).classList.add('active');
+                
+                // Update canvas if needed
+                this.updateCanvasForLesson(lessonId);
+                
+                console.log(`📚 Loaded lesson: ${lessonId}`);
+            }
+
+            updateCanvasForLesson(lessonId) {
+                if (!this.canvas) return;
+                
+                this.canvas.clear();
+                
+                switch(lessonId) {
+                    case 'infrastructure':
+                        this.canvas = new fabric.Canvas('infraCanvas');
+                        break;
+                    case 'ai-basics':
+                        this.canvas = new fabric.Canvas('aiCanvas');
+                        break;
+                }
+            }
+
+            explainInfrastructure(type) {
+                const explanations = {
+                    '3-8': {
+                        transportation: "🚗 Roads and cars help people go places!",
+                        energy: "⚡ Power plants make electricity for lights!",
+                        digital: "💻 Internet helps computers talk to each other!",
+                        social: "🏥 Hospitals and schools help people!",
+                        water: "💧 Pipes bring clean water to homes!",
+                        agriculture: "🌾 Farms grow food for everyone!",
+                        defense: "🛡️ Keeps everyone safe!"
+                    },
+                    '9-17': {
+                        transportation: "🚗 Transportation networks include roads, railways, airports, and ports that move people and goods efficiently.",
+                        energy: "⚡ Power generation and distribution systems provide electricity through various sources like solar, wind, and nuclear.",
+                        digital: "💻 Digital infrastructure includes fiber optic networks, data centers, and 5G towers enabling global connectivity.",
+                        social: "🏥 Social infrastructure encompasses healthcare systems, educational institutions, and public services.",
+                        water: "💧 Water treatment facilities, distribution networks, and waste management systems ensure clean water and sanitation.",
+                        agriculture: "🌾 Modern farming systems, irrigation networks, and food distribution chains feed the global population.",
+                        defense: "🛡️ Defense infrastructure includes military bases, surveillance systems, and cybersecurity networks."
+                    },
+                    // Add more age-appropriate explanations...
+                };
+                
+                const ageExplanations = explanations[this.currentAge] || explanations['9-17'];
+                const explanation = ageExplanations[type] || "Click to learn more!";
+                
+                alert(explanation);
+                console.log(`💡 Explained ${type} for age ${this.currentAge}: ${explanation}`);
+            }
+
+            createFloatingParticles() {
+                const particlesContainer = document.getElementById('particles');
+                
+                setInterval(() => {
+                    if (document.querySelectorAll('.particle').length < 20) {
+                        const particle = document.createElement('div');
+                        particle.className = 'particle';
+                        particle.style.left = Math.random() * window.innerWidth + 'px';
+                        particle.style.animationDelay = Math.random() * 2 + 's';
+                        particlesContainer.appendChild(particle);
+                        
+                        setTimeout(() => {
+                            particle.remove();
+                        }, 6000);
+                    }
+                }, 300);
+            }
+        }
+
+        // Global functions for buttons
+        function drawInfrastructure() {
+            console.log('🎨 Drawing infrastructure visualization...');
+            // Integration with MÆCH interpreter
+            if (window.mechInterpreter) {
+                const code = document.getElementById('infraCode').value;
+                window.mechInterpreter.executeMechCode(code);
+            }
+        }
+
+        function explainForAge() {
+            const age = educationSystem.currentAge;
+            console.log(`🗣️ Explaining for age group: ${age}`);
+            // Age-appropriate explanation logic
+        }
+
+        function startMechProgram() {
+            console.log('🎯 Starting MÆCH programming mode...');
+            // Redirect to MÆCH interpreter
+            window.open('/mech-spatial-os', '_blank');
+        }
+
+        function drawNeuralNetwork() {
+            console.log('🧠 Drawing neural network by hand...');
+        }
+
+        function animateForward() {
+            console.log('▶️ Animating forward pass...');
+        }
+
+        function drawByHand() {
+            console.log('✍️ Activating hand drawing mode...');
+        }
+
+        // Initialize system
+        const educationSystem = new MechEducationSystem();
+        
+        // Update progress stats periodically
+        setInterval(() => {
+            document.getElementById('lessonsCompleted').textContent = Math.min(6, parseInt(document.getElementById('lessonsCompleted').textContent) + Math.random() > 0.95 ? 1 : 0);
+            document.getElementById('drawingsCreated').textContent = Math.min(50, parseInt(document.getElementById('drawingsCreated').textContent) + Math.random() > 0.9 ? 1 : 0);
+        }, 5000);
+
+        console.log('🌍 MÆCH Education Hub: Ready to serve OCW students ages 3-103');
+        console.log('📊 Infrastructure + AI by Hand learning system active');
+    </script>
+</body>
+</html>

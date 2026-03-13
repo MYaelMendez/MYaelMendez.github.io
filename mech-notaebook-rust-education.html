@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NOTÆBOOK - Rust for All Ages 3-103 | MÆCH Education</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Fira Code', 'Courier New', monospace;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+      color: #00ff88;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .notaebook-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 40px 20px;
+      background: linear-gradient(90deg, rgba(0,255,136,0.1), rgba(255,107,0,0.1));
+      border-radius: 15px;
+      margin-bottom: 40px;
+      border: 2px solid #00ff88;
+      position: relative;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      text-shadow: 0 0 20px rgba(0,255,136,0.5);
+    }
+
+    .header .subtitle {
+      font-size: 1.2rem;
+      color: #ff6b00;
+      font-weight: bold;
+    }
+
+    .header .qr-address {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      background: rgba(0,255,136,0.2);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      border: 1px solid #00ff88;
+    }
+
+    /* Age Band Selector */
+    .age-selector {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .age-band {
+      padding: 12px 24px;
+      background: rgba(0,255,136,0.1);
+      border: 2px solid #00ff88;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 1rem;
+      font-weight: bold;
+    }
+
+    .age-band:hover {
+      background: rgba(0,255,136,0.3);
+      transform: scale(1.05);
+    }
+
+    .age-band.active {
+      background: #00ff88;
+      color: #000;
+      box-shadow: 0 0 20px rgba(0,255,136,0.6);
+    }
+
+    /* Parallel Tiles Layout */
+    .lesson-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .code-tile {
+      background: rgba(0,255,136,0.05);
+      border: 2px solid;
+      border-radius: 15px;
+      padding: 25px;
+      position: relative;
+      min-height: 400px;
+      transition: all 0.3s;
+    }
+
+    .code-tile.mech {
+      border-color: #00ff88;
+    }
+
+    .code-tile.rust {
+      border-color: #ff6b00;
+    }
+
+    .code-tile:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,255,136,0.3);
+    }
+
+    .tile-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid;
+    }
+
+    .mech .tile-header {
+      border-bottom-color: #00ff88;
+    }
+
+    .rust .tile-header {
+      border-bottom-color: #ff6b00;
+    }
+
+    .tile-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tile-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .mech .tile-icon {
+      background: #00ff88;
+      color: #000;
+    }
+
+    .rust .tile-icon {
+      background: #ff6b00;
+      color: #fff;
+    }
+
+    .qr-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      animation: blink 1.5s infinite;
+    }
+
+    .mech .qr-indicator {
+      background: #00ff88;
+      box-shadow: 0 0 10px #00ff88;
+    }
+
+    .rust .qr-indicator {
+      background: #ff6b00;
+      box-shadow: 0 0 10px #ff6b00;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .code-editor {
+      background: #000;
+      border: 1px solid rgba(0,255,136,0.3);
+      border-radius: 10px;
+      padding: 20px;
+      font-family: 'Fira Code', monospace;
+      font-size: 1rem;
+      color: #00ff88;
+      min-height: 200px;
+      margin-bottom: 15px;
+      overflow-x: auto;
+      white-space: pre;
+      line-height: 1.6;
+    }
+
+    .rust .code-editor {
+      color: #ff6b00;
+      border-color: rgba(255,107,0,0.3);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: 2px solid;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      font-weight: bold;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-mech {
+      border-color: #00ff88;
+      color: #00ff88;
+    }
+
+    .btn-mech:hover {
+      background: #00ff88;
+      color: #000;
+    }
+
+    .btn-rust {
+      border-color: #ff6b00;
+      color: #ff6b00;
+    }
+
+    .btn-rust:hover {
+      background: #ff6b00;
+      color: #fff;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Vocabulary Tiles */
+    .vocabulary-section {
+      margin-top: 50px;
+      padding: 30px;
+      background: rgba(0,255,136,0.05);
+      border: 2px solid #00ff88;
+      border-radius: 15px;
+    }
+
+    .vocabulary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 25px;
+    }
+
+    .vocab-card {
+      background: rgba(0,0,0,0.5);
+      border: 2px solid;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .vocab-card.mech {
+      border-color: #00ff88;
+    }
+
+    .vocab-card.rust {
+      border-color: #ff6b00;
+    }
+
+    .vocab-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 20px rgba(0,255,136,0.4);
+    }
+
+    .vocab-keyword {
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .vocab-desc {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    /* Status Bar */
+    .status-bar {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.9);
+      border: 2px solid #00ff88;
+      border-radius: 10px;
+      padding: 15px 20px;
+      min-width: 300px;
+      z-index: 1000;
+    }
+
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+
+    .status-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .status-value {
+      color: #00ff88;
+      font-weight: bold;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .lesson-container {
+        grid-template-columns: 1fr;
+      }
+
+      .header h1 {
+        font-size: 1.8rem;
+      }
+
+      .header .qr-address {
+        position: static;
+        margin-top: 15px;
+        display: inline-block;
+      }
+
+      .vocabulary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Loading State */
+    .loading {
+      text-align: center;
+      padding: 20px;
+      font-size: 1.2rem;
+      color: #00ff88;
+    }
+
+    .loading::after {
+      content: '...';
+      animation: dots 1.5s infinite;
+    }
+
+    @keyframes dots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60%, 100% { content: '...'; }
+    }
+  </style>
+</head>
+<body>
+  <div class="notaebook-container">
+    <!-- Header -->
+    <div class="header">
+      <div class="qr-address" data-testid="qr-address">QR://rust.ocw/notaebook/x₀y₀z₀</div>
+      <h1 data-testid="title-notaebook">NOTÆBOOK - Rust Education</h1>
+      <div class="subtitle" data-testid="subtitle">🦀 Rust for All Ages 3-103 💚 Pure MÆCH</div>
+    </div>
+
+    <!-- Age Band Selector -->
+    <div class="age-selector" data-testid="age-selector">
+      <div class="age-band" data-age="3-6" data-testid="age-band-3-6">👶 Ages 3-6<br>Tactile Stories</div>
+      <div class="age-band active" data-age="7-12" data-testid="age-band-7-12">🎮 Ages 7-12<br>Quests</div>
+      <div class="age-band" data-age="13-18" data-testid="age-band-13-18">🔬 Ages 13-18<br>Agentic Labs</div>
+      <div class="age-band" data-age="19-103" data-testid="age-band-19-103">🎓 Ages 19-103<br>Mastery Sprints</div>
+    </div>
+
+    <!-- Parallel Code Tiles: MÆCH ↔ Rust -->
+    <div class="lesson-container" data-testid="lesson-container">
+      <!-- MÆCH Tile -->
+      <div class="code-tile mech">
+        <div class="tile-header">
+          <div class="tile-title">
+            <div class="tile-icon">M</div>
+            MÆCH Language
+          </div>
+          <div class="qr-indicator" data-testid="qr-indicator-mech"></div>
+        </div>
+        
+        <div class="code-editor" id="mech-editor" contenteditable="true" data-testid="mech-editor">[|x, y, result|
+  result = x + y
+  #Territory_Addition
+]</div>
+        
+        <div class="action-buttons">
+          <button class="btn btn-mech" id="btn-translate-to-rust" data-testid="btn-translate-to-rust">
+            ➜ Translate to Rust
+          </button>
+          <button class="btn btn-mech" id="btn-run-mech" data-testid="btn-run-mech">
+            ▶ Run MÆCH
+          </button>
+        </div>
+      </div>
+
+      <!-- Rust Tile -->
+      <div class="code-tile rust">
+        <div class="tile-header">
+          <div class="tile-title">
+            <div class="tile-icon">🦀</div>
+            Rust Language
+          </div>
+          <div class="qr-indicator" data-testid="qr-indicator-rust"></div>
+        </div>
+        
+        <div class="code-editor" id="rust-editor" contenteditable="true" data-testid="rust-editor">fn add(x: i32, y: i32) -> i32 {
+    x + y
+}</div>
+        
+        <div class="action-buttons">
+          <button class="btn btn-rust" id="btn-translate-to-mech" data-testid="btn-translate-to-mech">
+            ➜ Translate to MÆCH
+          </button>
+          <button class="btn btn-rust" id="btn-run-rust" data-testid="btn-run-rust">
+            ▶ Compile Rust
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vocabulary Section -->
+    <div class="vocabulary-section">
+      <h2 style="color: #00ff88; margin-bottom: 10px;" data-testid="vocab-title">🎯 Rust Vocabulary Tiles</h2>
+      <p style="opacity: 0.8; margin-bottom: 20px;">Learn Rust keywords through MÆCH metaphors</p>
+      
+      <div class="vocabulary-grid" id="vocab-grid" data-testid="vocab-grid">
+        <!-- Dynamically populated -->
+      </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar" data-testid="status-bar">
+      <div class="status-item">
+        <span>Neural Enhancement:</span>
+        <span class="status-value" id="neural-score" data-testid="neural-score">0%</span>
+      </div>
+      <div class="status-item">
+        <span>Age Band:</span>
+        <span class="status-value" id="current-age" data-testid="current-age">7-12</span>
+      </div>
+      <div class="status-item">
+        <span>QR Territory:</span>
+        <span class="status-value" id="qr-territory" data-testid="qr-territory">rust.ocw</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Vocabulary mapping
+    const rustVocabulary = [
+      { mech: '[|params|]', rust: 'fn name(params)', desc: 'Function definition', type: 'mech' },
+      { mech: 'result <~', rust: 'let result =', desc: 'Variable binding', type: 'rust' },
+      { mech: '#Territory', rust: 'mod territory', desc: 'Module/Territory', type: 'mech' },
+      { mech: 'Table = [|cols|]', rust: 'struct Table { fields }', desc: 'Data structure', type: 'rust' },
+      { mech: 'reactive ~>', rust: 'impl Trait', desc: 'Behavior implementation', type: 'mech' },
+      { mech: 'QR://addr', rust: '&reference', desc: 'Memory addressing', type: 'rust' }
+    ];
+
+    // Populate vocabulary
+    const vocabGrid = document.getElementById('vocab-grid');
+    rustVocabulary.forEach((item, idx) => {
+      const card = document.createElement('div');
+      card.className = `vocab-card ${item.type}`;
+      card.setAttribute('data-testid', `vocab-card-${idx}`);
+      card.innerHTML = `
+        <div class="vocab-keyword" style="color: ${item.type === 'mech' ? '#00ff88' : '#ff6b00'}">
+          ${item.mech} ↔ ${item.rust}
+        </div>
+        <div class="vocab-desc">${item.desc}</div>
+      `;
+      vocabGrid.appendChild(card);
+    });
+
+    // Age band selector
+    document.querySelectorAll('.age-band').forEach(band => {
+      band.addEventListener('click', function() {
+        document.querySelectorAll('.age-band').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById('current-age').textContent = this.dataset.age;
+      });
+    });
+
+    // Translation functions
+    async function translateMechToRust() {
+      const mechCode = document.getElementById('mech-editor').textContent;
+      const btn = document.getElementById('btn-translate-to-rust');
+      
+      btn.disabled = true;
+      btn.textContent = '⏳ Translating...';
+
+      try {
+        const response = await fetch('/api/mech-rust-translator/mech-to-rust', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            mech_code: mechCode, 
+            optimization: 'neural',
+            preserve_qr: true 
+          })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          document.getElementById('rust-editor').textContent = result.data.translated_code;
+          document.getElementById('neural-score').textContent = 
+            result.data.neural_enhancement.toFixed(1) + '%';
+        }
+      } catch (error) {
+        console.error('Translation error:', error);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '➜ Translate to Rust';
+      }
+    }
+
+    async function translateRustToMech() {
+      const rustCode = document.getElementById('rust-editor').textContent;
+      const btn = document.getElementById('btn-translate-to-mech');
+      
+      btn.disabled = true;
+      btn.textContent = '⏳ Translating...';
+
+      try {
+        const response = await fetch('/api/mech-rust-translator/rust-to-mech', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            rust_code: rustCode, 
+            preserve_qr: true,
+            tabular_format: true,
+            reactive_mode: 'full'
+          })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          document.getElementById('mech-editor').textContent = result.data.translated_code;
+          document.getElementById('neural-score').textContent = 
+            result.data.neural_enhancement.toFixed(1) + '%';
+        }
+      } catch (error) {
+        console.error('Translation error:', error);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '➜ Translate to MÆCH';
+      }
+    }
+
+    // Event listeners
+    document.getElementById('btn-translate-to-rust').addEventListener('click', translateMechToRust);
+    document.getElementById('btn-translate-to-mech').addEventListener('click', translateRustToMech);
+
+    // Placeholder for run buttons
+    document.getElementById('btn-run-mech').addEventListener('click', () => {
+      alert('MÆCH execution coming soon! This will run code in the MÆCH runtime.');
+    });
+
+    document.getElementById('btn-run-rust').addEventListener('click', () => {
+      alert('Rust compilation coming soon! This will compile via WASM.');
+    });
+
+    console.log('🦀 NOTÆBOOK Rust Education initialized!');
+    console.log('QR://rust.ocw/notaebook/x₀y₀z₀');
+  </script>
+</body>
+</html>

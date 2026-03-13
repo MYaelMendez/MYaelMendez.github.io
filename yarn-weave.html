@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP^æ // SOVEREIGN_CORE v4.1 • YARN WEAVE</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --amber: #f59e0b;
+            --green: #00ff41;
+        }
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background: #010204;
+            color: #8e9aaf;
+            overflow: hidden;
+        }
+
+        .monolith {
+            background: linear-gradient(to bottom, #0a0c10, #020408);
+            box-shadow: 0 0 80px rgba(0, 0, 0, 0.9);
+        }
+
+        .crt::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 50;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.12) 50%),
+                linear-gradient(90deg, rgba(245, 158, 11, 0.03), rgba(0, 255, 65, 0.02), rgba(245, 158, 11, 0.03));
+            background-size: 100% 3px, 4px 100%;
+        }
+
+        .yarn-ball {
+            font-size: 42px;
+            transition: all .4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .yarn-ball:hover {
+            font-size: 58px;
+            filter: drop-shadow(0 0 30px #f59e0b);
+            transform: rotate(15deg);
+        }
+
+        .step-btn.active {
+            background: rgba(245, 158, 11, 0.1) !important;
+            border-color: #f59e0b !important;
+            color: white;
+        }
+
+        .ticker {
+            animation: marquee 35s linear infinite;
+        }
+
+        @keyframes marquee {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+        .lens-bg {
+            background: radial-gradient(circle at center, #ffffff08 1px, transparent 1px);
+            background-size: 22px 22px;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div
+        class="crt w-full max-w-7xl mx-auto border border-white/10 rounded-2xl overflow-hidden monolith flex flex-col h-[98vh]">
+
+        <!-- HEADER -->
+        <header class="h-14 border-b border-white/10 flex items-center px-6 bg-black/40">
+            <div class="flex items-center gap-4 flex-1">
+                <div class="flex gap-1">
+                    <div class="w-2.5 h-2.5 rounded-full bg-red-500/60"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-500/60"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500/60"></div>
+                </div>
+                <div class="h-4 w-px bg-white/10"></div>
+                <div class="flex items-center gap-3 text-xs font-bold tracking-widest">
+                    <span class="text-amber-500">🛡️</span>
+                    SOVEREIGN_CORE_v4.1 • æPI_YARN_WEAVE
+                </div>
+            </div>
+
+            <div class="flex items-center gap-8 text-[10px] font-mono uppercase tracking-widest">
+                <div class="flex items-center gap-2">
+                    <span class="text-emerald-400">LINK</span>
+                    <span class="text-white/70">ENCRYPTED</span>
+                </div>
+                <div id="latency" class="flex items-center gap-2">
+                    <span class="text-amber-400">LAT</span>
+                    <span class="text-white">11ms</span>
+                </div>
+                <div id="time" class="text-white/90 tabular-nums">00:00:00</div>
+            </div>
+        </header>
+
+        <div class="flex flex-1 overflow-hidden">
+
+            <!-- LEFT NAV -->
+            <nav class="w-80 border-r border-white/10 bg-black/30 p-6 flex flex-col">
+                <div
+                    class="uppercase text-[10px] tracking-[1px] text-amber-500/70 font-bold mb-6 flex items-center gap-2">
+                    <span>LOGIC_THREAD</span>
+                </div>
+
+                <div id="steps" class="space-y-2 flex-1">
+                    <!-- JS injected -->
+                </div>
+
+                <div class="mt-auto pt-8 border-t border-white/10">
+                    <div class="bg-black/50 border border-white/10 p-4 rounded text-[10px]">
+                        <div class="text-emerald-500/70 text-[9px]">AUTH_TOKEN</div>
+                        <div class="font-mono text-xs text-white/80 tracking-tighter">CLIENT_YARN_2026_03_A</div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- CENTER LENS -->
+            <main class="flex-1 relative flex items-center justify-center p-8 lg:p-16 bg-[#020408] lens-bg">
+                <div class="relative z-10 max-w-2xl text-center">
+                    <div id="phase"
+                        class="inline-block px-4 py-1 border border-amber-500/30 bg-amber-500/10 text-amber-500 text-xs font-bold tracking-widest mb-6">
+                        PHASE_01
+                    </div>
+
+                    <h1 id="main-desc"
+                        class="text-4xl md:text-5xl font-light leading-tight text-white tracking-tight mb-12">
+                        Establishing zero-knowledge proof with global liquidity providers.
+                    </h1>
+
+                    <div class="grid grid-cols-3 gap-8 text-left text-sm">
+                        <div>
+                            <div class="text-[10px] text-white/40">CONFIDENCE</div>
+                            <div class="text-2xl font-medium text-white">99.87%</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-white/40">COMPUTE</div>
+                            <div class="text-2xl font-medium text-amber-400">LOW</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-white/40">YIELD</div>
+                            <div class="text-2xl font-medium text-emerald-400">+2.31%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- YARN ORBIT -->
+                <div id="yarnOrbit" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <!-- JS injected yarn balls -->
+                </div>
+            </main>
+
+            <!-- RIGHT TELEMETRY -->
+            <aside class="w-80 border-l border-white/10 bg-black/30 p-6 flex flex-col hidden xl:flex">
+                <div class="uppercase text-[9px] tracking-widest text-white/40 mb-4">SYSTEM_FEED</div>
+                <div id="feed" class="flex-1 font-mono text-[10px] space-y-2 overflow-y-auto pr-2 text-white/60">
+                    <!-- JS injected -->
+                </div>
+
+                <div class="mt-8">
+                    <div class="flex justify-between text-[9px] text-white/40 mb-2">
+                        <span>NEURAL_UTIL</span>
+                        <span id="util">17%</span>
+                    </div>
+                    <div class="h-1 bg-white/10 rounded overflow-hidden">
+                        <div id="utilBar" class="h-full bg-amber-500 transition-all" style="width:17%"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mt-10">
+                    <button onclick="recalibrate()"
+                        class="border border-white/10 hover:border-amber-500 p-4 rounded transition flex flex-col items-center gap-2">
+                        <span class="text-lg">⟳</span>
+                        <span class="text-[9px] font-bold tracking-widest">RECALIBRATE</span>
+                    </button>
+                    <button onclick="deployYarn()"
+                        class="border border-white/10 hover:border-amber-500 p-4 rounded transition flex flex-col items-center gap-2">
+                        <span class="text-lg">🧶</span>
+                        <span class="text-[9px] font-bold tracking-widest">DEPLOY YARN</span>
+                    </button>
+                </div>
+            </aside>
+        </div>
+
+        <!-- TICKER -->
+        <footer class="h-9 bg-black border-t border-white/10 flex items-center overflow-hidden">
+            <div class="ticker flex items-center gap-12 text-xs text-white/50 font-mono whitespace-nowrap">
+                <span>BTC $94,821 <span class="text-emerald-400">+1.37%</span></span>
+                <span>ETH $2,438 <span class="text-red-400">-0.21%</span></span>
+                <span>SOL $148.44 <span class="text-emerald-400">+4.12%</span></span>
+                <span>XAU $2,347 <span class="text-amber-400">+0.08%</span></span>
+                <span>æLNET_YARN 99.94% <span class="text-white">SOVEREIGN</span></span>
+                <span>BTC $94,821 <span class="text-emerald-400">+1.37%</span></span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Execution steps
+        const executionSteps = [
+            { label: "PROTOCOL_HANDSHAKE", desc: "Establishing zero-knowledge proof with global liquidity providers.", status: "COMPLETED", val: "SECURE" },
+            { label: "ALPHA_DISCOVERY", desc: "Scanning 1.4B data points for multi-chain arbitrage delta.", status: "ACTIVE", val: "SCANNING" },
+            { label: "RISK_SIMULATION", desc: "Running Monte Carlo stress tests at 99.9% confidence interval.", status: "PENDING", val: "QUEUED" },
+            { label: "ATOMIC_SETTLEMENT", desc: "Executing smart-contract swap with instantaneous finality.", status: "PENDING", val: "WAITING" }
+        ];
+
+        let activeStep = 0;
+
+        // Render steps
+        function renderSteps() {
+            const container = document.getElementById('steps');
+            container.innerHTML = '';
+            executionSteps.forEach((step, i) => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-4 rounded border transition-all text-sm ${i === activeStep ? 'active border-amber-500 bg-amber-500/10' : 'border-transparent hover:bg-white/5'}`;
+                btn.innerHTML = `
+            <div class="flex justify-between mb-1">
+                <span class="font-bold tracking-widest text-[10px]">${step.label}</span>
+                <span class="text-[9px] px-2 py-px border ${step.status === 'ACTIVE' ? 'border-amber-500 text-amber-500' : 'border-white/30'}">${step.val}</span>
+            </div>
+            <div class="text-xs text-white/60">${step.desc}</div>
+        `;
+                btn.onclick = () => {
+                    activeStep = i;
+                    renderSteps();
+                    updateMain();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        // Update main lens
+        function updateMain() {
+            document.getElementById('phase').textContent = `PHASE_0${activeStep + 1}`;
+            document.getElementById('main-desc').innerHTML = executionSteps[activeStep].desc.split(' ').map((w, i) =>
+                `<span class="${i % 3 === 0 ? 'text-amber-500' : ''}">${w} </span>`
+            ).join('');
+        }
+
+        // Live yarn orbit
+        function spawnYarnOrbit() {
+            const orbit = document.getElementById('yarnOrbit');
+            orbit.innerHTML = '';
+            for (let i = 0; i < 6; i++) {
+                const ball = document.createElement('div');
+                ball.className = 'yarn-ball absolute text-amber-400';
+                ball.style.left = `${35 + i * 8}%`;
+                ball.style.top = `${28 + (i % 3) * 14}%`;
+                ball.innerHTML = '🧶';
+                ball.onclick = () => {
+                    addFeed(`🧶 YARN BALL ${i + 1} TANGLED • SOVEREIGN INJECT`);
+                    ball.style.transform = 'scale(2.8) rotate(180deg)';
+                    setTimeout(() => ball.style.transform = '', 600);
+                };
+                orbit.appendChild(ball);
+            }
+        }
+
+        // Feed
+        function addFeed(msg) {
+            const feed = document.getElementById('feed');
+            const line = document.createElement('div');
+            line.className = 'flex gap-3';
+            line.innerHTML = `<span class="text-amber-500/50 w-10">[${new Date().toLocaleTimeString().slice(0, 8)}]</span><span>${msg}</span>`;
+            feed.appendChild(line);
+            if (feed.children.length > 12) feed.removeChild(feed.children[0]);
+        }
+
+        // Live metrics
+        let latency = 11;
+        setInterval(() => {
+            latency = 9 + Math.floor(Math.random() * 6);
+            document.getElementById('latency').innerHTML = `
+        <span class="text-amber-400">LAT</span>
+        <span class="text-white">${latency}MS</span>
+    `;
+        }, 1400);
+
+        let seconds = 0;
+        setInterval(() => {
+            seconds++;
+            const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+            const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+            const s = String(seconds % 60).padStart(2, '0');
+            document.getElementById('time').textContent = `${h}:${m}:${s}`;
+        }, 1000);
+
+        // Util bar
+        setInterval(() => {
+            const util = 12 + Math.floor(Math.random() * 18);
+            document.getElementById('util').textContent = util + '%';
+            document.getElementById('utilBar').style.width = util + '%';
+        }, 2200);
+
+        // Buttons
+        function recalibrate() {
+            addFeed("RECALIBRATION COMPLETE • YARN ALIGNED");
+        }
+
+        function deployYarn() {
+            addFeed("🧶 YARN NODE DEPLOYED TO EDGE • SOVEREIGN");
+            const balls = document.querySelectorAll('.yarn-ball');
+            balls.forEach(b => {
+                b.style.transition = 'all .6s';
+                b.style.transform = 'scale(1.6)';
+                setTimeout(() => b.style.transform = '', 800);
+            });
+        }
+
+        // Init
+        renderSteps();
+        updateMain();
+        spawnYarnOrbit();
+
+        for (let i = 0; i < 9; i++) {
+            setTimeout(() => addFeed([
+                "HANDSHAKE SUCCESS",
+                "ALPHA SCAN ACTIVE",
+                "MONTE CARLO RUNNING",
+                "YARN PERSISTENCE LOCKED",
+                "SOVEREIGN_TX CONFIRMED"
+            ][i % 5]), i * 280);
+        }
+
+        addFeed("æPI v4.1 • SOVEREIGN_CORE + YARN WEAVE ONLINE");
+    </script>
+</body>
+
+</html>

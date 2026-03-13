@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#ff3366">
+    <title>📱📺 MÆCH Mobile Educational Streaming - K-12 Broadcasting</title>
+    <meta name="description" content="Mobile-first educational streaming and broadcasting platform for K-12 students with 24/7 live streaming capabilities">
+    
+    <style>
+        :root {
+            --stream-primary: #ff3366;
+            --stream-secondary: #00ff88;
+            --stream-accent: #8844ff;
+            --stream-warning: #ffaa00;
+            --stream-success: #00ffaa;
+            --stream-background: #0a0a0a;
+            --stream-surface: #1a1a1a;
+            --stream-text: #ffffff;
+            --gradient-stream: linear-gradient(135deg, var(--stream-primary), var(--stream-accent));
+            --gradient-live: linear-gradient(45deg, var(--stream-primary), var(--stream-warning));
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background: var(--stream-background);
+            color: var(--stream-text);
+            min-height: 100vh;
+            /* 📱 MOBILE-FIRST OPTIMIZATION */
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            font-size: clamp(14px, 4vw, 16px);
+            line-height: 1.5;
+        }
+
+        /* 📱 MOBILE-FIRST STREAMING CONTAINER */
+        .mobile-streaming-app {
+            width: 100vw;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
+        }
+
+        /* Mobile-first header with live status */
+        .streaming-header {
+            height: clamp(60px, 15vw, 70px);
+            background: var(--gradient-stream);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 clamp(16px, 5vw, 24px);
+            font-weight: bold;
+            color: white;
+            z-index: 1000;
+            box-shadow: 0 2px 15px rgba(255, 51, 102, 0.4);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: clamp(8px, 2.5vw, 12px);
+            font-size: clamp(14px, 4.5vw, 18px);
+        }
+
+        .live-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: clamp(10px, 3vw, 12px);
+            background: rgba(0, 0, 0, 0.3);
+            padding: clamp(4px, 1.5vw, 6px) clamp(8px, 2.5vw, 10px);
+            border-radius: 12px;
+        }
+
+        .live-indicator {
+            width: 8px;
+            height: 8px;
+            background: var(--stream-primary);
+            border-radius: 50%;
+            animation: live-pulse 1.5s infinite;
+        }
+
+        .live-indicator.streaming {
+            background: var(--stream-success);
+            animation: live-pulse-active 1s infinite;
+        }
+
+        @keyframes live-pulse {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        @keyframes live-pulse-active {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.3); }
+        }
+
+        /* Mobile video container */
+        .video-container {
+            position: relative;
+            background: #000;
+            aspect-ratio: 16/9;
+            max-height: 45vh;
+            overflow: hidden;
+        }
+
+        .main-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #000;
+        }
+
+        /* Video overlay controls for mobile */
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(transparent 60%, rgba(0, 0, 0, 0.7));
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .video-controls {
+            position: absolute;
+            bottom: clamp(12px, 3vw, 16px);
+            left: clamp(12px, 3vw, 16px);
+            right: clamp(12px, 3vw, 16px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            pointer-events: all;
+        }
+
+        .play-pause-btn {
+            width: clamp(44px, 12vw, 52px);
+            height: clamp(44px, 12vw, 52px);
+            background: rgba(255, 51, 102, 0.9);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: clamp(20px, 6vw, 24px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s ease-out;
+            touch-action: manipulation;
+        }
+
+        .play-pause-btn:active {
+            transform: scale(0.9);
+            background: var(--stream-primary);
+        }
+
+        .time-display {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: clamp(10px, 3vw, 12px);
+            font-family: monospace;
+        }
+
+        /* Mobile streaming controls */
+        .streaming-controls {
+            background: var(--stream-surface);
+            padding: clamp(16px, 5vw, 24px);
+            border-top: 2px solid var(--stream-accent);
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .control-section {
+            margin-bottom: clamp(20px, 6vw, 24px);
+        }
+
+        .section-title {
+            font-size: clamp(16px, 4.5vw, 18px);
+            color: var(--stream-accent);
+            margin-bottom: clamp(12px, 3.5vw, 16px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+        }
+
+        /* Mobile-first button grid */
+        .streaming-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: clamp(10px, 3vw, 14px);
+            margin-bottom: clamp(16px, 4vw, 20px);
+        }
+
+        .streaming-btn {
+            background: var(--gradient-stream);
+            border: none;
+            color: white;
+            padding: clamp(14px, 4vw, 18px);
+            border-radius: clamp(12px, 3.5vw, 16px);
+            font-size: clamp(13px, 3.5vw, 15px);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.25s ease-out;
+            min-height: 48px;
+            touch-action: manipulation;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .streaming-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 20px rgba(255, 51, 102, 0.6);
+        }
+
+        .streaming-btn.live {
+            background: var(--gradient-live);
+            box-shadow: 0 0 15px rgba(255, 170, 0, 0.4);
+            animation: live-button-glow 2s infinite;
+        }
+
+        @keyframes live-button-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(255, 170, 0, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(255, 170, 0, 0.7); }
+        }
+
+        .streaming-btn.secondary {
+            background: linear-gradient(135deg, var(--stream-secondary), var(--stream-accent));
+        }
+
+        .streaming-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Mobile status indicators */
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(12px, 3vw, 16px);
+            margin-bottom: clamp(16px, 4vw, 20px);
+        }
+
+        .status-card {
+            background: rgba(136, 68, 255, 0.1);
+            border: 2px solid var(--stream-accent);
+            border-radius: clamp(10px, 3vw, 14px);
+            padding: clamp(12px, 4vw, 16px);
+            text-align: center;
+        }
+
+        .status-value {
+            font-size: clamp(18px, 5vw, 24px);
+            font-weight: bold;
+            color: var(--stream-accent);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .status-label {
+            font-size: clamp(10px, 3vw, 12px);
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Mobile chat interface */
+        .chat-section {
+            background: rgba(0, 255, 136, 0.05);
+            border: 2px solid var(--stream-secondary);
+            border-radius: clamp(12px, 3.5vw, 16px);
+            padding: clamp(12px, 4vw, 16px);
+            max-height: 200px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: clamp(8px, 2.5vw, 12px);
+            max-height: 120px;
+        }
+
+        .chat-message {
+            margin-bottom: 8px;
+            padding: 6px 10px;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 8px;
+            font-size: clamp(11px, 3vw, 13px);
+            line-height: 1.3;
+        }
+
+        .chat-author {
+            font-weight: bold;
+            color: var(--stream-secondary);
+            margin-right: 6px;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: clamp(10px, 3vw, 12px);
+            background: rgba(26, 26, 26, 0.9);
+            border: 2px solid var(--stream-secondary);
+            border-radius: clamp(8px, 2.5vw, 10px);
+            color: white;
+            font-size: clamp(12px, 3.5vw, 14px);
+            font-family: inherit;
+            min-height: 40px;
+        }
+
+        .chat-send {
+            background: var(--stream-secondary);
+            border: none;
+            color: black;
+            padding: clamp(10px, 3vw, 12px);
+            border-radius: clamp(8px, 2.5vw, 10px);
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 60px;
+            touch-action: manipulation;
+        }
+
+        /* Mobile quick actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(8px, 2.5vw, 12px);
+            margin-bottom: clamp(16px, 4vw, 20px);
+        }
+
+        .quick-action {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: clamp(8px, 2.5vw, 12px);
+            padding: clamp(10px, 3vw, 14px);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease-out;
+            touch-action: manipulation;
+        }
+
+        .quick-action:active {
+            background: rgba(255, 51, 102, 0.2);
+            border-color: var(--stream-primary);
+            transform: scale(0.95);
+        }
+
+        .action-icon {
+            font-size: clamp(18px, 5vw, 22px);
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .action-label {
+            font-size: clamp(9px, 2.5vw, 11px);
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Mobile education overlay */
+        .education-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            padding: clamp(20px, 6vw, 30px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .education-overlay.active {
+            display: flex;
+            animation: overlay-appear 0.3s ease-out;
+        }
+
+        @keyframes overlay-appear {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .overlay-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: clamp(20px, 6vw, 30px);
+            padding-bottom: clamp(12px, 3vw, 16px);
+            border-bottom: 2px solid var(--stream-accent);
+        }
+
+        .overlay-title {
+            font-size: clamp(18px, 5vw, 22px);
+            color: var(--stream-accent);
+            font-weight: bold;
+        }
+
+        .overlay-close {
+            background: rgba(255, 0, 85, 0.2);
+            border: 2px solid #ff0055;
+            color: #ff0055;
+            padding: clamp(8px, 2.5vw, 12px);
+            border-radius: 50%;
+            cursor: pointer;
+            width: clamp(40px, 10vw, 48px);
+            height: clamp(40px, 10vw, 48px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(16px, 4vw, 20px);
+            touch-action: manipulation;
+        }
+
+        /* Mobile media queries */
+        @media (max-width: 480px) {
+            .streaming-buttons {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .status-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Landscape mode optimizations */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .streaming-header {
+                height: 50px;
+            }
+            
+            .video-container {
+                max-height: 35vh;
+            }
+            
+            .streaming-controls {
+                padding: 12px;
+            }
+        }
+
+        /* Tablet optimizations */
+        @media (min-width: 768px) {
+            .streaming-buttons {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .status-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-streaming-app">
+        <!-- Header -->
+        <div class="streaming-header">
+            <div class="header-brand">
+                📱📺 MÆCH EduStream
+            </div>
+            <div class="live-status" id="live-status">
+                <div class="live-indicator" id="live-indicator"></div>
+                <span id="status-text">Offline</span>
+            </div>
+        </div>
+
+        <!-- Video Container -->
+        <div class="video-container">
+            <video class="main-video" id="main-video" poster="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iOSIgdmlld0JveD0iMCAwIDE2IDkiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBzdG9wLWNvbG9yPSIjZmYzMzY2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjODg0NGZmIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3QgZmlsbD0idXJsKCNhKSIgd2lkdGg9IjE2IiBoZWlnaHQ9IjkiIHJ4PSIxIi8+PHRleHQgeD0iOCIgeT0iNS41IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIyLjUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiPk3OhENIPC90ZXh0Pjwvc3ZnPg==">
+                <source src="#" type="video/mp4">
+            </video>
+            
+            <div class="video-overlay">
+                <div class="video-controls">
+                    <button class="play-pause-btn" id="play-pause-btn" data-testid="button-play-pause">
+                        ▶️
+                    </button>
+                    <div class="time-display" id="time-display">00:00 / 00:00</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Streaming Controls -->
+        <div class="streaming-controls">
+            <!-- Main Streaming Actions -->
+            <div class="control-section">
+                <div class="section-title">
+                    📡 Broadcasting Controls
+                </div>
+                <div class="streaming-buttons">
+                    <button class="streaming-btn" id="start-stream" data-testid="button-start-stream">
+                        🔴 Go Live
+                    </button>
+                    <button class="streaming-btn secondary" id="schedule-stream" data-testid="button-schedule-stream">
+                        ⏰ Schedule
+                    </button>
+                    <button class="streaming-btn" id="record-stream" data-testid="button-record-stream">
+                        📹 Record
+                    </button>
+                    <button class="streaming-btn secondary" id="switch-camera" data-testid="button-switch-camera">
+                        🔄 Camera
+                    </button>
+                </div>
+            </div>
+
+            <!-- Status Grid -->
+            <div class="control-section">
+                <div class="section-title">
+                    📊 Streaming Stats
+                </div>
+                <div class="status-grid">
+                    <div class="status-card">
+                        <span class="status-value" id="viewer-count">0</span>
+                        <span class="status-label">Viewers</span>
+                    </div>
+                    <div class="status-card">
+                        <span class="status-value" id="stream-duration">00:00</span>
+                        <span class="status-label">Duration</span>
+                    </div>
+                    <div class="status-card">
+                        <span class="status-value" id="quality-status">HD</span>
+                        <span class="status-label">Quality</span>
+                    </div>
+                    <div class="status-card">
+                        <span class="status-value" id="connection-status">●</span>
+                        <span class="status-label">Connection</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="control-section">
+                <div class="section-title">
+                    ⚡ Quick Actions
+                </div>
+                <div class="quick-actions">
+                    <div class="quick-action" onclick="openEducationOverlay('whiteboard')" data-testid="action-whiteboard">
+                        <span class="action-icon">📝</span>
+                        <span class="action-label">Whiteboard</span>
+                    </div>
+                    <div class="quick-action" onclick="openEducationOverlay('quiz')" data-testid="action-quiz">
+                        <span class="action-icon">❓</span>
+                        <span class="action-label">Quiz</span>
+                    </div>
+                    <div class="quick-action" onclick="openEducationOverlay('poll')" data-testid="action-poll">
+                        <span class="action-icon">📊</span>
+                        <span class="action-label">Poll</span>
+                    </div>
+                    <div class="quick-action" onclick="shareStream()" data-testid="action-share">
+                        <span class="action-icon">📤</span>
+                        <span class="action-label">Share</span>
+                    </div>
+                    <div class="quick-action" onclick="openEducationOverlay('materials')" data-testid="action-materials">
+                        <span class="action-icon">📚</span>
+                        <span class="action-label">Materials</span>
+                    </div>
+                    <div class="quick-action" onclick="window.location.href='/'" data-testid="action-home">
+                        <span class="action-icon">🏠</span>
+                        <span class="action-label">Home</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Section -->
+            <div class="control-section">
+                <div class="section-title">
+                    💬 Live Chat
+                </div>
+                <div class="chat-section">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="chat-message">
+                            <span class="chat-author">Sistema:</span>
+                            Bienvenido al chat educativo MÆCH 🎓
+                        </div>
+                        <div class="chat-message">
+                            <span class="chat-author">María:</span>
+                            ¡Hola! Lista para aprender matemáticas 🧮
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" class="chat-input" id="chat-input" placeholder="Escribe tu mensaje..." data-testid="input-chat-message">
+                        <button class="chat-send" id="chat-send" data-testid="button-send-chat">Enviar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Education Overlay -->
+        <div class="education-overlay" id="education-overlay">
+            <div class="overlay-header">
+                <div class="overlay-title" id="overlay-title">Educational Tools</div>
+                <button class="overlay-close" onclick="closeEducationOverlay()" data-testid="button-close-overlay">✕</button>
+            </div>
+            <div id="overlay-content">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MechMobileEducationalStreaming {
+            constructor() {
+                this.isLive = false;
+                this.isRecording = false;
+                this.viewerCount = 0;
+                this.streamStartTime = null;
+                this.currentDuration = 0;
+                this.chatMessages = [];
+                
+                this.video = document.getElementById('main-video');
+                this.playPauseBtn = document.getElementById('play-pause-btn');
+                this.liveIndicator = document.getElementById('live-indicator');
+                this.statusText = document.getElementById('status-text');
+                
+                this.init();
+            }
+
+            init() {
+                console.log('🚀📱 Initializing MÆCH Mobile Educational Streaming...');
+                this.setupEventListeners();
+                this.initializeVideoStream();
+                this.startStatusUpdates();
+                this.simulateViewerActivity();
+            }
+
+            async initializeVideoStream() {
+                try {
+                    // Initialize user media for mobile streaming
+                    const constraints = {
+                        video: {
+                            facingMode: 'user', // Front camera for educational streaming
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 }
+                        },
+                        audio: true
+                    };
+
+                    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    this.video.srcObject = stream;
+                    this.localStream = stream;
+                    
+                    console.log('📹 Camera initialized for mobile streaming');
+                } catch (error) {
+                    console.warn('📷 Camera not available, using demo mode');
+                    this.setupDemoMode();
+                }
+            }
+
+            setupDemoMode() {
+                // Create a canvas-based demo stream
+                const canvas = document.createElement('canvas');
+                canvas.width = 1280;
+                canvas.height = 720;
+                const ctx = canvas.getContext('2d');
+                
+                const drawDemo = () => {
+                    // Create animated educational demo
+                    ctx.fillStyle = 'linear-gradient(135deg, #ff3366, #8844ff)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    ctx.fillStyle = 'white';
+                    ctx.font = '48px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('📱📺 MÆCH EduStream', canvas.width/2, canvas.height/2 - 50);
+                    
+                    ctx.font = '32px monospace';
+                    ctx.fillText('Mobile Educational Broadcasting', canvas.width/2, canvas.height/2 + 20);
+                    
+                    ctx.font = '24px monospace';
+                    ctx.fillText(`Time: ${new Date().toLocaleTimeString()}`, canvas.width/2, canvas.height/2 + 80);
+                    
+                    requestAnimationFrame(drawDemo);
+                };
+                
+                drawDemo();
+                this.video.srcObject = canvas.captureStream();
+            }
+
+            setupEventListeners() {
+                // Play/Pause button
+                this.playPauseBtn.addEventListener('click', () => {
+                    this.togglePlayPause();
+                });
+
+                // Streaming controls
+                document.getElementById('start-stream').addEventListener('click', () => {
+                    this.toggleLiveStream();
+                });
+
+                document.getElementById('schedule-stream').addEventListener('click', () => {
+                    this.scheduleStream();
+                });
+
+                document.getElementById('record-stream').addEventListener('click', () => {
+                    this.toggleRecording();
+                });
+
+                document.getElementById('switch-camera').addEventListener('click', () => {
+                    this.switchCamera();
+                });
+
+                // Chat functionality
+                const chatInput = document.getElementById('chat-input');
+                const chatSend = document.getElementById('chat-send');
+                
+                chatSend.addEventListener('click', () => {
+                    this.sendChatMessage();
+                });
+
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.sendChatMessage();
+                    }
+                });
+
+                // Video controls
+                this.video.addEventListener('loadedmetadata', () => {
+                    this.updateTimeDisplay();
+                });
+
+                this.video.addEventListener('timeupdate', () => {
+                    this.updateTimeDisplay();
+                });
+            }
+
+            togglePlayPause() {
+                if (this.video.paused) {
+                    this.video.play();
+                    this.playPauseBtn.textContent = '⏸️';
+                } else {
+                    this.video.pause();
+                    this.playPauseBtn.textContent = '▶️';
+                }
+
+                // Haptic feedback
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            }
+
+            toggleLiveStream() {
+                this.isLive = !this.isLive;
+                const btn = document.getElementById('start-stream');
+                
+                if (this.isLive) {
+                    btn.innerHTML = '🔴 En Vivo';
+                    btn.classList.add('live');
+                    this.liveIndicator.classList.add('streaming');
+                    this.statusText.textContent = 'En Vivo';
+                    this.streamStartTime = Date.now();
+                    
+                    this.showNotification('🔴 ¡Transmisión iniciada! Estás en vivo para tus estudiantes.');
+                    
+                    // Simulate viewer growth
+                    this.simulateViewerGrowth();
+                } else {
+                    btn.innerHTML = '🔴 Iniciar';
+                    btn.classList.remove('live');
+                    this.liveIndicator.classList.remove('streaming');
+                    this.statusText.textContent = 'Offline';
+                    this.streamStartTime = null;
+                    this.viewerCount = 0;
+                    
+                    this.showNotification('📺 Transmisión finalizada. ¡Buen trabajo!');
+                }
+                
+                this.updateViewerCount();
+            }
+
+            toggleRecording() {
+                this.isRecording = !this.isRecording;
+                const btn = document.getElementById('record-stream');
+                
+                if (this.isRecording) {
+                    btn.innerHTML = '⏹️ Parar';
+                    btn.style.background = 'linear-gradient(135deg, #ff0055, #ff3366)';
+                    this.showNotification('🎬 Grabación iniciada');
+                } else {
+                    btn.innerHTML = '📹 Grabar';
+                    btn.style.background = '';
+                    this.showNotification('💾 Grabación guardada');
+                }
+            }
+
+            async switchCamera() {
+                if (!this.localStream) return;
+                
+                try {
+                    const videoTrack = this.localStream.getVideoTracks()[0];
+                    const settings = videoTrack.getSettings();
+                    const newFacingMode = settings.facingMode === 'user' ? 'environment' : 'user';
+                    
+                    this.localStream.getTracks().forEach(track => track.stop());
+                    
+                    const constraints = {
+                        video: { facingMode: newFacingMode },
+                        audio: true
+                    };
+                    
+                    this.localStream = await navigator.mediaDevices.getUserMedia(constraints);
+                    this.video.srcObject = this.localStream;
+                    
+                    this.showNotification(`📷 Cámara cambiada: ${newFacingMode === 'user' ? 'Frontal' : 'Trasera'}`);
+                } catch (error) {
+                    this.showNotification('❌ Error al cambiar cámara');
+                }
+            }
+
+            scheduleStream() {
+                const times = ['16:00', '17:00', '18:00', '19:00'];
+                const selectedTime = times[Math.floor(Math.random() * times.length)];
+                this.showNotification(`⏰ Transmisión programada para las ${selectedTime} hoy`);
+            }
+
+            sendChatMessage() {
+                const input = document.getElementById('chat-input');
+                const message = input.value.trim();
+                
+                if (!message) return;
+                
+                this.addChatMessage('Tú', message);
+                input.value = '';
+                
+                // Simulate response from students
+                setTimeout(() => {
+                    const responses = [
+                        '¡Excelente explicación! 👏',
+                        'No entendí la parte del ejemplo 🤔',
+                        '¿Puedes repetir esa fórmula?',
+                        '¡Muy claro, gracias profe! 🎓',
+                        'Me ayudó mucho este tema ✨'
+                    ];
+                    const response = responses[Math.floor(Math.random() * responses.length)];
+                    const names = ['María', 'Carlos', 'Ana', 'Luis', 'Sofia'];
+                    const name = names[Math.floor(Math.random() * names.length)];
+                    
+                    this.addChatMessage(name, response);
+                }, 1000 + Math.random() * 3000);
+            }
+
+            addChatMessage(author, message) {
+                const chatMessages = document.getElementById('chat-messages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chat-message';
+                messageDiv.innerHTML = `
+                    <span class="chat-author">${author}:</span>
+                    ${message}
+                `;
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Keep only last 20 messages for performance
+                while (chatMessages.children.length > 20) {
+                    chatMessages.removeChild(chatMessages.firstChild);
+                }
+            }
+
+            updateTimeDisplay() {
+                const current = this.formatTime(this.video.currentTime || 0);
+                const duration = this.formatTime(this.video.duration || 0);
+                document.getElementById('time-display').textContent = `${current} / ${duration}`;
+            }
+
+            formatTime(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = Math.floor(seconds % 60);
+                return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }
+
+            simulateViewerGrowth() {
+                if (!this.isLive) return;
+                
+                // Gradually increase viewers
+                setTimeout(() => {
+                    this.viewerCount += Math.floor(Math.random() * 3) + 1;
+                    this.updateViewerCount();
+                    
+                    if (this.isLive && this.viewerCount < 50) {
+                        this.simulateViewerGrowth();
+                    }
+                }, 2000 + Math.random() * 8000);
+            }
+
+            simulateViewerActivity() {
+                setInterval(() => {
+                    if (this.isLive && Math.random() < 0.3) {
+                        // Simulate viewer joining/leaving
+                        const change = Math.random() < 0.7 ? 1 : -1;
+                        this.viewerCount = Math.max(0, this.viewerCount + change);
+                        this.updateViewerCount();
+                    }
+                }, 5000);
+            }
+
+            updateViewerCount() {
+                document.getElementById('viewer-count').textContent = this.viewerCount;
+            }
+
+            startStatusUpdates() {
+                setInterval(() => {
+                    if (this.isLive && this.streamStartTime) {
+                        const elapsed = Date.now() - this.streamStartTime;
+                        const minutes = Math.floor(elapsed / 60000);
+                        const seconds = Math.floor((elapsed % 60000) / 1000);
+                        document.getElementById('stream-duration').textContent = 
+                            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    } else if (!this.isLive) {
+                        document.getElementById('stream-duration').textContent = '00:00';
+                    }
+                    
+                    // Update connection status
+                    const status = ['●', '●', '●', '◐'][Math.floor(Math.random() * 4)];
+                    document.getElementById('connection-status').textContent = status;
+                    document.getElementById('connection-status').style.color = 
+                        status === '●' ? 'var(--stream-success)' : 'var(--stream-warning)';
+                }, 1000);
+            }
+
+            showNotification(message) {
+                // Create temporary notification
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 80px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: rgba(255, 51, 102, 0.95);
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: bold;
+                    z-index: 3000;
+                    backdrop-filter: blur(10px);
+                    animation: notification-appear 0.3s ease-out;
+                `;
+                
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'notification-disappear 0.3s ease-out forwards';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+        }
+
+        // Education overlay functions
+        function openEducationOverlay(type) {
+            const overlay = document.getElementById('education-overlay');
+            const title = document.getElementById('overlay-title');
+            const content = document.getElementById('overlay-content');
+            
+            const overlayContent = {
+                whiteboard: {
+                    title: '📝 Pizarra Digital',
+                    content: `
+                        <div style="text-align: center; padding: 40px;">
+                            <h3>🎨 Pizarra Interactiva</h3>
+                            <p>Herramienta de dibujo para explicar conceptos visualmente</p>
+                            <div style="background: rgba(255,255,255,0.1); height: 200px; border-radius: 12px; margin: 20px 0; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                                Canvas de Pizarra
+                            </div>
+                            <button class="streaming-btn" style="margin: 10px;">🖍️ Lápiz</button>
+                            <button class="streaming-btn" style="margin: 10px;">🧽 Borrador</button>
+                        </div>
+                    `
+                },
+                quiz: {
+                    title: '❓ Quiz Interactivo',
+                    content: `
+                        <div style="text-align: center; padding: 40px;">
+                            <h3>🧠 Pregunta del Momento</h3>
+                            <div style="background: rgba(0,255,136,0.1); padding: 20px; border-radius: 12px; margin: 20px 0;">
+                                <p><strong>¿Cuál es la capital de Colombia?</strong></p>
+                                <button class="streaming-btn secondary" style="margin: 5px; width: 80%;">A) Medellín</button>
+                                <button class="streaming-btn secondary" style="margin: 5px; width: 80%;">B) Bogotá</button>
+                                <button class="streaming-btn secondary" style="margin: 5px; width: 80%;">C) Cali</button>
+                            </div>
+                            <p>👥 <strong>87%</strong> de estudiantes han respondido</p>
+                        </div>
+                    `
+                },
+                poll: {
+                    title: '📊 Encuesta en Vivo',
+                    content: `
+                        <div style="text-align: center; padding: 40px;">
+                            <h3>📈 ¿Cómo te sientes hoy?</h3>
+                            <div style="background: rgba(136,68,255,0.1); padding: 20px; border-radius: 12px; margin: 20px 0;">
+                                <div style="margin: 10px 0;">😊 Excelente - <strong>45%</strong></div>
+                                <div style="margin: 10px 0;">😐 Regular - <strong>35%</strong></div>
+                                <div style="margin: 10px 0;">😔 Cansado - <strong>20%</strong></div>
+                            </div>
+                            <button class="streaming-btn">🗳️ Votar</button>
+                            <button class="streaming-btn secondary">📊 Ver Resultados</button>
+                        </div>
+                    `
+                },
+                materials: {
+                    title: '📚 Materiales de Clase',
+                    content: `
+                        <div style="padding: 20px;">
+                            <h3>📖 Recursos Educativos</h3>
+                            <div style="background: rgba(0,255,136,0.05); padding: 15px; border-radius: 10px; margin: 10px 0; border: 2px solid rgba(0,255,136,0.2);">
+                                <h4>📄 Matemáticas - Ecuaciones</h4>
+                                <p>Guía completa de ecuaciones lineales y cuadráticas</p>
+                                <button class="streaming-btn secondary" style="font-size: 12px;">📥 Descargar PDF</button>
+                            </div>
+                            <div style="background: rgba(136,68,255,0.05); padding: 15px; border-radius: 10px; margin: 10px 0; border: 2px solid rgba(136,68,255,0.2);">
+                                <h4>🎥 Video Tutorial</h4>
+                                <p>Resolución paso a paso de problemas</p>
+                                <button class="streaming-btn secondary" style="font-size: 12px;">▶️ Ver Video</button>
+                            </div>
+                            <div style="background: rgba(255,170,0,0.05); padding: 15px; border-radius: 10px; margin: 10px 0; border: 2px solid rgba(255,170,0,0.2);">
+                                <h4>📝 Ejercicios</h4>
+                                <p>Práctica interactiva con 20 problemas</p>
+                                <button class="streaming-btn secondary" style="font-size: 12px;">✏️ Practicar</button>
+                            </div>
+                        </div>
+                    `
+                }
+            };
+            
+            const selected = overlayContent[type];
+            title.textContent = selected.title;
+            content.innerHTML = selected.content;
+            
+            overlay.classList.add('active');
+        }
+
+        function closeEducationOverlay() {
+            document.getElementById('education-overlay').classList.remove('active');
+        }
+
+        function shareStream() {
+            const streamUrl = 'https://mech.edustream.app/live/mi-canal-educativo';
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: '📱📺 Mi Clase en Vivo - MÆCH EduStream',
+                    text: '¡Únete a mi clase educativa en vivo!',
+                    url: streamUrl
+                });
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(streamUrl);
+                alert('🔗 Enlace copiado: ' + streamUrl);
+            } else {
+                alert('🔗 Comparte este enlace: ' + streamUrl);
+            }
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes notification-appear {
+                from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+                to { opacity: 1; transform: translateX(-50%) translateY(0); }
+            }
+            @keyframes notification-disappear {
+                from { opacity: 1; transform: translateX(-50%) translateY(0); }
+                to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.mechEducationalStreaming = new MechMobileEducationalStreaming();
+            console.log('📱📺 MÆCH Mobile Educational Streaming initialized successfully!');
+        });
+    </script>
+</body>
+</html>

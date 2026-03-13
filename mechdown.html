@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MechDown CLI — Literate Programming | llm.store</title>
+    <meta name="description" content="MechDown literate programming environment aligned with mech-lang.org. Execute Mech code in the Command Line Internet.">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --surface: #111111;
+            --border: #222222;
+            --text: #e0e0e0;
+            --text-dim: #888888;
+            --cyan: #00ffaa;
+            --blue: #1d9bf0;
+            --yellow: #ffaa00;
+            --red: #ff4466;
+            --purple: #aa66ff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .logo span { color: var(--cyan); }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            margin-left: auto;
+        }
+
+        .nav-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--cyan); }
+
+        .main {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        @media (max-width: 900px) {
+            .main { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+        }
+
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+        }
+
+        .editor-header {
+            background: var(--surface);
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .editor-title {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .editor-title span { color: var(--cyan); }
+
+        .editor-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            background: var(--border);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--cyan);
+            color: var(--bg);
+            border-color: var(--cyan);
+        }
+
+        .btn-primary {
+            background: rgba(0, 255, 170, 0.1);
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        .editor {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .line-numbers {
+            background: var(--surface);
+            padding: 16px 12px;
+            text-align: right;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            user-select: none;
+            border-right: 1px solid var(--border);
+            min-width: 50px;
+        }
+
+        .code-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            padding: 16px;
+            resize: none;
+            outline: none;
+            white-space: pre;
+            overflow: auto;
+        }
+
+        .code-input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .output-container {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            max-height: 300px;
+            overflow: auto;
+        }
+
+        .output-header {
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .output-header .status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--cyan);
+        }
+
+        .output-content {
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .output-line { margin-bottom: 4px; }
+        .output-line.result { color: var(--cyan); }
+        .output-line.error { color: var(--red); }
+        .output-line.prose { color: var(--text-dim); }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+        }
+
+        .sidebar-section {
+            border-bottom: 1px solid var(--border);
+            padding: 16px;
+        }
+
+        .sidebar-title {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .vars-list {
+            font-size: 0.85rem;
+        }
+
+        .var-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .var-name { color: var(--purple); }
+        .var-value { color: var(--text-dim); }
+
+        .examples-list {
+            font-size: 0.85rem;
+        }
+
+        .example-item {
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            background: var(--bg);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .example-item:hover {
+            background: var(--border);
+        }
+
+        .example-item code {
+            color: var(--cyan);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .example-item span {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .repl-input {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+            background: var(--bg);
+        }
+
+        .repl-prompt {
+            color: var(--cyan);
+            margin-right: 8px;
+        }
+
+        .repl-line {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 8px 20px;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .footer a {
+            color: var(--cyan);
+            text-decoration: none;
+        }
+
+        .qr-badge {
+            color: var(--text-dim);
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">📐 <span>MechDown</span> CLI</div>
+        <span class="qr-badge" data-testid="qr-address">qr://x₀y₀z₀/mechdown</span>
+        <nav class="nav-links">
+            <a href="/" data-testid="nav-home">æææ:///</a>
+            <a href="https://mech-lang.org" target="_blank" data-testid="nav-mech">mech-lang.org</a>
+            <a href="/llm-store.html" data-testid="nav-store">llm.store</a>
+        </nav>
+    </header>
+
+    <main class="main">
+        <div class="editor-container">
+            <div class="editor-header">
+                <div class="editor-title"><span>untitled</span>.mec</div>
+                <div class="editor-actions">
+                    <button class="btn" onclick="clearEditor()" data-testid="btn-clear">Clear</button>
+                    <button class="btn btn-primary" onclick="executeCode()" data-testid="btn-run">▶ Run</button>
+                </div>
+            </div>
+            <div class="editor">
+                <div class="line-numbers" id="line-numbers">1</div>
+                <textarea class="code-input" id="code-input" data-testid="code-editor" 
+                    placeholder="-- MechDown: Literate Programming for CLI
+-- Aligned with mech-lang.org v0.2
+
+-- Try: x := 1..=10
+-- Try: y := [1 2 3] ** [4 5 6]'
+"></textarea>
+            </div>
+            <div class="output-container">
+                <div class="output-header">
+                    <span class="status"></span>
+                    OUTPUT
+                </div>
+                <div class="output-content" id="output" data-testid="output-area">
+                    Ready. Type Mech code and press Run.
+                </div>
+            </div>
+            <div class="repl-input">
+                <span class="repl-prompt">mech@x₀y₀z₀&gt;</span>
+                <input type="text" class="repl-line" id="repl-input" data-testid="repl-input" 
+                    placeholder="Enter Mech expression..." autocomplete="off" spellcheck="false">
+            </div>
+        </div>
+
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Variables</div>
+                <div class="vars-list" id="vars-list" data-testid="vars-list">
+                    <div style="color: var(--text-dim);">No variables defined</div>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">Examples</div>
+                <div class="examples-list">
+                    <div class="example-item" onclick="loadExample('range')">
+                        <code>x := 1..=10</code>
+                        <span>Range 1 to 10</span>
+                    </div>
+                    <div class="example-item" onclick="loadExample('vector')">
+                        <code>y := [1 2 3]</code>
+                        <span>Row vector</span>
+                    </div>
+                    <div class="example-item" onclick="loadExample('transpose')">
+                        <code>z := [1 2 3]'</code>
+                        <span>Column vector</span>
+                    </div>
+                    <div class="example-item" onclick="loadExample('product')">
+                        <code>s := a ** b'</code>
+                        <span>Matrix product</span>
+                    </div>
+                    <div class="example-item" onclick="loadExample('fizzbuzz')">
+                        <code>FizzBuzz</code>
+                        <span>Classic example</span>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">Syntax Reference</div>
+                <div class="examples-list" style="font-size: 0.8rem;">
+                    <div style="margin-bottom: 6px;"><code>:=</code> Assignment</div>
+                    <div style="margin-bottom: 6px;"><code>1..=10</code> Inclusive range</div>
+                    <div style="margin-bottom: 6px;"><code>[1 2 3]</code> Row vector</div>
+                    <div style="margin-bottom: 6px;"><code>A'</code> Transpose</div>
+                    <div style="margin-bottom: 6px;"><code>**</code> Matrix product</div>
+                    <div style="margin-bottom: 6px;"><code>%</code> Modulo</div>
+                    <div style="margin-bottom: 6px;"><code>==</code> or <code>⩵</code> Comparison</div>
+                    <div style="margin-bottom: 6px;"><code>&&</code> Logical AND</div>
+                    <div style="margin-bottom: 6px;"><code>--</code> Comment</div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <footer class="footer">
+        <span>æææ:/// Command Line Internet • <a href="https://mech-lang.org">mech-lang.org</a> v0.2</span>
+        <span>Territory: x₀y₀z₀</span>
+    </footer>
+
+    <script src="/mechdown-cli.js"></script>
+    <script>
+        // Uses the global singleton MechDown instance from mechdown-cli.js
+        const codeInput = document.getElementById('code-input');
+        const lineNumbers = document.getElementById('line-numbers');
+        const output = document.getElementById('output');
+        const varsList = document.getElementById('vars-list');
+        const replInput = document.getElementById('repl-input');
+        
+        // Ensure MechDown is available
+        if (!window.MechDown) {
+            console.error('MechDown not loaded!');
+        }
+
+        // Update line numbers
+        function updateLineNumbers() {
+            const lines = codeInput.value.split('\n').length;
+            lineNumbers.innerHTML = Array.from({length: lines}, (_, i) => i + 1).join('<br>');
+        }
+
+        codeInput.addEventListener('input', updateLineNumbers);
+        codeInput.addEventListener('scroll', () => {
+            lineNumbers.scrollTop = codeInput.scrollTop;
+        });
+
+        // Execute code
+        function executeCode() {
+            const code = codeInput.value;
+            if (!code.trim()) {
+                output.innerHTML = '<div class="output-line prose">No code to execute</div>';
+                return;
+            }
+
+            try {
+                const results = window.MechDown.executeFile(code);
+                let html = '';
+                
+                results.forEach(r => {
+                    const formatted = window.MechDown.formatResult(r);
+                    const cls = r.type === 'assignment' || r.type === 'mutation' ? 'result' : 
+                               r.type === 'prose' ? 'prose' : '';
+                    html += `<div class="output-line ${cls}">${escapeHtml(formatted)}</div>`;
+                });
+
+                output.innerHTML = html || '<div class="output-line prose">Executed successfully</div>';
+                updateVars();
+            } catch (e) {
+                output.innerHTML = `<div class="output-line error">Error: ${escapeHtml(e.message)}</div>`;
+            }
+        }
+
+        // Update variables display
+        function updateVars() {
+            const vars = window.MechDown.getAll();
+            const entries = Object.entries(vars);
+            
+            if (entries.length === 0) {
+                varsList.innerHTML = '<div style="color: var(--text-dim);">No variables defined</div>';
+                return;
+            }
+
+            varsList.innerHTML = entries.map(([name, value]) => `
+                <div class="var-item">
+                    <span class="var-name">${name}</span>
+                    <span class="var-value">${window.MechDown.formatValue(value).slice(0, 30)}</span>
+                </div>
+            `).join('');
+        }
+
+        // REPL input
+        replInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const line = this.value.trim();
+                if (!line) return;
+
+                const result = window.mechREPL(line);
+                output.innerHTML = `<div class="output-line">&gt; ${escapeHtml(line)}</div>
+                    <div class="output-line result">${escapeHtml(result)}</div>`;
+                updateVars();
+                this.value = '';
+            }
+        });
+
+        // Clear editor
+        function clearEditor() {
+            codeInput.value = '';
+            output.innerHTML = 'Ready. Type Mech code and press Run.';
+            window.MechDown.clear();
+            updateVars();
+            updateLineNumbers();
+        }
+
+        // Load example
+        function loadExample(name) {
+            const examples = {
+                range: 'x := 1..=10',
+                vector: 'y := [1 2 3]',
+                transpose: 'z := [1 2 3]\'',
+                product: 'a := [1 2 3]\nb := [4 5 6]\ns := a ** b\'',
+                fizzbuzz: `-- FizzBuzz in Mech
+-- From mech-lang.org
+
+x := 1..=10
+-- ~out<[string]> := x
+ix2 := (x % 2) == 0
+ix3 := (x % 3) == 0
+
+-- Result: indices for multiples`
+            };
+            
+            codeInput.value = examples[name] || '';
+            updateLineNumbers();
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + Enter to run
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                executeCode();
+            }
+        });
+
+        // Initial line numbers
+        updateLineNumbers();
+
+        console.log('📐 MechDown Editor loaded');
+        console.log('📖 Literate programming for the Command Line Internet');
+        console.log('🔗 Aligned with mech-lang.org v0.2');
+    </script>
+</body>
+</html>

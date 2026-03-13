@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI by Hand - MÆCH Visual Learning System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #000011 0%, #001122 50%, #000033 100%);
+            color: #00ffaa;
+            min-height: 100vh;
+            overflow-x: hidden;
+            /* MOBILE-FIRST OPTIMIZATION */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .ai-lesson-container {
+            display: grid;
+            grid-template-columns: 350px 1fr 300px;
+            height: 100vh;
+            gap: 15px;
+            padding: 15px;
+        }
+
+        /* 📱 MOBILE ASINTÓTICA OPTIMIZACIÓN */
+        @media (max-width: 1024px) {
+            .ai-lesson-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto 1fr auto;
+                height: auto;
+                min-height: 100vh;
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .lesson-sidebar {
+                order: 1;
+                max-height: 300px;
+                overflow-y: auto;
+            }
+            
+            .lesson-sidebar:last-child {
+                order: 4;
+                max-height: 200px;
+            }
+            
+            .main-canvas-area {
+                order: 3;
+                min-height: 60vh;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .ai-lesson-container {
+                padding: 5px;
+                gap: 8px;
+            }
+            
+            .lesson-sidebar {
+                padding: 15px;
+                max-height: 250px;
+            }
+            
+            .main-canvas-area {
+                padding: 15px;
+                min-height: 50vh;
+            }
+            
+            .drawing-canvas {
+                height: 400px !important;
+            }
+            
+            .neural-network-visual {
+                flex-direction: column;
+                min-height: 120px;
+                gap: 15px;
+            }
+            
+            .nn-layer {
+                flex-direction: row;
+                gap: 10px;
+            }
+            
+            .drawing-tools {
+                justify-content: center;
+                gap: 8px;
+            }
+            
+            .tool-btn {
+                padding: 10px 12px;
+                font-size: 14px;
+                min-width: 44px; /* Touch-friendly */
+                min-height: 44px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .ai-lesson-container {
+                padding: 3px;
+                gap: 5px;
+            }
+            
+            body {
+                font-size: 14px;
+            }
+            
+            .lesson-sidebar {
+                padding: 10px;
+                max-height: 200px;
+            }
+            
+            .main-canvas-area {
+                padding: 10px;
+                min-height: 45vh;
+            }
+            
+            .drawing-canvas {
+                height: 350px !important;
+                width: 100% !important;
+            }
+            
+            .concept-title {
+                font-size: 14px;
+            }
+            
+            .ai-concept-card {
+                padding: 12px;
+                margin-bottom: 8px;
+            }
+            
+            .ai-concept-card p {
+                font-size: 11px;
+            }
+            
+            .drawing-tools {
+                gap: 5px;
+                margin: 10px 0;
+            }
+            
+            .tool-btn {
+                padding: 8px 10px;
+                font-size: 12px;
+                min-width: 40px;
+                min-height: 40px;
+            }
+            
+            .neural-network-visual {
+                padding: 15px;
+                min-height: 100px;
+            }
+            
+            .nn-node {
+                width: 30px;
+                height: 30px;
+                font-size: 10px;
+            }
+            
+            .mech-code-integration {
+                min-height: 120px;
+                font-size: 11px;
+            }
+        }
+
+        .lesson-sidebar {
+            background: rgba(0, 255, 170, 0.05);
+            border: 2px solid #00ffaa;
+            border-radius: 10px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .main-canvas-area {
+            background: rgba(0, 255, 170, 0.05);
+            border: 2px solid #00ffaa;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .drawing-canvas {
+            width: 100%;
+            height: 500px;
+            border: 2px solid #00ffaa;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            margin: 15px 0;
+            /* MOBILE TOUCH OPTIMIZATION */
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            cursor: crosshair;
+        }
+        
+        /* MOBILE TOUCH GESTURES */
+        .drawing-canvas:active {
+            border-color: #ff6600;
+            box-shadow: 0 0 15px rgba(255, 102, 0, 0.4);
+        }
+
+        .ai-concept-card {
+            background: rgba(0, 255, 170, 0.1);
+            border: 1px solid #00ffaa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .ai-concept-card:hover {
+            background: rgba(0, 255, 170, 0.2);
+            transform: translateX(5px);
+        }
+
+        .ai-concept-card.active {
+            border-color: #ff6600;
+            background: rgba(255, 102, 0, 0.1);
+        }
+
+        .concept-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .complexity-badge {
+            background: rgba(0, 255, 170, 0.3);
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            position: absolute;
+            top: 8px;
+            right: 8px;
+        }
+
+        .drawing-tools {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .tool-btn {
+            background: rgba(0, 255, 170, 0.2);
+            border: 2px solid #00ffaa;
+            color: #00ffaa;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .tool-btn:hover, .tool-btn.active {
+            background: rgba(0, 255, 170, 0.4);
+            transform: scale(1.05);
+        }
+
+        .neural-network-visual {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            min-height: 180px;
+            background: rgba(0, 255, 170, 0.05);
+            border: 1px solid #00ffaa;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .nn-layer {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .nn-node {
+            width: 35px;
+            height: 35px;
+            border: 2px solid #00ffaa;
+            border-radius: 50%;
+            background: rgba(0, 255, 170, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+            position: relative;
+        }
+
+        .nn-node:hover {
+            background: rgba(0, 255, 170, 0.4);
+            transform: scale(1.1);
+        }
+
+        /* REDUCED MOTION OPTIMIZATION - CRITICAL PERFORMANCE */
+        @media (prefers-reduced-motion: reduce) {
+            .nn-node, .lesson-card, .age-btn, .tool-btn, 
+            .ai-concept-card, .drawing-canvas {
+                transition: none !important;
+                animation: none !important;
+                transform: none !important;
+            }
+            
+            .nn-node:hover, .tool-btn:hover, .tool-btn.active {
+                transform: none;
+            }
+            
+            .ai-concept-card:hover {
+                transform: none;
+            }
+            
+            /* Disable decorative animations on low-performance devices */
+            .floating-particles, .background-animation {
+                display: none;
+            }
+        }
+
+        /* MOBILE PERFORMANCE OPTIMIZATION */
+        @media (max-width: 768px) {
+            .nn-node, .tool-btn, .ai-concept-card {
+                transition: background-color 0.15s ease-out; /* Lighter transitions on mobile */
+            }
+        }
+
+        .nn-node.activated {
+            background: rgba(255, 102, 0, 0.4);
+            border-color: #ff6600;
+        }
+
+        .layer-label {
+            font-size: 14px;
+            color: rgba(0, 255, 170, 0.8);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .infrastructure-ai-connection {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .infra-ai-item {
+            background: rgba(0, 255, 170, 0.1);
+            border: 1px solid #00ffaa;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .infra-ai-item:hover {
+            background: rgba(0, 255, 170, 0.2);
+            transform: scale(1.02);
+        }
+
+        .ai-progress-tracker {
+            background: rgba(0, 255, 170, 0.05);
+            border: 1px solid #00ffaa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .progress-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0, 255, 170, 0.2);
+        }
+
+        .progress-item:last-child {
+            border-bottom: none;
+        }
+
+        .progress-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #00ffaa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .progress-indicator.completed {
+            background: rgba(0, 255, 170, 0.4);
+        }
+
+        .mech-code-integration {
+            background: rgba(0, 20, 40, 0.9);
+            border: 2px solid #00ffaa;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            color: #00ffaa;
+            min-height: 150px;
+            resize: vertical;
+            font-size: 12px;
+            margin: 15px 0;
+        }
+
+        .animation-controls {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .concept-explanation {
+            background: rgba(0, 255, 170, 0.05);
+            border-left: 4px solid #00ffaa;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .hand-drawing-mode {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .hand-drawing-area {
+            width: 90%;
+            height: 90%;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .close-drawing {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .transformation-animation {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+
+        .transform-step {
+            background: rgba(0, 255, 170, 0.1);
+            border: 1px solid #00ffaa;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            flex: 1;
+            margin: 0 5px;
+        }
+
+        .transform-arrow {
+            font-size: 24px;
+            color: #00ffaa;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(0, 255, 170, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(0, 255, 170, 0.8); }
+        }
+
+        .glowing {
+            animation: pulseGlow 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="ai-lesson-container">
+        <!-- Left Sidebar - AI Concepts -->
+        <div class="lesson-sidebar">
+            <h3>🧠 AI by Hand Concepts</h3>
+            
+            <div class="ai-progress-tracker">
+                <h4>📊 Learning Progress</h4>
+                <div class="progress-item">
+                    <span>Neural Nodes</span>
+                    <div class="progress-indicator completed">✓</div>
+                </div>
+                <div class="progress-item">
+                    <span>Connections</span>
+                    <div class="progress-indicator completed">✓</div>
+                </div>
+                <div class="progress-item">
+                    <span>Forward Pass</span>
+                    <div class="progress-indicator">○</div>
+                </div>
+                <div class="progress-item">
+                    <span>Backpropagation</span>
+                    <div class="progress-indicator">○</div>
+                </div>
+            </div>
+
+            <!-- KINDERGARTEN LEVEL (Ages 3-8) -->
+            <div class="ai-concept-card active" data-concept="color-shapes" data-age="kindergarten">
+                <div class="complexity-badge">Kindergarten</div>
+                <div class="concept-title">🌈 I. Colores y Formas</div>
+                <p>Puntos de color + líneas = redes neurales</p>
+            </div>
+
+            <div class="ai-concept-card" data-concept="storytelling-roles" data-age="kindergarten">
+                <div class="complexity-badge">Kindergarten</div>
+                <div class="concept-title">🐱 II. Cuentos con Personajes</div>
+                <p>Nodos = personajes, conexiones = amistad</p>
+            </div>
+
+            <div class="ai-concept-card" data-concept="kinesthetic-play" data-age="kindergarten">
+                <div class="complexity-badge">Kindergarten</div>
+                <div class="concept-title">🕺 III. Juego Kinestético</div>
+                <p>Los niños se mueven como neuronas</p>
+            </div>
+
+            <!-- AI GAMES MAPPING -->
+            <div class="ai-concept-card" data-concept="dropout-game" data-age="basic">
+                <div class="complexity-badge">Juego</div>
+                <div class="concept-title">🕺 Dropout = Freeze Dance</div>
+                <p>Stop randomly like neural dropout</p>
+            </div>
+
+            <div class="ai-concept-card" data-concept="attention-game" data-age="basic">
+                <div class="complexity-badge">Juego</div>
+                <div class="concept-title">🔦 Atención = Spotlight</div>
+                <p>Focus attention like neural networks</p>
+            </div>
+
+            <div class="ai-concept-card" data-concept="diffusion-game" data-age="basic">
+                <div class="complexity-badge">Juego</div>
+                <div class="concept-title">🌫️ Diffusion = Fog Drawing</div>
+                <p>Clear image from noise step by step</p>
+            </div>
+
+            <div class="ai-concept-card" data-concept="embeddings-game" data-age="basic">
+                <div class="complexity-badge">Juego</div>
+                <div class="concept-title">🧺 Embeddings = Sorting Toys</div>
+                <p>Group similar things in baskets</p>
+            </div>
+
+            <!-- TRADITIONAL CONCEPTS -->
+            <div class="ai-concept-card" data-concept="one-node" data-age="intermediate">
+                <div class="complexity-badge">Intermediate</div>
+                <div class="concept-title">🔵 One Node Network</div>
+                <p>Start with a single artificial neuron</p>
+            </div>
+
+            <div class="ai-concept-card" data-concept="transformer" data-age="advanced">
+                <div class="complexity-badge">Advanced</div>
+                <div class="concept-title">🤖 Transformer</div>
+                <p>Attention mechanisms by hand</p>
+            </div>
+
+            <div class="ai-concept-card" data-concept="infrastructure-ai" data-age="expert">
+                <div class="complexity-badge">Expert</div>
+                <div class="concept-title">🏗️🧠 Infrastructure + AI</div>
+                <p>AI transforms $106T infrastructure</p>
+            </div>
+        </div>
+
+        <!-- Main Canvas Area -->
+        <div class="main-canvas-area">
+            <h2 id="current-concept">🔵 Drawing: One Node Neural Network</h2>
+            
+            <div class="concept-explanation" id="concept-explanation">
+                <p><strong>One Node:</strong> This is the simplest form of artificial intelligence - a single artificial neuron that takes an input, applies a weight, adds a bias, and produces an output through an activation function.</p>
+            </div>
+
+            <!-- Neural Network Visual -->
+            <div class="neural-network-visual" id="neural-visual">
+                <div class="nn-layer">
+                    <div class="layer-label">Input</div>
+                    <div class="nn-node" data-value="2">2</div>
+                </div>
+                <div class="nn-layer">
+                    <div class="layer-label">Weight</div>
+                    <div class="nn-node" data-value="0.5">0.5</div>
+                </div>
+                <div class="nn-layer">
+                    <div class="layer-label">Output</div>
+                    <div class="nn-node" data-value="1">1</div>
+                </div>
+            </div>
+
+            <!-- Drawing Tools -->
+            <div class="drawing-tools">
+                <button class="tool-btn active" data-tool="pen">✏️ Pen</button>
+                <button class="tool-btn" data-tool="circle">⭕ Circle</button>
+                <button class="tool-btn" data-tool="line">📏 Line</button>
+                <button class="tool-btn" data-tool="text">📝 Text</button>
+                <button class="tool-btn" data-tool="erase">🧽 Erase</button>
+            </div>
+
+            <canvas class="drawing-canvas" id="aiDrawingCanvas"></canvas>
+
+            <!-- Animation Controls -->
+            <div class="animation-controls">
+                <button class="tool-btn" onclick="animateForwardPass()">▶️ Forward Pass</button>
+                <button class="tool-btn" onclick="animateBackprop()">⏪ Backpropagation</button>
+                <button class="tool-btn" onclick="resetAnimation()">🔄 Reset</button>
+                <button class="tool-btn" onclick="exportToMech()">🎯 Export to MÆCH</button>
+            </div>
+
+            <!-- MÆCH Code Integration -->
+            <textarea class="mech-code-integration" id="mechAICode" placeholder="// MÆCH Code - AI by Hand
+COLOR blue
+CIRCLE 100 100 30  // Input neuron
+TEXT '2' 95 105
+
+COLOR green  
+LINE 130 100 200 100  // Connection weight=0.5
+TEXT 'w=0.5' 155 90
+
+COLOR red
+CIRCLE 230 100 30  // Output neuron  
+TEXT '1' 225 105">
+            </textarea>
+
+            <!-- Infrastructure + AI Connection -->
+            <div class="infrastructure-ai-connection" id="infra-ai-section" style="display:none;">
+                <div class="infra-ai-item">
+                    <h4>🏗️ $19T Digital Infrastructure</h4>
+                    <p>Data centers, fiber networks, 5G towers</p>
+                </div>
+                <div class="infra-ai-item">
+                    <h4>🧠 AI Compute Requirements</h4>
+                    <p>GPU clusters, cooling systems, power grids</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar - Progress & Tools -->
+        <div class="lesson-sidebar">
+            <h3>🎯 Drawing Progress</h3>
+            
+            <div class="ai-progress-tracker">
+                <div class="progress-item">
+                    <span>Nodes Drawn</span>
+                    <div class="progress-indicator completed" id="nodes-progress">3</div>
+                </div>
+                <div class="progress-item">
+                    <span>Connections</span>
+                    <div class="progress-indicator" id="connections-progress">2</div>
+                </div>
+                <div class="progress-item">
+                    <span>Labels</span>
+                    <div class="progress-indicator" id="labels-progress">5</div>
+                </div>
+            </div>
+
+            <h4>🔧 Current Tool</h4>
+            <div id="current-tool" style="padding: 10px; background: rgba(0,255,170,0.1); border-radius: 5px; margin: 10px 0;">
+                ✏️ Pen Tool Active
+            </div>
+
+            <h4>🎨 Color Palette</h4>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin: 10px 0;">
+                <div style="width: 30px; height: 30px; background: #00ffaa; border-radius: 50%; cursor: pointer;" onclick="setColor('#00ffaa')"></div>
+                <div style="width: 30px; height: 30px; background: #ff6600; border-radius: 50%; cursor: pointer;" onclick="setColor('#ff6600')"></div>
+                <div style="width: 30px; height: 30px; background: #0066ff; border-radius: 50%; cursor: pointer;" onclick="setColor('#0066ff')"></div>
+                <div style="width: 30px; height: 30px; background: #ff0066; border-radius: 50%; cursor: pointer;" onclick="setColor('#ff0066')"></div>
+            </div>
+
+            <h4>📊 Session Stats</h4>
+            <div style="font-size: 12px; color: rgba(0,255,170,0.8);">
+                ✍️ Drawings created: <span id="drawings-count">1</span><br>
+                🧠 Concepts learned: <span id="concepts-count">1</span><br>
+                🎯 MÆCH programs: <span id="mech-count">0</span><br>
+                ⏱️ Time spent: <span id="time-spent">3min</span>
+            </div>
+
+            <!-- UNESCO PILLARS INTEGRATION -->
+            <div style="margin-top: 15px; padding: 10px; background: rgba(0,255,170,0.1); border-radius: 5px;">
+                <h5>🏛️ UNESCO Education Pillars</h5>
+                <div style="font-size: 10px; color: rgba(0,255,170,0.8); margin: 5px 0;">
+                    📚 Aprender a Conocer<br>
+                    🔧 Aprender a Hacer<br>
+                    👥 Aprender a Vivir Juntos<br>
+                    🧠 Aprender a Ser
+                </div>
+            </div>
+
+            <!-- LATAM CULTURAL ELEMENTS -->
+            <div style="margin-top: 15px; padding: 10px; background: rgba(255,102,0,0.1); border-radius: 5px;">
+                <h5>🌎 Elementos LATAM</h5>
+                <div style="font-size: 10px; color: rgba(255,102,0,0.8);">
+                    🇲🇽 Banderas y colores culturales<br>
+                    🦅 Personajes folclóricos<br>
+                    🏘️ La Gloria • Vivienda Eficaz<br>
+                    📍 Territorial: LATAM-Mexico
+                </div>
+            </div>
+
+            <div style="margin-top: 15px; padding: 10px; background: rgba(0,255,170,0.1); border-radius: 5px;">
+                <h5>💡 IA a Mano Vision</h5>
+                <p style="font-size: 11px; color: rgba(0,255,170,0.9);">
+                    <strong>Neuro-Educación:</strong> Patrones de IA → juegos infantiles. 
+                    Arte + movimiento + cuentos = absorber razonamiento antes de ecuaciones.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hand Drawing Mode Overlay -->
+    <div class="hand-drawing-mode" id="hand-drawing-overlay">
+        <div class="hand-drawing-area">
+            <button class="close-drawing" onclick="closeHandDrawing()">✖️ Close</button>
+            <h2>✍️ Pure Hand Drawing Mode</h2>
+            <canvas id="pure-hand-canvas" width="800" height="600" style="border: 2px solid #ccc;"></canvas>
+        </div>
+    </div>
+
+    <!-- Fabric.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js" 
+            integrity="sha512-CeIsOAsgJnmevfCi2C7Zsyy6bQKi43utIjdA87Q0ZY84oDqnI0uwfM9+bKiIkI75lUeI00WG/+uJzOmuHlesMA==" 
+            crossorigin="anonymous" 
+            referrerpolicy="no-referrer"></script>
+
+    <script>
+        // AI by Hand Learning System
+        class AIByHandSystem {
+            constructor() {
+                this.canvas = null;
+                this.currentConcept = 'one-node';
+                this.currentTool = 'pen';
+                this.drawingColor = '#00ffaa';
+                this.progress = {
+                    nodes: 0,
+                    connections: 0,
+                    labels: 0,
+                    concepts: 0
+                };
+                
+                this.concepts = {
+                    // IA A MANO - KINDERGARTEN METHODS (Ages 3-8)
+                    'color-shapes': {
+                        title: '🌈 Colores y Formas (Color & Shape Networks)',
+                        explanation: 'Reemplazamos números y matrices con puntos de color y líneas coloridas. Ejemplo: Auto-Atención → "líneas de arcoíris" conectando colores que coinciden. ¡Los niños aprenden patrones visuales antes que ecuaciones!',
+                        complexity: 'Kindergarten',
+                        infraConnection: false,
+                        culturalElements: ['🇲🇽 Colores de bandera mexicana', '🎨 Arte visual indígena']
+                    },
+                    'storytelling-roles': {
+                        title: '🐱 Cuentos con Personajes (Storytelling Through Roles)', 
+                        explanation: 'Nodos = personajes (🐱 gato, 🐶 perro, 🌳 árbol). Aristas = amistades o mensajes. Ejemplo: Convolución Gráfica → "amigos contándose secretos en círculo". ¡Aprendemos AI con cuentos!',
+                        complexity: 'Kindergarten',
+                        infraConnection: false,
+                        culturalElements: ['🦅 Quetzalcóatl como nodo central', '🌮 Personajes folclóricos LATAM']
+                    },
+                    'kinesthetic-play': {
+                        title: '🕺 Juego Kinestético (Kinesthetic Play)',
+                        explanation: 'Los niños se mueven como "neuronas" en la sala. El maestro da reglas: "Si escuchas AZUL, pasa tu pelota a un vecino". Simula dropout, atención o embeddings con movimiento físico.',
+                        complexity: 'Kindergarten', 
+                        infraConnection: false,
+                        culturalElements: ['💃 Danzas tradicionales', '🎵 Ritmos latinos incorporados']
+                    },
+                    // AI TO GAMES MAPPING
+                    'dropout-game': {
+                        title: '🕺 Dropout = Freeze Dance',
+                        explanation: 'En las redes neurales, "dropout" significa que algunas neuronas se "congelan" aleatoriamente. ¡Como el juego de estatuas musicales! Los niños aprenden que la aleatoriedad ayuda al aprendizaje.',
+                        complexity: 'Juego',
+                        infraConnection: false,
+                        game: 'Freeze Dance'
+                    },
+                    'attention-game': {
+                        title: '🔦 Atención = Spotlight',
+                        explanation: 'La "atención" en AI significa enfocar en lo importante, como un reflector iluminando el escenario. Los niños juegan con linternas para aprender cómo AI "presta atención" a datos importantes.',
+                        complexity: 'Juego',
+                        infraConnection: false,
+                        game: 'Spotlight'
+                    },
+                    'diffusion-game': {
+                        title: '🌫️ Diffusion = Fog Drawing',
+                        explanation: 'Los modelos de difusión crean imágenes desde ruido, como aclarar la niebla. Los niños dibujan formas ocultas en papel empañado, aprendiendo cómo AI genera arte desde el caos.',
+                        complexity: 'Juego',
+                        infraConnection: false,
+                        game: 'Fog Drawing'
+                    },
+                    'embeddings-game': {
+                        title: '🧺 Embeddings = Sorting Toys',
+                        explanation: 'Los "embeddings" agrupan cosas similares, como organizar juguetes en cestas. Los niños aprenden que AI también agrupa palabras e imágenes por similaridad. ¡Ordenar es inteligencia artificial!',
+                        complexity: 'Juego',
+                        infraConnection: false,
+                        game: 'Sorting Toys into Baskets'
+                    },
+                    // INTERMEDIATE TO EXPERT LEVELS
+                    'one-node': {
+                        title: '🔵 One Node Neural Network',
+                        explanation: 'This is the simplest form of artificial intelligence - a single artificial neuron that takes an input, applies a weight, adds a bias, and produces an output through an activation function.',
+                        complexity: 'Intermediate',
+                        infraConnection: false
+                    },
+                    'transformer': {
+                        title: '🤖 Transformer Architecture',
+                        explanation: 'The breakthrough architecture behind ChatGPT and other large language models. Uses attention mechanisms to understand context.',
+                        complexity: 'Advanced',
+                        infraConnection: false
+                    },
+                    'infrastructure-ai': {
+                        title: '🏗️🧠 AI Transforms Infrastructure',
+                        explanation: 'AI is revolutionizing the $106 trillion global infrastructure - optimizing power grids, managing traffic, automating data centers.',
+                        complexity: 'Expert',
+                        infraConnection: true
+                    }
+                };
+                
+                // UNESCO PILLARS INTEGRATION
+                this.unescoPillars = {
+                    'aprender-conocer': {
+                        title: 'Aprender a Conocer',
+                        description: 'Adquirir los instrumentos de la comprensión, fomentando la curiosidad y el pensamiento crítico.',
+                        strategies: [
+                            'Integración curricular interdisciplinaria',
+                            'Aprendizaje basado en la investigación',
+                            'Programas de lectura diversos'
+                        ]
+                    },
+                    'aprender-hacer': {
+                        title: 'Aprender a Hacer',
+                        description: 'Poder para influir sobre el propio entorno, aplicando conocimientos en contextos reales.',
+                        strategies: [
+                            'Actividades prácticas y proyectos',
+                            'Desarrollo de habilidades como resolución de problemas y trabajo en equipo',
+                            'Integración de tecnología educativa'
+                        ]
+                    },
+                    'aprender-vivir': {
+                        title: 'Aprender a Vivir Juntos',
+                        description: 'Participar y cooperar con los demás en todas las actividades humanas, valorando la diversidad.',
+                        strategies: [
+                            'Educación sobre diversidad y empatía',
+                            'Proyectos colaborativos en grupos diversos',
+                            'Estrategias de resolución de conflictos'
+                        ]
+                    },
+                    'aprender-ser': {
+                        title: 'Aprender a Ser',
+                        description: 'Progresar esencialmente para que florezca mejor la propia personalidad, con autonomía y juicio personal.',
+                        strategies: [
+                            'Desarrollo personal y autorreflexión',
+                            'Prácticas de mindfulness',
+                            'Actividades extracurriculares que promuevan liderazgo y creatividad'
+                        ]
+                    }
+                };
+                
+                // LATAM CULTURAL INTEGRATION
+                this.latamElements = {
+                    culturalElements: ['Colores de banderas', 'Personajes folclóricos como nodos'],
+                    bilingualCues: 'Español/Inglés',
+                    communityCenters: ['La Gloria', 'Vivienda Eficaz'],
+                    territories: ['LATAM-Mexico', 'LATAM-Colombia', 'LATAM-Brasil', 'LATAM-Argentina']
+                };
+                
+                this.init();
+            }
+
+            init() {
+                this.initCanvas();
+                this.setupEventListeners();
+                this.loadConcept('one-node');
+                this.startProgressTracking();
+                
+                console.log('🧠 AI by Hand System initialized');
+                console.log('✍️ Ready to draw neural networks manually');
+            }
+
+            initCanvas() {
+                // MOBILE-RESPONSIVE CANVAS SIZING
+                const container = document.querySelector('.main-canvas-area');
+                const containerWidth = container.clientWidth - 40; // padding
+                const isMobile = window.innerWidth <= 768;
+                
+                const canvasWidth = Math.min(800, containerWidth);
+                const canvasHeight = isMobile ? 350 : 500;
+                
+                this.canvas = new fabric.Canvas('aiDrawingCanvas', {
+                    width: canvasWidth,
+                    height: canvasHeight,
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    // MOBILE TOUCH OPTIMIZATIONS
+                    selection: true,
+                    preserveObjectStacking: true,
+                    renderOnAddRemove: false,
+                    skipTargetFind: false,
+                    fireRightClick: false,
+                    stopContextMenu: true,
+                    // HIGH-DPI OPTIMIZATION
+                    enableRetinaScaling: true,
+                    devicePixelRatio: window.devicePixelRatio || 1
+                });
+                
+                // Enable drawing mode by default
+                this.canvas.isDrawingMode = true;
+                this.canvas.freeDrawingBrush.width = isMobile ? 4 : 3; // Thicker on mobile
+                this.canvas.freeDrawingBrush.color = this.drawingColor;
+                
+                // MOBILE TOUCH EVENT HANDLING
+                if (isMobile) {
+                    this.setupMobileTouchEvents();
+                }
+                
+                // PERFORMANCE OPTIMIZATIONS FOR MOBILE
+                this.canvas.on('path:created', () => {
+                    this.updateProgress('drawings');
+                    if (isMobile) {
+                        // Batch rendering on mobile
+                        this.canvas.renderOnAddRemove = false;
+                        requestAnimationFrame(() => {
+                            this.canvas.renderAll();
+                            this.canvas.renderOnAddRemove = true;
+                        });
+                    }
+                });
+                
+                this.canvas.on('object:added', () => {
+                    this.updateProgress('objects');
+                });
+                
+                // AUTO-RESIZE ON ORIENTATION CHANGE
+                window.addEventListener('orientationchange', () => {
+                    setTimeout(() => this.resizeCanvas(), 500);
+                });
+                
+                window.addEventListener('resize', () => {
+                    clearTimeout(this.resizeTimeout);
+                    this.resizeTimeout = setTimeout(() => this.resizeCanvas(), 300);
+                });
+                
+                console.log('🎨 AI Drawing canvas initialized with mobile optimizations');
+                console.log(`📱 Canvas size: ${canvasWidth}x${canvasHeight} (Mobile: ${isMobile})`);
+            }
+
+            setupMobileTouchEvents() {
+                const canvasElement = this.canvas.getElement();
+                
+                // PREVENT SCROLLING WHILE DRAWING
+                let isDrawing = false;
+                
+                canvasElement.addEventListener('touchstart', (e) => {
+                    isDrawing = true;
+                    document.body.style.overflow = 'hidden'; // Prevent scroll
+                }, { passive: false });
+                
+                // PERFORMANCE: Throttle touchmove with RAF
+                let rafId = null;
+                canvasElement.addEventListener('touchmove', (e) => {
+                    if (isDrawing) {
+                        e.preventDefault(); // Prevent scrolling/zooming
+                        
+                        // Throttle with requestAnimationFrame for performance
+                        if (rafId) cancelAnimationFrame(rafId);
+                        rafId = requestAnimationFrame(() => {
+                            // Touch move handling batched for performance
+                        });
+                    }
+                }, { passive: false });
+                
+                canvasElement.addEventListener('touchend', () => {
+                    isDrawing = false;
+                    document.body.style.overflow = ''; // Re-enable scroll
+                    
+                    // HAPTIC FEEDBACK (feature-detected with graceful fallback)
+                    try {
+                        if ('vibrate' in navigator && navigator.vibrate) {
+                            navigator.vibrate(10);
+                        }
+                    } catch (e) {
+                        // Graceful fallback - no haptics available
+                        console.log('📱 Haptic feedback not available');
+                    }
+                });
+                
+                // PINCH-TO-ZOOM PREVENTION
+                canvasElement.addEventListener('gesturestart', (e) => {
+                    e.preventDefault();
+                });
+                
+                canvasElement.addEventListener('gesturechange', (e) => {
+                    e.preventDefault();
+                });
+                
+                canvasElement.addEventListener('gestureend', (e) => {
+                    e.preventDefault();
+                });
+                
+                console.log('📱 Mobile touch events configured');
+            }
+
+            resizeCanvas() {
+                if (!this.canvas) return;
+                
+                const container = document.querySelector('.main-canvas-area');
+                const containerWidth = container.clientWidth - 40;
+                const isMobile = window.innerWidth <= 768;
+                
+                const newWidth = Math.min(800, containerWidth);
+                const newHeight = isMobile ? 350 : 500;
+                
+                this.canvas.setWidth(newWidth);
+                this.canvas.setHeight(newHeight);
+                this.canvas.renderAll();
+                
+                console.log(`🔄 Canvas resized: ${newWidth}x${newHeight}`);
+            }
+
+            setupEventListeners() {
+                // Concept selection
+                document.querySelectorAll('.ai-concept-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        const concept = e.currentTarget.dataset.concept;
+                        this.loadConcept(concept);
+                    });
+                });
+
+                // Drawing tools
+                document.querySelectorAll('.tool-btn[data-tool]').forEach(tool => {
+                    tool.addEventListener('click', (e) => {
+                        const toolType = e.currentTarget.dataset.tool;
+                        this.setTool(toolType);
+                    });
+                });
+
+                // Neural network nodes (interactive)
+                document.querySelectorAll('.nn-node').forEach(node => {
+                    node.addEventListener('click', (e) => {
+                        this.animateNode(e.currentTarget);
+                    });
+                });
+            }
+
+            loadConcept(conceptId) {
+                this.currentConcept = conceptId;
+                const concept = this.concepts[conceptId];
+                
+                // Update active concept card
+                document.querySelectorAll('.ai-concept-card').forEach(card => {
+                    card.classList.remove('active');
+                });
+                document.querySelector(`[data-concept="${conceptId}"]`).classList.add('active');
+                
+                // Update main title and explanation
+                document.getElementById('current-concept').textContent = `✍️ Drawing: ${concept.title}`;
+                document.getElementById('concept-explanation').innerHTML = `
+                    <p><strong>${concept.title}:</strong> ${concept.explanation}</p>
+                `;
+                
+                // Show/hide infrastructure connection
+                const infraSection = document.getElementById('infra-ai-section');
+                if (concept.infraConnection) {
+                    infraSection.style.display = 'grid';
+                } else {
+                    infraSection.style.display = 'none';
+                }
+                
+                // Update neural network visual
+                this.updateNeuralVisual(conceptId);
+                
+                // Update MÆCH code
+                this.updateMechCode(conceptId);
+                
+                console.log(`🧠 Loaded concept: ${conceptId}`);
+            }
+
+            updateNeuralVisual(conceptId) {
+                const visual = document.getElementById('neural-visual');
+                
+                const layouts = {
+                    'one-node': `
+                        <div class="nn-layer">
+                            <div class="layer-label">Input</div>
+                            <div class="nn-node" data-value="2">2</div>
+                        </div>
+                        <div class="nn-layer">
+                            <div class="layer-label">Weight</div>
+                            <div class="nn-node" data-value="0.5">0.5</div>
+                        </div>
+                        <div class="nn-layer">
+                            <div class="layer-label">Output</div>
+                            <div class="nn-node" data-value="1">1</div>
+                        </div>
+                    `,
+                    'four-nodes': `
+                        <div class="nn-layer">
+                            <div class="layer-label">Inputs</div>
+                            <div class="nn-node" data-value="1">1</div>
+                            <div class="nn-node" data-value="-1">-1</div>
+                        </div>
+                        <div class="nn-layer">
+                            <div class="layer-label">Outputs</div>
+                            <div class="nn-node" data-value="0">0</div>
+                            <div class="nn-node" data-value="1">1</div>
+                        </div>
+                    `,
+                    'hidden-layer': `
+                        <div class="nn-layer">
+                            <div class="layer-label">Input</div>
+                            <div class="nn-node" data-value="X">X</div>
+                        </div>
+                        <div class="nn-layer">
+                            <div class="layer-label">Hidden</div>
+                            <div class="nn-node" data-value="H1">H1</div>
+                            <div class="nn-node" data-value="H2">H2</div>
+                        </div>
+                        <div class="nn-layer">
+                            <div class="layer-label">Output</div>
+                            <div class="nn-node" data-value="Y">Y</div>
+                        </div>
+                    `,
+                    'infrastructure-ai': `
+                        <div class="infra-ai-item">
+                            <h4>🏗️ Smart Cities</h4>
+                            <p>AI optimizes traffic flow, energy usage, waste management</p>
+                        </div>
+                        <div class="infra-ai-item">
+                            <h4>⚡ Power Grids</h4>
+                            <p>Machine learning predicts demand, prevents outages</p>
+                        </div>
+                        <div class="infra-ai-item">
+                            <h4>💻 Data Centers</h4>
+                            <p>AI manages cooling, workload distribution, efficiency</p>
+                        </div>
+                        <div class="infra-ai-item">
+                            <h4>🚗 Transportation</h4>
+                            <p>Autonomous vehicles, route optimization, maintenance prediction</p>
+                        </div>
+                    `
+                };
+                
+                if (layouts[conceptId]) {
+                    visual.innerHTML = layouts[conceptId];
+                    
+                    // Re-attach event listeners to new nodes
+                    visual.querySelectorAll('.nn-node').forEach(node => {
+                        node.addEventListener('click', (e) => {
+                            this.animateNode(e.currentTarget);
+                        });
+                    });
+                }
+            }
+
+            updateMechCode(conceptId) {
+                const codeExamples = {
+                    // IA A MANO - KINDERGARTEN LEVEL
+                    'color-shapes': `// MÆCH Code - Colores y Formas (Kindergarten)
+// Redes neurales con colores de bandera mexicana
+COLOR #006847  // Verde México
+CIRCLE 100 100 40  // Nodo verde (gato 🐱)
+TEXT '🐱' 92 108
+
+COLOR #CE1126  // Rojo México  
+CIRCLE 200 100 40  // Nodo rojo (perro 🐶)
+TEXT '🐶' 192 108
+
+COLOR #FFCC00  // Amarillo México
+LINE 140 100 160 100  // Línea arcoíris de conexión
+TEXT '❤️ amistad' 135 85
+
+// Los niños ven: animales de colores que son amigos!`,
+                    
+                    'storytelling-roles': `// MÆCH Code - Cuentos con Personajes
+// Quetzalcóatl (nodo central) conecta a todos
+COLOR #00CC66  
+CIRCLE 200 150 50  // Quetzalcóatl centro
+TEXT '🦅 Quetzal' 175 158
+
+COLOR #FF6600
+CIRCLE 100 100 30  // Personajes folclóricos
+CIRCLE 300 100 30
+CIRCLE 100 200 30
+CIRCLE 300 200 30
+TEXT '🌮' 92 108
+TEXT '🦜' 292 108  
+TEXT '🌵' 92 208
+TEXT '⭐' 292 208
+
+// Conexiones = mensajes entre amigos
+LINE 150 120 175 140
+LINE 250 120 225 140  
+LINE 150 180 175 160
+LINE 250 180 225 160`,
+
+                    'kinesthetic-play': `// MÆCH Code - Juego Kinestético  
+// Los niños se mueven como neuronas
+COLOR #FF4488
+RECT 50 50 60 60    // Zona de juego 1
+TEXT 'AZUL?' 55 85
+TEXT '🕺 Niño' 55 95
+
+COLOR #44FF88  
+RECT 150 50 60 60   // Zona de juego 2
+TEXT 'PASA PELOTA' 155 85
+TEXT '🤹‍♀️ Niña' 155 95
+
+COLOR #4488FF
+RECT 250 50 60 60   // Zona de juego 3  
+TEXT 'RECIBE' 255 85
+TEXT '🏃‍♂️ Niño' 255 95
+
+// Reglas de movimiento = dropout, atención, embeddings
+TEXT 'Si escuchas AZUL → pasa pelota al vecino' 50 130`,
+
+                    // AI GAMES MAPPING
+                    'dropout-game': `// MÆCH Code - Dropout = Freeze Dance
+COLOR #FF6600
+TEXT '🕺 FREEZE DANCE = NEURAL DROPOUT' 50 50
+TEXT 'Música para → neuronas activas' 50 80
+TEXT 'Música se detiene → neuronas se "congelan"' 50 110
+
+// Simulación dropout
+COLOR #00FF66  // Neuronas activas
+CIRCLE 100 150 20
+CIRCLE 200 150 20
+CIRCLE 300 150 20
+TEXT '🎵' 95 158  // Música = activo
+TEXT '🎵' 195 158
+TEXT '❄️' 295 158  // Congelado = dropout
+
+TEXT 'DROPOUT = aleatoriedad ayuda al aprendizaje!' 50 200`,
+
+                    'attention-game': `// MÆCH Code - Atención = Spotlight  
+COLOR #FFDD00
+TEXT '🔦 SPOTLIGHT = NEURAL ATTENTION' 50 50
+
+// Escenario con spotlight
+RECT 100 100 200 100  // Escenario
+TEXT '🎭 Escenario de datos' 150 115
+
+COLOR #FFFF00  // Luz del spotlight
+CIRCLE 150 130 30   // Área iluminada
+TEXT '💡 FOCO' 135 138
+TEXT 'ATENCIÓN AQUÍ' 120 155
+
+COLOR gray
+CIRCLE 120 160 15   // Áreas no iluminadas
+CIRCLE 180 160 15
+TEXT '😴' 115 168    // Sin atención
+TEXT '😴' 175 168
+
+TEXT 'AI presta atención como un reflector!' 50 200`,
+
+                    'diffusion-game': `// MÆCH Code - Diffusion = Fog Drawing
+COLOR #CCCCCC  // Niebla inicial
+TEXT '🌫️ DIFFUSION = FOG DRAWING' 50 50
+
+// Proceso de aclarar niebla paso a paso
+RECT 100 100 150 100  // Papel empañado
+TEXT '🌫️🌫️🌫️' 130 130
+TEXT '🌫️?🌫️' 130 145
+TEXT 'Imagen oculta' 120 165
+
+COLOR #00AA00  // Imagen emergente  
+RECT 280 100 150 100
+TEXT '🌳 ¡Árbol!' 325 130
+TEXT 'Imagen clara' 320 145
+TEXT 'Sin niebla' 325 165
+
+// Flecha de proceso
+COLOR #FF6600
+TEXT '➡️ ACLARAR PASO A PASO' 200 180
+TEXT 'Como AI genera arte desde ruido' 50 200`,
+
+                    'embeddings-game': `// MÆCH Code - Embeddings = Sorting Toys
+COLOR #AA44FF
+TEXT '🧺 EMBEDDINGS = SORTING TOYS' 50 50
+
+// Cestas para diferentes categorías
+COLOR #FF6600
+RECT 80 100 60 60   // Cesta animales
+TEXT '🧺 Animales' 85 115
+TEXT '🐱🐶🦜' 95 135
+
+COLOR #00AA66  
+RECT 160 100 60 60  // Cesta frutas
+TEXT '🧺 Frutas' 165 115  
+TEXT '🍎🍌🍇' 175 135
+
+COLOR #4466FF
+RECT 240 100 60 60  // Cesta juguetes
+TEXT '🧺 Juguetes' 245 115
+TEXT '⚽🎲🪀' 255 135
+
+TEXT 'Agrupar = Inteligencia Artificial!' 50 180
+TEXT 'AI agrupa palabras e imágenes igual' 50 200`,
+
+                    // TRADITIONAL CONCEPTS  
+                    'one-node': `// MÆCH Code - Single Neuron
+COLOR blue
+CIRCLE 100 100 30  // Input neuron
+TEXT '2' 95 105
+
+COLOR green  
+LINE 130 100 200 100  // Connection weight=0.5
+TEXT 'w=0.5' 155 90
+
+COLOR red
+CIRCLE 230 100 30  // Output neuron  
+TEXT '1' 225 105`,
+                    
+                    'infrastructure-ai': `// MÆCH Code - Infrastructure + AI
+// Smart City Neural Network
+COLOR #00ffaa
+RECT 50 50 100 80    // Data Center
+TEXT 'AI Compute' 60 95
+
+COLOR #ff6600  
+CIRCLE 200 90 40    // Smart Grid Hub
+TEXT 'Power AI' 180 95
+
+COLOR #0066ff
+LINE 150 90 160 90  // AI Connection
+TEXT 'ML Control' 145 80
+
+// Traffic Optimization
+RECT 300 50 80 60
+TEXT 'Traffic AI' 305 85`
+                };
+                
+                const codeArea = document.getElementById('mechAICode');
+                codeArea.value = codeExamples[conceptId] || codeExamples['color-shapes'];
+            }
+
+            setTool(toolType) {
+                this.currentTool = toolType;
+                
+                // Update active tool button
+                document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-tool="${toolType}"]`).classList.add('active');
+                
+                // Update current tool display
+                const toolNames = {
+                    pen: '✏️ Pen Tool',
+                    circle: '⭕ Circle Tool',
+                    line: '📏 Line Tool',
+                    text: '📝 Text Tool',
+                    erase: '🧽 Eraser'
+                };
+                
+                document.getElementById('current-tool').textContent = toolNames[toolType] + ' Active';
+                
+                // Configure canvas tool
+                switch(toolType) {
+                    case 'pen':
+                        this.canvas.isDrawingMode = true;
+                        break;
+                    case 'erase':
+                        this.canvas.isDrawingMode = true;
+                        this.canvas.freeDrawingBrush = new fabric.EraserBrush(this.canvas);
+                        break;
+                    default:
+                        this.canvas.isDrawingMode = false;
+                        break;
+                }
+                
+                console.log(`🔧 Tool changed to: ${toolType}`);
+            }
+
+            animateNode(nodeElement) {
+                nodeElement.classList.add('activated', 'glowing');
+                
+                setTimeout(() => {
+                    nodeElement.classList.remove('activated', 'glowing');
+                }, 1500);
+                
+                console.log(`🎬 Animated node: ${nodeElement.dataset.value}`);
+            }
+
+            updateProgress(type) {
+                switch(type) {
+                    case 'drawings':
+                        const count = parseInt(document.getElementById('drawings-count').textContent);
+                        document.getElementById('drawings-count').textContent = count + 1;
+                        break;
+                    case 'concepts':
+                        this.progress.concepts++;
+                        document.getElementById('concepts-count').textContent = this.progress.concepts;
+                        break;
+                    case 'objects':
+                        this.progress.nodes++;
+                        break;
+                }
+            }
+
+            startProgressTracking() {
+                let seconds = 0;
+                setInterval(() => {
+                    seconds++;
+                    const minutes = Math.floor(seconds / 60);
+                    document.getElementById('time-spent').textContent = `${minutes}min`;
+                }, 1000);
+            }
+        }
+
+        // Global functions
+        function setColor(color) {
+            aiSystem.drawingColor = color;
+            aiSystem.canvas.freeDrawingBrush.color = color;
+            console.log(`🎨 Color changed to: ${color}`);
+        }
+
+        function animateForwardPass() {
+            console.log('▶️ Animating forward pass through network...');
+            // Animate neural network forward propagation
+            const nodes = document.querySelectorAll('.nn-node');
+            nodes.forEach((node, index) => {
+                setTimeout(() => {
+                    node.classList.add('activated');
+                    setTimeout(() => node.classList.remove('activated'), 800);
+                }, index * 300);
+            });
+        }
+
+        function animateBackprop() {
+            console.log('⏪ Animating backpropagation...');
+            // Animate backpropagation (reverse order)
+            const nodes = Array.from(document.querySelectorAll('.nn-node')).reverse();
+            nodes.forEach((node, index) => {
+                setTimeout(() => {
+                    node.classList.add('activated');
+                    setTimeout(() => node.classList.remove('activated'), 800);
+                }, index * 300);
+            });
+        }
+
+        function resetAnimation() {
+            console.log('🔄 Resetting animation...');
+            document.querySelectorAll('.nn-node').forEach(node => {
+                node.classList.remove('activated', 'glowing');
+            });
+        }
+
+        function exportToMech() {
+            const code = document.getElementById('mechAICode').value;
+            console.log('🎯 Exporting to MÆCH:', code);
+            
+            // Integration with main MÆCH interpreter
+            if (window.opener && window.opener.mechInterpreter) {
+                window.opener.mechInterpreter.executeMechCode(code);
+                alert('🎯 Code exported to MÆCH Spatial OS!');
+            } else {
+                // Open MÆCH interpreter in new tab
+                const newWindow = window.open('/mech-spatial-os', '_blank');
+                newWindow.addEventListener('load', () => {
+                    if (newWindow.mechInterpreter) {
+                        newWindow.mechInterpreter.executeMechCode(code);
+                    }
+                });
+            }
+        }
+
+        function closeHandDrawing() {
+            document.getElementById('hand-drawing-overlay').style.display = 'none';
+        }
+
+        // Initialize AI by Hand System
+        const aiSystem = new AIByHandSystem();
+        
+        console.log('🧠 AI by Hand Learning System Ready');
+        console.log('✍️ Draw neural networks to understand AI concepts');
+        console.log('🏗️ Connect AI with $106T global infrastructure');
+    </script>
+</body>
+</html>

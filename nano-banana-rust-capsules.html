@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🍌🦀 Nano Banana Rust - Ages 3-6 | MÆCH Education</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial Rounded MT Bold', sans-serif;
+      background: linear-gradient(135deg, #FFE5B4 0%, #FFDAB9 100%);
+      color: #333;
+      min-height: 100vh;
+      overflow-x: hidden;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .nano-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 30px 20px;
+      background: linear-gradient(90deg, #ff6b00, #ff8c00);
+      border-radius: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(255, 107, 0, 0.3);
+      animation: pulse 3s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
+    .header h1 {
+      font-size: 3rem;
+      color: #fff;
+      text-shadow: 3px 3px 10px rgba(0,0,0,0.3);
+      margin-bottom: 10px;
+    }
+
+    .header .subtitle {
+      font-size: 1.8rem;
+      color: #FFE5B4;
+      font-weight: bold;
+    }
+
+    /* Story Cards */
+    .stories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+
+    .story-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 4px solid;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .story-card:nth-child(1) { border-color: #ff6b00; }
+    .story-card:nth-child(2) { border-color: #00ff88; }
+    .story-card:nth-child(3) { border-color: #00bfff; }
+    .story-card:nth-child(4) { border-color: #ff1493; }
+
+    .story-card:hover {
+      transform: translateY(-10px) scale(1.05);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    }
+
+    .story-card:active {
+      transform: scale(0.95);
+    }
+
+    .story-icon {
+      font-size: 5rem;
+      text-align: center;
+      margin-bottom: 15px;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    .story-title {
+      font-size: 1.8rem;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .story-desc {
+      font-size: 1.2rem;
+      text-align: center;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .story-qr {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      animation: blink 1.5s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* Story Modal */
+    .story-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .story-modal.active {
+      display: flex;
+    }
+
+    .story-content {
+      background: #fff;
+      border-radius: 30px;
+      padding: 40px;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      animation: slideIn 0.5s;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: #ff6b00;
+      color: #fff;
+      border: none;
+      font-size: 2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .close-btn:hover {
+      background: #ff8c00;
+      transform: rotate(90deg);
+    }
+
+    .story-page {
+      margin-bottom: 30px;
+      padding: 25px;
+      background: linear-gradient(135deg, #f5f5f5, #fff);
+      border-radius: 20px;
+      border-left: 5px solid #ff6b00;
+    }
+
+    .story-page-icon {
+      font-size: 4rem;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .story-page-text {
+      font-size: 1.6rem;
+      line-height: 2;
+      text-align: center;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .rust-example {
+      background: #2d2d2d;
+      color: #ff6b00;
+      padding: 20px;
+      border-radius: 15px;
+      font-family: 'Courier New', monospace;
+      font-size: 1.3rem;
+      margin: 20px 0;
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    .touch-hint {
+      text-align: center;
+      padding: 20px;
+      background: linear-gradient(90deg, rgba(0,255,136,0.2), rgba(255,107,0,0.2));
+      border-radius: 15px;
+      margin-top: 30px;
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .audio-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: #ff6b00;
+      color: #fff;
+      border: none;
+      font-size: 2.5rem;
+      cursor: pointer;
+      box-shadow: 0 5px 20px rgba(255,107,0,0.4);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .audio-btn:active {
+      transform: scale(0.9);
+    }
+
+    /* Mobile Optimization */
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .header .subtitle {
+        font-size: 1.3rem;
+      }
+
+      .stories-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .story-page-text {
+        font-size: 1.3rem;
+      }
+    }
+
+    /* Haptic Feedback Simulation */
+    .haptic-pulse {
+      animation: hapticPulse 0.3s;
+    }
+
+    @keyframes hapticPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="nano-container">
+    <!-- Header -->
+    <div class="header">
+      <h1 data-testid="title-nano-banana">🍌🦀 Nano Banana Rust</h1>
+      <div class="subtitle" data-testid="subtitle-nano">Tactile Stories for Ages 3-6</div>
+    </div>
+
+    <!-- Stories Grid -->
+    <div class="stories-grid" data-testid="stories-grid">
+      <!-- Story 1: The Friendly Crab -->
+      <div class="story-card" data-story="crab" data-testid="story-card-crab">
+        <div class="story-qr" style="background: #ff6b00;"></div>
+        <div class="story-icon">🦀</div>
+        <div class="story-title">The Friendly Crab</div>
+        <div class="story-desc">Meet Rusty the Crab who loves to help friends!</div>
+      </div>
+
+      <!-- Story 2: Building a Castle -->
+      <div class="story-card" data-story="castle" data-testid="story-card-castle">
+        <div class="story-qr" style="background: #00ff88;"></div>
+        <div class="story-icon">🏰</div>
+        <div class="story-title">Building a Castle</div>
+        <div class="story-desc">Learn how blocks stack to make something big!</div>
+      </div>
+
+      <!-- Story 3: The Memory Box -->
+      <div class="story-card" data-story="memory" data-testid="story-card-memory">
+        <div class="story-qr" style="background: #00bfff;"></div>
+        <div class="story-icon">📦</div>
+        <div class="story-title">The Memory Box</div>
+        <div class="story-desc">Keep your treasures safe in a special box!</div>
+      </div>
+
+      <!-- Story 4: Sharing is Caring -->
+      <div class="story-card" data-story="sharing" data-testid="story-card-sharing">
+        <div class="story-qr" style="background: #ff1493;"></div>
+        <div class="story-icon">🎁</div>
+        <div class="story-title">Sharing is Caring</div>
+        <div class="story-desc">Learn why we share toys with friends!</div>
+      </div>
+    </div>
+
+    <!-- Touch Hint -->
+    <div class="touch-hint" data-testid="touch-hint">
+      👆 Touch any story to start the adventure! 🌟
+    </div>
+  </div>
+
+  <!-- Story Modal -->
+  <div class="story-modal" id="story-modal" data-testid="story-modal">
+    <div class="story-content" id="story-content">
+      <button class="close-btn" id="close-modal" data-testid="close-modal">✕</button>
+      <div id="story-pages"></div>
+    </div>
+  </div>
+
+  <!-- Audio Button -->
+  <button class="audio-btn" id="audio-btn" data-testid="audio-btn" title="Read story aloud">
+    🔊
+  </button>
+
+  <script>
+    // Story content
+    const stories = {
+      crab: {
+        title: "🦀 The Friendly Crab",
+        qr: "QR://rust.nanobanana/crab/x₀y₀z₀",
+        pages: [
+          {
+            icon: "🦀",
+            text: "Meet Rusty the Crab! Rusty has strong claws that hold things tight.",
+            rust: "fn hold(item) 🦀"
+          },
+          {
+            icon: "🤝",
+            text: "Rusty helps friends by keeping their toys safe. Nothing gets lost!",
+            rust: "safe_box 📦"
+          },
+          {
+            icon: "💚",
+            text: "When Rusty shares, everyone is happy! This is like Rust sharing memory.",
+            rust: "&share 💚"
+          },
+          {
+            icon: "🎉",
+            text: "Rusty learned: Hold tight, keep safe, share with care!",
+            rust: "🦀 = ❤️"
+          }
+        ]
+      },
+      castle: {
+        title: "🏰 Building a Castle",
+        qr: "QR://rust.nanobanana/castle/x₀y₀z₀",
+        pages: [
+          {
+            icon: "🧱",
+            text: "We start with one block. This is our foundation!",
+            rust: "struct Block 🧱"
+          },
+          {
+            icon: "🏗️",
+            text: "We add more blocks on top. Each one fits perfectly!",
+            rust: "impl Build 🏗️"
+          },
+          {
+            icon: "🏰",
+            text: "Now we have a beautiful castle! Strong and safe.",
+            rust: "Castle::new() 🏰"
+          },
+          {
+            icon: "👑",
+            text: "You built it yourself! You're a castle builder!",
+            rust: "🏰 = You!"
+          }
+        ]
+      },
+      memory: {
+        title: "📦 The Memory Box",
+        qr: "QR://rust.nanobanana/memory/x₀y₀z₀",
+        pages: [
+          {
+            icon: "📦",
+            text: "This is your special box. Only you can open it!",
+            rust: "Box<T> 📦"
+          },
+          {
+            icon: "🎨",
+            text: "You put your favorite toy inside. The box keeps it safe!",
+            rust: "Box::new(toy) 🎨"
+          },
+          {
+            icon: "🔒",
+            text: "The box locks when you're done. Nobody else can take it!",
+            rust: "owned 🔒"
+          },
+          {
+            icon: "✨",
+            text: "Your treasure is safe in your memory box!",
+            rust: "📦 = Safe!"
+          }
+        ]
+      },
+      sharing: {
+        title: "🎁 Sharing is Caring",
+        qr: "QR://rust.nanobanana/sharing/x₀y₀z₀",
+        pages: [
+          {
+            icon: "🧸",
+            text: "You have a teddy bear. It's yours!",
+            rust: "let bear = mine"
+          },
+          {
+            icon: "👫",
+            text: "Your friend wants to see it. You can show them!",
+            rust: "&bear (share)"
+          },
+          {
+            icon: "🤗",
+            text: "Your friend looks at it but doesn't take it. You still have it!",
+            rust: "borrow 🤗"
+          },
+          {
+            icon: "💝",
+            text: "Sharing makes everyone happy! You're so kind!",
+            rust: "❤️ = sharing"
+          }
+        ]
+      }
+    };
+
+    // Modal handling
+    const modal = document.getElementById('story-modal');
+    const closeBtn = document.getElementById('close-modal');
+    const storyContent = document.getElementById('story-pages');
+
+    // Open story
+    document.querySelectorAll('.story-card').forEach(card => {
+      card.addEventListener('click', function() {
+        // Haptic feedback simulation
+        this.classList.add('haptic-pulse');
+        setTimeout(() => this.classList.remove('haptic-pulse'), 300);
+        
+        const storyKey = this.dataset.story;
+        const story = stories[storyKey];
+        
+        let html = `<h2 style="text-align: center; color: #ff6b00; margin-bottom: 30px; font-size: 2.5rem;">${story.title}</h2>`;
+        html += `<p style="text-align: center; color: #666; margin-bottom: 30px; font-size: 1.2rem;">QR: ${story.qr}</p>`;
+        
+        story.pages.forEach((page, idx) => {
+          html += `
+            <div class="story-page" data-page="${idx}">
+              <div class="story-page-icon">${page.icon}</div>
+              <div class="story-page-text">${page.text}</div>
+              <div class="rust-example">${page.rust}</div>
+            </div>
+          `;
+        });
+        
+        storyContent.innerHTML = html;
+        modal.classList.add('active');
+      });
+    });
+
+    // Close modal
+    closeBtn.addEventListener('click', () => {
+      modal.classList.remove('active');
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+      }
+    });
+
+    // Audio button (placeholder)
+    document.getElementById('audio-btn').addEventListener('click', function() {
+      this.classList.add('haptic-pulse');
+      setTimeout(() => this.classList.remove('haptic-pulse'), 300);
+      alert('🔊 Audio narration coming soon! Stories will be read aloud with voice.');
+    });
+
+    // Haptic feedback for all touches (mobile)
+    document.addEventListener('touchstart', (e) => {
+      if (e.target.closest('.story-card') || e.target.closest('button')) {
+        // Browser haptic API if available
+        if (navigator.vibrate) {
+          navigator.vibrate(50);
+        }
+      }
+    });
+
+    console.log('🍌🦀 Nano Banana Rust initialized for ages 3-6!');
+    console.log('QR://rust.nanobanana/x₀y₀z₀');
+  </script>
+</body>
+</html>

@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <title>PrivateClient.ai | Command Line Internet Gateway</title>
+    <meta name="description" content="Access the Command Line Internet through PrivateClient.ai Omnibox - Secure OAuth + WorldID biometric authentication">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #000;
+            --surface: #0a0a0a;
+            --border: #1a1a1a;
+            --text: #fff;
+            --dim: rgba(255,255,255,0.5);
+            --accent: #00d4ff;
+            --gold: #ffaa00;
+            --pink: #ff00aa;
+            --green: #00ff88;
+            --purple: #aa00ff;
+            --gradient: linear-gradient(135deg, #00d4ff, #ff00aa, #ffaa00);
+        }
+        
+        html, body {
+            height: 100%;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+        }
+        
+        .universe {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+        }
+        
+        .grid-bg {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: grid-drift 60s linear infinite;
+        }
+        
+        @keyframes grid-drift {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 40px; }
+        }
+        
+        .orbit-ring {
+            position: absolute;
+            border: 1px solid rgba(0,212,255,0.1);
+            border-radius: 50%;
+            animation: orbit-pulse 8s ease-in-out infinite;
+        }
+        
+        .orbit-ring:nth-child(1) { width: 200px; height: 200px; top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: 0s; }
+        .orbit-ring:nth-child(2) { width: 400px; height: 400px; top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: 1s; }
+        .orbit-ring:nth-child(3) { width: 600px; height: 600px; top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: 2s; }
+        .orbit-ring:nth-child(4) { width: 900px; height: 900px; top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: 3s; }
+        
+        @keyframes orbit-pulse {
+            0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.02); }
+        }
+        
+        .floating-node {
+            position: absolute;
+            width: 8px; height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--accent);
+            animation: float-node 12s ease-in-out infinite;
+        }
+        
+        .floating-node:nth-child(5) { top: 20%; left: 15%; animation-delay: 0s; background: var(--gold); box-shadow: 0 0 20px var(--gold); }
+        .floating-node:nth-child(6) { top: 30%; right: 20%; animation-delay: 2s; background: var(--pink); box-shadow: 0 0 20px var(--pink); }
+        .floating-node:nth-child(7) { bottom: 25%; left: 25%; animation-delay: 4s; background: var(--green); box-shadow: 0 0 20px var(--green); }
+        .floating-node:nth-child(8) { bottom: 35%; right: 15%; animation-delay: 6s; background: var(--purple); box-shadow: 0 0 20px var(--purple); }
+        
+        @keyframes float-node {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
+            50% { transform: translateY(-20px) scale(1.2); opacity: 1; }
+        }
+        
+        .main-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .brand-section {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .logo-icon {
+            width: 64px; height: 64px;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            animation: logo-glow 3s ease-in-out infinite;
+        }
+        
+        @keyframes logo-glow {
+            0%, 100% { box-shadow: 0 0 30px rgba(0,212,255,0.4); }
+            50% { box-shadow: 0 0 50px rgba(0,212,255,0.7), 0 0 80px rgba(255,0,170,0.3); }
+        }
+        
+        .brand-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 32px;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .brand-tagline {
+            font-size: 14px;
+            color: var(--dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .omnibox-container {
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .omnibox-frame {
+            background: rgba(10,10,10,0.95);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+            padding: 24px;
+        }
+        
+        .omnibox-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .omnibox-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--accent);
+            letter-spacing: 2px;
+        }
+        
+        .omnibox-protocol {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--gold);
+            background: rgba(255,170,0,0.1);
+            padding: 4px 8px;
+        }
+        
+        .omnibox-input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .omnibox-prefix {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: var(--accent);
+            pointer-events: none;
+        }
+        
+        .omnibox-input {
+            width: 100%;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(0,212,255,0.2);
+            padding: 16px 16px 16px 90px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            color: var(--text);
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        .omnibox-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(0,212,255,0.2);
+        }
+        
+        .omnibox-input::placeholder {
+            color: var(--dim);
+            font-size: 14px;
+        }
+        
+        .omnibox-suggestions {
+            display: none;
+            background: rgba(5,5,10,0.98);
+            border: 1px solid var(--border);
+            border-top: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .omnibox-suggestions.active {
+            display: block;
+        }
+        
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .suggestion-item:hover {
+            background: rgba(0,212,255,0.1);
+        }
+        
+        .suggestion-icon { font-size: 16px; }
+        .suggestion-text { flex: 1; font-size: 13px; }
+        .suggestion-route { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--dim); }
+        
+        .auth-section {
+            margin-top: 24px;
+        }
+        
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .auth-divider-line {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+        
+        .auth-divider-text {
+            font-size: 10px;
+            color: var(--dim);
+            letter-spacing: 2px;
+        }
+        
+        .auth-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .auth-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 14px 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            border: none;
+        }
+        
+        .auth-btn-primary {
+            background: var(--gradient);
+            color: #000;
+        }
+        
+        .auth-btn-primary:hover {
+            box-shadow: 0 0 30px rgba(0,212,255,0.5);
+            transform: translateY(-2px);
+        }
+        
+        .auth-btn-secondary {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--text);
+        }
+        
+        .auth-btn-secondary:hover {
+            border-color: var(--accent);
+            background: rgba(0,212,255,0.1);
+        }
+        
+        .auth-btn-worldid {
+            background: linear-gradient(135deg, #191919, #000);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text);
+        }
+        
+        .auth-btn-worldid:hover {
+            border-color: var(--green);
+            box-shadow: 0 0 20px rgba(0,255,136,0.3);
+        }
+        
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+            font-size: 10px;
+            color: var(--dim);
+        }
+        
+        .security-dot {
+            width: 6px; height: 6px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        
+        .qr-login-section {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+        
+        .qr-login-title {
+            font-size: 10px;
+            color: var(--dim);
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+        
+        .qr-login-code {
+            display: inline-block;
+            background: #fff;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .qr-login-address {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--gold);
+        }
+        
+        .footer-section {
+            margin-top: 32px;
+            text-align: center;
+        }
+        
+        .domain-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .domain-link {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--dim);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .domain-link:hover { color: var(--accent); }
+        
+        .footer-text {
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+        }
+        
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.95);
+            border-top: 1px solid var(--border);
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            z-index: 100;
+        }
+        
+        .status-left { display: flex; align-items: center; gap: 16px; color: var(--dim); }
+        .status-right { display: flex; align-items: center; gap: 16px; color: var(--dim); }
+        .status-live { display: flex; align-items: center; gap: 6px; color: var(--green); }
+        
+        .user-panel {
+            display: none;
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(0,255,136,0.05);
+            border: 1px solid rgba(0,255,136,0.2);
+        }
+        
+        .user-panel.active { display: block; }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-avatar {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        
+        .user-details { flex: 1; }
+        .user-name { font-weight: 600; font-size: 14px; }
+        .user-email { font-size: 12px; color: var(--dim); }
+        .user-security { font-size: 10px; color: var(--green); margin-top: 4px; }
+        
+        @media (max-width: 600px) {
+            .brand-name { font-size: 24px; }
+            .omnibox-frame { padding: 16px; }
+            .omnibox-input { padding-left: 70px; font-size: 14px; }
+            .omnibox-prefix { font-size: 12px; left: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="universe">
+        <div class="grid-bg"></div>
+        <div class="orbit-ring"></div>
+        <div class="orbit-ring"></div>
+        <div class="orbit-ring"></div>
+        <div class="orbit-ring"></div>
+        <div class="floating-node"></div>
+        <div class="floating-node"></div>
+        <div class="floating-node"></div>
+        <div class="floating-node"></div>
+    </div>
+
+    <main class="main-container">
+        <section class="brand-section">
+            <div class="brand-logo">
+                <div class="logo-icon" data-testid="logo-privateclient">🔐</div>
+                <span class="brand-name">PrivateClient.ai</span>
+            </div>
+            <p class="brand-tagline">Command Line Internet Gateway</p>
+        </section>
+
+        <div class="omnibox-container">
+            <div class="omnibox-frame">
+                <header class="omnibox-header">
+                    <span class="omnibox-title">OMNIBOX NAVIGATOR</span>
+                    <span class="omnibox-protocol">qr://c3f6q7h</span>
+                </header>
+
+                <div class="omnibox-input-group">
+                    <span class="omnibox-prefix">cli://</span>
+                    <input 
+                        type="text" 
+                        class="omnibox-input" 
+                        id="omnibox-input"
+                        placeholder="Navigate to any CLI address..."
+                        autocomplete="off"
+                        data-testid="input-omnibox"
+                    >
+                    <div class="omnibox-suggestions" id="omnibox-suggestions">
+                        <div class="suggestion-item" data-route="/">
+                            <span class="suggestion-icon">🏛️</span>
+                            <span class="suggestion-text">llm.store Origin</span>
+                            <span class="suggestion-route">x₀y₀z₀</span>
+                        </div>
+                        <div class="suggestion-item" data-route="/map">
+                            <span class="suggestion-icon">🗺️</span>
+                            <span class="suggestion-text">Map Native</span>
+                            <span class="suggestion-route">/map</span>
+                        </div>
+                        <div class="suggestion-item" data-route="/mech-3d-os">
+                            <span class="suggestion-icon">🖥️</span>
+                            <span class="suggestion-text">MÆCH 3D OS</span>
+                            <span class="suggestion-route">/mech-3d-os</span>
+                        </div>
+                        <div class="suggestion-item" data-route="/mech-latamocw">
+                            <span class="suggestion-icon">🎓</span>
+                            <span class="suggestion-text">LATAM OCW</span>
+                            <span class="suggestion-route">/mech-latamocw</span>
+                        </div>
+                        <div class="suggestion-item" data-route="/qrsql">
+                            <span class="suggestion-icon">🗃️</span>
+                            <span class="suggestion-text">QrSQL Database</span>
+                            <span class="suggestion-route">/qrsql</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="user-panel" id="user-panel">
+                    <div class="user-info">
+                        <div class="user-avatar" id="user-avatar">👤</div>
+                        <div class="user-details">
+                            <div class="user-name" id="user-name">Welcome</div>
+                            <div class="user-email" id="user-email">Authenticated</div>
+                            <div class="user-security" id="user-security">🔒 Standard Security</div>
+                        </div>
+                    </div>
+                </div>
+
+                <section class="auth-section">
+                    <div class="auth-divider">
+                        <div class="auth-divider-line"></div>
+                        <span class="auth-divider-text">SECURE ACCESS</span>
+                        <div class="auth-divider-line"></div>
+                    </div>
+
+                    <div class="auth-buttons">
+                        <a href="/api/auth/login" class="auth-btn auth-btn-primary" data-testid="btn-login-oauth">
+                            <span>🔑</span>
+                            <span>Login with OAuth</span>
+                        </a>
+                        
+                        <button class="auth-btn auth-btn-worldid" id="btn-worldid" data-testid="btn-login-worldid">
+                            <span>🌐</span>
+                            <span>WorldID Biometric</span>
+                        </button>
+                        
+                        <a href="/" class="auth-btn auth-btn-secondary" data-testid="btn-guest">
+                            <span>👁️</span>
+                            <span>Enter as Guest</span>
+                        </a>
+                    </div>
+
+                    <div class="security-badge">
+                        <div class="security-dot"></div>
+                        <span>Secured by PrivateClient.ai + WorldID</span>
+                    </div>
+                </section>
+
+                <section class="qr-login-section">
+                    <div class="qr-login-title">SCAN TO ACCESS CLI</div>
+                    <div class="qr-login-code" id="qr-login-code"></div>
+                    <div class="qr-login-address">qr://c3f6q7h/auth/privateclient</div>
+                </section>
+            </div>
+        </div>
+
+        <footer class="footer-section">
+            <div class="domain-links">
+                <a href="/" class="domain-link">llm.store</a>
+                <a href="/" class="domain-link">æææ.com</a>
+                <a href="/" class="domain-link">æl.net</a>
+                <a href="/" class="domain-link">neuromitosis.com</a>
+                <a href="/" class="domain-link">iaAmano.com</a>
+                <a href="/" class="domain-link">Daollc.ai</a>
+            </div>
+            <p class="footer-text">All domains unified at x₀y₀z₀ Origin</p>
+        </footer>
+    </main>
+
+    <div class="status-bar">
+        <div class="status-left">
+            <span>Z:0 GENESIS</span>
+            <span>|</span>
+            <span>RFC-00 COMPLIANT</span>
+        </div>
+        <div class="status-right">
+            <span class="status-live">
+                <div class="security-dot"></div>
+                SECURE
+            </span>
+            <span>|</span>
+            <span id="status-time">00:00:00</span>
+        </div>
+    </div>
+
+    <script>
+        const QR_AUTH_ADDRESS = 'qr://c3f6q7h/auth/privateclient';
+        
+        const CLI_ROUTES = [
+            { icon: '🏛️', name: 'llm.store Origin', route: '/', keywords: ['origin', 'home', 'llm', 'store'] },
+            { icon: '🗺️', name: 'Map Native', route: '/map', keywords: ['map', 'spatial', 'qr'] },
+            { icon: '🖥️', name: 'MÆCH 3D OS', route: '/mech-3d-os', keywords: ['3d', 'os', 'mech', 'interface'] },
+            { icon: '🎓', name: 'LATAM OCW', route: '/mech-latamocw', keywords: ['latam', 'education', 'ocw'] },
+            { icon: '🗃️', name: 'QrSQL Database', route: '/qrsql', keywords: ['qrsql', 'database', 'sql'] },
+            { icon: '📓', name: 'NOTÆBOOK', route: '/mech-notebook', keywords: ['notebook', 'jupyter'] },
+            { icon: '🔗', name: 'Integration Hub', route: '/mech-hub', keywords: ['hub', 'integration'] },
+            { icon: '⏳', name: 'Timeline Engine', route: '/mech-timeline', keywords: ['timeline', 'genesis'] },
+            { icon: '🫧', name: 'Blob^MCP', route: '/mech-blob', keywords: ['blob', 'mcp'] },
+            { icon: '🤖', name: 'Agentic Runtime', route: '/mech-agentic', keywords: ['agentic', 'runtime', 'agent'] }
+        ];
+        
+        function initQRCode() {
+            const container = document.getElementById('qr-login-code');
+            if (typeof QRCode !== 'undefined' && container) {
+                const canvas = document.createElement('canvas');
+                container.appendChild(canvas);
+                QRCode.toCanvas(canvas, QR_AUTH_ADDRESS, { width: 120, margin: 0 }).catch(console.error);
+            }
+        }
+        
+        const omniboxInput = document.getElementById('omnibox-input');
+        const suggestions = document.getElementById('omnibox-suggestions');
+        
+        omniboxInput.addEventListener('focus', () => {
+            suggestions.classList.add('active');
+        });
+        
+        omniboxInput.addEventListener('blur', () => {
+            setTimeout(() => suggestions.classList.remove('active'), 200);
+        });
+        
+        omniboxInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            
+            if (!query) {
+                renderDefaultSuggestions();
+                return;
+            }
+            
+            const matches = CLI_ROUTES.filter(route => 
+                route.name.toLowerCase().includes(query) ||
+                route.route.toLowerCase().includes(query) ||
+                route.keywords.some(k => k.includes(query))
+            );
+            
+            if (matches.length > 0) {
+                suggestions.innerHTML = matches.map(m => `
+                    <div class="suggestion-item" data-route="${m.route}">
+                        <span class="suggestion-icon">${m.icon}</span>
+                        <span class="suggestion-text">${m.name}</span>
+                        <span class="suggestion-route">${m.route}</span>
+                    </div>
+                `).join('');
+            } else {
+                suggestions.innerHTML = `
+                    <div class="suggestion-item" data-route="${query}">
+                        <span class="suggestion-icon">🔍</span>
+                        <span class="suggestion-text">Navigate to: ${query}</span>
+                        <span class="suggestion-route">cli://${query}</span>
+                    </div>
+                `;
+            }
+        });
+        
+        omniboxInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const value = this.value.trim();
+                if (value) {
+                    const match = CLI_ROUTES.find(r => 
+                        r.name.toLowerCase().includes(value.toLowerCase()) ||
+                        r.route.toLowerCase().includes(value.toLowerCase())
+                    );
+                    
+                    if (match) {
+                        window.location.href = match.route;
+                    } else if (value.startsWith('/')) {
+                        window.location.href = value;
+                    } else {
+                        window.location.href = '/' + value;
+                    }
+                }
+            }
+        });
+        
+        function renderDefaultSuggestions() {
+            suggestions.innerHTML = CLI_ROUTES.slice(0, 5).map(r => `
+                <div class="suggestion-item" data-route="${r.route}">
+                    <span class="suggestion-icon">${r.icon}</span>
+                    <span class="suggestion-text">${r.name}</span>
+                    <span class="suggestion-route">${r.route}</span>
+                </div>
+            `).join('');
+        }
+        
+        document.addEventListener('click', function(e) {
+            const item = e.target.closest('.suggestion-item');
+            if (item) {
+                window.location.href = item.dataset.route;
+            }
+        });
+        
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/api/auth/security-status');
+                if (response.ok) {
+                    const data = await response.json();
+                    showUserPanel(data);
+                }
+            } catch (e) {
+                console.log('Not authenticated');
+            }
+        }
+        
+        function showUserPanel(data) {
+            const panel = document.getElementById('user-panel');
+            const authSection = document.querySelector('.auth-section');
+            
+            if (data.authenticated) {
+                panel.classList.add('active');
+                authSection.style.display = 'none';
+                
+                document.getElementById('user-security').textContent = 
+                    data.biometricVerified 
+                        ? `🔒 ${data.securityLevel.toUpperCase()} Security (WorldID ${data.worldIdLevel})`
+                        : `🔓 ${data.securityLevel.toUpperCase()} Security`;
+            }
+        }
+        
+        document.getElementById('btn-worldid').addEventListener('click', async () => {
+            alert('WorldID verification requires the WorldID app.\nThis would open the biometric verification flow.');
+        });
+        
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('status-time').textContent = now.toLocaleTimeString('en-US', { hour12: false });
+        }
+        
+        initQRCode();
+        renderDefaultSuggestions();
+        checkAuthStatus();
+        setInterval(updateTime, 1000);
+        updateTime();
+        
+        console.log('🔐 PrivateClient.ai Omnibox Gateway');
+        console.log('📡 CLI Protocol: cli://');
+        console.log('🔗 QR Auth: ' + QR_AUTH_ADDRESS);
+    </script>
+</body>
+</html>

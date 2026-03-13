@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MÆCH Territorial Programming Interface | iaAmano.com Fulcrum</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@300;400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            /* MÆCH Territorial Colors */
+            --mæch-primary: #00ff88;
+            --mæch-quantum: #00d4ff;
+            --mæch-purple: #aa44ff;
+            --latam-orange: #ff6b35;
+            --territorial-red: #ff3366;
+            --void-depth: #0a0a0f;
+            --neural-space: #151520;
+            --sovereignty-silver: #e8e8e8;
+            --plasma-cyan: #44ffff;
+            --fulcrum-gold: #ffaa00;
+            --territorial-blue: #4488ff;
+            --nano-banana: #ffd700;
+            --bluesky-blue: #00bcd4;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Rajdhani', sans-serif;
+            background: radial-gradient(circle at 50% 50%, var(--neural-space) 0%, var(--void-depth) 100%);
+            color: var(--sovereignty-silver);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Territorial Canvas Background */
+        #territorial-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        /* QR Coordinate System */
+        .qr-coordinates {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: rgba(10, 10, 15, 0.9);
+            border: 2px solid var(--mæch-primary);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Fira Code', monospace;
+            font-size: 11px;
+            color: var(--mæch-primary);
+            z-index: 1000;
+        }
+
+        /* Header - MÆCH Integration Hub Status */
+        .mæch-header {
+            background: linear-gradient(135deg, rgba(21, 21, 32, 0.95), rgba(10, 10, 15, 0.98));
+            border-bottom: 3px solid var(--mæch-primary);
+            padding: 2rem;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            position: relative;
+        }
+
+        .mæch-logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, var(--mæch-primary), var(--mæch-quantum), var(--mæch-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(0, 255, 136, 0.6);
+            letter-spacing: 0.15em;
+            margin-bottom: 0.5rem;
+            animation: territorial-pulse 2s infinite alternate;
+        }
+
+        @keyframes territorial-pulse {
+            from { filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.4)); }
+            to { filter: drop-shadow(0 0 40px rgba(0, 212, 255, 0.8)); }
+        }
+
+        .integration-status {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .status-module {
+            background: rgba(21, 21, 32, 0.8);
+            border: 1px solid var(--mæch-primary);
+            border-radius: 0.8rem;
+            padding: 0.8rem 1.2rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .status-module:hover {
+            border-color: var(--mæch-quantum);
+            transform: translateY(-2px);
+        }
+
+        .status-led {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse-territorial 1.5s infinite;
+        }
+
+        .led-active { background: var(--mæch-primary); }
+        .led-hub { background: var(--mæch-purple); }
+        .led-territorial { background: var(--latam-orange); }
+        .led-bluesky { background: var(--bluesky-blue); }
+
+        @keyframes pulse-territorial {
+            0%, 100% { opacity: 1; box-shadow: 0 0 8px currentColor; }
+            50% { opacity: 0.4; box-shadow: 0 0 4px currentColor; }
+        }
+
+        /* Main Container */
+        .mæch-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Territorial Programming Tables */
+        .territorial-table-system {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .territorial-stream {
+            background: linear-gradient(135deg, rgba(21, 21, 32, 0.9), rgba(0, 255, 136, 0.05));
+            border: 2px solid var(--territorial-blue);
+            border-radius: 1rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stream-header {
+            background: linear-gradient(90deg, var(--territorial-blue), var(--mæch-quantum));
+            color: var(--void-depth);
+            padding: 1rem 2rem;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .stream-header:hover {
+            background: linear-gradient(90deg, var(--mæch-quantum), var(--mæch-primary));
+            transform: translateX(5px);
+        }
+
+        .qr-address {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .stream-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stream-content.active {
+            max-height: 800px;
+        }
+
+        .territorial-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .territorial-table th {
+            background: linear-gradient(90deg, var(--mæch-purple), var(--latam-orange));
+            color: var(--void-depth);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+        }
+
+        .territorial-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .territorial-table tbody tr:hover {
+            background: rgba(0, 255, 136, 0.08);
+            transform: translateX(8px);
+        }
+
+        /* MÆCH Code with enhanced syntax */
+        .mæch-code {
+            background: var(--void-depth);
+            border: 2px solid var(--mæch-primary);
+            border-radius: 0.8rem;
+            padding: 1.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--sovereignty-silver);
+            overflow-x: auto;
+            position: relative;
+            margin: 1rem 0;
+        }
+
+        .mæch-code::before {
+            content: 'MÆCH v2.0-Territorial';
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            font-size: 0.7rem;
+            color: var(--mæch-primary);
+            opacity: 0.6;
+        }
+
+        /* Enhanced MÆCH Syntax highlighting */
+        .syntax-table { color: var(--territorial-blue); font-weight: 600; }
+        .syntax-operator { color: var(--latam-orange); font-weight: 600; }
+        .syntax-number { color: var(--territorial-red); }
+        .syntax-string { color: var(--plasma-cyan); }
+        .syntax-function { color: var(--mæch-purple); }
+        .syntax-comment { color: var(--sovereignty-silver); opacity: 0.6; }
+        .syntax-identifier { color: var(--mæch-primary); }
+        .syntax-territorial { color: var(--nano-banana); font-weight: 700; }
+        .syntax-qr { color: var(--bluesky-blue); font-weight: 600; }
+
+        /* Territorial Performance Visualization */
+        .territorial-meter {
+            width: 100%;
+            height: 6px;
+            background: rgba(10, 10, 15, 0.8);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 0.8rem 0;
+        }
+
+        .territorial-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .perf-territorial { background: linear-gradient(90deg, var(--mæch-primary), var(--mæch-quantum)); }
+        .perf-sovereignty { background: linear-gradient(90deg, var(--mæch-purple), var(--latam-orange)); }
+        .perf-integration { background: linear-gradient(90deg, var(--latam-orange), var(--territorial-red)); }
+
+        /* Live MÆCH Demo */
+        .territorial-demo {
+            background: linear-gradient(135deg, rgba(10, 10, 15, 0.95), rgba(0, 255, 136, 0.05));
+            border: 3px solid var(--mæch-quantum);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin: 3rem 0;
+            position: relative;
+        }
+
+        .demo-header {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            color: var(--mæch-quantum);
+            text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .territorial-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .mæch-btn {
+            background: linear-gradient(45deg, var(--mæch-quantum), var(--mæch-purple));
+            border: none;
+            color: var(--void-depth);
+            padding: 1rem 2rem;
+            border-radius: 0.8rem;
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.05em;
+        }
+
+        .mæch-btn:hover {
+            background: linear-gradient(45deg, var(--mæch-primary), var(--latam-orange));
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .mæch-btn.bluesky {
+            background: linear-gradient(45deg, var(--bluesky-blue), var(--mæch-quantum));
+        }
+
+        .mæch-btn.territorial {
+            background: linear-gradient(45deg, var(--nano-banana), var(--latam-orange));
+        }
+
+        .output-stream {
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid var(--mæch-primary);
+            border-radius: 0.8rem;
+            padding: 1.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            color: var(--mæch-primary);
+            min-height: 120px;
+            margin-top: 1rem;
+            overflow-y: auto;
+        }
+
+        /* Integration Hub Visualization */
+        .hub-viz {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .hub-panel {
+            background: rgba(21, 21, 32, 0.8);
+            border: 2px solid var(--latam-orange);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .hub-panel:hover {
+            border-color: var(--mæch-primary);
+            transform: translateY(-3px);
+        }
+
+        .hub-title {
+            color: var(--latam-orange);
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .hub-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--sovereignty-silver);
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* Territorial Navigation */
+        .territorial-nav {
+            background: rgba(21, 21, 32, 0.9);
+            border: 1px solid var(--mæch-primary);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .nav-header {
+            color: var(--mæch-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .nav-item {
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 0.8rem;
+            padding: 1rem;
+            text-decoration: none;
+            color: var(--sovereignty-silver);
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover {
+            border-color: var(--mæch-primary);
+            background: rgba(0, 255, 136, 0.1);
+            transform: translateX(5px);
+        }
+
+        .nav-qr {
+            color: var(--bluesky-blue);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .mæch-logo { font-size: 2.5rem; }
+            .territorial-table-system { grid-template-columns: 1fr; }
+            .integration-status { flex-direction: column; align-items: center; }
+            .territorial-controls { flex-direction: column; }
+            .qr-coordinates { position: relative; margin-bottom: 1rem; }
+        }
+
+        /* Expand/collapse icons */
+        .expand-icon {
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .active .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Blinking QR indicators */
+        .qr-blink {
+            animation: qr-blink 1.5s infinite;
+        }
+
+        @keyframes qr-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="territorial-canvas"></canvas>
+
+    <!-- QR Coordinate System -->
+    <div class="qr-coordinates">
+        <div>📍 x₀y₀z₀ Territorial Coordinates</div>
+        <div>🔗 QR://territorial-programming-interface</div>
+        <div>⚡ MÆCH Integration Hub Active</div>
+    </div>
+
+    <header class="mæch-header">
+        <h1 class="mæch-logo">MÆCH PROGRAMMING</h1>
+        <p style="font-size: 1.2rem; color: var(--mæch-quantum); margin-bottom: 1.5rem;">
+            Territorial • Reactive • Sovereignty Programming Language
+        </p>
+        
+        <div class="integration-status">
+            <div class="status-module" onclick="navigateToHub()">
+                <div class="status-led led-hub"></div>
+                INTEGRATION HUB: 247+ ACTIVE
+            </div>
+            <div class="status-module" onclick="navigateToScanner()">
+                <div class="status-led led-active"></div>
+                RESEARCH SCANNER: ONLINE
+            </div>
+            <div class="status-module" onclick="navigateToTerritorial()">
+                <div class="status-led led-territorial"></div>
+                TERRITORIAL: 49 SOBERANÍAS
+            </div>
+            <div class="status-module" onclick="navigateToBluesky()">
+                <div class="status-led led-bluesky"></div>
+                BLUESKY: BLOB DISTRIBUTION
+            </div>
+        </div>
+    </header>
+
+    <main class="mæch-container">
+        <!-- Territorial Programming Core Features -->
+        <div class="territorial-table-system">
+            <div class="territorial-stream">
+                <div class="stream-header" onclick="toggleStream('territorial')">
+                    <span>TERRITORIAL PROGRAMMING OPERATIONS</span>
+                    <span class="qr-address">QR://T001</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="stream-content" id="territorial-stream">
+                    <table class="territorial-table">
+                        <thead>
+                            <tr>
+                                <th>OPERACIÓN TERRITORIAL</th>
+                                <th>SINTAXIS MÆCH</th>
+                                <th>DESCRIPCIÓN</th>
+                                <th>SOBERANÍA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Territorial Creation</strong></td>
+                                <td><div class="mæch-code"><span class="syntax-territorial">#territorio</span> <span class="syntax-operator">=</span> <span class="syntax-operator">[</span><span class="syntax-identifier">latam</span><span class="syntax-operator">|</span><span class="syntax-string">"colombia"</span> <span class="syntax-string">"ecuador"</span> <span class="syntax-string">"perú"</span><span class="syntax-operator">]</span></div></td>
+                                <td>Creación de territorios soberanos</td>
+                                <td><div class="territorial-meter"><div class="territorial-fill perf-territorial" style="width: 95%"></div></div></td>
+                            </tr>
+                            <tr>
+                                <td><strong>QR Addressing</strong></td>
+                                <td><div class="mæch-code"><span class="syntax-qr">qr://</span><span class="syntax-territorial">#territorio</span><span class="syntax-operator">/</span><span class="syntax-identifier">latamocw</span><span class="syntax-operator">/</span><span class="syntax-number">estudiante-3245</span></div></td>
+                                <td>Direccionamiento QR territorial</td>
+                                <td><div class="territorial-meter"><div class="territorial-fill perf-sovereignty" style="width: 88%"></div></div></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Blob Distribution</strong></td>
+                                <td><div class="mæch-code"><span class="syntax-function">blob^mcp</span><span class="syntax-operator">.</span><span class="syntax-identifier">distribute</span><span class="syntax-operator">(</span><span class="syntax-territorial">#territorio</span><span class="syntax-operator">,</span> <span class="syntax-string">"bluesky"</span><span class="syntax-operator">)</span></div></td>
+                                <td>Distribución de blobs ejecutables</td>
+                                <td><div class="territorial-meter"><div class="territorial-fill perf-integration" style="width: 92%"></div></div></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Reactive Sovereignty</strong></td>
+                                <td><div class="mæch-code"><span class="syntax-territorial">#soberanía</span> <span class="syntax-operator">:=</span> <span class="syntax-territorial">#territorio</span><span class="syntax-operator">.</span><span class="syntax-identifier">estudiantes</span> <span class="syntax-operator">*</span> <span class="syntax-function">ocw/factor</span></div></td>
+                                <td>Soberanía reactiva y auto-escalable</td>
+                                <td><div class="territorial-meter"><div class="territorial-fill perf-territorial" style="width: 98%"></div></div></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="territorial-stream">
+                <div class="stream-header" onclick="toggleStream('mæch-system')">
+                    <span>SISTEMA REACTIVO MÆCH</span>
+                    <span class="qr-address">QR://M002</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="stream-content" id="mæch-system-stream">
+                    <div class="mæch-code">
+<span class="syntax-comment">// Sistema educativo territorial MÆCH</span>
+<span class="syntax-territorial">#latamocw</span> <span class="syntax-operator">=</span> <span class="syntax-operator">[</span><span class="syntax-identifier">estudiantes</span><span class="syntax-operator">:</span> <span class="syntax-number">38240</span> <span class="syntax-identifier">territorios</span><span class="syntax-operator">:</span> <span class="syntax-number">49</span> <span class="syntax-identifier">implementaciones</span><span class="syntax-operator">:</span> <span class="syntax-number">247</span><span class="syntax-operator">]</span>
+
+<span class="syntax-comment">// Actualización reactiva de OCW</span>
+<span class="syntax-territorial">#nano-lessons</span> <span class="syntax-operator">:=</span> <span class="syntax-territorial">#latamocw</span><span class="syntax-operator">.</span><span class="syntax-identifier">estudiantes</span> <span class="syntax-operator">*</span> <span class="syntax-function">nano-banana/interpretation</span><span class="syntax-operator">(</span><span class="syntax-identifier">age-adaptive</span><span class="syntax-operator">)</span>
+
+<span class="syntax-comment">// Distribución automática via Bluesky</span>
+<span class="syntax-territorial">#blob-posts</span> <span class="syntax-operator">:=</span> <span class="syntax-function">bluesky/publish</span><span class="syntax-operator">(</span>
+  <span class="syntax-identifier">content</span><span class="syntax-operator">:</span> <span class="syntax-territorial">#nano-lessons</span><span class="syntax-operator">,</span>
+  <span class="syntax-identifier">territory</span><span class="syntax-operator">:</span> <span class="syntax-territorial">#territorio</span><span class="syntax-operator">,</span>
+  <span class="syntax-qr">qr</span><span class="syntax-operator">:</span> <span class="syntax-string">"qr://latamocw/lesson/{id}"</span>
+<span class="syntax-operator">)</span>
+
+<span class="syntax-comment">// Procesamiento paralelo de research papers</span>
+<span class="syntax-territorial">#scientific-analysis</span> <span class="syntax-operator">:=</span> <span class="syntax-function">mæch-scanner/process</span><span class="syntax-operator">(</span><span class="syntax-identifier">pdf</span><span class="syntax-operator">:</span> <span class="syntax-territorial">#uploaded-papers</span><span class="syntax-operator">)</span>
+                    </div>
+                    
+                    <div style="padding: 1rem; background: rgba(0, 255, 136, 0.1); margin-top: 1rem; border-radius: 0.5rem;">
+                        <h4 style="color: var(--mæch-primary); margin-bottom: 0.5rem;">Características Territoriales:</h4>
+                        <ul style="color: var(--sovereignty-silver); font-size: 0.9rem; line-height: 1.6;">
+                            <li>• <span style="color: var(--mæch-quantum);">:=</span> Asignación reactiva territorial</li>
+                            <li>• QR addressing para acceso instantáneo</li>
+                            <li>• Integración automática con Bluesky AT Protocol</li>
+                            <li>• Soberanía distributiva via blob^mcp</li>
+                            <li>• Research Scanner MÆCH nativo</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Integration Hub Metrics -->
+        <div class="hub-viz">
+            <div class="hub-panel" onclick="navigateToHub()">
+                <div class="hub-title">IMPLEMENTACIONES ACTIVAS</div>
+                <div class="hub-value" id="active-implementations">247</div>
+            </div>
+            <div class="hub-panel" onclick="navigateToStudents()">
+                <div class="hub-title">ESTUDIANTES OCW LATAM</div>
+                <div class="hub-value" id="ocw-students">38.2K</div>
+            </div>
+            <div class="hub-panel" onclick="navigateToTerritories()">
+                <div class="hub-title">TERRITORIOS SOBERANOS</div>
+                <div class="hub-value" id="territories">49</div>
+            </div>
+            <div class="hub-panel" onclick="navigateToDistribution()">
+                <div class="hub-title">BLOBS DISTRIBUIDOS</div>
+                <div class="hub-value" id="blob-distribution">15.7K</div>
+            </div>
+        </div>
+
+        <!-- Live MÆCH Territorial Demo -->
+        <div class="territorial-demo">
+            <div class="demo-header">🌍 SISTEMA TERRITORIAL MÆCH EN VIVO</div>
+            
+            <div class="mæch-code" id="demo-code">
+<span class="syntax-comment">// Demo territorial interactivo - ¡Edita y ejecuta!</span>
+<span class="syntax-territorial">#estudiantes-latam</span> <span class="syntax-operator">=</span> <span class="syntax-operator">[|</span><span class="syntax-identifier">id territorio edad nivel experiencia</span><span class="syntax-operator">|</span>
+  <span class="syntax-number">1001 "colombia" 15 "básico" 2.5</span>
+  <span class="syntax-number">2043 "ecuador" 22 "intermedio" 4.8</span>
+  <span class="syntax-number">3156 "perú" 18 "avanzado" 6.2</span><span class="syntax-operator">]</span>
+
+<span class="syntax-comment">// Generación reactiva de nano-lecciones</span>
+<span class="syntax-territorial">#nano-lecciones</span> <span class="syntax-operator">:=</span> <span class="syntax-function">nano-banana/generate</span><span class="syntax-operator">(</span>
+  <span class="syntax-identifier">estudiantes</span><span class="syntax-operator">:</span> <span class="syntax-territorial">#estudiantes-latam</span><span class="syntax-operator">,</span>
+  <span class="syntax-identifier">cultural-context</span><span class="syntax-operator">:</span> <span class="syntax-territorial">#territorio</span><span class="syntax-operator">,</span>
+  <span class="syntax-identifier">age-adaptive</span><span class="syntax-operator">:</span> <span class="syntax-identifier">true</span>
+<span class="syntax-operator">)</span>
+
+<span class="syntax-comment">// Distribución automática territorial</span>
+<span class="syntax-territorial">#distribucion</span> <span class="syntax-operator">:=</span> <span class="syntax-function">bluesky/territorial-post</span><span class="syntax-operator">(</span>
+  <span class="syntax-identifier">content</span><span class="syntax-operator">:</span> <span class="syntax-territorial">#nano-lecciones</span><span class="syntax-operator">,</span>
+  <span class="syntax-qr">qr-address</span><span class="syntax-operator">:</span> <span class="syntax-string">"qr://latamocw/{territorio}/{id}"</span><span class="syntax-operator">,</span>
+  <span class="syntax-identifier">executable</span><span class="syntax-operator">:</span> <span class="syntax-identifier">true</span>
+<span class="syntax-operator">)</span>
+            </div>
+            
+            <div class="territorial-controls">
+                <button class="mæch-btn" onclick="executeTerritory()">⚡ Ejecutar Territorial</button>
+                <button class="mæch-btn bluesky" onclick="distributeBluesky()">🌌 Distribuir Bluesky</button>
+                <button class="mæch-btn territorial" onclick="generateNanoLesson()">🍌 Nano Lección</button>
+                <button class="mæch-btn" onclick="scanResearch()">🔬 Research Scanner</button>
+            </div>
+            
+            <div class="output-stream" id="output-stream">
+                🌍 Sistema territorial MÆCH listo - esperando comandos...
+            </div>
+        </div>
+
+        <!-- Territorial Navigation Grid -->
+        <div class="territorial-nav">
+            <div class="nav-header">🗺️ NAVEGACIÓN TERRITORIAL MÆCH</div>
+            <div class="nav-grid">
+                <a href="/mech-hub" class="nav-item">
+                    <div style="font-weight: bold; color: var(--mæch-primary);">Integration Hub</div>
+                    <div class="nav-qr">QR://mech-hub</div>
+                    <div style="font-size: 0.9rem; margin-top: 0.5rem;">247+ implementaciones activas</div>
+                </a>
+                <a href="/nano-lesson-node" class="nav-item">
+                    <div style="font-weight: bold; color: var(--nano-banana);">Nano Lesson Node</div>
+                    <div class="nav-qr">QR://latamocw</div>
+                    <div style="font-size: 0.9rem; margin-top: 0.5rem;">38.2K estudiantes LATAM</div>
+                </a>
+                <a href="/api/mæch-research/interface" class="nav-item">
+                    <div style="font-weight: bold; color: var(--mæch-quantum);">Research Scanner</div>
+                    <div class="nav-qr">QR://research-scanner</div>
+                    <div style="font-size: 0.9rem; margin-top: 0.5rem;">Scientific paper analysis</div>
+                </a>
+                <a href="/mech-spatial-os" class="nav-item">
+                    <div style="font-weight: bold; color: var(--mæch-purple);">Spatial OS</div>
+                    <div class="nav-qr">QR://spatial-os</div>
+                    <div style="font-size: 0.9rem; margin-top: 0.5rem;">4D territorial computing</div>
+                </a>
+                <a href="/mech-4d-holomesh" class="nav-item">
+                    <div style="font-weight: bold; color: var(--plasma-cyan);">4D HoloMesh</div>
+                    <div class="nav-qr">QR://4d-holomesh</div>
+                    <div style="font-size: 0.9rem; margin-top: 0.5rem;">Holographic visualization</div>
+                </a>
+                <a href="/" class="nav-item">
+                    <div style="font-weight: bold; color: var(--territorial-red);">MÆCH 3D OS</div>
+                    <div class="nav-qr">QR://main-os</div>
+                    <div style="font-size: 0.9rem; margin-top: 0.5rem;">Sistema operativo principal</div>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Territorial Canvas Animation
+        const canvas = document.getElementById('territorial-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        // Territorial particles
+        const particles = [];
+        const numParticles = 50;
+        
+        class TerritorialParticle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.size = Math.random() * 3 + 1;
+                this.color = Math.random() > 0.5 ? '#00ff88' : '#00d4ff';
+                this.opacity = Math.random() * 0.8 + 0.2;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color + Math.floor(this.opacity * 255).toString(16).padStart(2, '0');
+                ctx.fill();
+            }
+        }
+        
+        // Initialize particles
+        for (let i = 0; i < numParticles; i++) {
+            particles.push(new TerritorialParticle());
+        }
+        
+        function animateCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            // Draw connections
+            particles.forEach((particle, i) => {
+                particles.slice(i + 1).forEach(otherParticle => {
+                    const dx = particle.x - otherParticle.x;
+                    const dy = particle.y - otherParticle.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.moveTo(particle.x, particle.y);
+                        ctx.lineTo(otherParticle.x, otherParticle.y);
+                        ctx.strokeStyle = '#00ff8820';
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                });
+            });
+            
+            requestAnimationFrame(animateCanvas);
+        }
+        
+        animateCanvas();
+        
+        // Stream toggle functionality
+        function toggleStream(streamId) {
+            const content = document.getElementById(streamId + '-stream');
+            const header = content.previousElementSibling;
+            const icon = header.querySelector('.expand-icon');
+            
+            content.classList.toggle('active');
+            header.classList.toggle('active');
+        }
+        
+        // Navigation functions
+        function navigateToHub() {
+            window.location.href = '/mech-hub';
+        }
+        
+        function navigateToScanner() {
+            window.location.href = '/api/mæch-research/interface';
+        }
+        
+        function navigateToTerritorial() {
+            window.location.href = '/mech-spatial-os';
+        }
+        
+        function navigateToBluesky() {
+            outputToStream('🌌 Conectando con Bluesky AT Protocol...\n🔗 Accesso soberano territorial establecido\n✅ Blob distribution network activo');
+        }
+        
+        function navigateToStudents() {
+            window.location.href = '/nano-lesson-node';
+        }
+        
+        function navigateToTerritories() {
+            outputToStream('🗺️ Territorios soberanos activos:\n• Colombia: 8,432 estudiantes\n• Ecuador: 6,251 estudiantes\n• Perú: 7,890 estudiantes\n• México: 15,667 estudiantes\n💫 Total: 49 territorios con soberanía MÆCH');
+        }
+        
+        function navigateToDistribution() {
+            outputToStream('📦 Blobs distribuidos via QR addressing:\n• Nano Lessons: 8,234 blobs\n• Research Papers: 3,421 blobs\n• Territorial Code: 4,067 blobs\n🚀 Total distribuido: 15.7K blobs ejecutables');
+        }
+        
+        // Demo functions
+        function executeTerritory() {
+            outputToStream('⚡ Ejecutando sistema territorial MÆCH...\n🌍 Territorios: Colombia, Ecuador, Perú detectados\n👥 Estudiantes: 3 activos procesando\n🧬 Nano-lecciones generando...\n✅ Ejecución territorial completada');
+        }
+        
+        function distributeBluesky() {
+            outputToStream('🌌 Distribuyendo via Bluesky AT Protocol...\n📡 Estableciendo conexión territorial soberana\n🔗 QR addresses generados: qr://latamocw/colombia/1001\n📦 Blob ejecutable creado y distribuido\n✅ Post territorial publicado con éxito');
+        }
+        
+        function generateNanoLesson() {
+            outputToStream('🍌 Nano Banana AI procesando...\n🎨 Interpretación visual territorial activada\n📚 Generando lección para edad 15-22 (LATAM context)\n🧠 Adaptación cultural: Colombia/Ecuador/Perú\n✅ Nano lección territorial lista para distribución');
+        }
+        
+        function scanResearch() {
+            outputToStream('🔬 MÆCH Research Scanner iniciado...\n📄 Escaneando papers científicos disponibles\n🧠 Análisis de conceptos clave en progreso\n🔗 Extrayendo hallazgos para educación territorial\n✅ Scientific analysis completado - listo para Nano Banana');
+        }
+        
+        function outputToStream(message) {
+            const stream = document.getElementById('output-stream');
+            stream.innerHTML = message;
+        }
+        
+        // Real-time counter updates
+        function updateCounters() {
+            const implementations = document.getElementById('active-implementations');
+            const students = document.getElementById('ocw-students');
+            const territories = document.getElementById('territories');
+            const distribution = document.getElementById('blob-distribution');
+            
+            // Simulate real-time updates
+            setInterval(() => {
+                if (Math.random() > 0.8) {
+                    const currentStudents = parseFloat(students.textContent);
+                    students.textContent = (currentStudents + 0.1).toFixed(1) + 'K';
+                }
+                
+                if (Math.random() > 0.9) {
+                    const currentBlobs = parseFloat(distribution.textContent);
+                    distribution.textContent = (currentBlobs + 0.1).toFixed(1) + 'K';
+                }
+            }, 3000);
+        }
+        
+        updateCounters();
+        
+        // Initialize with first stream open
+        setTimeout(() => {
+            toggleStream('territorial');
+        }, 1000);
+        
+        console.log('🌍 MÆCH Territorial Programming Interface loaded');
+        console.log('🔗 Integration Hub active with 247+ implementations');
+        console.log('🎓 Serving 38.2K+ OCW students across 49 territories');
+        console.log('📡 Bluesky blob distribution network operational');
+    </script>
+</body>
+</html>

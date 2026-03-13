@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#00ffaa">
+    <title>📱🔍 MÆCH Mobile QR Scanner - Territorial Addressing System</title>
+    <meta name="description" content="Native mobile QR code scanner for MÆCH territorial sovereignty and addressing system">
+    
+    <style>
+        :root {
+            --mech-primary: #00ffaa;
+            --mech-secondary: #00aaff;
+            --mech-accent: #ff00aa;
+            --mech-territorial: #ffaa00;
+            --mech-background: #0a0a0a;
+            --mech-surface: #1a1a1a;
+            --mech-text: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background: var(--mech-background);
+            color: var(--mech-text);
+            min-height: 100vh;
+            /* 📱 MOBILE-FIRST OPTIMIZATION */
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            font-size: clamp(14px, 4vw, 16px);
+            line-height: 1.5;
+        }
+
+        /* 📱 MOBILE-FIRST QR SCANNER CONTAINER */
+        .mech-qr-scanner {
+            width: 100vw;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
+            position: relative;
+        }
+
+        /* Mobile-first header */
+        .scanner-header {
+            height: clamp(60px, 15vw, 70px);
+            background: linear-gradient(135deg, var(--mech-primary), var(--mech-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 clamp(16px, 5vw, 24px);
+            font-size: clamp(14px, 4vw, 16px);
+            font-weight: bold;
+            color: white;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 255, 170, 0.3);
+        }
+
+        .scanner-title {
+            display: flex;
+            align-items: center;
+            gap: clamp(8px, 2.5vw, 12px);
+            font-size: clamp(16px, 5vw, 20px);
+        }
+
+        .territorial-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: clamp(12px, 3vw, 14px);
+        }
+
+        .territorial-pulse {
+            width: 8px;
+            height: 8px;
+            background: var(--mech-territorial);
+            border-radius: 2px;
+            animation: territorial-pulse 2s infinite;
+        }
+
+        @keyframes territorial-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        /* Mobile camera container */
+        .camera-container {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            overflow: hidden;
+        }
+
+        #qr-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #000;
+        }
+
+        /* Mobile scanning overlay */
+        .scanning-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .scan-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: clamp(200px, 60vw, 300px);
+            height: clamp(200px, 60vw, 300px);
+            border: 3px solid var(--mech-primary);
+            border-radius: 12px;
+            background: rgba(0, 255, 170, 0.1);
+        }
+
+        .scan-corners {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 4px solid var(--mech-primary);
+        }
+
+        .scan-corners.top-left {
+            top: -4px;
+            left: -4px;
+            border-right: none;
+            border-bottom: none;
+            border-radius: 12px 0 0 0;
+        }
+
+        .scan-corners.top-right {
+            top: -4px;
+            right: -4px;
+            border-left: none;
+            border-bottom: none;
+            border-radius: 0 12px 0 0;
+        }
+
+        .scan-corners.bottom-left {
+            bottom: -4px;
+            left: -4px;
+            border-right: none;
+            border-top: none;
+            border-radius: 0 0 0 12px;
+        }
+
+        .scan-corners.bottom-right {
+            bottom: -4px;
+            right: -4px;
+            border-left: none;
+            border-top: none;
+            border-radius: 0 0 12px 0;
+        }
+
+        /* Scanning animation line */
+        .scan-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--mech-primary);
+            animation: scan-sweep 2s linear infinite;
+            box-shadow: 0 0 10px var(--mech-primary);
+        }
+
+        @keyframes scan-sweep {
+            0% { top: 0; opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { top: 100%; opacity: 1; }
+        }
+
+        /* Mobile controls panel */
+        .scanner-controls {
+            background: var(--mech-surface);
+            padding: clamp(16px, 5vw, 24px);
+            border-top: 2px solid var(--mech-primary);
+            min-height: clamp(120px, 25vw, 160px);
+        }
+
+        .control-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: clamp(12px, 3vw, 16px);
+            margin-bottom: clamp(16px, 4vw, 20px);
+        }
+
+        .control-button {
+            background: linear-gradient(135deg, var(--mech-primary), var(--mech-secondary));
+            border: none;
+            color: white;
+            padding: clamp(12px, 4vw, 16px);
+            border-radius: clamp(10px, 3vw, 14px);
+            font-size: clamp(12px, 3.5vw, 14px);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.25s ease-out;
+            min-height: 48px;
+            touch-action: manipulation;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .control-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 15px rgba(0, 255, 170, 0.6);
+        }
+
+        /* QR Result display */
+        .qr-result {
+            background: rgba(0, 255, 170, 0.1);
+            border: 2px solid var(--mech-primary);
+            border-radius: clamp(8px, 2.5vw, 12px);
+            padding: clamp(12px, 4vw, 16px);
+            margin-top: clamp(12px, 3vw, 16px);
+            min-height: 60px;
+            display: none;
+        }
+
+        .qr-result.active {
+            display: block;
+            animation: qr-result-appear 0.3s ease-out;
+        }
+
+        @keyframes qr-result-appear {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-header {
+            font-size: clamp(14px, 4vw, 16px);
+            color: var(--mech-primary);
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-content {
+            font-size: clamp(12px, 3.5vw, 14px);
+            color: var(--mech-text);
+            word-break: break-word;
+            line-height: 1.4;
+        }
+
+        .result-territorial {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(0, 255, 170, 0.3);
+            font-size: clamp(11px, 3vw, 13px);
+            color: var(--mech-territorial);
+        }
+
+        /* Error states */
+        .error-message {
+            background: rgba(255, 0, 85, 0.1);
+            border: 2px solid #ff0055;
+            border-radius: clamp(8px, 2.5vw, 12px);
+            padding: clamp(12px, 4vw, 16px);
+            margin-top: clamp(12px, 3vw, 16px);
+            color: #ff0055;
+            font-size: clamp(12px, 3.5vw, 14px);
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+            animation: qr-result-appear 0.3s ease-out;
+        }
+
+        /* Loading state */
+        .scanner-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            z-index: 200;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 255, 170, 0.3);
+            border-top: 3px solid var(--mech-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--mech-primary);
+            font-size: clamp(12px, 3.5vw, 14px);
+            text-align: center;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 480px) {
+            .control-buttons {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            
+            .scan-frame {
+                width: clamp(180px, 70vw, 220px);
+                height: clamp(180px, 70vw, 220px);
+            }
+        }
+
+        /* Landscape mode optimizations */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .scanner-header {
+                height: 50px;
+                font-size: 14px;
+            }
+            
+            .scanner-controls {
+                padding: 12px;
+                min-height: 100px;
+            }
+            
+            .scan-frame {
+                width: clamp(160px, 40vh, 200px);
+                height: clamp(160px, 40vh, 200px);
+            }
+        }
+    </style>
+    
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+</head>
+<body>
+    <div class="mech-qr-scanner">
+        <!-- Header -->
+        <div class="scanner-header">
+            <div class="scanner-title">
+                🔍📱 MÆCH QR Scanner
+            </div>
+            <div class="territorial-status">
+                <div class="territorial-pulse"></div>
+                <span>Territorial Sovereignty: Active</span>
+            </div>
+        </div>
+
+        <!-- Camera Container -->
+        <div class="camera-container">
+            <video id="qr-video" autoplay muted playsinline></video>
+            
+            <!-- Scanning Overlay -->
+            <div class="scanning-overlay">
+                <div class="scan-frame">
+                    <div class="scan-corners top-left"></div>
+                    <div class="scan-corners top-right"></div>
+                    <div class="scan-corners bottom-left"></div>
+                    <div class="scan-corners bottom-right"></div>
+                    <div class="scan-line"></div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div class="scanner-loading" id="scanner-loading">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Initializing Camera...</div>
+            </div>
+        </div>
+
+        <!-- Controls Panel -->
+        <div class="scanner-controls">
+            <div class="control-buttons">
+                <button class="control-button" id="toggle-camera" data-testid="button-toggle-camera">
+                    📷 Toggle
+                </button>
+                <button class="control-button" id="toggle-flash" data-testid="button-toggle-flash">
+                    💡 Flash
+                </button>
+                <button class="control-button" id="switch-camera" data-testid="button-switch-camera">
+                    🔄 Switch
+                </button>
+                <button class="control-button" id="generate-qr" data-testid="button-generate-qr">
+                    🎯 Generate
+                </button>
+                <button class="control-button" id="scan-history" data-testid="button-scan-history">
+                    📋 History
+                </button>
+                <button class="control-button" id="back-home" onclick="window.history.back()" data-testid="button-back-home">
+                    🏠 Home
+                </button>
+            </div>
+
+            <!-- QR Result Display -->
+            <div class="qr-result" id="qr-result">
+                <div class="result-header">
+                    <span>🎯 QR Code Detected</span>
+                </div>
+                <div class="result-content" id="result-content"></div>
+                <div class="result-territorial" id="result-territorial"></div>
+            </div>
+
+            <!-- Error Display -->
+            <div class="error-message" id="error-message">
+                <strong>Error:</strong> <span id="error-text"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MechMobileQRScanner {
+            constructor() {
+                this.video = document.getElementById('qr-video');
+                this.canvasElement = document.createElement('canvas');
+                this.canvas = this.canvasElement.getContext('2d');
+                this.loadingElement = document.getElementById('scanner-loading');
+                this.resultElement = document.getElementById('qr-result');
+                this.errorElement = document.getElementById('error-message');
+                
+                this.isScanning = false;
+                this.currentStream = null;
+                this.facingMode = 'environment'; // Back camera by default
+                this.scanHistory = [];
+                this.flashSupported = false;
+                this.flashEnabled = false;
+                
+                this.init();
+            }
+
+            async init() {
+                console.log('🚀 Initializing MÆCH Mobile QR Scanner...');
+                await this.startCamera();
+                this.setupEventListeners();
+                this.startScanning();
+            }
+
+            async startCamera() {
+                try {
+                    // Stop existing stream
+                    if (this.currentStream) {
+                        this.currentStream.getTracks().forEach(track => track.stop());
+                    }
+
+                    const constraints = {
+                        video: {
+                            facingMode: this.facingMode,
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 },
+                        }
+                    };
+
+                    this.currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                    this.video.srcObject = this.currentStream;
+                    
+                    // Check for flash support
+                    const track = this.currentStream.getVideoTracks()[0];
+                    if (track && track.getCapabilities) {
+                        const capabilities = track.getCapabilities();
+                        this.flashSupported = capabilities.torch === true;
+                    }
+
+                    this.video.addEventListener('loadedmetadata', () => {
+                        this.hideLoading();
+                        this.showSuccess('Camera initialized successfully! 📱✨');
+                    });
+
+                } catch (error) {
+                    console.error('🚨 Camera Error:', error);
+                    this.showError('Camera access denied or not available. Please allow camera permissions.');
+                    this.hideLoading();
+                }
+            }
+
+            startScanning() {
+                this.isScanning = true;
+                this.scanFrame();
+            }
+
+            stopScanning() {
+                this.isScanning = false;
+            }
+
+            scanFrame() {
+                if (!this.isScanning || this.video.readyState !== this.video.HAVE_ENOUGH_DATA) {
+                    requestAnimationFrame(() => this.scanFrame());
+                    return;
+                }
+
+                this.canvasElement.height = this.video.videoHeight;
+                this.canvasElement.width = this.video.videoWidth;
+                this.canvas.drawImage(this.video, 0, 0, this.canvasElement.width, this.canvasElement.height);
+
+                const imageData = this.canvas.getImageData(0, 0, this.canvasElement.width, this.canvasElement.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: "dontInvert",
+                });
+
+                if (code) {
+                    console.log('🎯 QR Code detected:', code.data);
+                    this.handleQRDetection(code.data);
+                    
+                    // Add haptic feedback if available
+                    if (navigator.vibrate) {
+                        navigator.vibrate([100, 50, 100]);
+                    }
+                }
+
+                requestAnimationFrame(() => this.scanFrame());
+            }
+
+            handleQRDetection(data) {
+                // Process MÆCH territorial addressing
+                const territorialInfo = this.processTerritorialAddress(data);
+                
+                // Add to scan history
+                this.scanHistory.unshift({
+                    data,
+                    territorial: territorialInfo,
+                    timestamp: new Date().toISOString()
+                });
+                
+                // Keep only last 10 scans
+                if (this.scanHistory.length > 10) {
+                    this.scanHistory = this.scanHistory.slice(0, 10);
+                }
+                
+                // Display result
+                this.displayResult(data, territorialInfo);
+            }
+
+            processTerritorialAddress(data) {
+                // MÆCH Territorial Processing
+                const territorialPattern = /qr:\/\/([a-zA-Z0-9]+)\/([a-zA-Z0-9\-_]+)\/x₀y₀z₀/;
+                const coordinatePattern = /X(\d)Y(\d)Z(\d)T(\d)/;
+                
+                let territorial = {
+                    isValidMechAddress: false,
+                    coordinates: null,
+                    territory: null,
+                    sovereignty: 'Unknown'
+                };
+
+                // Check for MÆCH territorial format
+                const territorialMatch = data.match(territorialPattern);
+                if (territorialMatch) {
+                    territorial.isValidMechAddress = true;
+                    territorial.territory = territorialMatch[1];
+                    territorial.resource = territorialMatch[2];
+                    territorial.sovereignty = 'MÆCH Territorial';
+                }
+
+                // Check for coordinate format
+                const coordMatch = data.match(coordinatePattern);
+                if (coordMatch) {
+                    territorial.coordinates = {
+                        x: coordMatch[1],
+                        y: coordMatch[2],
+                        z: coordMatch[3],
+                        t: coordMatch[4]
+                    };
+                    territorial.sovereignty = 'Coordinate System';
+                }
+
+                return territorial;
+            }
+
+            displayResult(data, territorial) {
+                const contentElement = document.getElementById('result-content');
+                const territorialElement = document.getElementById('result-territorial');
+                
+                contentElement.textContent = data;
+                
+                if (territorial.isValidMechAddress) {
+                    territorialElement.innerHTML = `
+                        🌍 <strong>MÆCH Territorial Address</strong><br>
+                        Territory: ${territorial.territory}<br>
+                        Resource: ${territorial.resource}<br>
+                        Sovereignty: ${territorial.sovereignty}
+                    `;
+                } else if (territorial.coordinates) {
+                    territorialElement.innerHTML = `
+                        🎯 <strong>MÆCH Coordinates</strong><br>
+                        Position: X₀${territorial.coordinates.x} Y₀${territorial.coordinates.y} Z₀${territorial.coordinates.z}<br>
+                        Time: T₀${territorial.coordinates.t}<br>
+                        Sovereignty: ${territorial.sovereignty}
+                    `;
+                } else {
+                    territorialElement.innerHTML = '📍 Standard QR Code - No territorial sovereignty detected';
+                }
+
+                this.resultElement.classList.add('active');
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    this.resultElement.classList.remove('active');
+                }, 5000);
+            }
+
+            setupEventListeners() {
+                // Toggle camera
+                document.getElementById('toggle-camera').addEventListener('click', () => {
+                    if (this.isScanning) {
+                        this.stopScanning();
+                        this.video.pause();
+                    } else {
+                        this.video.play();
+                        this.startScanning();
+                    }
+                });
+
+                // Switch camera
+                document.getElementById('switch-camera').addEventListener('click', async () => {
+                    this.facingMode = this.facingMode === 'environment' ? 'user' : 'environment';
+                    this.showLoading('Switching camera...');
+                    await this.startCamera();
+                });
+
+                // Toggle flash
+                document.getElementById('toggle-flash').addEventListener('click', async () => {
+                    if (!this.flashSupported) {
+                        this.showError('Flash not supported on this device');
+                        return;
+                    }
+
+                    try {
+                        const track = this.currentStream.getVideoTracks()[0];
+                        await track.applyConstraints({
+                            advanced: [{ torch: !this.flashEnabled }]
+                        });
+                        this.flashEnabled = !this.flashEnabled;
+                        this.showSuccess(`Flash ${this.flashEnabled ? 'enabled' : 'disabled'} 💡`);
+                    } catch (error) {
+                        this.showError('Failed to toggle flash');
+                    }
+                });
+
+                // Generate QR
+                document.getElementById('generate-qr').addEventListener('click', () => {
+                    this.generateTerritorialQR();
+                });
+
+                // Scan history
+                document.getElementById('scan-history').addEventListener('click', () => {
+                    this.showScanHistory();
+                });
+            }
+
+            generateTerritorialQR() {
+                // Generate a unique MÆCH territorial QR address
+                const territory = 'mech' + Math.random().toString(36).substr(2, 6);
+                const resource = 'mobile-scan';
+                const timestamp = Date.now().toString().slice(-4);
+                const qrData = `qr://${territory}/${resource}/x₀y₀z₀?t=${timestamp}`;
+                
+                this.displayResult(qrData, this.processTerritorialAddress(qrData));
+                this.showSuccess('🎯 MÆCH Territorial QR Generated!');
+            }
+
+            showScanHistory() {
+                if (this.scanHistory.length === 0) {
+                    this.showError('No scan history available');
+                    return;
+                }
+
+                const historyText = this.scanHistory.map((scan, index) => 
+                    `${index + 1}. ${scan.data.substring(0, 50)}...`
+                ).join('\n');
+
+                alert(`📋 Recent Scans:\n\n${historyText}`);
+            }
+
+            showLoading(text = 'Loading...') {
+                document.querySelector('.loading-text').textContent = text;
+                this.loadingElement.style.display = 'flex';
+            }
+
+            hideLoading() {
+                this.loadingElement.style.display = 'none';
+            }
+
+            showError(message) {
+                document.getElementById('error-text').textContent = message;
+                this.errorElement.classList.add('active');
+                setTimeout(() => this.errorElement.classList.remove('active'), 3000);
+            }
+
+            showSuccess(message) {
+                // Temporarily use result display for success messages
+                const contentElement = document.getElementById('result-content');
+                const territorialElement = document.getElementById('result-territorial');
+                
+                contentElement.textContent = message;
+                territorialElement.innerHTML = '✅ Operation successful';
+                
+                this.resultElement.classList.add('active');
+                setTimeout(() => this.resultElement.classList.remove('active'), 2000);
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if browser supports getUserMedia
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                document.getElementById('error-message').innerHTML = `
+                    <strong>Error:</strong> Camera access not supported in this browser. 
+                    Please use a modern mobile browser with camera support.
+                `;
+                document.getElementById('error-message').classList.add('active');
+                return;
+            }
+
+            // Initialize the scanner
+            window.mechQRScanner = new MechMobileQRScanner();
+            
+            console.log('📱🔍 MÆCH Mobile QR Scanner initialized successfully!');
+        });
+    </script>
+</body>
+</html>
