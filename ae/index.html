@@ -159,6 +159,23 @@ canvas{position:fixed;inset:0;z-index:0;opacity:.15}
 .toast{position:fixed;left:50%;bottom:50px;transform:translateX(-50%) translateY(60px);z-index:99;background:var(--gold);color:#000;font-weight:700;font-size:11px;letter-spacing:1px;padding:8px 14px;border-radius:4px;transition:.25s}
 .toast.show{transform:translateX(-50%) translateY(0)}
 
+/* ── memory graph (Cmd+K palette) ── */
+.k-overlay{position:fixed;inset:0;z-index:200;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);display:none;flex-direction:column;align-items:center;padding:20px}
+.k-overlay.show{display:flex}
+.k-search{width:min(90vw,400px);border:2px solid var(--gold);border-radius:8px;padding:10px 14px;font-size:14px;font-family:'JetBrains Mono',monospace;color:var(--ink);background:var(--card);outline:none;margin-bottom:14px}
+.k-search::placeholder{color:var(--muted)}
+.k-graph{width:min(90vw,420px);height:min(70vh,500px);position:relative}
+.k-node{position:absolute;border:1.5px solid var(--gold);border-radius:8px;padding:6px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--ink);background:var(--card);cursor:pointer;transition:all var(--dur) var(--ease);z-index:2;box-shadow:0 1px 4px rgba(0,0,0,.08);transform:translate(-50%,-50%)}
+.k-node:hover{border-color:var(--gold);background:rgba(183,121,31,.06);transform:translate(-50%,-50%) scale(1.05)}
+.k-node .k-type{font-size:7px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.k-node .k-name{color:var(--gold);font-weight:700;margin-top:1px}
+.k-node.live .k-name{color:var(--neon)}
+.k-node.stripe .k-name{color:var(--stripe)}
+.k-canvas{position:absolute;inset:0;z-index:1}
+.k-hint{font-size:9px;color:var(--muted);margin-top:10px;text-align:center}
+.k-close{position:absolute;top:14px;right:14px;font-size:18px;color:var(--muted);cursor:pointer;border:none;background:none}
+.k-close:hover{color:var(--ink)}
+
 /* ── desktop ── */
 @media(min-aspect-ratio:1/1){.app{width:min(100vw,700px);max-width:700px}.stack{grid-template-columns:repeat(4,1fr)}.glyph{font-size:68px}.mission{max-width:50ch}}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--panel)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
@@ -376,6 +393,16 @@ canvas{position:fixed;inset:0;z-index:0;opacity:.15}
 
 <div id="toast" class="toast">✓ COPIED</div>
 
+<!-- ═══ MEMORY GRAPH (Cmd+K) ═══ -->
+<div class="k-overlay" id="kOverlay">
+  <button class="k-close" id="kClose">✕</button>
+  <input class="k-search" id="kSearch" type="text" placeholder="search memory graph..." autocomplete="off"/>
+  <div class="k-graph" id="kGraph">
+    <canvas class="k-canvas" id="kCanvas"></canvas>
+  </div>
+  <div class="k-hint">press Esc to close · click a node to explore</div>
+</div>
+
 <script>
 /* ── tab navigation ── */
 function tabTo(name){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.panel-view').forEach(p=>p.classList.remove('active'));document.querySelector(`[data-tab="${name}"]`).classList.add('active');document.querySelector(`[data-panel="${name}"]`).classList.add('active')}
@@ -415,6 +442,62 @@ function init(){resize();const c=Math.floor(W*H/20000)+24;nodes=Array.from({leng
 init();addEventListener('resize',init);const CD=95*DPR;
 function draw(now){ctx.fillStyle='rgba(255,255,255,.12)';ctx.fillRect(0,0,W,H);const t=now*.001;nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1});ctx.lineWidth=.4*DPR;for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y;if(Math.abs(dx)>CD||Math.abs(dy)>CD)continue;const d=Math.hypot(dx,dy);if(d<CD){ctx.strokeStyle=`rgba(183,121,31,${(1-d/CD)*.08})`;ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke()}}nodes.forEach(n=>{const p=.55+Math.sin(t*1.5+n.ph)*.45;ctx.fillStyle=`rgba(183,121,31,${.1+p*.15})`;ctx.beginPath();ctx.arc(n.x,n.y,n.r*p,0,6.28);ctx.fill()});requestAnimationFrame(draw)}
 requestAnimationFrame(draw);
+
+/* ── memory graph (Cmd+K) ── */
+const KNODES=[
+  {type:'context',name:'+æ',x:50,y:50,cls:''},
+  {type:'language',name:'^æ',x:25,y:25,cls:''},
+  {type:'execute',name:'$^æ',x:75,y:25,cls:''},
+  {type:'prompt',name:'>_æ|',x:50,y:15,cls:'live'},
+  {type:'blueprint',name:'#startabusiness',x:20,y:55,cls:''},
+  {type:'conductor',name:'Hermesᴴ',x:80,y:55,cls:'live'},
+  {type:'compute',name:'NVIDIAᴺ',x:15,y:75,cls:'live'},
+  {type:'economics',name:'Stripe$',x:85,y:75,cls:'stripe'},
+  {type:'formation',name:'Doolaᴰ',x:30,y:85,cls:''},
+  {type:'classify',name:'NAICS',x:70,y:85,cls:'live'},
+  {type:'embody',name:'Reachyᴿ',x:50,y:90,cls:''},
+  {type:'namespace',name:'æ.store',x:90,y:40,cls:''},
+  {type:'mission',name:'#250',x:10,y:40,cls:''},
+  {type:'revenue',name:'$133.65',x:40,y:70,cls:'live'},
+  {type:'voice',name:'ElevenLabs',x:60,y:70,cls:'live'},
+];
+const KEDGES=[[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10],[0,11],[0,12],[0,13],[0,14],[5,6],[5,7],[5,8],[4,9],[4,8],[10,5],[12,4],[12,13]];
+const ko=document.getElementById('kOverlay'),ks=document.getElementById('kSearch'),kg=document.getElementById('kGraph'),kc=document.getElementById('kCanvas'),kctx=kc.getContext('2d');
+function openK(){ko.classList.add('show');setTimeout(()=>ks.focus(),100);renderK()}
+function closeK(){ko.classList.remove('show')}
+document.addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();openK()}
+  if(e.key==='Escape'){closeK()}
+});
+document.getElementById('kClose').addEventListener('click',closeK);
+function renderK(filter){
+  const f=(filter||'').toLowerCase();
+  kg.querySelectorAll('.k-node').forEach(n=>n.remove());
+  const rect=kg.getBoundingClientRect();
+  kc.width=rect.width*DPR;kc.height=rect.height*DPR;kc.style.width=rect.width+'px';kc.style.height=rect.height+'px';
+  const shown=KNODES.map((n,i)=>({...n,i,visible:!f||n.name.toLowerCase().includes(f)||n.type.includes(f)}));
+  shown.forEach(n=>{
+    if(!n.visible)return;
+    const el=document.createElement('div');
+    el.className='k-node '+n.cls;
+    el.style.left=n.x+'%';el.style.top=n.y+'%';
+    el.innerHTML='<div class="k-type">'+n.type+'</div><div class="k-name">'+n.name+'</div>';
+    el.addEventListener('click',()=>{ks.value=n.name;renderK(n.name)});
+    kg.appendChild(el);
+  });
+  // draw edges
+  kctx.clearRect(0,0,kc.width,kc.height);
+  KEDGES.forEach(([a,b])=>{
+    if(!shown[a].visible||!shown[b].visible)return;
+    kctx.strokeStyle='rgba(183,121,31,.15)';
+    kctx.lineWidth=1*DPR;
+    kctx.beginPath();
+    kctx.moveTo(shown[a].x/100*kc.width,shown[a].y/100*kc.height);
+    kctx.lineTo(shown[b].x/100*kc.width,shown[b].y/100*kc.height);
+    kctx.stroke();
+  });
+}
+ks.addEventListener('input',()=>renderK(ks.value));
 </script>
 </body>
 </html>
