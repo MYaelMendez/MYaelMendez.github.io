@@ -26,29 +26,30 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Cormorant+Garamond:wght@300;500&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --void:#050505;--gold:#D4AF37;--glow:rgba(212,175,55,.22);--neon:#00ff9d;
-  --ink:#f0ece4;--muted:rgba(240,236,228,.72);--line:rgba(212,175,55,.3);
-  --hot:rgba(212,175,55,.6);--stripe:#635bff;--blue:#3aa7ff;--red:#ff4d4d;
+  --void:#ffffff;--gold:#b7791f;--glow:rgba(183,121,31,.15);--neon:#0d9488;
+  --ink:#1a202c;--muted:rgba(45,55,72,.7);--line:rgba(45,55,72,.12);
+  --hot:rgba(183,121,31,.5);--stripe:#635bff;--blue:#3182ce;--red:#e53e3e;
+  --panel:#f7fafc;--card:#ffffff;--border:#e2e8f0;
   --xs:4px;--sm:8px;--md:14px;--lg:22px;--xl:36px;
   --ease:cubic-bezier(.22,1,.36,1);--dur:.4s;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{min-height:100dvh;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
 body{display:flex;justify-content:center}
-canvas{position:fixed;inset:0;z-index:0}
-.scan{position:fixed;inset:0;pointer-events:none;z-index:1;background:repeating-linear-gradient(transparent 0 2px,rgba(212,175,55,.012) 2px 4px)}
-.vig{position:fixed;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse at center,transparent 50%,rgba(5,5,5,.75) 100%)}
+canvas{position:fixed;inset:0;z-index:0;opacity:.15}
+.scan{position:fixed;inset:0;pointer-events:none;z-index:1;display:none}
+.vig{position:fixed;inset:0;pointer-events:none;z-index:2;display:none}
 .app{position:relative;z-index:10;width:min(100vw,480px);min-height:100dvh;display:flex;flex-direction:column}
 
 /* ── status bar (Hermes dashboard feel) ── */
-.statusbar{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--line);background:rgba(5,5,5,.7);backdrop-filter:blur(8px);position:sticky;top:0;z-index:50}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--card);position:sticky;top:0;z-index:50}
 .statusbar .live{color:var(--neon);display:flex;gap:4px;align-items:center}
 .dot{width:5px;height:5px;border-radius:50%;background:var(--neon);box-shadow:0 0 6px var(--neon);animation:pulse 1.5s infinite}
 @keyframes pulse{50%{opacity:.2}}
 .statusbar .model{color:var(--gold)}
 
 /* ── tab bar (repo navigation) ── */
-.tabs{display:flex;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none;background:rgba(5,5,5,.4)}
+.tabs{display:flex;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;background:var(--panel)}
 .tabs::-webkit-scrollbar{display:none}
 .tab{padding:8px 14px;font-size:11px;letter-spacing:1px;color:var(--muted);border-right:1px solid var(--line);cursor:pointer;white-space:nowrap;transition:all var(--dur) var(--ease);text-transform:uppercase;position:relative}
 .tab:hover{color:var(--gold);background:rgba(212,175,55,.04)}
@@ -84,7 +85,7 @@ canvas{position:fixed;inset:0;z-index:0}
 .emoji-row{font-size:clamp(26px,8vw,36px);letter-spacing:3px;line-height:1;margin:4px 0}
 
 /* ── cards (Hermes dashboard style) ── */
-.card{border:1px solid var(--line);background:rgba(5,5,5,.6);margin:6px 0;overflow:hidden}
+.card{border:1px solid var(--border);background:var(--card);margin:6px 0;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 .card-h{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-bottom:1px solid var(--line);font-size:11px;letter-spacing:1px;color:var(--gold);text-transform:uppercase}
 .card-h .tag{color:var(--neon);border:1px solid rgba(0,255,157,.2);border-radius:999px;padding:2px 7px;font-size:10px}
 .card-body{padding:10px}
@@ -98,7 +99,7 @@ canvas{position:fixed;inset:0;z-index:0}
 
 /* ── stack grid ── */
 .stack{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
-.node{border:1px solid var(--line);padding:7px;text-align:left;background:rgba(0,0,0,.2);transition:all var(--dur) var(--ease);cursor:pointer}
+.node{border:1px solid var(--border);padding:7px;text-align:left;background:var(--panel);transition:all var(--dur) var(--ease);cursor:pointer}
 .node:hover{border-color:var(--hot);background:rgba(212,175,55,.04)}
 .node b{font-family:'Orbitron';color:var(--gold);font-size:13px;display:block}
 .node span{display:block;margin-top:3px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.6px}
@@ -106,13 +107,13 @@ canvas{position:fixed;inset:0;z-index:0}
 
 /* ── API rows ── */
 .api-list{display:flex;flex-direction:column;gap:4px}
-.api-row{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);padding:9px 11px;background:rgba(0,0,0,.2)}
+.api-row{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);padding:9px 11px;background:var(--card)}
 .api-row .name{font-size:12px;color:var(--gold);font-weight:700}
 .api-row .desc{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
 .api-row .stat{font-size:11px;color:var(--neon);font-weight:700;white-space:nowrap}
 
 /* ── surprise ── */
-.surprise{width:100%;border:1px solid var(--line);padding:8px;text-align:left;background:rgba(0,0,0,.12);margin:6px 0}
+.surprise{width:100%;border:1px solid var(--border);padding:8px;text-align:left;background:var(--panel);margin:6px 0}
 .surprise .h{font-family:'Orbitron';color:var(--gold);font-size:12px;letter-spacing:1px;margin-bottom:6px;text-transform:uppercase}
 .surprise .row{font-size:12px;color:var(--muted);line-height:1.9;display:flex;gap:8px;align-items:baseline}
 .surprise .row b{color:var(--ink);min-width:60px;flex-shrink:0}
@@ -130,8 +131,8 @@ canvas{position:fixed;inset:0;z-index:0}
 .cta.stripe{background:linear-gradient(90deg,var(--gold),#e8c547,var(--stripe));color:#000}
 
 /* ── ticker ── */
-.tick{border:1px solid var(--line);background:rgba(0,0,0,.4);padding:5px 0;overflow:hidden;white-space:nowrap;margin:6px 0}
-.tick-inner{display:inline-block;animation:scroll 30s linear infinite;font-size:10px;color:rgba(212,175,55,.5);letter-spacing:1px}
+.tick{border:1px solid var(--border);background:var(--panel);padding:5px 0;overflow:hidden;white-space:nowrap;margin:6px 0}
+.tick-inner{display:inline-block;animation:scroll 30s linear infinite;font-size:10px;color:var(--muted);letter-spacing:1px}
 .tick-inner span{color:var(--neon)}.tick-inner b{color:var(--gold)}
 @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
@@ -140,11 +141,11 @@ canvas{position:fixed;inset:0;z-index:0}
 .src-view .kw{color:var(--blue)}.src-view .str{color:var(--neon)}.src-view .com{color:rgba(212,175,55,.25)}
 
 /* ── terminal (bottom) ── */
-.term{border-top:1px solid var(--line);background:rgba(5,5,5,.85);backdrop-filter:blur(8px);padding:9px 12px;display:flex;align-items:center;gap:8px;position:sticky;bottom:0;z-index:50}
+.term{border-top:1px solid var(--border);background:var(--card);padding:9px 12px;display:flex;align-items:center;gap:8px;position:sticky;bottom:0;z-index:50}
 .term .p{color:var(--gold);font-weight:700;font-size:13px;flex-shrink:0}
 .term input{flex:1;background:transparent;border:none;outline:none;color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12px;caret-color:var(--gold)}
 .term .cur{font-size:13px}
-.term-out{padding:4px 12px 8px;font-size:11px;color:var(--neon);line-height:1.6;display:none;background:rgba(5,5,5,.6)}
+.term-out{padding:4px 12px 8px;font-size:11px;color:var(--neon);line-height:1.6;display:none;background:var(--panel)}
 .term-out.show{display:block}
 
 /* ── footer ── */
@@ -160,7 +161,7 @@ canvas{position:fixed;inset:0;z-index:0}
 
 /* ── desktop ── */
 @media(min-aspect-ratio:1/1){.app{width:min(100vw,700px);max-width:700px}.stack{grid-template-columns:repeat(4,1fr)}.glyph{font-size:68px}.mission{max-width:50ch}}
-::-webkit-scrollbar{width:2px}::-webkit-scrollbar-track{background:var(--void)}::-webkit-scrollbar-thumb{background:var(--line);border-radius:1px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--panel)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 </style>
 </head>
 <body>
@@ -412,7 +413,7 @@ const cvs=document.getElementById('mesh'),ctx=cvs.getContext('2d'),DPR=Math.min(
 function resize(){W=cvs.width=innerWidth*DPR;H=cvs.height=innerHeight*DPR;cvs.style.width=innerWidth+'px';cvs.style.height=innerHeight+'px'}
 function init(){resize();const c=Math.floor(W*H/20000)+24;nodes=Array.from({length:c},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.18*DPR,vy:(Math.random()-.5)*.18*DPR,r:(1+Math.random()*1.4)*DPR,ph:Math.random()*6.28}))}
 init();addEventListener('resize',init);const CD=95*DPR;
-function draw(now){ctx.fillStyle='rgba(5,5,5,.15)';ctx.fillRect(0,0,W,H);const t=now*.001;nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1});ctx.lineWidth=.4*DPR;for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y;if(Math.abs(dx)>CD||Math.abs(dy)>CD)continue;const d=Math.hypot(dx,dy);if(d<CD){ctx.strokeStyle=`rgba(212,175,55,${(1-d/CD)*.1})`;ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke()}}nodes.forEach(n=>{const p=.55+Math.sin(t*1.5+n.ph)*.45;ctx.fillStyle=`rgba(212,175,55,${.14+p*.24})`;ctx.beginPath();ctx.arc(n.x,n.y,n.r*p,0,6.28);ctx.fill()});requestAnimationFrame(draw)}
+function draw(now){ctx.fillStyle='rgba(255,255,255,.12)';ctx.fillRect(0,0,W,H);const t=now*.001;nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1});ctx.lineWidth=.4*DPR;for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y;if(Math.abs(dx)>CD||Math.abs(dy)>CD)continue;const d=Math.hypot(dx,dy);if(d<CD){ctx.strokeStyle=`rgba(183,121,31,${(1-d/CD)*.08})`;ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke()}}nodes.forEach(n=>{const p=.55+Math.sin(t*1.5+n.ph)*.45;ctx.fillStyle=`rgba(183,121,31,${.1+p*.15})`;ctx.beginPath();ctx.arc(n.x,n.y,n.r*p,0,6.28);ctx.fill()});requestAnimationFrame(draw)}
 requestAnimationFrame(draw);
 </script>
 </body>
