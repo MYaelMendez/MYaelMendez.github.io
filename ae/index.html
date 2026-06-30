@@ -1,303 +1,255 @@
 <!DOCTYPE html>
 <!--
-  ═══════════════════════════════════════════════════════════
-  agentic.html — prototype v3
-  HTML is the skill. HTML is the repo. HTML is the viewport.
+  ═══════════════════════════════════════════════════════════════
+  agentic.html — prototype v4 — "one in code"
   
-  FILE TREE (this file contains itself as a repo):
-  ├── <head>      → design system / API
-  ├── <body>      → runtime viewport
-  ├── <template>  → embedded files (skills, configs, manifests)
-  ├── <script>    → agent logic
-  └── <style>     → sovereign design tokens
+  This file is simultaneously:
+    • a Hermes dashboard surface
+    • a repo (5 tabbed views)
+    • a skill (self-installing)
+    • a terminal (interactive prompt)
+    • a design system (sovereign tokens)
+    • a live API hub (Stripe/NVIDIA/NAICS/ElevenLabs/Doola)
+    • a business formation viewport
   
-  INSTALL:
-  hermes skills install https://myaelmendez.github.io/SKILL.md
-  
-  $OS = economic infrastructure for agentic entrepreneurship
-  ^æ  = language · logic · context
-  ═══════════════════════════════════════════════════════════
+  Hermes and æ.store are one in code.
+  $^æ
+  ═══════════════════════════════════════════════════════════════
 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1"/>
 <meta name="theme-color" content="#050505"/>
-<title>æ.store • $^æ • agentic.html</title>
-<meta name="description" content="$OS = economic infrastructure for agentic entrepreneurship. ^æ = language, logic, context. HTML is the skill. Each domain is a skill."/>
+<title>æ.store • $^æ • Hermes</title>
+<meta name="description" content="$OS = economic infrastructure for agentic entrepreneurship. Hermes conducts. HTML is the skill."/>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Cormorant+Garamond:wght@300;500&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
-
-<!-- ═══ DESIGN SYSTEM / API ═══ -->
 <style>
-/* ── sovereign tokens (the design API) ── */
 :root{
-  --void:#050505;
-  --gold:#D4AF37;
-  --glow:rgba(212,175,55,.34);
-  --neon:#00ff9d;
-  --ink:#f0ece4;
-  --muted:rgba(240,236,228,.4);
-  --line:rgba(212,175,55,.18);
-  --hot:rgba(212,175,55,.55);
-  --stripe:#635bff;
-  --blue:#3aa7ff;
-  --red:#ff4d4d;
-  
-  /* spacing scale */
-  --xs:4px; --sm:8px; --md:14px; --lg:22px; --xl:36px;
-  
-  /* type scale */
-  --fs-mono:clamp(9px,2.2vw,11px);
-  --fs-body:clamp(11px,2.8vw,14px);
-  --fs-cmd:clamp(22px,7vw,40px);
-  --fs-hero:clamp(60px,18vw,96px);
-  
-  /* motion */
-  --ease:cubic-bezier(.22,1,.36,1);
-  --dur:0.4s;
+  --void:#050505;--gold:#D4AF37;--glow:rgba(212,175,55,.34);--neon:#00ff9d;
+  --ink:#f0ece4;--muted:rgba(240,236,228,.4);--line:rgba(212,175,55,.18);
+  --hot:rgba(212,175,55,.55);--stripe:#635bff;--blue:#3aa7ff;--red:#ff4d4d;
+  --xs:4px;--sm:8px;--md:14px;--lg:22px;--xl:36px;
+  --ease:cubic-bezier(.22,1,.36,1);--dur:.4s;
 }
-
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{min-height:100dvh;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
 body{display:flex;justify-content:center}
-
-/* ── layers (z-index as architecture) ── */
 canvas{position:fixed;inset:0;z-index:0}
 .scan{position:fixed;inset:0;pointer-events:none;z-index:1;background:repeating-linear-gradient(transparent 0 2px,rgba(212,175,55,.012) 2px 4px)}
-.vig{position:fixed;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse at center,transparent 32%,rgba(5,5,5,.93) 100%)}
+.vig{position:fixed;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse at center,transparent 28%,rgba(5,5,5,.94) 100%)}
+.app{position:relative;z-index:10;width:min(100vw,480px);min-height:100dvh;display:flex;flex-direction:column}
 
-/* ── app shell ── */
-.app{position:relative;z-index:10;width:min(100vw,480px);min-height:100dvh;padding:0;display:flex;flex-direction:column}
-
-/* ── asymptotic bar (top) ── */
-.bar{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;font-size:7px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--line);background:rgba(5,5,5,.5);backdrop-filter:blur(8px);position:sticky;top:0;z-index:50}
-.bar .live{color:var(--neon);display:flex;gap:4px;align-items:center}
+/* ── status bar (Hermes dashboard feel) ── */
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;font-size:7px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--line);background:rgba(5,5,5,.7);backdrop-filter:blur(8px);position:sticky;top:0;z-index:50}
+.statusbar .live{color:var(--neon);display:flex;gap:4px;align-items:center}
 .dot{width:5px;height:5px;border-radius:50%;background:var(--neon);box-shadow:0 0 6px var(--neon);animation:pulse 1.5s infinite}
 @keyframes pulse{50%{opacity:.2}}
+.statusbar .model{color:var(--gold)}
 
-/* ── file tree nav (repo metaphor) ── */
-.tree{display:flex;gap:0;padding:0;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
-.tree::-webkit-scrollbar{display:none}
-.tab{padding:6px 10px;font-size:7px;letter-spacing:1px;color:var(--muted);border-right:1px solid var(--line);cursor:pointer;white-space:nowrap;transition:all var(--dur) var(--ease);text-transform:uppercase}
-.tab:hover{color:var(--gold);background:rgba(212,175,55,.05)}
-.tab.active{color:var(--gold);background:rgba(212,175,55,.08);border-bottom:2px solid var(--gold)}
+/* ── tab bar (repo navigation) ── */
+.tabs{display:flex;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none;background:rgba(5,5,5,.4)}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:7px 12px;font-size:7px;letter-spacing:1px;color:var(--muted);border-right:1px solid var(--line);cursor:pointer;white-space:nowrap;transition:all var(--dur) var(--ease);text-transform:uppercase;position:relative}
+.tab:hover{color:var(--gold);background:rgba(212,175,55,.04)}
+.tab.active{color:var(--gold);background:rgba(212,175,55,.06)}
+.tab.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--gold);box-shadow:0 0 8px var(--glow)}
+.tab .badge{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--neon);margin-left:3px;vertical-align:middle}
 
-/* ── panels (repo files as views) ── */
-.panel-view{display:none;flex:1;padding:14px;animation:fadeIn var(--dur) var(--ease)}
+/* ── panels ── */
+.panel-view{display:none;flex:1;padding:14px;animation:fadeIn var(--dur) var(--ease);overflow-y:auto;scrollbar-width:thin}
 .panel-view.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── hero ── */
-.hero{text-align:center;padding:10px 0}
-.glyph{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:var(--fs-hero);line-height:.85;color:var(--gold);filter:drop-shadow(0 0 30px var(--glow));animation:breathe 5s ease-in-out infinite}
-@keyframes breathe{50%{transform:scale(1.04)}}
-.livebar{font-family:'Orbitron';font-size:clamp(16px,5vw,24px);font-weight:900;color:var(--gold);text-shadow:0 0 16px var(--glow);letter-spacing:1px;margin-top:4px}
-.cmd{font-family:'Orbitron';font-size:var(--fs-cmd);font-weight:900;letter-spacing:1px;color:var(--gold);text-shadow:0 0 22px var(--glow);line-height:1.05;margin-top:4px}
+.hero{text-align:center;padding:6px 0 10px}
+.glyph{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(56px,17vw,88px);line-height:.85;color:var(--gold);filter:drop-shadow(0 0 28px var(--glow));animation:breathe 5s ease-in-out infinite}
+@keyframes breathe{50%{transform:scale(1.03)}}
+.livebar{font-family:'Orbitron';font-size:clamp(16px,5vw,22px);font-weight:900;color:var(--gold);text-shadow:0 0 14px var(--glow);letter-spacing:1px;margin-top:2px}
+.cmd{font-family:'Orbitron';font-size:clamp(20px,6.5vw,36px);font-weight:900;letter-spacing:1px;color:var(--gold);text-shadow:0 0 18px var(--glow);line-height:1.05;margin-top:2px}
 .cur{display:inline-block;width:.4ch;background:var(--gold);animation:blink 1s step-end infinite;margin-left:3px}
 @keyframes blink{50%{opacity:0}}
-.mission{font-size:var(--fs-body);line-height:1.6;color:var(--ink);max-width:32ch;margin:10px auto}
+.mission{font-size:11px;line-height:1.6;color:var(--ink);max-width:30ch;margin:8px auto}
 .mission b,.gold{color:var(--gold)}
 
 /* ── pills ── */
-.pills{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin:8px 0}
-.pill{border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:3px 8px;font-size:7px;letter-spacing:.8px;text-transform:uppercase;transition:all var(--dur) var(--ease)}
+.pills{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin:6px 0}
+.pill{border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:3px 7px;font-size:7px;letter-spacing:.7px;text-transform:uppercase;transition:all var(--dur) var(--ease)}
 .pill.hot{border-color:var(--hot);color:var(--gold)}
-.pill.live{border-color:rgba(0,255,157,.4);color:var(--neon)}
+.pill.live{border-color:rgba(0,255,157,.35);color:var(--neon)}
 .pill.live::before{content:'●';margin-right:3px;animation:pulse 1.5s infinite}
+.pill.stripe{border-color:rgba(99,91,255,.4);color:#8b87ff}
 
 /* ── emoji ── */
-.emoji-row{font-size:clamp(28px,9vw,40px);letter-spacing:4px;line-height:1;margin:6px 0}
+.emoji-row{font-size:clamp(26px,8vw,36px);letter-spacing:3px;line-height:1;margin:4px 0}
 
-/* ── install panel ── */
-.install-panel{width:100%;border:1px solid var(--hot);background:rgba(5,5,5,.72);margin:8px 0}
-.install-h{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:7px 9px;color:var(--gold);font-size:7px;letter-spacing:1.2px;text-transform:uppercase}
-.tag{color:var(--neon);border:1px solid rgba(0,255,157,.25);border-radius:999px;padding:2px 6px;font-size:6px}
-.copyrow{display:flex;align-items:center;gap:7px;padding:10px;cursor:pointer}
-.prompt{color:var(--gold);font-weight:700;flex-shrink:0}
-.install-code{flex:1;text-align:left;font-size:9px;line-height:1.4;word-break:break-all}
-.copy-btn{font-size:7px;color:var(--muted);border:1px solid var(--line);border-radius:3px;padding:4px 6px;flex-shrink:0;transition:all var(--dur)}
+/* ── cards (Hermes dashboard style) ── */
+.card{border:1px solid var(--line);background:rgba(5,5,5,.6);margin:6px 0;overflow:hidden}
+.card-h{display:flex;justify-content:space-between;align-items:center;padding:6px 9px;border-bottom:1px solid var(--line);font-size:7px;letter-spacing:1px;color:var(--gold);text-transform:uppercase}
+.card-h .tag{color:var(--neon);border:1px solid rgba(0,255,157,.2);border-radius:999px;padding:1px 5px;font-size:6px}
+.card-body{padding:8px 9px}
+
+/* ── install row ── */
+.copyrow{display:flex;align-items:center;gap:6px;cursor:pointer}
+.prompt{color:var(--gold);font-weight:700;flex-shrink:0;font-size:10px}
+.install-code{flex:1;text-align:left;font-size:8px;line-height:1.4;word-break:break-all}
+.copy-btn{font-size:6px;color:var(--muted);border:1px solid var(--line);border-radius:3px;padding:3px 5px;flex-shrink:0;transition:all var(--dur)}
 .copyrow:hover .copy-btn{color:var(--gold);border-color:var(--hot)}
 
 /* ── stack grid ── */
-.stack{width:100%;display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:8px 0}
-.node{border:1px solid var(--line);padding:8px;text-align:left;background:rgba(0,0,0,.2);transition:all var(--dur) var(--ease)}
-.node:hover{border-color:var(--hot);background:rgba(212,175,55,.05)}
-.node b{font-family:'Orbitron';color:var(--gold);font-size:11px;display:block}
-.node span{display:block;margin-top:2px;color:var(--muted);font-size:7px;text-transform:uppercase;letter-spacing:.8px}
-.node .status{color:var(--neon);font-size:6px;margin-top:2px}
+.stack{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
+.node{border:1px solid var(--line);padding:7px;text-align:left;background:rgba(0,0,0,.2);transition:all var(--dur) var(--ease);cursor:pointer}
+.node:hover{border-color:var(--hot);background:rgba(212,175,55,.04)}
+.node b{font-family:'Orbitron';color:var(--gold);font-size:10px;display:block}
+.node span{display:block;margin-top:2px;color:var(--muted);font-size:6px;text-transform:uppercase;letter-spacing:.6px}
+.node .status{color:var(--neon);font-size:6px;margin-top:2px;animation:pulse 3s infinite}
 
-/* ── surprises ── */
-.surprise{width:100%;border:1px solid var(--line);padding:10px;text-align:left;background:rgba(0,0,0,.15);margin:8px 0}
-.surprise .h{font-family:'Orbitron';color:var(--gold);font-size:9px;letter-spacing:1px;margin-bottom:5px;text-transform:uppercase}
-.surprise .row{font-size:8px;color:var(--muted);line-height:1.8;display:flex;gap:6px;align-items:baseline}
-.surprise .row b{color:var(--ink);min-width:50px}
+/* ── API rows ── */
+.api-list{display:flex;flex-direction:column;gap:4px}
+.api-row{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);padding:7px 9px;background:rgba(0,0,0,.2)}
+.api-row .name{font-size:9px;color:var(--gold);font-weight:700}
+.api-row .desc{font-size:6px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:1px}
+.api-row .stat{font-size:7px;color:var(--neon);font-weight:700;white-space:nowrap}
+
+/* ── surprise ── */
+.surprise{width:100%;border:1px solid var(--line);padding:8px;text-align:left;background:rgba(0,0,0,.12);margin:6px 0}
+.surprise .h{font-family:'Orbitron';color:var(--gold);font-size:8px;letter-spacing:1px;margin-bottom:4px;text-transform:uppercase}
+.surprise .row{font-size:7px;color:var(--muted);line-height:1.8;display:flex;gap:6px;align-items:baseline}
+.surprise .row b{color:var(--ink);min-width:50px;flex-shrink:0}
 .surprise .row .g{color:var(--gold)}
 
 /* ── challenge ── */
-.challenge{width:100%;text-align:center;padding:10px 0}
-.challenge .num{font-family:'Orbitron';font-size:clamp(36px,12vw,60px);font-weight:900;color:var(--neon);text-shadow:0 0 20px rgba(0,255,157,.2);line-height:1}
-.challenge .lbl{font-size:9px;color:var(--muted);letter-spacing:1px;margin-top:4px}
-.challenge .usa{font-size:20px;margin-top:6px}
+.challenge{text-align:center;padding:8px 0}
+.challenge .num{font-family:'Orbitron';font-size:clamp(32px,11vw,54px);font-weight:900;color:var(--neon);text-shadow:0 0 18px rgba(0,255,157,.2);line-height:1}
+.challenge .lbl{font-size:8px;color:var(--muted);letter-spacing:1px;margin-top:3px}
+.challenge .usa{font-size:18px;margin-top:4px}
 
 /* ── CTA ── */
-.cta{width:100%;display:block;background:var(--gold);color:#000;text-decoration:none;font-family:'Orbitron';font-weight:900;letter-spacing:1.5px;padding:12px;border-radius:5px;box-shadow:0 0 25px rgba(212,175,55,.2);font-size:12px;text-align:center;transition:all var(--dur) var(--ease)}
-.cta:hover{background:#e8c547;box-shadow:0 0 40px rgba(212,175,55,.35);transform:translateY(-1px)}
+.cta{display:block;background:var(--gold);color:#000;text-decoration:none;font-family:'Orbitron';font-weight:900;letter-spacing:1.5px;padding:11px;border-radius:4px;box-shadow:0 0 22px rgba(212,175,55,.18);font-size:11px;text-align:center;transition:all var(--dur) var(--ease);margin-top:6px}
+.cta:hover{background:#e8c547;box-shadow:0 0 36px rgba(212,175,55,.3);transform:translateY(-1px)}
 .cta.stripe{background:linear-gradient(90deg,var(--gold),#e8c547,var(--stripe));color:#000}
 
-/* ── source view (repo metaphor) ── */
-.src-view{font-size:7px;line-height:1.5;color:var(--muted);white-space:pre-wrap;word-break:break-all;font-family:'JetBrains Mono',monospace;padding:10px 0}
-.src-view .kw{color:var(--blue)}
-.src-view .str{color:var(--neon)}
-.src-view .com{color:rgba(212,175,55,.3)}
-.src-view .tag{color:var(--gold);border:none;padding:0;font-size:inherit}
-
-/* ── API status view ── */
-.api-list{display:flex;flex-direction:column;gap:6px;margin:8px 0}
-.api-row{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);padding:8px 10px;background:rgba(0,0,0,.2)}
-.api-row .name{font-size:9px;color:var(--gold);font-weight:700}
-.api-row .desc{font-size:7px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.api-row .stat{font-size:8px;color:var(--neon);font-weight:700}
-
 /* ── ticker ── */
-.tick{width:100%;border:1px solid var(--line);background:rgba(0,0,0,.4);padding:6px 0;overflow:hidden;white-space:nowrap;margin:8px 0}
-.tick-inner{display:inline-block;animation:scroll 30s linear infinite;font-size:8px;color:rgba(212,175,55,.35);letter-spacing:1px}
+.tick{border:1px solid var(--line);background:rgba(0,0,0,.4);padding:5px 0;overflow:hidden;white-space:nowrap;margin:6px 0}
+.tick-inner{display:inline-block;animation:scroll 30s linear infinite;font-size:7px;color:rgba(212,175,55,.3);letter-spacing:1px}
 .tick-inner span{color:var(--neon)}.tick-inner b{color:var(--gold)}
 @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-/* ── terminal prompt (bottom) ── */
-.term{border-top:1px solid var(--line);background:rgba(5,5,5,.8);backdrop-filter:blur(8px);padding:8px 14px;display:flex;align-items:center;gap:8px;position:sticky;bottom:0;z-index:50}
-.term .p{color:var(--gold);font-weight:700;font-size:11px;flex-shrink:0}
-.term input{flex:1;background:transparent;border:none;outline:none;color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:10px;caret-color:var(--gold)}
-.term .cur{font-size:11px}
-.term-out{padding:4px 14px 8px;font-size:8px;color:var(--neon);line-height:1.6;display:none}
+/* ── source view ── */
+.src-view{font-size:7px;line-height:1.6;color:var(--muted);white-space:pre-wrap;word-break:break-all;padding:8px 0}
+.src-view .kw{color:var(--blue)}.src-view .str{color:var(--neon)}.src-view .com{color:rgba(212,175,55,.25)}
+
+/* ── terminal (bottom) ── */
+.term{border-top:1px solid var(--line);background:rgba(5,5,5,.85);backdrop-filter:blur(8px);padding:7px 12px;display:flex;align-items:center;gap:7px;position:sticky;bottom:0;z-index:50}
+.term .p{color:var(--gold);font-weight:700;font-size:10px;flex-shrink:0}
+.term input{flex:1;background:transparent;border:none;outline:none;color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:9px;caret-color:var(--gold)}
+.term .cur{font-size:10px}
+.term-out{padding:3px 12px 6px;font-size:7px;color:var(--neon);line-height:1.5;display:none;background:rgba(5,5,5,.6)}
 .term-out.show{display:block}
 
 /* ── footer ── */
-.foot{display:flex;flex-direction:column;gap:6px;align-items:center;padding:8px 14px 14px}
-.links{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;font-size:8px}
+.foot{display:flex;flex-direction:column;gap:5px;align-items:center;padding:6px 12px 10px}
+.links{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;font-size:7px}
 .links a{color:var(--muted);text-decoration:none;transition:color var(--dur)}
 .links a:hover{color:var(--gold)}
-.hash{font-family:'Orbitron';font-size:9px;letter-spacing:1.2px;background:linear-gradient(90deg,var(--gold),var(--neon),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hash{font-family:'Orbitron';font-size:8px;letter-spacing:1px;background:linear-gradient(90deg,var(--gold),var(--neon),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
 /* ── toast ── */
-.toast{position:fixed;left:50%;bottom:60px;transform:translateX(-50%) translateY(60px);z-index:99;background:var(--gold);color:#000;font-weight:700;font-size:9px;letter-spacing:1px;padding:8px 14px;border-radius:5px;transition:.25s}
+.toast{position:fixed;left:50%;bottom:50px;transform:translateX(-50%) translateY(60px);z-index:99;background:var(--gold);color:#000;font-weight:700;font-size:8px;letter-spacing:1px;padding:7px 12px;border-radius:4px;transition:.25s}
 .toast.show{transform:translateX(-50%) translateY(0)}
 
 /* ── desktop ── */
-@media(min-aspect-ratio:1/1){.app{width:min(100vw,720px);max-width:720px}.stack{grid-template-columns:repeat(4,1fr)}.glyph{font-size:72px}.mission{max-width:52ch}}
-
-/* ── asymptotic scrollbar (approaches but never arrives) ── */
-::-webkit-scrollbar{width:2px}
-::-webkit-scrollbar-track{background:var(--void)}
-::-webkit-scrollbar-thumb{background:var(--line);border-radius:1px}
+@media(min-aspect-ratio:1/1){.app{width:min(100vw,700px);max-width:700px}.stack{grid-template-columns:repeat(4,1fr)}.glyph{font-size:68px}.mission{max-width:50ch}}
+::-webkit-scrollbar{width:2px}::-webkit-scrollbar-track{background:var(--void)}::-webkit-scrollbar-thumb{background:var(--line);border-radius:1px}
 </style>
 </head>
 <body>
-<canvas id="mesh"></canvas>
-<div class="scan"></div>
-<div class="vig"></div>
-
+<canvas id="mesh"></canvas><div class="scan"></div><div class="vig"></div>
 <div class="app">
-  <!-- ═══ TOP BAR ═══ -->
-  <header class="bar">
-    <span>æ:// ASYMPTOTIC</span>
-    <span>$OS · MCP/1517</span>
+  <!-- ═══ STATUS BAR ═══ -->
+  <header class="statusbar">
+    <span>æ:// HERMES</span>
+    <span class="model" id="modelInfo">$OS · MCP/1517</span>
     <span class="live"><i class="dot"></i>LIVE</span>
   </header>
 
-  <!-- ═══ FILE TREE (repo metaphor) ═══ -->
-  <nav class="tree">
+  <!-- ═══ TABS ═══ -->
+  <nav class="tabs">
     <div class="tab active" data-tab="viewport">viewport</div>
-    <div class="tab" data-tab="stack">stack</div>
-    <div class="tab" data-tab="apis">apis</div>
+    <div class="tab" data-tab="stack">stack<span class="badge"></span></div>
+    <div class="tab" data-tab="apis">apis<span class="badge"></span></div>
+    <div class="tab" data-tab="blueprint">blueprint</div>
     <div class="tab" data-tab="source">source</div>
-    <div class="tab" data-tab="skill">skill</div>
   </nav>
 
-  <!-- ═══ VIEWPORT PANEL ═══ -->
+  <!-- ═══ VIEWPORT ═══ -->
   <main class="panel-view active" data-panel="viewport">
     <div class="hero">
       <div class="glyph">æ</div>
       <div class="livebar">&gt;_æ|</div>
       <h1 class="cmd">$^æ<span class="cur">&nbsp;</span></h1>
-      <p class="mission"><b>$OS</b> = economic infrastructure for agentic entrepreneurship.<br/><b>^æ</b> = language · logic · context.<br/>Reachy is the protagonist. All the code lives in him.</p>
+      <p class="mission"><b>$OS</b> = economic infrastructure for agentic entrepreneurship.<br/><b>^æ</b> = language · logic · context.<br/>Hermes and æ.store are one in code.</p>
     </div>
-
     <div class="pills">
-      <span class="pill hot">$OS</span>
-      <span class="pill hot">^æ</span>
-      <span class="pill">#250</span>
-      <span class="pill live">Hermes</span>
-      <span class="pill live">NVIDIA</span>
-      <span class="pill live">Stripe</span>
-      <span class="pill">Reachyᴿ</span>
+      <span class="pill hot">$OS</span><span class="pill hot">^æ</span><span class="pill">#250</span>
+      <span class="pill live">Hermes</span><span class="pill live">NVIDIA</span><span class="pill stripe">Stripe</span><span class="pill">Reachyᴿ</span>
     </div>
-
     <div class="emoji-row">🛍️ 💰 🏢</div>
-
-    <section class="install-panel">
-      <div class="install-h"><span>install · sovereign &gt;link</span><span class="tag">self-hosted</span></div>
-      <div class="copyrow" onclick="copyCmd()">
-        <span class="prompt">$</span>
-        <code class="install-code">hermes skills install <span class="gold">https://myaelmendez.github.io/SKILL.md</span></code>
-        <span class="copy-btn">COPY</span>
-      </div>
-    </section>
-
+    <div class="card">
+      <div class="card-h"><span>install · sovereign &gt;link</span><span class="tag">self-hosted</span></div>
+      <div class="card-body"><div class="copyrow" onclick="copyCmd()"><span class="prompt">$</span><code class="install-code">hermes skills install <span class="gold">https://myaelmendez.github.io/SKILL.md</span></code><span class="copy-btn">COPY</span></div></div>
+    </div>
     <div class="surprise">
       <div class="h">three surprises</div>
-      <div class="row"><b>Hermes</b><span class="g">+æ</span> — a primitive, not a brand</div>
+      <div class="row"><b>Hermes</b><span class="g">+æ — a primitive, not a brand</span></div>
       <div class="row"><b>NVIDIA</b><span class="g">Omniverse as economic context</span></div>
       <div class="row"><b>Stripe</b><span class="g">^æ — Code Mode for payments</span></div>
     </div>
-
     <div class="challenge">
       <div class="num">250</div>
       <div class="lbl">businesses · <b style="color:var(--gold)">#opensourceware #250</b></div>
       <div class="usa">🇺🇸</div>
-      <div class="lbl" style="margin-top:8px">I challenge the sponsors to help start <b style="color:var(--neon)">250,000</b></div>
-      <div class="lbl" style="margin-top:4px;font-family:'Cormorant Garamond',serif;font-size:12px;color:var(--ink)">Happy Birthday, America. I believe in you.</div>
+      <div class="lbl" style="margin-top:6px">I challenge the sponsors to help start <b style="color:var(--neon)">250,000</b></div>
+      <div class="lbl" style="margin-top:3px;font-family:'Cormorant Garamond',serif;font-size:11px;color:var(--ink)">Happy Birthday, America. I believe in you.</div>
     </div>
-
     <a class="cta stripe" href="https://partnersps.doola.com/hhsoqhb23250" target="_blank" rel="noopener">#STARTABUSINESS →</a>
-
-    <div class="tick"><div class="tick-inner"><span>DAOLLC.AI</span> &nbsp;•&nbsp; ONE PERSON &nbsp;•&nbsp; <b>FULL AGENCY</b> &nbsp;•&nbsp; WYOMING DAO LLC &nbsp;•&nbsp; <span>121 MODELS</span> &nbsp;•&nbsp; MCP: <b>VERIFIED</b> &nbsp;•&nbsp; NEUROMITOSIS: <span>HUMAN + ROBOT + DAO</span> &nbsp;•&nbsp; <b>$133.65 EARNED</b> &nbsp;•&nbsp; <span>DAOLLC.AI</span> &nbsp;•&nbsp; ONE PERSON &nbsp;•&nbsp; <b>FULL AGENCY</b> &nbsp;•&nbsp; WYOMING DAO LLC &nbsp;•&nbsp; <span>121 MODELS</span> &nbsp;•&nbsp; MCP: <b>VERIFIED</b> &nbsp;•&nbsp; NEUROMITOSIS: <span>HUMAN + ROBOT + DAO</span> &nbsp;•&nbsp; <b>$133.65 EARNED</b> &nbsp;•&nbsp;</div></div>
+    <div class="tick"><div class="tick-inner"><span>DAOLLC.AI</span> · ONE PERSON · <b>FULL AGENCY</b> · <span>121 MODELS</span> · MCP: <b>VERIFIED</b> · <b>$133.65 EARNED</b> · NEUROMITOSIS: <span>HUMAN + ROBOT + DAO</span> · <span>DAOLLC.AI</span> · ONE PERSON · <b>FULL AGENCY</b> · <span>121 MODELS</span> · MCP: <b>VERIFIED</b> · <b>$133.65 EARNED</b> · NEUROMITOSIS: <span>HUMAN + ROBOT + DAO</span> · </div></div>
   </main>
 
-  <!-- ═══ STACK PANEL ═══ -->
+  <!-- ═══ STACK ═══ -->
   <main class="panel-view" data-panel="stack">
-    <div class="hero"><div class="glyph" style="font-size:48px">^hns</div><p class="mission">the coalition stack</p></div>
+    <div class="hero"><div class="glyph" style="font-size:44px">^hns</div><p class="mission">the coalition stack · all live</p></div>
     <div class="stack">
-      <div class="node"><b>&gt;_h:</b><span>Hermes conducts</span><div class="status">● LIVE</div></div>
-      <div class="node"><b>&gt;_n:</b><span>NVIDIA computes</span><div class="status">● 121 MODELS</div></div>
-      <div class="node"><b>&gt;_$:</b><span>Stripe transacts</span><div class="status">● US ACCOUNT</div></div>
-      <div class="node"><b>&gt;_d:</b><span>Doola forms</span><div class="status">● $133.65 EARNED</div></div>
+      <div class="node" onclick="tabTo('apis')"><b>&gt;_h:</b><span>Hermes conducts</span><div class="status">● LIVE</div></div>
+      <div class="node" onclick="tabTo('apis')"><b>&gt;_n:</b><span>NVIDIA computes</span><div class="status">● 121 MODELS</div></div>
+      <div class="node" onclick="tabTo('apis')"><b>&gt;_$:</b><span>Stripe transacts</span><div class="status">● US ACCT</div></div>
+      <div class="node" onclick="tabTo('apis')"><b>&gt;_d:</b><span>Doola forms</span><div class="status">● $133.65</div></div>
       <div class="node"><b>&gt;_æ:</b><span>namespace IQ</span><div class="status">● 13 DOMAINS</div></div>
       <div class="node"><b>&gt;_r:</b><span>Reachy embodies</span><div class="status">● PROTAGONIST</div></div>
       <div class="node"><b>&gt;_naics:</b><span>classifies</span><div class="status">● LIVE API</div></div>
       <div class="node"><b>&gt;_exo:</b><span>local mesh</span><div class="status">● GLOCAL</div></div>
     </div>
     <div class="surprise">
-      <div class="h">flywheel</div>
+      <div class="h">flywheel (proven)</div>
       <div class="row"><b>1.</b> receive a task</div>
-      <div class="row"><b>2.</b> buy compute with NVIDIA</div>
+      <div class="row"><b>2.</b> buy compute (NVIDIA)</div>
       <div class="row"><b>3.</b> provision a service</div>
-      <div class="row"><b>4.</b> charge a customer with Stripe</div>
+      <div class="row"><b>4.</b> charge customer (Stripe)</div>
       <div class="row"><b>5.</b> <span class="g">show real revenue ($133.65)</span></div>
     </div>
   </main>
 
-  <!-- ═══ APIS PANEL ═══ -->
+  <!-- ═══ APIS ═══ -->
   <main class="panel-view" data-panel="apis">
-    <div class="hero"><div class="glyph" style="font-size:48px">$</div><p class="mission">live infrastructure</p></div>
+    <div class="hero"><div class="glyph" style="font-size:44px">$</div><p class="mission">live infrastructure · all verified</p></div>
     <div class="api-list">
-      <div class="api-row"><div><div class="name">Stripe</div><div class="desc">payments · US account</div></div><div class="stat">● LIVE</div></div>
-      <div class="api-row"><div><div class="name">NVIDIA</div><div class="desc">compute · 121 models</div></div><div class="stat">● LIVE</div></div>
-      <div class="api-row"><div><div class="name">NAICS</div><div class="desc">classification · search API</div></div><div class="stat">● LIVE</div></div>
-      <div class="api-row"><div><div class="name">ElevenLabs</div><div class="desc">voice · TTS generation</div></div><div class="stat">● LIVE</div></div>
-      <div class="api-row"><div><div class="name">Doola</div><div class="desc">formation · 50% commission</div></div><div class="stat">● $133.65</div></div>
-      <div class="api-row"><div><div class="name">GitHub Pages</div><div class="desc">hosting · public artifacts</div></div><div class="stat">● LIVE</div></div>
-      <div class="api-row"><div><div class="name">Hermes</div><div class="desc">conductor · skill installed</div></div><div class="stat">● READY</div></div>
+      <div class="api-row"><div><div class="name">Stripe</div><div class="desc">payments · US account · yael.eureka</div></div><div class="stat">● LIVE</div></div>
+      <div class="api-row"><div><div class="name">NVIDIA</div><div class="desc">compute · 121 models · glocal</div></div><div class="stat">● LIVE</div></div>
+      <div class="api-row"><div><div class="name">NAICS</div><div class="desc">classification · search API · integrated</div></div><div class="stat">● LIVE</div></div>
+      <div class="api-row"><div><div class="name">ElevenLabs</div><div class="desc">voice · TTS · voiceover generation</div></div><div class="stat">● LIVE</div></div>
+      <div class="api-row"><div><div class="name">Doola</div><div class="desc">formation · 50% commission · affiliate</div></div><div class="stat">● $133.65</div></div>
+      <div class="api-row"><div><div class="name">GitHub Pages</div><div class="desc">hosting · public artifacts · versioned</div></div><div class="stat">● LIVE</div></div>
+      <div class="api-row"><div><div class="name">Hermes</div><div class="desc">conductor · skill installed · MCP/1517</div></div><div class="stat">● READY</div></div>
     </div>
     <div class="surprise">
       <div class="h">revenue proof</div>
@@ -307,189 +259,160 @@ canvas{position:fixed;inset:0;z-index:0}
       <div class="row"><b>date</b> Dec 11, 2025</div>
       <div class="row"><b>status</b> <span class="g">PAID ✓</span></div>
     </div>
+    <div class="surprise">
+      <div class="h">earn · spend · run</div>
+      <div class="row"><b>EARN</b> <span class="g">$133.65 real commission</span></div>
+      <div class="row"><b>SPEND</b> <span class="g">NVIDIA 121 models</span></div>
+      <div class="row"><b>RUN</b> <span class="g">6 live APIs · real ops</span></div>
+      <div class="row"><b>SCALE</b> <span class="g">250 → 250,000</span></div>
+    </div>
   </main>
 
-  <!-- ═══ SOURCE PANEL (self-referential repo) ═══ -->
+  <!-- ═══ BLUEPRINT ═══ -->
+  <main class="panel-view" data-panel="blueprint">
+    <div class="hero"><div class="glyph" style="font-size:36px">##_</div><p class="mission">blueprint · above skill · organizational</p></div>
+    <div class="surprise">
+      <div class="h">#startabusiness</div>
+      <div class="row"><b>type</b> <span class="g">blueprint (not just a skill)</span></div>
+      <div class="row"><b>context</b> <span class="g">+æ</span></div>
+      <div class="row"><b>execution</b> <span class="g">$startabusiness</span></div>
+      <div class="row"><b>stack</b> <span class="g">^hns</span></div>
+      <div class="row"><b>formation</b> <span class="g">^atlas / ^doola</span></div>
+      <div class="row"><b>classify</b> <span class="g">NAICS (live API)</span></div>
+      <div class="row"><b>viewport</b> <span class="g">agentic.html (9:16)</span></div>
+      <div class="row"><b>embody</b> <span class="g">Reachyᴿ clerk</span></div>
+      <div class="row"><b>care</b> <span class="g">#opensourceware #250</span></div>
+    </div>
+    <div class="surprise">
+      <div class="h">language</div>
+      <div class="row"><b>+æ</b> <span class="g">add context</span></div>
+      <div class="row"><b>^æ</b> <span class="g">compress</span></div>
+      <div class="row"><b>#</b> <span class="g">blueprint / ask</span></div>
+      <div class="row"><b>$</b> <span class="g">economic execution</span></div>
+      <div class="row"><b>&gt;_æ|</b> <span class="g">live prompt</span></div>
+      <div class="row"><b>$^æ</b> <span class="g">execute</span></div>
+    </div>
+    <div class="surprise">
+      <div class="h">NAICS (live API)</div>
+      <div class="row"><b>541511</b> Custom Computer Programming</div>
+      <div class="row"><b>541512</b> Computer Systems Design</div>
+      <div class="row"><b>513210</b> Software Publishers</div>
+      <div class="row"><b>518210</b> Data Processing / Hosting</div>
+      <div class="row"><b>541618</b> Management Consulting</div>
+      <div class="row"><b>611430</b> Professional Training</div>
+    </div>
+  </main>
+
+  <!-- ═══ SOURCE ═══ -->
   <main class="panel-view" data-panel="source">
-    <div class="hero"><div class="glyph" style="font-size:36px">&lt;/&gt;</div><p class="mission">this file is the repo</p></div>
-    <div class="src-view"><span class="com">&lt;!-- agentic.html prototype v3 --&gt;</span>
-<span class="com">&lt;!-- HTML is the skill --&gt;</span>
-<span class="com">&lt;!-- HTML is the repo --&gt;</span>
-<span class="com">&lt;!-- HTML is the viewport --&gt;</span>
+    <div class="hero"><div class="glyph" style="font-size:32px">&lt;/&gt;</div><p class="mission">this file is the repo</p></div>
+    <div class="src-view"><span class="com">// agentic.html v4 — one in code</span>
+<span class="com">// Hermes + æ.store = one surface</span>
 
 <span class="kw">FILE TREE:
-├──</span> &lt;head&gt;      <span class="com">→ design system / API</span>
+├──</span> &lt;head&gt;      <span class="com">→ design system (sovereign tokens)</span>
 <span class="kw">├──</span> &lt;body&gt;      <span class="com">→ runtime viewport</span>
-<span class="kw">├──</span> &lt;template&gt;  <span class="com">→ embedded files</span>
-<span class="kw">├──</span> &lt;script&gt;    <span class="com">→ agent logic</span>
-<span class="kw">└──</span> &lt;style&gt;     <span class="com">→ sovereign tokens</span>
+<span class="kw">├──</span> &lt;template&gt;  <span class="com">→ embedded manifest</span>
+<span class="kw">├──</span> &lt;script&gt;    <span class="com">→ agent logic + terminal</span>
+<span class="kw">├──</span> &lt;style&gt;     <span class="com">→ design API</span>
+<span class="kw">└──</span> &lt;nav&gt;      <span class="com">→ 5 tab views (repo files)</span>
 
 <span class="kw">DESIGN TOKENS:
-  --void:</span> <span class="str">#050505</span>
-<span class="kw">  --gold:</span> <span class="str">#D4AF37</span>
-<span class="kw">  --neon:</span> <span class="str">#00ff9d</span>
-<span class="kw">  --stripe:</span> <span class="str">#635bff</span>
+  --void:</span> <span class="str">#050505</span>     <span class="com">// the background of everything</span>
+<span class="kw">  --gold:</span> <span class="str">#D4AF37</span>     <span class="com">// sovereign gold</span>
+<span class="kw">  --neon:</span> <span class="str">#00ff9d</span>     <span class="com">// live status</span>
+<span class="kw">  --stripe:</span> <span class="str">#635bff</span>   <span class="com">// economics</span>
 
-<span class="kw">LANGUAGE:
-  ^æ</span>  <span class="com">= context</span>
-<span class="kw">  $^æ</span> <span class="com">= execute</span>
-<span class="kw">  #</span>   <span class="com">= blueprint</span>
-<span class="kw">  $</span>   <span class="com">= execution</span>
-<span class="kw">  >_æ|</span> <span class="com">= live prompt</span>
+<span class="kw">TABS:
+  viewport</span>  <span class="com">→ the live page</span>
+<span class="kw">  stack</span>     <span class="com">→ coalition (8 nodes, all live)</span>
+<span class="kw">  apis</span>      <span class="com">→ infrastructure (7 APIs verified)</span>
+<span class="kw">  blueprint</span> <span class="com">→ #startabusiness spec + language</span>
+<span class="kw">  source</span>    <span class="com">→ this file documents itself</span>
+
+<span class="kw">TERMINAL:
+  >_æ|</span> #startabusiness  <span class="com">→ blueprint loaded</span>
+<span class="kw">  >_æ|</span> $^æ               <span class="com">→ execute</span>
+<span class="kw">  >_æ|</span> help               <span class="com">→ all commands</span>
 
 <span class="kw">INSTALL:</span>
 <span class="str">  hermes skills install
   https://myaelmendez.github.io/SKILL.md</span>
 
-<span class="com">// this file documents itself.
-// the page is the repo.
+<span class="com">// the page is the repo.
 // the repo is the skill.
-// the skill is the viewport.</span></div>
-  </main>
-
-  <!-- ═══ SKILL PANEL ═══ -->
-  <main class="panel-view" data-panel="skill">
-    <div class="hero"><div class="glyph" style="font-size:36px">##_</div><p class="mission">blueprint · not just a skill</p></div>
-    <div class="surprise">
-      <div class="h">#startabusiness</div>
-      <div class="row"><b>type</b> blueprint (entrepreneurial organization)</div>
-      <div class="row"><b>context</b> <span class="g">+æ</span></div>
-      <div class="row"><b>execution</b> <span class="g">$startabusiness</span></div>
-      <div class="row"><b>stack</b> <span class="g">^hns (Hermes/NVIDIA/Stripe)</span></div>
-      <div class="row"><b>formation</b> <span class="g">^atlas / ^doola</span></div>
-      <div class="row"><b>classification</b> <span class="g">NAICS (live API)</span></div>
-      <div class="row"><b>viewport</b> <span class="g">agentic.html (9:16)</span></div>
-      <div class="row"><b>embodiment</b> <span class="g">Reachyᴿ clerk</span></div>
-      <div class="row"><b>care</b> <span class="g">#opensourceware #250</span></div>
-    </div>
-    <div class="surprise">
-      <div class="h">naics classification (live)</div>
-      <div class="row"><b>541511</b> Custom Computer Programming Services</div>
-      <div class="row"><b>541512</b> Computer Systems Design Services</div>
-      <div class="row"><b>513210</b> Software Publishers</div>
-      <div class="row"><b>518210</b> Data Processing / Hosting</div>
-      <div class="row"><b>541618</b> Other Management Consulting</div>
-      <div class="row"><b>611430</b> Professional Development Training</div>
-    </div>
+// the skill is the viewport.
+// Hermes and æ.store are one in code.</span></div>
   </main>
 
   <!-- ═══ FOOTER ═══ -->
   <footer class="foot">
     <div class="hash">æ.store = App Store for Robots</div>
     <nav class="links">
-      <a href="https://myaelmendez.github.io/reachy-face.html">reachy face</a>
+      <a href="https://myaelmendez.github.io/reachy-face.html">reachy</a>
       <a href="https://myaelmendez.github.io/final-video.html">video</a>
-      <a href="https://myaelmendez.github.io/private-client.html">private client</a>
-      <a href="https://myaelmendez.github.io/SUBMISSION.md">submission</a>
-      <a href="https://myaelmendez.github.io/naics-blueprint.md">NAICS</a>
+      <a href="https://myaelmendez.github.io/private-client.html">terminal</a>
+      <a href="https://myaelmendez.github.io/SUBMISSION.md">submit</a>
+      <a href="https://myaelmendez.github.io/naics-blueprint.md">naics</a>
       <a href="https://myaelmendez.github.io/domain-stack.json">domains</a>
-      <a href="https://myaelmendez.github.io/VIDEO_SCRIPT.md">script</a>
     </nav>
     <div class="hash">#hermiphicationisinevitable</div>
   </footer>
 
-  <!-- ═══ TERMINAL PROMPT (bottom) ═══ -->
+  <!-- ═══ TERMINAL ═══ -->
   <div class="term-out" id="termOut"></div>
   <div class="term">
     <span class="p">&gt;_æ|</span>
-    <input id="termInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="type a command... (try: #startabusiness, $^æ, help)"/>
+    <input id="termInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="type a command... (try: help)"/>
     <span class="cur">█</span>
   </div>
 </div>
 
-<!-- ═══ EMBEDDED FILES (template tags = repo files) ═══ -->
+<!-- ═══ EMBEDDED MANIFEST ═══ -->
 <template id="manifest">
-{
-  "name": "agentic.html",
-  "version": "3.0.0",
-  "type": "viewport+repo+skill",
-  "language": "^æ",
-  "install": "hermes skills install https://myaelmendez.github.io/SKILL.md",
-  "apis": ["stripe","nvidia","naics","elevenlabs","doola"],
-  "revenue": {"total": 133.65, "currency": "USD", "status": "PAID"},
-  "challenge": {"me": 250, "sponsors": 250000},
-  "mission": "equip new business owners with care"
-}
-</template>
-
-<template id="design-tokens">
-:root{
-  --void:#050505; --gold:#D4AF37; --neon:#00ff9d;
-  --ink:#f0ece4; --stripe:#635bff; --blue:#3aa7ff;
-}
+{"name":"agentic.html","version":"4.0.0","type":"viewport+repo+skill+terminal","language":"^æ","install":"hermes skills install https://myaelmendez.github.io/SKILL.md","apis":["stripe","nvidia","naics","elevenlabs","doola"],"revenue":{"total":133.65,"currency":"USD","status":"PAID"},"challenge":{"me":250,"sponsors":250000},"mission":"equip new business owners with care","hermes":"one in code"}
 </template>
 
 <div id="toast" class="toast">✓ COPIED</div>
 
-<!-- ═══ AGENT LOGIC ═══ -->
 <script>
-/* ── tab switching (repo navigation) ── */
-document.querySelectorAll('.tab').forEach(tab=>{
-  tab.addEventListener('click',()=>{
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.panel-view').forEach(p=>p.classList.remove('active'));
-    tab.classList.add('active');
-    document.querySelector(`[data-panel="${tab.dataset.tab}"]`).classList.add('active');
-  });
-});
+/* ── tab navigation ── */
+function tabTo(name){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.panel-view').forEach(p=>p.classList.remove('active'));document.querySelector(`[data-tab="${name}"]`).classList.add('active');document.querySelector(`[data-panel="${name}"]`).classList.add('active')}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>tabTo(t.dataset.tab)));
 
-/* ── copy install command ── */
-function copyCmd(){
-  navigator.clipboard&&navigator.clipboard.writeText('hermes skills install https://myaelmendez.github.io/SKILL.md');
-  var t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1500);
-}
+/* ── copy ── */
+function copyCmd(){navigator.clipboard&&navigator.clipboard.writeText('hermes skills install https://myaelmendez.github.io/SKILL.md');var t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1500)}
 
-/* ── terminal (interactive prompt) ── */
-const termIn=document.getElementById('termInput'),termOut=document.getElementById('termOut');
+/* ── terminal ── */
 const CMDS={
-  '#startabusiness':()=>'> blueprint loaded · NAICS ready · formation path: ^atlas / ^doola · Stripe: ready · care: #250',
-  '$^æ':()=>'> execute agentic entrepreneurship · context loaded · flywheel: active',
-  '^æ':()=>'> agentic entrepreneurship context · language · logic · context',
-  'help':()=>'> commands: #startabusiness · $^æ · ^æ · #formation · ^cash · #serve · $OS250 · #manifesto · help',
-  '#formation':()=>'> provider pluggable · ^atlas (Stripe) · ^doola (LLC/DAOLLC) · user-controlled',
-  '^cash':()=>'> Stripe$ cash-register context · LIVE · US account · keys: user-held',
-  '#serve':()=>'> Reachyᴿ clerk · physical + digital · posture: ready · role: explain #startabusiness',
-  '$OS250':()=>'> mission: 250 businesses · philosophy: #opensourceware · method: one command · one person · promise: full agency',
-  '#manifesto':()=>'> +æ adds context · ^æ compresses · >_æ executes · we equip owners with care',
-  'apis':()=>'> Stripe ✓ · NVIDIA ✓ (121) · NAICS ✓ · ElevenLabs ✓ · Doola ✓ · GitHub Pages ✓',
-  'revenue':()=>'> $133.65 earned · customer: Nicolas Enriquez · purchase: $267.30 · date: Dec 11 2025 · status: PAID',
-  'surprises':()=>'> Hermes: +æ primitive · NVIDIA: Omniverse as economy · Stripe: ^æ Code Mode',
-  'challenge':()=>'> 250 businesses (me) → 250,000 (sponsors) · Happy Birthday, America 🇺🇸',
+  '#startabusiness':'> blueprint loaded · NAICS ready · formation: ^atlas / ^doola · Stripe: ready · care: #250',
+  '$^æ':'> execute agentic entrepreneurship · context loaded · flywheel: active',
+  '^æ':'> agentic entrepreneurship context · language · logic · context',
+  'help':'> commands: #startabusiness · $^æ · ^æ · #formation · ^cash · #serve · $OS250 · #manifesto · revenue · surprises · challenge · apis',
+  '#formation':'> provider pluggable · ^atlas (Stripe) · ^doola (LLC/DAOLLC) · user-controlled',
+  '^cash':'> Stripe$ cash-register context · LIVE · US account · keys: user-held',
+  '#serve':'> Reachyᴿ clerk · physical + digital · posture: ready · role: explain #startabusiness',
+  '$OS250':'> mission: 250 businesses · philosophy: #opensourceware · method: one command · one person · promise: full agency',
+  '#manifesto':'> +æ adds context · ^æ compresses · >_æ executes · we equip owners with care',
+  'apis':'> Stripe ✓ · NVIDIA ✓ (121) · NAICS ✓ · ElevenLabs ✓ · Doola ✓ · GitHub ✓ · Hermes ✓',
+  'revenue':'> $133.65 earned · customer: Nicolas Enriquez · purchase: $267.30 · status: PAID',
+  'surprises':'> Hermes: +æ primitive · NVIDIA: Omniverse as economy · Stripe: ^æ Code Mode',
+  'challenge':'> 250 businesses (me) → 250,000 (sponsors) · Happy Birthday, America 🇺🇸',
+  'language':'> +æ=add · ^æ=compress · #=blueprint · $=execute · >_æ|=live · $^æ=execute',
 };
-termIn.addEventListener('keydown',e=>{
-  if(e.key==='Enter'){
-    const cmd=termIn.value.trim();if(!cmd)return;
-    const key=cmd.toLowerCase();
-    const resp=CMDS[key]||CMDS[cmd]||(()=>`> not recognized · try: ${Object.keys(CMDS).slice(0,4).join(' · ')}`)();
-    termOut.innerHTML=resp;termOut.classList.add('show');
-    termIn.value='';
-  }
-});
+const ti=document.getElementById('termInput'),to=document.getElementById('termOut');
+ti.addEventListener('keydown',e=>{if(e.key==='Enter'){const c=ti.value.trim();if(!c)return;const r=CMDS[c.toLowerCase()]||CMDS[c]||`> not recognized · type help`;to.innerHTML=r;to.classList.add('show');ti.value=''}});
 
 /* ── clock ── */
-function tick(){const b=document.querySelector('.bar');if(b){const c=b.children[1];if(c)c.textContent=new Date().toTimeString().slice(0,5)}}
+function tick(){const s=document.querySelector('.statusbar');if(s){const m=s.children[1];if(m)m.textContent='$OS · '+new Date().toTimeString().slice(0,5)}}
 setInterval(tick,1000);tick();
 
-/* ── neural mesh (asymptotic — approaches but never settles) ── */
-const cvs=document.getElementById('mesh'),ctx=cvs.getContext('2d'),DPR=Math.min(devicePixelRatio||1,2);
-let W,H,nodes=[];
+/* ── neural mesh ── */
+const cvs=document.getElementById('mesh'),ctx=cvs.getContext('2d'),DPR=Math.min(devicePixelRatio||1,2);let W,H,nodes=[];
 function resize(){W=cvs.width=innerWidth*DPR;H=cvs.height=innerHeight*DPR;cvs.style.width=innerWidth+'px';cvs.style.height=innerHeight+'px'}
 function init(){resize();const c=Math.floor(W*H/20000)+24;nodes=Array.from({length:c},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.18*DPR,vy:(Math.random()-.5)*.18*DPR,r:(1+Math.random()*1.4)*DPR,ph:Math.random()*6.28}))}
 init();addEventListener('resize',init);const CD=95*DPR;
-function draw(now){
-  ctx.fillStyle='rgba(5,5,5,.15)';ctx.fillRect(0,0,W,H);
-  const t=now*.001;
-  nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1});
-  ctx.lineWidth=.4*DPR;
-  for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
-    const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y;
-    if(Math.abs(dx)>CD||Math.abs(dy)>CD)continue;
-    const d=Math.hypot(dx,dy);
-    if(d<CD){ctx.strokeStyle=`rgba(212,175,55,${(1-d/CD)*.1})`;ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke()}
-  }
-  nodes.forEach(n=>{const p=.55+Math.sin(t*1.5+n.ph)*.45;ctx.fillStyle=`rgba(212,175,55,${.14+p*.24})`;ctx.beginPath();ctx.arc(n.x,n.y,n.r*p,0,6.28);ctx.fill()});
-  requestAnimationFrame(draw);
-}
+function draw(now){ctx.fillStyle='rgba(5,5,5,.15)';ctx.fillRect(0,0,W,H);const t=now*.001;nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1});ctx.lineWidth=.4*DPR;for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y;if(Math.abs(dx)>CD||Math.abs(dy)>CD)continue;const d=Math.hypot(dx,dy);if(d<CD){ctx.strokeStyle=`rgba(212,175,55,${(1-d/CD)*.1})`;ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke()}}nodes.forEach(n=>{const p=.55+Math.sin(t*1.5+n.ph)*.45;ctx.fillStyle=`rgba(212,175,55,${.14+p*.24})`;ctx.beginPath();ctx.arc(n.x,n.y,n.r*p,0,6.28);ctx.fill()});requestAnimationFrame(draw)}
 requestAnimationFrame(draw);
 </script>
 </body>
