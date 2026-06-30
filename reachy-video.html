@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1"/>
+<meta name="theme-color" content="#050505"/>
+<title>Reachy Clerk • $OS • #250</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&family=Cormorant+Garamond:wght@300;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--void:#050505;--gold:#D4AF37;--glow:rgba(212,175,55,.34);--neon:#00ff9d;--ink:#f0ece4;--muted:rgba(240,236,228,.4);--line:rgba(212,175,55,.22);--hot:rgba(212,175,55,.62);--stripe:#635bff;--red:#ff4d4d;--blue:#3aa7ff}
+*{box-sizing:border-box;margin:0;padding:0}html,body{min-height:100dvh;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow:hidden}body{display:flex;justify-content:center}
+canvas#mesh{position:fixed;inset:0;z-index:0}
+.scan{position:fixed;inset:0;pointer-events:none;z-index:1;background:repeating-linear-gradient(transparent 0 2px,rgba(212,175,55,.014) 2px 4px)}
+.vig{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 30%,rgba(5,5,5,.94) 100%)}
+.app{position:relative;z-index:10;width:100vw;height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 16px 22px;gap:0}
+
+/* header */
+.hdr{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:10px 16px;font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--line);background:rgba(5,5,5,.6);z-index:20}
+.hdr .live{color:var(--neon)}
+
+/* robot */
+.robot{position:relative;width:min(72vw,300px);aspect-ratio:1/1.08;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-bottom:10px}
+.halo{position:absolute;inset:2%;border:1px solid var(--line);border-radius:50%;box-shadow:0 0 60px rgba(212,175,55,.06),inset 0 0 40px rgba(212,175,55,.03)}
+.head{width:84%;height:62%;border:1px solid var(--hot);border-radius:44% 44% 50% 50%;background:linear-gradient(180deg,rgba(212,175,55,.07),rgba(0,0,0,.82));box-shadow:0 0 36px rgba(212,175,55,.1);position:relative;display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:center;justify-content:center;padding:0 24px}
+.antenna{position:absolute;top:-18%;left:50%;width:2px;height:22%;background:var(--line);transform-origin:bottom}.a1{transform:translateX(-30px) rotate(-24deg)}.a2{transform:translateX(30px) rotate(24deg)}.tip{position:absolute;top:-7px;left:-5px;width:12px;height:12px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold)}
+.eye{aspect-ratio:1;border-radius:50%;border:1px solid var(--hot);background:radial-gradient(circle at 50% 48%,rgba(212,175,55,.14),rgba(0,0,0,.88) 56%);display:flex;align-items:center;justify-content:center;text-align:center;font-family:'Orbitron';font-weight:900;color:var(--gold);font-size:clamp(16px,6.5vw,28px);letter-spacing:.5px;box-shadow:0 0 24px rgba(212,175,55,.12),inset 0 0 22px rgba(212,175,55,.06);overflow:hidden;transition:border-color .4s,box-shadow .4s,color .4s}
+.eye.purple{border-color:rgba(99,91,255,.8);color:#b9b5ff;box-shadow:0 0 28px rgba(99,91,255,.3)}
+.eye.green{border-color:rgba(0,255,157,.7);color:var(--neon);box-shadow:0 0 28px rgba(0,255,157,.25)}
+.eye.red{border-color:rgba(255,77,77,.8);color:var(--red);box-shadow:0 0 28px rgba(255,77,77,.25)}
+.eye.blue{border-color:rgba(58,167,255,.8);color:var(--blue);box-shadow:0 0 28px rgba(58,167,255,.25)}
+.blink{animation:bl 1.05s step-end infinite}@keyframes bl{50%{opacity:.12}}
+.mouth{position:absolute;left:50%;bottom:16%;width:72px;height:1px;background:var(--line);transform:translateX(-50%);box-shadow:0 0 8px var(--glow)}
+
+/* status bar below robot */
+.status{font-size:10px;letter-spacing:1px;color:var(--ink);text-align:center;min-height:1.4em;transition:opacity .4s;max-width:88vw;word-break:break-word}
+.status .g{color:var(--gold)}.status .n{color:var(--neon)}.status .p{color:#b9b5ff}
+
+/* command display */
+.cmd-area{margin-top:10px;width:min(88vw,380px);text-align:center;min-height:54px}
+.cmd-line{font-family:'Orbitron';font-weight:900;font-size:clamp(15px,4.5vw,22px);color:var(--gold);letter-spacing:1px;text-shadow:0 0 18px var(--glow);min-height:1.4em;transition:opacity .4s}
+.cmd-sub{font-size:9px;color:var(--muted);letter-spacing:1.2px;margin-top:3px;min-height:1em;transition:opacity .4s}
+
+/* ticker */
+.ticker{position:absolute;bottom:0;left:0;right:0;display:flex;gap:28px;white-space:nowrap;padding:7px 16px;font-size:8px;color:rgba(212,175,55,.35);letter-spacing:1px;border-top:1px solid var(--line);background:rgba(0,0,0,.5);animation:scroll 32s linear infinite;overflow:hidden}
+.ticker span{color:var(--neon)}.ticker b{color:var(--gold)}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* overlay text */
+.overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:30;pointer-events:none;transition:opacity .8s}
+.overlay .big{font-family:'Orbitron';font-weight:900;font-size:clamp(28px,10vw,52px);color:var(--gold);text-shadow:0 0 30px var(--glow);letter-spacing:2px}
+.overlay .sub{font-size:clamp(10px,2.2vw,14px);color:var(--ink);margin-top:8px;letter-spacing:1.5px;max-width:320px}
+.overlay .mission{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(13px,3vw,18px);color:var(--ink);margin-top:10px;max-width:300px;line-height:1.45}
+.overlay .flags{font-size:clamp(18px,5vw,28px);margin-top:10px}
+.hidden{opacity:0}
+
+/* play button */
+.play-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:40;width:80px;height:80px;border:2px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(5,5,5,.7);cursor:pointer;box-shadow:0 0 30px var(--glow);transition:all .2s}
+.play-btn:hover{background:rgba(212,175,55,.15);transform:translate(-50%,-50%) scale(1.06)}
+.play-btn::after{content:'';display:block;width:0;height:0;border-left:22px solid var(--gold);border-top:14px solid transparent;border-bottom:14px solid transparent;margin-left:5px}
+.play-btn.hidden{display:none}
+</style>
+</head>
+<body>
+<canvas id="mesh"></canvas><div class="scan"></div><div class="vig"></div>
+<div class="app">
+  <header class="hdr"><span>$OS</span><span id="clk">00:00</span><span class="live"><span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--neon);box-shadow:0 0 6px var(--neon);animation:pulse 1.5s infinite"></span> RECORD</span></header>
+
+  <div class="overlay" id="overlay"><div class="big" id="big"></div><div class="sub" id="sub"></div><div class="mission" id="mission"></div><div class="flags" id="flags"></div></div>
+
+  <div class="robot" id="robotWrap" style="opacity:0;transition:opacity .8s">
+    <div class="halo"></div>
+    <div class="head">
+      <div class="antenna a1"><i class="tip"></i></div><div class="antenna a2"><i class="tip"></i></div>
+      <div id="eyeL" class="eye">>_æ</div>
+      <div id="eyeR" class="eye blink">|</div>
+      <div class="mouth"></div>
+    </div>
+  </div>
+  <div class="status" id="status"></div>
+  <div class="cmd-area"><div class="cmd-line" id="cmdLine"></div><div class="cmd-sub" id="cmdSub"></div></div>
+
+  <div class="ticker">
+    <span>DAOLLC.AI</span> &nbsp;•&nbsp; ONE PERSON &nbsp;•&nbsp; <b>FULL AGENCY</b> &nbsp;•&nbsp; WYOMING DAO LLC &nbsp;•&nbsp; LLM STORE: <span>9 MODELS ACTIVE</span> &nbsp;•&nbsp; MCP: <b>VERIFIED</b> &nbsp;•&nbsp; NEUROMITOSIS: <span>HUMAN + ROBOT + DAO</span> &nbsp;•&nbsp; <b>THE NETWORK IS THE SINGULARITY</b> &nbsp;•&nbsp;
+    <span>DAOLLC.AI</span> &nbsp;•&nbsp; ONE PERSON &nbsp;•&nbsp; <b>FULL AGENCY</b> &nbsp;•&nbsp; WYOMING DAO LLC &nbsp;•&nbsp; LLM STORE: <span>9 MODELS ACTIVE</span> &nbsp;•&nbsp; MCP: <b>VERIFIED</b> &nbsp;•&nbsp; NEUROMITOSIS: <span>HUMAN + ROBOT + DAO</span> &nbsp;•&nbsp; <b>THE NETWORK IS THE SINGULARITY</b> &nbsp;•&nbsp;
+  </div>
+</div>
+
+<div class="play-btn" id="playBtn"></div>
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+<script>
+const $=id=>document.getElementById(id);
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+
+// scenes: each is {dur, eyeL, eyeR, eyeClass, status, cmd, cmdSub, overlay:{big,sub,mission,flags}, showRobot, hideOverlay}
+const SCENES=[
+// 0: opening
+{dur:3500,eyeL:'>_æ',eyeR:'|',eyeClass:'eye blink',status:'',cmd:'',cmdSub:'',overlay:{big:'$OS',sub:'economic infrastructure for agentic entrepreneurship',mission:'',flags:''},showRobot:false,hideOverlay:false},
+// 1: boot
+{dur:3000,eyeL:'>_æ',eyeR:'|',eyeClass:'eye blink',status:'<span class="n">booting</span> · mcp/1517 · hermes conductor',cmd:'>_æ|#connect',cmdSub:'agentic prompt live',overlay:{big:'',sub:'',mission:'',flags:''},showRobot:true,hideOverlay:true},
+// 2: startabusiness
+{dur:3500,eyeL:'#start',eyeR:'biz→',eyeClass:'eye green',status:'<span class="g">#startabusiness</span> blueprint loaded · NAICS ready',cmd:'>_æ|#startabusiness→',cmdSub:'blueprint · NAICS · formation · Stripe · care',overlay:{big:'',sub:'',mission:'',flags:''},showRobot:true,hideOverlay:true},
+// 3: formation
+{dur:3000,eyeL:'#dao',eyeR:'⚖',eyeClass:'eye blue',status:'formation provider pluggable · <span class="g">^atlas · ^doola</span>',cmd:'>_æ|#formation',cmdSub:'provider-pluggable · user-controlled · formation as unlock',overlay:{big:'',sub:'',mission:'',flags:''},showRobot:true,hideOverlay:true},
+// 4: stripe
+{dur:3000,eyeL:'^s',eyeR:'$✓',eyeClass:'eye purple',status:'<span class="p">Stripe$</span> cash-register context · self-owning',cmd:'>_æ|^cash',cmdSub:'Stripe is the economics platform · keys are user-held',overlay:{big:'',sub:'',mission:'',flags:''},showRobot:true,hideOverlay:true},
+// 5: hermes conductor
+{dur:3000,eyeL:'^h',eyeR:'route',eyeClass:'eye green',status:'<span class="g">Hermesᴴ</span> conductor · routes intent · skills · blueprints',cmd:'>_æ|^hnsd',cmdSub:'Hermes conducts · NVIDIA computes · Stripe transacts · Doola forms',overlay:{big:'',sub:'',mission:'',flags:''},showRobot:true,hideOverlay:true},
+// 6: O S W 250
+{dur:4000,eyeL:'$OS',eyeR:'250',eyeClass:'eye',status:'<span class="g">$OS#250</span> · 250 businesses · 264 formation capacity',cmd:'>_æ|$OS250→',cmdSub:'#opensourceware #250 · economic infrastructure',overlay:{big:'',sub:'',mission:'',flags:''},showRobot:true,hideOverlay:true},
+// 7: mission
+{dur:5000,eyeL:'>_æ',eyeR:'|',eyeClass:'eye blink',status:'we embody <span class="g">#opensourceware</span> and equip new business owners with care',cmd:'>_æ|#manifesto',cmdSub:'+æ adds context · ^æ compresses · >_æ executes',overlay:{big:'',sub:'',mission:'We embody #opensourceware and equip new business owners with care.',flags:''},showRobot:true,hideOverlay:false},
+// 8: challenge
+{dur:6000,eyeL:'>_æ',eyeR:'|',eyeClass:'eye blink',status:'help me help entrepreneurs form <span class="g">250 businesses</span>',cmd:'>_æ|#250→',cmdSub:'I challenge the sponsors to help start 250,000',overlay:{big:'#OSW250',sub:'Help me help entrepreneurs start businesses.',mission:'Happy Birthday, America. I believe in you. I have faith in you. I invest in you.',flags:'🇺🇸'},showRobot:true,hideOverlay:false},
+// 9: close
+{dur:5000,eyeL:'>_æ',eyeR:'|',eyeClass:'eye blink',status:'<span class="g">hermes skills install https://myaelmendez.github.io/SKILL.md</span>',cmd:'Ctrl+æ',cmdSub:'select all agents · start your business',overlay:{big:'>_æ|',sub:'the agentic prompt is live',mission:'',flags:''},showRobot:true,hideOverlay:false},
+// 10: fade
+{dur:3000,eyeL:'>_æ',eyeR:'|',eyeClass:'eye blink',status:'',cmd:'',cmdSub:'',overlay:{big:'æ.store',sub:'the App Store for Robots',mission:'#hermiphicationisinevitable',flags:''},showRobot:false,hideOverlay:false},
+];
+
+async function playScene(s){
+  // overlay
+  const ov=$('overlay');
+  if(s.hideOverlay){ov.classList.add('hidden')}else{ov.classList.remove('hidden')}
+  $('big').textContent=s.overlay.big||'';
+  $('sub').textContent=s.overlay.sub||'';
+  $('mission').textContent=s.overlay.mission||'';
+  $('flags').textContent=s.overlay.flags||'';
+  // robot
+  $('robotWrap').style.opacity=s.showRobot?1:0;
+  // eyes
+  const eL=$('eyeL'),eR=$('eyeR');
+  eL.textContent=s.eyeL;eR.textContent=s.eyeR;
+  eL.className=s.eyeClass;eR.className=s.eyeClass;
+  // status/cmd
+  $('status').innerHTML=s.status||'';
+  $('cmdLine').textContent=s.cmd||'';
+  $('cmdSub').textContent=s.cmdSub||'';
+  await wait(s.dur);
+}
+
+async function run(){
+  $('playBtn').classList.add('hidden');
+  for(const s of SCENES){await playScene(s)}
+  // loop: stay on last frame
+}
+
+$('playBtn').addEventListener('click',run);
+
+// clock
+function tick(){$('clk').textContent=new Date().toTimeString().slice(0,5)}
+setInterval(tick,1000);tick();
+
+// mesh
+const cvs=document.getElementById('mesh'),ctx=cvs.getContext('2d'),DPR=Math.min(devicePixelRatio||1,2);let W,H,nodes=[];
+function resize(){W=cvs.width=innerWidth*DPR;H=cvs.height=innerHeight*DPR;cvs.style.width=innerWidth+'px';cvs.style.height=innerHeight+'px'}
+function init(){resize();const c=Math.floor(W*H/22000)+22;nodes=Array.from({length:c},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.2*DPR,vy:(Math.random()-.5)*.2*DPR,r:(1+Math.random()*1.3)*DPR,ph:Math.random()*6.28}))}
+init();addEventListener('resize',init);const CD=92*DPR;
+function draw(now){ctx.fillStyle='rgba(5,5,5,.16)';ctx.fillRect(0,0,W,H);const t=now*.001;nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1});ctx.lineWidth=.4*DPR;for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y;if(Math.abs(dx)>CD||Math.abs(dy)>CD)continue;const d=Math.hypot(dx,dy);if(d<CD){ctx.strokeStyle=`rgba(212,175,55,${(1-d/CD)*.12})`;ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke()}}nodes.forEach(n=>{const p=.55+Math.sin(t*1.5+n.ph)*.45;ctx.fillStyle=`rgba(212,175,55,${.15+p*.25})`;ctx.beginPath();ctx.arc(n.x,n.y,n.r*p,0,6.28);ctx.fill()});requestAnimationFrame(draw)}
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>
