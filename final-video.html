@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1"/>
+<meta name="theme-color" content="#050505"/>
+<title>$OS · #250 · Final</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Cormorant+Garamond:wght@300;500&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--void:#050505;--gold:#D4AF37;--glow:rgba(212,175,55,.4);--neon:#00ff9d;--ink:#f0ece4;--muted:rgba(240,236,228,.4);--line:rgba(212,175,55,.18);--stripe:#635bff;--blue:#3aa7ff}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}html,body{width:100%;height:100dvh;overflow:hidden;background:var(--void);font-family:'JetBrains Mono',monospace}
+.stage{position:relative;width:100%;height:100dvh;overflow:hidden}
+.bg-layer{position:absolute;inset:0;z-index:1;background-size:cover;background-position:center;opacity:0;transition:opacity 1.2s ease}
+.bg-layer.active{opacity:.35}
+.scan{position:absolute;inset:0;z-index:2;pointer-events:none;background:repeating-linear-gradient(transparent 0 2px,rgba(212,175,55,.015) 2px 4px)}
+.vig{position:absolute;inset:0;z-index:3;pointer-events:none;background:radial-gradient(ellipse at center,transparent 25%,rgba(5,5,5,.95) 100%)}
+canvas#mesh{position:absolute;inset:0;z-index:4;pointer-events:none;opacity:.5}
+.content{position:relative;z-index:10;width:100%;height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+/* HUD top */
+.hud-top{position:absolute;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:10px 16px;font-size:7px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.hud-top .live{color:var(--neon);display:flex;gap:4px;align-items:center}
+.hud-top .dot{width:5px;height:5px;border-radius:50%;background:var(--neon);box-shadow:0 0 6px var(--neon);animation:pulse 1.5s infinite}
+@keyframes pulse{50%{opacity:.2}}
+/* HUD bottom */
+.hud-bottom{position:absolute;bottom:0;left:0;right:0;z-index:20;padding:8px 16px;font-size:7px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;border-top:1px solid var(--line);background:rgba(5,5,5,.6);backdrop-filter:blur(8px);display:flex;justify-content:center;gap:12px}
+.hud-bottom b{color:var(--gold)}.hud-bottom span{color:var(--neon)}
+/* scene text */
+.scene-text{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:15;text-align:center;width:min(90vw,420px);transition:opacity .8s}
+.scene-text.hidden{opacity:0;pointer-events:none}
+.big{font-family:'Orbitron';font-weight:900;font-size:clamp(28px,10vw,56px);color:var(--gold);text-shadow:0 0 30px var(--glow);letter-spacing:1px;line-height:1.05}
+.medium{font-family:'Orbitron';font-weight:700;font-size:clamp(18px,6vw,32px);color:var(--ink);letter-spacing:1px;margin-top:8px}
+.small{font-family:'JetBrains Mono';font-size:clamp(10px,2.5vw,14px);color:var(--muted);margin-top:6px;letter-spacing:1px;line-height:1.5}
+.serif{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(16px,4vw,24px);color:var(--ink);line-height:1.4;margin-top:8px}
+.gold{color:var(--gold)}.neon{color:var(--neon)}.stripe{color:#8b87ff}
+/* receipt */
+.receipt{border:1px solid var(--line);background:rgba(5,5,5,.8);padding:14px;text-align:left;font-size:9px;line-height:1.8;color:var(--ink);backdrop-filter:blur(4px);margin-top:10px}
+.receipt .r-line{display:flex;justify-content:space-between}
+.receipt .r-line .v{color:var(--gold)}
+.receipt .r-line .v.green{color:var(--neon)}
+/* API grid */
+.api-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:10px}
+.api-item{border:1px solid var(--line);padding:6px;font-size:7px;color:var(--muted);text-align:left;background:rgba(0,0,0,.4)}
+.api-item .s{color:var(--neon);font-size:8px}
+/* eyes */
+.eyes{display:flex;gap:clamp(16px,5vw,40px);justify-content:center}
+.eye{width:clamp(60px,20vw,100px);height:clamp(60px,20vw,100px);border-radius:50%;border:2px solid var(--gold);background:radial-gradient(circle at 50% 46%,rgba(212,175,55,.15),rgba(0,0,0,.9) 56%);display:flex;align-items:center;justify-content:center;box-shadow:0 0 40px var(--glow);animation:breath 4s ease-in-out infinite}
+@keyframes breath{50%{transform:scale(1.04)}}
+.eye .g{font-family:'Orbitron';font-weight:900;font-size:clamp(18px,6vw,28px);color:var(--gold)}
+/* emoji */
+.emoji-row{font-size:clamp(32px,10vw,48px);letter-spacing:4px}
+/* challenge */
+.challenge-num{font-family:'Orbitron';font-weight:900;font-size:clamp(40px,14vw,72px);color:var(--neon);text-shadow:0 0 25px rgba(0,255,157,.3)}
+/* play button */
+.play-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:40;width:72px;height:72px;border:2px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(5,5,5,.7);cursor:pointer;box-shadow:0 0 30px var(--glow);transition:all .2s}
+.play-btn:hover{background:rgba(212,175,55,.15);transform:translate(-50%,-50%) scale(1.06)}
+.play-btn::after{content:'';width:0;height:0;border-left:20px solid var(--gold);border-top:13px solid transparent;border-bottom:13px solid transparent;margin-left:4px}
+.play-btn.hidden{display:none}
+/* progress bar */
+.progress{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:30;width:min(80vw,300px);height:2px;background:rgba(212,175,55,.1);border-radius:1px;overflow:hidden}
+.progress-fill{height:100%;background:var(--gold);width:0;transition:width .1s linear}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="bg-layer" id="bg1" style="background-image:url('https://v3b.fal.media/files/b/0aa06888/GFwedj9MXBcbDKm5TLgLD_6JUJ2Qap.png')"></div>
+  <div class="bg-layer" id="bg2" style="background-image:url('https://v3b.fal.media/files/b/0aa0688a/fcDKrN1VXi8p-17jIKc3m_E8PV81LW.png')"></div>
+  <div class="bg-layer" id="bg3" style="background-image:url('https://v3b.fal.media/files/b/0aa0688b/H6sL4TfgJYDGnklyuR5b-_zUGN6OTL.png')"></div>
+  <canvas id="mesh"></canvas>
+  <div class="scan"></div>
+  <div class="vig"></div>
+  <div class="hud-top"><span>æ:// $OS</span><span id="clk"></span><span class="live"><i class="dot"></i>RECORD</span></div>
+  <div class="scene-text hidden" id="scene"></div>
+  <div class="hud-bottom" id="hudBottom"><b>>_æ|</b> agentic prompt live · <span>$OS</span> · <b>hermes skills install https://myaelmendez.github.io/SKILL.md</b></div>
+  <div class="progress"><div class="progress-fill" id="pfill"></div></div>
+  <div class="play-btn" id="playBtn"></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const scene=$('scene'),hudBottom=$('hudBottom'),pfill=$('pfill');
+function setBg(n){for(let i=1;i<=3;i++)$('bg'+i).classList.toggle('active',i===n)}
+function setScene(html,bg,hud){scene.classList.add('hidden');setTimeout(()=>{scene.innerHTML=html;scene.classList.remove('hidden')},400);setBg(bg);if(hud)hudBottom.innerHTML=hud}
+const totalDur=60000;let startTime=0;
+function updateProgress(){if(startTime){const p=Math.min((Date.now()-startTime)/totalDur,1);pfill.style.width=(p*100)+'%';if(p<1)requestAnimationFrame(updateProgress)}}
+const SCENES=[
+{dur:4000,bg:1,html:'<div class="big">$OS</div><div class="small">economic infrastructure for<br><span class="gold">agentic entrepreneurship</span></div>',hud:'<b>>_æ|</b> $OS · economic infrastructure'},
+{dur:3500,bg:1,html:'<div class="big">>_æ|</div><div class="small">the agentic prompt is live</div><div class="medium" style="font-size:clamp(14px,4vw,22px);margin-top:10px">>_æ://#startabusiness<span class="gold">^hns</span>→</div>',hud:'<b>>_æ://</b> protocol · blueprint · stack · execute'},
+{dur:5000,bg:2,html:'<div class="medium gold">EARN</div><div class="receipt"><div class="r-line"><span>Customer</span><span class="v">Nicolas Enriquez</span></div><div class="r-line"><span>Purchase</span><span class="v">$267.30</span></div><div class="r-line"><span>Commission</span><span class="v">$133.65 (50%)</span></div><div class="r-line"><span>Date</span><span>Dec 11, 2025</span></div><div class="r-line"><span>Status</span><span class="v green">PAID ✓</span></div></div>',hud:'<b>EARN</b> · real customer · real revenue · <span>$133.65</span>'},
+{dur:4000,bg:2,html:'<div class="medium" style="color:var(--blue)">SPEND</div><div class="api-grid"><div class="api-item"><span class="s">NVIDIA API</span><br>LIVE ✓</div><div class="api-item"><span class="s">121 models</span><br>available</div><div class="api-item"><span class="s">glocal</span><br>NVIDIA + Exo</div><div class="api-item"><span class="s">Omniverse</span><br>economic context</div></div>',hud:'<b>SPEND</b> · NVIDIA compute · <span>121 models live</span>'},
+{dur:5000,bg:3,html:'<div class="medium gold">RUN</div><div class="api-grid"><div class="api-item"><span class="s">NAICS API</span><br>LIVE ✓</div><div class="api-item"><span class="s">Stripe API</span><br>LIVE ✓</div><div class="api-item"><span class="s">Doola</span><br>LIVE ✓</div><div class="api-item"><span class="s">ElevenLabs</span><br>LIVE ✓</div><div class="api-item"><span class="s">Hermes</span><br>INSTALLED ✓</div><div class="api-item"><span class="s">agentic.html</span><br>GENERATED ✓</div></div>',hud:'<b>RUN</b> · 6 live APIs · real operations'},
+{dur:4500,bg:3,html:'<div class="big">FLYWHEEL</div><div class="small" style="text-align:left;margin-top:8px">1. receive a task<br>2. buy compute with <span class="gold">NVIDIA</span><br>3. provision a service<br>4. charge a customer with <span class="stripe">Stripe</span><br>5. <span class="neon">show real revenue</span></div><div class="medium neon" style="margin-top:8px">$133.65 earned</div>',hud:'<b>FLYWHEEL</b> · not a demo · <span>real revenue</span>'},
+{dur:4000,bg:1,html:'<div class="eyes"><div class="eye"><div class="g">>_æ</div></div><div class="eye"><div class="g">|</div></div></div><div class="small" style="margin-top:12px">Reachy is the protagonist</div><div class="small" style="color:var(--gold)">all the code lives in him</div>',hud:'<b>Reachyᴿ</b> · protagonist · embodied clerk'},
+{dur:3500,bg:1,html:'<div class="emoji-row">🛍️ 💰 🏢</div><div class="small" style="margin-top:8px">shop · money · company<br><span class="gold">no language needed</span></div>',hud:'<b>emoji</b> · universal language · <span>zero barrier</span>'},
+{dur:4000,bg:2,html:'<div class="big">SURPRISES</div><div class="small" style="text-align:left;margin-top:8px"><span class="gold">Hermes</span> gets +æ — a primitive<br><span class="gold">NVIDIA</span> gets Omniverse as economy<br><span class="gold">Stripe</span> gets ^æ — Code Mode</div>',hud:'<b>3 surprises</b> · Hermes · NVIDIA · Stripe'},
+{dur:5000,bg:3,html:'<div class="serif">Help me help entrepreneurs</div><div class="big" style="font-size:clamp(24px,8vw,40px)">250</div><div class="small">businesses</div><div class="small" style="margin-top:8px">I challenge <span class="gold">Hermes · NVIDIA · Stripe</span></div><div class="challenge-num" style="margin-top:6px">250,000</div><div class="serif gold" style="margin-top:6px">so America can lead in the agentic era</div>',hud:'<b>#250</b> → <span>250,000</span> · Happy Birthday, America 🇺🇸'},
+{dur:3000,bg:1,html:'<div class="big" style="font-size:clamp(48px,16vw,88px)">$^æ</div><div class="small">execute agentic entrepreneurship</div>',hud:'<b>$^æ</b> · execute'},
+{dur:3000,bg:0,html:'<div class="big">æ.store</div><div class="small">the App Store for Robots</div><div class="small gold" style="margin-top:8px">hermes skills install<br>https://myaelmendez.github.io/SKILL.md</div><div class="small" style="margin-top:8px">#hermiphicationisinevitable</div>',hud:'<b>æ.store</b> · the App Store for Robots'},
+];
+async function play(){$('playBtn').classList.add('hidden');startTime=Date.now();updateProgress();let t=0;for(let i=0;i<SCENES.length;i++){const s=SCENES[i];setScene(s.html,s.bg||0,s.hud);await wait(s.dur);t+=s.dur}scene.innerHTML='<div class="big">æ</div><div class="small">the App Store for Robots</div>';scene.classList.remove('hidden')}
+$('playBtn').addEventListener('click',play);
+function tick(){$('clk').textContent=new Date().toTimeString().slice(0,5)}setInterval(tick,1000);tick();
+// mesh
+const cvs=document.getElementById('mesh'),ctx=cvs.getContext('2d'),DPR=Math.min(devicePixelRatio||1,2);let W,H,nodes=[];
+function resize(){W=cvs.width=innerWidth*DPR;H=cvs.height=innerHeight*DPR;cvs.style.width=innerWidth+'px';cvs.style.height=innerHeight+'px'}
+function init(){resize();const c=Math.floor(W*H/18000)+28;nodes=Array.from({length:c},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.2*DPR,vy:(Math.random()-.5)*.2*DPR,r:(1+Math.random()*1.5)*DPR,ph:Math.random()*6.28}))}
+init();addEventListener('resize',init);const CD=100*DPR;
+function draw(now){ctx.fillStyle='rgba(5,5,5,.12)';ctx.fillRect(0,0,W,H);const t=now*.001;nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1});ctx.lineWidth=.4*DPR;for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y;if(Math.abs(dx)>CD||Math.abs(dy)>CD)continue;const d=Math.hypot(dx,dy);if(d<CD){ctx.strokeStyle=`rgba(212,175,55,${(1-d/CD)*.12})`;ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke()}}nodes.forEach(n=>{const p=.55+Math.sin(t*1.5+n.ph)*.45;ctx.fillStyle=`rgba(212,175,55,${.14+p*.24})`;ctx.beginPath();ctx.arc(n.x,n.y,n.r*p,0,6.28);ctx.fill()});requestAnimationFrame(draw)}
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>
