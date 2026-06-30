@@ -43,6 +43,7 @@ New business owners need more than chatbot answers. They need a guided operation
 - The HTML viewport is static and deployable anywhere: GitHub Pages, Hostinger, Workers, or æ.store.
 - `domain-stack.json` encodes each owned domain as a skill in a compact Code Mode registry.
 - The Stripe / DAOLLC flows are routed through user-controlled links rather than unsafe credential handling.
+- Doola is treated as an external formation provider / affiliate rail; this project does not provide legal, tax, banking, bookkeeping, or payment services and does not claim Doola API access unless separately approved by Doola.
 - Reachy Clerk is framed as the embodied app/storefront operator, not as a secret handler.
 
 ### Presentation

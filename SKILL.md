@@ -78,10 +78,12 @@ Build a single self-contained HTML file. **Two design modes** — ask or infer:
 
 ### Step 4: Next Steps for the User
 
-1. **Form the DAOLLC** → https://partnersps.doola.com/hhsoqhb23250 (Wyoming DAO LLC via Doola)
-2. **Activate Stripe** → payment rails
+1. **Explore formation** → https://partnersps.doola.com/hhsoqhb23250 (external Doola affiliate / formation rail)
+2. **Activate Stripe** → payment rails through Stripe-controlled flows
 3. **Deploy** → host at their domain or æ.store
 4. **Join** → X community "æ store LLM store"
+
+Boundary: this skill is not legal, tax, banking, bookkeeping, or payment advice. It routes users to third-party providers under their own terms and user-controlled flows.
 
 ## GOLD TEMPLATE (reference — reskin per user)
 
