@@ -225,10 +225,31 @@ canvas#mesh{position:fixed;inset:0;z-index:0;opacity:.3}
 .k-close{position:absolute;top:16px;right:16px;font-size:18px;color:var(--muted);cursor:pointer;border:none;background:none}
 .k-close:hover{color:var(--ink)}
 
+/* ── library grid ── */
+.lib-grid{display:grid;grid-template-columns:1fr;gap:8px;margin:8px 0}
+.lib-card{border:1px solid var(--line);background:rgba(5,5,5,.4);padding:10px 12px;cursor:pointer;transition:all var(--dur) var(--ease);position:relative;overflow:hidden}
+.lib-card:hover{border-color:var(--hot);background:rgba(212,175,55,.04);transform:translateY(-1px)}
+.lib-card .lib-type{font-size:7px;letter-spacing:1.5px;text-transform:uppercase;padding:2px 6px;border-radius:999px;display:inline-block;margin-bottom:4px}
+.lib-card .lib-type.blueprint{color:var(--gold);border:1px solid rgba(212,175,55,.3)}
+.lib-card .lib-type.skill{color:var(--neon);border:1px solid rgba(0,255,157,.2)}
+.lib-card .lib-type.primitive{color:#8b87ff;border:1px solid rgba(99,91,255,.2)}
+.lib-card .lib-name{font-family:'Orbitron';font-size:13px;font-weight:700;color:var(--gold);margin-top:2px}
+.lib-card .lib-prompt{font-family:'JetBrains Mono';font-size:10px;color:var(--muted);margin-top:1px}
+.lib-card .lib-desc{font-size:10px;color:var(--ink);opacity:.7;margin-top:4px;line-height:1.4}
+.lib-card .lib-status{position:absolute;top:10px;right:10px;font-size:8px;color:var(--neon);letter-spacing:1px;text-transform:uppercase}
+.lib-card .lib-status.live{color:var(--neon)}.lib-card .lib-status.draft{color:var(--muted)}
+.lib-filter{display:flex;gap:6px;margin:8px 0;flex-wrap:wrap}
+.lib-filter .fpill{border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:3px 10px;font-size:9px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all var(--dur) var(--ease)}
+.lib-filter .fpill:hover{color:var(--gold);border-color:var(--hot)}
+.lib-filter .fpill.active{color:var(--gold);border-color:var(--gold);background:rgba(212,175,55,.06)}
+.lib-stats{display:flex;gap:12px;justify-content:center;margin:6px 0;font-size:10px;color:var(--muted);letter-spacing:.5px}
+.lib-stats b{color:var(--gold)}
+
 /* ── responsive ── */
 @media(min-aspect-ratio:1/1){
   .app{width:min(100vw,520px);max-width:520px}
   .stack{grid-template-columns:repeat(4,1fr)}
+  .lib-grid{grid-template-columns:repeat(2,1fr)}
   .glyph{font-size:80px}
   .thesis{max-width:44ch}
 }
@@ -267,6 +288,7 @@ canvas#mesh{position:fixed;inset:0;z-index:0;opacity:.3}
     <div class="tab" data-tab="stack">stack<span class="badge"></span></div>
     <div class="tab" data-tab="apis">apis<span class="badge"></span></div>
     <div class="tab" data-tab="blueprint">dao</div>
+    <div class="tab" data-tab="library">lib<span class="badge"></span></div>
     <div class="tab" data-tab="source">src</div>
   </nav>
 
@@ -459,6 +481,100 @@ canvas#mesh{position:fixed;inset:0;z-index:0;opacity:.3}
     </div>
   </main>
 
+  <!-- ═══ LIBRARY ═══ -->
+  <main class="panel-view" data-panel="library">
+    <div class="hero"><div class="glyph" style="font-size:44px">lib</div><p class="thesis">the <b>App Store for Robots</b> · blueprints above skills</p></div>
+
+    <div class="lib-stats"><span><b>2</b> blueprints</span> · <span><b>5</b> skills</span> · <span><b>1</b> primitive</span></div>
+
+    <div class="lib-filter">
+      <span class="fpill active" onclick="filterLib('all')">all</span>
+      <span class="fpill" onclick="filterLib('blueprint')">#blueprint</span>
+      <span class="fpill" onclick="filterLib('skill')">$skill</span>
+      <span class="fpill" onclick="filterLib('primitive')">^primitive</span>
+    </div>
+
+    <div class="lib-grid" id="libGrid">
+
+      <!-- BLUEPRINTS -->
+      <div class="lib-card" data-lib="blueprint" onclick="termCmd('#startabusiness')">
+        <span class="lib-type blueprint">#blueprint</span>
+        <div class="lib-name">startabusiness</div>
+        <div class="lib-prompt">>_æ|#startabusiness→</div>
+        <div class="lib-desc">Meta-blueprint. Hermes · NVIDIA · Stripe unlock the DAO. One command to form a DAOLLC, classify with NAICS, deploy with Stripe.</div>
+        <span class="lib-status live">● LIVE</span>
+      </div>
+
+      <div class="lib-card" data-lib="blueprint" onclick="termCmd('sovaereign')">
+        <span class="lib-type blueprint">#blueprint</span>
+        <div class="lib-name">soværeign</div>
+        <div class="lib-prompt">>_sov:</div>
+        <div class="lib-desc">The entrepreneur's first repo. GitHub App that scaffolds a business repository and teaches Git by doing. Blueprint #0.</div>
+        <span class="lib-status live">● LIVE</span>
+      </div>
+
+      <!-- SKILLS -->
+      <div class="lib-card" data-lib="skill" onclick="termCmd('^æ')">
+        <span class="lib-type skill">$skill</span>
+        <div class="lib-name">agentic-entrepreneurship</div>
+        <div class="lib-prompt">>_æ:</div>
+        <div class="lib-desc">Umbrella skill. Generate sovereign business pages (agentic.html), deploy to GitHub Pages, form DAOLLC, route domains.</div>
+        <span class="lib-status live">● LIVE</span>
+      </div>
+
+      <div class="lib-card" data-lib="skill" onclick="termCmd('dao')">
+        <span class="lib-type skill">$skill</span>
+        <div class="lib-name">domains-to-github-pages</div>
+        <div class="lib-prompt">>_dns:</div>
+        <div class="lib-desc">Route all domains to a single GitHub Pages site. Primary serves content (200); others 301 redirect. Cloudflare DNS + Hostinger Forwarding API.</div>
+        <span class="lib-status live">● LIVE</span>
+      </div>
+
+      <div class="lib-card" data-lib="skill" onclick="termCmd('help')">
+        <span class="lib-type skill">$skill</span>
+        <div class="lib-name">html-as-skill</div>
+        <div class="lib-prompt">>_html:</div>
+        <div class="lib-desc">Treat HTML/CSS/JS as the executable agentic viewport. Self-contained, no build step, deploy via git push.</div>
+        <span class="lib-status live">● LIVE</span>
+      </div>
+
+      <div class="lib-card" data-lib="skill" onclick="termCmd('^cash')">
+        <span class="lib-type skill">$skill</span>
+        <div class="lib-name">domain-codemode</div>
+        <div class="lib-prompt">>_cdm:</div>
+        <div class="lib-desc">Low-token Code Mode architecture. search()/execute() over the domain stack. One interface, all domains.</div>
+        <span class="lib-status live">● LIVE</span>
+      </div>
+
+      <div class="lib-card" data-lib="skill" onclick="termCmd('#serve')">
+        <span class="lib-type skill">$skill</span>
+        <div class="lib-name">reachy-clerk</div>
+        <div class="lib-prompt">>_r:</div>
+        <div class="lib-desc">Reachy Mini as agentic Stripe clerk. Physical + digital embodiment. Explains #startabusiness to customers.</div>
+        <span class="lib-status draft">DRAFT</span>
+      </div>
+
+      <!-- PRIMITIVES -->
+      <div class="lib-card" data-lib="primitive" onclick="termCmd('unlock')">
+        <span class="lib-type primitive">^primitive</span>
+        <div class="lib-name">+æ</div>
+        <div class="lib-prompt">+_æ:</div>
+        <div class="lib-desc">The primitive. Adds agentic entrepreneurship context to any agent session. Not a brand — a protocol handshake (MCP/1517).</div>
+        <span class="lib-status live">● LIVE</span>
+      </div>
+
+    </div>
+
+    <div class="dao-eq" style="margin-top:8px">
+      <div class="eq-title">hierarchy</div>
+      <div class="eq-row"><span class="field">^primitive</span><span class="val" style="color:#8b87ff">the atom — adds context</span></div>
+      <div class="eq-row"><span class="field">$skill</span><span class="val neon">the procedure — how to do a task</span></div>
+      <div class="eq-row"><span class="field">#blueprint</span><span class="val gold">the organization — IS the DAO</span></div>
+    </div>
+
+    <a class="cta stripe" href="https://partnersps.doola.com/hhsoqhb23250" target="_blank" rel="noopener" style="margin-top:8px">#STARTABUSINESS → form your DAO</a>
+  </main>
+
   <!-- ═══ SOURCE ═══ -->
   <main class="panel-view" data-panel="source">
     <div class="hero"><div class="glyph" style="font-size:36px">&lt;/&gt;</div><p class="thesis">this file <b>is</b> the repo</p></div>
@@ -602,6 +718,23 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>tabT
 function copyCmd(){
   navigator.clipboard&&navigator.clipboard.writeText('hermes skills install https://myaelmendez.github.io/SKILL.md');
   var t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1500);
+}
+
+/* ── library filter ── */
+function filterLib(type){
+  document.querySelectorAll('.fpill').forEach(p=>p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelectorAll('.lib-card').forEach(c=>{
+    c.style.display=(type==='all'||c.dataset.lib===type)?'block':'none';
+  });
+}
+
+/* ── library card → terminal ── */
+function termCmd(cmd){
+  const ti=document.getElementById('termInput'),to=document.getElementById('termOut');
+  ti.value=cmd;
+  ti.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter'}));
+  ti.scrollIntoView({behavior:'smooth'});
 }
 
 /* ── terminal ── */
