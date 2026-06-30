@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#050505"/>
+<title>æ.store • >_æ:#startabusiness→ • The App Store for Robots</title>
+<meta name="description" content="æ.store — mobile-first 9:16 agentic viewport. Install the #startabusiness skill into Hermes Agent. One command, one person, full agency."/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-glow:rgba(212,175,55,.32);--neon:#00ff9d;--ink:#f0ece4;--muted:rgba(240,236,228,.4);--border:rgba(212,175,55,.16);--border-hot:rgba(212,175,55,.5)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100dvh;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
+canvas#mesh{position:fixed;inset:0;z-index:0}
+.scan{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(transparent 0 2px,rgba(212,175,55,.012) 2px 4px)}
+.vig{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 35%,rgba(5,5,5,.92) 100%)}
+.wrap{position:relative;z-index:10;max-width:780px;margin:0 auto;padding:clamp(24px,6vw,64px) clamp(16px,4vw,32px);display:flex;flex-direction:column;gap:clamp(16px,3vh,28px);min-height:100dvh;justify-content:center}
+/* top status */
+.statusbar{display:flex;justify-content:space-between;align-items:center;font-size:clamp(7px,1.1vw,10px);letter-spacing:2px;color:var(--muted);text-transform:uppercase;border:1px solid var(--border);padding:8px 14px}
+.statusbar .live{display:flex;align-items:center;gap:6px;color:var(--neon)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+/* hero */
+.hero{text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center}
+.glyph{font-size:clamp(48px,12vw,96px);filter:drop-shadow(0 0 24px var(--gold-glow));animation:breathe 4s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.cmd{font-family:'Orbitron';font-weight:900;font-size:clamp(22px,6vw,52px);letter-spacing:clamp(1px,.4vw,4px);color:var(--gold);text-shadow:0 0 28px var(--gold-glow);line-height:1}
+.cmd .dim{color:var(--muted)}.cmd .cur{display:inline-block;width:.5ch;background:var(--gold);animation:blink 1s step-end infinite;margin-left:2px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.sub{font-size:clamp(9px,1.8vw,14px);letter-spacing:2px;color:var(--ink);text-transform:uppercase}
+.sub em{font-style:normal;color:var(--gold)}
+.pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:4px}
+.pill{font-size:clamp(6px,1vw,9px);letter-spacing:1.5px;padding:3px 10px;border-radius:999px;border:1px solid var(--border);color:var(--muted);text-transform:uppercase}
+.pill.hot{border-color:rgba(212,175,55,.4);color:var(--gold)}
+/* install panel */
+.install{border:1px solid var(--border-hot);background:rgba(5,5,5,.7);box-shadow:0 0 40px rgba(212,175,55,.08)}
+.install-head{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);font-size:clamp(7px,1.1vw,10px);letter-spacing:2px;color:var(--gold);text-transform:uppercase}
+.install-head .tag{color:var(--neon);border:1px solid rgba(0,255,157,.25);padding:2px 8px;border-radius:999px;font-size:8px}
+.cmd-row{display:flex;align-items:center;gap:12px;padding:16px;cursor:pointer;transition:background .15s}
+.cmd-row:hover{background:rgba(212,175,55,.04)}
+.cmd-prompt{color:var(--gold);font-weight:700;flex-shrink:0}
+.cmd-text{flex:1;color:var(--ink);font-size:clamp(9px,1.6vw,13px);word-break:break-all;line-height:1.5}
+.cmd-text .b{color:var(--gold)}
+.copy{flex-shrink:0;font-size:8px;letter-spacing:1px;color:var(--muted);border:1px solid var(--border);padding:5px 10px;border-radius:4px;text-transform:uppercase;transition:all .15s}
+.cmd-row:hover .copy{border-color:var(--border-hot);color:var(--gold)}
+/* stack grid */
+.stack{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.node{border:1px solid var(--border);padding:12px;text-align:center;transition:all .2s}
+.node:hover{border-color:var(--border-hot);background:rgba(212,175,55,.03)}
+.node .p{font-family:'Orbitron';font-weight:900;color:var(--gold);font-size:clamp(12px,2.5vw,18px)}
+.node .l{font-size:7px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-top:4px}
+/* cta */
+.cta{display:block;text-align:center;background:var(--gold);color:#000;font-family:'Orbitron';font-weight:900;font-size:clamp(11px,2.2vw,16px);letter-spacing:2px;padding:16px;text-decoration:none;border-radius:6px;box-shadow:0 0 30px rgba(212,175,55,.25);transition:all .2s}
+.cta:hover{background:#e8c547;box-shadow:0 0 50px rgba(212,175,55,.4);transform:translateY(-1px)}
+/* footer links */
+.foot{display:flex;flex-wrap:wrap;gap:4px 16px;justify-content:center;font-size:clamp(7px,1.1vw,10px);letter-spacing:1px}
+.foot a{color:var(--muted);text-decoration:none;transition:color .15s}
+.foot a:hover{color:var(--gold)}
+.hash{text-align:center;font-family:'Orbitron';font-weight:700;font-size:clamp(9px,1.6vw,13px);background:linear-gradient(90deg,var(--gold),var(--neon),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--gold);color:#000;font-weight:700;font-size:11px;letter-spacing:1px;padding:10px 20px;border-radius:6px;z-index:100;transition:transform .3s;text-transform:uppercase}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<canvas id="mesh"></canvas><div class="scan"></div><div class="vig"></div>
+
+<div class="wrap">
+
+  <div class="statusbar">
+    <span>æ:// SOVEREIGN RUNTIME</span>
+    <span>MCP/1517</span>
+    <span class="live"><span class="dot"></span>ONLINE</span>
+  </div>
+
+  <div class="hero">
+    <div class="glyph">æ</div>
+    <div class="cmd">&gt;_æ<span class="dim">:</span>#startabusiness<span class="dim">→</span><span class="cur">&nbsp;</span></div>
+    <div class="sub">ONE COMMAND · ONE PERSON · <em>FULL AGENCY</em> · 一人公司</div>
+    <div class="pills">
+      <span class="pill hot">æ.STORE</span>
+      <span class="pill hot">HERMES AGENT</span>
+      <span class="pill">STRIPE</span>
+      <span class="pill">NVIDIA</span>
+      <span class="pill">DAOLLC</span>
+    </div>
+  </div>
+
+  <div class="install">
+    <div class="install-head">
+      <span>INSTALL · SOVEREIGN &gt;LINK</span>
+      <span class="tag">SELF-HOSTED</span>
+    </div>
+    <div class="cmd-row" onclick="cp(this,'hermes skills install https://æ.store/SKILL.md')">
+      <span class="cmd-prompt">$</span>
+      <span class="cmd-text">hermes skills install <span class="b">https://æ.store/SKILL.md</span></span>
+      <span class="copy">COPY</span>
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="node"><div class="p">&gt;_æ:</div><div class="l">namespace</div></div>
+    <div class="node"><div class="p">&gt;_h:</div><div class="l">hermes · route</div></div>
+    <div class="node"><div class="p">&gt;_n:</div><div class="l">nvidia · compute</div></div>
+    <div class="node"><div class="p">&gt;_$:</div><div class="l">stripe · pay</div></div>
+    <div class="node"><div class="p">&gt;_:</div><div class="l">the customer</div></div>
+  </div>
+
+  <a class="cta" href="https://partnersps.doola.com/hhsoqhb23250" target="_blank" rel="noopener">#STARTABUSINESS →</a>
+
+  <div class="hash">æ.store — the App Store for Robots</div>
+
+  <div class="foot">
+    <a href="https://llm.store">llm.store</a>
+    <a href="https://daollc.ai">daollc.ai</a>
+    <a href="https://cli.llc">cli.llc</a>
+    <a href="https://commandprompt.ai">commandprompt.ai</a>
+    <a href="https://privateclient.ai">privateclient.ai</a>
+    <a href="https://x.com/yaelmendez">@yaelmendez</a>
+  </div>
+
+  <div class="hash" style="font-size:clamp(8px,1.4vw,11px);opacity:.7">#hermiphicationisinevitable</div>
+
+</div>
+
+<div class="toast" id="toast">✓ COPIED — paste into Hermes</div>
+
+<script>
+// neural mesh
+const cvs=document.getElementById('mesh'),ctx=cvs.getContext('2d'),DPR=Math.min(devicePixelRatio||1,2);let W,H,nodes=[];
+function resize(){W=cvs.width=innerWidth*DPR;H=cvs.height=innerHeight*DPR;cvs.style.width=innerWidth+'px';cvs.style.height=innerHeight+'px'}
+function init(){resize();const c=Math.floor(W*H/20000)+20;nodes=Array.from({length:c},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.25*DPR,vy:(Math.random()-.5)*.25*DPR,r:(1+Math.random()*1.5)*DPR,ph:Math.random()*6.28}))}
+init();addEventListener('resize',init);const CD=90*DPR;
+function draw(now){ctx.fillStyle='rgba(5,5,5,.16)';ctx.fillRect(0,0,W,H);const t=now*.001;
+nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1});ctx.lineWidth=.4*DPR;
+for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y;if(Math.abs(dx)>CD||Math.abs(dy)>CD)continue;const d=Math.hypot(dx,dy);if(d<CD){ctx.strokeStyle=`rgba(212,175,55,${(1-d/CD)*.12})`;ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke()}}
+nodes.forEach(n=>{const p=.55+Math.sin(t*1.5+n.ph)*.45;ctx.fillStyle=`rgba(212,175,55,${.16+p*.26})`;ctx.beginPath();ctx.arc(n.x,n.y,n.r*p,0,6.28);ctx.fill()});requestAnimationFrame(draw)}
+requestAnimationFrame(draw);
+// copy
+function cp(el,txt){navigator.clipboard&&navigator.clipboard.writeText(txt);const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
+</script>
+</body>
+</html>
