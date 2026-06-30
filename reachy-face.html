@@ -12,8 +12,9 @@
 canvas#mesh{position:fixed;inset:0;z-index:0}
 .face{position:relative;z-index:10;width:100%;height:100dvh;display:flex;align-items:center;justify-content:center}
 .eyes{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,6vw,60px);width:min(92vw,700px)}
-.eye{aspect-ratio:1;border-radius:50%;border:1.5px solid var(--gold);background:radial-gradient(circle at 50% 46%,rgba(212,175,55,.12),rgba(0,0,0,.9) 54%);display:flex;align-items:center;justify-content:center;text-align:center;box-shadow:0 0 60px rgba(212,175,55,.08),inset 0 0 40px rgba(212,175,55,.04);transition:border-color .5s,box-shadow .5s,color .5s}
+.eye{aspect-ratio:1;border-radius:50%;border:1.5px solid var(--gold);background:radial-gradient(circle at 50% 46%,rgba(212,175,55,.12),rgba(0,0,0,.9) 54%);display:flex;align-items:center;justify-content:center;text-align:center;box-shadow:0 0 60px rgba(212,175,55,.08),inset 0 0 40px rgba(212,175,55,.04);transition:border-color .5s,box-shadow .5s}
 .eye .glyph{font-family:'Orbitron';font-weight:900;color:var(--gold);font-size:clamp(28px,10vw,72px);letter-spacing:1px;transition:color .5s}
+.eye .glyph.emoji{font-family:system-ui,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';font-size:clamp(40px,14vw,96px);letter-spacing:0}
 .eye.purple{border-color:rgba(99,91,255,.8);box-shadow:0 0 60px rgba(99,91,255,.2)}
 .eye.purple .glyph{color:#b9b5ff}
 .eye.green{border-color:rgba(0,255,157,.7);box-shadow:0 0 60px rgba(0,255,157,.18)}
@@ -22,16 +23,10 @@ canvas#mesh{position:fixed;inset:0;z-index:0}
 .eye.blue .glyph{color:var(--blue)}
 .blink .glyph{animation:bl 1.05s step-end infinite}
 @keyframes bl{50%{opacity:.08}}
-
-/* status strip */
 .strip{position:fixed;bottom:0;left:0;right:0;z-index:20;display:flex;justify-content:center;align-items:center;gap:12px;padding:8px 16px;font-size:9px;letter-spacing:1.5px;color:var(--muted);border-top:1px solid var(--line);background:rgba(5,5,5,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .strip b{color:var(--gold)}.strip span{color:var(--neon)}
-
-/* top bar */
 .top{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:8px 16px;font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
 .top .live{color:var(--neon)}
-
-/* tap hint */
 .hint{position:fixed;bottom:40px;left:50%;transform:translateX(-50%);z-index:20;font-size:8px;letter-spacing:1.5px;color:rgba(212,175,55,.25);animation:fadehint 3s ease infinite}
 @keyframes fadehint{0%,100%{opacity:.25}50%{opacity:.08}}
 </style>
@@ -46,18 +41,26 @@ canvas#mesh{position:fixed;inset:0;z-index:0}
 const L=document.getElementById('L'),R=document.getElementById('R'),strip=document.getElementById('strip'),hint=document.getElementById('hint');
 let mode=0;
 const modes=[
-{l:'>_æ',r:'|',cls:'blink',strip:'<b>>_æ|</b> agentic prompt live · <span>$OS</span> · <b>hermes skills install https://myaelmendez.github.io/SKILL.md</b>'},
-{l:'#start',r:'biz→',cls:'green',strip:'<b>#startabusiness</b> blueprint loaded · NAICS · formation · Stripe · care'},
-{l:'#dao',r:'⚖',cls:'blue',strip:'<b>#formation</b> provider pluggable · ^atlas · ^doola'},
-{l:'^s',r:'$✓',cls:'purple',strip:'<b>Stripe$</b> cash-register context · economics platform'},
-{l:'^h',r:'route',cls:'green',strip:'<b>Hermesᴴ</b> conductor · NVIDIA computes · Stripe transacts · Doola forms'},
-{l:'$OS',r:'250',cls:'',strip:'<b>$OS#250</b> · 250 businesses · <span>#opensourceware</span> · Happy Birthday, America'},
-{l:'>_æ',r:'|',cls:'blink',strip:'<b>æ.store</b> — the App Store for Robots · <span>#hermiphicationisinevitable</span>'},
+// notation modes
+{l:'>_æ',r:'|',cls:'blink',emoji:false,strip:'<b>>_æ|</b> agentic prompt live · <span>$OS</span> · <b>hermes skills install https://myaelmendez.github.io/SKILL.md</b>'},
+{l:'#start',r:'biz→',cls:'green',emoji:false,strip:'<b>#startabusiness</b> blueprint loaded · NAICS · formation · Stripe · care'},
+{l:'#dao',r:'⚖',cls:'blue',emoji:false,strip:'<b>#formation</b> provider pluggable · ^atlas · ^doola'},
+{l:'^s',r:'$✓',cls:'purple',emoji:false,strip:'<b>Stripe$</b> cash-register context · economics platform'},
+{l:'^h',r:'route',cls:'green',emoji:false,strip:'<b>Hermesᴴ</b> conductor · NVIDIA computes · Stripe transacts · Doola forms'},
+{l:'$OS',r:'250',cls:'',emoji:false,strip:'<b>$OS#250</b> · 250 businesses · <span>#opensourceware</span> · Happy Birthday, America'},
+// emoji modes — universal language
+{l:'🛍️',r:'💰',cls:'green',emoji:true,strip:'<b>shop → money</b> · start your business · no language needed'},
+{l:'📜',r:'🏢',cls:'blue',emoji:true,strip:'<b>blueprint → company</b> · formation · entity · DAOLLC'},
+{l:'💳',r:'✅',cls:'purple',emoji:true,strip:'<b>payment → verified</b> · Stripe · cash register · live'},
+{l:'🤖',r:'🔧',cls:'green',emoji:true,strip:'<b>agent → tools</b> · Hermes · NVIDIA · compute · glocal'},
+{l:'🇺🇸',r:'❤️',cls:'',emoji:true,strip:'<b>America → care</b> · #opensourceware #250 · equip owners with love'},
+{l:'👋',r:'🛍️',cls:'blink',emoji:true,strip:'<b>hello → shop</b> · Reachy greets · the App Store for Robots · æ.store'},
+// back to notation
+{l:'>_æ',r:'|',cls:'blink',emoji:false,strip:'<b>æ.store</b> — the App Store for Robots · <span>#hermiphicationisinevitable</span>'},
 ];
-function setMode(m){const s=modes[m];L.querySelector('.glyph').textContent=s.l;R.querySelector('.glyph').textContent=s.r;L.className='eye '+s.cls;R.className='eye '+s.cls;strip.innerHTML=s.strip}
+function setMode(m){const s=modes[m];const lEl=L.querySelector('.glyph');const rEl=R.querySelector('.glyph');lEl.textContent=s.l;rEl.textContent=s.r;lEl.className=s.emoji?'glyph emoji':'glyph';rEl.className=s.emoji?'glyph emoji':'glyph';L.className='eye '+s.cls;R.className='eye '+s.cls;strip.innerHTML=s.strip}
 document.addEventListener('click',()=>{hint.style.display='none';mode=(mode+1)%modes.length;setMode(mode)});
 function tick(){document.getElementById('clk').textContent=new Date().toTimeString().slice(0,5)}setInterval(tick,1000);tick();
-// mesh
 const cvs=document.getElementById('mesh'),ctx=cvs.getContext('2d'),DPR=Math.min(devicePixelRatio||1,2);let W,H,nodes=[];
 function resize(){W=cvs.width=innerWidth*DPR;H=cvs.height=innerHeight*DPR;cvs.style.width=innerWidth+'px';cvs.style.height=innerHeight+'px'}
 function init(){resize();const c=Math.floor(W*H/20000)+24;nodes=Array.from({length:c},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.18*DPR,vy:(Math.random()-.5)*.18*DPR,r:(1+Math.random()*1.4)*DPR,ph:Math.random()*6.28}))}
