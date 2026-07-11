@@ -83,7 +83,7 @@ Code Mode keeps the stack low-token.
 
 Nous conducts.
 NVIDIA computes.
-Stripe transacts.
+Doola affiliates.
 æ.store names.
 
 æ.store = the App Store for Robots.
