@@ -92,10 +92,19 @@ video{width:100%;border-radius:8px;display:block}
     <div class="row">
       <label for="peerName">node name</label>
       <input id="peerName" type="text" value="legion" autocomplete="off" spellcheck="false"/>
+      <label for="peerPort">port</label>
+      <input id="peerPort" type="text" value="11434" autocomplete="off" spellcheck="false" style="max-width:90px"/>
+      <label for="peerHost">host</label>
+      <input id="peerHost" type="text" value="" placeholder="auto" autocomplete="off" spellcheck="false" style="max-width:140px"/>
       <button id="offerBtn">+æ://mesh offer</button>
     </div>
     <div id="offerOut" class="qr-wrap hidden">
-      <div class="qr-box"><canvas id="offerQr"></canvas></div>
+      <div class="qr-box">
+        <canvas id="offerQr"></canvas>
+        <div class="qr-actions" style="margin-top:10px;display:flex;gap:8px;justify-content:center">
+          <button id="saveQr" class="ghost" style="font-size:9px;padding:7px 12px">+æ://qrcode save</button>
+        </div>
+      </div>
       <div class="qr-meta">
         <div>route: <b id="offerRoute">—</b></div>
         <div style="margin-top:6px">Scan this with the sovereign node, then run the <b>+æ://mesh accept</b> command it produces.</div>
@@ -137,6 +146,7 @@ video{width:100%;border-radius:8px;display:block}
     <a href="./agentic.html">#startabusiness</a>
     <a href="https://github.com/MYaelMendez/gpu-mcp">gpu-mcp</a>
     <a href="./index.html">home</a>
+    <a href="./sovereign-state.html">sovereign-state</a>
   </div>
   <div class="hash">#HERMIPHICATIONISINEVITABLE</div>
 </div>
@@ -144,6 +154,7 @@ video{width:100%;border-radius:8px;display:block}
 <div class="toast" id="toast"></div>
 
 <script src="./assets/qrcode.js"></script>
+<script src="./assets/jsQR.js"></script>
 <script>
 /* ────────────────────────────────────────────────────────────────────────
    QR rendering via vendored qrcode-generator (MIT, Kazuhiko Arase) — verified.
@@ -174,13 +185,23 @@ function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');se
 
 $('#offerBtn').addEventListener('click',()=>{
   const name = ($('#peerName').value||'legion').trim().replace(/[^a-z0-9_-]/gi,'');
+  let port = parseInt($('#peerPort').value||'11434',10); if(!port||port<1||port>65535) port=11434;
+  const host = ($('#peerHost').value||'').trim().replace(/[^a-z0-9._:-]/gi,'') || lanIPGuess();
   const token = tokenHex(16);
-  const lan = lanIPGuess();
-  const manifest = `ae://peer?host=${name}&mesh=pc://mesh/${name}/local&port=11434&token=${token}&via=wifi`;
+  const manifest = `ae://peer?host=${name}&mesh=pc://mesh/${name}/local&port=${port}&token=${token}&via=wifi`;
   QR.render(manifest, $('#offerQr'), 6);
   $('#offerRoute').textContent = `pc://mesh/${name}/local`;
   $('#offerOut').classList.remove('hidden');
   toast('QR emitted');
+});
+
+/* +æ://qrcode save — download the emitted QR as a PNG (local, no cloud) */
+$('#saveQr').addEventListener('click',()=>{
+  const c=$('#offerQr'); if(!c) return;
+  const a=document.createElement('a');
+  a.download=`mesh-peer-${($('#peerName').value||'peer')}.png`;
+  a.href=c.toDataURL('image/png'); a.click();
+  toast('QR saved locally');
 });
 
 /* scan via camera + decode via jsQR if available, else manual paste */
@@ -198,13 +219,15 @@ $('#scanBtn').addEventListener('click', async ()=>{
   }catch(e){ toast('camera denied — use paste'); view.style.display='none'; }
 });
 function pollFrame(video){
-  if(!stream) return;
-  if(typeof jsQR!=='undefined'){
-    const c=document.createElement('canvas');c.width=video.videoWidth;c.height=video.videoHeight;
-    const ctx=c.getContext('2d');ctx.drawImage(video,0,0);
-    const img=ctx.getImageData(0,0,c.width,c.height);
-    const res=jsQR(img.data,c.width,c.height);
-    if(res&&res.data.startsWith('ae://peer')){ handleManifest(res.data); if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;} $('#scanView').style.display='none'; return; }
+  if(!stream||!video.videoWidth) return;
+  const c=document.createElement('canvas');c.width=video.videoWidth;c.height=video.videoHeight;
+  const ctx=c.getContext('2d');ctx.drawImage(video,0,0);
+  let res=null;
+  try{ const img=ctx.getImageData(0,0,c.width,c.height); res=jsQR(img.data,c.width,c.height); }catch(e){}
+  if(res&&res.data&&res.data.startsWith('ae://peer')){
+    handleManifest(res.data);
+    if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+    $('#scanView').style.display='none'; return;
   }
   requestAnimationFrame(()=>pollFrame(video));
 }
