@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>sovereign-state • soft repo • >_æ:</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{--void:#050505;--gold:#D4AF37;--gold-dim:#8a7320;--scan:rgba(212,175,55,.04)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--void);color:var(--gold);font-family:'JetBrains Mono',monospace}
+  body{min-height:100vh;padding:clamp(16px,4vw,48px);position:relative;overflow-x:hidden}
+  body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,var(--scan) 0 1px,transparent 1px 3px);pointer-events:none;z-index:9}
+  h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(1.6rem,5vw,3rem);letter-spacing:.06em;color:var(--gold);text-shadow:0 0 18px rgba(212,175,55,.35)}
+  .sub{color:var(--gold-dim);font-size:.8rem;margin:6px 0 28px;letter-spacing:.04em}
+  .sect{margin:26px 0 10px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:.95rem;color:var(--gold);border-left:3px solid var(--gold);padding-left:10px;letter-spacing:.05em}
+  .card{background:rgba(212,175,55,.03);border:1px solid rgba(212,175,55,.18);border-radius:4px;padding:14px 16px;margin:8px 0;font-size:.82rem;line-height:1.6}
+  .k{color:var(--gold-dim);display:inline-block;min-width:140px}
+  .v{color:var(--gold)}
+  .vp{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px}
+  .badge{font-family:'Orbitron',sans-serif;font-size:.6rem;font-weight:700;color:var(--void);background:var(--gold);padding:2px 7px;border-radius:2px;letter-spacing:.08em}
+  .badge.assured{background:var(--gold)}
+  .badge.pending{background:transparent;border:1px solid var(--gold-dim);color:var(--gold-dim)}
+  .prim{font-size:.8rem;line-height:1.7}
+  .prim b{color:var(--gold);font-family:'Orbitron',sans-serif;font-weight:500}
+  #status{position:fixed;bottom:14px;right:16px;font-size:.68rem;color:var(--gold-dim);z-index:10;border:1px solid rgba(212,175,55,.2);padding:4px 9px;border-radius:3px;background:rgba(5,5,5,.8)}
+  a{color:var(--gold);text-decoration:none;border-bottom:1px dotted var(--gold-dim)}
+  a:hover{color:#fff}
+  .err{color:#fc5185;border-color:#fc5185}
+</style>
+</head>
+<body>
+  <h1>&gt;_æ: sovereign-state</h1>
+  <div class="sub">soft repo — durable memory, externalized &amp; assured // fetched live from memory.json</div>
+
+  <div id="out"><div class="card">booting soft repo link…</div></div>
+
+  <div id="status">link: …</div>
+
+<script>
+const $ = (s,el=document)=>el.querySelector(s);
+function card(html){const d=document.createElement('div');d.className='card';d.innerHTML=html;return d;}
+function kv(k,v){return `<span class="k">${k}</span><span class="v">${v}</span>`;}
+
+async function boot(){
+  const status = $('#status');
+  try{
+    const res = await fetch('./sovereign-state/memory.json',{cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const m = await res.json();
+    status.textContent = 'link: ASSURED ✓';
+    const out = $('#out'); out.innerHTML='';
+
+    // identity
+    out.appendChild(card(`<div class="sect">operator</div>${kv('name',m.identity.operator)}<br>${kv('entity',m.identity.entity)}<br>${kv('github',m.identity.handles.github)}<br>${kv('x',m.identity.handles.x)}`));
+
+    // stack
+    let stack='<div class="sect">stack</div>';
+    for(const [k,v] of Object.entries(m.stack)) stack+=kv(k,v)+'<br>';
+    out.appendChild(card(stack));
+
+    // paths
+    let paths='<div class="sect">paths</div>';
+    for(const [k,v] of Object.entries(m.paths)) paths+=kv(k,v)+'<br>';
+    out.appendChild(card(paths));
+
+    // conventions
+    let conv='<div class="sect">conventions</div>';
+    (m.conventions||[]).forEach(c=>conv+=`▸ ${c}<br>`);
+    out.appendChild(card(conv));
+
+    // viewports
+    out.appendChild(card('<div class="sect">viewports</div>'+kv('bar',m.viewports.assured_bar)));
+    (m.viewports.registry||[]).forEach(vp=>{
+      const b = vp.status && vp.status.includes('FIRST') ? '<span class="badge assured">ASSURED</span>' : '<span class="badge pending">PENDING</span>';
+      out.appendChild(card(`<div class="vp"><b style="color:var(--gold)">${vp.name}</b>${b}</div>${kv('url',`<a href="${vp.url}">${vp.url}</a>`)}<br>${kv('branch',vp.branch||'—')}<br>${(vp.assets||[]).map(a=>'▸ '+a).join('<br>')}<br><span style="color:var(--gold-dim)">${vp.note||''}</span>`));
+    });
+
+    // chassis primitives
+    let prim='<div class="sect">chassis primitives</div><div class="prim">';
+    for(const [k,v] of Object.entries(m.chassis_primitives)) prim+=`<b>${k}</b> — ${v}<br>`;
+    prim+='</div>';
+    out.appendChild(card(prim));
+
+  }catch(e){
+    status.textContent='link: BROKEN ✗';
+    $('#out').innerHTML=`<div class="card err">soft repo link failed: ${e.message}<br>memory.json must be pushed + served at ./sovereign-state/memory.json</div>`;
+  }
+}
+boot();
+</script>
+</body>
+</html>
