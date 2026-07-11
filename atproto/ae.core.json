@@ -1,0 +1,83 @@
+{
+  "lexicon": 1,
+  "id": "ae.core",
+  "defs": {
+    "meshPeer": {
+      "type": "record",
+      "description": "A sovereign mesh peer offer/accept handshake record.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["host", "route", "port", "token", "via", "createdAt"],
+        "properties": {
+          "host": {"type": "string", "maxLength": 64},
+          "route": {"type": "string", "maxLength": 128, "description": "pc://mesh/<name>/local"},
+          "port": {"type": "integer", "minimum": 1, "maximum": 65535},
+          "token": {"type": "string", "maxLength": 64, "description": "ephemeral, never reused"},
+          "via": {"type": "string", "enum": ["wifi", "lan", "tailscale"]},
+          "role": {"type": "string", "enum": ["engineering-computer", "peer"]},
+          "createdAt": {"type": "string", "format": "datetime"}
+        }
+      }
+    },
+    "fleetNode": {
+      "type": "record",
+      "description": "A device in the mixture of devices (MoD).",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["node", "route", "role", "status"],
+        "properties": {
+          "node": {"type": "string", "maxLength": 64},
+          "route": {"type": "string", "maxLength": 128},
+          "role": {"type": "string", "maxLength": 32},
+          "status": {"type": "string", "enum": ["online", "offline", "standby"]},
+          "device": {
+            "type": "ref",
+            "ref": "ae.core#device"
+          },
+          "models": {"type": "array", "items": {"type": "string"}, "maxLength": 32},
+          "agents": {"type": "array", "items": {"type": "string"}, "maxLength": 32},
+          "createdAt": {"type": "string", "format": "datetime"}
+        }
+      }
+    },
+    "device": {
+      "type": "object",
+      "description": "Hardware capability of a fleet node.",
+      "properties": {
+        "gpu": {"type": "string", "maxLength": 64, "description": "e.g. RTX 3050 6GB"},
+        "compute": {"type": "string", "enum": ["rtx://", "cpu", "webgpu"]},
+        "arch": {"type": "string", "maxLength": 32}
+      }
+    },
+    "ledgerEvent": {
+      "type": "record",
+      "description": "Sovereign ledger event (formation, deploy, OSW declaration).",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["kind", "createdAt"],
+        "properties": {
+          "kind": {"type": "string", "maxLength": 48, "description": "e.g. cuda-blueprint-declared"},
+          "meta": {"type": "string", "maxLength": 512},
+          "createdAt": {"type": "string", "format": "datetime"}
+        }
+      }
+    },
+    "sovereignState": {
+      "type": "record",
+      "description": "Durable facts spine (memory.json conventions + identity).",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["convention", "value"],
+        "properties": {
+          "convention": {"type": "string", "maxLength": 64},
+          "value": {"type": "string", "maxLength": 512},
+          "createdAt": {"type": "string", "format": "datetime"}
+        }
+      }
+    }
+  }
+}
