@@ -158,5 +158,10 @@ window.Aether = (() => {
 
 /* expose $ globally — every ae:// surface destructures `const {$, Aether} = window`
    and expects a global querySelector helper. Without this, handlers never bind
-   (e.g. SAVE on the secret bridge silently no-ops). */
-window.$ = (s) => document.querySelector(s);
+   (e.g. SAVE on the secret bridge silently no-ops).
+   Tolerant: bare words ('key') -> getElementById; '#x'/'.x'/selectors -> querySelector.
+   The surfaces mix both styles ($('key') AND $('#mesh')), so $ must accept both. */
+window.$ = (s) =>
+  s && typeof s === "string" && !/^[#.[]/.test(s) && !s.includes(" ")
+    ? document.getElementById(s)
+    : document.querySelector(s);
