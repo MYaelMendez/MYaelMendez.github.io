@@ -155,3 +155,8 @@ window.Aether = (() => {
 
   return { $, tokenHex, toast, QR, lanIP, scanCamera, mesh };
 })();
+
+/* expose $ globally — every ae:// surface destructures `const {$, Aether} = window`
+   and expects a global querySelector helper. Without this, handlers never bind
+   (e.g. SAVE on the secret bridge silently no-ops). */
+window.$ = (s) => document.querySelector(s);
