@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>æ://cuda-vlc · sovereign live stream</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-glow:rgba(212,175,55,.32);--nv:#76b900;--neon:#00ff9d;--ink:#f0ece4;--muted:rgba(240,236,228,.4);--border:rgba(212,175,55,.16);--border-hot:rgba(212,175,55,.5);--cyan:#7fd0ff}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100dvh;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
+canvas#mesh{position:fixed;inset:0;z-index:0;opacity:.4}
+.scan{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(transparent 0 2px,rgba(212,175,55,.012) 2px 4px)}
+.vig{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 35%,rgba(5,5,5,.92) 100%)}
+.wrap{position:relative;z-index:10;max-width:920px;margin:0 auto;padding:clamp(20px,5vw,56px) clamp(14px,4vw,28px);display:flex;flex-direction:column;gap:18px}
+.statusbar{display:flex;justify-content:space-between;align-items:center;font-size:clamp(7px,1.1vw,10px);letter-spacing:2px;color:var(--muted);text-transform:uppercase;border:1px solid var(--border);padding:8px 14px}
+.statusbar .live{display:flex;align-items:center;gap:6px;color:var(--neon)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+.hero{text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+.glyph{font-size:clamp(40px,9vw,72px);filter:drop-shadow(0 0 24px var(--gold-glow))}
+.cmd{font-family:'Orbitron';font-weight:900;font-size:clamp(20px,5vw,42px);letter-spacing:clamp(1px,.4vw,4px);color:var(--gold);text-shadow:0 0 28px var(--gold-glow);line-height:1}
+.cmd .dim{color:var(--muted)}.cmd .cur{display:inline-block;width:.5ch;background:var(--gold);animation:blink 1s step-end infinite;margin-left:2px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.sub{font-size:clamp(9px,1.8vw,13px);letter-spacing:2px;color:var(--ink);text-transform:uppercase}
+.sub em{font-style:normal;color:var(--nv)}
+.panel{border:1px solid var(--border-hot);background:rgba(5,5,5,.7);box-shadow:0 0 40px rgba(212,175,55,.08);padding:16px;display:flex;flex-direction:column;gap:12px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;font-size:clamp(7px,1.1vw,10px);letter-spacing:2px;color:var(--gold);text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:8px}
+.panel-head .tag{color:var(--neon);border:1px solid rgba(0,255,157,.25);padding:2px 8px;border-radius:999px;font-size:8px}
+.bar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.chip{background:#0a0a0f;border:1px solid var(--border);border-radius:9px;padding:8px 10px;text-align:center}
+.chip .k{font-size:8px;color:var(--muted);letter-spacing:1px}
+.chip .v{font-size:14px;color:var(--gold);margin-top:3px}
+.chip .v.nv{color:var(--nv)}.chip .v.neon{color:var(--neon)}.chip .v.cy{color:var(--cyan)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+label{font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+select,input{font-family:inherit;font-size:11px;background:#0a0a0f;color:var(--ink);border:1px solid var(--border-hot);padding:9px 11px;border-radius:6px}
+button{font-family:'Orbitron';font-weight:700;letter-spacing:1.5px;font-size:11px;text-transform:uppercase;color:#000;background:var(--gold);border:none;padding:11px 18px;border-radius:4px;cursor:pointer;transition:all .2s}
+button:hover{background:#e8c547;box-shadow:0 0 30px rgba(212,175,55,.35)}
+button.ghost{background:transparent;color:var(--gold);border:1px solid var(--border-hot)}
+button.ghost:hover{background:rgba(212,175,55,.06)}
+button.nv{background:var(--nv);color:#000}
+button.nv:hover{background:#8fd400;box-shadow:0 0 30px rgba(118,185,0,.4)}
+button:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+.console{background:#060609;border:1px solid var(--border);padding:10px;border-radius:6px;font-size:10px;color:var(--nv);white-space:pre-wrap;min-height:90px;line-height:1.6;max-height:160px;overflow-y:auto}
+.console .err{color:#ff7b72}.console .ok{color:var(--neon)}
+.linkrow{display:flex;flex-wrap:wrap;gap:8px}
+.linkrow a{color:var(--gold);text-decoration:none;border-bottom:1px dotted var(--gold);font-size:11px}
+.foot{display:flex;flex-wrap:wrap;gap:4px 16px;justify-content:center;font-size:clamp(7px,1.1vw,10px);letter-spacing:1px}
+.foot a{color:var(--muted);text-decoration:none}
+.foot a:hover{color:var(--gold)}
+.hash{text-align:center;font-family:'Orbitron';font-weight:700;font-size:clamp(9px,1.6vw,13px);background:linear-gradient(90deg,var(--gold),var(--neon),var(--nv),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--gold);color:#000;font-weight:700;font-size:11px;letter-spacing:1px;padding:10px 20px;border-radius:6px;z-index:100;transition:transform .3s;text-transform:uppercase}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<canvas id="mesh"></canvas><div class="scan"></div><div class="vig"></div>
+<div class="wrap">
+
+  <div class="statusbar">
+    <span>æ:// CUDA-VLC</span>
+    <span>NVENC · LOCAL-ONLY</span>
+    <span class="live"><span class="dot"></span>SOVEREIGN</span>
+  </div>
+
+  <div class="hero">
+    <div class="glyph">æ</div>
+    <div class="cmd">&gt;_æ<span class="dim">:</span>cuda-vlc<span class="cur">&nbsp;</span></div>
+    <div class="sub">CUDA HANDS → NVENC → <em>VLC LIVE STREAM</em> · NO CLOUD RENT</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>TELEMETRY</span><span class="tag" id="mode">IDLE</span></div>
+    <div class="bar">
+      <div class="chip"><div class="k">ENCODER</div><div class="v nv" id="enc">h264_nvenc</div></div>
+      <div class="chip"><div class="k">STATE</div><div class="v neon" id="state">idle</div></div>
+      <div class="chip"><div class="k">PORT</div><div class="v cy" id="port">—</div></div>
+      <div class="chip"><div class="k">VLC</div><div class="v" id="vlc">—</div></div>
+    </div>
+    <div class="console" id="con">awaiting command…</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>STREAM CONTROL</span><span class="tag">+æ://cuda-vlc</span></div>
+    <div class="row">
+      <label for="src">SOURCE</label>
+      <select id="src">
+        <option value="test">testsrc (loop)</option>
+        <option value="gpu">gpu · CUDA telemetry viz</option>
+      </select>
+      <button class="nv" id="play">▶ GO LIVE</button>
+      <button class="ghost" id="stop">■ STOP</button>
+      <button class="ghost" id="stat">⟳ STATUS</button>
+    </div>
+    <div class="code" style="font-size:10px;color:var(--muted)">scheme: <b style="color:var(--gold)">+æ://cuda-vlc play &lt;src&gt;</b> · ffmpeg listens on <b style="color:var(--cyan)">tcp://localhost:17344</b> · VLC connects as client · encoder = RTX NVENC</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>THE PIPELINE</span><span class="tag">LOCAL</span></div>
+    <div class="linkrow">
+      <a href="./gpu-preview.html">gpu-preview (agent)</a>
+      <a href="./sim.html">glocal-agent sim</a>
+      <a href="./fleet.html">+æ://fleet</a>
+      <a href="./mesh-agenti.html">+æ://mesh</a>
+    </div>
+    <div class="code" style="margin-top:8px;font-size:10px;line-height:1.7">
+      source (testsrc | gpu_mcp) → <b style="color:var(--nv)">ffmpeg -c:v h264_nvenc</b> (CUDA silicon)<br>
+      → <b style="color:var(--cyan)">mpegts over tcp://localhost:17344?listen</b> → <b style="color:var(--gold)">vlc://play tcp://localhost:17344</b><br>
+      all on Victus. GPU pays, nobody rents. #opensourceware.
+    </div>
+  </div>
+
+  <div class="foot">
+    <a href="./index.html">home</a>
+    <a href="./cuda-blueprint.html">cuda-blueprint</a>
+    <a href="./sovereign-state.html">sovereign-state</a>
+    <a href="./fleet.html">fleet</a>
+  </div>
+  <div class="hash">#HERMIPHICATIONISINEVITABLE</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="./assets/qrcode.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const SCHEME="+æ://cuda-vlc";
+const con=$('#con');
+function log(m,cls=''){const el=document.createElement('div');if(cls)el.className=cls;el.textContent=m;con.appendChild(el);con.scrollTop=con.scrollHeight;}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600);}
+
+/* conductor bridge — this GUI is agentic: it drives +æ://cuda-vlc.
+   In the viewport host the calls go through the hermes conductor; here we
+   talk to the local conductor HTTP bridge if present, else fall back to a
+   status-only read. Replace BRIDGE with your conductor endpoint. */
+const BRIDGE = null; // e.g. "http://localhost:3007/conductor" — set by host
+async function hermes(cmd){
+  if(!BRIDGE){ // no bridge in standalone page → reflect locally, log intent
+    log('cuda-vlc → '+cmd+'  (bridge offline; run via conductor)', '');
+    return {offline:true, stdout:''};
+  }
+  const r=await fetch(BRIDGE,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({cmd})});
+  return await r.json();
+}
+
+async function refresh(){
+  const r=await hermes(SCHEME+' status');
+  if(r.offline){ // cannot read live — keep UI from lying
+    $('#mode').textContent='OFFLINE';$('#state').textContent='no bridge';
+    return;
+  }
+  const live=!!r.live, port=r.port||0;
+  $('#mode').textContent=live?'LIVE':'IDLE';
+  $('#mode').style.color=live?'var(--neon)':'var(--muted)';
+  $('#state').textContent=live?'LIVE':'idle';
+  $('#port').textContent=port?(':'+port):'—';
+  $('#vlc').textContent=live?'playing':'—';
+}
+
+$('#play').addEventListener('click',async()=>{
+  const src=$('#src').value;
+  $('#play').disabled=true;
+  log('▶ dispatching '+SCHEME+' play '+src,'ok');
+  const r=await hermes(SCHEME+' play '+src);
+  if(!r.offline){
+    log(r.stdout.trim()||'launched','ok');
+    if(r.encoder) log('encoder: '+r.encoder,'');
+    toast('NVENC stream LIVE');
+  }
+  setTimeout(()=>$('#play').disabled=false,800);
+  refresh();
+});
+$('#stop').addEventListener('click',async()=>{
+  log('■ '+SCHEME+' stop','');
+  const r=await hermes(SCHEME+' stop');
+  if(!r.offline) log(r.stdout.trim()||'stopped','ok');
+  toast('stream stopped');refresh();
+});
+$('#stat').addEventListener('click',refresh);
+
+refresh();
+setInterval(refresh,4000);
+
+/* neural mesh canvas */
+const cv=$('#mesh'),cx=cv.getContext('2d');let W,H,pts;
+function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight;pts=Array.from({length:60},()=>[Math.random()*W,Math.random()*H,Math.random()*0.4+0.1,Math.random()*0.4+0.1]);}
+addEventListener('resize',resize);resize();
+(function loop(){cx.clearRect(0,0,W,H);cx.strokeStyle='rgba(212,175,55,.05)';cx.fillStyle='rgba(212,175,55,.5)';
+for(const p of pts){p[0]+=p[2];p[1]+=p[3];if(p[0]<0||p[0]>W)p[2]*=-1;if(p[1]<0||p[1]>H)p[3]*=-1;cx.beginPath();cx.arc(p[0],p[1],1.2,0,7);cx.fill();}
+for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const a=pts[i],b=pts[j];const d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(d<120){cx.globalAlpha=(120-d)/120*0.12;cx.beginPath();cx.moveTo(a[0],a[1]);cx.lineTo(b[0],b[1]);cx.stroke();}}cx.globalAlpha=1;requestAnimationFrame(loop);})();
+</script>
+</body>
+</html>
