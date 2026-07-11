@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>æ://porter · local brain · nous portal default</title>
+<meta name="description" content="porter — the routing viewport. Small WebLLM brain runs locally on the device; Nous Portal is the default upstream when a key is present. Zero cloud for local, opt-in portal.">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./assets/aether.css">
+<style>
+.chat{display:flex;flex-direction:column;gap:10px;min-height:260px;max-height:46vh;overflow-y:auto;background:#060609;border:1px solid var(--border);padding:12px;border-radius:6px}
+.msg{border:1px solid var(--border);border-radius:6px;padding:9px 11px;font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.msg.user{border-color:rgba(212,175,55,.4);background:rgba(212,175,55,.05)}
+.msg.assistant{border-color:rgba(0,255,157,.25);background:rgba(0,255,157,.04)}
+.msg .who{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px}
+.msg.assistant .who{color:var(--neon)}
+.route{font-size:9px;color:var(--cyan);margin-top:4px;letter-spacing:1px}
+.composer{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.composer textarea{flex:1;min-height:54px;min-width:200px;background:#0b0b0b;border:1px solid var(--border);color:var(--ink);font-family:inherit;font-size:12px;padding:10px;border-radius:4px;outline:none;resize:vertical}
+.composer textarea:focus{border-color:var(--border-hot)}
+.toggle-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.switch{display:flex;align-items:center;gap:7px;font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+.switch input{accent-color:var(--gold);width:15px;height:15px}
+.muted{color:var(--muted);font-size:10px;line-height:1.6}
+.b{color:var(--gold)}
+.cy{color:var(--cyan)}
+</style>
+</head>
+<body>
+<canvas id="mesh"></canvas><div class="scan"></div><div class="vig"></div>
+<div class="wrap">
+
+  <div class="statusbar">
+    <span>æ:// PORTER</span>
+    <span id="routeTag">LOCAL-ONLY</span>
+    <span class="live"><span class="dot"></span><span id="liveTag">BOOT</span></span>
+  </div>
+
+  <div class="hero">
+    <div class="glyph">æ</div>
+    <div class="cmd">&gt;_h<span class="dim">:</span>porter<span class="cur">&nbsp;</span></div>
+    <div class="sub">LOCAL WEBLLM BRAIN · <em>NOUS PORTAL = DEFAULT UPSTREAM</em></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>ROUTING</span><span class="tag" id="mode">LOCAL</span></div>
+    <div class="toggle-row">
+      <label class="switch"><input type="checkbox" id="portalOn"> portal routing</label>
+      <label class="switch"><input type="checkbox" id="forcePortal"> force portal</label>
+      <span class="muted">key: <span id="keyState" class="b">checking…</span></span>
+    </div>
+    <div class="muted" style="margin-top:6px">
+      Local brain (WebLLM/Qwen) runs on <span class="b">your device</span> — zero cloud. Flip <span class="b">portal routing</span> to also reach
+      <span class="cy">Nous Portal</span> as default upstream (key from secret-bridge). Force = always portal.
+    </div>
+    <div class="muted" id="portalStatus">·</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>VIEWPORT · &gt;_h:</span><span class="tag" id="modelTag">loading…</span></div>
+    <div class="chat" id="chat">
+      <div class="msg assistant"><span class="who">porter</span>Booting local brain… if WebGPU is unavailable, this viewport runs portal-only (key required).</div>
+    </div>
+    <div class="composer">
+      <textarea id="input" placeholder="intent → the viewport routes it (local, then portal)…"></textarea>
+      <button id="send" class="primary">send</button>
+    </div>
+  </div>
+
+  <div class="foot">
+    <a href="./index.html">hub</a>
+    <a href="./mesh-agenti.html">mesh</a>
+    <a href="./fleet.html">fleet</a>
+    <a href="./cuda-vlc.html">cuda-vlc</a>
+    <a href="./secret-source-bridge.html">secret-bridge</a>
+    <a href="./demo.html">demo</a>
+    <a href="./sovereign-state.html">sovereign-state</a>
+  </div>
+  <div class="hash">#HERMIPHICATIONISINEVITABLE</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.46/dist/web-llm.min.js"></script>
+<script src="./assets/aether.js"></script>
+<script>
+const {$, Aether} = window;
+const PORTAL = "https://inference-api.nousresearch.com/v1";
+const MODEL = "Qwen2.5-0.5B-Instruct-q4f16_1-MLC";
+const chat = $('#chat');
+
+let engine = null;        // local WebLLM engine
+let portalAvailable = false;
+let portalKey = null;
+
+function addMsg(role, text, route){
+  const m = document.createElement('div');
+  m.className = 'msg ' + (role==='user'?'user':'assistant');
+  m.innerHTML = `<span class="who">${role}</span>${escapeHtml(text)}` + (route?`<div class="route">↳ ${route}</div>`:'');
+  chat.appendChild(m); chat.scrollTop = chat.scrollHeight;
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function setRoute(tag, mode, live){
+  $('#routeTag').textContent = tag;
+  $('#mode').textContent = mode;
+  $('#liveTag').textContent = live;
+}
+
+/* ── key from secret-bridge (opt-in, local-only) ── */
+function readPortalKey(){
+  try{
+    const raw = localStorage.getItem('hermes.secret.source.bridge.store.v1');
+    if(!raw) return null;
+    const secrets = JSON.parse(raw);
+    const hit = secrets.find(s => s.key && s.key.toUpperCase()==='NOUS_PORTAL_KEY');
+    return hit ? hit.value : null;
+  }catch(e){ return null; }
+}
+
+/* ── CORS probe: can the browser reach Nous Portal? ── */
+async function probePortal(key){
+  try{
+    const r = await fetch(`${PORTAL}/models`, {headers:{Authorization:`Bearer ${key}`}});
+    return r.ok;
+  }catch(e){ return false; }
+}
+
+async function boot(){
+  portalKey = readPortalKey();
+  $('#keyState').textContent = portalKey ? 'present' : 'absent (local-only)';
+  if(portalKey){
+    $('#portalStatus').textContent = 'probing Nous Portal CORS…';
+    portalAvailable = await probePortal(portalKey);
+    $('#portalStatus').textContent = portalAvailable
+      ? 'Nous Portal reachable from browser ✓ — default upstream when routing on'
+      : 'Nous Portal CORS-blocked from browser ✗ — use Victus conductor as porter, or add a CORS proxy';
+    setRoute(portalAvailable?'LOCAL+PORTAL':'LOCAL-ONLY', portalAvailable?'HYBRID':'LOCAL', 'READY');
+  } else {
+    setRoute('LOCAL-ONLY','LOCAL','READY');
+  }
+
+  // local brain
+  if(!window.WebLLM){ setRoute('PORTAL-ONLY','PORTAL','NEED KEY'); addMsg('porter','WebLLM CDN unavailable and no WebGPU — portal-only mode (needs key).'); return; }
+  try{
+    engine = await window.WebLLM.CreateMLCEngine(MODEL, {
+      initProgressCallback:(r)=>{ $('#modelTag').textContent = `loading ${Math.round(r.progress*100)}%`; }
+    });
+    $('#modelTag').textContent = MODEL.split('-').slice(0,2).join('-');
+    addMsg('porter', `Local brain online: ${MODEL}. Route: local first; portal when enabled.`);
+  }catch(e){
+    addMsg('porter', 'Local brain failed to load (no WebGPU?): '+String(e).slice(0,120));
+    setRoute(portalAvailable?'PORTAL-READY':'OFFLINE', portalAvailable?'PORTAL':'OFFLINE','NEED KEY');
+  }
+}
+
+async function route(intent){
+  const usePortal = ($('#forcePortal').checked) || (($('#portalOn').checked) && portalAvailable);
+  if(usePortal && portalKey){
+    try{
+      const r = await fetch(`${PORTAL}/chat/completions`, {
+        method:'POST', headers:{'Content-Type':'application/json', Authorization:`Bearer ${portalKey}`},
+        body: JSON.stringify({model:'hermes', messages:[{role:'user',content:intent}], stream:false})
+      });
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const d = await r.json();
+      return {text: d.choices[0].message.content, route:'NOUS PORTAL (default upstream)'};
+    }catch(e){ return {text:'[portal error] '+String(e).slice(0,140), route:'PORTAL FAIL'}; }
+  }
+  if(engine){
+    const r = await engine.chat.completions.create({messages:[{role:'user',content:intent}], stream:false});
+    return {text: r.choices[0].message.content, route:'LOCAL WEBLLM (sovereign)'};
+  }
+  return {text:'No local brain and no portal key — cannot route.', route:'UNROUTED'};
+}
+
+$('#send').addEventListener('click', async ()=>{
+  const txt = $('#input').value.trim(); if(!txt) return;
+  $('#input').value='';
+  addMsg('user', txt);
+  const {text, route} = await route(txt);
+  addMsg('assistant', text, route);
+});
+$('#input').addEventListener('keydown', e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('#send').click();} });
+
+$('#portalOn').addEventListener('change', ()=>{
+  if($('#portalOn').checked && !portalKey) Aether.toast('no NOUS_PORTAL_KEY in secret-bridge');
+});
+
+boot();
+Aether.mesh();
+</script>
+</body>
+</html>
