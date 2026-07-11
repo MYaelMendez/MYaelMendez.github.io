@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>glocal cuda blueprint • #opensourceware #hermiphicationisinevitable</title>
+<meta name="description" content="GLOCAL CUDA model: the droplet is the public brain/identity, Victus RTX 3050 is the sovereign silicon, a cloud pod is the burst hand. All three are Mixture-of-Devices nodes addressed as one +æ://route tower — codemode, not server-admin.">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-glow:rgba(212,175,55,.32);--neon:#00ff9d;--ink:#f0ece4;--muted:rgba(240,236,228,.4);--border:rgba(212,175,55,.16);--border-hot:rgba(212,175,55,.5);--dur:.2s;--ease:cubic-bezier(.2,.7,.2,1)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100dvh;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
+canvas#mesh{position:fixed;inset:0;z-index:0}
+.scan{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(transparent 0 2px,rgba(212,175,55,.012) 2px 4px)}
+.vig{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 35%,rgba(5,5,5,.92) 100%)}
+.wrap{position:relative;z-index:10;max-width:840px;margin:0 auto;padding:clamp(20px,5vw,56px) clamp(14px,4vw,28px);display:flex;flex-direction:column;gap:clamp(14px,2.6vh,24px)}
+.statusbar{display:flex;justify-content:space-between;align-items:center;font-size:clamp(7px,1.1vw,10px);letter-spacing:2px;color:var(--muted);text-transform:uppercase;border:1px solid var(--border);padding:8px 14px}
+.statusbar .live{display:flex;align-items:center;gap:6px;color:var(--neon)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+.hero{text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+.glyph{font-size:clamp(44px,11vw,88px);filter:drop-shadow(0 0 24px var(--gold-glow));animation:breathe 4s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.cmd{font-family:'Orbitron';font-weight:900;font-size:clamp(20px,5.5vw,46px);letter-spacing:clamp(1px,.4vw,4px);color:var(--gold);text-shadow:0 0 28px var(--gold-glow);line-height:1}
+.cmd .dim{color:var(--muted)}.cmd .cur{display:inline-block;width:.5ch;background:var(--gold);animation:blink 1s step-end infinite;margin-left:2px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.sub{font-size:clamp(9px,1.8vw,13px);letter-spacing:2px;color:var(--ink);text-transform:uppercase}
+.sub em{font-style:normal;color:var(--gold)}
+.pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.pill{font-size:clamp(6px,1vw,9px);letter-spacing:1.5px;padding:3px 10px;border-radius:999px;border:1px solid var(--border);color:var(--muted);text-transform:uppercase}
+.pill.hot{border-color:rgba(212,175,55,.4);color:var(--gold)}
+.panel{border:1px solid var(--border-hot);background:rgba(5,5,5,.7);box-shadow:0 0 40px rgba(212,175,55,.08);padding:16px;display:flex;flex-direction:column;gap:12px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;font-size:clamp(7px,1.1vw,10px);letter-spacing:2px;color:var(--gold);text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:8px}
+.panel-head .tag{color:var(--neon);border:1px solid rgba(0,255,157,.25);padding:2px 8px;border-radius:999px;font-size:8px}
+.diagram{font-size:11px;line-height:1.8;color:var(--muted);background:#0b0b0b;border:1px solid var(--border);padding:14px;border-radius:4px;white-space:pre-wrap;word-break:break-word}
+.diagram b{color:var(--gold)}.diagram .n{color:var(--neon)}.diagram .x{color:#ff6b6b}
+.steps{counter-reset:s;display:flex;flex-direction:column;gap:10px}
+.step{counter-increment:s;display:flex;gap:12px;align-items:flex-start;font-size:11px;color:var(--ink);line-height:1.6}
+.step::before{content:counter(s);flex-shrink:0;width:22px;height:22px;border-radius:50%;border:1px solid var(--border-hot);color:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Orbitron';font-weight:900;font-size:11px}
+.code{font-size:10px;color:var(--muted);background:#0b0b0b;border:1px solid var(--border);padding:12px;border-radius:4px;line-height:1.8;white-space:pre-wrap;word-break:break-word}
+.code b{color:var(--gold)}.code .c{color:var(--neon)}.code .x{color:#ff6b6b}
+.linkrow{display:flex;flex-wrap:wrap;gap:8px}
+.linkrow a{color:var(--gold);text-decoration:none;border-bottom:1px dotted var(--gold);font-size:11px}
+.linkrow a:hover{color:#fff}
+.lie{color:#ff6b6b}
+.ok{color:var(--neon)}
+.foot{display:flex;flex-wrap:wrap;gap:4px 16px;justify-content:center;font-size:clamp(7px,1.1vw,10px);letter-spacing:1px}
+.foot a{color:var(--muted);text-decoration:none;transition:color .15s}
+.foot a:hover{color:var(--gold)}
+.hash{text-align:center;font-family:'Orbitron';font-weight:700;font-size:clamp(9px,1.6vw,13px);background:linear-gradient(90deg,var(--gold),var(--neon),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
+</style>
+</head>
+<body>
+<canvas id="mesh"></canvas><div class="scan"></div><div class="vig"></div>
+<div class="wrap">
+
+  <div class="statusbar">
+    <span>æ:// GLOCAL CUDA</span>
+    <span>MIXTURE OF DEVICES</span>
+    <span class="live"><span class="dot"></span>ROUTE TOWER</span>
+  </div>
+
+  <div class="hero">
+    <div class="glyph">æ</div>
+    <div class="cmd">GLOCAL <span class="dim">CUDA</span><span class="cur"></span></div>
+    <div class="sub">brain on <em>droplet</em> · hands on <em>victus</em> · burst on <em>cloud</em></div>
+    <div class="pills">
+      <span class="pill hot">#opensourceware</span>
+      <span class="pill">#hermiphicationisinevitable</span>
+      <span class="pill">mixture of devices</span>
+      <span class="pill">codemode</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>THE MODEL</span><span class="tag">NON-NEGOTIABLE</span></div>
+    <div class="diagram"><b>public droplet</b> (129.212.180.252:3000) ── BRAIN: identity / data / rtx3050:// front door ──┐
+        │ reverse SSH tunnel (key-only)
+        ▼
+<b>Victus RTX 3050</b> (127.0.0.1:3050) ── SOVEREIGN HANDS: real CUDA, offline-capable ──┤
+        │ +æ://route register vps://cloud &lt;ep&gt;
+        ▼
+<b>cloud pod</b> (RunPod / Vast / DO-gpu) ── BURST HANDS: same vps_node, per-job cost ──┘
+
+<span class="n">ALL THREE are Mixture-of-Devices nodes. One +æ://route tower addresses them.
+Codemode: a device is a language-op, not a server you SSH into.</span></div>
+    <div class="row" style="font-size:11px;color:var(--muted);line-height:1.7">
+      <span><b style="color:var(--gold)">Brain</b> is public (droplet). It holds <span class="x">zero keys</span> — secrets stay on Victus via +æ://secrets.</span><br>
+      <span><b style="color:var(--gold)">Hands</b> (RTX 3050) run the silicon. Reached only through the tunnel; never directly exposed.</span><br>
+      <span><b style="color:var(--gold)">Burst</b> (cloud) is optional, codemode-ready: provision on demand, register, dispatch, tear down.</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>BRING UP THE BRIDGE</span><span class="tag">FLOW</span></div>
+    <div class="steps">
+      <div class="step"><div><b>Victus side</b> — self-healing GPU endpoint + reverse tunnel:</div></div>
+    </div>
+    <div class="code">bash rtx-bridge.sh up        <span class="c"># gpu endpoint + tunnel (restart-on-death loops)</span>
+bash rtx-bridge.sh test       <span class="c"># E2E: matmul dispatched droplet → tunnel → RTX 3050</span>
+bash rtx-bridge.sh install    <span class="c"># systemd --user unit: survives Victus reboot</span>
+bash rtx-bridge.sh down       <span class="c"># tear down</span></div>
+    <div class="steps">
+      <div class="step"><div><b>Prove it</b> — a request to the public droplet runs a kernel on the local GPU:</div></div>
+    </div>
+    <div class="code">ssh root@129.212.180.252 \
+  "curl -s 'http://127.0.0.1:3050/xrpc/ae.vps.rtx?op=matmul&n=512'"
+<span class="ok"># → {"ok":true,"probe":{"name":"NVIDIA GeForce RTX 3050 6GB..."},"run":{"host_ms":~496}}</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>ROUTE TOWER CONTRACT</span><span class="tag">+æ://route</span></div>
+    <div class="code">+æ://route                        <span class="c"># list MoD: Victus + neuromitosis + cloud slot</span>
++æ://route register vps://cloud &lt;ep&gt; --host &lt;h&gt;   <span class="c"># add a burst pod as addressable route</span>
+vps://neuromitosis               <span class="c"># probe droplet liveness + records + compute</span>
+vps://cloud                      <span class="c"># probe burst pod (after register)</span>
+
+dispatch (agent → GPU):
+  vps_node.dispatch_rtx(op, n)  → gpu_mcp GPUAgent: probe → compile → run
+  op ∈ {matmul, ...}  n = matrix dim</div>
+    <div class="steps">
+      <div class="step"><div><b>Cost discipline</b> — sovereign hands (RTX 3050) are free and offline-capable. Cloud is <span class="lie">per-job only</span>: spin up, register, run, destroy. Never leave a pod idle.</div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>PROVISION A CLOUD HAND</span><span class="tag">CODEMODE</span></div>
+    <div class="steps">
+      <div class="step"><div>Pick a pod host (RunPod / Vast.ai cheapest burst; DO-gpu native but needs a GPU-access request + heavier commit).</div></div>
+      <div class="step"><div>Deploy the <b>identical</b> <code>vps_node.py</code> + <code>secret_source.py</code> (same chassis, different physical hands). Keys stay local via +æ://secrets — the pod gets a token from the broker, never a file.</div></div>
+      <div class="step"><div>Register it:</div></div>
+    </div>
+    <div class="code">+æ://route register vps://cloud http://&lt;pod-ip&gt;:3000 --host runpod-rtx4090
+curl -s 'http://&lt;pod-ip&gt;:3000/xrpc/ae.vps.rtx?op=matmul&n=1024'   <span class="c"># verify burst hands</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>PITFALLS</span><span class="tag">AVOID</span></div>
+    <div class="steps">
+      <div class="step"><div><b class="lie">Zombie endpoint</b> — an old <code>vps_node</code> holding :3050 serves stale code and masks your fixes. Kill by PID (taskkill) before re-probing. The <code>while true</code> wrapper restarts on death; a leftover orphan does not.</div></div>
+      <div class="step"><div><b>GPU context contention</b> — two processes can't both own the CUDA context. One endpoint per GPU. Foreground test + background server collide → <code>list index out of range</code>.</div></div>
+      <div class="step"><div><b>Cloud cost creep</b> — a forgotten pod is the only recurring bill here. Destroy on idle; the route slot stays codemode-ready with no spend.</div></div>
+      <div class="step"><div><b>Keys on the pod</b> — never bake a token into the image. The pod resolves secrets at runtime via +æ://secrets broker (or an env inject), same as Victus.</div></div>
+      <div class="step"><div><b>Treat the droplet as brain, not hands</b> — it has no GPU; <code>rtx3050://ready</code> is an advertisement. Real silicon is Victus/cloud behind the tunnel.</div></div>
+      <div class="step"><div><b>C:\ae vs C:\æ</b> — unicode path is real. Latin silently fails (same trap as secrets).</div></div>
+    </div>
+  </div>
+
+  <div class="linkrow" style="justify-content:center">
+    <a href="./glocal-cuda-mesh.html">↳ cuda mesh (live)</a>
+    <a href="./glocal-secrets-blueprint.html">↳ glocal secrets</a>
+    <a href="./index.html">↳ hub</a>
+  </div>
+
+  <div class="foot">
+    <a href="./index.html">hub</a><a href="./mesh-agenti.html">mesh</a><a href="./fleet.html">fleet</a>
+    <a href="./cuda-vlc.html">cuda-vlc</a><a href="./porter.html">porter</a><a href="./demo.html">demo</a>
+    <a href="./sovereign-state.html">sovereign-state</a>
+  </div>
+  <div class="hash">#hermiphicationisinevitable</div>
+</div>
+<script src="./assets/aether.js?v=2"></script>
+<script>
+if(window.Aether && Aether.mount){Aether.mount('#mesh','#D4AF37');}
+</script>
+</body>
+</html>
