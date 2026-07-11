@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#050505"/>
+<title>æ:// DEMO · Sovereign Private Client Mesh</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="./assets/aether.css">
+<style>
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.chip{border:1px solid var(--border);padding:8px 10px;color:var(--muted);font-size:11px;background:rgba(212,175,55,.04);min-width:140px}
+.chip b{color:var(--gold)}
+.pipe{color:var(--muted);font-size:11px;margin-top:10px}
+.pipe span{opacity:.7}
+.logshell{margin-top:24px;border:1px solid var(--border);padding:14px;background:rgba(5,5,5,.6);color:var(--muted);font-size:11px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.logshell .ok{color:var(--neon)}
+.card .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.card a{color:var(--gold);text-decoration:none}
+.card a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<canvas id="mesh"></canvas><div class="scan"></div><div class="vig"></div>
+<div class="wrap">
+
+  <div class="statusbar">
+    <span>æ:// DEMO</span>
+    <span>LOCAL + WEB MIRROR</span>
+    <span class="live"><span class="dot"></span>SOVEREIGN</span>
+  </div>
+
+  <div class="hero">
+    <div class="glyph">æ</div>
+    <div class="cmd">&gt;_æ<span class="cur">&nbsp;</span></div>
+    <div class="sub">INTEGRATED LOCAL HTML + VSCODE SOVEREIGN SYSTEM · PROTOTYPE</div>
+  </div>
+
+  <div class="chips">
+    <div class="chip"><b>runtime</b> local browser</div>
+    <div class="chip"><b>mesh</b> 127.0.0.1</div>
+    <div class="chip"><b>state</b> <span id="state-chip">sovereign</span></div>
+    <div class="chip"><b>access</b> owner-only</div>
+    <div class="chip"><b>vscode</b> <span id="vscode-chip">detecting…</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>◈ SURFACES</span><span class="tag">WEB MIRROR</span></div>
+    <div class="grid-3">
+      <div class="card">
+        <div class="name">MESH AGENTI</div>
+        <div class="meta">Pair two sovereign nodes via QR</div>
+        <div class="row"><a href="./mesh-agenti.html">open →</a></div>
+      </div>
+      <div class="card">
+        <div class="name">FLEET</div>
+        <div class="meta">MoD×MoA×MoM device mixture</div>
+        <div class="row"><a href="./fleet.html">open →</a></div>
+      </div>
+      <div class="card">
+        <div class="name">CUDA · VLC</div>
+        <div class="meta">CUDA→NVENC→VLC live stream</div>
+        <div class="row"><a href="./cuda-vlc.html">open →</a></div>
+      </div>
+      <div class="card">
+        <div class="name">SECRET BRIDGE</div>
+        <div class="meta">Local secret manager</div>
+        <div class="row"><a href="./secret-source-bridge.html">open →</a></div>
+      </div>
+      <div class="card">
+        <div class="name">SOVEREIGN STATE</div>
+        <div class="meta">Memory + ledger + #250 spine</div>
+        <div class="row"><a href="./sovereign-state.html">open →</a></div>
+      </div>
+      <div class="card">
+        <div class="name">HUB</div>
+        <div class="meta">Unified homebase</div>
+        <div class="row"><a href="./index.html">open →</a></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>◈ RUNTIME</span><span class="tag">LOCAL</span></div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="name">COMPUTER USE</div>
+        <div class="meta">Native Win32 primitive · local-only</div>
+      </div>
+      <div class="card">
+        <div class="name">VSCODE REMOTE</div>
+        <div class="meta">Local editor surface · vscode-remote-use</div>
+      </div>
+      <div class="card">
+        <div class="name">SECRET SOURCE</div>
+        <div class="meta">Local bridge · opt-in broker</div>
+      </div>
+      <div class="card">
+        <div class="name">CUDA HANDS</div>
+        <div class="meta">gpu-mcp · RTX 3050 on Victus</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="logshell" id="log">
+[BOOT] æ:// demo surface initialized
+[DEMO] HTML surfaces + VS Code primitive linked
+[DEMO] web mirror of C:\æ\site\demo.html · run locally for full bridge
+  </div>
+
+  <div class="foot">
+    <a href="./index.html">hub</a>
+    <a href="./mesh-agenti.html">mesh</a>
+    <a href="./fleet.html">fleet</a>
+    <a href="./cuda-vlc.html">cuda-vlc</a>
+    <a href="./secret-source-bridge.html">secret-bridge</a>
+    <a href="./sovereign-state.html">sovereign-state</a>
+    <a href="./agentic.html">#startabusiness</a>
+  </div>
+  <div class="hash">#HERMIPHICATIONISINEVITABLE</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="./assets/aether.js"></script>
+<script>
+const {Aether} = window;
+window.addEventListener('DOMContentLoaded', () => {
+  const vsChip = document.getElementById('vscode-chip');
+  if (vsChip) {
+    const ready = !!(window.__vscode || window.acquireVsCodeApi);
+    vsChip.textContent = ready ? 'ready' : 'external';
+    vsChip.style.color = ready ? 'var(--neon)' : 'var(--muted)';
+  }
+});
+function log(line, ok){const el=document.getElementById('log');if(!el)return;const span=document.createElement('div');span.className=ok?'ok':'';span.textContent=new Date().toISOString().slice(11,19)+' '+line;el.prepend(span);}
+log('DEMO_STATUS=running');
+Aether.mesh();
+</script>
+</body>
+</html>
