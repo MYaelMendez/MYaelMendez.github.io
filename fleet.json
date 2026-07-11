@@ -1,0 +1,22 @@
+{
+  "protocol": ">_æ:",
+  "concept": "distributed MoE across sovereign nodes — mixture of devices (MoD) × agents (MoA) × models (MoM)",
+  "engineering_computer": "victus",
+  "registry": [
+    {
+      "node": "victus",
+      "role": "engineering-computer",
+      "device": {"gpu": "NVIDIA RTX (CUDA 13.3)", "compute": "gpu-mcp (stdio JSON-RPC)"},
+      "models": ["local/ollama:11434", "nous-portal (opt-in, cloud brain)"],
+      "agents": ["conductor", "gpu-mcp", "mesh", "fleet"],
+      "route": "pc://mesh/victus/local",
+      "status": "online"
+    }
+  ],
+  "mixture_policy": {
+    "device_selection": "capability + load aware (MoD)",
+    "agent_selection": "persona ensemble per task (MoA)",
+    "model_selection": "capability + cost aware; local-default, cloud-opt-in (MoM)"
+  },
+  "join": "open fleet.html on a device, scan the engineering computer's offer QR, publish your capability manifest. opt-in only."
+}
