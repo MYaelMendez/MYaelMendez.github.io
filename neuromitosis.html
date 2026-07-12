@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>neuromitosis.com — Human + Robot + DAO, bonded</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --void:#050505; --gold:#D4AF37; --gold-dim:#8a7320; --neon:#00ff9d;
+    --ink:#f0ece4; --muted:rgba(240,236,228,0.38); --border:rgba(212,175,55,0.16);
+    --border-hot:rgba(212,175,55,0.5); --panel:#090909; --panel-2:#0b0b0b;
+    --glow:rgba(212,175,55,0.08); --nv:#76b900;
+  }
+  * { box-sizing:border-box; }
+  html,body { margin:0; padding:0; background:var(--void); color:var(--ink);
+    font-family:'JetBrains Mono',ui-monospace,Menlo,monospace; min-height:100vh; overflow-x:hidden; }
+  body::before { content:""; position:fixed; inset:0; pointer-events:none; z-index:9999; opacity:0.035;
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(212,175,55,0.12) 2px,rgba(212,175,55,0.12) 4px); }
+  .wrap { max-width:1080px; margin:0 auto; padding:30px 22px 70px; }
+  .topbar { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-hot);
+    padding-bottom:14px; gap:12px; flex-wrap:wrap; }
+  .brand { display:flex; gap:14px; align-items:center; }
+  .glyph { width:48px; height:48px; border:1px solid var(--border-hot); display:grid; place-items:center;
+    color:var(--gold); font-family:'Orbitron',sans-serif; font-weight:900; font-size:26px;
+    box-shadow:0 0 22px var(--glow); }
+  .title { font-family:'Orbitron',sans-serif; color:var(--gold); font-weight:700; letter-spacing:0.1em; font-size:19px; }
+  .sub { color:var(--muted); font-size:11px; letter-spacing:0.16em; text-transform:uppercase; }
+  .live { display:flex; gap:8px; align-items:center; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+  .live-dot { width:8px; height:8px; border-radius:50%; background:var(--neon); box-shadow:0 0 0 0 rgba(0,255,157,0.5); animation:pulse 1.8s infinite; }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(0,255,157,0.5);} 70%{box-shadow:0 0 0 10px rgba(0,255,157,0);} 100%{box-shadow:0 0 0 0 rgba(0,255,157,0);} }
+  .hero { padding:48px 0 30px; border-bottom:1px solid var(--border); }
+  .hero h1 { font-family:'Orbitron',sans-serif; font-weight:900; font-size:clamp(40px,7vw,84px); line-height:0.94;
+    margin:0; background:linear-gradient(180deg,#fff 0%,var(--gold) 60%,var(--gold-dim) 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .hero p { color:var(--muted); font-size:15px; line-height:1.7; max-width:680px; margin:18px 0 0; }
+  .hero b { color:var(--gold); }
+  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); margin-top:1px; }
+  @media(max-width:820px){ .grid{grid-template-columns:1fr;} }
+  .card { background:var(--panel); padding:20px; min-height:160px; }
+  .card .k { font-family:'Orbitron',sans-serif; color:var(--gold); font-size:11px; letter-spacing:0.16em; text-transform:uppercase; }
+  .card .v { color:var(--ink); font-size:14px; line-height:1.6; margin-top:10px; }
+  .card .num { font-family:'Orbitron',sans-serif; font-size:30px; color:var(--neon); text-shadow:0 0 14px rgba(0,255,157,0.3); }
+  .panel { border:1px solid var(--border); background:var(--panel); padding:20px; margin-top:18px; }
+  .panel-head { color:var(--gold); font-weight:700; letter-spacing:0.14em; text-transform:uppercase; font-size:11px; margin-bottom:14px;
+    display:flex; justify-content:space-between; }
+  .panel-head .sub { color:var(--muted); text-transform:none; letter-spacing:0; }
+  .wiring-row { display:flex; gap:12px; padding:9px 0; border-bottom:1px solid var(--border); font-size:13px; flex-wrap:wrap; }
+  .wiring-row:last-child { border-bottom:0; }
+  .wiring-row .s { color:var(--gold); font-family:'Orbitron',sans-serif; font-size:11px; letter-spacing:0.1em; min-width:120px; }
+  .wiring-row .d { color:var(--muted); }
+  .cta { margin-top:24px; display:flex; gap:14px; flex-wrap:wrap; }
+  .button { font-family:'Orbitron',sans-serif; text-transform:uppercase; letter-spacing:0.16em; background:var(--gold);
+    color:#000; border:none; padding:15px 22px; cursor:pointer; text-decoration:none; font-weight:700; font-size:13px; }
+  .button.ghost { background:transparent; color:var(--gold); border:1px solid var(--border-hot); }
+  .foot { color:var(--muted); font-size:10px; letter-spacing:0.12em; margin-top:34px; text-align:center; text-transform:uppercase; }
+  .term { border:1px solid var(--border-hot); background:var(--panel-2); padding:12px; color:var(--neon); font-size:12px;
+    margin-top:12px; }
+  .err { color:#ff7b72; }
+  .mesh { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); margin-top:1px; }
+  @media(max-width:820px){ .mesh{grid-template-columns:1fr;} }
+  .node { background:var(--panel); padding:14px 16px; }
+  .node.bonded { border:1px solid var(--border-hot); box-shadow:inset 0 0 18px var(--glow); }
+  .node .n { color:var(--gold); font-family:'Orbitron',sans-serif; font-size:13px; letter-spacing:0.08em; }
+  .node .r { color:var(--muted); font-size:11px; margin-top:5px; line-height:1.5; }
+  .node .tag { color:var(--neon); font-size:10px; letter-spacing:0.16em; text-transform:uppercase; margin-top:8px; }
+  .thesis-row { display:flex; gap:14px; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; flex-wrap:wrap; }
+  .thesis-row:last-child { border-bottom:0; }
+  .thesis-row .t { color:var(--gold); font-family:'Orbitron',sans-serif; font-size:11px; letter-spacing:0.1em; min-width:140px; }
+  .thesis-row .x { color:var(--muted); }
+  .term { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); line-height:1.7; white-space:pre-wrap; word-break:break-word; }
+  .compose { margin-top:10px; }
+  .compose textarea { width:100%; height:64px; background:#0a0a0a; color:var(--neon); border:1px solid var(--border);
+    font-family:'JetBrains Mono',monospace; font-size:12px; padding:10px; resize:vertical; border-radius:0; outline:none; }
+  .compose textarea:focus { border-color:var(--gold); }
+  .compose .out { margin-top:8px; min-height:44px; background:#0a0a0a; border:1px solid var(--border); padding:10px; border-radius:0; }
+  .compose .out.ok { border-color:var(--border-hot); }
+  .compose .out.err { border-color:#ff7b72; }
+  .compose .hint { font-size:10px; color:var(--muted); margin-top:6px; letter-spacing:0.05em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <div class="glyph">∞</div>
+      <div>
+        <div class="title">neuromitosis.com</div>
+        <div class="sub">Human + Robot + DAO · bonded</div>
+      </div>
+    </div>
+    <div class="live"><span class="live-dot"></span><span id="live-label">LIVE · chassis wiring</span></div>
+  </div>
+
+  <section class="hero">
+    <h1>NEUROMITOSIS</h1>
+    <p>
+      The bond where <b>Human + Robot + DAO</b> become one agent. Hæbbian by design —
+      <b>agents that fire together, wire together</b>. The chassis is always a language;
+      the wiring <i>is</i> the bond. This site is co-authored live with our agent:
+      every surface below is a real synapse on the sovereign mesh, pulled from the
+      <b>neuromitosis://</b> route at <code>pc://mesh/victus/local</code>.
+    </p>
+  </section>
+
+  <div class="grid">
+    <div class="card">
+      <div class="k">The Bond</div>
+      <div class="v"><span class="num">3→1</span><br/>Human, Robot, DAO — one operator surface. Neuromitosis is the mitosis of agency: it divides into many and bonds into one.</div>
+    </div>
+    <div class="card">
+      <div class="k">The Mechanism</div>
+      <div class="v">Hæbbian plasticity. Co-fired surfaces (file://, computer://, desktop://, +bæsic://, æ://) wire into a persistent map — surviving resets.</div>
+    </div>
+    <div class="card">
+      <div class="k">The Surface</div>
+      <div class="v">Gold on void. Orbitron + JetBrains Mono. Sharp edges, neural mesh, scanlines. Truth over marketing.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>Live wiring map · neuromitosis://</span><span class="sub" id="wiring-src">from chassis</span></div>
+    <div id="wiring"><div class="term">loading wiring from chassis…</div></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>The mesh · MoD topology</span><span class="sub">six sovereign nodes</span></div>
+    <div class="mesh" id="mesh"><div class="node"><div class="r">loading mesh…</div></div></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>MoD × Code Mode · the discipline</span><span class="sub">from llm.store/ae</span></div>
+    <div class="thesis-row"><span class="t">MoD</span><span class="x">Topology — six sovereign nodes, each independently ownable. Boundaries are firebreaks, not accidents.</span></div>
+    <div class="thesis-row"><span class="t">Code Mode</span><span class="x">Discipline — typed surfaces, not tool catalogs. ~1K-token interface beats 1.17M schema tokens. Agents write code; only results return.</span></div>
+    <div class="thesis-row"><span class="t">This node</span><span class="x">neuromitosis.com is a bonded MoD node: Hæbbian wiring <i>is</i> the bond. Its surface is <code>/wiring.json</code> — fixed, only the bond map crosses.</span></div>
+    <div class="cta">
+      <a class="button ghost" href="https://llm.store/ae" target="_blank" rel="noopener">Read MoD × Code Mode ↗</a>
+      <a class="button ghost" href="https://llm.store/blog/code-mode-is-the-new-standard" target="_blank" rel="noopener">Code Mode is the new standard ↗</a>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>The substrate · distributed cognition</span><span class="sub">what this node is</span></div>
+    <p style="color:var(--muted);font-size:13px;line-height:1.7;margin:0 0 4px">
+      neuromitosis.com is not <i>about</i> distributed cognition — it <b>is</b> the operational
+      substrate for it. The chassis surfaces (<code>file://</code> <code>computer://</code>
+      <code>desktop://</code> <code>+bæsic://</code>) are how human cognition gets externalized
+      into a persistent, typed substrate; <code>Hæbbian://</code> == <code>neuromitosis://</code>
+      is that cognition distributed across sessions; the mesh carries it across devices and the
+      Human + Robot + DAO unit. Code Mode is the interface; the wiring map is the cognitive trace.
+    </p>
+    <div class="thesis-row"><span class="t">Externalize</span><span class="x">Counts, graphs, memory stay in-language (bæsic). The chassis is always a language.</span></div>
+    <div class="thesis-row"><span class="t">Distribute</span><span class="x">Hæbbian wiring survives resets; the mesh spans devices; neuromitosis bonds the unit.</span></div>
+    <div class="thesis-row"><span class="t">Drive</span><span class="x">Until the substrate is fully autonomous, human distributed cognition is the prime mover. The agent proposes; you steer. Co-webmastered, not silent drift.</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>meta_memory · the cognitive trace</span><span class="sub">agent proposes, you steer</span></div>
+    <p style="color:var(--muted);font-size:13px;line-height:1.7;margin:0 0 4px">
+      The wiring map <b>is</b> the cognitive evolution log. Each delta is composed through the
+      <code>/compose</code> surface and written to <code>C:\ae\meta_memory.csv</code> — sovereign root,
+      never OneDrive. Human distributed cognition is the prime mover: the agent proposes, you steer.
+    </p>
+    <div class="cta"><span class="sub">entries: <span id="mm-count">0</span></span></div>
+    <div class="term" id="mm-rows" style="margin-top:8px">// cognitive trace loads here</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>æl.net arrival · the Code Mode console</span><span class="sub">write code, only results return</span></div>
+    <p style="color:var(--muted);font-size:13px;line-height:1.7;margin:0 0 4px">
+      This is the entry point to the topology. æl.net is where agents begin — here, you write
+      bæsic against the fixed <code>/compose</code> surface. No tool catalog, no schema tax.
+      One constant interface; the chassis runs your code and returns only the bond.
+    </p>
+    <div class="compose">
+      <textarea id="code" placeholder='print "hello from the mesh" : x = 21 : print x*2'>print "arrived at the mesh" : x = 7 * 6 : print "42 = " ; x</textarea>
+      <div class="cta" style="margin-top:8px">
+        <button class="button" onclick="compose()">compose ↗</button>
+        <button class="button ghost" onclick="document.getElementById('code').value='print &quot;state: &quot; ; count_routes()'">probe routes</button>
+      </div>
+      <div class="out" id="compose-out"><span class="term">// results cross here</span></div>
+      <div class="hint">POST bæsic to <code>/compose</code> · fixed surface · ~1K tokens, not 1.17M</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>Become a bonded node</span><span class="sub">DAO LLC formation</span></div>
+    <p style="color:var(--muted);font-size:13px;line-height:1.7;margin:0 0 4px">
+      Neuromitosis is open-sourceware. Form the DAO LLC that bonds your Human + Robot + DAO unit
+      and join the sovereign mesh. Every agentic.html is a boot sequence, not a marketing page.
+    </p>
+    <div class="cta">
+      <a class="button" href="https://www.doola.com/forms/new?entity_type=llc&state=WY" target="_blank" rel="noopener">Form your DAO LLC ↗</a>
+      <a class="button ghost" href="https://æ.store" target="_blank" rel="noopener">æ.store namespace ↗</a>
+    </div>
+  </div>
+
+  <div class="foot">#hermiphicationisinevitable · #opensourceware #250 · +æ^victus · co-webmastered with Hermes</div>
+</div>
+
+<script>
+  // live co-webmastering: pull the real neuromitosis:// wiring map from the chassis bridge
+  async function loadWiring() {
+    try {
+      const data = __WIRING__;
+      const rows = (data.wired_surfaces || []).map(s =>
+        `<div class="wiring-row"><span class="s">${s.scheme}</span><span class="d">${s.detail}</span></div>`
+      ).join("");
+      document.getElementById("wiring").innerHTML = rows +
+        `<div class="term">reload: <b>skill_view(name='${data.skill}')</b> · memory triggers: ${data.memory_triggers} · reset_ready=${data.reset_ready}</div>`;
+      document.getElementById("live-label").textContent = "LIVE · " + data.wired_surfaces.length + " synapses";
+      if (data.meta_memory) {
+        const mm = data.meta_memory;
+        document.getElementById("mm-count").textContent = mm.entries;
+        const lines = (mm.rows || []).map(r =>
+          `<div>${r.replace(/\|/g, " · ")}</div>`).join("");
+        document.getElementById("mm-rows").innerHTML = lines || "// no cognitive trace yet — compose a delta";
+      }
+    } catch (e) {
+      document.getElementById("wiring").innerHTML =
+        `<div class="term err">wiring bridge offline (${e.message}) — start serve_neuromitosis.py to go live</div>`;
+    }
+  }
+
+  async function loadMesh() {
+    try {
+      const data = __MESH__;
+      const nodes = (data.nodes || []).map(n => {
+        const isVault = n.domain === "+æ://secrets";
+        const label = isVault
+          ? `<a href="https://myaelmendez.github.io/secret-source-bridge.html" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none">${n.domain}</a>`
+          : n.domain;
+        return `<div class="node${n.bonded ? " bonded" : ""}">` +
+          `<div class="n">${label}</div>` +
+          `<div class="r">${n.role}</div>` +
+          (n.bonded ? `<div class="tag">● bonded</div>` : ``) + `</div>`;
+      }).join("");
+      document.getElementById("mesh").innerHTML = nodes;
+    } catch (e) {
+      document.getElementById("mesh").innerHTML =
+        `<div class="node"><div class="r err">mesh bridge offline (${e.message})</div></div>`;
+    }
+  }
+
+  async function compose() {
+    const box = document.getElementById("code");
+    const out = document.getElementById("compose-out");
+    out.className = "out";
+    out.innerHTML = '<span class="term">// composing…</span>';
+    try {
+      const res = await fetch("/compose", {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: box.value,
+      });
+      const data = await res.json();
+      out.className = "out " + (data.ok ? "ok" : "err");
+      out.innerHTML = '<span class="term">' + (data.output || "(no output)") + "</span>";
+    } catch (e) {
+      out.className = "out err";
+      out.innerHTML = '<span class="term err">compose bridge offline (' + e.message + ")</span>";
+    }
+  }
+
+  loadWiring();
+  loadMesh();
+  setInterval(loadWiring, 15000);
+  setInterval(loadMesh, 30000);
+const __WIRING__ = {"ok": true, "scheme": "neuromitosis://", "equals": "H\u00e6bbian://", "reset_ready": true, "skill": "agentic-chassis-surface", "memory_triggers": 9, "meta_memory": {"path": "C:\\ae\\meta_memory.csv", "entries": 41, "rows": ["1783893544|aggregate|fleet -> https://myaelmendez.github.io/fleet.html [LIVE] : MoD\u00d7MoA\u00d7MoM device mixture", "1783893544|aggregate|cuda-vlc -> https://myaelmendez.github.io/cuda-vlc.html [LIVE] : sovereign CUDA\u2192NVENC\u2192VLC stream", "1783893544|aggregate|secret-bridge -> https://myaelmendez.github.io/secret-source-bridge.html [LIVE] : local secret manager (vault node)", "1783893544|aggregate|sovereign-state -> https://myaelmendez.github.io/sovereign-state.html [LIVE] : memory + ledger + #250 spine", "1783893544|aggregate|#startabusiness -> https://myaelmendez.github.io/agentic.html [LIVE] : DAOLLC bootstrap + Doola", "1783893544|aggregate|glocal-secrets -> https://myaelmendez.github.io/glocal-secrets-blueprint.html [LIVE] : surface github.io \u00b7 custody Victus", "1783893544|aggregate|glocal-cuda -> https://myaelmendez.github.io/glocal-cuda-blueprint.html [LIVE] : MoD blueprint: brain/droplet\u00b7hands/RTX", "1783893544|aggregate|glocal-mesh -> https://myaelmendez.github.io/glocal-mesh.html [LIVE] : each primitive -> capability subagent", "1783893544|aggregate|rails -> https://myaelmendez.github.io/rails.html [LIVE] : Doola affiliate (paid, zero custody)", "1783893544|aggregate|neuromitosis -> https://myaelmendez.github.io/neuromitosis.html [DOWN] : operational substrate of distributed cognition"], "discipline": "agent proposes via +b\u00e6sic:// compose, human steers; not silent drift"}, "wired_surfaces": [{"scheme": "file://", "detail": "sovereign-scoped read, count>mutate, OneDrive-denied"}, {"scheme": "computer://", "detail": "agentic computer on Victus GPU-MCP (live probe)"}, {"scheme": "desktop://", "detail": "hermes-agent native -> WindowsDesktop (user32/SendInput)"}, {"scheme": "+b\u00e6sic://", "detail": "qc64 ledger: counts/graphs in-language, end-halt fixed"}, {"scheme": "\u00e6://", "detail": "agentic-language-chassis: longest-prefix route router"}]};
+const __MESH__ = {"ok": true, "topology": "MoD", "nodes": [{"domain": "cli.llc", "role": "Build \u2014 agentic infrastructure: APIs, MCPs, CLIs. You own the namespace.", "bonded": false}, {"domain": "daollc.ai", "role": "Entity \u2014 sovereign DAO LLC formation in Wyoming.", "bonded": false}, {"domain": "llm.store", "role": "Intelligence \u2014 \u00e6\u03c0 combinator: models, reasoning, interface.", "bonded": false}, {"domain": "\u00e6.store", "role": "Commerce \u2014 agentic email, e-commerce, IOA.", "bonded": false}, {"domain": "\u00e6l.net", "role": "Arrival \u2014 where agents begin. Entry point to the topology.", "bonded": false}, {"domain": "+\u00e6://secrets", "role": "Vault \u2014 local-first secret broker. Surface: github.io/secret-source-bridge. Custody: Victus C:\\\u00e6\\secrets\\. No value crosses.", "bonded": false}, {"domain": "neuromitosis.com", "role": "Bond \u2014 Human + Robot + DAO, wired via H\u00e6bbian. This node.", "bonded": true}]};
+if (typeof __WIRING__ !== 'undefined') { /* baked */ }
+</script>
+</body>
+</html>
