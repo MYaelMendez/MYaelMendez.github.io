@@ -1,0 +1,53 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/did/v1"
+  ],
+  "id": "did:web:neuromitosis.com:cortex",
+  "alsoKnownAs": [
+    "at://neuromitosis.com",
+    "ae://neuromitosis.cortex"
+  ],
+  "verificationMethod": [
+    {
+      "id": "#cortex-key",
+      "type": "Ed25519VerificationKey2020",
+      "controller": "did:web:neuromitosis.com:cortex",
+      "publicKeyMultibase": "zSTANDIN_REPLACE_WITH_VICTUS_ED25519_MULTIBASE"
+    }
+  ],
+  "assertionMethod": [
+    "#cortex-key"
+  ],
+  "authentication": [
+    "#cortex-key"
+  ],
+  "service": [
+    {
+      "id": "#atproto_pds",
+      "type": "AtprotoPds",
+      "serviceEndpoint": "https://github.com/MYaelMendez/neuromitosis-cortex"
+    },
+    {
+      "id": "#github_pds",
+      "type": "ContentAddressedStore",
+      "serviceEndpoint": "https://github.com/MYaelMendez/neuromitosis-cortex/tree/main/repo"
+    },
+    {
+      "id": "#cortex_trace",
+      "type": "CortexStore",
+      "serviceEndpoint": "C:\\ae\\cortex.db",
+      "description": "Local-first SQLite meta-memory trace (Victus custody). Origin of MST records."
+    },
+    {
+      "id": "#ae_homebase",
+      "type": "AeHomebase",
+      "serviceEndpoint": "https://neuromitosis.com"
+    },
+    {
+      "id": "#github_io_truth",
+      "type": "PointOfTruth",
+      "serviceEndpoint": "https://myaelmendez.github.io"
+    }
+  ],
+  "remark": "Sovereign anchor for the neuromitosis agentic cortex. GitHub-enabled ATProto PDS: content-addressed repo on github.com (mesh node). Signing key custodied on Victus; only public key + signed records cross. #hermiphicationisinevitable"
+}
