@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>☺://cc — droplet system · æ.store</title>
+<style>
+  :root{ --gold:#D4AF37; --void:#050505; --scan:rgba(212,175,55,.06); }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--void); color:var(--gold);
+        font-family:"JetBrains Mono","Consolas",monospace; line-height:1.6;
+        background-image:repeating-linear-gradient(0deg,var(--scan) 0 1px,transparent 1px 3px); }
+  .wrap{ max-width:900px; margin:0 auto; padding:48px 24px 80px; }
+  h1{ font-family:"Orbitron",sans-serif; font-size:2rem; letter-spacing:.12em;
+      text-shadow:0 0 18px rgba(212,175,55,.35); margin:0 0 .2em; }
+  .sub{ color:#9a8a4a; letter-spacing:.18em; text-transform:uppercase; font-size:.72rem; }
+  .badge{ display:inline-block; padding:6px 14px; border:1px solid var(--gold);
+          border-radius:2px; font-weight:700; letter-spacing:.1em; margin:18px 0; }
+  .up{ background:rgba(212,175,55,.12); }
+  .down{ background:rgba(255,80,80,.12); border-color:#ff5050; color:#ff8080; }
+  pre{ background:#0b0b0b; border-left:3px solid var(--gold); padding:14px 16px;
+       overflow-x:auto; font-size:.82rem; color:#e8d9a0; }
+  code{ color:#f0e2b0; }
+  h2{ font-family:"Orbitron",sans-serif; letter-spacing:.08em; font-size:1.1rem;
+      border-bottom:1px solid rgba(212,175,55,.3); padding-bottom:6px; margin-top:38px; }
+  a{ color:var(--gold); }
+  .cta{ display:inline-block; margin-top:30px; padding:14px 28px; border:1px solid var(--gold);
+        text-decoration:none; letter-spacing:.1em; transition:.2s; }
+  .cta:hover{ background:var(--gold); color:var(--void); }
+  .ts{ color:#6e6238; font-size:.7rem; letter-spacing:.1em; }
+  .grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; }
+  .card{ border:1px solid rgba(212,175,55,.25); padding:14px; }
+  .card b{ color:#fff3c8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="sub">☺://cc · command & control · æ.store</div>
+  <h1>DROPLET SYSTEM</h1>
+  <div class="sub">sovereign CUDA-MCP² broker · Victus RTX 3050 leaf</div>
+
+  <div id="status" class="badge up">__STATUS_BADGE__</div>
+  <div class="ts">status baked at deploy · __STATUS_TS__</div>
+
+  <p>The droplet (<code>129.212.180.252</code>) is the public <b>CUDA-MCP² broker</b>.
+  It proxies <code>rtx://</code> jobs down a reverse tunnel to the Victus RTX 3050 —
+  the edge that owns the silicon. Keys stay local; nothing GPU is public.</p>
+
+  <div class="grid">
+    <div class="card"><b>droplet</b><br>vps_node :3000 (broker + ATProto PDS)<br>__DROPLET_LINE__</div>
+    <div class="card"><b>victus leaf</b><br>vps_node :3050 (GPU-backed)<br>__VICTUS_LINE__</div>
+    <div class="card"><b>tunnel</b><br>ssh -R 3050 → droplet:3050<br>__TUNNEL_LINE__</div>
+    <div class="card"><b>gpu</b><br>__GPU_LINE__</div>
+  </div>
+
+  <h2>// for a new user — bring it live</h2>
+  <p>The system is self-healing, but a fresh machine starts cold. Three moves:</p>
+
+  <h3>1 · droplet (GPU-less broker)</h3>
+  <pre>ssh root@129.212.180.252
+pip install -r requirements.txt   # vps_node deps
+# run as a service so it survives droplet reboots:
+cat > /etc/systemd/system/aevps.service <<'EOF'
+[Unit]
+Description=ae VPS node (CUDA-MCP² broker + PDS)
+After=network-online.target
+[Service]
+ExecStart=/usr/bin/python3 /opt/aevps/vps_node.py --host 0.0.0.0 --port 3000
+Restart=always
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl enable --now aevps</pre>
+
+  <h3>2 · Victus (the RTX leaf)</h3>
+  <pre>cd C:/æ/agents
+bash rtx-bridge.sh up        # starts vps_node :3050 + reverse tunnel (idempotent)
+bash rtx-bridge.sh test      # end-to-end: matmul through the droplet</pre>
+
+  <h3>3 · survive reboots (one admin click on Victus)</h3>
+  <pre># run as Administrator once — registers a Scheduled Task that
+# restarts the tunnel on boot (rtx-bridge-persist.bat):
+rtx-bridge-persist.bat</pre>
+
+  <h2>// why it cannot be "down" for you</h2>
+  <ul>
+    <li><b>idempotent bridge</b> — <code>rtx-bridge.sh up</code> frees :3050 and kills orphans before starting, so re-running never piles up broken listeners.</li>
+    <li><b>self-healing handlers</b> — <code>vps_node</code> swallows client-abort (a cold gpu-mcp first call can exceed a short probe timeout; that's the client's choice, not a fault).</li>
+    <li><b>point-of-truth</b> — this page is the github.io surface; the droplet is the compute. Domain ownership (æ.store) means a live, verifiable chassis, not a parked page.</li>
+  </ul>
+
+  <a class="cta" href="https://neuromitosis.github.io">↑ the cortex · neuromitosis</a>
+  <a class="cta" href="https://doola.com/yael">start a business · doola</a>
+</div>
+</body>
+</html>
