@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>æ:// · WebLLM · WebGPU Chassis</title>
+<meta name="description" content="æ:// agentic-language-chassis local runtime — sovereign in-browser inference via WebGPU.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#000000;--gold:#D4AF37;--gold-l:#f0d060;--gold-d:#b8860b;
+  --neon:#00ff9d;--cyan:#4DABFF;--ink:#f0ece4;
+  --muted:rgba(240,236,228,.5);--dim:rgba(240,236,228,.18);
+  --line:rgba(212,175,55,.08);--line-h:rgba(212,175,55,.2);
+  --red:#C4302B;--surface:rgba(0,0,0,.5);
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --disp:'Orbitron',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--ink);font-family:var(--mono);-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+::selection{background:var(--gold);color:var(--void)}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 25% 15%,rgba(212,175,55,.02) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(0,255,157,.01) 0%,transparent 40%)}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.03;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E")}
+.scanlines{position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.04;background:repeating-linear-gradient(transparent 0 2px,rgba(212,175,55,.015) 2px 4px)}
+.wrap{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:32px 20px 80px}
+.head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:18px}
+.title{font-family:var(--disp);font-weight:900;font-size:clamp(18px,3vw,26px);letter-spacing:1px;color:var(--gold)}
+.sub{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.tag{font-size:8px;letter-spacing:2px;color:var(--neon);opacity:.5;text-transform:uppercase;border:1px solid var(--line);padding:3px 8px;border-radius:999px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px;backdrop-filter:blur(8px)}
+.panel h3{font-family:var(--disp);font-weight:700;font-size:10px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:10px;opacity:.7}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:rgba(0,0,0,.3)}
+.stat .v{font-family:var(--disp);font-weight:900;font-size:16px;color:var(--gold);font-variant-numeric:tabular-nums}
+.stat .l{font-size:8px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+select,textarea,input{font-family:var(--mono);font-size:13px;background:#060609;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px}
+select{flex:0 0 auto;color:var(--gold)}
+textarea{flex:1;min-width:240px;min-height:90px;resize:vertical}
+input[type=text]{flex:1;min-width:240px}
+button{font-family:var(--mono);font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;background:linear-gradient(135deg,rgba(212,175,55,.15),rgba(0,255,157,.06));border:1px solid rgba(212,175,55,.5);color:var(--gold);padding:10px 16px;border-radius:8px;transition:all .2s}
+button:hover{box-shadow:0 0 18px rgba(212,175,55,.08);border-color:var(--gold)}
+button:disabled{opacity:.4;cursor:not-allowed}
+.bar{height:6px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden;margin:10px 0}
+.bar>div{height:100%;width:0;background:linear-gradient(90deg,var(--gold-d),var(--gold),var(--neon));transition:width .2s}
+#out{white-space:pre-wrap;font-size:13px;line-height:1.7;color:var(--ink);min-height:120px}
+#out .sys{color:var(--cyan)}
+.log{font-size:11px;color:var(--muted);max-height:160px;overflow-y:auto;border-top:1px solid var(--line);margin-top:12px;padding-top:10px}
+.log div{margin-bottom:3px}
+.log .err{color:var(--red);opacity:.8}
+.log .ok{color:var(--neon)}
+.foot{margin-top:24px;font-size:9px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.foot a{color:var(--dim);text-decoration:none}.foot a:hover{color:var(--gold)}
+.hash{position:fixed;bottom:12px;right:16px;z-index:100;font-size:8px;letter-spacing:1px;color:var(--dim);padding:4px 10px;background:rgba(0,0,0,.7);border:1px solid var(--line);border-radius:999px;cursor:pointer}
+.hash:hover{color:var(--gold);border-color:var(--gold)}
+@media(prefers-reduced-motion:reduce){.scanlines{display:none}}
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="wrap">
+
+  <div class="head">
+    <div class="title">æ:// · WebLLM</div>
+    <div class="sub">WebGPU Chassis · Sovereign In-Browser Inference</div>
+    <div class="tag" id="gpuTag">DETECTING…</div>
+  </div>
+
+  <div class="panel">
+    <h3>Runtime Telemetry</h3>
+    <div class="stat-row">
+      <div class="stat"><div class="v" id="sEngine">—</div><div class="l">Engine</div></div>
+      <div class="stat"><div class="v" id="sModel">—</div><div class="l">Model</div></div>
+      <div class="stat"><div class="v" id="sTok">0</div><div class="l">Tokens</div></div>
+      <div class="stat"><div class="v" id="sTps">0</div><div class="l">Tok/s</div></div>
+      <div class="stat"><div class="v" id="sTTFT">0</div><div class="l">TTFT (ms)</div></div>
+      <div class="stat"><div class="v" id="sCtx">0</div><div class="l">Context</div></div>
+    </div>
+    <div class="bar"><div id="loadBar"></div></div>
+  </div>
+
+  <div class="panel">
+    <h3>Dispatch</h3>
+    <div class="controls">
+      <select id="model">
+        <option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC">Qwen2.5-0.5B (q4f16)</option>
+        <option value="Llama-3.2-1B-Instruct-q4f32_1-MLC">Llama-3.2-1B (q4f32)</option>
+        <option value="Phi-3.5-mini-instruct-q4f16_1-MLC">Phi-3.5-mini (q4f16)</option>
+        <option value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC">Qwen2.5-1.5B (q4f16)</option>
+      </select>
+      <button id="loadBtn">LOAD ENGINE</button>
+    </div>
+    <div class="controls">
+      <input type="text" id="sys" value="You are æ:// — the sovereign agentic-language chassis. Respond concisely, in the operator's tone." placeholder="System prompt">
+    </div>
+    <div class="controls">
+      <textarea id="prompt" placeholder="Prompt the local runtime…">Define 'sovereignty' in one sentence, in the style of the mesh.</textarea>
+    </div>
+    <div class="controls">
+      <button id="runBtn" disabled>RUN INFERENCE</button>
+      <button id="stopBtn" disabled>STOP</button>
+    </div>
+    <div id="out" class="panel" style="margin-bottom:0"></div>
+    <div class="log" id="log"></div>
+  </div>
+
+  <div class="foot">
+    <span>æ:// CHASSIS · ☺://cc OPERATOR · WebGPU LOCAL</span>
+    <span><a href="https://llm.store">LLM.STORE</a> · <a href="the-mesh.html">THE MESH</a> · <a href="webmcp.html">WEBMCP</a></span>
+  </div>
+</div>
+<div class="hash" id="hash" title="Click to copy">0x0a1b2c</div>
+
+<script>
+(()=>{
+"use strict";
+
+/* ═══ HASH CHAIN ═══ */
+let chain='0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b';
+let evts=0;
+async function advance(a){
+  try{const r=chain+'|'+a+'|'+Date.now()+'|'+evts++;
+  const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(r));
+  chain=Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}catch{evts++}
+  document.getElementById('hash').textContent='0x'+chain.slice(0,6);
+}
+advance('PAGE:webllm');
+document.getElementById('hash').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(chain);document.getElementById('hash').textContent='COPIED';setTimeout(()=>document.getElementById('hash').textContent='0x'+chain.slice(0,6),1200)}catch{}});
+
+/* ═══ LOG ═══ */
+const logEl=document.getElementById('log');
+function log(msg,cls=''){const d=document.createElement('div');if(cls)d.className=cls;d.textContent=new Date().toLocaleTimeString()+' · '+msg;logEl.appendChild(d);logEl.scrollTop=logEl.scrollHeight}
+
+/* ═══ GPU DETECT ═══ */
+const gpuTag=document.getElementById('gpuTag');
+let adapter=null;
+async function detectGPU(){
+  if(!navigator.gpu){gpuTag.textContent='NO WEBGPU';gpuTag.style.color='var(--red)';log('navigator.gpu unavailable','err');return false}
+  try{adapter=await navigator.gpu.requestAdapter();if(!adapter)throw new Error('no adapter');
+    gpuTag.textContent='WEBGPU READY';log('WebGPU adapter ready','ok');return true}
+  catch(e){gpuTag.textContent='GPU FALLBACK';gpuTag.style.color='var(--red)';log('WebGPU failed: '+e.message,'err');return false}
+}
+detectGPU();
+
+/* ═══ ENGINE ═══ */
+let engine=null, loading=false, running=false, modelId=null;
+const outEl=document.getElementById('out');
+const loadBar=document.getElementById('loadBar');
+const loadBtn=document.getElementById('loadBtn');
+const runBtn=document.getElementById('runBtn');
+const stopBtn=document.getElementById('stopBtn');
+
+loadBtn.addEventListener('click',async()=>{
+  if(loading||engine)return;
+  loading=true;loadBtn.disabled=true;outEl.innerHTML='';loadBar.style.width='0%';
+  modelId=document.getElementById('model').value;
+  document.getElementById('sModel').textContent=modelId.split('-')[0];
+  log('engine init: '+modelId);
+  try{
+    const webllm=await import('https://esm.run/@mlc-ai/web-llm');
+    engine=await webllm.CreateMLCEngine(modelId,{
+      initProgressCallback:(p)=>{
+        const prog=(p&&p.progress!=null)?p.progress:(p&&p.text)?1:0;
+        loadBar.style.width=Math.round((prog||0)*100)+'%';
+        log('load: '+(p&&(p.text||(p.progress!=null?Math.round(p.progress*100)+'%':'0%'))||'…'));
+      }
+    });
+    document.getElementById('sEngine').textContent='READY';
+    runBtn.disabled=false;log('engine ready','ok');advance('LOAD:'+modelId);
+  }catch(e){
+    document.getElementById('sEngine').textContent='FAILED';
+    log('init failed: '+(e&&e.message||e),'err');
+  }finally{loading=false;loadBtn.disabled=false;loadBtn.textContent='RELOAD';}
+});
+
+let controller=null;
+runBtn.addEventListener('click',async()=>{
+  if(!engine||running)return;
+  const sys=document.getElementById('sys').value.trim();
+  const prompt=document.getElementById('prompt').value.trim();
+  if(!prompt)return;
+  running=true;runBtn.disabled=true;stopBtn.disabled=false;
+  outEl.innerHTML='';document.getElementById('sTok').textContent='0';document.getElementById('sTps').textContent='0';
+  const t0=performance.now();let firstTok=null,n=0;
+  const messages=[{role:'system',content:sys},{role:'user',content:prompt}];
+  try{
+    const completion=await engine.chat.completions.create({
+      messages, stream:true, stream_options:{include_usage:true}, temperature:0.7, max_tokens:512
+    });
+    for await(const chunk of completion){
+      const d=chunk.choices?.[0]?.delta?.content||'';
+      if(d){ if(!firstTok)firstTok=performance.now();
+        outEl.textContent+=d; outEl.scrollTop=outEl.scrollHeight; n++; }
+    }
+    const ttft=firstTok?firstTok-t0:0;
+    const tps=firstTok?(n/((performance.now()-firstTok)/1000)):0;
+    document.getElementById('sTok').textContent=n;
+    document.getElementById('sTps').textContent=tps.toFixed(1);
+    document.getElementById('sTTFT').textContent=Math.round(ttft);
+    document.getElementById('sCtx').textContent=(messages.length+1);
+    log('done: '+n+' tok · '+tps.toFixed(1)+' tok/s · TTFT '+Math.round(ttft)+'ms','ok');
+    advance('RUN:'+n+'tok');
+  }catch(e){ log('inference error: '+(e&&e.message||e),'err'); }
+  finally{ running=false;runBtn.disabled=false;stopBtn.disabled=true; }
+});
+stopBtn.addEventListener('click',()=>{ if(engine&&engine.interruptGenerate)engine.interruptGenerate(); running=false;runBtn.disabled=false;stopBtn.disabled=true;log('generation interrupted'); });
+
+})();
+</script>
+</body>
+</html>

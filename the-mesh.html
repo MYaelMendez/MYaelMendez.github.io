@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>MoD · The Mesh</title>
+<meta name="description" content="MoD is the topology. Code Mode is the discipline. The intersection is sovereign.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#000000;--gold:#D4AF37;--gold-l:#f0d060;--gold-d:#b8860b;
+  --neon:#00ff9d;--cyan:#4DABFF;--ink:#f0ece4;
+  --muted:rgba(240,236,228,.5);--dim:rgba(240,236,228,.18);
+  --line:rgba(212,175,55,.08);--line-h:rgba(212,175,55,.2);
+  --red:#C4302B;--violet:#8b5cf6;--surface:rgba(0,0,0,.5);
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --disp:'Orbitron',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--void);color:var(--ink);font-family:var(--mono);
+  -webkit-font-smoothing:antialiased;font-size:15px;line-height:1.7;
+  overflow-x:hidden;
+}
+::selection{background:var(--gold);color:var(--void)}
+
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse at 25% 20%,rgba(212,175,55,.015) 0%,transparent 50%),
+    radial-gradient(ellipse at 75% 75%,rgba(0,255,157,.008) 0%,transparent 40%);
+}
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  opacity:.03;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");
+}
+
+/* ═══════════════════════════
+   SCANNER
+   ═══════════════════════════ */
+.scanner{
+  position:fixed;left:0;right:0;height:1px;z-index:50;pointer-events:none;
+  background:linear-gradient(90deg,transparent 5%,var(--gold) 30%,var(--neon) 50%,var(--gold) 70%,transparent 95%);
+  opacity:0;animation:scan 5s ease-in-out infinite 3s;
+}
+@keyframes scan{0%{top:0;opacity:0}5%{opacity:.08}95%{opacity:.08}100%{top:100%;opacity:0}}
+
+/* ═══════════════════════════
+   MESH HERO — FULL VIEWPORT
+   ═══════════════════════════ */
+.mesh-hero{
+  position:relative;width:100%;height:100vh;height:100dvh;
+  overflow:hidden;z-index:1;
+}
+.mesh-canvas{position:absolute;inset:0;width:100%;height:100%}
+
+/* Mesh HUD overlay */
+.mesh-hud{
+  position:absolute;top:max(16px,env(safe-area-inset-top)) left:50%;transform:translateX(-50%);
+  z-index:20;display:flex;align-items:center;gap:12px;
+  padding:6px 16px;background:rgba(0,0,0,.7);border:1px solid var(--line);
+  border-radius:999px;backdrop-filter:blur(14px);
+  font-size:9px;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;
+}
+.mesh-hud .sep{opacity:.12}
+.mesh-hud .live{color:var(--neon);font-weight:700;display:flex;align-items:center;gap:4px}
+.mesh-hud .live::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--neon);animation:pu 1.6s infinite}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Mesh title */
+.mesh-title{
+  position:absolute;bottom:max(24px,env(safe-area-inset-bottom));left:24px;z-index:20;
+}
+.mesh-title h1{
+  font-family:var(--disp);font-weight:900;font-size:clamp(20px,3.5vw,36px);
+  letter-spacing:1px;color:var(--gold);line-height:1.1;
+}
+.mesh-title .sub{
+  font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;
+  margin-top:4px;
+}
+
+/* Scroll hint */
+.scroll-hint{
+  position:absolute;bottom:max(20px,env(safe-area-inset-bottom));right:24px;z-index:20;
+  font-size:9px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;
+  display:flex;align-items:center;gap:6px;animation:bob 2s ease-in-out infinite;
+}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+.scroll-hint .arrow{font-size:14px;opacity:.3}
+
+/* Detail card (appears on node click) */
+.detail-card{
+  position:absolute;z-index:25;
+  width:280px;padding:16px;
+  background:rgba(0,0,0,.85);border:1px solid var(--line-h);
+  border-radius:10px;backdrop-filter:blur(20px);
+  opacity:0;transform:translateY(8px) scale(.96);
+  transition:all .3s cubic-bezier(.23,1,.32,1);
+  pointer-events:none;
+}
+.detail-card.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+.dc-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.dc-dot{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px rgba(0,255,157,.4)}
+.dc-name{font-family:var(--disp);font-weight:900;font-size:11px;letter-spacing:1.5px;color:var(--gold)}
+.dc-tag{font-size:8px;letter-spacing:1px;color:var(--neon);opacity:.5;text-transform:uppercase}
+.dc-body{font-size:11px;line-height:1.6;color:var(--muted)}
+.dc-body code{font-size:10px;padding:1px 4px;border-radius:3px;background:rgba(212,175,55,.06);color:var(--gold)}
+.dc-body strong{color:var(--gold)}
+.dc-link{
+  display:inline-block;margin-top:8px;font-size:8px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--cyan);cursor:pointer;
+  border-bottom:1px solid rgba(77,171,255,.2);transition:all .2s;
+}
+.dc-link:hover{color:var(--gold);border-color:var(--gold)}
+.dc-close{
+  position:absolute;top:8px;right:10px;font-size:12px;color:var(--dim);
+  cursor:pointer;transition:color .2s;line-height:1;
+}
+.dc-close:hover{color:var(--gold)}
+
+/* ═══════════════════════════
+   Ticker
+   ═══════════════════════════ */
+.ticker{
+  position:relative;z-index:10;
+  height:28px;overflow:hidden;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  background:rgba(0,0,0,.4);
+}
+.ticker-track{display:flex;white-space:nowrap;animation:tk-scroll 60s linear infinite;height:100%;align-items:center}
+@keyframes tk-scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.tk{display:inline-flex;align-items:center;padding:0 20px;font-size:8px;letter-spacing:1.2px;text-transform:uppercase;white-space:nowrap;flex-shrink:0}
+.tk .dot{width:4px;height:4px;border-radius:50%;margin-right:6px;flex-shrink:0}
+.tk .dot.g{background:var(--gold)}.tk .dot.n{background:var(--neon)}.tk .dot.w{background:var(--cyan)}.tk .dot.r{background:var(--red);opacity:.5}
+.tk .v{color:var(--gold);font-weight:700}
+
+/* ═══════════════════════════
+   CONTENT
+   ═══════════════════════════ */
+.content{
+  position:relative;z-index:10;
+  max-width:820px;margin:0 auto;padding:40px 24px 80px;
+}
+@media(min-width:1200px){.content{padding:60px 40px 100px}}
+
+section{margin-bottom:60px}
+.section-tag{
+  font-family:var(--disp);font-weight:700;font-size:8px;letter-spacing:3px;
+  color:var(--gold);opacity:.4;text-transform:uppercase;margin-bottom:8px;
+}
+h2{
+  font-family:var(--disp);font-weight:900;font-size:clamp(18px,3vw,28px);
+  letter-spacing:1px;color:var(--gold);margin-bottom:16px;
+}
+h2 span{color:var(--neon)}
+h3{
+  font-family:var(--disp);font-weight:700;font-size:13px;letter-spacing:1px;
+  color:var(--ink);margin:24px 0 10px;
+}
+p{margin-bottom:12px;color:var(--muted);max-width:600px}
+p strong{color:var(--gold)}p em{color:var(--neon);font-style:normal}
+a{color:var(--cyan);text-decoration:none;border-bottom:1px solid rgba(77,171,255,.2);transition:all .2s}
+a:hover{color:var(--gold);border-color:var(--gold)}
+
+/* ═══════════════════════════
+   PRINCIPLES GRID
+   ═══════════════════════════ */
+.principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
+.principle{
+  padding:20px;border:1px solid var(--line);border-radius:10px;
+  background:var(--surface);backdrop-filter:blur(8px);
+  opacity:0;transform:translateY(12px);transition:all .5s cubic-bezier(.23,1,.32,1);
+}
+.principle.vis{opacity:1;transform:translateY(0)}
+.principle .p-num{
+  font-family:var(--disp);font-weight:900;font-size:24px;
+  color:var(--gold);opacity:.12;line-height:1;
+}
+.principle .p-name{
+  font-family:var(--disp);font-weight:900;font-size:10px;letter-spacing:1.5px;
+  color:var(--gold);margin:8px 0 4px;text-transform:uppercase;
+}
+.principle .p-body{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* ═══════════════════════════
+   STACK VISUALIZATION
+   ═══════════════════════════ */
+.stack-vis{display:flex;flex-direction:column;gap:4px;max-width:400px;margin:16px 0}
+.sv-layer{
+  padding:12px 16px;border:1px solid var(--line);border-radius:8px;
+  text-align:center;font-size:10px;letter-spacing:1px;
+  opacity:0;transform:translateX(-12px);transition:all .5s cubic-bezier(.23,1,.32,1);
+}
+.sv-layer.vis{opacity:1;transform:translateX(0)}
+.sv-layer .sv-name{font-family:var(--disp);font-weight:900;font-size:10px;letter-spacing:1.5px;text-transform:uppercase}
+.sv-layer .sv-desc{font-size:9px;color:var(--muted);margin-top:2px}
+.sv-layer.open{border-color:rgba(0,255,157,.12);background:rgba(0,255,157,.015)}
+.sv-layer.open .sv-name{color:var(--neon)}
+.sv-layer.ctrl{border-color:rgba(196,48,43,.12);background:rgba(196,48,43,.015)}
+.sv-layer.ctrl .sv-name{color:var(--red);opacity:.6}
+.sv-layer.hybrid{border-color:rgba(212,175,55,.12);background:rgba(212,175,55,.015)}
+.sv-layer.hybrid .sv-name{color:var(--gold)}
+.sv-arr{text-align:center;color:var(--gold);opacity:.08;font-size:12px}
+
+/* ═══════════════════════════
+   EVIDENCE TABLE
+   ═══════════════════════════ */
+.ev-table{width:100%;border-collapse:collapse;margin:16px 0;max-width:500px}
+.ev-table th{
+  text-align:left;padding:8px 12px;
+  border-bottom:1px solid var(--gold);
+  font-family:var(--disp);font-size:8px;letter-spacing:1.5px;
+  color:var(--gold);text-transform:uppercase;background:rgba(212,175,55,.02);
+}
+.ev-table td{
+  padding:8px 12px;border-bottom:1px solid var(--line);
+  font-size:12px;color:var(--muted);
+}
+.ev-table td:last-child{color:var(--neon);font-weight:700}
+.ev-table tr:hover td{background:rgba(212,175,55,.02)}
+
+/* ═══════════════════════════
+   CODE BLOCK
+   ═══════════════════════════ */
+pre{
+  background:rgba(0,0,0,.5);border:1px solid rgba(212,175,55,.06);
+  border-radius:8px;padding:16px 18px;margin:12px 0;
+  overflow-x:auto;font-size:12px;line-height:1.6;
+  font-family:var(--mono);color:var(--ink);
+  scrollbar-width:thin;scrollbar-color:rgba(212,175,55,.1) transparent;
+}
+pre .cm{color:var(--dim)}.pre .kw{color:var(--neon)}
+code{
+  font-family:var(--mono);font-size:12px;
+  padding:1px 5px;border-radius:3px;
+  background:rgba(212,175,55,.06);color:var(--gold);
+}
+
+/* ═══════════════════════════
+   DIVIDER
+   ═══════════════════════════ */
+.divider{
+  height:1px;background:var(--line);margin:48px 0;position:relative;
+}
+.divider::after{
+  content:'·';position:absolute;left:50%;top:-8px;transform:translateX(-50%);
+  font-size:16px;color:var(--gold);opacity:.15;background:var(--void);padding:0 12px;
+}
+
+/* ═══════════════════════════
+   NODES INLINE GRID
+   ═══════════════════════════ */
+.nodes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:16px 0}
+.ng-node{
+  padding:16px;border:1px solid var(--line);border-radius:10px;
+  background:var(--surface);backdrop-filter:blur(8px);
+  cursor:pointer;transition:all .3s;
+  opacity:0;transform:translateY(10px);
+}
+.ng-node.vis{opacity:1;transform:translateY(0)}
+.ng-node:hover{border-color:var(--line-h);box-shadow:0 0 20px rgba(212,175,55,.03)}
+.ng-head{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.ng-dot{width:6px;height:6px;border-radius:50%;animation:pu 2s infinite}
+.ng-name{font-family:var(--disp);font-weight:900;font-size:10px;letter-spacing:1.2px;color:var(--gold)}
+.ng-tag{font-size:7px;letter-spacing:1px;padding:2px 5px;border-radius:3px;text-transform:uppercase;opacity:.5}
+.ng-body{font-size:11px;color:var(--muted);line-height:1.5}
+
+/* ═══════════════════════════
+   FOOTER
+   ═══════════════════════════ */
+.footer{
+  display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;
+  padding:24px 0;border-top:1px solid var(--line);
+  font-size:10px;letter-spacing:1px;color:var(--dim);
+}
+.footer a{color:var(--dim);border:none;transition:color .2s}.footer a:hover{color:var(--gold)}
+
+/* ═══════════════════════════
+   HASH CHAIN (floating)
+   ═══════════════════════════ */
+.chain-float{
+  position:fixed;bottom:12px;right:16px;z-index:100;
+  font-size:8px;letter-spacing:1px;color:var(--dim);
+  padding:4px 10px;background:rgba(0,0,0,.7);border:1px solid var(--line);
+  border-radius:999px;backdrop-filter:blur(8px);cursor:pointer;
+  transition:all .2s;
+}
+.chain-float:hover{color:var(--gold);border-color:var(--gold)}
+
+@media(prefers-reduced-motion:reduce){
+  .scanner{display:none}
+  .principle,.sv-layer,.ng-node{opacity:1;transform:none;transition:none}
+  .live::before{animation:none}
+  .scroll-hint{animation:none}
+}
+</style>
+</head>
+<body>
+
+<div class="scanner"></div>
+
+<!-- ═══════════════════════════
+     MESH HERO — FULL VIEWPORT
+     ═══════════════════════════ -->
+<div class="mesh-hero" id="meshHero">
+  <canvas class="mesh-canvas" id="meshCanvas"></canvas>
+
+  <!-- HUD -->
+  <div class="mesh-hud">
+    <span style="color:var(--gold);font-weight:700" id="evCount">0</span>
+    <span class="sep">|</span>
+    <span>MoD <span class="live">LIVE</span></span>
+    <span class="sep">|</span>
+    <span id="chainHud" style="color:rgba(212,175,55,.3)">0x0a1b2c</span>
+    <span class="sep">|</span>
+    <span>6 NODES</span>
+    <span class="sep">|</span>
+    <span style="color:var(--muted)" id="nodeCount">0/6 ACTIVE</span>
+  </div>
+
+  <!-- Title -->
+  <div class="mesh-title">
+    <h1>THE MESH</h1>
+    <div class="sub">MoD IS THE TOPOLOGY · CODE MODE IS THE DISCIPLINE · æ:// IS THE CHASSIS</div>
+  </div>
+
+  <!-- Scroll hint -->
+  <div class="scroll-hint">SCROLL TO EXPLORE <span class="arrow">↓</span></div>
+
+  <!-- Detail card -->
+  <div class="detail-card" id="detailCard">
+    <div class="dc-close" id="dcClose">×</div>
+    <div class="dc-head">
+      <div class="dc-dot"></div>
+      <div>
+        <div class="dc-name" id="dcName">NODE</div>
+        <div class="dc-tag" id="dcTag">ROLE</div>
+      </div>
+    </div>
+    <div class="dc-body" id="dcBody"></div>
+    <div class="dc-link" id="dcLink">VISIT →</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     TICKER
+     ═══════════════════════════ -->
+<div class="ticker">
+  <div class="ticker-track" id="tickerTrack"></div>
+</div>
+
+<!-- ═══════════════════════════
+     CONTENT
+     ═══════════════════════════ -->
+<div class="content">
+
+  <!-- WHAT IS THE MESH -->
+  <section>
+    <div class="section-tag">DEFINITION</div>
+    <h2>What is <span>the mesh</span>?</h2>
+    <p>
+      The mesh is a topology of <strong>six sovereign nodes</strong>. Each node is a domain.
+      Each domain is a boundary. The mesh is not a platform — it doesn't own your data,
+      your identity, or your agency. It's a <em>protocol</em> for cognition distributed
+      across surfaces.
+    </p>
+    <p>
+      <strong>MoD</strong> (Mesh of Domains) gives the shape.
+      <strong>Code Mode</strong> gives the discipline.
+      The intersection gives you <strong>sovereignty</strong>.
+    </p>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- THE NODES -->
+  <section>
+    <div class="section-tag">TOPOLOGY</div>
+    <h2>The six <span>nodes</span></h2>
+    <p>Click any node to explore. Each is a domain. Each is a boundary.</p>
+
+    <div class="nodes-grid" id="nodesGrid">
+      <div class="ng-node" data-node="cli">
+        <div class="ng-head">
+          <div class="ng-dot" style="background:var(--gold)"></div>
+          <div class="ng-name">CLI.LLC</div>
+          <div class="ng-tag" style="background:rgba(212,175,55,.06);color:var(--gold)">BUILD</div>
+        </div>
+        <div class="ng-body">The build surface. Where infrastructure becomes product. CLI is the foundation.</div>
+      </div>
+      <div class="ng-node" data-node="dao">
+        <div class="ng-head">
+          <div class="ng-dot" style="background:var(--neon)"></div>
+          <div class="ng-name">DAOLLC.AI</div>
+          <div class="ng-tag" style="background:rgba(0,255,157,.06);color:var(--neon)">ENTITY</div>
+        </div>
+        <div class="ng-body">The entity. Legal structure for a distributed organization. Not a company — a mesh.</div>
+      </div>
+      <div class="ng-node" data-node="llm">
+        <div class="ng-head">
+          <div class="ng-dot" style="background:var(--cyan)"></div>
+          <div class="ng-name">LLM.STORE</div>
+          <div class="ng-tag" style="background:rgba(77,171,255,.06);color:var(--cyan)">INTEL</div>
+        </div>
+        <div class="ng-body">Intelligence surface. Where the agent lives. Code Mode, æπ surface, the 7 methods.</div>
+      </div>
+      <div class="ng-node" data-node="store">
+        <div class="ng-head">
+          <div class="ng-dot" style="background:var(--violet)"></div>
+          <div class="ng-name">Æ.STORE</div>
+          <div class="ng-tag" style="background:rgba(139,92,246,.06);color:var(--violet)">COMMERCE</div>
+        </div>
+        <div class="ng-body">Commerce layer. Search parts, compare prices, order. The agent acts — it doesn't browse.</div>
+      </div>
+      <div class="ng-node" data-node="arrival">
+        <div class="ng-head">
+          <div class="ng-dot" style="background:var(--gold)"></div>
+          <div class="ng-name">ÆL.NET</div>
+          <div class="ng-tag" style="background:rgba(212,175,55,.06);color:var(--gold)">ARRIVAL</div>
+        </div>
+        <div class="ng-body">Arrival surface. Where the mesh meets the world. Public-facing protocol endpoint.</div>
+      </div>
+      <div class="ng-node" data-node="cuda">
+        <div class="ng-head">
+          <div class="ng-dot" style="background:var(--neon)"></div>
+          <div class="ng-name">CUDA_MCP²</div>
+          <div class="ng-tag" style="background:rgba(0,255,157,.06);color:var(--neon)">EXECUTION</div>
+        </div>
+        <div class="ng-body">Execution node. Victus RTX 3050. Real silicon, real kernels, real results. <code>129.212.180.252</code></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- PRINCIPLES -->
+  <section>
+    <div class="section-tag">PRINCIPLES</div>
+    <h2>How the mesh <span>thinks</span></h2>
+
+    <div class="principles" id="principles">
+      <div class="principle" data-d="0">
+        <div class="p-num">01</div>
+        <div class="p-name">Sovereignty</div>
+        <div class="p-body">Not a feature. A topology. You own the nodes. You own the keys. You own the identity.</div>
+      </div>
+      <div class="principle" data-d="100">
+        <div class="p-num">02</div>
+        <div class="p-name">Boundaries</div>
+        <div class="p-body">Each domain is a wall. Open where it matters. Controlled where it counts.</div>
+      </div>
+      <div class="principle" data-d="200">
+        <div class="p-num">03</div>
+        <div class="p-name">Code Mode</div>
+        <div class="p-body">Don't give the agent a catalog. Give it a typed surface. ~1K tokens. Fixed.</div>
+      </div>
+      <div class="principle" data-d="300">
+        <div class="p-num">04</div>
+        <div class="p-name">Human in the loop</div>
+        <div class="p-body">The agent proposes. The human steers. Evolution is distributed cognition, not autonomous drift.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- SOVEREIGNTY STACK -->
+  <section>
+    <div class="section-tag">ARCHITECTURE</div>
+    <h2>The <span>sovereignty</span> stack</h2>
+    <p>Open where it matters. Controlled where it counts.</p>
+
+    <div class="stack-vis" id="stackVis">
+      <div class="sv-layer hybrid" data-d="0"><div class="sv-name">AGENT RUNTIME</div><div class="sv-desc">Competitive · not locked · interchangeable</div></div>
+      <div class="sv-arr">↕</div>
+      <div class="sv-layer hybrid" data-d="80"><div class="sv-name">INTERFACE (Æπ)</div><div class="sv-desc">~1K tokens · 7 methods · Code Mode</div></div>
+      <div class="sv-arr">↕</div>
+      <div class="sv-layer ctrl" data-d="160"><div class="sv-name">SANDBOX</div><div class="sv-desc">V8 · isolated · trust boundary</div></div>
+      <div class="sv-arr">↕</div>
+      <div class="sv-layer open" data-d="240"><div class="sv-name">PROTOCOL</div><div class="sv-desc">MCP · HTTP · open standards</div></div>
+      <div class="sv-arr">↕</div>
+      <div class="sv-layer open" data-d="320"><div class="sv-name">DATA & IDENTITY</div><div class="sv-desc">User-controlled · local-first · sovereign</div></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- EVIDENCE -->
+  <section>
+    <div class="section-tag">EVIDENCE</div>
+    <h2>99.9% <span>reduction</span></h2>
+    <p>Tokens eliminated. Turns collapsed. Actions unbound.</p>
+
+    <table class="ev-table">
+      <thead><tr><th>Metric</th><th>Schema</th><th>Æπ</th></tr></thead>
+      <tbody>
+        <tr><td>Prompt tokens</td><td>1,170,000</td><td>~1,000</td></tr>
+        <tr><td>Result tokens</td><td>15,000</td><td>~200</td></tr>
+        <tr><td>Turns</td><td>8+</td><td>1</td></tr>
+        <tr><td>Actions per turn</td><td>1</td><td>∞</td></tr>
+        <tr><td>Surface</td><td>Unbounded</td><td>Fixed</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CODE MODE -->
+  <section>
+    <div class="section-tag">DISCIPLINE</div>
+    <h2>The <span>Æπ</span> surface</h2>
+    <p><strong>~1,000 tokens. 7 methods. Fixed. Not growing.</strong></p>
+<pre><code><span class="cm">// the agent doesn't browse a catalog</span>
+<span class="cm">// it calls a typed interface</span>
+
+<span class="kw">interface</span> Æπ {
+  search(query: string): Promise&lt;Result[]&gt;;
+  act(actions: Action[]): Promise&lt;Outcome&gt;;
+  catalog(opts?): Promise&lt;Part[]&gt;;
+  order(items[]): Promise&lt;Order&gt;;
+  remember(key, value): Promise&lt;void&gt;;
+  recall(key): Promise&lt;unknown&gt;;
+  compose(code): Promise&lt;Output&gt;;
+}
+
+<span class="cm">// ~1K tokens. 7 methods. Code Mode.</span>
+<span class="cm">// the interface does not grow.</span>
+<span class="cm">// the actions are unbound.</span></code></pre>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- WHAT'S NEXT -->
+  <section>
+    <div class="section-tag">HORIZON</div>
+    <h2>What's <span>next</span></h2>
+    <p>
+      When <strong>sovereignty</strong> is the default. When <strong>Code Mode</strong> is the standard.
+      When the mesh is the infrastructure.
+    </p>
+    <p>
+      This isn't a startup. It's an <em>operating system for agency</em>.
+      Six nodes become twelve. Twelve becomes a hundred.
+      The protocol is open. The identity is yours.
+    </p>
+    <p>
+      Not a platform. <strong>A topology.</strong><br>
+      Not a product. <strong>A protocol.</strong><br>
+      Not a company. <em>A mesh.</em>
+    </p>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <span>MoD · THE MESH · 2026 · æ:// CHASSIS · ☺://cc OPERATOR</span>
+    <span>
+      <a href="https://llm.store">LLM.STORE</a> ·
+      <a href="https://llm.store/ae">Æπ</a> ·
+      <a href="https://myaelmendez.github.io/droplet.html">DROPLET</a> ·
+      <a href="https://æ.store">Æ.STORE</a> ·
+      <a href="https://doola.com/yael">DAO LLC</a> ·
+      <a href="https://moltcontextprotocol.com">☺://cc</a>
+    </span>
+    <span style="width:100%;margin-top:8px;opacity:.4">#attentionisallyouneed #allyouneedisattention #startabusiness #daollc #clillc #llmstore #neuromitosis</span>
+  </footer>
+</div>
+
+<!-- FLOATING CHAIN -->
+<div class="chain-float" id="chainFloat" title="Click to copy">0x0a1b2c</div>
+
+<script>
+(()=>{
+"use strict";
+
+/* ═══════════════════════════
+   HASH CHAIN
+   ═══════════════════════════ */
+let chain='0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b';
+let evts=0;
+
+/* ═══ LIVE MESH TELEMETRY ═══
+ * Prefer the sovereign HTTPS proxy (rtx.llm.store → droplet :3000).
+ * Falls back to the direct public droplet IP (works on file://, blocked
+ * by mixed-content on https:// pages). Either way: last-good / static
+ * fallback on total failure — never a false "down".
+ */
+const RTX_PROXY='https://rtx.llm.store';
+const RTX_DIRECT='http://129.212.180.252:3000';
+let mesh=null;
+function setLive(key,val){
+  document.querySelectorAll('.tk').forEach(tk=>{ if(tk.dataset.live===key){const v=tk.querySelector('.v'); if(v)v.textContent=val;} });
+}
+async function fetchMesh(){
+  let d=null;
+  for(const base of [RTX_PROXY, RTX_DIRECT]){
+    try{
+      const r=await fetch(base+'/xrpc/ae.vps.rtx?op=probe',{cache:'no-store'});
+      if(!r.ok)continue;
+      d=await r.json();break;
+    }catch(e){/* try next base (e.g. https blocked by mixed-content) */}
+  }
+  if(!d)return; // keep last good mesh; static fallback is expected on https
+  mesh=d.probe||{};
+  setLive('cuda', (mesh.temperature_gpu!=null?Math.round(mesh.temperature_gpu)+'°C ':'')+(mesh.utilization_gpu!=null?Math.round(mesh.utilization_gpu)+'%':'—'));
+  setLive('rtx', Math.round(mesh.memory_total_mib||0)+' MiB');
+  setLive('latency', (d.run&&d.run.host_ms!=null?Math.round(d.run.host_ms)+'ms':'~450ms'));
+}
+setInterval(fetchMesh,5000);
+fetchMesh();
+
+async function advance(a){
+  try{const r=chain+'|'+a+'|'+Date.now()+'|'+evts++;
+  const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(r));
+  chain=Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}catch{evts++}
+  const h='0x'+chain.slice(0,6);
+  document.getElementById('evCount').textContent=evts;
+  document.getElementById('chainHud').textContent=h;
+  document.getElementById('chainFloat').textContent=h;
+  document.getElementById('nodeCount').textContent=Math.min(6,1+Math.floor(evts/5))+'/6 ACTIVE';
+  setLive('chain',h);
+}
+advance('PAGE:mesh');
+
+document.getElementById('chainFloat').addEventListener('click',async()=>{
+  try{await navigator.clipboard.writeText(chain);document.getElementById('chainFloat').textContent='COPIED';setTimeout(()=>document.getElementById('chainFloat').textContent='0x'+chain.slice(0,6),1500)}catch{}
+});
+
+/* ═══════════════════════════
+   TICKER
+   ═══════════════════════════ */
+function buildTicker(){
+  const items=[
+    {dot:'g',t:'CLI.LLC',v:'BUILD'},{dot:'n',t:'DAOLLC.AI',v:'ENTITY'},
+    {dot:'w',t:'LLM.STORE',v:'INTELLIGENCE'},{dot:'g',t:'Æ.STORE',v:'COMMERCE'},
+    {dot:'n',t:'ÆL.NET',v:'ARRIVAL'},{dot:'w',t:'CUDA_MCP²',v:'EXECUTION',live:'cuda'},
+    {dot:'g',t:'MoD',v:'TOPOLOGY'},{dot:'n',t:'CODE MODE',v:'ACTIVE'},
+    {dot:'g',t:'TOKENS',v:'~1,024'},{dot:'n',t:'METHODS',v:'7'},
+    {dot:'w',t:'NODES',v:'6/6'},{dot:'g',t:'CHAIN',v:'0x'+chain.slice(0,6),live:'chain'},
+    {dot:'n',t:'REDUCTION',v:'99.9%'},{dot:'g',t:'SOVEREIGNTY',v:'ACTIVE'},
+    {dot:'w',t:'RTX 3050',v:'6GB · sm_86',live:'rtx'},{dot:'n',t:'LATENCY',v:'~450ms',live:'latency'},
+  ];
+  const html=items.map(i=>`<span class="tk"${i.live?` data-live="${i.live}"`:''}><span class="dot ${i.dot}"></span>${i.t} · <span class="v">${i.v}</span></span>`).join('');
+  document.getElementById('tickerTrack').innerHTML=html+html;
+}
+buildTicker();
+
+/* ═══════════════════════════
+   MESH CANVAS — FULL TOPOLOGY
+   ═══════════════════════════ */
+const cvs=document.getElementById('meshCanvas');
+const ctx=cvs.getContext('2d');
+let W,H,dpr;
+
+function resize(){
+  const rect=cvs.parentElement.getBoundingClientRect();
+  dpr=Math.min(2,devicePixelRatio||1);
+  W=cvs.width=Math.round(rect.width*dpr);
+  H=cvs.height=Math.round(rect.height*dpr);
+}
+resize();
+addEventListener('resize',resize,{passive:true});
+new ResizeObserver(resize).observe(cvs.parentElement);
+
+/* ── Node definitions ── */
+const nodeDefs=[
+  {id:'cli',name:'CLI.LLC',role:'BUILD',url:'https://cli.llc',
+   desc:'<strong>Build surface.</strong> Where infrastructure becomes product. CLI is the foundation of the mesh. <code>cli.llc</code>',
+   color:[212,175,55],angle:0},
+  {id:'dao',name:'DAOLLC.AI',role:'ENTITY',url:'https://daollc.ai',
+   desc:'<strong>Entity.</strong> Legal structure for a distributed organization. Not a company — a mesh. <code>daollc.ai</code>',
+   color:[0,255,157],angle:Math.PI/3},
+  {id:'llm',name:'LLM.STORE',role:'INTELLIGENCE',url:'https://llm.store',
+   desc:'<strong>Intelligence surface.</strong> Where the agent lives. Code Mode, Æπ surface, the 7 methods. <code>llm.store</code>',
+   color:[77,171,255],angle:Math.PI*2/3},
+  {id:'store',name:'Æ.STORE',role:'COMMERCE',url:'https://æ.store',
+   desc:'<strong>Commerce layer.</strong> Search parts, compare prices, order. The agent acts — it doesn\'t browse. <code>æ.store</code>',
+   color:[139,92,246],angle:Math.PI},
+  {id:'arrival',name:'ÆL.NET',role:'ARRIVAL',url:'https://æl.net',
+   desc:'<strong>Arrival surface.</strong> Where the mesh meets the world. Public-facing protocol endpoint. <code>æl.net</code>',
+   color:[212,175,55],angle:Math.PI*4/3},
+  {id:'cuda',name:'CUDA_MCP²',role:'EXECUTION',url:'https://myaelmendez.github.io/droplet.html',
+   desc:'<strong>Execution node.</strong> Victus RTX 3050. Real silicon, real kernels, real results. <code>129.212.180.252</code>',
+   color:[0,255,157],angle:Math.PI*5/3},
+];
+
+/* ── Dynamic layout ── */
+let nodes=[],parts=[],stars=[];
+let mouseX=-9999,mouseY=-9999,hoveredNode=null,selectedNode=null;
+
+function layout(){
+  const cx=W/2,cy=H/2;
+  const r=Math.min(W,H)*.3;
+  const unit=Math.min(W,H)/600;
+  nodes=nodeDefs.map(d=>{
+    const x=cx+Math.cos(d.angle-Math.PI/2)*r;
+    const y=cy+Math.sin(d.angle-Math.PI/2)*r;
+    return {...d,x,y,baseR:8*unit,pulse:Math.random()*6.28,
+      connections:[]};
+  });
+  // Connect neighbors + opposites
+  nodes.forEach((n,i)=>{
+    n.connections=[(i+1)%6,(i+5)%6]; // neighbors
+    if(i<3) n.connections.push(i+3); // opposites
+  });
+  // Particles
+  parts=[];for(let i=0;i<30;i++){
+    const f=Math.floor(Math.random()*6);
+    const nc=nodes[f].connections;
+    parts.push({from:f,to:nc[Math.floor(Math.random()*nc.length)],t:Math.random(),speed:.002+Math.random()*.004});
+  }
+  // Stars
+  stars=[];
+  const count=Math.floor((W*H)/30000)+40;
+  for(let i=0;i<count;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1+.2,z:Math.random()*.5+.5,tw:Math.random()*6.28});
+}
+layout();
+addEventListener('resize',()=>{resize();layout()},{passive:true});
+
+/* ── Mouse/touch tracking ── */
+function trackMouse(e){
+  const rect=cvs.getBoundingClientRect();
+  const cx=(e.clientX||e.touches?.[0]?.clientX||0);
+  const cy=(e.clientY||e.touches?.[0]?.clientY||0);
+  mouseX=(cx-rect.left)*dpr;
+  mouseY=(cy-rect.top)*dpr;
+}
+cvs.addEventListener('mousemove',trackMouse,{passive:true});
+cvs.addEventListener('touchmove',trackMouse,{passive:true});
+cvs.addEventListener('mouseleave',()=>{mouseX=-9999;mouseY=-9999},{passive:true});
+
+/* ── Click handling ── */
+cvs.addEventListener('click',()=>{
+  if(hoveredNode){
+    selectedNode=hoveredNode;
+    showDetail(selectedNode);
+    advance('SELECT:'+selectedNode.id);
+  }else{
+    selectedNode=null;
+    hideDetail();
+  }
+});
+
+/* ── Detail card ── */
+const dc=document.getElementById('detailCard');
+function showDetail(node){
+  document.getElementById('dcName').textContent=node.name;
+  document.getElementById('dcTag').textContent=node.role;
+  document.getElementById('dcBody').innerHTML=node.desc;
+  document.getElementById('dcLink').onclick=()=>window.open(node.url,'_blank');
+  // Position near the node but clamped
+  const rect=document.getElementById('meshHero').getBoundingClientRect();
+  let px=node.x/dpr+20,py=node.y/dpr-60;
+  if(px+280>rect.width)px=node.x/dpr-300;
+  if(px<8)px=8;if(py<8)py=8;
+  if(py+200>rect.height)py=rect.height-210;
+  dc.style.left=px+'px';dc.style.top=py+'px';
+  dc.classList.add('show');
+}
+function hideDetail(){dc.classList.remove('show')}
+document.getElementById('dcClose').addEventListener('click',()=>{selectedNode=null;hideDetail()});
+
+/* ── Shooting stars ── */
+let shooters=[];
+function maybeShoot(){
+  if(Math.random()<.003&&shooters.length<2){
+    shooters.push({x:Math.random()*W*.3,y:Math.random()*H*.3,
+      vx:2+Math.random()*4,vy:1+Math.random()*3,life:1,
+      decay:.008+Math.random()*.012,len:20+Math.random()*40});
+  }
+}
+
+/* ── Main draw loop ── */
+let t=0;
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  t+=.008;
+
+  // Background gradient
+  const bg=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.min(W,H)*.7);
+  bg.addColorStop(0,'rgba(5,5,10,.3)');bg.addColorStop(1,'rgba(0,0,0,.8)');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+
+  // Stars
+  for(const s of stars){
+    s.tw+=.006*s.z;
+    const a=(.15+Math.sin(s.tw)*.08)*(.3+s.z*.3);
+    ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,6.28);
+    ctx.fillStyle=`rgba(212,175,55,${a*.4})`;ctx.fill();
+  }
+
+  // Shooting stars
+  maybeShoot();
+  for(let i=shooters.length-1;i>=0;i--){
+    const s=shooters[i];s.x+=s.vx;s.y+=s.vy;s.life-=s.decay;
+    if(s.life<=0){shooters.splice(i,1);continue}
+    const g=ctx.createLinearGradient(s.x,s.y,s.x-s.vx*s.len/3,s.y-s.vy*s.len/3);
+    g.addColorStop(0,`rgba(240,208,96,${s.life*.5})`);g.addColorStop(1,'transparent');
+    ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(s.x-s.vx*s.len/3,s.y-s.vy*s.len/3);
+    ctx.strokeStyle=g;ctx.lineWidth=1.2;ctx.stroke();
+    ctx.beginPath();ctx.arc(s.x,s.y,1.5,0,6.28);
+    ctx.fillStyle=`rgba(255,248,220,${s.life*.7})`;ctx.fill();
+  }
+
+  // Connections (deduped)
+  const unit=Math.min(W,H)/600;
+  const drawn=new Set();
+  nodes.forEach((n,i)=>{n.connections.forEach(ci=>{
+    const key=Math.min(i,ci)+'-'+Math.max(i,ci);
+    if(drawn.has(key))return;drawn.add(key);
+    const tg=nodes[ci];
+    const isHovered=hoveredNode&&(hoveredNode===n||hoveredNode===tg);
+    ctx.beginPath();ctx.moveTo(n.x,n.y);ctx.lineTo(tg.x,tg.y);
+    ctx.strokeStyle=isHovered?'rgba(212,175,55,.1)':'rgba(212,175,55,.035)';
+    ctx.lineWidth=(isHovered?1.5:.5)*unit;ctx.stroke();
+  })});
+
+  // Particles on connections
+  parts.forEach(p=>{
+    const f=nodes[p.from],tg=nodes[p.to];p.t+=p.speed;
+    if(p.t>1){p.t=0;p.from=p.to;const nc=nodes[p.from].connections;p.to=nc[Math.floor(Math.random()*nc.length)]}
+    const x=f.x+(tg.x-f.x)*p.t,y=f.y+(tg.y-f.y)*p.t;
+    const c=tg.color;ctx.beginPath();ctx.arc(x,y,1.2*unit,0,6.28);
+    ctx.fillStyle=`rgba(${c},.25)`;ctx.fill();
+  });
+
+  // Nodes
+  hoveredNode=null;
+  nodes.forEach((n,i)=>{
+    n.pulse+=.012;
+    const dx=mouseX-n.x,dy=mouseY-n.y;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    const hover=dist<n.baseR*4;
+    const sel=selectedNode===n;
+    if(hover)hoveredNode=n;
+
+    const glow=.3+Math.sin(n.pulse)*.15+(hover?.3:0)+(sel?.4:0);
+    const r=n.baseR*(hover?1.3:1)*(sel?1.2:1);
+
+    // Outer glow
+    const gr=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,r*4);
+    gr.addColorStop(0,`rgba(${n.color},${glow*.08})`);gr.addColorStop(1,'transparent');
+    ctx.fillStyle=gr;ctx.beginPath();ctx.arc(n.x,n.y,r*4,0,6.28);ctx.fill();
+
+    // Ring (hover/select)
+    if(hover||sel){ctx.beginPath();ctx.arc(n.x,n.y,r*2,0,6.28);
+      ctx.strokeStyle=`rgba(${n.color},${sel?.2:.1})`;ctx.lineWidth=.6*unit;ctx.stroke()}
+
+    // Body
+    ctx.beginPath();ctx.arc(n.x,n.y,r,0,6.28);
+    ctx.fillStyle=`rgba(${n.color},${.3+glow})`;ctx.fill();
+
+    // Core
+    ctx.beginPath();ctx.arc(n.x,n.y,r*.3,0,6.28);
+    ctx.fillStyle=`rgba(${n.color},.85)`;ctx.fill();
+
+    // Label
+    const fs=Math.max(7,Math.round(W/100));
+    ctx.font=`700 ${fs}px Orbitron,sans-serif`;
+    ctx.fillStyle=`rgba(${n.color},${.3+glow*.3})`;
+    ctx.textAlign='center';ctx.textBaseline='top';
+    ctx.fillText(n.name,n.x,n.y+r+5*unit);
+
+    // Role (smaller)
+    ctx.font=`400 ${fs*.7}px Orbitron,sans-serif`;
+    ctx.fillStyle=`rgba(${n.color},.2)`;
+    ctx.fillText(n.role,n.x,n.y+r+5*unit+fs+2);
+  });
+
+  // Center label
+  const cfs=Math.max(9,Math.round(W/70));
+  ctx.font=`900 ${cfs}px Orbitron,sans-serif`;
+  ctx.fillStyle=`rgba(212,175,55,.04)`;
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('MoD',W/2,H/2);
+
+  // Cursor
+  if(hoveredNode){cvs.style.cursor='pointer'}else{cvs.style.cursor='default'}
+
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+
+/* ═══════════════════════════
+   SCROLL ANIMATIONS
+   ═══════════════════════════ */
+const obs=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('vis');
+      obs.unobserve(e.target);
+    }
+  });
+},{threshold:.1});
+
+document.querySelectorAll('.principle,.sv-layer,.ng-node').forEach(el=>{
+  const d=parseInt(el.dataset.d||0);
+  el.style.transitionDelay=d+'ms';
+  obs.observe(el);
+});
+
+/* ═══════════════════════════
+   AMBIENT
+   ═══════════════════════════ */
+setInterval(()=>{
+  const node=nodeDefs[Math.floor(Math.random()*6)];
+  advance('MESH:'+node.id);
+},8000);
+
+})();
+</script>
+</body>
+</html>

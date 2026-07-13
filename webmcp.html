@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>æ:// · WebMCP · Browser-as-MCP</title>
+<meta name="description" content="æ:// WebMCP — the browser exposed as a sovereign MCP server. Real tools, real actuation.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#000000;--gold:#D4AF37;--gold-l:#f0d060;--gold-d:#b8860b;
+  --neon:#00ff9d;--cyan:#4DABFF;--ink:#f0ece4;
+  --muted:rgba(240,236,228,.5);--dim:rgba(240,236,228,.18);
+  --line:rgba(212,175,55,.08);--line-h:rgba(212,175,55,.2);
+  --red:#C4302B;--violet:#8b5cf6;--surface:rgba(0,0,0,.5);
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --disp:'Orbitron',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--ink);font-family:var(--mono);-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+::selection{background:var(--gold);color:var(--void)}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 25% 15%,rgba(212,175,55,.02) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(0,255,157,.01) 0%,transparent 40%)}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.03;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E")}
+.scanlines{position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.04;background:repeating-linear-gradient(transparent 0 2px,rgba(212,175,55,.015) 2px 4px)}
+.wrap{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:32px 20px 80px}
+.head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:18px}
+.title{font-family:var(--disp);font-weight:900;font-size:clamp(18px,3vw,26px);letter-spacing:1px;color:var(--gold)}
+.sub{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.tag{font-size:8px;letter-spacing:2px;color:var(--neon);opacity:.5;text-transform:uppercase;border:1px solid var(--line);padding:3px 8px;border-radius:999px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px;backdrop-filter:blur(8px)}
+.panel h3{font-family:var(--disp);font-weight:700;font-size:10px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:10px;opacity:.7}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.tool{border:1px solid var(--line);border-radius:8px;padding:12px;background:rgba(0,0,0,.3);cursor:pointer;transition:all .25s;opacity:0;transform:translateY(8px)}
+.tool.vis{opacity:1;transform:translateY(0)}
+.tool:hover{border-color:var(--line-h);box-shadow:0 0 16px rgba(212,175,55,.04)}
+.tool.act{border-color:var(--neon);box-shadow:0 0 16px rgba(0,255,157,.08)}
+.tool .tn{font-family:var(--disp);font-weight:900;font-size:11px;letter-spacing:1px;color:var(--gold)}
+.tool .td{font-size:10px;color:var(--muted);margin-top:3px}
+.tool .ts{font-size:8px;color:var(--neon);opacity:.45;margin-top:4px;text-transform:uppercase;letter-spacing:1px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+input,textarea,select{font-family:var(--mono);font-size:13px;background:#060609;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 11px}
+input{flex:1;min-width:200px}
+button{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;background:linear-gradient(135deg,rgba(212,175,55,.15),rgba(0,255,157,.06));border:1px solid rgba(212,175,55,.5);color:var(--gold);padding:9px 14px;border-radius:8px;transition:all .2s}
+button:hover{border-color:var(--gold)}
+button:disabled{opacity:.4;cursor:not-allowed}
+.demo{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.demo{grid-template-columns:1fr}}
+.target{border:1px solid var(--line);border-radius:8px;padding:14px;background:rgba(0,0,0,.25)}
+.target h4{font-family:var(--disp);font-weight:700;font-size:9px;letter-spacing:2px;color:var(--cyan);text-transform:uppercase;margin-bottom:10px;opacity:.7}
+.field{margin-bottom:9px}
+.field label{display:block;font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:3px}
+.field input{width:100%}
+.prod{border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:11px;display:flex;justify-content:space-between;gap:8px}
+.prod .pn{color:var(--gold)}
+.prod.hidden{display:none}
+#result{white-space:pre-wrap;font-size:12px;line-height:1.6;color:var(--ink);min-height:80px;max-height:240px;overflow-y:auto}
+.log{font-size:11px;color:var(--muted);border-top:1px solid var(--line);margin-top:12px;padding-top:10px;max-height:150px;overflow-y:auto}
+.log div{margin-bottom:3px}.log .err{color:var(--red)}.log .ok{color:var(--neon)}
+.foot{margin-top:24px;font-size:9px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.foot a{color:var(--dim);text-decoration:none}.foot a:hover{color:var(--gold)}
+.hash{position:fixed;bottom:12px;right:16px;z-index:100;font-size:8px;letter-spacing:1px;color:var(--dim);padding:4px 10px;background:rgba(0,0,0,.7);border:1px solid var(--line);border-radius:999px;cursor:pointer}
+.hash:hover{color:var(--gold);border-color:var(--gold)}
+@media(prefers-reduced-motion:reduce){.scanlines{display:none}.tool{opacity:1;transform:none;transition:none}}
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="wrap">
+
+  <div class="head">
+    <div class="title">æ:// · WebMCP</div>
+    <div class="sub">Browser-as-MCP · Sovereign Actuation Surface</div>
+    <div class="tag" id="statTag">0 TOOLS</div>
+  </div>
+
+  <div class="panel">
+    <h3>Registered Tool Surface</h3>
+    <div class="grid" id="tools"></div>
+  </div>
+
+  <div class="panel">
+    <h3>Sandbox Target (same-origin)</h3>
+    <div class="demo">
+      <div class="target">
+        <h4>Account Form</h4>
+        <div class="field"><label>Name</label><input id="fName" value=""></div>
+        <div class="field"><label>Email</label><input id="fEmail" value=""></div>
+        <div class="field"><label>Plan</label><input id="fPlan" value="sovereign"></div>
+        <button id="fSubmit" style="margin-top:4px">SUBMIT</button>
+        <div id="fEcho" style="font-size:10px;color:var(--muted);margin-top:8px"></div>
+      </div>
+      <div class="target">
+        <h4>Catalog (searchCatalog)</h4>
+        <input id="catFilter" placeholder="filter parts…">
+        <div id="cat" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Dispatch · call_tool</h3>
+    <div class="controls">
+      <select id="toolSel"></select>
+      <input id="argKey" placeholder="arg key (e.g. selector)" value="selector">
+      <input id="argVal" placeholder="arg value (e.g. #fName)" value="#fName">
+      <button id="callBtn">CALL</button>
+    </div>
+    <div id="result" class="panel" style="margin-bottom:0"></div>
+    <div class="log" id="log"></div>
+  </div>
+
+  <div class="foot">
+    <span>æ:// CHASSIS · ☺://cc OPERATOR · WEBMCP CONTRACT</span>
+    <span><a href="https://llm.store">LLM.STORE</a> · <a href="the-mesh.html">THE MESH</a> · <a href="webllm.html">WEBLLM</a></span>
+  </div>
+</div>
+<div class="hash" id="hash" title="Click to copy">0x0a1b2c</div>
+
+<script>
+(()=>{
+"use strict";
+
+/* ═══ HASH CHAIN ═══ */
+let chain='0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b';
+let evts=0;
+async function advance(a){
+  try{const r=chain+'|'+a+'|'+Date.now()+'|'+evts++;
+  const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(r));
+  chain=Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}catch{evts++}
+  document.getElementById('hash').textContent='0x'+chain.slice(0,6);
+}
+advance('PAGE:webmcp');
+document.getElementById('hash').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(chain);document.getElementById('hash').textContent='COPIED';setTimeout(()=>document.getElementById('hash').textContent='0x'+chain.slice(0,6),1200)}catch{}});
+
+/* ═══ LOG ═══ */
+const logEl=document.getElementById('log');
+function log(m,c=''){const d=document.createElement('div');if(c)d.className=c;d.textContent=new Date().toLocaleTimeString()+' · '+m;logEl.appendChild(d);logEl.scrollTop=logEl.scrollHeight}
+
+/* ═══ CATALOG (demo data) ═══ */
+const CATALOG=[
+  {pn:'RTX 3050 6GB',tag:'GPU',price:'$329'},
+  {pn:'Victus Chassis',tag:'NODE',price:'$0'},
+  {pn:'Droplet VPS',tag:'CLOUD',price:'$4/mo'},
+  {pn:'DAO LLC (WY)',tag:'ENTITY',price:'$39'},
+  {pn:'Æ.STORE Vault',tag:'COMMERCE',price:'$9/mo'},
+  {pn:'WebGPU Surface',tag:'RUNTIME',price:'free'},
+];
+function renderCatalog(filter=''){
+  const f=filter.toLowerCase();
+  document.getElementById('cat').innerHTML=CATALOG.filter(p=>p.pn.toLowerCase().includes(f)||p.tag.toLowerCase().includes(f))
+    .map(p=>`<div class="prod"><span class="pn">${p.pn}</span><span>${p.tag} · ${p.price}</span></div>`).join('')||'<div class="prod"><span>— no matches —</span></div>';
+}
+renderCatalog();
+document.getElementById('catFilter').addEventListener('input',e=>renderCatalog(e.target.value));
+
+/* ═══ WEBMCP — REAL BROWSER TOOLS ═══ */
+const registry=[];
+function registerTool(name,desc,schema,fn){
+  registry.push({name,desc,schema,fn});
+  const el=document.createElement('div');
+  el.className='tool';el.dataset.name=name;
+  el.innerHTML=`<div class="tn">${name}</div><div class="td">${desc}</div><div class="ts">${schema}</div>`;
+  el.addEventListener('click',()=>dispatch(name,defaultArgs(name)));
+  document.getElementById('tools').appendChild(el);
+  const opt=document.createElement('option');opt.value=name;opt.textContent=name;document.getElementById('toolSel').appendChild(opt);
+  const idx=registry.length;el.style.transitionDelay=(idx*40)+'ms';
+  requestAnimationFrame(()=>el.classList.add('vis'));
+}
+function defaultArgs(name){
+  if(name==='read_dom'||name==='click'||name==='type'||name==='scroll_to')return {selector:'#fName'};
+  if(name==='search_catalog')return {query:''};
+  if(name==='get_user_context')return {};
+  if(name==='capture_context')return {};
+  return {};
+}
+
+/* tools */
+registerTool('read_dom','Read text/value of a DOM node','arg: selector',async({selector='#fName'}={})=>{
+  const el=document.querySelector(selector);if(!el)throw new Error('not found: '+selector);
+  return {selector,value:el.value!==undefined?el.value:el.textContent,tag:el.tagName};
+});
+registerTool('click','Click a DOM node','arg: selector',async({selector='#fSubmit'}={})=>{
+  const el=document.querySelector(selector);if(!el)throw new Error('not found: '+selector);
+  el.click();return {selector,clicked:true};
+});
+registerTool('type','Set value of an input','args: selector,text',async({selector='#fName',text='sovereign'}={})=>{
+  const el=document.querySelector(selector);if(!el)throw new Error('not found: '+selector);
+  el.value=text;el.dispatchEvent(new Event('input',{bubbles:true}));return {selector,value:text};
+});
+registerTool('scroll_to','Scroll element into view','arg: selector',async({selector='#cat'}={})=>{
+  const el=document.querySelector(selector);if(!el)throw new Error('not found: '+selector);
+  el.scrollIntoView({behavior:'smooth'});return {selector,scrolled:true};
+});
+registerTool('search_catalog','Filter the live catalog','arg: query',async({query=''}={})=>{
+  renderCatalog(query);return {query,results:CATALOG.filter(p=>p.pn.toLowerCase().includes(query.toLowerCase())||p.tag.toLowerCase().includes(query.toLowerCase())).map(p=>p.pn)};
+});
+registerTool('get_user_context','Capture form context','no args',async()=>({
+  name:document.getElementById('fName').value,
+  email:document.getElementById('fEmail').value,
+  plan:document.getElementById('fPlan').value,
+  lastSearch:document.getElementById('catFilter').value
+}));
+registerTool('capture_context','Snapshot sandbox state','no args',async()=>({
+  form:{name:document.getElementById('fName').value,email:document.getElementById('fEmail').value,plan:document.getElementById('fPlan').value},
+  catalogFilter:document.getElementById('catFilter').value,
+  visibleProducts:[...document.querySelectorAll('#cat .prod .pn')].map(e=>e.textContent),
+  ts:new Date().toISOString()
+}));
+
+document.getElementById('fSubmit').addEventListener('click',()=>{
+  document.getElementById('fEcho').textContent='SUBMITTED → '+JSON.stringify({
+    name:document.getElementById('fName').value,email:document.getElementById('fEmail').value,plan:document.getElementById('fPlan').value
+  });
+});
+
+/* dispatch */
+const resultEl=document.getElementById('result');
+async function dispatch(name,args){
+  const tool=registry.find(t=>t.name===name);if(!tool){log('unknown tool: '+name,'err');return;}
+  document.querySelectorAll('.tool').forEach(t=>t.classList.toggle('act',t.dataset.name===name));
+  log('call '+name+' '+JSON.stringify(args));
+  resultEl.textContent='▸ '+name+'('+JSON.stringify(args)+')\n';
+  try{
+    const res=await tool.fn(args||{});
+    resultEl.textContent+='\n'+JSON.stringify(res,null,2);
+    log('ok: '+name,'ok');advance('CALL:'+name);
+  }catch(e){ resultEl.textContent+='\n✗ '+e.message; log('err: '+e.message,'err'); }
+}
+document.getElementById('callBtn').addEventListener('click',()=>{
+  const name=document.getElementById('toolSel').value;
+  const k=document.getElementById('argKey').value.trim();
+  const v=document.getElementById('argVal').value.trim();
+  const args={};if(k&&v)args[k]=v;
+  dispatch(name,args);
+});
+
+/* seed */
+document.getElementById('fName').value='Yæl';
+document.getElementById('fEmail').value='yael@llm.store';
+document.getElementById('statTag').textContent=registry.length+' TOOLS';
+log(registry.length+' tools registered','ok');advance('INIT');
+
+})();
+</script>
+</body>
+</html>
