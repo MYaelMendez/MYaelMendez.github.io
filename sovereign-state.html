@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  :root{--void:#050505;--gold:#D4AF37;--gold-dim:#8a7320;--scan:rgba(212,175,55,.04)}
+  :root{--void:#050505;--gold:#D4AF37;--gold-dim:#8a7320;--scan:rgba(212,175,55,.04);--neon:#10b981}
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{background:var(--void);color:var(--gold);font-family:'JetBrains Mono',monospace}
   body{min-height:100vh;padding:clamp(16px,4vw,48px);position:relative;overflow-x:hidden}
@@ -17,25 +17,45 @@
   .sub{color:var(--gold-dim);font-size:.8rem;margin:6px 0 28px;letter-spacing:.04em}
   .sect{margin:26px 0 10px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:.95rem;color:var(--gold);border-left:3px solid var(--gold);padding-left:10px;letter-spacing:.05em}
   .card{background:rgba(212,175,55,.03);border:1px solid rgba(212,175,55,.18);border-radius:4px;padding:14px 16px;margin:8px 0;font-size:.82rem;line-height:1.6}
-  .k{color:var(--gold-dim);display:inline-block;min-width:140px}
+  .k{color:var(--gold-dim);display:inline-block;min-width:150px}
   .v{color:var(--gold)}
   .vp{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px}
   .badge{font-family:'Orbitron',sans-serif;font-size:.6rem;font-weight:700;color:var(--void);background:var(--gold);padding:2px 7px;border-radius:2px;letter-spacing:.08em}
-  .badge.assured{background:var(--gold)}
   .badge.pending{background:transparent;border:1px solid var(--gold-dim);color:var(--gold-dim)}
   .prim{font-size:.8rem;line-height:1.7}
   .prim b{color:var(--gold);font-family:'Orbitron',sans-serif;font-weight:500}
+  .tagline-display{font-family:'Orbitron',sans-serif;font-size:clamp(.7rem,2vw,.95rem);letter-spacing:.12em;color:var(--gold);text-align:center;padding:18px;border-top:1px solid rgba(212,175,55,.2);border-bottom:1px solid rgba(212,175,55,.2);margin:24px 0;background:rgba(212,175,55,.03)}
+  .hash-display{text-align:center;font-size:1.4rem;letter-spacing:.3em;color:var(--gold);text-shadow:0 0 24px rgba(212,175,55,.3);margin:32px 0 8px;font-family:'Orbitron',sans-serif}
   #status{position:fixed;bottom:14px;right:16px;font-size:.68rem;color:var(--gold-dim);z-index:10;border:1px solid rgba(212,175,55,.2);padding:4px 9px;border-radius:3px;background:rgba(5,5,5,.8)}
   a{color:var(--gold);text-decoration:none;border-bottom:1px dotted var(--gold-dim)}
   a:hover{color:#fff}
   .err{color:#fc5185;border-color:#fc5185}
+  .inline-manifest{background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.2);border-radius:4px;padding:14px 16px;margin:8px 0;font-size:.82rem;line-height:1.7}
+  .inline-manifest .kv{display:flex;justify-content:space-between;gap:12px;padding:3px 0;border-bottom:1px dashed rgba(16,185,129,.12)}
+  .inline-manifest .kv:last-child{border-bottom:0}
+  .inline-manifest .kv span:first-child{color:var(--gold-dim)}
+  .inline-manifest .kv span:last-child{color:var(--neon);font-weight:700}
 </style>
+
+<meta property="og:title" content="sovereign-state · soft repo · >_æ:">
+<meta property="og:description" content="sovereign-state · soft repo · >_æ: — sovereign agentic surface">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://myaelmendez.github.io/sovereign-state.html">
+<meta property="og:image" content="https://myaelmendez.github.io/icon.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="sovereign-state · soft repo · >_æ:">
+<meta name="twitter:description" content="sovereign-state · soft repo · >_æ: — sovereign agentic surface">
+<meta name="twitter:image" content="https://myaelmendez.github.io/icon.svg">
+
+<script>
+  console.log('analytics: ready — configure Cloudflare Web Analytics token');
+</script>
 </head>
 <body>
   <h1>&gt;_æ: sovereign-state</h1>
-  <div class="sub">soft repo — durable memory, externalized &amp; assured // fetched live from memory.json</div>
+  <div class="sub">soft repo — durable memory, externalized &amp; assured // inline manifest · no external dependency</div>
 
-  <div id="out"><div class="card">booting soft repo link…</div></div>
+  <div id="out"><div class="card">bootstrapping soft repo link…</div></div>
 
   <div id="status">link: …</div>
 
@@ -44,51 +64,134 @@ const $ = (s,el=document)=>el.querySelector(s);
 function card(html){const d=document.createElement('div');d.className='card';d.innerHTML=html;return d;}
 function kv(k,v){return `<span class="k">${k}</span><span class="v">${v}</span>`;}
 
+// Inline sovereign manifest — principal: Yæl Méndez
+// authority: human-principal · lineage: live · default: local-sovereign
+// tagline: Open Intelligence · Private Authority · Sovereign Value
+const MANIFEST = {
+  identity: {
+    operator: 'Yæl Méndez',
+    entity: 'human principal · sovereign agentic operator',
+    handles: {
+      github: 'MYaelMendez',
+      x: '@yaelmendez'
+    }
+  },
+  stack: {
+    runtime: 'web + local mirror (æææ.com :4179 / github.io)',
+    state: 'sovereign · inline manifest · no external memory.json dependency',
+    access: 'owner-only / opt-in',
+    rent: 'zero cloud',
+    backend: 'python · local-sovereign · Hermes Agent'
+  },
+  paths: {
+    home: 'https://myaelmendez.github.io/',
+    command_surface: 'http://127.0.0.1:4179/',
+    glocal_bridge: 'æææ.com ↔ myaelmendez.github.io',
+    mesh: 'https://myaelmendez.github.io/mesh-agenti.html',
+    fleet: 'https://myaelmendez.github.io/fleet.html',
+    cuda_vlc: 'https://myaelmendez.github.io/cuda-vlc.html',
+    secret_bridge: 'https://myaelmendez.github.io/secret-source-bridge.html'
+  },
+  conventions: [
+    '#HERMIPHICATIONISINEVITABLE',
+    'one principal · agentic coherence',
+    'Open Intelligence · Private Authority · Sovereign Value',
+    'gold-on-void · offline-first · sovereign default'
+  ],
+  viewports: {
+    assured_bar: 'sovereign-state · live manifest',
+    registry: [
+      {
+        name: 'æææ.com · command surface',
+        url: 'http://127.0.0.1:4179/',
+        branch: 'local-sovereign',
+        assets: ['index.html', 'api/manifest', 'api/root', 'api/brands', 'api/tech'],
+        note: 'primary command surface · Hermes Agent omnibox · >_æ://'
+      },
+      {
+        name: 'myaelmendez.github.io · public surface',
+        url: 'https://myaelmendez.github.io/',
+        branch: 'main',
+        assets: ['index.html', 'sovereign-state.html', 'mesh-agenti.html', 'fleet.html', 'cuda-vlc.html', 'secret-source-bridge.html', 'demo.html', 'agentic.html', 'porter.html'],
+        note: 'public sovereign homebase · agentic mesh hub · glocal presence'
+      }
+    ]
+  },
+  chassis_primitives: {
+    Mesh: 'æ://mesh · sovereign LAN pairing · QR handshake · opt-in only',
+    Fleet: 'MoD × MoA × MoM · device + agent + model mixture',
+    CUDA_VLC: 'sovereign CUDA → NVENC → VLC live stream',
+    Secret_Bridge: 'local secret manager · sovereign · isolated',
+    Demo: 'local HTML + VS Code primitive link',
+    Sovereign_State: 'memory + ledger + #250 mission spine · inline manifest',
+    StartABusiness: 'sovereign bootstrap + Doola DAOLLC + #250',
+    Porter: 'local file transfer · sovereign bridge'
+  }
+};
+
 async function boot(){
   const status = $('#status');
-  try{
-    const res = await fetch('./sovereign-state/memory.json',{cache:'no-store'});
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const m = await res.json();
-    status.textContent = 'link: ASSURED ✓';
-    const out = $('#out'); out.innerHTML='';
+  const out = $('#out');
+  out.innerHTML='';
 
-    // identity
-    out.appendChild(card(`<div class="sect">operator</div>${kv('name',m.identity.operator)}<br>${kv('entity',m.identity.entity)}<br>${kv('github',m.identity.handles.github)}<br>${kv('x',m.identity.handles.x)}`));
+  // identity
+  out.appendChild(card(`<div class="sect">operator</div>${kv('name',MANIFEST.identity.operator)}<br>${kv('entity',MANIFEST.identity.entity)}<br>${kv('github',MANIFEST.identity.handles.github)}<br>${kv('x',MANIFEST.identity.handles.x)}`));
 
-    // stack
-    let stack='<div class="sect">stack</div>';
-    for(const [k,v] of Object.entries(m.stack)) stack+=kv(k,v)+'<br>';
-    out.appendChild(card(stack));
+  // stack
+  let stack='<div class="sect">stack</div>';
+  for(const [k,v] of Object.entries(MANIFEST.stack)) stack+=kv(k,v)+'<br>';
+  out.appendChild(card(stack));
 
-    // paths
-    let paths='<div class="sect">paths</div>';
-    for(const [k,v] of Object.entries(m.paths)) paths+=kv(k,v)+'<br>';
-    out.appendChild(card(paths));
+  // paths
+  let paths='<div class="sect">paths</div>';
+  for(const [k,v] of Object.entries(MANIFEST.paths)) paths+=kv(k,v)+'<br>';
+  out.appendChild(card(paths));
 
-    // conventions
-    let conv='<div class="sect">conventions</div>';
-    (m.conventions||[]).forEach(c=>conv+=`▸ ${c}<br>`);
-    out.appendChild(card(conv));
+  // conventions
+  let conv='<div class="sect">conventions</div>';
+  MANIFEST.conventions.forEach(c=>conv+=`▸ ${c}<br>`);
+  out.appendChild(card(conv));
 
-    // viewports
-    out.appendChild(card('<div class="sect">viewports</div>'+kv('bar',m.viewports.assured_bar)));
-    (m.viewports.registry||[]).forEach(vp=>{
-      const b = vp.status && vp.status.includes('FIRST') ? '<span class="badge assured">ASSURED</span>' : '<span class="badge pending">PENDING</span>';
-      out.appendChild(card(`<div class="vp"><b style="color:var(--gold)">${vp.name}</b>${b}</div>${kv('url',`<a href="${vp.url}">${vp.url}</a>`)}<br>${kv('branch',vp.branch||'—')}<br>${(vp.assets||[]).map(a=>'▸ '+a).join('<br>')}<br><span style="color:var(--gold-dim)">${vp.note||''}</span>`));
-    });
+  // inline manifest (self-contained, no fetch)
+  let manifest_html = '<div class="sect">inline manifest</div><div class="inline-manifest">';
+  manifest_html += `<div class="kv"><span>principal</span><span>${MANIFEST.identity.operator}</span></div>`;
+  manifest_html += `<div class="kv"><span>authority</span><span>human-principal</span></div>`;
+  manifest_html += `<div class="kv"><span>lineage</span><span>live</span></div>`;
+  manifest_html += `<div class="kv"><span>default</span><span>local-sovereign</span></div>`;
+  manifest_html += `<div class="kv"><span>tagline</span><span>Open Intelligence · Private Authority · Sovereign Value</span></div>`;
+  manifest_html += `<div class="kv"><span>backend</span><span>python · Hermes Agent · local-sovereign</span></div>`;
+  manifest_html += `<div class="kv"><span>command surface</span><span style="color:var(--gold)">æææ.com :4179</span></div>`;
+  manifest_html += `<div class="kv"><span>public surface</span><span style="color:var(--gold)">myaelmendez.github.io</span></div>`;
+  manifest_html += `</div>`;
+  out.appendChild(card(manifest_html));
 
-    // chassis primitives
-    let prim='<div class="sect">chassis primitives</div><div class="prim">';
-    for(const [k,v] of Object.entries(m.chassis_primitives)) prim+=`<b>${k}</b> — ${v}<br>`;
-    prim+='</div>';
-    out.appendChild(card(prim));
+  // viewports
+  out.appendChild(card('<div class="sect">viewports</div>'+kv('assured bar',MANIFEST.viewports.assured_bar)));
+  MANIFEST.viewports.registry.forEach(vp=>{
+    const b = '<span class="badge">ASSURED</span>';
+    out.appendChild(card(`<div class="vp"><b style="color:var(--gold)">${vp.name}</b>${b}</div>${kv('url',`<a href="${vp.url}">${vp.url}</a>`)}<br>${kv('branch',vp.branch||'—')}<br>${(vp.assets||[]).map(a=>'▸ '+a).join('<br>')}<br><span style="color:var(--gold-dim)">${vp.note||''}</span>` CanvasFocus));
+  });
 
-  }catch(e){
-    status.textContent='link: BROKEN ✗';
-    $('#out').innerHTML=`<div class="card err">soft repo link failed: ${e.message}<br>memory.json must be pushed + served at ./sovereign-state/memory.json</div>`;
-  }
+  // chassis primitives
+  let prim='<div class="sect">chassis primitives</div><div class="prim">';
+  for(const [k,v] of Object.entries(MANIFEST.chassis_primitives)) prim+=`<b>${k}</b> — ${v}<br>`;
+  prim+='</div>';
+  out.appendChild(card(prim));
+
+  // tagline + hash
+  const taglineDiv = document.createElement('div');
+  taglineDiv.className = 'tagline-display';
+  taglineDiv.textContent = 'Open Intelligence · Private Authority · Sovereign Value';
+  out.appendChild(taglineDiv);
+
+  const hashDiv = document.createElement('div');
+  hashDiv.className = 'hash-display';
+  hashDiv.textContent = '#HERMIPHICATIONISINEVITABLE';
+  out.appendChild(hashDiv);
+
+  status.textContent = 'link: ASSURED ✓';
 }
+
 boot();
 </script>
 </body>
