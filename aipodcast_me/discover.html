@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#050505"/>
+<title>æ:/aipodcast.me/discover · DISCOVER · WebGPU</title>
+<meta name="description" content="AI Podcast discovery field — WebGPU episodic topology. One principal. Many agents. #aipodcast"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --void:#050505;--gold:#D4AF37;--gold2:#f0d487;--emerald:#00ff9d;
+    --cyan:#00eaff;--violet:#8c72ff;--orange:#ff9a4d;--ink:#e8e6df;--muted:#6f6a5c;
+    --line:rgba(212,175,55,.22);
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --display:"Orbitron",system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--void);color:var(--ink);font-family:var(--mono)}
+  canvas{display:block}
+  #stage{position:fixed;inset:0;z-index:0}
+  .scan{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:.20;
+    background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.5) 2px 4px)}
+  .vig{position:fixed;inset:0;z-index:3;pointer-events:none;
+    background:radial-gradient(circle at 50% 45%,transparent 34%,rgba(5,5,5,.55) 72%,rgba(5,5,5,.95) 100%)}
+  #hud{position:fixed;inset:0;z-index:10;pointer-events:none;
+    display:flex;flex-direction:column;justify-content:space-between;
+    padding:max(12px,env(safe-area-inset-top)) 14px calc(14px + env(safe-area-inset-bottom))}
+  .row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+  .bar{display:flex;justify-content:space-between;gap:10px;font-size:8.5px;letter-spacing:.16em;color:var(--muted);
+    border:1px solid var(--line);border-top:2px solid var(--gold);padding:8px 11px;
+    background:rgba(8,8,7,.82);pointer-events:auto;width:min(100%,560px)}
+  .bar .live{color:var(--emerald);display:flex;align-items:center;gap:6px}
+  .bar .dot{width:5px;height:5px;background:var(--emerald);border-radius:50%;
+    box-shadow:0 0 10px var(--emerald);animation:blink 2s infinite}
+  @keyframes blink{50%{opacity:.25}}
+  .readout{text-align:right;font-size:8px;letter-spacing:.14em;color:var(--muted);
+    border:1px solid var(--line);background:rgba(8,8,7,.78);padding:8px 10px;pointer-events:auto;min-width:126px}
+  .readout b{display:block;color:var(--gold);font-weight:700;font-size:9px;letter-spacing:.1em}
+  .readout span{display:block;margin-top:4px}
+  #detail{pointer-events:auto;width:min(100%,430px);border:1px solid var(--line);
+    background:rgba(7,7,6,.93);backdrop-filter:blur(12px);padding:15px;
+    opacity:0;transform:translateY(10px);transition:opacity .28s,transform .28s}
+  #detail.on{opacity:1;transform:none}
+  #detail .k{font-size:8px;letter-spacing:.2em;color:var(--muted)}
+  #detail h2{margin-top:9px;font-family:var(--display);font-weight:900;font-size:16px;
+    letter-spacing:.04em;color:var(--gold)}
+  #detail .sig{margin-top:9px;font-size:9.5px;line-height:1.65;color:var(--muted)}
+  #detail .links{margin-top:13px;display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+  #detail a{display:inline-block;border:1px solid rgba(0,255,157,.4);background:rgba(0,255,157,.07);
+    color:var(--emerald);text-decoration:none;font-size:9px;letter-spacing:.12em;padding:8px 13px}
+  #detail a:hover{background:var(--emerald);color:#00160e}
+  #detail .idx{margin-left:auto;font-size:8px;color:var(--muted);letter-spacing:.14em}
+  .ctrls{display:flex;gap:8px;flex-wrap:wrap;pointer-events:auto}
+  .btn{border:1px solid var(--line);background:rgba(8,8,7,.8);color:var(--gold);
+    font:700 9px var(--mono);letter-spacing:.14em;padding:9px 13px;cursor:pointer}
+  .btn:hover{background:rgba(212,175,55,.1)}
+  .btn:active{background:var(--gold);color:#050505}
+  .btn.act{border-color:var(--emerald);color:var(--emerald)}
+  .legend{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+  .lg{display:flex;align-items:center;gap:5px;font-size:7.5px;letter-spacing:.1em;color:var(--muted)}
+  .lg i{width:6px;height:6px;border-radius:50%;display:block}
+  #boot{position:fixed;inset:0;z-index:900;background:var(--void);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;
+    transition:opacity .8s,visibility .8s}
+  #boot.done{opacity:0;visibility:hidden}
+  #boot .bg{font-size:52px;color:var(--gold);text-shadow:0 0 40px rgba(212,175,55,.5)}
+  #boot .bl{font-size:10px;letter-spacing:.26em;color:var(--muted)}
+  #boot .bline{width:170px;height:1px;background:rgba(212,175,55,.15);position:relative;overflow:hidden}
+  #boot .bline i{position:absolute;inset:0;background:var(--gold);
+    transform-origin:left;animation:load 1.8s ease forwards}
+  @keyframes load{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  @media(max-width:640px){
+    .readout{display:none}
+    #detail h2{font-size:14px}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+
+<div id="stage"></div>
+<div class="vig"></div>
+<div class="scan"></div>
+
+<div id="boot">
+  <div class="bg">æ</div>
+  <div class="bl">INITIALIZING DISCOVERY FIELD</div>
+  <div class="bline"><i></i></div>
+  <div class="bl" style="font-size:8px" id="bootmode">GPU://PROBING</div>
+</div>
+
+<div id="hud">
+  <div class="row">
+    <div class="bar">
+      <span>æ:/aipodcast.me/discover</span>
+      <span id="modeLabel">GPU://PROBING</span>
+      <span class="live"><span class="dot"></span>DISCOVER</span>
+    </div>
+    <div class="readout">
+      <b id="roTitle">EPISODIC FIELD</b>
+      <span id="roNodes">-- nodes</span>
+      <span id="roFps">-- fps</span>
+      <span id="roSel">none</span>
+    </div>
+  </div>
+  <div class="row" style="align-items:flex-end">
+    <div>
+      <div id="detail">
+        <div class="k">CATEGORY//<span id="dIdx">00</span></div>
+        <h2 id="dName">SELECT A CLUSTER</h2>
+        <div class="sig" id="dSig">Drag to orbit the field. Click a category core to open its signal.</div>
+        <div class="links">
+          <a id="dOpen" href="/" target="_top">OPEN SURFACE →</a>
+          <span class="idx" id="dCount">8 CATEGORIES</span>
+        </div>
+      </div>
+      <div class="legend" id="legend"></div>
+    </div>
+    <div class="ctrls">
+      <button class="btn act" id="bOrbit">AUTO-ORBIT</button>
+      <button class="btn" id="bNext">NEXT CLUSTER</button>
+      <button class="btn" id="bReset">RESET VIEW</button>
+      <button class="btn" id="bHome">æ:// HOME</button>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports":{
+    "three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.webgpu.js",
+    "three/webgpu":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.webgpu.js",
+    "three/tsl":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.tsl.js",
+    "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from "three/webgpu";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+/* ══════════════════════════════════════════════════════════
+   TAXONOMY — episode clusters with your videolab wired in
+   ══════════════════════════════════════════════════════════ */
+
+const CATEGORIES = [
+  { name:"VIDEO LAB",      signal:"cuda-mcp2.mp4 · 12s · H.264 · RTX 3050 compute mesh",
+    surface:"/videolab.html",                color:0xD4AF37 },
+  { name:"4D HOLOMESH",    signal:"holomesh.mp4 · 20s · tesseract projection · 128 particles",
+    surface:"/holomesh.html",               color:0x00eaff },
+  { name:"SCIENCE & TECH", signal:"Effects of noise on man · #neuroplasticity · systems, compute, capability",
+    surface:"/llm-store-dna-qr.html",        color:0x00eaff },
+  { name:"FAITH & RELIGION", signal:"Biblioteca Luterana · Haugean legacy · theology of agency",
+    surface:"/hauge-teologia.html",          color:0xD4AF37 },
+  { name:"AI ETHICS & GOV", signal:"Who should act? · authority, consent, revocation",
+    surface:"/sovaereign-os.html",           color:0x8c72ff },
+  { name:"E+LEARNING",     signal:"Molt School · open knowledge · teach early what others learn late",
+    surface:"/molt-earth-ultimate-fractal.html",  color:0x00ff9d },
+  { name:"GENERATIVE #E-Learning", signal:"Generated curricula · agentic literacy · distributed learning",
+    surface:"/ae-store-pico-os.html",        color:0x67e8f9 },
+  { name:"POLITICS & ECONOMY", signal:"Consumer Redline Index · household balance sheet · sovereign value",
+    surface:"/cri-school-of-hermes.html",    color:0xff9a4d },
+  { name:"POPULAR CULTURE", signal:"#zeitgeist · conversation → delegation · the age of agents",
+    surface:"/zeitgeist-4d.html",            color:0xff4d8f },
+  { name:"🎙️ #DEEPDIVES", signal:"Coming 🔜 · long-form dives across every rail · in development",
+    surface:"/cri-teleprompter.html",        color:0xf0d487 }
+];
+
+const FIELD_RADIUS = 15;
+
+/* ══════════════════════════════════════════════════════════
+   RENDERER — WebGPU (auto-falls back to WebGL2)
+   ══════════════════════════════════════════════════════════ */
+
+let renderer, scene, camera, controls;
+let clusterGroups = [], labels = [], field, halo;
+let selected = -1, autoOrbit = true;
+let pointerDown = null;
+
+const stage = document.getElementById("stage");
+
+async function init(){
+
+  renderer = new THREE.WebGPURenderer({ antialias:true, alpha:false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setClearColor(0x050505);
+  stage.appendChild(renderer.domElement);
+
+  await renderer.init();                       /* WebGPU device acquisition */
+
+  const gpu = !!navigator.gpu;
+  const label = gpu ? "GPU://WEBGPU" : "GPU://WEBGL2 FALLBACK";
+  document.getElementById("modeLabel").textContent = label;
+  document.getElementById("bootmode").textContent  = label;
+
+  scene  = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x050505, 0.012);
+
+  camera = new THREE.PerspectiveCamera(52, innerWidth/innerHeight, .1, 400);
+  camera.position.set(0, 13, 34);
+
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = .05;
+  controls.minDistance = 8;
+  controls.maxDistance = 90;
+  controls.maxPolarAngle = Math.PI * .82;
+  controls.autoRotate = false;
+  controls.target.set(0, 0, 0);
+
+  scene.add(new THREE.AmbientLight(0x101418, 2.2));
+
+  const key = new THREE.DirectionalLight(0xD4AF37, 2.4);
+  key.position.set(10, 18, 12);
+  scene.add(key);
+
+  const rim = new THREE.PointLight(0x00eaff, 40, 90);
+  rim.position.set(-18, 8, -14);
+  scene.add(rim);
+
+  /* ── episodic particle field: the GPU does the work ── */
+  buildField();
+
+  /* ── category clusters ── */
+  CATEGORIES.forEach((cat, i) => buildCluster(cat, i));
+
+  /* ── interaction ── */
+  window.addEventListener("resize", onResize);
+  renderer.domElement.addEventListener("pointerdown", e => pointerDown = { x:e.clientX, y:e.clientY });
+  renderer.domElement.addEventListener("pointerup", e => {
+    if(!pointerDown) return;
+    const moved = Math.hypot(e.clientX-pointerDown.x, e.clientY-pointerDown.y);
+    pointerDown = null;
+    if(moved > 6) return;                      /* that was an orbit drag */
+    pick(e.clientX, e.clientY);
+  });
+
+  document.getElementById("bOrbit").onclick = e => {
+    autoOrbit = !autoOrbit;
+    e.currentTarget.classList.toggle("act", autoOrbit);
+  };
+  document.getElementById("bNext").onclick  = () => select((selected + 1) % CATEGORIES.length, true);
+  document.getElementById("bReset").onclick = () => {
+    camera.position.set(0, 13, 34); controls.target.set(0,0,0);
+  };
+  document.getElementById("bHome").onclick = () => location.href = "/";
+
+  buildLegend();
+  renderer.setAnimationLoop(animate);
+  setTimeout(() => document.getElementById("boot").classList.add("done"), 1500);
+}
+
+/* ══════════════════════════════════════════════════════════
+   FIELD — 90k additive points, seeded so it is stable
+   ══════════════════════════════════════════════════════════ */
+
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function buildField(){
+  const COUNT = 90000;
+  const rand  = mulberry32(1517);
+  const pos   = new Float32Array(COUNT * 3);
+  const col   = new Float32Array(COUNT * 3);
+  const c     = new THREE.Color();
+
+  for(let i = 0; i < COUNT; i++){
+    /* thick torus — the episodic manifold */
+    const a  = rand() * Math.PI * 2;
+    const r  = FIELD_RADIUS + (rand() - .5) * 9;
+    const y  = (rand() - .5) * 6 * (1 - Math.abs(rand() - .5));
+
+    pos[i*3]   = Math.cos(a) * r;
+    pos[i*3+1] = y;
+    pos[i*3+2] = Math.sin(a) * r;
+
+    /* colour by nearest category, dimmed by depth */
+    const ci = Math.round(((a / (Math.PI*2)) * CATEGORIES.length)) % CATEGORIES.length;
+    c.setHex(CATEGORIES[ci].color);
+    const dim = .22 + rand() * .55;
+    col[i*3] = c.r * dim; col[i*3+1] = c.g * dim; col[i*3+2] = c.b * dim;
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute("color",    new THREE.BufferAttribute(col, 3));
+
+  field = new THREE.Points(geo, new THREE.PointsMaterial({
+    size: .11, vertexColors:true, transparent:true, opacity:.85,
+    depthWrite:false, blending:THREE.AdditiveBlending
+  }));
+  scene.add(field);
+
+  /* faint containment ring */
+  halo = new THREE.Mesh(
+    new THREE.TorusGeometry(FIELD_RADIUS, .045, 8, 220),
+    new THREE.MeshBasicMaterial({ color:0xD4AF37, transparent:true, opacity:.18 })
+  );
+  halo.rotation.x = Math.PI / 2;
+  scene.add(halo);
+}
+
+/* ══════════════════════════════════════════════════════════
+   CLUSTERS
+   ══════════════════════════════════════════════════════════ */
+
+function buildCluster(cat, i){
+  const a = (i / CATEGORIES.length) * Math.PI * 2;
+  const x = Math.cos(a) * FIELD_RADIUS;
+  const z = Math.sin(a) * FIELD_RADIUS;
+
+  const g = new THREE.Group();
+  g.position.set(x, 0, z);
+
+  const colour = new THREE.Color(cat.color);
+
+  const core = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(.72, 2),
+    new THREE.MeshStandardMaterial({
+      color:colour, emissive:colour, emissiveIntensity:1.5,
+      metalness:.35, roughness:.2
+    })
+  );
+  g.add(core);
+
+  const shell = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(1.15, 1),
+    new THREE.MeshBasicMaterial({ color:colour, wireframe:true, transparent:true, opacity:.28 })
+  );
+  g.add(shell);
+
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(1.7, .022, 8, 64),
+    new THREE.MeshBasicMaterial({ color:colour, transparent:true, opacity:.5 })
+  );
+  ring.rotation.x = Math.PI / 2;
+  g.add(ring);
+
+  const ring2 = new THREE.Mesh(
+    new THREE.TorusGeometry(2.15, .012, 8, 64),
+    new THREE.MeshBasicMaterial({ color:colour, transparent:true, opacity:.22, wireframe:true })
+  );
+  ring2.rotation.set(Math.PI/2.6, .4, 0);
+  g.add(ring2);
+
+  scene.add(g);
+
+  /* label sprite */
+  const label = makeLabel(cat.name, cat.color);
+  label.position.set(x, 3.1, z);
+  scene.add(label);
+
+  clusterGroups.push({ group:g, core, shell, ring, ring2, angle:a, colour });
+  labels.push(label);
+}
+
+function makeLabel(text, hex){
+  const c = document.createElement("canvas");
+  c.width = 1024; c.height = 128;
+  const ctx = c.getContext("2d");
+  const col = "#" + hex.toString(16).padStart(6,"0");
+
+  ctx.fillStyle = "rgba(5,5,5,.82)";
+  ctx.beginPath();
+  if(ctx.roundRect) ctx.roundRect(6, 26, 1012, 76, 16); else ctx.rect(6, 26, 1012, 76);
+  ctx.fill();
+
+  ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.stroke();
+
+  ctx.shadowColor = col; ctx.shadowBlur = 16;
+  ctx.fillStyle = "#f2f0e8";
+  ctx.font = '700 40px "JetBrains Mono", monospace';
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText(text, 512, 66);
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+    map:tex, transparent:true, depthWrite:false, depthTest:false
+  }));
+  sp.scale.set(9.2, 1.15, 1);
+  return sp;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SELECTION + PICKING
+   ══════════════════════════════════════════════════════════ */
+
+const ray = new THREE.Raycaster();
+const ndc = new THREE.Vector2();
+
+function pick(clientX, clientY){
+  ndc.x =  (clientX / innerWidth)  * 2 - 1;
+  ndc.y = -(clientY / innerHeight) * 2 + 1;
+  ray.setFromCamera(ndc, camera);
+
+  const hits = ray.intersectObjects(clusterGroups.map(c => c.core), false);
+  if(hits.length){
+    const i = clusterGroups.findIndex(c => c.core === hits[0].object);
+    select(i, false);
+  }
+}
+
+function select(i, fly){
+  selected = i;
+  const cat = CATEGORIES[i];
+
+  document.getElementById("dIdx").textContent   = String(i + 1).padStart(2, "0");
+  document.getElementById("dName").textContent  = cat.name;
+  document.getElementById("dSig").textContent   = cat.signal;
+  const open = document.getElementById("dOpen");
+  open.href = cat.surface;
+  document.getElementById("dCount").textContent = (i + 1) + " / " + CATEGORIES.length;
+  document.getElementById("roSel").textContent  = cat.name.slice(0, 22);
+  document.getElementById("detail").classList.add("on");
+
+  if(fly){
+    const c = clusterGroups[i];
+    const dir = new THREE.Vector3(c.group.position.x, 0, c.group.position.z).normalize();
+    camera.position.copy(dir.multiplyScalar(11)).setY(6);
+    controls.target.copy(c.group.position);
+  }
+}
+
+function buildLegend(){
+  const el = document.getElementById("legend");
+  CATEGORIES.forEach((cat, i) => {
+    const d = document.createElement("div");
+    d.className = "lg";
+    d.innerHTML = `<i style="background:#${cat.color.toString(16).padStart(6,"0")}"></i>${cat.name}`;
+    d.style.cursor = "pointer";
+    d.style.pointerEvents = "auto";
+    d.onclick = () => select(i, true);
+    el.appendChild(d);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════
+   ANIMATE
+   ══════════════════════════════════════════════════════════ */
+
+let frames = 0, lastFps = performance.now();
+
+function animate(t){
+  const el = t * .001;
+
+  if(field){
+    field.rotation.y = el * .035;
+    halo.rotation.z  = el * .05;
+  }
+
+  clusterGroups.forEach((c, i) => {
+    const sel = i === selected;
+    const target = sel ? 1.5 : 1;
+    c.group.scale.lerp(new THREE.Vector3(target, target, target), .06);
+
+    c.core.rotation.y  = el * .5 + i;
+    c.core.rotation.x  = el * .3;
+    c.shell.rotation.y = -el * .4;
+    c.shell.rotation.z =  el * .22;
+    c.ring.rotation.z  =  el * .35 + i;
+    c.ring2.rotation.y =  el * .28;
+
+    c.core.material.emissiveIntensity = (sel ? 2.6 : 1.5) + Math.sin(el * 2 + i) * .35;
+    c.ring.material.opacity = sel ? .95 : .5;
+  });
+
+  if(autoOrbit){
+    const r = Math.hypot(camera.position.x, camera.position.z);
+    const a = Math.atan2(camera.position.z, camera.position.x) + .0016;
+    camera.position.x = Math.cos(a) * r;
+    camera.position.z = Math.sin(a) * r;
+  }
+
+  controls.update();
+  renderer.render(scene, camera);
+
+  /* fps */
+  frames++;
+  if(performance.now() - lastFps > 1000){
+    document.getElementById("roFps").textContent =
+      Math.round(frames * 1000 / (performance.now() - lastFps)) + " fps";
+    frames = 0; lastFps = performance.now();
+  }
+}
+
+function onResize(){
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(innerWidth, innerHeight);
+}
+
+document.getElementById("roNodes").textContent = "90,000 nodes";
+
+init().catch(err => {
+  console.error(err);
+  document.getElementById("boot").innerHTML =
+    '<div class="bg">æ</div><div class="bl">RUNTIME ERROR</div>' +
+    '<div class="bl" style="font-size:8px;max-width:280px;text-align:center">' +
+    String(err.message || err) + '</div>';
+});
+
+console.info("%cæ:/aipodcast.me/discover%c WebGPU episodic field",
+  "color:#D4AF37;background:#050505;padding:5px 10px;font-weight:bold",
+  "color:#00ff9d;font-family:monospace");
+</script>
+
+</body>
+</html>
