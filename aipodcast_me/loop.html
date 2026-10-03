@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#050505"/>
+<title>æ:/loop · WebGPU · WebLLM · WebMCP</title>
+<meta name="description" content="Sovereign local loop — WebGPU renders, WebLLM thinks, WebMCP acts. Capability is probed, never assumed."/>
+<link rel="canonical" href="https://myaelmendez.github.io/aipodcast_me/loop.html"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --void:#050505;--gold:#D4AF37;--gold2:#f0d487;--emerald:#00ff9d;
+  --cyan:#00eaff;--violet:#8c72ff;--orange:#ff9a4d;--red:#ff4d5f;
+  --ink:#e8e6df;--muted:#6f6a5c;--line:rgba(212,175,55,.22);
+  --mono:"JetBrains Mono",ui-monospace,monospace;--display:"Orbitron",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;min-height:100%;background:var(--void);color:var(--ink);font-family:var(--mono)}
+body{padding:max(12px,env(safe-area-inset-top)) 12px calc(28px + env(safe-area-inset-bottom))}
+.scan{position:fixed;inset:0;z-index:9;pointer-events:none;opacity:.18;
+  background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.5) 2px 4px)}
+.vig{position:fixed;inset:0;z-index:8;pointer-events:none;
+  background:radial-gradient(circle at 50% 34%,transparent 34%,rgba(5,5,5,.55) 76%,rgba(5,5,5,.96) 100%)}
+.wrap{position:relative;z-index:10;width:min(100%,1080px);margin:0 auto}
+
+.bar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  font-size:9px;letter-spacing:.16em;color:var(--muted);
+  border:1px solid var(--line);border-top:2px solid var(--gold);
+  padding:9px 12px;background:rgba(8,8,7,.82)}
+.bar a{color:var(--gold);text-decoration:none}
+
+.hero{text-align:center;padding:34px 12px 22px}
+.hero h1{font-family:var(--display);font-weight:900;font-size:clamp(19px,4.6vw,30px);letter-spacing:.05em;
+  background:linear-gradient(90deg,var(--gold2),var(--gold),var(--cyan));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero .sub{margin-top:11px;font-size:10px;letter-spacing:.2em;color:var(--muted)}
+.hero .sub b{color:var(--emerald);font-weight:400}
+
+/* probe rail */
+.probe{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);
+  border:1px solid var(--line);margin-top:20px}
+.pr{background:#070706;padding:13px 14px}
+.pr .k{font-size:8px;letter-spacing:.2em;color:var(--muted)}
+.pr .v{margin-top:8px;font-family:var(--display);font-size:12px;font-weight:700;letter-spacing:.04em}
+.pr .d{margin-top:7px;font-size:8px;line-height:1.55;color:var(--muted)}
+.pr.ok   .v{color:var(--emerald)}
+.pr.warn .v{color:var(--gold)}
+.pr.no   .v{color:var(--red)}
+.pr .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.pr.ok   .dot{background:var(--emerald);box-shadow:0 0 8px var(--emerald)}
+.pr.warn .dot{background:var(--gold);box-shadow:0 0 8px var(--gold)}
+.pr.no   .dot{background:var(--red);box-shadow:0 0 8px var(--red)}
+
+.panel{margin-top:20px;border:1px solid var(--line);background:rgba(8,8,7,.78)}
+.panel-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;
+  padding:11px 14px;border-bottom:1px solid var(--line);
+  font-size:10px;letter-spacing:.18em;color:var(--gold)}
+.panel-head .tag{color:var(--muted);font-size:8px;letter-spacing:.14em}
+.panel-body{padding:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line)}
+.cell{background:#070706;padding:14px}
+
+#gl{width:100%;aspect-ratio:16/9;display:block;background:#020202;border:1px solid rgba(212,175,55,.14)}
+.meta{margin-top:10px;font-size:8px;line-height:1.7;color:var(--muted);word-break:break-word}
+.meta b{color:var(--gold);font-weight:400}
+
+select,input,textarea{font:10px var(--mono);background:#000;color:var(--ink);
+  border:1px solid rgba(212,175,55,.3);padding:8px 10px;outline:0;width:100%}
+select{cursor:pointer}
+button{font:700 9px var(--mono);letter-spacing:.12em;padding:9px 14px;cursor:pointer;
+  border:1px solid rgba(0,255,157,.4);background:rgba(0,255,157,.07);color:var(--emerald)}
+button:active{background:var(--emerald);color:#00160e}
+button:disabled{border-color:rgba(255,77,95,.3);background:rgba(255,77,95,.05);
+  color:rgba(255,77,95,.6);cursor:not-allowed}
+button.alt{border-color:rgba(212,175,55,.4);background:rgba(212,175,55,.07);color:var(--gold)}
+.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.row.mt{margin-top:11px}
+.lbl{font-size:8px;letter-spacing:.18em;color:var(--muted);margin-bottom:6px;display:block}
+
+#out{margin-top:11px;min-height:132px;max-height:320px;overflow-y:auto;
+  border:1px solid rgba(212,175,55,.16);background:#020202;padding:11px;
+  font-size:9.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word;color:#cfd8d2}
+#out .u{color:var(--gold2)}
+#out .a{color:var(--emerald)}
+#out .t{color:var(--cyan)}
+#out .e{color:var(--red)}
+
+.metrics{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:8px;color:var(--muted)}
+.metrics b{display:block;color:var(--cyan);font-weight:700;font-size:11px;margin-top:3px}
+
+.bar-l{height:3px;background:rgba(212,175,55,.14);margin-top:10px;overflow:hidden}
+.bar-l i{display:block;height:100%;width:0;background:var(--gold);transition:width .25s}
+
+.tools{display:flex;flex-direction:column;gap:7px;margin-top:11px}
+.tool{border:1px solid rgba(212,175,55,.16);background:#020202;padding:9px 11px;font-size:8.5px}
+.tool .n{color:var(--cyan);font-weight:700}
+.tool .ds{margin-top:4px;color:var(--muted);line-height:1.5}
+
+.blocked{margin-top:11px;border:1px solid rgba(255,77,95,.35);background:rgba(255,77,95,.05);
+  padding:11px;font-size:8.5px;line-height:1.65;color:#ffb3bb}
+.blocked b{color:var(--red)}
+
+.foot{margin-top:24px;padding-top:13px;border-top:1px solid var(--line);
+  display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;
+  font-size:8.5px;letter-spacing:.13em;color:var(--muted)}
+.foot a{color:var(--gold);text-decoration:none}
+
+@media(max-width:820px){ .grid2{grid-template-columns:1fr} .probe{grid-template-columns:1fr} }
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="vig"></div>
+<div class="scan"></div>
+
+<main class="wrap">
+
+  <div class="bar">
+    <span>æ:/loop</span>
+    <span>WEBGPU · WEBLLM · WEBMCP</span>
+    <span><a href="./">← HQ</a></span>
+  </div>
+
+  <section class="hero">
+    <h1>THE SOVEREIGN LOCAL LOOP</h1>
+    <div class="sub">GPU RENDERS · LLM THINKS · MCP ACTS · <b>CAPABILITY IS PROBED, NEVER ASSUMED</b></div>
+  </section>
+
+  <!-- capability probe -->
+  <section class="probe">
+    <div class="pr" id="pGpu">
+      <div class="k">01 · WEBGPU</div>
+      <div class="v"><span class="dot"></span>PROBING</div>
+      <div class="d" id="dGpu">requesting adapter…</div>
+    </div>
+    <div class="pr" id="pLlm">
+      <div class="k">02 · WEBLLM</div>
+      <div class="v"><span class="dot"></span>PROBING</div>
+      <div class="d" id="dLlm">checking module availability…</div>
+    </div>
+    <div class="pr" id="pMcp">
+      <div class="k">03 · WEBMCP</div>
+      <div class="v"><span class="dot"></span>PROBING</div>
+      <div class="d" id="dMcp">looking for a native model-context API…</div>
+    </div>
+  </section>
+
+  <!-- GPU + LLM -->
+  <section class="panel">
+    <div class="panel-head"><span>◈ COMPUTE</span><span class="tag">GPU://RENDER + LLM://INFER</span></div>
+    <div class="grid2">
+
+      <div class="cell">
+        <div class="lbl">WEBGPU · LIVE RENDER</div>
+        <canvas id="gl" width="640" height="360"></canvas>
+        <div class="meta" id="glMeta">awaiting device…</div>
+      </div>
+
+      <div class="cell">
+        <div class="lbl">WEBLLM · LOCAL INFERENCE</div>
+
+        <select id="model" aria-label="Model">
+          <option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Llama-3.2-1B-Instruct · q4f16 · lightest</option>
+          <option value="Llama-3.2-3B-Instruct-q4f16_1-MLC">Llama-3.2-3B-Instruct · q4f16</option>
+          <option value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC">Qwen2.5-1.5B-Instruct · q4f16</option>
+          <option value="Phi-3.5-mini-instruct-q4f16_1-MLC">Phi-3.5-mini · q4f16</option>
+        </select>
+
+        <div class="row mt">
+          <button id="bLoad">LOAD ENGINE</button>
+          <button id="bStop" class="alt" disabled>STOP</button>
+        </div>
+
+        <div class="bar-l"><i id="loadBar"></i></div>
+        <div class="meta" id="llmMeta">engine idle · weights download on first load</div>
+
+        <div class="row mt">
+          <input id="prompt" placeholder="intent…" autocomplete="off"/>
+          <button id="bRun" disabled>RUN</button>
+        </div>
+
+        <div class="metrics">
+          <div>TTFT<b id="mTtft">—</b></div>
+          <div>TOK/S<b id="mTps">—</b></div>
+          <div>TOKENS<b id="mTok">—</b></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="panel-body">
+      <div class="lbl">STREAM</div>
+      <div id="out">READY · load an engine to begin</div>
+    </div>
+  </section>
+
+  <!-- MCP -->
+  <section class="panel">
+    <div class="panel-head"><span>◈ ACTUATION</span><span class="tag">WEBMCP://NATIVE ONLY</span></div>
+    <div class="panel-body">
+      <div class="meta" id="mcpMeta">probing…</div>
+      <div class="tools" id="toolList"></div>
+      <div id="mcpBlock"></div>
+      <div class="row mt">
+        <button id="bInvoke" disabled>INVOKE echo_loop</button>
+        <button id="bReg" class="alt" disabled>RE-REGISTER TOOLS</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span>æ.store · llm.store · <a href="./">aipodcast_me</a></span>
+    <span>#HERMIPHICATIONISINEVITABLE</span>
+  </div>
+</main>
+
+<script type="module">
+/* ══════════════════════════════════════════════════════════════
+   æ:/loop — three primitives, each independently probed.
+   Nothing here is shimmed. If a capability is absent, its
+   controls are DISABLED and the reason is printed.
+   ══════════════════════════════════════════════════════════════ */
+
+const $  = id => document.getElementById(id);
+const out = $("out");
+const log = (txt, cls="") => {
+  const s = document.createElement("span");
+  if(cls) s.className = cls;
+  s.textContent = txt + "\n";
+  out.appendChild(s);
+  out.scrollTop = out.scrollHeight;
+};
+
+const setProbe = (id, state, label, detail) => {
+  const el = $(id);
+  el.className = "pr " + state;
+  el.querySelector(".v").innerHTML = '<span class="dot"></span>' + label;
+  if(detail) el.querySelector(".d").textContent = detail;
+};
+
+/* ── 1. WEBGPU ─────────────────────────────────────────────── */
+
+let adapter = null, device = null, gpuCtx = null, gpuRAF = 0;
+
+async function probeWebGPU(){
+  if(!("gpu" in navigator)){
+    setProbe("pGpu","no","ABSENT","navigator.gpu is undefined — this browser has no WebGPU.");
+    $("glMeta").textContent = "no WebGPU · canvas idle";
+    return false;
+  }
+  try{
+    adapter = await navigator.gpu.requestAdapter({ powerPreference:"high-performance" })
+           || await navigator.gpu.requestAdapter();
+    if(!adapter){
+      setProbe("pGpu","warn","NO ADAPTER","navigator.gpu exists but no adapter was returned (headless / blocklisted).");
+      $("glMeta").textContent = "no adapter · canvas idle";
+      return false;
+    }
+    device = await adapter.requestDevice();
+
+    const info = adapter.info || {};
+    const desc = [info.vendor, info.architecture, info.device, info.description]
+      .filter(Boolean).join(" · ") || "adapter present (info withheld)";
+
+    setProbe("pGpu","ok","LIVE", desc);
+    $("glMeta").innerHTML = "<b>adapter</b> " + desc +
+      "<br><b>maxBufferSize</b> " + (adapter.limits?.maxBufferSize?.toLocaleString?.() ?? "—") +
+      "<br><b>maxComputeWorkgroupsPerDimension</b> " + (adapter.limits?.maxComputeWorkgroupsPerDimension ?? "—");
+    startRender();
+    return true;
+  }catch(err){
+    setProbe("pGpu","no","ERROR", String(err.message || err));
+    $("glMeta").textContent = "device request failed";
+    return false;
+  }
+}
+
+/* real WebGPU render — compute-style lattice drawn via render pass */
+function startRender(){
+  const cv = $("gl");
+  gpuCtx = cv.getContext("webgpu");
+  const fmt = navigator.gpu.getPreferredCanvasFormat();
+  gpuCtx.configure({ device, format:fmt, alphaMode:"opaque" });
+
+  const V = `
+struct VSOut { @builtin(position) pos: vec4f, @location(0) col: vec3f };
+@vertex fn vs(@builtin(vertex_index) i: u32) -> VSOut {
+  var p = array<vec2f,6>(
+    vec2f(-1.0,-1.0), vec2f(1.0,-1.0), vec2f(-1.0,1.0),
+    vec2f(-1.0,1.0),  vec2f(1.0,-1.0), vec2f(1.0,1.0)
+  );
+  var o: VSOut;
+  o.pos = vec4f(p[i], 0.0, 1.0);
+  o.col = vec3f(0.0);
+  return o;
+}
+@fragment fn fs(in: VSOut) -> @location(0) vec4f {
+  let g = 0.030 + 0.020 * sin(in.pos.x * 0.03) * cos(in.pos.y * 0.03);
+  return vec4f(g * 1.15, g * 1.00, g * 0.42, 1.0);
+}`;
+
+  const mod  = device.createShaderModule({ code:V });
+  const pipe = device.createRenderPipeline({
+    layout:"auto",
+    vertex:{ module:mod, entryPoint:"vs" },
+    fragment:{ module:mod, entryPoint:"fs", targets:[{ format:fmt }] },
+    primitive:{ topology:"triangle-list" }
+  });
+
+  function frame(){
+    const enc  = device.createCommandEncoder();
+    const pass = enc.beginRenderPass({
+      colorAttachments:[{
+        view: gpuCtx.getCurrentTexture().createView(),
+        clearValue:{ r:0.008, g:0.008, b:0.008, a:1 },
+        loadOp:"clear", storeOp:"store"
+      }]
+    });
+    pass.setPipeline(pipe);
+    pass.draw(6);
+    pass.end();
+    device.queue.submit([enc.finish()]);
+    gpuRAF = requestAnimationFrame(frame);
+  }
+  frame();
+  log("webgpu · device acquired, render pass active", "t");
+}
+
+/* ── 2. WEBLLM ─────────────────────────────────────────────── */
+
+let webllm = null, engine = null, loading = false, stopFlag = false;
+
+async function probeWebLLM(){
+  try{
+    webllm = await import("https://esm.run/@mlc-ai/web-llm");
+    if(!webllm || !webllm.CreateMLCEngine){
+      setProbe("pLlm","no","ABSENT","module loaded but CreateMLCEngine is missing.");
+      return false;
+    }
+    setProbe("pLlm","ok","MODULE READY","@mlc-ai/web-llm resolved · engine loads on demand.");
+    return true;
+  }catch(err){
+    setProbe("pLlm","no","UNAVAILABLE", "module import failed: " + String(err.message || err));
+    return false;
+  }
+}
+
+$("bLoad").onclick = async () => {
+  if(!webllm || loading) return;
+  if(!adapter){
+    log("webllm · refused — WebLLM requires WebGPU, which is absent", "e");
+    return;
+  }
+  loading = true; stopFlag = false;
+  $("bLoad").disabled = true; $("bStop").disabled = false; $("bRun").disabled = true;
+  const model = $("model").value;
+  log("webllm · loading " + model, "t");
+
+  try{
+    engine = await webllm.CreateMLCEngine(model, {
+      initProgressCallback: r => {
+        const pct = Math.round((r.progress || 0) * 100);
+        $("loadBar").style.width = pct + "%";
+        $("llmMeta").textContent = (r.text || "loading").slice(0, 96);
+      }
+    });
+    $("loadBar").style.width = "100%";
+    $("llmMeta").textContent = "engine ready · " + model;
+    $("bRun").disabled = false;
+    log("webllm · engine ready", "a");
+  }catch(err){
+    $("llmMeta").textContent = "load failed";
+    log("webllm · load failed: " + String(err.message || err), "e");
+  }finally{
+    loading = false;
+    $("bLoad").disabled = false; $("bStop").disabled = true;
+  }
+};
+
+$("bStop").onclick = () => {
+  stopFlag = true;
+  try{ engine?.interruptGenerate?.(); }catch(_){}
+  log("webllm · interrupt requested", "t");
+};
+
+$("bRun").onclick = async () => {
+  const text = $("prompt").value.trim();
+  if(!engine || !text) return;
+  $("bRun").disabled = true; stopFlag = false;
+  log("\n> " + text, "u");
+
+  let first = 0, tokens = 0;
+  const t0 = performance.now();
+  $("mTtft").textContent = "—"; $("mTps").textContent = "—"; $("mTok").textContent = "—";
+
+  try{
+    const stream = await engine.chat.completions.create({
+      messages:[
+        { role:"system", content:"You are the æ:// sovereign local loop. Answer in one or two terse sentences. No preamble." },
+        { role:"user", content:text }
+      ],
+      stream:true,
+      stream_options:{ include_usage:true },
+      temperature:0.6,
+      max_tokens:220
+    });
+
+    for await (const chunk of stream){
+      if(stopFlag) break;
+      const d = chunk.choices?.[0]?.delta?.content;
+      if(d){
+        if(!first){
+          first = performance.now() - t0;
+          $("mTtft").textContent = Math.round(first) + "ms";
+        }
+        tokens++;
+        log(d, "a");
+      }
+      if(chunk.usage?.completion_tokens){
+        $("mTok").textContent = chunk.usage.completion_tokens;
+      }
+    }
+
+    const total = performance.now() - t0;
+    const gen = Math.max(1, total - first);
+    $("mTps").textContent = (tokens / (gen / 1000)).toFixed(1);
+    if($("mTok").textContent === "—") $("mTok").textContent = tokens;
+    log(stopFlag ? "\n[interrupted]" : "\n[done]", "t");
+  }catch(err){
+    log("\n" + String(err.message || err), "e");
+  }finally{
+    $("bRun").disabled = false;
+  }
+};
+
+/* ── 3. WEBMCP — native only, never a shim ─────────────────── */
+
+let mcpHost = null, mcpShape = "";
+
+function findModelContext(){
+  const cands = [
+    ["navigator.modelContext", typeof navigator !== "undefined" ? navigator.modelContext : undefined],
+    ["document.modelContext",  typeof document  !== "undefined" ? document.modelContext  : undefined],
+    ["navigator.modelContextTesting", navigator.modelContextTesting]
+  ];
+  for(const [name, obj] of cands){
+    if(obj && typeof obj === "object") return { name, obj };
+  }
+  return null;
+}
+
+const LOOP_TOOLS = [
+  {
+    name:"echo_loop",
+    description:"Echo a string back through the sovereign local loop.",
+    inputSchema:{ type:"object", properties:{ value:{ type:"string" } }, required:["value"] },
+    execute: ({ value }) => ({ echoed:String(value ?? ""), at:new Date().toISOString(), loop:"æ://" })
+  },
+  {
+    name:"probe_capabilities",
+    description:"Report the capabilities this surface actually detected at runtime.",
+    inputSchema:{ type:"object", properties:{} },
+    execute: () => ({
+      webgpu: !!adapter,
+      webllm: !!webllm,
+      webmcp: !!mcpHost,
+      engine: engine ? $("model").value : null
+    })
+  }
+];
+
+function probeWebMCP(){
+  const found = findModelContext();
+
+  if(!found){
+    setProbe("pMcp","no","ABSENT","No native model-context API on this browser. Controls are blocked — no shim is installed.");
+    $("mcpMeta").innerHTML = "<b>native API not found.</b> Checked <code>navigator.modelContext</code>, " +
+      "<code>document.modelContext</code>, <code>navigator.modelContextTesting</code>.";
+    $("mcpBlock").innerHTML =
+      '<div class="blocked"><b>WEBMCP BLOCKED.</b> This surface will not fake tool registration. ' +
+      'A custom <code>registerTool</code>/<code>dispatch</code> registry or DOM-automation wrapper is not ' +
+      'proof of native WebMCP, so none is installed here. Run this page in a browser build that ships the ' +
+      'native model-context API and the tools below will register for real.</div>';
+    renderTools();
+    return false;
+  }
+
+  mcpHost = found.obj;
+  mcpShape = found.name;
+
+  // detect the callable shape without inventing one
+  const shape =
+    typeof mcpHost.provideContext === "function" ? "provideContext" :
+    typeof mcpHost.registerTool   === "function" ? "registerTool"   :
+    typeof mcpHost.addTool        === "function" ? "addTool"        : "";
+
+  if(!shape){
+    setProbe("pMcp","warn","UNKNOWN SHAPE","Found " + mcpShape + " but no recognised registration method.");
+    $("mcpMeta").textContent = "found " + mcpShape + " · methods: " +
+      Object.keys(mcpHost).slice(0, 12).join(", ");
+    renderTools();
+    return false;
+  }
+
+  setProbe("pMcp","ok","NATIVE · " + shape, mcpShape + "." + shape + "()");
+  $("mcpMeta").innerHTML = "<b>native API</b> " + mcpShape + " · registering via <code>" + shape + "()</code>";
+  registerTools(shape);
+  return true;
+}
+
+function registerTools(shape){
+  const specs = LOOP_TOOLS.map(t => ({
+    name:t.name, description:t.description, inputSchema:t.inputSchema,
+    execute:t.execute
+  }));
+
+  try{
+    if(shape === "provideContext") mcpHost.provideContext({ tools:specs });
+    else if(shape === "registerTool") specs.forEach(s => mcpHost.registerTool(s));
+    else if(shape === "addTool") specs.forEach(s => mcpHost.addTool(s));
+
+    log("webmcp · registered " + specs.length + " tools via " + shape + "()", "t");
+    $("bInvoke").disabled = false;
+    $("bReg").disabled = false;
+    renderTools(true);
+  }catch(err){
+    setProbe("pMcp","warn","REGISTER FAILED", String(err.message || err));
+    log("webmcp · registration threw: " + String(err.message || err), "e");
+    renderTools();
+  }
+}
+
+function renderTools(registered){
+  $("toolList").innerHTML = LOOP_TOOLS.map(t =>
+    '<div class="tool"><div class="n">' + t.name +
+    (registered ? " · REGISTERED" : " · DECLARED") +
+    '</div><div class="ds">' + t.description + '</div></div>'
+  ).join("");
+}
+
+$("bReg").onclick = () => {
+  if(!mcpHost) return;
+  const shape =
+    typeof mcpHost.provideContext === "function" ? "provideContext" :
+    typeof mcpHost.registerTool   === "function" ? "registerTool"   :
+    typeof mcpHost.addTool        === "function" ? "addTool"        : "";
+  if(shape) registerTools(shape);
+};
+
+$("bInvoke").onclick = async () => {
+  if(!mcpHost){ log("webmcp · no native host", "e"); return; }
+  log("webmcp · invoking echo_loop", "t");
+  try{
+    let res;
+    if(typeof mcpHost.invokeTool === "function")      res = await mcpHost.invokeTool("echo_loop", { value:"sovereign" });
+    else if(typeof mcpHost.callTool === "function")   res = await mcpHost.callTool("echo_loop", { value:"sovereign" });
+    else { log("webmcp · host exposes no invoke method — registration is verified, invocation path unknown", "t"); return; }
+    log("webmcp · " + JSON.stringify(res), "a");
+  }catch(err){
+    log("webmcp · invoke failed: " + String(err.message || err), "e");
+  }
+};
+
+/* ── boot ──────────────────────────────────────────────────── */
+
+(async () => {
+  log("æ:/loop · probing capabilities", "t");
+  const gpu = await probeWebGPU();
+  await probeWebLLM();
+  const mcp = probeWebMCP();
+
+  log("\n── PROBE RESULT ──", "t");
+  log("webgpu  " + (gpu ? "LIVE" : "ABSENT"),  gpu ? "a" : "e");
+  log("webllm  " + (webllm ? "MODULE READY" : "UNAVAILABLE"), webllm ? "a" : "e");
+  log("webmcp  " + (mcp ? "NATIVE" : "ABSENT"), mcp ? "a" : "e");
+  log("\ncapability is probed, never assumed.", "t");
+})();
+
+console.info("%cæ:/loop%c WebGPU · WebLLM · WebMCP",
+  "color:#D4AF37;background:#050505;padding:5px 10px;font-weight:bold",
+  "color:#00ff9d;font-family:monospace");
+</script>
+
+</body>
+</html>
