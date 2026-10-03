@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#050505"/>
+<title>Hermes Native · Demo</title>
+<style>
+  :root {
+    --bg: #050505;
+    --panel: #0a0a0f;
+    --gold: #D4AF37;
+    --gold-60: rgba(212,175,55,0.65);
+    --text: #e6e6e6;
+    --muted: #9a9a9a;
+    --border: #1f1f1f;
+    --neon: #00ffa3;
+    --error: #ff7b72;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: radial-gradient(1200px 600px at 10% 10%, rgba(212,175,55,0.08), transparent),
+      radial-gradient(900px 900px at 90% 90%, rgba(0,255,163,0.05), transparent),
+      var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', 'Cascadia Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+  body { padding: 24px; }
+  .header {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+  }
+  .title { font-size: 22px; font-weight: 700; color: var(--gold); letter-spacing: 0.08em; }
+  .subtitle { font-size: 12px; color: var(--muted); text-transform: lowercase; letter-spacing: 0.12em; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: border-color .2s;
+  }
+  .card:hover { border-color: var(--gold-60); }
+  .name { font-size: 12px; font-weight: 700; color: var(--gold); letter-spacing: 0.08em; }
+  .meta { font-size: 11px; color: var(--muted); }
+  .status {
+    font-size: 11px;
+    color: var(--neon);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .status::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--neon);
+    box-shadow: 0 0 8px var(--neon);
+  }
+  .prompt {
+    width: 100%;
+    min-height: 96px;
+    background: #060609;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    font: inherit;
+    font-size: 12px;
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
+  }
+  button.primary {
+    background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(0,255,163,0.08));
+    border: 1px solid var(--gold-60);
+    color: var(--gold);
+    padding: 10px 12px;
+    border-radius: 10px;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  button.primary:hover { filter: brightness(1.2); }
+  .log {
+    margin-top: 14px;
+    background: #050508;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    min-height: 72px;
+    font-size: 11px;
+    color: var(--muted);
+    white-space: pre-wrap;
+  }
+  .err { color: var(--error); }
+  .muted { color: var(--muted); }
+  .inline {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .badge {
+    display: inline-block;
+    padding: 4px 8px;
+    background: rgba(212,175,55,0.08);
+    border: 1px solid var(--gold-60);
+    border-radius: 999px;
+    color: var(--gold);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="title">Hermes Native · Demo</div>
+  <div class="subtitle">Local sovereign runtime surface · WebLLM + WebGPU</div>
+</div>
+<div class="grid">
+  <div class="card">
+    <div class="name">RUNTIME</div>
+    <div class="meta">Hermes Native</div>
+    <div class="status" id="status">INITIALIZING</div>
+  </div>
+  <div class="card">
+    <div class="name">PRIMITIVE</div>
+    <div class="meta">WebLLM + WebGPU</div>
+    <div class="status" id="primitive">DETECTING</div>
+  </div>
+  <div class="card">
+    <div class="name">SURFACE</div>
+    <div class="meta">VS Code / viewport</div>
+    <div class="status" id="surface">BOOT</div>
+  </div>
+  <div class="card">
+    <div class="name">MODE</div>
+    <div class="meta" id="mode">Idle</div>
+    <div class="status" id="modeStatus">READY</div>
+  </div>
+</div>
+<div class="row" style="margin-top:14px; gap:10px;">
+  <textarea class="prompt" id="prompt" placeholder="Prompt: summarize the sovereign runtime stack in 3 bullets."></textarea>
+  <button class="primary" id="run">RUN DEMO</button>
+</div>
+<div class="log" id="log">Awaiting demo start...</div>
+
+<script>
+const logEl = document.getElementById('log');
+const statusEl = document.getElementById('status');
+const primitiveEl = document.getElementById('primitive');
+const surfaceEl = document.getElementById('surface');
+const modeEl = document.getElementById('mode');
+const modeStatusEl = document.getElementById('modeStatus');
+const promptEl = document.getElementById('prompt');
+const runBtn = document.getElementById('run');
+
+const log = (text) => {
+  const el = document.createElement('div');
+  el.textContent = new Date().toLocaleTimeString() + ' ' + text;
+  logEl.appendChild(el);
+  logEl.scrollTop = logEl.scrollHeight;
+};
+
+const setStatus = (el, text, err=false) => {
+  el.className = err ? 'status err' : 'status';
+  if (err) el.style.color = '#ff7b72';
+  else el.style.color = '#00ffa3';
+  el.textContent = text;
+};
+
+const detect = async () => {
+  log('Hermes Native boot sequence started');
+  setStatus(statusEl, 'BOOT');
+  surfaceEl.textContent = 'Local viewport';
+  setStatus(surfaceEl, 'ACTIVE');
+  await new Promise((r) => setTimeout(r, 400));
+  try {
+    if (!navigator.gpu) throw new Error('navigator.gpu unavailable');
+    const adapter = await navigator.gpu.requestAdapter();
+    if (!adapter) throw new Error('No GPU adapter');
+    setStatus(primitiveEl, 'WEBGPU READY');
+    modeEl.textContent = 'WebGPU inference';
+    log('WebGPU detect: adapter ready');
+  } catch (e) {
+    setStatus(primitiveEl, 'FALLBACK', true);
+    modeEl.textContent = 'Fallback viewport';
+    log('WebGPU detect failed: ' + e.message, true);
+  }
+  setStatus(statusEl, 'READY');
+  log('Hermes Native runtime initialized');
+};
+
+const fakeInference = async () => {
+  const text = (promptEl.value || '').trim();
+  log('Demo inference requested...');
+  runBtn.disabled = true;
+  runBtn.textContent = 'RUNNING...';
+  modeStatusEl.textContent = 'RUNNING';
+  modeStatusEl.style.color = '#D4AF37';
+  const start = performance.now();
+  await new Promise((r) => setTimeout(r, 750 + Math.random() * 2200));
+  const elapsed = Math.max(1, Math.round(performance.now() - start));
+  const response = text
+    ? 'Demo result for: ' + text
+    : 'Sovereign inference stub active. Hermes Native runtime online.';
+  log(response);
+  modeEl.textContent = elapsed + 'ms';
+  setStatus(modeStatusEl, 'DONE');
+  runBtn.disabled = false;
+  runBtn.textContent = 'RUN DEMO';
+};
+
+detect();
+runBtn.addEventListener('click', fakeInference);
+promptEl.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault();
+    fakeInference();
+  }
+});
+</script>
+</body>
+</html>

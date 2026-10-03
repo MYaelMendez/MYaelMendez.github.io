@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#050505"/>
+<title>Hermes cuda_IDE_RTX — GPU-in-MCP</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-glow:rgba(212,175,55,.32);--neon:#00ff9d;--ink:#f0ece4;--muted:rgba(240,236,228,.4);--border:rgba(212,175,55,.16);--border-hot:rgba(212,175,55,.5);--dur:.2s;--ease:cubic-bezier(.2,.7,.2,1)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100dvh;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
+canvas#mesh{position:fixed;inset:0;z-index:0}
+.scan{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(transparent 0 2px,rgba(212,175,55,.012) 2px 4px)}
+.vig{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 35%,rgba(5,5,5,.92) 100%)}
+.wrap{position:relative;z-index:10;max-width:840px;margin:0 auto;padding:clamp(20px,5vw,56px) clamp(14px,4vw,28px);display:flex;flex-direction:column;gap:clamp(14px,2.6vh,24px)}
+.statusbar{display:flex;justify-content:space-between;align-items:center;font-size:clamp(7px,1.1vw,10px);letter-spacing:2px;color:var(--muted);text-transform:uppercase;border:1px solid var(--border);padding:8px 14px}
+.statusbar .live{display:flex;align-items:center;gap:6px;color:var(--neon)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+.hero{text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+.glyph{font-size:clamp(44px,11vw,88px);filter:drop-shadow(0 0 24px var(--gold-glow));animation:breathe 4s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.cmd{font-family:'Orbitron';font-weight:900;font-size:clamp(20px,5.5vw,46px);letter-spacing:clamp(1px,.4vw,4px);color:var(--gold);text-shadow:0 0 28px var(--gold-glow);line-height:1}
+.cmd .dim{color:var(--muted)}.cmd .cur{display:inline-block;width:.5ch;background:var(--gold);animation:blink 1s step-end infinite;margin-left:2px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.sub{font-size:clamp(9px,1.8vw,13px);letter-spacing:2px;color:var(--ink);text-transform:uppercase}
+.sub em{font-style:normal;color:var(--gold)}
+.kv{display:flex;gap:8px;flex-wrap:wrap}
+.kv p{padding:3px 8px;border:1px solid var(--border);color:var(--muted);font-size:clamp(9px,1vw,12px)}
+.kv strong{color:var(--gold)}
+.panel{border:1px solid var(--border-hot);background:rgba(5,5,5,.7);box-shadow:0 0 40px rgba(212,175,55,.08);padding:16px;display:flex;flex-direction:column;gap:12px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;font-size:clamp(7px,1.1vw,10px);letter-spacing:2px;color:var(--gold);text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:8px}
+.panel-head .tag{color:var(--neon);border:1px solid rgba(0,255,157,.25);padding:2px 8px;border-radius:999px;font-size:8px}
+.foot{display:flex;flex-wrap:wrap;gap:4px 16px;justify-content:center;font-size:clamp(7px,1.1vw,10px);letter-spacing:1px}
+.foot a{color:var(--muted);text-decoration:none;transition:color .15s}
+.foot a:hover{color:var(--gold)}
+.hash{text-align:center;font-family:'Orbitron';font-weight:700;font-size:clamp(9px,1.6vw,13px);background:linear-gradient(90deg,var(--gold),var(--neon),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
+/* cuda_IDE_RTX — GPU state card */
+.gpu-name{font-family:'Orbitron';font-weight:900;font-size:clamp(14px,2.6vw,22px);color:var(--gold);text-shadow:0 0 18px var(--gold-glow);letter-spacing:1px}
+.gpu-grid{display:grid;gap:12px;grid-template-columns:repeat(2,1fr)}
+@media(max-width:620px){.gpu-grid{grid-template-columns:1fr}}
+.metric{border:1px solid var(--border);background:linear-gradient(135deg,rgba(212,175,55,.06),transparent);padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.metric .l{font-size:clamp(8px,.9vw,10px);letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+.metric .v{font-family:'Orbitron';font-weight:900;font-size:clamp(18px,3.4vw,28px);color:var(--gold);text-shadow:0 0 18px var(--gold-glow);font-variant-numeric:tabular-nums}
+.state{font-size:clamp(8px,1vw,11px);letter-spacing:1.5px;text-transform:uppercase;padding:2px 10px;border-radius:999px;border:1px solid var(--border)}
+.state.live{color:var(--neon);border-color:rgba(0,255,157,.35)}
+.state.old{color:#ff6b6b;border-color:rgba(255,107,107,.35)}
+.kernel-ms{font-family:'Orbitron';font-weight:900;font-size:clamp(28px,6vw,52px);color:var(--gold);text-shadow:0 0 26px var(--gold-glow);font-variant-numeric:tabular-nums}
+.kernel-sub{font-size:clamp(10px,1vw,12px);color:var(--muted);line-height:1.7}
+.kernel-sub b{color:var(--gold)}
+.diagram{font-size:11px;line-height:1.8;color:var(--muted);background:#0b0b0b;border:1px solid var(--border);padding:14px;border-radius:4px;white-space:pre-wrap;word-break:break-word;font-family:'JetBrains Mono',monospace}
+.diagram b{color:var(--gold)}.diagram .n{color:var(--neon)}
+.scheme{display:inline-block;font-family:'JetBrains Mono',monospace;color:var(--gold);border:1px solid var(--border-hot);padding:4px 10px;font-size:clamp(11px,1.4vw,14px);background:rgba(212,175,55,.05);letter-spacing:1px}
+.routeline{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;margin-top:8px;font-size:clamp(10px,.95vw,12px);color:var(--muted);line-height:1.6}
+.routeline .arrow{color:var(--neon)}
+.logshell{margin-top:0;border:1px solid var(--border);padding:14px;background:rgba(5,5,5,.6);color:var(--muted);font-size:11px;line-height:1.6;white-space:pre-wrap;word-break:break-word;font-family:'JetBrains Mono',monospace;max-height:240px;overflow:auto}
+.logshell .ok{color:var(--neon)}
+.bootlive{color:var(--gold);font-weight:700;text-shadow:0 0 14px var(--gold-glow);font-family:'Orbitron';letter-spacing:1px}
+</style>
+</head>
+<body>
+<canvas id="mesh"></canvas><div class="scan"></div><div class="vig"></div>
+<div class="wrap">
+
+  <div class="statusbar">
+    <span>æ:// CUDA IDE · RTX3050://</span>
+    <span>GPU-IN-MCP UNLOCK</span>
+    <span class="live"><span class="dot"></span>SOVEREIGN</span>
+  </div>
+
+  <div class="hero">
+    <div class="glyph">æ</div>
+    <div class="cmd">&gt;_æ<span class="dim">:</span>cuda_IDE_RTX<span class="cur">&nbsp;</span></div>
+    <div class="sub">GPU-IN-MCP PROOF OF CAPABILITY · <em>LANGUAGE IS COMPUTE</em></div>
+  </div>
+
+  <div class="kv">
+    <p><strong>gpu</strong>RTX 3050 6GB</p>
+    <p><strong>tunnel</strong>CUDA_MCP²</p>
+    <p><strong>scheme</strong>cuda:// · rtx3050://</p>
+    <p><strong>status</strong>sovereign + live</p>
+  </div>
+
+  <div class="panel" role="region" aria-label="Live GPU state">
+    <div class="panel-head"><span>LIVE GPU STATE</span><span class="state old" id="gpuState">LAST-KNOWN</span></div>
+    <div class="gpu-name" id="gpuName">RTX 3050 6GB</div>
+    <div class="gpu-grid">
+      <div class="metric"><span class="l">Temperature</span><span class="v" id="gpuTemp">45°C</span></div>
+      <div class="metric"><span class="l">VRAM Used</span><span class="v" id="gpuMem">761 MiB / 6144 MiB</span></div>
+      <div class="metric"><span class="l">GPU Util</span><span class="v" id="gpuUtil">0%</span></div>
+      <div class="metric"><span class="l">VRAM Free</span><span class="v" id="gpuFree">5383 MiB</span></div>
+    </div>
+  </div>
+
+  <div class="panel" role="region" aria-label="Last kernel readout">
+    <div class="panel-head"><span>LAST KERNEL</span><span class="tag">CUDA MATMUL</span></div>
+    <div class="kernel-ms" id="kernelMs">455.84 ms</div>
+    <div class="kernel-sub">real CUDA matmul over the tunnel · <b>n=<span id="kernelN">512</span></b> · host-to-host latency on the RTX 3050 leaf</div>
+    <div class="diagram">&gt;&gt;&gt; A = torch.randn(n, n, device='cuda')<br>&gt;&gt;&gt; B = torch.randn(n, n, device='cuda')<br>&gt;&gt;&gt; C = torch.matmul(A, B)   <span class="n"># RTX 3050 · host_ms carried back via xrpc</span></div>
+  </div>
+
+  <div class="panel" role="region" aria-label="CUDA MCP topology">
+    <div class="panel-head"><span>CUDA_MCP² TOPOLOGY</span><span class="tag">TUNNEL</span></div>
+    <div class="diagram"><b>droplet broker</b>  ── reverse tunnel ──▶  <b>Victus leaf</b>
+┌─────────────────────┐                      ┌─────────────────────┐
+│ 129.212.180.252:3000│  ◀── SSH reverse ──▶  │ C:\æ  ·  RTX 3050 6GB│
+│  /xrpc/ae.vps.rtx   │      (3050)          │  local CUDA hands   │
+└─────────────────────┘                      └─────────────────────┘
+  broker: http://127.0.0.1:3050 (VPS python)    leaf: GPU-in-MCP, sovereign</div>
+  </div>
+
+  <div class="panel" role="region" aria-label="Addressable scheme routes">
+    <div class="panel-head"><span>ADDRESSABLE ROUTES</span><span class="tag">LANGUAGE IS COMPUTE</span></div>
+    <div class="routeline"><span class="scheme">cuda://</span> <span class="arrow">→</span> addressable compute route · language is compute</div>
+    <div class="routeline"><span class="scheme">rtx3050://</span> <span class="arrow">→</span> addressable leaf route · GPU-in-MCP, sovereign node</div>
+  </div>
+
+  <div class="panel" role="region" aria-label="Boot log">
+    <div class="panel-head"><span>BOOT LOG</span><span class="tag">&gt;_æ|</span></div>
+    <div class="logshell" id="log"></div>
+  </div>
+
+  <div class="foot">
+    <a href="./index.html">hub</a>
+    <a href="./mesh-agenti.html">mesh</a>
+    <a href="./fleet.html">fleet</a>
+    <a href="./cuda-vlc.html">cuda-vlc</a>
+    <a href="./porter.html">porter</a>
+    <a href="./secret-source-bridge.html">secret-bridge</a>
+    <a href="./demo.html">demo</a>
+    <a href="./sovereign-state.html">sovereign-state</a>
+  </div>
+  <div class="hash">#HERMIPHICATIONISINEVITABLE</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="./assets/aether.js?v=2"></script>
+<script>
+const {$, Aether} = window;
+const RTX_ENDPOINT = 'http://129.212.180.252:3000/xrpc/ae.vps.rtx?op=probe';
+const LAST_KNOWN = {name:'RTX 3050 6GB', temp:45, mem_used:761, mem_total:6144, util:0, host_ms:455.84, n:512};
+
+const logEl = $('log');
+function logLine(t, cls){const d=document.createElement('div');if(cls)d.className=cls;d.textContent=t;logEl.appendChild(d);logEl.scrollTop=logEl.scrollHeight;}
+
+function setState(live){
+  const s = $('gpuState');
+  s.textContent = live ? 'LIVE' : 'LAST-KNOWN';
+  s.className = 'state ' + (live ? 'live' : 'old');
+}
+
+function applyLastKnown(){
+  setState(false);
+  $('gpuName').textContent = LAST_KNOWN.name;
+  $('gpuTemp').textContent = LAST_KNOWN.temp + '°C';
+  $('gpuMem').textContent = LAST_KNOWN.mem_used + ' MiB / ' + LAST_KNOWN.mem_total + ' MiB';
+  $('gpuUtil').textContent = LAST_KNOWN.util + '%';
+  $('gpuFree').textContent = (LAST_KNOWN.mem_total - LAST_KNOWN.mem_used) + ' MiB';
+  $('kernelMs').textContent = LAST_KNOWN.host_ms.toFixed(2) + ' ms';
+  $('kernelN').textContent = LAST_KNOWN.n;
+}
+
+function applyLive(data){
+  const p = (data && data.probe) || {};
+  const r = (data && data.run) || {};
+  setState(true);
+  if(p.name) $('gpuName').textContent = p.name;
+  $('gpuTemp').textContent = (p.temperature_gpu != null ? p.temperature_gpu : LAST_KNOWN.temp) + '°C';
+  const used = p.memory_used_mib != null ? p.memory_used_mib : LAST_KNOWN.mem_used;
+  const total = p.memory_total_mib != null ? p.memory_total_mib : LAST_KNOWN.mem_total;
+  $('gpuMem').textContent = Math.round(used) + ' MiB / ' + Math.round(total) + ' MiB';
+  $('gpuUtil').textContent = (p.utilization_gpu != null ? p.utilization_gpu : LAST_KNOWN.util) + '%';
+  $('gpuFree').textContent = Math.round(total - used) + ' MiB';
+  const hms = r.host_ms != null ? r.host_ms : LAST_KNOWN.host_ms;
+  $('kernelMs').textContent = hms.toFixed(2) + ' ms';
+  $('kernelN').textContent = r.n != null ? r.n : LAST_KNOWN.n;
+}
+
+async function probe(){
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 6000);
+  try{
+    const res = await fetch(RTX_ENDPOINT, {signal: ctrl.signal, cache: 'no-store'});
+    clearTimeout(to);
+    if(!res.ok) throw new Error('http ' + res.status);
+    const data = await res.json();
+    if(!data || data.ok === false) throw new Error('payload rejected');
+    applyLive(data);
+    const hms = (data.run && data.run.host_ms != null) ? data.run.host_ms.toFixed(2) : LAST_KNOWN.host_ms.toFixed(2);
+    logLine('[PROBE] LIVE · CUDA_MCP² tunnel OK · host_ms ' + hms, 'ok');
+  }catch(e){
+    clearTimeout(to);
+    applyLastKnown();
+    logLine('[PROBE] tunnel unreachable → last-known fallback (' + e.name + ': ' + e.message + ')');
+  }
+  logLine('cuda_IDE_RTX LIVE', 'bootlive');
+}
+
+applyLastKnown();
+logLine('[BOOT] æ:// cuda_IDE_RTX surface mounted');
+logLine('[MESH] neural mesh online · gold-on-void');
+logLine('[PROBE] contacting CUDA_MCP² broker → ' + RTX_ENDPOINT);
+probe();
+Aether.mesh();
+</script>
+</body>
+</html>
