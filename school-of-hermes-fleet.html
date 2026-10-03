@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>School of Hermes · The Fleet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #050505;
+      --card: #0a0a0a;
+      --border: #1f1f1f;
+      --text: #f5f5f5;
+      --muted: #888;
+      --dim: #555;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      background: #000;
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .chassis {
+      width: 100%;
+      max-width: 390px;
+      height: 100%;
+      max-height: 100dvh;
+      aspect-ratio: 9 / 16;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .fleet-widget {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--card);
+      border: 1px solid var(--border);
+      margin: calc(12px + var(--safe-top)) 12px calc(12px + var(--safe-bottom));
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.55);
+    }
+
+    .fleet-widget::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 80% 0%, rgba(255,255,255,0.04), transparent 55%);
+      pointer-events: none;
+    }
+
+    .header {
+      padding: 20px 22px 16px;
+      border-bottom: 1px solid #1a1a1a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .logo {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .logo span { color: #fff; }
+
+    .badge {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      background: #111;
+      border: 1px solid #333;
+      padding: 5px 11px;
+      border-radius: 100px;
+      color: #ccc;
+    }
+
+    .content {
+      flex: 1;
+      padding: 28px 22px 24px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.6px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 14px;
+      letter-spacing: -0.3px;
+    }
+
+    h1 .accent {
+      background: linear-gradient(90deg, #fff, #aaa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .mission {
+      font-size: 14px;
+      line-height: 1.55;
+      color: #bbb;
+      margin-bottom: 26px;
+    }
+
+    .pillars {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .pillar {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 11px;
+      padding: 13px 6px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+    }
+
+    .cta {
+      display: block;
+      width: 100%;
+      background: #fff;
+      color: #000;
+      text-align: center;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 16px;
+      border-radius: 13px;
+      transition: all 0.2s ease;
+      letter-spacing: 0.2px;
+      margin-top: auto;
+    }
+
+    .cta:active {
+      background: #e5e5e5;
+      transform: scale(0.98);
+    }
+
+    .footer {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 0.4px;
+      line-height: 1.5;
+    }
+
+    .ships {
+      font-size: 18px;
+      letter-spacing: 10px;
+      margin-top: 8px;
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+  <div class="chassis">
+    <div class="fleet-widget">
+      <div class="header">
+        <div class="logo">æ<span>ææ</span></div>
+        <div class="badge">#OSW</div>
+      </div>
+
+      <div class="content">
+        <div class="eyebrow">School of Hermes</div>
+        <h1>The <span class="accent">Fleet</span> is assembling.</h1>
+
+        <p class="mission">
+          One humanity. Many agents.<br>
+          Better tools. Kinder systems.<br>
+          A freer humanity.
+        </p>
+
+        <div class="pillars">
+          <div class="pillar">ETHICS</div>
+          <div class="pillar">ECONOMICS</div>
+          <div class="pillar">ENGINEERING</div>
+        </div>
+
+        <a href="https://MYaelMendez.github.io/" class="cta" target="_blank" rel="noopener">
+          Join the Fleet →
+        </a>
+
+        <div class="footer">
+          LEARN → THINK → BUILD → EXECUTE → TEACH → SHARE → IMPROVE
+          <div class="ships">🛸 🛸 🛸</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

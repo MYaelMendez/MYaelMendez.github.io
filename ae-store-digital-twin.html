@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#020202"/>
+<title>Æ.STORE · Digital Twin Organism</title>
+</head>
+<body style="margin:0;background:#020202">
+<!--
+Æ.STORE · DIGITAL TWIN / NOUS PORTAL ORGANISM
+
+DNA
+  ↓
+SHA-256 identity
+  ↓
+deterministic Three.js phenotype
+  ↓
+QR / SVG expression
+  ↓
+ACCESS → NOUS RESEARCH
+
+Grandes Modelos de Lenguaje y Promptificación
+-->
+
+<div id="ae-store-widget">
+
+  <canvas id="ae-three"></canvas>
+
+  <div id="ae-overlay">
+
+    <div class="ae-head">
+
+      <span>
+        Æ.STORE // DIGITAL TWIN
+      </span>
+
+      <span id="ae-phase">
+        DNA
+      </span>
+
+    </div>
+
+    <div id="ae-prompt">
+      &gt;_
+    </div>
+
+    <!-- QR phenotype -->
+
+    <a
+      id="ae-qr-link"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Open Nous Research referral">
+
+      <div id="ae-qr"></div>
+
+    </a>
+
+    <div id="ae-status">
+
+      <span id="energy">
+        E=0.320
+      </span>
+
+      <span id="tau">
+        τ=0
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <!-- PORTAL CTA -->
+
+  <a
+    id="ae-portal"
+    target="_blank"
+    rel="noopener noreferrer">
+
+    <span class="portal-symbol">
+      ›_
+    </span>
+
+    <span class="portal-copy">
+
+      ACCESS NOUS RESEARCH
+
+      <small>
+        GRANDES MODELOS DE LENGUAJE
+        Y PROMPTIFICACIÓN
+      </small>
+
+    </span>
+
+    <b>↗</b>
+
+  </a>
+
+
+  <div id="ae-dna"></div>
+
+
+  <div id="ae-thesis">
+    HERMIPHICATION IS INEVITABLE.
+  </div>
+
+</div>
+
+
+<style>
+
+#ae-store-widget{
+
+  --ae:#00ffaa;
+  --cyan:#00f3ff;
+  --ink:#ecfff8;
+
+  width:min(300px,94vw);
+
+  aspect-ratio:1;
+
+  position:relative;
+
+  overflow:hidden;
+
+  border-radius:24px;
+
+  background:
+
+    radial-gradient(
+      circle at 50% 43%,
+      #063126,
+      #020202 60%,
+      #000
+    );
+
+  box-shadow:
+
+    inset 0 0 40px
+    rgba(0,255,170,.08),
+
+    0 20px 60px
+    rgba(0,0,0,.68),
+
+    0 0 40px
+    rgba(0,255,170,.12);
+
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+
+  color:var(--ink);
+
+}
+
+
+#ae-three{
+
+  position:absolute;
+
+  inset:0;
+
+  width:100%;
+  height:100%;
+
+  display:block;
+
+}
+
+
+#ae-overlay{
+
+  position:absolute;
+
+  inset:0;
+
+  pointer-events:none;
+
+  padding:14px;
+
+  z-index:10;
+
+}
+
+
+.ae-head{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  gap:8px;
+
+  color:var(--ae);
+
+  font-size:8px;
+
+  letter-spacing:.14em;
+
+  opacity:.72;
+
+}
+
+
+#ae-phase{
+
+  color:#fff;
+
+}
+
+
+#ae-prompt{
+
+  position:absolute;
+
+  left:50%;
+  top:45%;
+
+  transform:
+    translate(-50%,-50%);
+
+  color:#fff;
+
+  font-size:28px;
+
+  font-weight:900;
+
+  text-shadow:
+    0 0 18px
+    var(--ae);
+
+  transition:
+    opacity .3s,
+    transform .45s;
+
+}
+
+
+#ae-status{
+
+  position:absolute;
+
+  left:14px;
+  right:14px;
+  bottom:70px;
+
+  display:flex;
+
+  justify-content:space-between;
+
+  color:var(--ae);
+
+  font-size:8px;
+
+  opacity:.68;
+
+}
+
+
+/* ─────────────────────────────
+   QR PHENOTYPE
+───────────────────────────── */
+
+#ae-qr-link{
+
+  position:absolute;
+
+  left:50%;
+  top:43%;
+
+  width:42%;
+
+  aspect-ratio:1;
+
+  transform:
+    translate(-50%,-50%)
+    scale(.05);
+
+  opacity:0;
+
+  padding:5px;
+
+  border-radius:9px;
+
+  background:#fff;
+
+  box-shadow:
+    0 0 24px
+    rgba(0,255,170,.35);
+
+  pointer-events:auto;
+
+  transition:
+
+    transform .55s
+    cubic-bezier(.2,.85,.2,1),
+
+    opacity .4s;
+
+}
+
+
+#ae-store-widget.expressed
+#ae-qr-link{
+
+  opacity:1;
+
+  transform:
+    translate(-50%,-50%)
+    scale(1);
+
+}
+
+
+#ae-store-widget.expressed
+#ae-prompt{
+
+  opacity:.16;
+
+  transform:
+    translate(-50%,-50%)
+    scale(1.5);
+
+}
+
+
+#ae-qr svg{
+
+  display:block;
+
+  width:100%;
+  height:auto;
+
+}
+
+
+/* ─────────────────────────────
+   PORTAL CTA
+───────────────────────────── */
+
+#ae-portal{
+
+  position:absolute;
+
+  left:12px;
+  right:12px;
+  bottom:23px;
+
+  z-index:30;
+
+  min-height:42px;
+
+  display:grid;
+
+  grid-template-columns:
+    auto 1fr auto;
+
+  align-items:center;
+
+  gap:8px;
+
+  padding:
+    7px 10px;
+
+  border:
+    1px solid
+    rgba(0,255,170,.50);
+
+  border-radius:
+    9px;
+
+  background:
+    rgba(0,10,8,.82);
+
+  color:
+    var(--ae);
+
+  text-decoration:none;
+
+  backdrop-filter:
+    blur(10px);
+
+}
+
+
+.portal-symbol{
+
+  font-size:18px;
+
+  color:#fff;
+
+}
+
+
+.portal-copy{
+
+  min-width:0;
+
+  font-size:8px;
+
+  font-weight:900;
+
+  letter-spacing:.08em;
+
+}
+
+
+.portal-copy small{
+
+  display:block;
+
+  margin-top:2px;
+
+  color:
+    rgba(255,255,255,.48);
+
+  font-size:5px;
+
+  font-weight:400;
+
+  line-height:1.25;
+
+  letter-spacing:.06em;
+
+}
+
+
+#ae-portal b{
+
+  font-size:14px;
+
+}
+
+
+#ae-portal:active{
+
+  background:
+    var(--ae);
+
+  color:#001b10;
+
+}
+
+
+/* ─────────────────────────────
+   DNA
+───────────────────────────── */
+
+#ae-dna{
+
+  position:absolute;
+
+  left:14px;
+  right:14px;
+  bottom:7px;
+
+  overflow:hidden;
+
+  white-space:nowrap;
+
+  text-overflow:ellipsis;
+
+  color:
+    rgba(255,255,255,.22);
+
+  font-size:5px;
+
+  z-index:20;
+
+}
+
+
+/* thesis appears after expression */
+
+#ae-thesis{
+
+  position:absolute;
+
+  left:0;
+  right:0;
+
+  top:69%;
+
+  text-align:center;
+
+  color:
+    rgba(255,255,255,.35);
+
+  font-size:6px;
+
+  letter-spacing:.22em;
+
+  opacity:0;
+
+  transition:
+    opacity .5s;
+
+  pointer-events:none;
+
+}
+
+
+#ae-store-widget.expressed
+#ae-thesis{
+
+  opacity:1;
+
+}
+
+</style>
+
+
+<script
+src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js">
+</script>
+
+
+<script type="module">
+
+import * as THREE from
+"https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js";
+
+
+/* =====================================================
+   DNA
+
+   This is the organism.
+===================================================== */
+
+const DNA =
+"https://portal.nousresearch.com/r/grandesmodelosdelenguaje-prompti";
+
+
+/* =====================================================
+   DOM
+===================================================== */
+
+const host =
+document.getElementById(
+  "ae-store-widget"
+);
+
+const canvas =
+document.getElementById(
+  "ae-three"
+);
+
+const eText =
+document.getElementById(
+  "energy"
+);
+
+const tText =
+document.getElementById(
+  "tau"
+);
+
+const phase =
+document.getElementById(
+  "ae-phase"
+);
+
+const portal =
+document.getElementById(
+  "ae-portal"
+);
+
+const qrLink =
+document.getElementById(
+  "ae-qr-link"
+);
+
+
+portal.href =
+DNA;
+
+qrLink.href =
+DNA;
+
+document
+.getElementById(
+  "ae-dna"
+)
+.textContent =
+"DNA://" + DNA;
+
+
+/* =====================================================
+   SHA-256 IDENTITY
+===================================================== */
+
+async function sha256(text){
+
+  const bytes =
+  new TextEncoder()
+  .encode(text);
+
+
+  const digest =
+  await crypto.subtle.digest(
+    "SHA-256",
+    bytes
+  );
+
+
+  return [
+    ...new Uint8Array(
+      digest
+    )
+  ]
+
+  .map(
+    b =>
+      b.toString(16)
+       .padStart(2,"0")
+  )
+
+  .join("");
+
+}
+
+
+const HASH =
+await sha256(DNA);
+
+
+/* =====================================================
+   DNA → DETERMINISTIC RANDOMNESS
+
+   Same DNA = same body.
+===================================================== */
+
+function seedFromHash(hash){
+
+  return parseInt(
+    hash.slice(0,8),
+    16
+  ) >>> 0;
+
+}
+
+
+function mulberry32(seed){
+
+  return function(){
+
+    let t =
+    seed +=
+    0x6D2B79F5;
+
+
+    t =
+    Math.imul(
+      t ^ t >>> 15,
+      t | 1
+    );
+
+
+    t ^=
+    t +
+    Math.imul(
+      t ^ t >>> 7,
+      t | 61
+    );
+
+
+    return (
+
+      (
+        t ^
+        t >>> 14
+      ) >>> 0
+
+    ) / 4294967296;
+
+  };
+
+}
+
+
+const rand =
+mulberry32(
+  seedFromHash(HASH)
+);
+
+
+/* =====================================================
+   DNA → QR → SVG
+===================================================== */
+
+function buildQR(dna){
+
+  const qr =
+  qrcode(
+    0,
+    "M"
+  );
+
+
+  qr.addData(
+    dna
+  );
+
+
+  qr.make();
+
+
+  const N =
+  qr.getModuleCount();
+
+
+  const QUIET =
+  4;
+
+
+  const TOTAL =
+  N +
+  QUIET * 2;
+
+
+  let d =
+  "";
+
+
+  for(
+    let y=0;
+    y<N;
+    y++
+  ){
+
+    let start =
+    -1;
+
+
+    for(
+      let x=0;
+      x<=N;
+      x++
+    ){
+
+      const dark =
+
+      x < N &&
+
+      qr.isDark(
+        y,
+        x
+      );
+
+
+      if(
+        dark &&
+        start < 0
+      ){
+
+        start =
+        x;
+
+      }
+
+
+      if(
+        !dark &&
+        start >= 0
+      ){
+
+        const run =
+        x - start;
+
+
+        d +=
+
+        `M${start+QUIET} ${y+QUIET}` +
+
+        `h${run}` +
+
+        `v1` +
+
+        `h-${run}` +
+
+        `z`;
+
+
+        start =
+        -1;
+
+      }
+
+    }
+
+  }
+
+
+  return `
+
+<svg
+ xmlns="http://www.w3.org/2000/svg"
+ viewBox="0 0 ${TOTAL} ${TOTAL}"
+ preserveAspectRatio="xMidYMid meet"
+ shape-rendering="crispEdges"
+ data-dna="${dna}">
+
+ <metadata>
+  DNA=${dna};
+  ID=sha256:${HASH};
+  MATRIX=${N}x${N};
+  EC=M;
+  QUIET=${QUIET};
+ </metadata>
+
+ <rect
+  width="${TOTAL}"
+  height="${TOTAL}"
+  fill="#fff"/>
+
+ <path
+  d="${d}"
+  fill="#000"/>
+
+</svg>
+
+`.trim();
+
+}
+
+
+document
+.getElementById(
+  "ae-qr"
+)
+.innerHTML =
+buildQR(DNA);
+
+
+/* =====================================================
+   THREE.JS
+===================================================== */
+
+const scene =
+new THREE.Scene();
+
+
+const camera =
+new THREE.PerspectiveCamera(
+  35,
+  1,
+  .1,
+  100
+);
+
+
+camera.position.z =
+5;
+
+
+const renderer =
+new THREE.WebGLRenderer({
+
+  canvas,
+
+  antialias:true,
+
+  alpha:true
+
+});
+
+
+renderer.setPixelRatio(
+
+  Math.min(
+    devicePixelRatio,
+    2
+  )
+
+);
+
+
+/* =====================================================
+   LIGHT
+===================================================== */
+
+scene.add(
+
+  new THREE.AmbientLight(
+    0x00ffaa,
+    .35
+  )
+
+);
+
+
+const keyLight =
+new THREE.PointLight(
+  0x00ffaa,
+  3,
+  20
+);
+
+
+keyLight.position.set(
+  2,
+  2,
+  3
+);
+
+
+scene.add(
+  keyLight
+);
+
+
+/* =====================================================
+   DIGITAL TWIN BODY
+===================================================== */
+
+const orb =
+new THREE.Mesh(
+
+  new THREE.SphereGeometry(
+    1.5,
+    72,
+    72
+  ),
+
+  new THREE.MeshPhysicalMaterial({
+
+    transmission:.85,
+
+    thickness:.8,
+
+    roughness:.07,
+
+    clearcoat:1,
+
+    ior:1.48,
+
+    color:
+      0x00100c,
+
+    emissive:
+      0x002a1b,
+
+    emissiveIntensity:
+      .55,
+
+    transparent:
+      true,
+
+    opacity:
+      .82
+
+  })
+
+);
+
+
+scene.add(
+  orb
+);
+
+
+/* =====================================================
+   ASYMPTOTIC CORE
+===================================================== */
+
+const core =
+new THREE.Mesh(
+
+  new THREE.SphereGeometry(
+    .9,
+    48,
+    48
+  ),
+
+  new THREE.MeshStandardMaterial({
+
+    color:
+      0x001014,
+
+    emissive:
+      0x00ffaa,
+
+    emissiveIntensity:
+      2,
+
+    transparent:
+      true,
+
+    opacity:
+      .14
+
+  })
+
+);
+
+
+scene.add(
+  core
+);
+
+
+/* =====================================================
+   DNA RINGS
+===================================================== */
+
+const rings =
+[];
+
+
+for(
+  let i=0;
+  i<3;
+  i++
+){
+
+  const ring =
+  new THREE.Mesh(
+
+    new THREE.TorusGeometry(
+
+      1.05 +
+      i * .16,
+
+      .014,
+
+      16,
+
+      160
+
+    ),
+
+    new THREE.MeshBasicMaterial({
+
+      color:
+
+        i === 1
+
+        ? 0x00f3ff
+
+        : 0x00ffaa,
+
+      transparent:
+        true,
+
+      opacity:
+        .62
+
+    })
+
+  );
+
+
+  ring.rotation.x =
+  Math.PI / 2;
+
+
+  ring.rotation.y =
+  rand() *
+  Math.PI;
+
+
+  rings.push(
+    ring
+  );
+
+
+  scene.add(
+    ring
+  );
+
+}
+
+
+/* =====================================================
+   AGENT PARTICLES
+
+   Deterministically generated from DNA.
+===================================================== */
+
+const COUNT =
+500;
+
+
+const positions =
+new Float32Array(
+  COUNT * 3
+);
+
+
+for(
+  let i=0;
+  i<COUNT;
+  i++
+){
+
+  const radius =
+  .8 +
+  rand() * 2;
+
+
+  const theta =
+  rand() *
+  Math.PI *
+  2;
+
+
+  const phi =
+  Math.acos(
+    2 *
+    rand() -
+    1
+  );
+
+
+  positions[i*3] =
+
+  radius *
+  Math.sin(phi) *
+  Math.cos(theta);
+
+
+  positions[i*3+1] =
+
+  radius *
+  Math.sin(phi) *
+  Math.sin(theta);
+
+
+  positions[i*3+2] =
+
+  radius *
+  Math.cos(phi);
+
+}
+
+
+const pGeo =
+new THREE.BufferGeometry();
+
+
+pGeo.setAttribute(
+
+  "position",
+
+  new THREE.BufferAttribute(
+    positions,
+    3
+  )
+
+);
+
+
+const particles =
+new THREE.Points(
+
+  pGeo,
+
+  new THREE.PointsMaterial({
+
+    color:
+      0x00ffaa,
+
+    size:
+      .018,
+
+    transparent:
+      true,
+
+    opacity:
+      .72
+
+  })
+
+);
+
+
+scene.add(
+  particles
+);
+
+
+/* =====================================================
+   ASYMPTOTIC ITERATION
+===================================================== */
+
+const S = {
+
+  E:.32,
+
+  tau:0,
+
+  targets:[
+    .42,
+    .55,
+    .78,
+    .35
+  ],
+
+  gain:.022,
+
+  expression:0,
+
+  targetExpression:0
+
+};
+
+
+/* =====================================================
+   EXPRESS / COLLAPSE
+===================================================== */
+
+function express(){
+
+  S.targetExpression =
+
+  S.targetExpression
+  ? 0
+  : 1;
+
+
+  host.classList.toggle(
+
+    "expressed",
+
+    Boolean(
+      S.targetExpression
+    )
+
+  );
+
+
+  phase.textContent =
+
+  S.targetExpression
+
+  ? "QR://LIVE"
+
+  : "DNA";
+
+}
+
+
+host.addEventListener(
+  "click",
+  event => {
+
+    /*
+      Don't intercept portal / QR clicks.
+    */
+
+    if(
+      event.target.closest(
+        "a"
+      )
+    )
+    return;
+
+
+    express();
+
+  }
+);
+
+
+/* =====================================================
+   RESPONSIVE RENDERER
+===================================================== */
+
+function resize(){
+
+  const rect =
+  host.getBoundingClientRect();
+
+
+  renderer.setSize(
+
+    rect.width,
+
+    rect.height,
+
+    false
+
+  );
+
+
+  camera.aspect =
+  rect.width /
+  rect.height;
+
+
+  camera.updateProjectionMatrix();
+
+}
+
+
+new ResizeObserver(
+  resize
+)
+.observe(
+  host
+);
+
+
+resize();
+
+
+/* =====================================================
+   ANIMATION
+===================================================== */
+
+function animate(){
+
+  requestAnimationFrame(
+    animate
+  );
+
+
+  const target =
+  S.targets[
+    S.tau
+  ];
+
+
+  S.E +=
+
+  (
+    target -
+    S.E
+  ) *
+
+  S.gain;
+
+
+  if(
+
+    Math.abs(
+      target -
+      S.E
+    )
+
+    < .01
+
+  ){
+
+    S.tau =
+
+    (
+      S.tau + 1
+    )
+
+    %
+
+    S.targets.length;
+
+  }
+
+
+  S.expression +=
+
+  (
+    S.targetExpression -
+    S.expression
+  )
+
+  * .06;
+
+
+  orb.rotation.y +=
+  .0028;
+
+
+  particles.rotation.y -=
+  .0011;
+
+
+  particles.rotation.x +=
+  .00025;
+
+
+  rings.forEach(
+    (ring,i) => {
+
+      ring.rotation.z +=
+
+      (
+        .0015 +
+        i *
+        .0007
+      )
+
+      *
+
+      (
+        i % 2
+        ? -1
+        : 1
+      );
+
+    }
+  );
+
+
+  /*
+    As QR expresses,
+    Three.js phenotype expands away.
+  */
+
+  const spread =
+
+  1 +
+  S.expression *
+  .28;
+
+
+  particles.scale.setScalar(
+    spread
+  );
+
+
+  orb.material.opacity =
+
+  .82 -
+  S.expression *
+  .52;
+
+
+  core.material.opacity =
+
+  .14 -
+  S.expression *
+  .09;
+
+
+  const coreScale =
+  1 +
+  S.E *
+  .25;
+
+
+  core.scale.setScalar(
+    coreScale
+  );
+
+
+  rings.forEach(
+    ring =>
+
+    ring.scale.setScalar(
+      .9 +
+      S.E *
+      .40
+    )
+
+  );
+
+
+  orb.material.emissiveIntensity =
+  .4 +
+  S.E;
+
+
+  eText.textContent =
+
+  "E=" +
+  S.E.toFixed(3);
+
+
+  tText.textContent =
+
+  "τ=" +
+  S.tau;
+
+
+  renderer.render(
+    scene,
+    camera
+  );
+
+}
+
+
+animate();
+
+
+/* =====================================================
+   INITIAL EXPRESSION
+===================================================== */
+
+setTimeout(
+  express,
+  1800
+);
+
+
+/* =====================================================
+   IDENTITY
+===================================================== */
+
+console.log(
+
+  "DNA://",
+  DNA
+
+);
+
+
+console.log(
+
+  "IDENTITY://SHA256/",
+  HASH
+
+);
+
+</script>
+</body>
+</html>

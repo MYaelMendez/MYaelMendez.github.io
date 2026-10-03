@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+
+<title>>_LLM.STORE · DNA QR</title>
+
+<style>
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  width:100%;
+  min-height:100%;
+  background:#020407;
+  color:#fff;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+
+body{
+  display:grid;
+  place-items:center;
+  padding:
+    max(16px,env(safe-area-inset-top))
+    max(16px,env(safe-area-inset-right))
+    max(16px,env(safe-area-inset-bottom))
+    max(16px,env(safe-area-inset-left));
+}
+
+#widget{
+  width:min(100%,560px);
+  min-width:0;
+}
+
+.panel{
+  width:100%;
+  padding:clamp(14px,4vw,24px);
+  border:1px solid rgba(105,255,208,.22);
+  border-radius:20px;
+  background:rgba(7,11,18,.92);
+}
+
+.brand{
+  color:#69ffd0;
+  font-weight:900;
+  font-size:clamp(12px,3.5vw,15px);
+  letter-spacing:.08em;
+}
+
+.protocol{
+  margin-top:6px;
+  color:#8d9aa8;
+  font-size:11px;
+}
+
+.qr-link{
+  display:block;
+  width:100%;
+  margin-top:18px;
+  padding:clamp(10px,4vw,22px);
+  border-radius:16px;
+  background:#fff;
+}
+
+#qr{
+  width:min(100%,430px);
+  aspect-ratio:1;
+  margin:auto;
+}
+
+#qr svg{
+  display:block;
+  width:100%;
+  height:auto;
+}
+
+.label{
+  margin-top:18px;
+  color:#8d9aa8;
+  font-size:10px;
+  letter-spacing:.12em;
+}
+
+.dna{
+  margin-top:6px;
+  color:#fff;
+  font-size:clamp(10px,3vw,12px);
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+
+.meta{
+  margin-top:10px;
+  color:#8d9aa8;
+  font-size:10px;
+  line-height:1.5;
+}
+
+.actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:16px;
+}
+
+button,a.button{
+  min-height:46px;
+  display:grid;
+  place-items:center;
+  padding:11px 12px;
+  border:0;
+  border-radius:12px;
+  font:800 12px inherit;
+  text-decoration:none;
+  cursor:pointer;
+}
+
+.copy{
+  background:#69ffd0;
+  color:#020407;
+}
+
+.open{
+  background:#fff;
+  color:#020407;
+}
+
+button:active,
+.button:active{
+  transform:scale(.98);
+}
+
+#status{
+  min-height:18px;
+  margin-top:10px;
+  color:#69ffd0;
+  text-align:center;
+  font-size:10px;
+}
+
+@media(max-width:360px){
+  .actions{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<main id="widget">
+
+  <section class="panel">
+
+    <div class="brand">
+      &gt;_LLM.STORE × NOUS RESEARCH
+    </div>
+
+    <div class="protocol">
+      DNA:// → QR:// → SVG://
+    </div>
+
+    <a
+      id="qrLink"
+      class="qr-link"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Open Nous Research referral">
+
+      <div id="qr"></div>
+
+    </a>
+
+    <div class="label">DNA://</div>
+
+    <div id="dnaText" class="dna"></div>
+
+    <div id="meta" class="meta">
+      generating phenotype…
+    </div>
+
+    <div class="actions">
+
+      <button
+        id="copy"
+        class="copy"
+        type="button">
+        COPY THIS CODE
+      </button>
+
+      <a
+        id="open"
+        class="button open"
+        target="_blank"
+        rel="noopener noreferrer">
+        OPEN REFERRAL →
+      </a>
+
+    </div>
+
+    <div
+      id="status"
+      role="status"
+      aria-live="polite">
+    </div>
+
+  </section>
+
+</main>
+
+
+<!-- QR encoder only.
+     Rendering remains native SVG/XML. -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+
+<script>
+
+/* =====================================================
+   DNA — THE ONLY CANONICAL INPUT
+===================================================== */
+
+const DNA =
+"https://portal.nousresearch.com/r/grandesmodelosdelenguaje-prompti";
+
+
+/* =====================================================
+   IDENTITY
+===================================================== */
+
+async function sha256(text){
+
+  if(!crypto?.subtle)
+    return "unavailable";
+
+  const bytes =
+    new TextEncoder().encode(text);
+
+  const digest =
+    await crypto.subtle.digest(
+      "SHA-256",
+      bytes
+    );
+
+  return [...new Uint8Array(digest)]
+    .map(x => x.toString(16).padStart(2,"0"))
+    .join("");
+}
+
+
+/* =====================================================
+   DNA → QR → NATIVE SVG
+===================================================== */
+
+function buildSVG(dna){
+
+  const qr = qrcode(0,"M");
+
+  qr.addData(dna);
+  qr.make();
+
+  const N = qr.getModuleCount();
+
+  const QUIET = 4;
+
+  const TOTAL =
+    N + QUIET * 2;
+
+
+  /*
+     Compress consecutive black modules
+     into horizontal SVG path runs.
+  */
+
+  let d = "";
+
+
+  for(let row=0; row<N; row++){
+
+    let start = -1;
+
+    for(let col=0; col<=N; col++){
+
+      const dark =
+        col < N &&
+        qr.isDark(row,col);
+
+
+      if(dark && start === -1)
+        start = col;
+
+
+      if(!dark && start !== -1){
+
+        const width =
+          col - start;
+
+        d +=
+          `M${start+QUIET} ${row+QUIET}` +
+          `h${width}v1h-${width}z`;
+
+        start = -1;
+      }
+    }
+  }
+
+
+  const svg = `
+<svg
+ xmlns="http://www.w3.org/2000/svg"
+ viewBox="0 0 ${TOTAL} ${TOTAL}"
+ preserveAspectRatio="xMidYMid meet"
+ shape-rendering="crispEdges"
+ data-dna="${escapeXML(dna)}"
+ role="img"
+ aria-label="Nous Research affiliate QR">
+
+ <metadata>
+  <dna>${escapeXML(dna)}</dna>
+  <matrix>${N}x${N}</matrix>
+  <error-correction>M</error-correction>
+  <quiet-zone>${QUIET}</quiet-zone>
+ </metadata>
+
+ <rect
+  width="${TOTAL}"
+  height="${TOTAL}"
+  fill="#fff"/>
+
+ <path
+  fill="#000"
+  d="${d}"/>
+
+</svg>`.trim();
+
+
+  return {
+    svg,
+    matrix:N,
+    viewport:TOTAL,
+    quiet:QUIET
+  };
+}
+
+
+/* =====================================================
+   XML SAFETY
+===================================================== */
+
+function escapeXML(value){
+
+  return value
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&apos;");
+}
+
+
+/* =====================================================
+   BUILD ORGANISM
+===================================================== */
+
+async function regenerate(){
+
+  const identity =
+    await sha256(DNA);
+
+  const phenotype =
+    buildSVG(DNA);
+
+
+  const organism = {
+
+    dna:DNA,
+
+    id:identity,
+
+    href:DNA,
+
+    qr:{
+      matrix:
+        `${phenotype.matrix}x${phenotype.matrix}`,
+
+      quietZone:
+        phenotype.quiet,
+
+      errorCorrection:
+        "M"
+    },
+
+    svg:
+      phenotype.svg
+  };
+
+
+  document
+    .getElementById("qr")
+    .innerHTML =
+      organism.svg;
+
+
+  document
+    .getElementById("dnaText")
+    .textContent =
+      DNA;
+
+
+  document
+    .getElementById("qrLink")
+    .href =
+      DNA;
+
+
+  document
+    .getElementById("open")
+    .href =
+      DNA;
+
+
+  document
+    .getElementById("meta")
+    .textContent =
+
+      `ID ${identity.slice(0,16)}… · ` +
+
+      `${organism.qr.matrix} matrix · ` +
+
+      `${phenotype.viewport}×${phenotype.viewport} viewport · ` +
+
+      `EC M`;
+
+
+  return organism;
+}
+
+
+/* =====================================================
+   SELF-SERIALIZATION
+
+   COPY THIS CODE means exactly that:
+   serialize the currently running document.
+===================================================== */
+
+function serializeSelf(){
+
+  return (
+    "<!DOCTYPE html>\n" +
+    document.documentElement.outerHTML
+  );
+}
+
+
+/* =====================================================
+   CLIPBOARD
+
+   Modern API first.
+   execCommand fallback for older WebViews.
+===================================================== */
+
+async function copyText(text){
+
+  if(
+    navigator.clipboard &&
+    window.isSecureContext
+  ){
+
+    await navigator.clipboard.writeText(text);
+
+    return;
+  }
+
+
+  const textarea =
+    document.createElement("textarea");
+
+  textarea.value = text;
+
+  textarea.setAttribute(
+    "readonly",
+    ""
+  );
+
+  textarea.style.position =
+    "absolute";
+
+  textarea.style.left =
+    "-9999px";
+
+
+  document.body.appendChild(
+    textarea
+  );
+
+  textarea.select();
+
+  document.execCommand(
+    "copy"
+  );
+
+  textarea.remove();
+}
+
+
+/* =====================================================
+   OPTIONAL HOST MEMORY
+
+   Browser:
+       localStorage
+
+   Embedding host:
+       listens for "dna:save"
+
+   A host can therefore implement its own durable
+   memory without changing this widget.
+===================================================== */
+
+function saveDNA(){
+
+  const record = {
+
+    dna:DNA,
+
+    type:"LLM.STORE/DNA",
+
+    href:DNA
+
+  };
+
+
+  /*
+     Browser persistence.
+     Best effort only.
+  */
+
+  try{
+
+    localStorage.setItem(
+      "llm.store:dna:" + DNA,
+      JSON.stringify(record)
+    );
+
+  }catch(e){}
+
+
+  /*
+     Host-memory bridge.
+
+     Any viewport/container embedding this widget
+     can listen for:
+
+       window.addEventListener("dna:save", ...)
+
+     and persist event.detail however it supports.
+  */
+
+  window.dispatchEvent(
+
+    new CustomEvent(
+      "dna:save",
+      {
+        detail:record
+      }
+    )
+
+  );
+
+
+  return record;
+}
+
+
+/* =====================================================
+   COPY BUTTON
+===================================================== */
+
+document
+.getElementById("copy")
+.addEventListener(
+  "click",
+  async () => {
+
+    const status =
+      document.getElementById("status");
+
+
+    try{
+
+      const source =
+        serializeSelf();
+
+
+      await copyText(
+        source
+      );
+
+
+      saveDNA();
+
+
+      status.textContent =
+        "✓ CODE COPIED · DNA SAVE SIGNAL SENT";
+
+
+      setTimeout(
+        () => {
+          status.textContent = "";
+        },
+        2600
+      );
+
+
+    }catch(error){
+
+      status.textContent =
+        "COPY UNAVAILABLE IN THIS VIEWPORT";
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   BOOT
+===================================================== */
+
+regenerate();
+
+</script>
+
+</body>
+</html>

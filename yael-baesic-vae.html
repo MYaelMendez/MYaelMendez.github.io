@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=320,height=240,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>yæl Bæsic væ // White Polar Star Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #010204;
+  --polar-white: #ffffff;
+  --polar-dim: rgba(255,255,255,.45);
+  --polar-glow: rgba(255,255,255,.85);
+  --matcha: #a3e635;
+  --matcha-dim: rgba(163,230,53,.25);
+  --gold: #c9a84c;
+  --c-blue: #0a0a12;
+  --c-lblue: #1a1a2e;
+  --c-cyan: #e0f7ff;
+  --font: 'VT323', monospace;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  height:100%; width:100%;
+  background:var(--bg);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  image-rendering:pixelated;
+}
+
+.petscii {
+  width:320px;
+  height:240px;
+  font-family:var(--font);
+  background:#001100;
+  border:8px solid #003300;
+  box-shadow:0 0 60px rgba(0,255,65,.4), inset 0 0 40px rgba(0,255,65,.25);
+  position:relative;
+  display:flex;
+  flex-direction:column;
+}
+
+.bezel {
+  flex:1;
+  background:#00070a;
+  border:4px solid #004400;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  padding:12px;
+}
+
+/* Polar Star LED */
+.led {
+  position:absolute;
+  top:14px; left:14px;
+  width:10px; height:10px;
+  background:var(--polar-white);
+  border-radius:50%;
+  box-shadow:0 0 12px var(--polar-glow), inset 0 0 4px #fff;
+  z-index:10;
+}
+
+/* Tea Mode Toggle */
+.tea-toggle {
+  position:absolute;
+  top:14px; right:14px;
+  width:24px; height:24px;
+  background:var(--matcha);
+  color:#000;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  cursor:pointer;
+  box-shadow:0 0 12px var(--matcha-dim);
+  z-index:10;
+  transition:all .2s;
+}
+
+.tea-toggle:hover { transform:scale(1.15); }
+.tea-toggle.active { animation:pulse 1.8s infinite; }
+
+@keyframes pulse {
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.12)}
+}
+
+/* Status Bar */
+.status-bar {
+  position:absolute;
+  bottom:8px; left:16px; right:16px;
+  display:flex;
+  justify-content:space-between;
+  font-size:11px;
+  color:var(--polar-dim);
+  z-index:10;
+}
+
+/* Screen */
+.screen-container {
+  flex:1;
+  background:#000c12;
+  border:4px solid #003322;
+  border-radius:4px;
+  position:relative;
+  overflow:hidden;
+}
+
+.screen {
+  position:absolute;
+  inset:0;
+  padding:14px 16px;
+  color:#a5f0c0;
+  font-size:19px;
+  line-height:1.3;
+  text-shadow:0 0 8px #00ff88;
+  overflow:hidden;
+}
+
+.out {
+  white-space:pre-wrap;
+  word-break:break-all;
+}
+
+.caret {
+  display:inline-block;
+  width:9px;
+  height:22px;
+  background:var(--polar-white);
+  vertical-align:middle;
+  animation:blink 1s steps(1) infinite;
+  box-shadow:0 0 10px var(--polar-glow);
+}
+
+@keyframes blink {
+  0%,100%{opacity:1}
+  50%{opacity:0}
+}
+
+/* CRT FX */
+.scanlines {
+  position:absolute;
+  inset:0;
+  background:repeating-linear-gradient(transparent 0,transparent 3px,rgba(0,255,158,.12) 3px,rgba(0,255,158,.12) 6px);
+  pointer-events:none;
+  z-index:5;
+  opacity:0.75;
+}
+
+.glare {
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at 40% 20%,rgba(255,255,255,.12) 0%,transparent 60%);
+  pointer-events:none;
+  z-index:6;
+}
+
+/* Consensus Visualization */
+.consensus {
+  position:absolute;
+  top:50%; left:50%;
+  width:48px; height:48px;
+  margin:-24px 0 0 -24px;
+  z-index:2;
+  opacity:0.35;
+}
+
+.consensus-ring {
+  position:absolute;
+  width:100%; height:100%;
+  border:1px solid #a3e635;
+  border-radius:50%;
+  animation:rotate 14s linear infinite;
+}
+
+.consensus-core {
+  position:absolute;
+  top:50%; left:50%;
+  width:10px; height:10px;
+  margin:-5px 0 0 -5px;
+  background:#fff;
+  border-radius:50%;
+  box-shadow:0 0 12px #a3e635;
+}
+
+@keyframes rotate {
+  from { transform:rotate(0deg); }
+  to { transform:rotate(360deg); }
+}
+</style>
+</head>
+<body>
+
+<div class="petscii">
+  <div class="bezel">
+    <!-- Polar Star LED -->
+    <div class="led"></div>
+
+    <!-- Tea Mode Toggle -->
+    <div class="tea-toggle" id="teaToggle">🍵</div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div>🦞 NEUROMITOSIS</div>
+      <div id="statusText">READY</div>
+    </div>
+
+    <!-- Screen -->
+    <div class="screen-container">
+      <div class="screen">
+        <div class="scanlines"></div>
+        <div class="glare"></div>
+
+        <pre class="out" id="out"></pre>
+        <span class="caret" id="caret"></span>
+      </div>
+
+      <!-- Consensus Visualization -->
+      <div class="consensus">
+        <div class="consensus-ring"></div>
+        <div class="consensus-core"></div>
+      </div>
+
+      <input class="in" id="in" autocomplete="off" spellcheck="false" />
+    </div>
+
+    <div class="brand">WHITE POLAR STAR EDITION • yæl Bæsic væ</div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const out = document.getElementById('out');
+  const input = document.getElementById('in');
+  const caret = document.getElementById('caret');
+  const teaToggle = document.getElementById('teaToggle');
+  const statusText = document.getElementById('statusText');
+
+  let teaMode = false;
+  let isTyping = false;
+
+  const commands = {
+    HELP: () => `COMMANDS: HELP | LIST | CLR | SYS | VER | TEA`,
+    LIST: () => `10 PRINT "WHITE POLAR STAR"\n20 GOTO 10`,
+    CLR: () => { out.innerHTML = ''; return ''; },
+    SYS: () => `SYS 64738\n*** SYSTEM RESET ***\nREADY.`,
+    VER: () => `yæl Bæsic væ v1.0\nWHITE POLAR STAR EDITION\n38911 BYTES FREE`,
+    TEA: () => toggleTeaMode(),
+    default: cmd => `?SYNTAX ERROR IN "${cmd}"`
+  };
+
+  function toggleTeaMode() {
+    teaMode = !teaMode;
+    teaToggle.classList.toggle('active', teaMode);
+
+    if (teaMode) {
+      statusText.textContent = 'TEA MODE';
+      document.documentElement.style.setProperty('--polar-white', '#a3e635');
+      return `TEA MODE ACTIVATED\nMeditation cycle initiated`;
+    } else {
+      statusText.textContent = 'READY';
+      document.documentElement.style.setProperty('--polar-white', '#ffffff');
+      return `TEA MODE DEACTIVATED\nReturning to operational state`;
+    }
+  }
+
+  function print(text) {
+    out.innerHTML += (out.innerHTML ? '\n' : '') + text;
+    if (out.innerHTML.split('\n').length > 12) {
+      out.innerHTML = out.innerHTML.split('\n').slice(-12).join('\n');
+    }
+    updateCursor();
+  }
+
+  function updateCursor() {
+    caret.style.left = `${out.textContent.split('\n').pop().length * 10 + 16}px`;
+  }
+
+  function handleCommand(cmd) {
+    const upper = cmd.trim().toUpperCase();
+    const response = commands[upper] ? commands[upper]() : commands.default(upper);
+    if (response) print(response);
+    print('READY.');
+    input.value = '';
+  }
+
+  function boot() {
+    isTyping = true;
+    const lines = [
+      `**** yæl Bæsic væ ****`,
+      `WHITE POLAR STAR EDITION`,
+      `38911 BYTES FREE`,
+      `READY.`
+    ];
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i < lines.length) {
+        print(lines[i++]);
+      } else {
+        clearInterval(interval);
+        isTyping = false;
+        input.focus();
+      }
+    }, 140);
+  }
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const cmd = input.value;
+      print(cmd);
+      handleCommand(cmd);
+      e.preventDefault();
+    }
+  });
+
+  document.querySelector('.screen-container').addEventListener('click', () => input.focus());
+
+  boot();
+
+  console.info('%cyæl Bæsic væ // White Polar Star Edition', 'color:#a3e635;background:#000;padding:2px 8px;border-radius:4px;font-family:monospace');
+})();
+</script>
+</body>
+</html>

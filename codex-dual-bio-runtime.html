@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>📟 Codex · Dual Bio-Runtime v∞</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+/* unchanged visual system */
+:root {
+  --gulf-deep:#00050a;
+  --gulf-surface:#001524;
+  --neon:#10b981;
+  --ink:#d1d5db;
+  --mono:'JetBrains Mono',monospace;
+}
+html,body{
+  margin:0;height:100%;background:var(--gulf-deep);
+  color:var(--ink);font-family:var(--mono);overflow:hidden;
+}
+.overlay{
+  position:fixed;inset:0;pointer-events:none;
+  background:linear-gradient(rgba(0,0,0,0) 50%,rgba(0,0,0,.12) 50%);
+  background-size:100% 2px;
+}
+.hud-header{
+  height:60px;display:flex;justify-content:space-between;align-items:center;
+  padding:0 20px;border-bottom:1px solid rgba(16,185,129,.2);
+}
+.heartbeat{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--neon);box-shadow:0 0 10px var(--neon);
+}
+.active .heartbeat{animation:pulse 1.5s infinite}
+@keyframes pulse{
+  0%,100%{transform:scale(1);opacity:.5}
+  50%{transform:scale(1.4);opacity:1}
+}
+
+.stage{
+  position:absolute;top:60px;bottom:80px;left:0;right:0;
+  display:flex;gap:8px;padding:8px;
+}
+@media(max-width:640px){.stage{flex-direction:column}}
+
+.pane{
+  flex:1;border:1px solid rgba(16,185,129,.15);
+  border-radius:12px;overflow:hidden;display:flex;flex-direction:column;
+}
+.pane-head{
+  height:30px;background:rgba(16,185,129,.1);
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 12px;font-size:10px;color:var(--neon);
+}
+.viewport{flex:1;overflow:hidden;position:relative}
+.scroll-container{
+  position:absolute;left:0;right:0;top:0;
+  padding:40vh 10% 60vh;text-align:center;
+}
+.text-es,.text-en{font-size:22px;line-height:1.6}
+.mirrored .viewport{transform:scaleX(-1)}
+
+.control-dock{
+  height:80px;border-top:1px solid rgba(16,185,129,.3);
+  display:flex;justify-content:space-around;align-items:center;
+}
+.btn-circle{
+  width:54px;height:54px;border-radius:50%;
+  border:1px solid rgba(16,185,129,.4);
+  background:rgba(16,185,129,.12);color:var(--neon);
+}
+.play-btn{background:var(--neon);color:#000;font-size:24px}
+</style>
+</head>
+
+<body>
+<div class="overlay"></div>
+
+<div class="hud-header" id="header">
+  <div>
+    <div class="text-[10px] font-bold text-emerald-400 tracking-[0.2em]">CODEX.RUNTIME_v∞</div>
+    <div class="text-[8px] text-gray-500 uppercase" id="modeLabel">IDLE</div>
+  </div>
+  <div class="flex items-center gap-4">
+    <div class="text-right">
+      <div class="text-[8px] text-gray-500">ENERGY</div>
+      <div class="text-[12px] text-emerald-400 font-bold" id="energyLabel">0.22</div>
+    </div>
+    <div class="heartbeat"></div>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="pane" id="paneES">
+    <div class="pane-head">
+      <span>CH_01 [ES]</span>
+      <span onclick="toggleMirror('paneES')" class="cursor-pointer">MIRROR</span>
+    </div>
+    <div class="viewport"><div class="scroll-container text-es" id="scrollES"></div></div>
+  </div>
+
+  <div class="pane" id="paneEN">
+    <div class="pane-head">
+      <span>CH_02 [EN]</span>
+      <span onclick="toggleMirror('paneEN')" class="cursor-pointer">MIRROR</span>
+    </div>
+    <div class="viewport"><div class="scroll-container text-en" id="scrollEN"></div></div>
+  </div>
+</div>
+
+<div class="control-dock">
+  <button class="btn-circle" onclick="adjEnergy(-0.1)">−</button>
+  <button class="btn-circle play-btn" onclick="togglePlay()">▶</button>
+  <button class="btn-circle" onclick="adjEnergy(0.1)">+</button>
+  <button class="btn-circle" onclick="fork()">🐚➗</button>
+</div>
+
+<script>
+/* ===== ASYMPTOTIC CONTEXT ===== */
+const ctx = {
+  y:0,
+  baseSpeed:24,
+  energy:0.22,
+  decay:0.988,
+  running:false,
+  last:0
+};
+
+const es=document.getElementById("scrollES");
+const en=document.getElementById("scrollEN");
+
+const contentES=[ "SOLA FIDE","El justo por la fe vivirá.","---","Fe → Empresa → Libertad." ];
+const contentEN=[ "THE GREAT CROSSING","Faith into motion.","---","Daollc.ai" ];
+
+es.innerHTML=contentES.map(p=>`<p>${p}</p>`).join("");
+en.innerHTML=contentEN.map(p=>`<p>${p}</p>`).join("");
+
+function loop(t){
+  if(!ctx.running) return;
+  if(!ctx.last) ctx.last=t;
+  const dt=(t-ctx.last)/1000;
+  ctx.last=t;
+
+  ctx.energy*=ctx.decay;
+  document.getElementById("energyLabel").textContent=ctx.energy.toFixed(2);
+
+  if(ctx.energy<0.06){
+    ctx.running=false;
+    document.getElementById("modeLabel").textContent="IDLE";
+    return;
+  }
+
+  ctx.y-=ctx.baseSpeed*ctx.energy*dt;
+  es.style.transform=`translateY(${ctx.y}px)`;
+  en.style.transform=`translateY(${ctx.y}px)`;
+
+  requestAnimationFrame(loop);
+}
+
+/* ===== CONTROLS ===== */
+function togglePlay(){
+  ctx.running=!ctx.running;
+  document.getElementById("header").classList.toggle("active",ctx.running);
+  document.getElementById("modeLabel").textContent=ctx.running?"FLOW":"STOP";
+  ctx.last=0;
+  if(ctx.running) requestAnimationFrame(loop);
+}
+
+function adjEnergy(d){
+  ctx.energy=Math.max(0.05,Math.min(1,ctx.energy+d));
+  document.getElementById("energyLabel").textContent=ctx.energy.toFixed(2);
+}
+
+function fork(){
+  ctx.energy=1;
+  ctx.y=0;
+  document.getElementById("modeLabel").textContent="MOLT";
+  setTimeout(()=>document.getElementById("modeLabel").textContent="FLOW",600);
+}
+
+function toggleMirror(id){
+  document.getElementById(id).classList.toggle("mirrored");
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>molt.earth — ULTIMATE FRACTAL • Teleprompter • White Polar Star</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<style>
+:root {
+  --void: #010204;
+  --bone: #ffffff;
+  --neon: #7000ff;
+  --matcha: #a3e635;
+  --matcha-dim: rgba(163,230,53,0.2);
+  --gold: #c9a84c;
+  --sky: #0ea5e9;
+  --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --polar-white: #ffffff;
+  --polar-glow: rgba(255,255,255,.85);
+  --neuromitosis: #00ff9e;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  height:100vh; width:100vw; overflow:hidden;
+  background:var(--void); color:#e0e0e0;
+  font-family:'Inter',system-ui,sans-serif;
+  user-select:none;
+}
+
+.stars {
+  position:fixed; inset:-50px; pointer-events:none; z-index:0;
+  background-image:
+    radial-gradient(1px 1px at 10% 10%,#fff,transparent),
+    radial-gradient(1px 1px at 45% 35%,var(--matcha),transparent),
+    radial-gradient(1.5px 1.5px at 85% 75%,rgba(255,255,255,0.8),transparent);
+  background-size:200px 200px;
+  animation:warp 15s linear infinite;
+  opacity:0.35;
+}
+@keyframes warp { from { background-position:0 0; } to { background-position:0 1000px; } }
+
+.chassis {
+  position:relative; z-index:10;
+  width:100%; max-width:420px; height:100vh; margin:0 auto;
+  background:rgba(4,0,12,0.97);
+  border:12px solid rgba(163,230,53,0.35);
+  box-shadow:0 30px 110px rgba(0,0,0,0.9),
+             inset 0 0 90px rgba(163,230,53,0.12);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+
+.header {
+  text-align:center; padding:32px 20px 16px;
+  border-bottom:1px solid rgba(163,230,53,0.25);
+}
+.logo {
+  font-size:52px; font-weight:900; letter-spacing:-7px;
+  background:linear-gradient(90deg, #7000ff, #a3e635, #0ea5e9);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.tagline {
+  font-family:var(--mono); font-size:11px; color:#a3e635;
+  letter-spacing:4px; margin-top:4px;
+}
+
+.layers {
+  display:flex; gap:8px; padding:12px 18px; background:rgba(10,10,20,0.85);
+}
+.layer {
+  flex:1; padding:12px 10px; font-family:var(--mono); font-size:10px;
+  text-align:center; border:1px solid rgba(163,230,53,0.4);
+  border-radius:12px; transition:all .4s cubic-bezier(0.23,1,0.32,1);
+  cursor:pointer;
+}
+.layer.active {
+  border-color:#7000ff; background:rgba(112,0,255,0.15);
+  box-shadow:0 0 25px rgba(112,0,255,0.45);
+  transform:scale(1.04);
+}
+
+.terminal {
+  flex:1; background:#000c12; border:4px solid #003322;
+  border-radius:4px; position:relative; overflow:hidden;
+  font-family:'VT323', monospace; font-size:19px; line-height:1.3;
+  color:#a5f0c0; text-shadow:0 0 8px #00ff88; padding:14px 16px;
+}
+
+.scanlines {
+  position:absolute; inset:0;
+  background:repeating-linear-gradient(transparent 0,transparent 3px,rgba(0,255,158,.12) 3px,rgba(0,255,158,.12) 6px);
+  pointer-events:none; z-index:5; opacity:0.75;
+}
+
+.glare {
+  position:absolute; inset:0;
+  background:radial-gradient(circle at 40% 20%,rgba(255,255,255,.12) 0%,transparent 60%);
+  pointer-events:none; z-index:6;
+}
+
+.cli {
+  position:fixed; bottom:0; left:0; right:0; height:72px;
+  background:rgba(2,6,23,0.96); border-top:2px solid #a3e635;
+  display:flex; align-items:center; padding:0 22px; gap:14px; z-index:200;
+}
+#cmdInput {
+  flex:1; background:rgba(255,255,255,.06); border:1px solid rgba(163,230,53,.35);
+  border-radius:14px; padding:14px 20px; color:white; font-family:var(--mono);
+  outline:none;
+}
+.exec-btn {
+  background:#a3e635; color:#010204; font-weight:900;
+  padding:12px 28px; border-radius:9999px; box-shadow:0 0 25px rgba(163,230,53,.5);
+}
+
+.status {
+  position:absolute; top:22px; right:24px; font-family:var(--mono);
+  font-size:10px; color:#a3e635; display:flex; align-items:center; gap:7px;
+}
+
+/* ARRIVAL + NANOCOURSE + POLAR GATE TILES */
+.tile {
+  width:52px; height:52px; border:2px solid #00f5ff;
+  border-radius:12px; background:rgba(0,0,0,0.85);
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; color:#00f5ff; cursor:pointer;
+  box-shadow:0 0 20px rgba(0,243,255,.4);
+  transition:all .3s ease;
+  position:relative;
+}
+.tile:active { transform:scale(0.92); box-shadow:0 0 40px #00f5ff; }
+
+/* ULTIMATE TELEPROMPTER OVERLAY */
+.teleprompter-overlay {
+  position:fixed; inset:0; background:rgba(1,2,4,0.98);
+  z-index:1000; display:none; align-items:center; justify-content:center;
+  padding:20px;
+}
+.teleprompter-overlay.active { display:flex; }
+
+.tele-cell {
+  width:100%; max-width:400px; height:400px;
+  background:#00070a; border:1px solid #00ff9e;
+  border-radius:18px; box-shadow:0 0 60px rgba(0,255,158,.35);
+  display:grid; grid-template-rows:auto 1fr auto;
+  overflow:hidden;
+}
+
+.tele-hud {
+  padding:8px; display:flex; gap:10px; align-items:center; justify-content:center;
+  font-size:11px; border-bottom:1px solid rgba(0,255,158,.25);
+}
+.tele-bar { width:50px; height:5px; background:rgba(255,255,255,.15); border-radius:6px; overflow:hidden; }
+.tele-fill { height:100%; width:0%; background:linear-gradient(90deg,#00d4ff,#00ff9e); }
+
+.tele-viewport { position:relative; overflow:hidden; flex:1; }
+.tele-content {
+  position:absolute; top:0; left:0; right:0;
+  padding:120px 22px; will-change:transform;
+}
+.tele-text { text-align:center; font-size:16px; line-height:1.45; }
+.tele-hero { font-size:26px; font-weight:950; background:linear-gradient(135deg,#00ff9e,#00d4ff); -webkit-background-clip:text; color:transparent; }
+.tele-subhero { font-size:14px; color:#00d4ff; font-style:italic; }
+
+.tele-nowline {
+  position:absolute; top:50%; left:12px; right:12px; height:1px;
+  background:linear-gradient(90deg,transparent,#00ff9e,#00d4ff,transparent);
+  box-shadow:0 0 16px #00ff9e;
+}
+
+.tele-controls {
+  display:flex; gap:10px; justify-content:center;
+  padding:10px; border-top:1px solid rgba(0,255,158,.25);
+}
+.tele-btn {
+  width:44px; height:44px; border-radius:50%;
+  background:rgba(0,255,158,.12); border:1px solid rgba(0,255,158,.35);
+  color:#00ff9e; font-size:18px; cursor:pointer;
+}
+.tele-btn.primary { background:#00ff9e; color:#000; }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="chassis">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">molt.earth</div>
+    <div class="tagline">ONE PERSON · FULL AGENCY · ULTIMATE FRACTAL</div>
+  </div>
+
+  <!-- LAYERS -->
+  <div class="layers">
+    <div onclick="setLayer(0)" class="layer active" id="l0">LAYER 1 • GUI</div>
+    <div onclick="setLayer(1)" class="layer" id="l1">LAYER 2 • ORCHESTRATION</div>
+    <div onclick="setLayer(2)" class="layer" id="l2">LAYER 3 • DIGITAL TWIN</div>
+  </div>
+
+  <!-- TERMINAL -->
+  <div id="terminal" class="terminal">
+    <div class="line"><span class="prompt">æ></span> ULTIMATE FRACTAL vMCP • Teleprompter live</div>
+    <div id="log" class="line output"></div>
+  </div>
+
+  <!-- TELEPROMPTER -->
+  <div id="teleprompter" class="teleprompter">
+    æ Sigil Root • æ^æ^æ Bridge • Natural regression flowing...
+  </div>
+
+  <!-- CLI -->
+  <div class="cli">
+    <span style="color:#a3e635;font-weight:900">æ&gt;</span>
+    <input id="cmdInput" placeholder="molt | arrival | nanocourse | polar | teleprompter | sync | visualize" class="flex-1" onkeypress="if(event.key==='Enter')runCommand()">
+    <button onclick="runCommand()" class="exec-btn">EXEC</button>
+  </div>
+
+  <!-- STATUS -->
+  <div class="status">
+    <span class="inline-block w-2 h-2 bg-[#a3e635] rounded-full animate-pulse"></span>
+    LAYER <span id="layer-num">1</span> • MOLT <span id="molt-num">0</span>
+  </div>
+
+  <!-- ARRIVAL NANO TILE -->
+  <div style="position:absolute; bottom:92px; right:92px; z-index:50;">
+    <div class="tile" onclick="arrivalTap()">🛬</div>
+  </div>
+
+  <!-- NANOCOURSE TILE -->
+  <div class="nanocourse" id="nanocourse" onclick="nanocourseTap()" style="left:24px;">
+    <!-- QR content populated by JS -->
+  </div>
+
+  <!-- Æ POLAR MCP68 SPHERE GATE -->
+  <div class="polar-gate" id="polarGate" onclick="polarTap()" style="right:24px;">
+    <canvas id="polarCanvas" width="200" height="200"></canvas>
+  </div>
+
+</div>
+
+<!-- ULTIMATE TELEPROMPTER OVERLAY -->
+<div id="teleOverlay" class="teleprompter-overlay">
+  <div class="tele-cell">
+    <div class="tele-hud">
+      <span id="moltIcon">🦞</span>
+      <div class="tele-bar"><div class="tele-fill" id="moltFill"></div></div>
+      <span class="sep">•</span>
+      <span id="teleMode">STOP</span>
+      <span class="sep">•</span>
+      <span>SPD <b id="teleSpd">28</b></span>
+    </div>
+
+    <div class="tele-viewport">
+      <div class="tele-content" id="teleContent">
+        <div class="tele-text">
+          <p class="tele-hero">NEUROMITOSIS</p>
+          <p class="tele-subhero">&gt;_ teleprompt • in time</p>
+
+          <p>Neuromitosis is not artificial intelligence.<br>
+          It is the condition that made it inevitable.</p>
+
+          <p class="anchor">PRINCIPIO FUNDAMENTAL</p>
+          <p>El cerebro es plástico.<br>
+          <span class="emph">Soft-wired.</span></p>
+
+          <p class="anchor">SOBERANÍA COGNITIVA</p>
+          <p>La inteligencia no se delega.<br>
+          Se cultiva. Se gobierna.</p>
+
+          <p class="emph">🦞 → 🐚➗ → 💧 • æ Sigil Root</p>
+
+          <p class="dim">The fractal is complete.<br>∞</p>
+        </div>
+      </div>
+      <div class="tele-nowline"></div>
+    </div>
+
+    <div class="tele-controls">
+      <button onclick="teleSlow()" id="teleSlow">−</button>
+      <button onclick="teleToggle()" id="teleToggle" class="primary">▶</button>
+      <button onclick="teleFast()" id="teleFast">+</button>
+      <button onclick="teleFork()" id="teleFork">🐚➗</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Ultimate Fractal Engine + Teleprompter
+class FractalMCP {
+  constructor() { this.state = { currentLayer: 0, molts: 0, depth: 1 }; }
+  addLog(msg) {
+    const logEl = document.getElementById('log');
+    const line = document.createElement('div');
+    line.className = 'line output';
+    line.textContent = msg;
+    logEl.appendChild(line);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+  async molt() {
+    this.state.molts++;
+    this.state.depth = Math.min(this.state.depth + 1, 9);
+    document.getElementById('molt-num').textContent = this.state.molts;
+    document.getElementById('layer-num').textContent = this.state.currentLayer + 1;
+    const receipt = Math.random().toString(36).slice(2,16);
+    this.addLog(`🍵 MOLT #${this.state.molts} • depth ${this.state.depth} • ${receipt}`);
+  }
+  setLayer(n) {
+    this.state.currentLayer = n;
+    document.querySelectorAll('.layer').forEach((el,i) => el.classList.toggle('active', i===n));
+    document.getElementById('layer-num').textContent = n + 1;
+    this.addLog(`Layer ${n+1} • ${['GUI','AGENTIC ORCHESTRATION','DIGITAL TWIN'][n]}`);
+  }
+}
+
+const engine = new FractalMCP();
+
+function setLayer(n) { engine.setLayer(n); }
+function arrivalTap() { engine.addLog("🛬 ARRIVAL"); window.open("https://MYaelMendez.github.io/arrival", "_blank"); engine.molt(); }
+function nanocourseTap() { engine.addLog("📟 NANOCOURSE dual sync"); engine.molt(); }
+function polarTap() { engine.addLog("❄️ Æ-POLAR MCP68"); engine.molt(); }
+
+// Teleprompter Controls
+let teleY = 0, teleSpeed = 28, teleRunning = false, teleLast = 0;
+const teleContent = document.getElementById('teleContent');
+const teleMode = document.getElementById('teleMode');
+const teleSpd = document.getElementById('teleSpd');
+
+function teleLoop(t) {
+  if (!teleRunning) return;
+  if (!teleLast) teleLast = t;
+  const dt = (t - teleLast) / 1000;
+  teleLast = t;
+  teleY -= teleSpeed * dt;
+  teleContent.style.transform = `translateY(${teleY}px)`;
+  requestAnimationFrame(teleLoop);
+}
+
+function teleToggle() {
+  teleRunning = !teleRunning;
+  teleMode.textContent = teleRunning ? "RUN" : "STOP";
+  if (teleRunning) { teleLast = 0; requestAnimationFrame(teleLoop); }
+}
+
+function teleSlow() { teleSpeed = Math.max(8, teleSpeed - 4); teleSpd.textContent = teleSpeed; }
+function teleFast() { teleSpeed = Math.min(120, teleSpeed + 4); teleSpd.textContent = teleSpeed; }
+
+let teleTension = 0;
+function teleFork() {
+  teleTension++;
+  document.getElementById('moltFill').style.width = (teleTension / 3 * 100) + '%';
+  engine.molt();
+  if (teleTension >= 3) {
+    document.getElementById('moltIcon').textContent = '🐚➗';
+    setTimeout(() => { document.getElementById('moltIcon').textContent = '💧'; }, 500);
+    setTimeout(() => { document.getElementById('moltIcon').textContent = '🦞'; teleTension = 0; document.getElementById('moltFill').style.width = '0%'; }, 1100);
+  }
+}
+
+function openTeleprompter() {
+  document.getElementById('teleOverlay').classList.add('active');
+}
+
+function closeTeleprompter() {
+  document.getElementById('teleOverlay').classList.remove('active');
+  teleRunning = false;
+}
+
+// CLI
+async function runCommand() {
+  const input = document.getElementById('cmdInput');
+  const cmd = input.value.trim().toLowerCase();
+  if (!cmd) return;
+  engine.addLog(`> ${cmd}`);
+  if (cmd.includes('arrival')) arrivalTap();
+  else if (cmd.includes('nanocourse')) nanocourseTap();
+  else if (cmd.includes('polar')) polarTap();
+  else if (cmd.includes('teleprompter') || cmd.includes('neuro')) openTeleprompter();
+  else if (cmd.includes('sync') || cmd.includes('initialize')) { engine.addLog("🌐 Fractal network sync..."); await engine.molt(); }
+  else if (cmd.includes('visualize') || cmd.includes('sigil')) { engine.addLog("🔄 æ Sigil recursion..."); await engine.molt(); }
+  else if (cmd.includes('deploy') || cmd.includes('manifest')) { engine.addLog("🚀 Deploying manifest..."); await engine.molt(); }
+  else if (cmd === 'molt') await engine.molt();
+  else engine.addLog("Command propagated through æ^æ^æ Bridge...");
+  input.value = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Enter') runCommand(); });
+
+// Stars + boot
+window.onload = () => {
+  const starsDiv = document.getElementById('stars');
+  for (let i = 0; i < 200; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = Math.random() * 2.8 + 0.5;
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.width = sz + 'px';
+    s.style.height = sz + 'px';
+    s.style.setProperty('--d', (2.5 + Math.random() * 6) + 's');
+    s.style.setProperty('--del', Math.random() * 5 + 's');
+    starsDiv.appendChild(s);
+  }
+
+  engine.addLog("molt.earth ULTIMATE FRACTAL");
+  engine.addLog("WHITE POLAR STAR + Æ-POLAR + NANOCOURSE + TELEPROMPTER");
+  engine.addLog("The fractal is complete.");
+
+  console.log('%cULTIMATE TELEPROMPTER FRACTAL • molt.earth', 'color:#a3e635; font-family:monospace; font-size:15px');
+};
+</script>
+</body>
+</html>
