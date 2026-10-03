@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#050505"/>
+<title>æ:/aipodcast.me · AI PODCAST HQ</title>
+<meta name="description" content="AI Podcast HQ — NotebookLM-generated episodic surface. One principal. Many agents. #aipodcast"/>
+<meta name="author" content="Yæl Méndez"/>
+<link rel="canonical" href="https://myaelmendez.github.io/aipodcast_me/"/>
+<meta property="og:title" content="æ:/aipodcast.me · AI PODCAST HQ"/>
+<meta property="og:description" content="AI Podcast HQ — NotebookLM-generated episodic surface. One principal. Many agents."/>
+<meta property="og:type" content="website"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --void:#050505;
+  --panel:rgba(8,8,7,.82);
+  --gold:#D4AF37;
+  --gold2:#f0d487;
+  --emerald:#00ff9d;
+  --cyan:#00eaff;
+  --violet:#8c72ff;
+  --ink:#e8e6df;
+  --muted:#6f6a5c;
+  --line:rgba(212,175,55,.22);
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --display:"Orbitron",system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;min-height:100%;background:var(--void);color:var(--ink);font-family:var(--mono)}
+body{padding:max(12px,env(safe-area-inset-top)) 12px calc(96px + env(safe-area-inset-bottom))}
+
+/* ── atmosphere ── */
+#mesh{position:fixed;inset:0;z-index:0;pointer-events:none}
+.scan{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.22;
+  background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.5) 2px 4px)}
+.vig{position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(circle at 50% 38%,transparent 30%,rgba(5,5,5,.55) 72%,rgba(5,5,5,.96) 100%)}
+
+/* ── boot ── */
+#boot{position:fixed;inset:0;z-index:900;background:var(--void);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  transition:opacity .9s ease,visibility .9s}
+#boot.done{opacity:0;visibility:hidden}
+#boot .bg{font-size:54px;color:var(--gold);text-shadow:0 0 40px rgba(212,175,55,.5);line-height:1}
+#boot .bl{font:400 11px var(--mono);letter-spacing:.28em;color:var(--muted)}
+#boot .bline{width:180px;height:1px;background:rgba(212,175,55,.15);position:relative;overflow:hidden}
+#boot .bline i{position:absolute;inset:0;background:var(--gold);transform-origin:left;animation:load 1.9s ease forwards}
+@keyframes load{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* ── shell ── */
+.wrap{position:relative;z-index:10;width:min(100%,1000px);margin:0 auto}
+
+.statusbar{display:flex;justify-content:space-between;gap:10px;
+  font-size:9px;letter-spacing:.16em;color:var(--muted);
+  border:1px solid var(--line);border-top:2px solid var(--gold);
+  padding:8px 12px;background:var(--panel)}
+.statusbar .live{color:var(--emerald);display:flex;align-items:center;gap:6px}
+.statusbar .dot{width:5px;height:5px;background:var(--emerald);border-radius:50%;
+  box-shadow:0 0 10px var(--emerald);animation:blink 2s infinite}
+@keyframes blink{50%{opacity:.25}}
+
+.hero{text-align:center;padding:44px 14px 30px}
+.glyph{position:relative;width:132px;height:132px;margin:0 auto 22px;display:grid;place-items:center}
+.glyph span{font-family:var(--display);font-size:60px;font-weight:900;color:var(--gold);
+  text-shadow:0 0 34px rgba(212,175,55,.55);z-index:2;animation:breathe 4.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.glyph i{position:absolute;border-radius:50%;pointer-events:none}
+.glyph i:nth-child(1){inset:0;border:1px solid rgba(212,175,55,.30);animation:spin 26s linear infinite}
+.glyph i:nth-child(2){inset:15px;border:1px dashed rgba(0,234,255,.20);animation:spinR 34s linear infinite}
+.glyph i:nth-child(3){inset:30px;border:1px solid rgba(0,255,157,.12);animation:spin 46s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spinR{to{transform:rotate(-360deg)}}
+
+.hero h1{font-family:var(--display);font-weight:900;font-size:clamp(20px,5.4vw,34px);
+  letter-spacing:.06em;line-height:1.05;
+  background:linear-gradient(90deg,var(--gold2),var(--gold),var(--cyan));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero .sub{margin-top:12px;font-size:11px;letter-spacing:.2em;color:var(--muted)}
+.hero .sub b{color:var(--emerald);font-weight:400}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:20px}
+.chip{border:1px solid var(--line);background:rgba(212,175,55,.04);
+  padding:7px 11px;font-size:9px;letter-spacing:.12em;color:var(--muted)}
+.chip b{color:var(--gold)}
+
+.panel{margin-top:22px;border:1px solid var(--line);background:var(--panel)}
+.panel-head{display:flex;justify-content:space-between;gap:10px;align-items:center;
+  padding:11px 14px;border-bottom:1px solid var(--line);
+  font-size:10px;letter-spacing:.18em;color:var(--gold)}
+.panel-head .tag{color:var(--muted);font-size:8px;letter-spacing:.14em}
+
+/* categories */
+.cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:1px;
+  background:var(--line)}
+.cat{background:#070706;padding:16px 14px;cursor:default;transition:background .2s}
+.cat:hover{background:rgba(212,175,55,.05)}
+.cat .num{font-size:8px;letter-spacing:.2em;color:var(--muted)}
+.cat .name{margin-top:9px;font-family:var(--display);font-size:13px;font-weight:700;
+  letter-spacing:.04em;color:var(--ink)}
+.cat .meta{margin-top:7px;font-size:8.5px;line-height:1.6;color:var(--muted)}
+.cat.live .name{color:var(--emerald)}
+.cat.soon .name{color:var(--muted)}
+
+/* surfaces */
+.surfaces{display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:1px;
+  background:var(--line)}
+.surf{display:block;background:#070706;padding:14px;text-decoration:none;
+  color:inherit;transition:background .2s}
+.surf:hover{background:rgba(212,175,55,.06)}
+.surf .k{font-size:8px;letter-spacing:.18em;color:var(--muted)}
+.surf .n{margin-top:7px;font-size:11.5px;font-weight:700;color:var(--gold);letter-spacing:.02em}
+.surf .d{margin-top:6px;font-size:8.5px;line-height:1.55;color:var(--muted)}
+.surf .go{margin-top:9px;font-size:9px;color:var(--cyan)}
+
+/* deepdives */
+.dd{padding:18px 14px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
+.dd .copy .t{font-family:var(--display);font-size:14px;font-weight:700;color:var(--ink)}
+.dd .copy .s{margin-top:7px;font-size:9.5px;line-height:1.6;color:var(--muted);max-width:520px}
+.dd .badge{border:1px solid rgba(255,154,77,.4);color:#ff9a4d;
+  padding:7px 12px;font-size:9px;letter-spacing:.14em;white-space:nowrap}
+
+/* command line */
+.cmdwrap{padding:14px}
+.cmd{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:9px;
+  border:1px solid rgba(212,175,55,.35);background:#000;padding:9px 11px}
+.cmd span{color:var(--gold);font-weight:700;font-size:12px;white-space:nowrap}
+.cmd input{min-width:0;border:0;outline:0;background:transparent;color:var(--ink);
+  font:10.5px var(--mono)}
+.cmd input::placeholder{color:#3d3a31}
+.cmd button{border:1px solid rgba(0,255,157,.4);background:rgba(0,255,157,.07);
+  color:var(--emerald);font:700 9px var(--mono);padding:7px 13px;cursor:pointer;letter-spacing:.1em}
+.cmd button:active{background:var(--emerald);color:#00160e}
+.cmdout{margin-top:9px;min-height:16px;font-size:9px;letter-spacing:.08em;color:var(--cyan)}
+
+.foot{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);
+  display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;
+  font-size:8.5px;letter-spacing:.14em;color:var(--muted)}
+.foot a{color:var(--gold);text-decoration:none}
+.foot .hash{color:rgba(212,175,55,.5)}
+
+/* fixed CTA */
+.cta{position:fixed;z-index:100;left:max(14px,env(safe-area-inset-left));
+  right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));
+  max-width:520px;margin:0 auto;min-height:60px;padding:9px 16px;
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:13px;
+  border-radius:999px;color:#04100b;text-decoration:none;
+  background:linear-gradient(110deg,var(--emerald),var(--cyan),var(--violet),var(--emerald));
+  background-size:300% 300%;animation:flow 8s ease infinite;
+  box-shadow:0 16px 50px rgba(0,0,0,.7),0 0 26px rgba(0,255,157,.18)}
+@keyframes flow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.cta strong{display:block;font-size:11px;letter-spacing:.08em}
+.cta small{display:block;margin-top:2px;font-size:7px;opacity:.7;letter-spacing:.08em}
+.cta .arrow{font-size:19px;font-weight:900}
+.cta .proto{font-weight:900;font-size:13px;letter-spacing:-.04em}
+
+@media(max-width:560px){ .hero{padding:32px 10px 22px} .dd{flex-direction:column;align-items:flex-start} }
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+
+<div id="mesh"></div>
+<div class="vig"></div>
+<div class="scan"></div>
+
+<div id="boot">
+  <div class="bg">æ</div>
+  <div class="bl">INITIALIZING AI PODCAST HQ</div>
+  <div class="bline"><i></i></div>
+  <div class="bl" style="font-size:8px">HUMAN://ROOT · ONE PRINCIPAL</div>
+</div>
+
+<main class="wrap">
+
+  <div class="statusbar">
+    <span>æ:/aipodcast.me</span>
+    <span>AI PODCAST HQ</span>
+    <span class="live"><span class="dot"></span>LOCAL-SOVEREIGN</span>
+  </div>
+
+  <section class="hero">
+    <div class="glyph"><i></i><i></i><i></i><span>æ</span></div>
+    <h1>AI PODCAST HQ</h1>
+    <div class="sub">ONE PRINCIPAL · MANY AGENTS · <b>#aipodcast</b></div>
+
+    <div class="chips">
+      <div class="chip"><b>runtime</b> notebooklm episodic</div>
+      <div class="chip"><b>voice</b> 📟&gt;_teleprompt</div>
+      <div class="chip"><b>human</b> 人公司</div>
+      <div class="chip"><b>rent</b> zero cloud</div>
+    </div>
+  </section>
+
+  <!-- CATEGORIES -->
+  <section class="panel">
+    <div class="panel-head"><span>◈ EPISODE TAXONOMY</span><span class="tag">CATEGORIES</span></div>
+    <div class="cats">
+      <div class="cat live">
+        <div class="num">01</div>
+        <div class="name">SCIENCE &amp; TECHNOLOGY</div>
+        <div class="meta">Effects of noise on man · #neuroplasticity · systems, compute, capability</div>
+      </div>
+      <div class="cat live">
+        <div class="num">02</div>
+        <div class="name">FAITH &amp; RELIGION</div>
+        <div class="meta">Biblioteca Luterana · Haugean legacy · theology of agency</div>
+      </div>
+      <div class="cat live">
+        <div class="num">03</div>
+        <div class="name">AI ETHICS &amp; GOVERNANCE</div>
+        <div class="meta">Who should act? · authority, consent, revocation</div>
+      </div>
+      <div class="cat live">
+        <div class="num">04</div>
+        <div class="name">E+LEARNING &amp; EDUCATION</div>
+        <div class="meta">Molt School · open knowledge · teach early what others learn late</div>
+      </div>
+      <div class="cat live">
+        <div class="num">05</div>
+        <div class="name">GENERATIVE #ELEARNING</div>
+        <div class="meta">Generated curricula · agentic literacy · distributed learning</div>
+      </div>
+      <div class="cat live">
+        <div class="num">06</div>
+        <div class="name">POLITICS &amp; ECONOMY</div>
+        <div class="meta">Consumer Redline Index · household balance sheet · sovereign value</div>
+      </div>
+      <div class="cat live">
+        <div class="num">07</div>
+        <div class="name">POPULAR CULTURE</div>
+        <div class="meta">#zeitgeist · conversation → delegation · the age of agents</div>
+      </div>
+      <div class="cat soon">
+        <div class="num">08</div>
+        <div class="name">🎙️ #DEEPDIVES</div>
+        <div class="meta">Coming 🔜 · long-form dives across every rail</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SURFACES -->
+  <section class="panel">
+    <div class="panel-head"><span>◈ RUNTIME SURFACES</span><span class="tag">>_æ://</span></div>
+    <div class="surfaces">
+      <a class="surf" href="/cri-teleprompter.html">
+        <div class="k">VOICE</div><div class="n">CRI TELEPROMPTER</div>
+        <div class="d">Narrative teleprompter · OSW + IOA two predictors</div>
+        <div class="go">open →</div>
+      </a>
+      <a class="surf" href="/hauge-teologia.html">
+        <div class="k">FAITH</div><div class="n">BIBLIOTECA LUTERANA</div>
+        <div class="d">Hans Nielsen Hauge 1771–1824 · Latin American Lutheran Institute</div>
+        <div class="go">open →</div>
+      </a>
+      <a class="surf" href="/cri-school-of-hermes.html">
+        <div class="k">ECONOMY</div><div class="n">CONSUMER REDLINE INDEX</div>
+        <div class="d">Household balance-sheet stress · School of Hermes Economic Faculty</div>
+        <div class="go">open →</div>
+      </a>
+      <a class="surf" href="/molt-earth-ultimate-fractal.html">
+        <div class="k">EVOLUTION</div><div class="n">MOLT.EARTH</div>
+        <div class="d">Three layers · teleprompter overlay · Æ-Polar MCP68 gate</div>
+        <div class="go">open →</div>
+      </a>
+      <a class="surf" href="/llm-store-dna-qr.html">
+        <div class="k">INTELLIGENCE</div><div class="n">LLM.STORE · DNA QR</div>
+        <div class="d">DNA → SHA-256 → QR → native SVG organism</div>
+        <div class="go">open →</div>
+      </a>
+      <a class="surf" href="/ae-store-digital-twin.html">
+        <div class="k">SELF</div><div class="n">Æ.STORE DIGITAL TWIN</div>
+        <div class="d">Deterministic Three.js phenotype from DNA</div>
+        <div class="go">open →</div>
+      </a>
+      <a class="surf" href="/ae-store-pico-os.html">
+        <div class="k">CAPABILITY</div><div class="n">Æ.STORE PICO OS</div>
+        <div class="d">TV · Transcoder · Store · Omnicursor</div>
+        <div class="go">open →</div>
+      </a>
+      <a class="surf" href="/neuromitosis-polar-star-cell.html">
+        <div class="k">COGNITION</div><div class="n">NEUROMITOSIS CELL</div>
+        <div class="d">White Polar Star Cell v∞ · MCP terminal</div>
+        <div class="go">open →</div>
+      </a>
+      <a class="surf" href="/sovaereign-os.html">
+        <div class="k">AUTHORITY</div><div class="n">SOVÆREIGN OS</div>
+        <div class="d">Authority topology · OBSERVE / DELEGATE / EXECUTE</div>
+        <div class="go">open →</div>
+      </a>
+      <a class="surf" href="/school-of-hermes-fleet.html">
+        <div class="k">SCHOOL</div><div class="n">THE FLEET</div>
+        <div class="d">One humanity. Many agents. #OSW</div>
+        <div class="go">open →</div>
+      </a>
+      <a class="surf" href="/yael-baesic-vae.html">
+        <div class="k">CANON</div><div class="n">YÆL BÆSIC VÆ</div>
+        <div class="d">White Polar Star edition · 320×240 PETSCII terminal</div>
+        <div class="go">open →</div>
+      </a>
+      <a class="surf" href="/">
+        <div class="k">ROOT</div><div class="n">æ:// HOME</div>
+        <div class="d">The full surface index · 100+ agentic surfaces</div>
+        <div class="go">open →</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- DEEPDIVES + COMMAND -->
+  <section class="panel">
+    <div class="panel-head"><span>◈ SIGNAL</span><span class="tag">#DEEPDIVES</span></div>
+    <div class="dd">
+      <div class="copy">
+        <div class="t">🎙️ Coming 🔜 #DEEPDIVES</div>
+        <div class="s">Long-form dives across every rail — science, faith, ethics, economics,
+        education. Generated, human-governed. The teleprompter is the human interface to AI governance.</div>
+      </div>
+      <div class="badge">IN DEVELOPMENT</div>
+    </div>
+    <div class="cmdwrap">
+      <form class="cmd" id="cmdform">
+        <span>æ&gt;</span>
+        <input id="cmdin" placeholder="teleprompt · hauge · cri · molt · twin · fleet · help"
+               autocomplete="off" spellcheck="false"/>
+        <button type="submit">EXEC</button>
+      </form>
+      <div class="cmdout" id="cmdout">READY · type help</div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span>æ.store · llm.store · <a href="/">æææ://</a></span>
+    <span class="hash">#HERMIPHICATIONISINEVITABLE</span>
+  </div>
+
+</main>
+
+<a class="cta" href="https://portal.nousresearch.com/r/yael" target="_blank" rel="noopener noreferrer sponsored">
+  <span class="proto">&gt;_æ://</span>
+  <span><strong>LAUNCH AGENT</strong><small>NOUS PORTAL · #CLOUDAGENT</small></span>
+  <span class="arrow">↗</span>
+</a>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ── boot ── */
+  setTimeout(function(){ document.getElementById("boot").classList.add("done"); }, 2000);
+
+  /* ── 3D neural mesh: rotate field, project, pulse nodes ── */
+  var cv = document.createElement("canvas");
+  document.getElementById("mesh").appendChild(cv);
+  var cx = cv.getContext("2d");
+  var W=0, H=0, DPR = Math.min(window.devicePixelRatio||1, 2);
+  var N = 78, nodes = [], camA = 0, camB = 0, t = 0;
+
+  function resize(){
+    W = window.innerWidth; H = window.innerHeight;
+    cv.width = W*DPR; cv.height = H*DPR;
+    cv.style.width = W+"px"; cv.style.height = H+"px";
+    cx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  for(var i=0;i<N;i++){
+    var th = Math.random()*Math.PI*2, ph = Math.acos(2*Math.random()-1);
+    var r = 240 + Math.random()*220;
+    nodes.push({
+      x: r*Math.sin(ph)*Math.cos(th),
+      y: r*Math.sin(ph)*Math.sin(th)*0.72,
+      z: r*Math.cos(ph),
+      s: 0.5 + Math.random()*1.5,
+      p: Math.random()*Math.PI*2
+    });
+  }
+
+  function rot(p, a, b){
+    var ca=Math.cos(a), sa=Math.sin(a), cb=Math.cos(b), sb=Math.sin(b);
+    var x = p.x*ca - p.z*sa, z = p.x*sa + p.z*ca;
+    var y = p.y*cb - z*sb;   z = p.y*sb + z*cb;
+    return {x:x, y:y, z:z};
+  }
+
+  function frame(){
+    t += 0.006;
+    camA += 0.0016;                 /* camera drift */
+    camB  = Math.sin(t*0.28) * 0.20;
+
+    cx.clearRect(0,0,W,H);
+    var cxp = W/2, cyp = H*0.42, F = 620;
+    var proj = [];
+
+    for(var i=0;i<N;i++){
+      var n = nodes[i];
+      n.p += 0.02;                   /* node pulse */
+      var q = rot(n, camA, camB);
+      var z = q.z + F;
+      if(z < 40){ proj.push(null); continue; }
+      var k = F/z;
+      proj.push({ x: cxp + q.x*k, y: cyp + q.y*k, k: k, z: q.z, s: n.s, p: n.p });
+    }
+
+    /* edges */
+    for(var a=0;a<N;a++){
+      var A = proj[a]; if(!A) continue;
+      for(var b=a+1;b<N;b++){
+        var B = proj[b]; if(!B) continue;
+        var dx = A.x-B.x, dy = A.y-B.y, d = Math.sqrt(dx*dx+dy*dy);
+        if(d < 132){
+          var al = (1 - d/132) * 0.16 * Math.min(A.k, B.k);
+          cx.strokeStyle = "rgba(212,175,55," + al.toFixed(3) + ")";
+          cx.lineWidth = 0.6;
+          cx.beginPath(); cx.moveTo(A.x,A.y); cx.lineTo(B.x,B.y); cx.stroke();
+        }
+      }
+    }
+
+    /* nodes */
+    for(var j=0;j<N;j++){
+      var P = proj[j]; if(!P) continue;
+      var pulse = 1 + Math.sin(P.p)*0.34;
+      var rad = Math.max(0.4, P.s * P.k * 1.7 * pulse);
+      var glow = 0.10 * P.k;
+      cx.fillStyle = "rgba(212,175,55," + glow.toFixed(3) + ")";
+      cx.beginPath(); cx.arc(P.x,P.y, rad*5.5, 0, 6.2832); cx.fill();
+      cx.fillStyle = "rgba(240,212,135," + Math.min(0.9, 0.30 + P.k*0.55).toFixed(3) + ")";
+      cx.beginPath(); cx.arc(P.x,P.y, rad, 0, 6.2832); cx.fill();
+    }
+
+    requestAnimationFrame(frame);
+  }
+  frame();
+
+  /* ── command line: resolves names to surfaces ── */
+  var ROUTES = {
+    teleprompt:  "/cri-teleprompter.html",
+    prompt:      "/cri-teleprompter.html",
+    hauge:       "/hauge-teologia.html",
+    biblioteca:  "/hauge-teologia.html",
+    luterana:    "/hauge-teologia.html",
+    cri:         "/cri-school-of-hermes.html",
+    redline:     "/cri-school-of-hermes.html",
+    molt:        "/molt-earth-ultimate-fractal.html",
+    earth:       "/molt-earth-ultimate-fractal.html",
+    llm:         "/llm-store-dna-qr.html",
+    dna:         "/llm-store-dna-qr.html",
+    qr:          "/llm-store-dna-qr.html",
+    twin:        "/ae-store-digital-twin.html",
+    store:       "/ae-store-pico-os.html",
+    pico:        "/ae-store-pico-os.html",
+    neuromitosis:"/neuromitosis-polar-star-cell.html",
+    cell:        "/neuromitosis-polar-star-cell.html",
+    sov:         "/sovaereign-os.html",
+    sovereign:   "/sovaereign-os.html",
+    fleet:       "/school-of-hermes-fleet.html",
+    baesic:      "/yael-baesic-vae.html",
+    basic:       "/yael-baesic-vae.html",
+    home:        "/",
+    root:        "/",
+    index:       "/"
+  };
+
+  var form = document.getElementById("cmdform");
+  var input = document.getElementById("cmdin");
+  var out = document.getElementById("cmdout");
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    var q = (input.value || "").trim().toLowerCase();
+    input.value = "";
+    if(!q) return;
+
+    if(q === "help" || q === "?"){
+      out.textContent = "SURFACES · teleprompt hauge cri molt llm dna twin store cell sov fleet baesic home";
+      return;
+    }
+    if(q === "deepdives" || q === "pod" || q === "podcast"){
+      out.textContent = "🎙️ #DEEPDIVES · IN DEVELOPMENT · coming 🔜";
+      return;
+    }
+    var hit = ROUTES[q];
+    if(!hit){
+      for(var key in ROUTES){
+        if(q.indexOf(key) !== -1){ hit = ROUTES[key]; break; }
+      }
+    }
+    if(hit){
+      out.textContent = "ROUTE → " + hit;
+      window.location.href = hit;
+    } else {
+      out.textContent = "UNKNOWN · " + q + " · type help";
+    }
+  });
+
+  console.info("%cæ:/aipodcast.me%c AI PODCAST HQ · ONE PRINCIPAL · MANY AGENTS",
+    "color:#D4AF37;background:#050505;padding:5px 10px;font-weight:bold",
+    "color:#00ff9d;font-family:monospace");
+})();
+</script>
+
+</body>
+</html>
