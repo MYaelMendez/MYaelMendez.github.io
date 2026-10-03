@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>CRI Narrative Teleprompter</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050407;
+    --text: #f5f6fa;
+    --accent: #b4ff2e;
+    --cyan: #00eaff;
+    --highlight: rgba(180, 255, 46, 0.2);
+    --cursor-bg: rgba(180, 255, 46, 0.15);
+    --mask-color: rgba(255, 255, 255, 0.05);
+    --font: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+    --speed: 35ms; /* Speed per line in ms */
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    font-family: var(--sans);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Container for 9:16 aspect ratio */
+  .container {
+    width: 100%;
+    height: 100%;
+    max-width: 430px; /* Max width for mobile */
+    max-height: 750px; /* Max height for mobile */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Background Texture */
+  .bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 50% -12%, rgba(41, 52, 255, 0.13), transparent 30%),
+      radial-gradient(circle at 100% 30%, rgba(255, 77, 95, 0.06), transparent 30%),
+      linear-gradient(180deg, #040506, #07090c 100%);
+    z-index: 0;
+  }
+
+  /* Mask / Guide Line */
+  .mask {
+    position: absolute;
+    top: 10%;
+    bottom: 10%;
+    left: 50%;
+    width: 1px;
+    background: var(--mask-color);
+    transform: translateX(-50%);
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  /* Content Area */
+  .content {
+    position: relative;
+    z-index: 10;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 20px;
+    overflow: hidden;
+  }
+
+  /* Text Styling */
+  .line {
+    font-size: clamp(18px, 5vw, 24px);
+    line-height: 1.4;
+    margin-bottom: 20px;
+    opacity: 0.6;
+    transition: opacity 0.3s ease, color 0.3s ease;
+    text-align: left;
+    word-wrap: break-word;
+    position: relative;
+  }
+
+  .line.active {
+    opacity: 1;
+    color: var(--accent);
+    text-shadow: 0 0 12px var(--highlight);
+  }
+
+  .line.active::after {
+    content: "";
+    position: absolute;
+    left: -10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  /* Cursor Indicator */
+  .cursor {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    height: 60%;
+    background: var(--accent);
+    opacity: 0.4;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 20;
+    animation: blink 1s steps(1) infinite;
+  }
+
+  @keyframes blink {
+    50% { opacity: 0.1; }
+  }
+
+  /* Header */
+  .header {
+    font-size: clamp(22px, 6vw, 28px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+    color: #fff;
+    font-family: var(--sans);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+  }
+
+  .subheader {
+    font-size: clamp(12px, 3.5vw, 14px);
+    color: #8d99aa;
+    letter-spacing: 0.06em;
+    margin-bottom: 24px;
+    font-weight: 400;
+  }
+
+  /* Controls */
+  .controls {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    z-index: 20;
+    pointer-events: auto;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 12px 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+  }
+
+  .btn:active {
+    transform: scale(0.95);
+    background: rgba(180, 255, 46, 0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Loader */
+  .loader {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.5s;
+  }
+  .loader.hidden { opacity: 0; pointer-events: none; }
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(255,255,255,0.1);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 12px;
+  }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+  @media (max-height: 600px) {
+    .line { font-size: 16px; margin-bottom: 16px; }
+    .header { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="bg"></div>
+    <div class="mask"></div>
+    <div class="cursor"></div>
+
+    <div class="loader" id="loader">
+      <div class="spinner"></div>
+      <div style="font-size:10px; color:#666; letter-spacing:.1em;">LOADING NARRATIVE</div>
+    </div>
+
+    <div class="content" id="content">
+      <!-- Content injected by JS -->
+    </div>
+
+    <div class="controls">
+      <button class="btn" onclick="togglePlay()">PLAY/PAUSE</button>
+      <button class="btn" onclick="speedUp()">SPEED +</button>
+      <button class="btn" onclick="speedDown()">SPEED -</button>
+      <button class="btn" onclick="reset()">RESET</button>
+    </div>
+  </div>
+
+  <script>
+    const narrative = [
+      { type: 'header', text: 'Consumer Redline Index // CRI v0.1' },
+      { type: 'subheader', text: 'School of Hermes Economic Faculty' },
+      { type: 'text', text: 'Can ordinary life still be funded from current income?' },
+      { type: 'text', text: 'A household balance-sheet stress instrument tracking essential costs, debt pressure, credit deterioration, savings capacity, and real-income momentum.' },
+      { type: 'header', text: 'The Two Predictors' },
+      { type: 'text', text: 'OSW (Open Source Ware) — The sovereignty claim. "Who owns the substrate determines who owns the agency." Timeline: 1989 (Documents), 2004 (People), 2010 (Applications), 2022 (Language), 2026 (Agents).' },
+      { type: 'text', text: 'IOA (Internet of Agents) — The structural claim. "Intelligence begins discovering, delegating and collaborating with intelligence." Timeline: 1989 (Documents), 2004 (People), 2010 (Applications), 2022 (Language), 2026 (Agents).' },
+      { type: 'header', text: 'The Human Outcome (一人会社)' },
+      { type: 'text', text: 'One-person company. When IOA meets OSW, a single human can operate what used to require an organization.' },
+      { type: 'text', text: 'Department leads. Scoped workers. Proof loops. Compounding memory.' },
+      { type: 'header', text: 'The Age of Agents' },
+      { type: 'text', text: 'It is not coming. It is already here.' },
+      { type: 'text', text: 'OSW + IOA — The two predictors.' }
+    ];
+
+    let speed = 3000; // ms per line
+    let playing = true;
+    let currentIndex = 0;
+    const contentEl = document.getElementById('content');
+    const loaderEl = document.getElementById('loader');
+
+    function render() {
+      contentEl.innerHTML = '';
+      narrative.forEach((item, i) => {
+        const el = document.createElement('div');
+        el.className = `line ${i === currentIndex ? 'active' : ''}`;
+        el.textContent = item.text;
+        if (item.type === 'header') el.style.fontWeight = '700';
+        contentEl.appendChild(el);
+      });
+      // Scroll to active line
+      const activeEl = contentEl.querySelector('.line.active');
+      if (activeEl) {
+        const offset = activeEl.offsetTop - contentEl.clientHeight / 2 + activeEl.clientHeight / 2;
+        contentEl.scrollTop = Math.max(0, offset);
+      }
+    }
+
+    function next() {
+      currentIndex++;
+      if (currentIndex >= narrative.length) {
+        currentIndex = narrative.length - 1;
+        playing = false;
+      }
+      render();
+    }
+
+    function togglePlay() {
+      playing = !playing;
+      if (playing) loop();
+    }
+
+    function speedUp() {
+      speed = Math.max(500, speed - 500);
+      toast(`Speed: ${speed/1000}s/line`);
+    }
+
+    function speedDown() {
+      speed = Math.min(10000, speed + 500);
+      toast(`Speed: ${speed/1000}s/line`);
+    }
+
+    function reset() {
+      currentIndex = 0;
+      playing = true;
+      render();
+      loop();
+      loaderEl.classList.add('hidden');
+    }
+
+    function loop() {
+      if (!playing) return;
+      next();
+      setTimeout(loop, speed);
+    }
+
+    function toast(msg) {
+      const t = document.createElement('div');
+      t.style.cssText = `
+        position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+        background:rgba(0,0,0,0.8);color:#fff;padding:6px 12px;border-radius:4px;
+        font-size:10px;letter-spacing:.1em;z-index:100;pointer-events:none;
+        opacity:0;transition:opacity .3s;
+      `;
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => { t.style.opacity = 1; }, 10);
+      setTimeout(() => { t.style.opacity = 0; setTimeout(() => t.remove(), 300); }, 1200);
+    }
+
+    // Init
+    setTimeout(() => {
+      loaderEl.classList.add('hidden');
+      render();
+      loop();
+    }, 800);
+
+    // Handle resize
+    window.addEventListener('resize', () => {
+      // Recalculate font sizes via CSS clamp
+    });
+
+    // Keyboard controls
+    document.addEventListener('keydown', e => {
+      if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+      if (e.code === 'ArrowDown') { e.preventDefault(); next(); }
+      if (e.code === 'ArrowUp') { e.preventDefault(); currentIndex = Math.max(0, currentIndex - 1); render(); }
+    });
+
+    // Touch support for mobile
+    let touchStartY = 0;
+    document.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; });
+    document.addEventListener('touchmove', e => {
+      const touchY = e.touches[0].clientY;
+      const delta = touchStartY - touchY;
+      if (Math.abs(delta) > 50) {
+        e.preventDefault();
+        if (delta > 0) { /* Swipe Up */ currentIndex = Math.max(0, currentIndex - 1); render(); }
+        else { /* Swipe Down */ next(); }
+        touchStartY = touchY;
+      }
+    }, { passive: false });
+
+  </script>
+</body>
+</html>

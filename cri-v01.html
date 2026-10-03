@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050607">
+<title>Consumer Redline Index // CRI v0.1</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#050607;
+  --line:rgba(255,255,255,.08);
+  --text:#f5f7fb;
+  --muted:#7e8a9b;
+  --green:#2ff0a3;
+  --yellow:#f7d154;
+  --orange:#ff9a4d;
+  --red:#ff4d5f;
+  --blue:#4da3ff;
+  --cyan:#55ddff;
+  --mono:"JetBrains Mono",monospace;
+  --sans:"Inter",system-ui,sans-serif;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+html,body{
+  min-height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+}
+
+body{
+  display:grid;
+  place-items:center;
+  padding:16px;
+  overflow-x:hidden;
+  background:
+    radial-gradient(circle at 50% -12%,rgba(77,163,255,.13),transparent 30%),
+    radial-gradient(circle at 100% 30%,rgba(255,77,95,.06),transparent 30%),
+    linear-gradient(180deg,#040506,#07090c 100%);
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+  background-size:28px 28px;
+  mask-image:linear-gradient(to bottom,black,transparent 92%);
+}
+
+.app{
+  width:min(100%,430px);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:26px;
+  overflow:hidden;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.025),transparent 15%),
+    linear-gradient(145deg,rgba(12,16,22,.98),rgba(6,8,11,.99));
+  box-shadow:0 35px 90px rgba(0,0,0,.62);
+  position:relative;
+  animation:rise .7s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.app::after{
+  content:"";
+  position:absolute;
+  inset:-3px;
+  background:
+    linear-gradient(
+      110deg,
+      transparent 25%,
+      rgba(85,221,255,.11),
+      transparent 48%
+    );
+  transform:translateX(-120%);
+  animation:sweep 6s ease-in-out infinite;
+  pointer-events:none;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 16px;
+  border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.015);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+
+.dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--green);
+  box-shadow:
+    0 0 0 4px rgba(47,240,163,.08),
+    0 0 16px rgba(47,240,163,.75);
+  animation:pulse 1.8s ease-in-out infinite;
+}
+
+.label{
+  font:800 10px/1 var(--mono);
+  letter-spacing:.11em;
+  color:#0a130f;
+  background:var(--green);
+  padding:6px 8px;
+  border-radius:999px;
+}
+
+.live{
+  font:700 10px/1 var(--mono);
+  letter-spacing:.08em;
+  color:#748093;
+}
+
+.hero{
+  padding:20px 18px 14px;
+}
+
+.eyebrow{
+  font:700 10px/1.4 var(--mono);
+  text-transform:uppercase;
+  letter-spacing:.11em;
+  color:var(--cyan);
+}
+
+h1{
+  font-size:30px;
+  line-height:1.02;
+  letter-spacing:-.045em;
+  margin-top:7px;
+  max-width:330px;
+}
+
+.sub{
+  margin-top:10px;
+  color:#8d99aa;
+  font-size:13px;
+  line-height:1.5;
+  max-width:360px;
+}
+
+.score-card{
+  margin:4px 18px 0;
+  border:1px solid rgba(255,77,95,.18);
+  border-radius:18px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,77,95,.07),
+      rgba(77,163,255,.035)
+    );
+  padding:16px;
+}
+
+.score-row{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:16px;
+}
+
+.score-num{
+  font:800 54px/.85 var(--mono);
+  letter-spacing:-.06em;
+}
+
+.score-num span{
+  font-size:18px;
+  color:#727e8d;
+}
+
+.regime{
+  text-align:right;
+}
+
+.regime .big{
+  display:inline-block;
+  font:800 12px/1 var(--mono);
+  letter-spacing:.08em;
+  color:white;
+  background:var(--red);
+  padding:7px 9px;
+  border-radius:999px;
+  box-shadow:0 0 20px rgba(255,77,95,.18);
+}
+
+.regime small{
+  display:block;
+  margin-top:7px;
+  color:#7f8a9a;
+  font:700 9px/1.3 var(--mono);
+  letter-spacing:.06em;
+}
+
+.scale{
+  height:8px;
+  border-radius:999px;
+  margin-top:16px;
+  overflow:hidden;
+  background:
+    linear-gradient(
+      90deg,
+      var(--green) 0 24%,
+      var(--yellow) 24% 44%,
+      var(--orange) 44% 64%,
+      var(--red) 64% 79%,
+      #9b1830 79%
+    );
+  position:relative;
+}
+
+.marker{
+  position:absolute;
+  top:-4px;
+  left:67%;
+  width:2px;
+  height:16px;
+  background:white;
+  box-shadow:0 0 10px white;
+  animation:nudge 2.5s ease-in-out infinite;
+}
+
+.meta{
+  display:flex;
+  justify-content:space-between;
+  margin-top:10px;
+  color:#6f7b8c;
+  font:700 9px/1.4 var(--mono);
+}
+
+.section{
+  padding:16px 18px 0;
+}
+
+.section-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+
+.section-title h2{
+  font:800 11px/1 var(--mono);
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:#aeb7c4;
+}
+
+.section-title span{
+  color:#596474;
+  font:700 9px/1 var(--mono);
+  letter-spacing:.07em;
+}
+
+.components{
+  display:grid;
+  gap:9px;
+}
+
+.metric{
+  padding:11px 12px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:rgba(255,255,255,.012);
+}
+
+.metric-head{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  gap:8px;
+  align-items:center;
+}
+
+.metric-name{
+  font:700 11px/1.2 var(--mono);
+  color:#dce3ee;
+}
+
+.metric-name small{
+  display:block;
+  color:#667284;
+  font:700 8px/1.2 var(--mono);
+  margin-top:3px;
+  letter-spacing:.04em;
+}
+
+.metric-val{
+  color:white;
+  font:800 11px/1 var(--mono);
+}
+
+.metric-weight{
+  color:#6c7888;
+  font:700 9px/1 var(--mono);
+}
+
+.bar{
+  height:5px;
+  border-radius:999px;
+  background:#141a21;
+  margin-top:9px;
+  overflow:hidden;
+}
+
+.fill{
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,var(--blue),var(--cyan));
+  transform-origin:left;
+  animation:grow 1.2s ease both;
+}
+
+.fill.red{
+  background:linear-gradient(90deg,#ff7c68,var(--red));
+}
+
+.fill.orange{
+  background:linear-gradient(90deg,#ffc067,var(--orange));
+}
+
+.fill.green{
+  background:linear-gradient(90deg,#39e6a2,var(--green));
+}
+
+.runtime{
+  margin:14px 18px 0;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:#05080c;
+  padding:13px 14px;
+  font:700 10px/1.55 var(--mono);
+  color:#8491a4;
+  position:relative;
+  overflow:hidden;
+}
+
+.runtime::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(
+      transparent 50%,
+      rgba(255,255,255,.012) 50%
+    );
+  background-size:100% 4px;
+}
+
+.prompt{color:var(--green)}
+.cmd{color:#e3ebf8}
+.redtxt{color:var(--red)}
+.cyan{color:var(--cyan)}
+
+.cursor{
+  display:inline-block;
+  width:7px;
+  height:12px;
+  background:var(--green);
+  margin-left:4px;
+  vertical-align:-2px;
+  animation:blink 1s steps(1) infinite;
+}
+
+.footer{
+  padding:15px 18px 18px;
+}
+
+.sources{
+  border-top:1px solid var(--line);
+  padding-top:12px;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  color:#5e6978;
+  font:700 8px/1.5 var(--mono);
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+
+.ae{
+  color:#ff9a4d;
+}
+
+@keyframes rise{
+  from{
+    opacity:0;
+    transform:translateY(18px) scale(.985);
+  }
+  to{
+    opacity:1;
+    transform:none;
+  }
+}
+
+@keyframes sweep{
+  0%,35%{transform:translateX(-130%)}
+  55%,100%{transform:translateX(130%)}
+}
+
+@keyframes pulse{
+  0%,100%{opacity:1}
+  50%{opacity:.4}
+}
+
+@keyframes blink{
+  50%{opacity:0}
+}
+
+@keyframes grow{
+  from{transform:scaleX(0)}
+  to{transform:scaleX(1)}
+}
+
+@keyframes nudge{
+  0%,100%{transform:translateX(0)}
+  50%{transform:translateX(2px)}
+}
+
+@media(max-width:380px){
+  body{padding:8px}
+  .app{border-radius:20px}
+  h1{font-size:27px}
+  .score-num{font-size:48px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,
+  *::before,
+  *::after{
+    animation:none!important;
+    transition:none!important;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<main class="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <span class="dot"></span>
+      <span class="label">CRI v0.1</span>
+    </div>
+
+    <div class="live">
+      HOUSEHOLD://USA
+    </div>
+  </div>
+
+  <section class="hero">
+    <div class="eyebrow">
+      &gt;_ Consumer Redline Index
+    </div>
+
+    <h1>
+      Can ordinary life still be funded from current income?
+    </h1>
+
+    <p class="sub">
+      A household balance-sheet stress instrument tracking
+      essential costs, debt pressure, credit deterioration,
+      savings capacity, and real-income momentum.
+    </p>
+  </section>
+
+  <section class="score-card">
+
+    <div class="score-row">
+
+      <div class="score-num">
+        67<span>.2</span>
+      </div>
+
+      <div class="regime">
+        <span class="big">REDLINE</span>
+
+        <small>
+          MODEL ESTIMATE<br>
+          NOT OFFICIAL STATISTIC
+        </small>
+      </div>
+
+    </div>
+
+    <div class="scale">
+      <span class="marker"></span>
+    </div>
+
+    <div class="meta">
+      <span>00 RESILIENT</span>
+      <span>65 REDLINE</span>
+      <span>100 DISTRESS</span>
+    </div>
+
+  </section>
+
+  <section class="section">
+
+    <div class="section-title">
+      <h2>Pressure + buffer failure</h2>
+      <span>WEIGHTED 0–100</span>
+    </div>
+
+    <div class="components">
+
+      <div class="metric">
+        <div class="metric-head">
+          <div class="metric-name">
+            H // HOUSING
+            <small>rent + shelter burden</small>
+          </div>
+          <div class="metric-val">74</div>
+          <div class="metric-weight">20%</div>
+        </div>
+        <div class="bar">
+          <div class="fill red" style="width:74%"></div>
+        </div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-head">
+          <div class="metric-name">
+            D // DEBT SERVICE
+            <small>fixed household claims</small>
+          </div>
+          <div class="metric-val">68</div>
+          <div class="metric-weight">15%</div>
+        </div>
+        <div class="bar">
+          <div class="fill orange" style="width:68%"></div>
+        </div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-head">
+          <div class="metric-name">
+            C // CREDIT STRESS
+            <small>cards + auto delinquency</small>
+          </div>
+          <div class="metric-val">71</div>
+          <div class="metric-weight">15%</div>
+        </div>
+        <div class="bar">
+          <div class="fill red" style="width:71%"></div>
+        </div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-head">
+          <div class="metric-name">
+            F // FOOD
+            <small>essential consumption</small>
+          </div>
+          <div class="metric-val">58</div>
+          <div class="metric-weight">10%</div>
+        </div>
+        <div class="bar">
+          <div class="fill orange" style="width:58%"></div>
+        </div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-head">
+          <div class="metric-name">
+            E // ENERGY
+            <small>home + motor fuel</small>
+          </div>
+          <div class="metric-val">64</div>
+          <div class="metric-weight">10%</div>
+        </div>
+        <div class="bar">
+          <div class="fill orange" style="width:64%"></div>
+        </div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-head">
+          <div class="metric-name">
+            CONN // CONNECTIVITY
+            <small>mobile + broadband</small>
+          </div>
+          <div class="metric-val">49</div>
+          <div class="metric-weight">5%</div>
+        </div>
+        <div class="bar">
+          <div class="fill" style="width:49%"></div>
+        </div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-head">
+          <div class="metric-name">
+            COMP // COMPUTE
+            <small>incremental digital burden</small>
+          </div>
+          <div class="metric-val">42</div>
+          <div class="metric-weight">5%</div>
+        </div>
+        <div class="bar">
+          <div class="fill" style="width:42%"></div>
+        </div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-head">
+          <div class="metric-name">
+            S // SAVINGS FAILURE
+            <small>buffer inverted</small>
+          </div>
+          <div class="metric-val">82</div>
+          <div class="metric-weight">15%</div>
+        </div>
+        <div class="bar">
+          <div class="fill red" style="width:82%"></div>
+        </div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-head">
+          <div class="metric-name">
+            Y // REAL DPI MOMENTUM
+            <small>income buffer inverted</small>
+          </div>
+          <div class="metric-val">31</div>
+          <div class="metric-weight">5%</div>
+        </div>
+        <div class="bar">
+          <div class="fill green" style="width:31%"></div>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <section class="runtime">
+
+    <div>
+      <span class="prompt">$</span>
+      <span class="cmd">curl cri://usa</span>
+    </div>
+
+    <div>
+      REGIME ........
+      <span class="redtxt">REDLINE</span>
+    </div>
+
+    <div>
+      CREDIT ABSORB ..
+      <span class="redtxt">DETECTING</span>
+    </div>
+
+    <div>
+      ENERGY IMPULSE .
+      <span class="cyan">ELEVATED</span>
+    </div>
+
+    <div>
+      SAVINGS BUFFER .
+      <span class="redtxt">THIN</span>
+    </div>
+
+    <div>
+      <span class="prompt">$</span>
+      <span class="cmd">
+        watch household://balance-sheet
+      </span>
+      <span class="cursor"></span>
+    </div>
+
+  </section>
+
+  <footer class="footer">
+
+    <div class="sources">
+      <span>
+        BEA · BLS · FED · NYFED · EIA
+      </span>
+
+      <span class="ae">
+        &gt;_æ:// opensourceware
+      </span>
+    </div>
+
+  </footer>
+
+</main>
+
+</body>
+</html>

@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#05051a">
+    <meta name="description" content="YÆL ROUTE ENGINE • æOS QUANTUM RUNTIME">
+    <title>YÆL ROUTE ENGINE • æOS QUANTUM RUNTIME</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700;900&family=Space+Grotesk:wght@700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #050516;
+            --bg2: #080820;
+            --panel: #0b0c1d;
+            --lime: #b4ff2e;
+            --lime-glow: rgba(180, 255, 46, 0.28);
+            --cyan: #00eaff;
+            --cyan-glow: rgba(0, 234, 255, 0.22);
+            --violet: #8367ff;
+            --violet-glow: rgba(131, 103, 255, 0.25);
+            --blue: #2934ff;
+            --gold: #e0b84a;
+            --gold-glow: rgba(224, 184, 74, 0.25);
+            --red: #ff4d5f;
+            --orange: #ff9a4d;
+            --white: #f5f6fa;
+            --soft: #b5b8c6;
+            --muted: #65687c;
+            --line: rgba(86, 94, 255, 0.23);
+            --line-strong: rgba(86, 94, 255, 0.42);
+            --glass: rgba(7, 11, 20, 0.92);
+
+            --mono: 'JetBrains Mono', monospace;
+            --cond: 'Barlow Condensed', sans-serif;
+            --sans: 'Space Grotesk', sans-serif;
+
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --viewport-h: calc(100dvh * 0.75);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        html, body {
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background: #000;
+            overscroll-behavior: none;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: var(--safe-top);
+            font-family: var(--mono);
+            color: var(--white);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ============ VIEWPORT ============ */
+        .viewport {
+            position: relative;
+            width: min(100vw, calc(var(--viewport-h) * 9 / 16));
+            height: var(--viewport-h);
+            overflow: hidden;
+            background:
+                radial-gradient(ellipse 80% 45% at 50% 12%, rgba(41, 52, 255, 0.2), transparent 60%),
+                radial-gradient(ellipse 60% 35% at 22% 44%, rgba(0, 234, 255, 0.07), transparent 58%),
+                radial-gradient(ellipse 55% 40% at 80% 54%, rgba(131, 103, 255, 0.09), transparent 60%),
+                linear-gradient(180deg, var(--bg2) 0%, var(--bg) 50%, #010204 100%);
+            border-left: 5px solid #10156d;
+            border-right: 5px solid #10156d;
+            isolation: isolate;
+            flex-shrink: 0;
+            border-radius: 16px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .viewport::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border: 1px solid rgba(72, 82, 255, 0.36);
+            pointer-events: none;
+            z-index: 40;
+            border-radius: 16px;
+        }
+
+        /* ============ BACKGROUND LAYERS ============ */
+        .bg-layers {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+            border-radius: 16px;
+        }
+
+        .aurora-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(45px);
+            opacity: 0.22;
+            animation: aurora-drift 18s cubic-bezier(0.65, 0, 0.35, 1) infinite alternate;
+            will-change: transform;
+        }
+
+        .aurora-blob:nth-child(1) { width: 160px; height: 160px; background: rgba(41,52,255,0.35); top: -8%; left: -5%; animation-duration: 20s; }
+        .aurora-blob:nth-child(2) { width: 130px; height: 130px; background: rgba(0,234,255,0.22); top: 30%; right: -10%; animation-direction: alternate-reverse; animation-duration: 23s; }
+        .aurora-blob:nth-child(3) { width: 120px; height: 120px; background: rgba(224,184,74,0.18); bottom: 5%; left: 8%; animation-duration: 16s; }
+        .aurora-blob:nth-child(4) { width: 100px; height: 100px; background: rgba(180,255,46,0.12); top: 55%; right: 12%; animation-duration: 21s; }
+
+        @keyframes aurora-drift {
+            0% { transform: translate(0,0) scale(1); }
+            25% { transform: translate(22px,-18px) scale(1.06); }
+            50% { transform: translate(-15px,12px) scale(0.94); }
+            75% { transform: translate(10px,22px) scale(1.04); }
+            100% { transform: translate(-12px,-8px) scale(0.97); }
+        }
+
+        .stars {
+            position: absolute;
+            inset: 0;
+            opacity: 0.22;
+            background-image:
+                radial-gradient(circle at 13% 18%, #fff 0 1px, transparent 1.4px),
+                radial-gradient(circle at 76% 11%, #fff 0 1px, transparent 1.4px),
+                radial-gradient(circle at 26% 65%, var(--cyan) 0 1px, transparent 1.5px),
+                radial-gradient(circle at 88% 58%, #fff 0 1px, transparent 1.5px),
+                radial-gradient(circle at 42% 30%, #fff 0 0.6px, transparent 1px);
+            animation: stars-twinkle 6s ease-in-out infinite alternate;
+        }
+
+        @keyframes stars-twinkle {
+            0% { opacity: 0.1; } 50% { opacity: 0.28; } 100% { opacity: 0.16; }
+        }
+
+        .scanline {
+            position: absolute;
+            left: 0; right: 0; top: -22%; height: 22%;
+            background: linear-gradient(180deg, transparent, rgba(69,79,255,0.06) 40%, rgba(180,255,46,0.02) 70%, transparent);
+            animation: scan 7s linear infinite;
+            pointer-events: none;
+            z-index: 58;
+        }
+
+        @keyframes scan { to { transform: translateY(560%); } }
+
+        .crt-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 59;
+            pointer-events: none;
+            opacity: 0.08;
+            background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(0,0,0,0.14) 3px 4px);
+            mix-blend-mode: overlay;
+            border-radius: 16px;
+        }
+
+        /* ============ THREE.JS BACKGROUND ============ */
+        #webgl-container {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0.7;
+            border-radius: 16px;
+        }
+
+        /* ============ CHASSIS ============ */
+        .chassis {
+            position: relative;
+            z-index: 10;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 6px;
+            gap: 5px;
+            pointer-events: auto;
+        }
+
+        .glass {
+            background: var(--glass);
+            border: 1px solid var(--line);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ============ HEADER ============ */
+        .header {
+            padding: 7px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 2px solid var(--lime);
+            flex-shrink: 0;
+        }
+
+        .brand-block { display: flex; flex-direction: column; }
+        .brand {
+            font-family: var(--sans);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-shadow: 0 0 10px var(--lime-glow);
+        }
+        .brand span {
+            color: var(--lime);
+            font-size: 14px;
+            font-weight: 900;
+        }
+        .sub-brand {
+            font-family: var(--mono);
+            font-size: 5.5px;
+            color: var(--cyan);
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin-top: 1px;
+        }
+        .tel-block { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+        .tel-row {
+            font-family: var(--mono);
+            font-size: 5.5px;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            letter-spacing: 0.08em;
+        }
+        .atp-bar {
+            width: 36px;
+            height: 2.5px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 1px;
+            overflow: hidden;
+        }
+        .atp-fill {
+            height: 100%;
+            background: var(--lime);
+            width: 100%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 8px var(--lime-glow);
+        }
+        .live-dot {
+            width: 4px; height: 4px;
+            background: var(--gold);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        .agent-of-day {
+            font-family: var(--mono);
+            font-size: 6.5px;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .agent-of-day .icon { font-size: 9px; }
+
+        /* ============ CAPABILITY DECK ============ */
+        .cap-deck {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            padding: 5px;
+            flex-shrink: 0;
+        }
+        .cap-btn {
+            background: rgba(255,255,255,0.015);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 4px;
+            padding: 4px 1px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            cursor: pointer;
+            transition: 0.2s;
+            color: var(--soft);
+        }
+        .cap-btn:hover, .cap-btn:active {
+            background: rgba(180,255,46,0.1);
+            border-color: var(--lime);
+            color: var(--lime);
+            transform: translateY(-1px);
+        }
+        .cap-btn i { font-size: 10px; font-style: normal; }
+        .cap-btn span {
+            font-family: var(--mono);
+            font-size: 4.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        /* ============ STAGE ============ */
+        .stage {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        /* ============ WINDOWS ============ */
+        .win {
+            position: absolute;
+            background: var(--glass);
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 32px rgba(0,0,0,0.7);
+            z-index: 20;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .win.visible { display: flex; animation: winPop 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes winPop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .titlebar {
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 8px;
+            background: rgba(180,255,46,0.03);
+            border-bottom: 1px solid var(--line);
+            font-size: 7px;
+            color: var(--cyan);
+            font-family: var(--mono);
+            letter-spacing: 0.04em;
+            flex-shrink: 0;
+        }
+        .tb-controls { display: flex; gap: 4px; }
+        .ctrl { width: 7px; height: 7px; border-radius: 1px; cursor: pointer; }
+        .ctrl.close { background: #ff5f56; }
+        .ctrl.min { background: #ffbd2e; }
+        .ctrl.max { background: #27c93f; }
+
+        #win-tv { top: 1%; left: 2%; right: 2%; height: 34%; }
+        #win-route { top: 36%; left: 2%; right: 2%; height: 28%; }
+        #win-chat { top: 65%; left: 2%; right: 2%; height: 33%; }
+
+        .tv-screen { flex: 1; background: #000; position: relative; overflow: hidden; min-height: 0; }
+        .tv-screen iframe { width: 100%; height: 100%; border: none; filter: contrast(1.05) saturate(1.05); }
+        .no-signal {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--lime); font-size: 18px; font-weight: 900;
+            text-shadow: 0 0 12px var(--lime-glow);
+        }
+        .tv-bar {
+            height: 22px;
+            background: #010204;
+            border-top: 1px solid var(--line);
+            display: flex; gap: 3px; padding: 3px;
+            overflow-x: auto; scrollbar-width: none;
+            flex-shrink: 0;
+        }
+        .tv-bar::-webkit-scrollbar { display: none; }
+        .ch-btn {
+            flex-shrink: 0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.015);
+            color: var(--muted);
+            font-size: 6.5px;
+            cursor: pointer;
+            font-family: var(--mono);
+        }
+        .ch-btn.active {
+            background: rgba(180,255,46,0.12);
+            border-color: var(--lime);
+            color: var(--lime);
+        }
+
+        .route-body {
+            padding: 5px 8px;
+            overflow-y: auto;
+            flex: 1;
+            font-family: var(--mono);
+            font-size: 9px;
+            line-height: 1.5;
+            color: var(--lime);
+        }
+        .route-body strong { color: var(--cyan); }
+
+        .chat-msgs { flex: 1; overflow-y: auto; padding: 5px 8px; font-size: 7px; scrollbar-width: none; min-height: 0; }
+        .chat-msgs::-webkit-scrollbar { display: none; }
+        .msg {
+            margin-bottom: 4px;
+            padding: 5px 6px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.015);
+            border: 1px solid var(--line);
+        }
+        .msg.a { border-color: rgba(180,255,46,0.2); }
+        .alabel { display: block; font-size: 6.5px; color: var(--lime); margin-bottom: 2px; font-weight: 700; }
+
+        /* ============ OMNICURSOR ============ */
+        .omni {
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+        }
+        .omni-orb {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(180,255,46,0.35), rgba(1,2,4,0.95));
+            border: 1px solid rgba(180,255,46,0.5);
+            box-shadow: 0 0 12px var(--lime-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            color: var(--lime);
+        }
+        .omni-orb:active { transform: scale(0.9); }
+
+        /* ============ TERMINAL ============ */
+        .terminal {
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .logs {
+            height: 40px;
+            overflow-y: auto;
+            padding: 4px 8px;
+            font-family: var(--mono);
+            font-size: 5.5px;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            scrollbar-width: none;
+        }
+        .logs::-webkit-scrollbar { display: none; }
+        .log-line {
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            animation: fadeUp 0.2s forwards;
+            line-height: 1.2;
+        }
+        .l-ts { color: var(--muted); flex-shrink: 0; }
+        .l-sys { color: var(--lime); }
+        .l-usr { color: var(--white); }
+        .l-agt { color: var(--cyan); }
+        .l-wrn { color: var(--gold); }
+        .l-mem { color: var(--violet); }
+
+        .cli-form {
+            display: flex;
+            align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding: 3px 8px;
+            background: rgba(0,0,0,0.5);
+        }
+        .cli-prefix {
+            font-family: var(--mono);
+            font-size: 6px;
+            font-weight: 700;
+            color: var(--cyan);
+            margin-right: 5px;
+            white-space: nowrap;
+        }
+        .cli-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--white);
+            font-family: var(--mono);
+            font-size: 7.5px;
+            padding: 3px 0;
+        }
+        .cli-input::placeholder { color: rgba(255,255,255,0.18); }
+
+        /* ============ PANELS ============ */
+        .panel-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(1,2,4,0.95);
+            backdrop-filter: blur(16px);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            padding: 14px;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 6px;
+            border: 1px solid rgba(180,255,46,0.25);
+        }
+        .panel-overlay.open { transform: translateY(0); }
+        .panel-hdr {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+        .panel-title {
+            font-family: var(--sans);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--lime);
+            letter-spacing: 0.06em;
+        }
+        .panel-close {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: var(--white);
+            font-family: var(--mono);
+            font-size: 7px;
+            padding: 3px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            color: var(--soft);
+            font-size: 10px;
+            line-height: 1.6;
+        }
+        .panel-btn {
+            width: 100%;
+            padding: 9px;
+            background: rgba(180,255,46,0.1);
+            border: 1px solid var(--lime);
+            color: var(--lime);
+            font-family: var(--mono);
+            font-size: 7px;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 8px;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+        .panel-btn:active { transform: scale(0.96); background: var(--lime); color: #000; }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-height: 600px) {
+            .header { padding: 5px 8px; }
+            .brand { font-size: 10px; }
+            .cap-btn { padding: 3px 1px; }
+            .cap-btn i { font-size: 8px; }
+            .logs { height: 32px; }
+        }
+
+        @media (min-height: 750px) {
+            .header { padding: 9px 12px; }
+            .brand { font-size: 14px; }
+            .logs { height: 50px; }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="viewport" role="main" aria-label="YÆL Route Engine Quantum Runtime">
+
+        <!-- Atmosphere -->
+        <div class="bg-layers" aria-hidden="true">
+            <div class="aurora-blob"></div>
+            <div class="aurora-blob"></div>
+            <div class="aurora-blob"></div>
+            <div class="aurora-blob"></div>
+            <div class="stars"></div>
+            <div class="scanline"></div>
+            <div class="crt-overlay"></div>
+        </div>
+
+        <!-- Three.js Background -->
+        <div id="webgl-container"></div>
+
+        <!-- Chassis -->
+        <div class="chassis">
+
+            <!-- Header -->
+            <header class="glass header">
+                <div class="brand-block">
+                    <div class="brand"><span>æ</span>AGENT·A·DAY</div>
+                    <div class="sub-brand">YÆL ROUTE ENGINE · ∞</div>
+                </div>
+                <div class="tel-block">
+                    <div class="tel-row"><div class="live-dot"></div> <span id="dayCount">DAY 1</span></div>
+                    <div class="tel-row">ATP <div class="atp-bar"><div class="atp-fill" id="atp-fill"></div></div></div>
+                    <div class="tel-row agent-of-day" id="agentOfDay"></div>
+                </div>
+            </header>
+
+            <!-- Capability Deck -->
+            <div class="glass cap-deck">
+                <div class="cap-btn" onclick="openPanel('arb')"><i>🌲</i><span>Arbor</span></div>
+                <div class="cap-btn" onclick="openPanel('frg')"><i>⚒️</i><span>Forge</span></div>
+                <div class="cap-btn" onclick="openPanel('git')"><i>🏙️</i><span>Git City</span></div>
+                <div class="cap-btn" onclick="openPanel('str')"><i>🛒</i><span>Store</span></div>
+            </div>
+
+            <!-- Stage -->
+            <div class="stage">
+
+                <!-- TV Window -->
+                <div class="win visible" id="win-tv">
+                    <div class="titlebar">
+                        <div>📺 QUANTUM FEED</div>
+                        <div class="tb-controls">
+                            <div class="ctrl close" onclick="toggleWin('win-tv')"></div>
+                            <div class="ctrl min"></div>
+                            <div class="ctrl max"></div>
+                        </div>
+                    </div>
+                    <div class="tv-screen" id="tv-screen">
+                        <div class="no-signal">æ</div>
+                    </div>
+                    <div class="tv-bar">
+                        <div class="ch-btn active" onclick="play('lofi', this)">Lofi</div>
+                        <div class="ch-btn" onclick="play('nasa', this)">NASA</div>
+                        <div class="ch-btn" onclick="play('earth', this)">Earth</div>
+                        <div class="ch-btn" onclick="play('jazz', this)">Jazz</div>
+                        <div class="ch-btn" onclick="play('synth', this)">Synth</div>
+                    </div>
+                </div>
+
+                <!-- Route Window -->
+                <div class="win visible" id="win-route">
+                    <div class="titlebar">
+                        <div>⚙️ YÆL ROUTE MAP</div>
+                        <div class="tb-controls">
+                            <div class="ctrl close" onclick="toggleWin('win-route')"></div>
+                            <div class="ctrl min"></div>
+                            <div class="ctrl max"></div>
+                        </div>
+                    </div>
+                    <div class="route-body">
+                        🟢 <strong>PrivateClient.ai</strong> (Identity)<br>
+                        &nbsp;&nbsp;↓<br>
+                        🌊 <strong>llm.store</strong> (Context)<br>
+                        &nbsp;&nbsp;↓<br>
+                        🧠 <strong>æl.net</strong> (Agents)<br>
+                        &nbsp;&nbsp;↓<br>
+                        ⚙️ <strong>CommandPrompt.ai</strong> (Exec)<br>
+                        &nbsp;&nbsp;↓<br>
+                        🍊 <strong>Daollc.ai</strong> (Governance)
+                    </div>
+                </div>
+
+                <!-- Chat Window -->
+                <div class="win visible" id="win-chat">
+                    <div class="titlebar">
+                        <div>💬 Namespace Protocol</div>
+                        <div class="tb-controls">
+                            <div class="ctrl close" onclick="toggleWin('win-chat')"></div>
+                            <div class="ctrl min"></div>
+                            <div class="ctrl max"></div>
+                        </div>
+                    </div>
+                    <div class="chat-msgs" id="chat-msgs">
+                        <div class="msg a">
+                            <span class="alabel" id="chatAgentLabel">æ:yæl</span>
+                            Yæl Route Engine synchronized. Sovereign pipeline active.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Omnicursor -->
+                <div class="omni">
+                    <div class="omni-orb" onclick="toggleAllWindows()" title="Toggle Windows">🔘</div>
+                </div>
+            </div>
+
+            <!-- Terminal -->
+            <div class="glass terminal">
+                <div class="logs" id="logs"></div>
+                <form class="cli-form" id="cli">
+                    <div class="cli-prefix">yæl &gt;_</div>
+                    <input type="text" class="cli-input" id="cmd" placeholder="compose routing intent..." autocomplete="off" spellcheck="false" autofocus>
+                </form>
+            </div>
+
+            <!-- Panel Overlay -->
+            <div class="panel-overlay" id="panel-ui">
+                <div class="panel-hdr">
+                    <div class="panel-title" id="p-title">MODULE</div>
+                    <button class="panel-close" onclick="closePanel()">ESC</button>
+                </div>
+                <div class="panel-content" id="p-content"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // =====================================================================
+        // 1. THREE.JS QUANTUM ENGINE (Unified Palette)
+        // =====================================================================
+        let scene, camera, renderer, disk, coreHole, innerVortex;
+        let isQuantumSurge = false;
+        let running = true;
+        let mouseX = 0, mouseY = 0;
+        let currentSpeed = 0.0025, targetSpeed = 0.0025;
+
+        function init3D() {
+            const container = document.getElementById('webgl-container');
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x050516, 0.012);
+
+            camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.z = 55;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setClearColor(0x050516, 1);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            const ambient = new THREE.AmbientLight(0xffffff, 0.35);
+            scene.add(ambient);
+            const pointLight = new THREE.PointLight(0xb4ff2e, 2.5, 100);
+            scene.add(pointLight);
+
+            const sphereGeo = new THREE.SphereGeometry(10, 64, 64);
+            const voidMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+            coreHole = new THREE.Mesh(sphereGeo, voidMat);
+            scene.add(coreHole);
+
+            const ringGeo = new THREE.RingGeometry(10.2, 11.5, 64);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0x00eaff, side: THREE.DoubleSide, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending });
+            innerVortex = new THREE.Mesh(ringGeo, ringMat);
+            scene.add(innerVortex);
+
+            const count = 12000;
+            const diskGeo = new THREE.BufferGeometry();
+            const pos = new Float32Array(count * 3);
+            const cols = new Float32Array(count * 3);
+            const c1 = new THREE.Color(0x00eaff), c2 = new THREE.Color(0xff9a4d), c3 = new THREE.Color(0xb4ff2e), c4 = new THREE.Color(0x8367ff);
+
+            for(let i = 0; i < count; i++) {
+                const radius = 12 + Math.pow(Math.random(), 1.8) * 45;
+                const angle = Math.random() * Math.PI * 2;
+                pos[i*3] = Math.cos(angle) * radius;
+                pos[i*3+1] = (Math.random() - 0.5) * (110 / radius);
+                pos[i*3+2] = Math.sin(angle) * radius;
+
+                let mixed = c1.clone();
+                const rnd = Math.random();
+                if(rnd > 0.75) mixed.lerp(c2, Math.random());
+                else if(rnd > 0.4) mixed.lerp(c3, Math.random());
+                else mixed.lerp(c4, Math.random());
+
+                cols[i*3] = mixed.r; cols[i*3+1] = mixed.g; cols[i*3+2] = mixed.b;
+            }
+            diskGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            diskGeo.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+            const diskMat = new THREE.PointsMaterial({ size: 0.1, vertexColors: true, transparent: true, opacity: 0.75, blending: THREE.AdditiveBlending });
+            disk = new THREE.Points(diskGeo, diskMat);
+            disk.rotation.x = Math.PI / 2.3;
+            scene.add(disk);
+
+            window.addEventListener('resize', () => {
+                const rect = container.getBoundingClientRect();
+                camera.aspect = rect.width / rect.height;
+                camera.updateProjectionMatrix();
+                renderer.setSize(rect.width, rect.height);
+            });
+
+            animate3D();
+        }
+
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            if(!running) targetSpeed = 0.0006;
+            else if(isQuantumSurge) targetSpeed = 0.04;
+            else targetSpeed = 0.0025;
+
+            currentSpeed += (targetSpeed - currentSpeed) * 0.06;
+            disk.rotation.z -= currentSpeed;
+            innerVortex.rotation.z += currentSpeed * 2;
+
+            camera.position.x += (mouseX - camera.position.x) * 0.04;
+            camera.position.y += (-mouseY - camera.position.y) * 0.04;
+            camera.lookAt(scene.position);
+
+            if(isQuantumSurge) {
+                coreHole.scale.set(1.07, 1.07, 1.07);
+                camera.position.z += (42 - camera.position.z) * 0.08;
+            } else {
+                coreHole.scale.set(1, 1, 1);
+                camera.position.z += (55 - camera.position.z) * 0.08;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // =====================================================================
+        // 2. DAILY AGENT & YÆL ROUTING ENGINE
+        // =====================================================================
+        const agentNamePool = ['Yæl','Astra','Nyx','Orion','Nova','Quasar','Lyra','Vega','Sirius','Altair','Arcturus','Rigel','Betelgeuse','Antares','Polaris','Canopus','Capella','Aldebaran','Spica','Deneb','Procyon','Hadar','Achernar','Fomalhaut','Mira','Cepheus','Cassiopeia','Perseus','Andromeda','Draco','Ursa','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces','Aries','Taurus','Gemini','Cancer','Ophiuchus','Hydra','Centaurus','Phoenix','Sculptor','Fornax','Hercules','Lynx'];
+        const rolePool = ['Route Engine','Seer','Builder','Oracle','Guardian','Architect','Navigator','Sage','Sentinel','Weaver','Shaman','Warden','Emissary','Magus','Adept','Monk','Knight','Druid','Wizard','Ranger','Paladin'];
+        const iconPool = ['👁️','🌙','⭐','🌀','⚡','🔥','🌊','🌿','🔮','🪐','☀️','🌌','💫','🌱','⚜️','🌸','🔱','🦅','🐉','🐺','🦊'];
+        const colorPool = ['#b4ff2e','#00eaff','#ff4d5f','#e0b84a','#6bcb77','#4d96ff','#ff9a4d','#8367ff','#fbc2eb','#f6d365','#fda085','#84fab0','#8fd3f4','#a3b1c6','#d4a5f5'];
+
+        function getTemporalData() {
+            const now = new Date();
+            const start = new Date(now.getFullYear(), 0, 0);
+            const diff = (now - start) + (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60000;
+            return { day: Math.floor(diff / 86400000), year: now.getFullYear() };
+        }
+        function seededRandom(seed, idx) {
+            const x = Math.sin(seed + idx * 9973) * 43758.5453123;
+            return x - Math.floor(x);
+        }
+        function generateDailyAgent(temporal) {
+            const seed = (temporal.day + temporal.year) * 1337 + 42;
+            const name = agentNamePool[Math.floor(seededRandom(seed, 1) * agentNamePool.length)];
+            const role = rolePool[Math.floor(seededRandom(seed, 2) * rolePool.length)];
+            const icon = iconPool[Math.floor(seededRandom(seed, 3) * iconPool.length)];
+            const color = colorPool[Math.floor(seededRandom(seed, 4) * colorPool.length)];
+            return { name, role, icon, color };
+        }
+
+        let temporal = getTemporalData();
+        let dailyAgent = generateDailyAgent(temporal);
+        const todayKey = `agent_memory_${temporal.year}_${temporal.day}`;
+        let dailyMemory = JSON.parse(localStorage.getItem(todayKey)) || [];
+
+        function logMemory(intent) {
+            dailyMemory.push({ time: new Date().toLocaleTimeString(), intent });
+            localStorage.setItem(todayKey, JSON.stringify(dailyMemory));
+        }
+
+        const dayCount = document.getElementById('dayCount');
+        const agentOfDay = document.getElementById('agentOfDay');
+        const chatAgentLabel = document.getElementById('chatAgentLabel');
+
+        function updateDailyAgentUI() {
+            dayCount.textContent = `DAY ${temporal.day}`;
+            agentOfDay.innerHTML = `<span class="icon">${dailyAgent.icon}</span> ${dailyAgent.name}`;
+            chatAgentLabel.textContent = `æ:${dailyAgent.name.toLowerCase()}`;
+        }
+        updateDailyAgentUI();
+
+        function toggleWin(id) {
+            document.getElementById(id).classList.toggle('visible');
+        }
+
+        function toggleAllWindows() {
+            const wins = document.querySelectorAll('.win');
+            const anyVisible = Array.from(wins).some(w => w.classList.contains('visible'));
+            wins.forEach(w => {
+                if (anyVisible) w.classList.remove('visible');
+                else w.classList.add('visible');
+            });
+        }
+
+        function play(ch, el) {
+            const urls = {
+                lofi: 'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=1',
+                nasa: 'https://www.youtube.com/embed/21X5lGlDOfg?autoplay=1&mute=1',
+                earth: 'https://www.youtube.com/embed/4993sBLAzGA?autoplay=1&mute=1',
+                jazz: 'https://www.youtube.com/embed/Dx5qFachd3A?autoplay=1&mute=1',
+                synth: 'https://www.youtube.com/embed/4xDzrJKXOOY?autoplay=1&mute=1'
+            };
+            const screen = document.getElementById('tv-screen');
+            screen.innerHTML = `<iframe src="${urls[ch]}" allow="autoplay; encrypted-media"></iframe>`;
+            document.querySelectorAll('.ch-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        let atp = 100;
+        const atpFill = document.getElementById('atp-fill');
+        setInterval(() => { atp = Math.min(100, atp + 1); atpFill.style.width = `${atp}%`; }, 1000);
+        function consumeATP(amt) { if(atp < amt) return false; atp -= amt; atpFill.style.width = `${atp}%`; return true; }
+
+        const logs = document.getElementById('logs');
+        const cmd = document.getElementById('cmd');
+        const form = document.getElementById('cli');
+
+        function log(text, type = 'l-sys') {
+            const d = document.createElement('div');
+            d.className = 'log-line';
+            const ts = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            d.innerHTML = `<span class="l-ts">[${ts}]</span> <span class="${type}">${text}</span>`;
+            logs.appendChild(d);
+            logs.scrollTop = logs.scrollHeight;
+            if(logs.children.length > 30) logs.removeChild(logs.firstChild);
+        }
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+        async function routeIntent(intent) {
+            if(!consumeATP(15)) { log('INSUFFICIENT ATP. AWAIT RECHARGE.', 'l-wrn'); return; }
+            cmd.disabled = true;
+            log(`INTENT CAPTURED: ${intent}`, 'l-usr');
+            isQuantumSurge = true;
+
+            await sleep(600);
+            log('🟢 PrivateClient.ai • Identity verified', 'l-sys');
+            await sleep(600);
+            log('🌊 llm.store • Context synthesized', 'l-agt');
+            await sleep(600);
+            log(`🧠 æl.net • ${dailyAgent.name} (${dailyAgent.role}) engaged`, 'l-mem');
+            await sleep(600);
+            log('⚙️ CommandPrompt.ai • Execution active', 'l-wrn');
+            await sleep(600);
+            log('🍊 Daollc.ai • Governance consent secured', 'l-sys');
+
+            logMemory(intent);
+
+            const chatMsgs = document.getElementById('chat-msgs');
+            chatMsgs.innerHTML += `<div class="msg a"><span class="alabel">æ:${dailyAgent.name.toLowerCase()}</span>Routed: "${intent}"</div>`;
+            chatMsgs.scrollTop = chatMsgs.scrollHeight;
+
+            isQuantumSurge = false;
+            log('YÆL ROUTE COMPLETE. OUTCOME SECURED.', 'l-sys');
+            cmd.disabled = false;
+            cmd.focus();
+        }
+
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            const val = cmd.value.trim();
+            if(!val) return;
+            cmd.value = '';
+            const v = val.toLowerCase();
+            if(v === 'help') log('cmds: [intent], clear, daily, memory', 'l-sys');
+            else if(v === 'clear') logs.innerHTML = '';
+            else if(v === 'daily') log(`Today's agent: ${dailyAgent.name} (${dailyAgent.role}) ${dailyAgent.icon}`, 'l-agt');
+            else if(v === 'memory') {
+                if(dailyMemory.length === 0) log(`${dailyAgent.name}'s ledger is empty.`, 'l-mem');
+                else {
+                    log(`${dailyAgent.name} recalls ${dailyMemory.length} event(s):`, 'l-mem');
+                    dailyMemory.forEach(m => log(`- ${m.intent}`, 'l-mem'));
+                }
+            } else routeIntent(val);
+        });
+
+        // =====================================================================
+        // 3. PANELS
+        // =====================================================================
+        const panelUI = document.getElementById('panel-ui');
+        const pTitle = document.getElementById('p-title');
+        const pContent = document.getElementById('p-content');
+        const PANELS = {
+            arb: { t: '🌲 ARBORÆTUM', c: `<p style="margin-bottom:12px;">Plant code repositories. Grow sovereign trees.</p><input type="text" placeholder="github.com/user/repo" style="width:100%;padding:8px;background:rgba(0,0,0,0.5);border:1px solid var(--lime);color:#fff;border-radius:3px;font-family:var(--mono);font-size:9px;outline:none;"><button class="panel-btn" onclick="closePanel(); log('Arborætum seed planted.','l-sys')">PLANT SEED</button>` },
+            frg: { t: '⚒️ MEDIA FORGE', c: `<div style="border:1px dashed rgba(255,255,255,0.15);border-radius:3px;padding:24px 16px;text-align:center;color:var(--muted);margin-bottom:12px;">DROP MEDIA PAYLOAD<br><span style="font-size:8px;color:var(--gold);">YÆL ROUTE PIPELINE</span></div><button class="panel-btn" style="border-color:var(--gold);color:var(--gold);" onclick="closePanel(); log('Media forge processing...','l-wrn')">FORGE ASSET</button>` },
+            git: { t: '🏙️ GIT CITY', c: `<div style="display:flex;flex-direction:column;gap:6px;"><div style="background:rgba(255,255,255,0.04);padding:8px;border-radius:3px;display:flex;justify-content:space-between;"><span>daollc.ai</span><span style="color:var(--lime)">Core</span></div><div style="background:rgba(255,255,255,0.04);padding:8px;border-radius:3px;display:flex;justify-content:space-between;"><span>PrivateClient.ai</span><span style="color:var(--cyan)">Identity</span></div><div style="background:rgba(255,255,255,0.04);padding:8px;border-radius:3px;display:flex;justify-content:space-between;"><span>æl.net</span><span style="color:var(--gold)">Network</span></div><div style="background:rgba(255,255,255,0.04);padding:8px;border-radius:3px;display:flex;justify-content:space-between;"><span>llm.store</span><span style="color:var(--violet)">Exchange</span></div></div>` },
+            str: { t: '🛒 æ.store', c: `<p style="margin-bottom:12px;color:var(--cyan);">Agentic Contribution Genomics</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><div style="background:rgba(0,0,0,0.5);padding:12px;border-radius:3px;text-align:center;border:1px solid rgba(0,234,255,0.18);"><div style="font-size:20px;color:var(--cyan);font-weight:900;">07</div><div style="font-size:5.5px;text-transform:uppercase;">Active Twins</div></div><div style="background:rgba(0,0,0,0.5);padding:12px;border-radius:3px;text-align:center;border:1px solid rgba(224,184,74,0.18);"><div style="font-size:20px;color:var(--gold);font-weight:900;">${365 - temporal.day}d</div><div style="font-size:5.5px;text-transform:uppercase;">Remaining</div></div></div><button class="panel-btn" style="border-color:var(--cyan);color:var(--cyan);" onclick="closePanel(); log('Querying æ.store...','l-agt')">MOUNT EXCHANGE</button>` }
+        };
+        function openPanel(id) { pTitle.textContent = PANELS[id].t; pContent.innerHTML = PANELS[id].c; panelUI.classList.add('open'); }
+        function closePanel() { panelUI.classList.remove('open'); }
+
+        // =====================================================================
+        // 4. BOOT
+        // =====================================================================
+        window.onload = async () => {
+            init3D();
+            play('lofi', document.querySelector('.ch-btn'));
+            log(`YÆL ROUTE ENGINE v${temporal.year} MOUNTED`, 'l-sys');
+            await sleep(300);
+            log(`TODAY'S AGENT: ${dailyAgent.name} (${dailyAgent.role}) ${dailyAgent.icon}`, 'l-agt');
+            if(dailyMemory.length > 0) {
+                await sleep(200);
+                log(`[LEDGER] ${dailyAgent.name} recalls ${dailyMemory.length} prior event(s) today.`, 'l-mem');
+            }
+            await sleep(300);
+            log('Awaiting routing intent...', 'l-usr');
+            cmd.focus();
+        };
+
+        console.log('%cYÆL ROUTE ENGINE · æOS QUANTUM RUNTIME %c\n%cAgent-A-Day · Sovereign Pipeline',
+            'color:#b4ff2e;font-size:14px;font-weight:bold;font-family:monospace;',
+            'color:#00eaff;font-size:9px;font-family:monospace;',
+            'color:#65687c;font-size:8px;font-family:monospace;');
+    </script>
+</body>
+</html>

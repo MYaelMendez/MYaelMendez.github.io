@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>æ.store · Pico OS · Unified</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700;900&family=Space+Grotesk:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050516;--bg2:#080820;--panel:#0b0c1d;--lime:#b4ff2e;--cyan:#00eaff;--violet:#8367ff;--gold:#e0b84a;--white:#f5f6fa;--soft:#b5b8c6;--muted:#65687c;--line:rgba(86,94,255,0.23);--line-strong:rgba(86,94,255,0.42);
+  --mono:'JetBrains Mono', monospace;--cond:'Barlow Condensed', sans-serif;--sans:'Space Grotesk', sans-serif;
+  --safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);--viewport-h:calc(100dvh * 0.75);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;}
+html,body{width:100%;height:100%;background:#000;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:var(--mono);color:var(--white);}
+.container{
+  position:relative;width:min(100vw,calc(var(--viewport-h) * 9 / 16));height:var(--viewport-h);margin:0 auto;overflow:hidden;border-radius:16px;box-shadow:0 25px 70px rgba(0,0,0,0.9);border-left:5px solid #10156d;border-right:5px solid #10156d;background:var(--bg);
+}
+.os{position:absolute;inset:0;background:transparent;overflow:hidden;border-radius:16px;}
+
+/* atmosphere */
+.bg-layers{position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:16px;overflow:hidden;}
+.aurora-blob{position:absolute;border-radius:50%;filter:blur(45px);opacity:0.22;animation:aurora-drift 18s cubic-bezier(.65,0,.35,1) infinite alternate;will-change:transform;}
+.aurora-blob:nth-child(1){width:160px;height:160px;background:rgba(41,52,255,.35);top:-8%;left:-5%;animation-duration:20s;}
+.aurora-blob:nth-child(2){width:130px;height:130px;background:rgba(0,234,255,.22);top:30%;right:-10%;animation-direction:alternate-reverse;animation-duration:23s;}
+.aurora-blob:nth-child(3){width:120px;height:120px;background:rgba(224,184,74,.18);bottom:5%;left:8%;animation-duration:16s;}
+.aurora-blob:nth-child(4){width:100px;height:100px;background:rgba(180,255,46,.12);top:55%;right:12%;animation-duration:21s;}
+@keyframes aurora-drift{0%{transform:translate(0,0) scale(1)}25%{transform:translate(22px,-18px) scale(1.06)}50%{transform:translate(-15px,12px) scale(.94)}75%{transform:translate(10px,22px) scale(1.04)}100%{transform:translate(-12px,-8px) scale(.97)}}
+.stars{position:absolute;inset:0;opacity:0.22;background-image:radial-gradient(circle at 13% 18%,#fff 0 1px,transparent 1.4px),radial-gradient(circle at 76% 11%,#fff 0 1px,transparent 1.4px),radial-gradient(circle at 26% 65%,var(--cyan) 0 1px,transparent 1.5px),radial-gradient(circle at 88% 58%,#fff 0 1px,transparent 1.5px),radial-gradient(circle at 42% 30%,#fff 0 .6px,transparent 1px);animation:stars-twinkle 6s ease-in-out infinite alternate;}
+@keyframes stars-twinkle{0%{opacity:.1}50%{opacity:.28}100%{opacity:.16}}
+.scanline{position:absolute;left:0;right:0;top:-22%;height:22%;background:linear-gradient(180deg,transparent,rgba(69,79,255,.06) 40%,rgba(180,255,46,.02) 70%,transparent);animation:scan 7s linear infinite;z-index:58;pointer-events:none;}
+@keyframes scan{to{transform:translateY(560%)}}
+.crt-overlay{position:absolute;inset:0;z-index:59;pointer-events:none;opacity:.08;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(0,0,0,.14) 3px 4px);mix-blend-mode:overlay;border-radius:16px;}
+
+/* Original styles adapted */
+.grid-bg{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:22px 22px;z-index:2;}
+.orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(70px);}
+.o1{width:58%;height:58%;top:-18%;right:-12%;background:rgba(180,255,46,.035);}
+.o2{width:48%;height:48%;bottom:-14%;left:-14%;background:rgba(0,234,255,.035);}
+.o3{width:28%;height:28%;top:34%;left:32%;background:rgba(224,184,74,.015);}
+
+/* OMNICURSOR */
+.omni-wrap{position:absolute;z-index:1000;display:flex;flex-direction:column;align-items:center;transition:all .5s cubic-bezier(.34,1.56,.64,1);}
+.omni-wrap.collapsed{bottom:12px;left:50%;transform:translateX(-50%);}
+.omni-wrap.expanded{top:48%;left:50%;transform:translate(-50%,-50%);width:78%;}
+.omni-orb{width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(180,255,46,.25),rgba(8,14,24,.9) 70%);border:1px solid rgba(180,255,46,.35);box-shadow:0 0 20px rgba(180,255,46,.2),0 0 50px rgba(180,255,46,.08),inset 0 1px 0 rgba(180,255,46,.2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;font-family:var(--mono);color:var(--lime);letter-spacing:-.02em;font-weight:700;flex-shrink:0;transition:all .3s;animation:orbPulse 3s ease-in-out infinite;user-select:none;}
+.omni-orb:hover{transform:scale(1.08)}.omni-orb.active{animation:none}
+.omni-cli{width:100%;background:rgba(4,8,16,.97);border:1px solid rgba(180,255,46,.2);border-radius:13px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.8),0 0 0 1px rgba(180,255,46,.06);opacity:0;transform:scale(.92) translateY(10px);pointer-events:none;transition:all .35s cubic-bezier(.34,1.2,.64,1);margin-bottom:8px;}
+.omni-wrap.expanded .omni-cli{opacity:1;transform:scale(1) translateY(0);pointer-events:all}
+.cli-header{display:flex;align-items:center;justify-content:space-between;padding:0 10px;height:26px;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(180,255,46,.1);}
+.cli-brand{font-size:9.5px;color:var(--lime);font-weight:700;letter-spacing:.1em;}
+.cli-tags{display:flex;gap:4px;}
+.cli-tag{font-size:7px;padding:1px 5px;border-radius:99px;border:1px solid;letter-spacing:.06em;}
+.cli-tag.g{border-color:rgba(180,255,46,.2);color:rgba(180,255,46,.6);}
+.cli-tag.b{border-color:rgba(0,234,255,.2);color:rgba(0,234,255,.6);}
+.cli-close{color:var(--muted);cursor:pointer;font-size:13px;line-height:1;}
+.cli-close:hover{color:#ff4d5f;}
+.cli-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:7px;border-bottom:1px solid rgba(180,255,46,.07);}
+.cli-win-btn{padding:5px 4px;border-radius:7px;border:1px solid var(--line);background:rgba(255,255,255,.02);cursor:pointer;font-size:7.5px;color:var(--muted);font-family:var(--mono);letter-spacing:.05em;text-align:center;transition:all .18s;}
+.cli-win-btn:hover{background:rgba(180,255,46,.06);border-color:var(--line-strong);color:var(--lime);}
+.cli-win-btn.open{border-color:rgba(180,255,46,.3);color:var(--lime);background:rgba(180,255,46,.05);}
+.cli-win-btn .wb-ico{font-size:12px;display:block;margin-bottom:2px;}
+.cli-stream{height:78px;overflow-y:auto;padding:5px 8px;font-family:var(--mono);font-size:7.5px;color:var(--lime);line-height:1.55;background:#020508;}
+.cli-line{display:flex;gap:5px;margin-bottom:1px;}
+.cli-line .cl-t{color:rgba(101,104,124,.7);flex-shrink:0;font-size:6.5px;margin-top:1px;}
+.cli-line .cl-txt{color:var(--lime);}
+.cli-line.cl-ok .cl-txt{color:var(--lime);}
+.cli-line.cl-sys .cl-txt{color:var(--gold);font-style:italic;}
+.cli-line.cl-err .cl-txt{color:#ff4d5f;}
+.cli-input-row{display:flex;align-items:center;gap:5px;padding:6px 8px;background:#020508;border-top:1px solid rgba(180,255,46,.07);}
+.cli-prompt{color:var(--lime);font-family:var(--mono);font-size:11px;font-weight:700;}
+.cli-input{flex:1;background:transparent;border:none;color:var(--gold);font-family:var(--mono);font-size:9.5px;outline:none;}
+
+/* TASKBAR */
+.taskbar{position:absolute;top:0;left:0;right:0;height:20px;background:rgba(2,4,9,.98);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 8px;z-index:400;font-size:7.5px;font-family:var(--mono);letter-spacing:.05em;}
+.tb-left{display:flex;align-items:center;gap:5px;color:var(--muted);}
+.tb-brand{color:var(--lime);font-weight:700;font-size:9.5px;letter-spacing:.08em;}
+.tb-sep{color:rgba(255,255,255,.06);}
+.tb-right{display:flex;align-items:center;gap:4px;}
+.tag{padding:1px 5px;border-radius:99px;font-size:6.5px;letter-spacing:.06em;border:1px solid;white-space:nowrap;}
+.tag.g{background:rgba(180,255,46,.06);border-color:rgba(180,255,46,.18);color:rgba(180,255,46,.75);}
+.tag.b{background:rgba(0,234,255,.06);border-color:rgba(0,234,255,.18);color:rgba(0,234,255,.75);}
+.tag.y{background:rgba(224,184,74,.06);border-color:rgba(224,184,74,.18);color:rgba(224,184,74,.75);}
+.sdot{display:inline-block;width:3.5px;height:3.5px;border-radius:50%;background:var(--lime);box-shadow:0 0 5px rgba(180,255,46,.9);margin-right:2px;animation:blink 2.2s ease-in-out infinite;}
+
+/* DESKTOP + WINDOWS */
+.desktop{position:absolute;top:20px;bottom:0;left:0;right:0;overflow:hidden;}
+.win{position:absolute;background:rgba(7,11,20,.92);border:1px solid var(--line);border-radius:13px;backdrop-filter:blur(18px);display:none;flex-direction:column;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.04);transition:transform .3s cubic-bezier(.34,1.2,.64,1),opacity .3s;font-size:clamp(7px,1.8vw,9px);}
+.win.visible{display:flex;}
+.win.focused{border-color:rgba(180,255,46,.2);}
+.titlebar{display:flex;align-items:center;justify-content:space-between;padding:0 7px;height:20px;background:rgba(255,255,255,.02);border-bottom:1px solid var(--line);flex-shrink:0;cursor:move;user-select:none;}
+.tb-title{font-size:8px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:4px;}
+.tb-controls{display:flex;gap:3px;}
+.ctrl{width:7px;height:7px;border-radius:50%;cursor:pointer;flex-shrink:0;}
+.ctrl.close{background:#ff5f56}.ctrl.min{background:#ffbd2e}.ctrl.max{background:#27c93f}
+.win-body{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+
+/* windows positioning */
+#win-tv{top:4%;left:3%;width:94%;height:38%}
+#win-transcoder{top:44%;left:3%;width:94%;height:36%}
+#win-store,#win-boot,#win-nodes{bottom:3%;width:94%;height:26%;left:3%}
+#win-chat{bottom:32%;left:3%;width:94%;height:22%}
+#win-proof{top:8%;left:3%;width:94%;height:34%}
+
+/* TV */
+.tv-screen{flex:1;position:relative;overflow:hidden;background:#000}
+.tv-screen iframe{width:100%;height:100%;border:none}
+.scanlines{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.15) 2px,rgba(0,0,0,.15) 4px);z-index:10;opacity:.3}
+.tv-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.75) 100%);z-index:11}
+.no-signal{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:5;background:#000}
+.ns-text .big{font-size:22px;margin-bottom:4px}
+.ns-text p{color:rgba(180,255,46,.4);font-size:7.5px;letter-spacing:.14em}
+.tv-bar{height:22px;background:rgba(2,4,8,.96);border-top:1px solid var(--line);display:flex;align-items:center;gap:3px;padding:0 4px;flex-shrink:0;overflow-x:auto}
+.ch-btn{flex-shrink:0;padding:1px 5px;border-radius:4px;border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--muted);font-size:6.5px;cursor:pointer;font-family:var(--mono);white-space:nowrap}
+.ch-btn.active{background:rgba(180,255,46,.1);border-color:rgba(180,255,46,.4);color:var(--lime);font-weight:700}
+.tv-ctrl{display:flex;gap:2px;margin-left:auto}
+.tv-ctrl button{background:transparent;border:none;color:var(--muted);font-size:11px;cursor:pointer;padding:0 3px}
+
+/* TRANSCODER */
+.tc-canvas-wrap{flex:0 0 38%;background:#08080a;border-bottom:1px solid rgba(224,184,74,.4);position:relative}
+#three-canvas{width:100%;height:100%}
+.tc-hud{position:absolute;top:6px;left:8px;z-index:5}
+.hud-label{font-size:6.5px;color:var(--muted);letter-spacing:.1em}
+.hud-task{font-size:9px;color:var(--gold);font-family:var(--mono)}
+.tc-stream{flex:1;overflow-y:auto;padding:4px 8px;font-family:var(--mono);font-size:7px;color:var(--lime);background:#020508;line-height:1.5}
+.tc-input-row{display:flex;align-items:center;gap:5px;padding:5px 8px;border-top:1px solid var(--line);background:#020508}
+.tc-prompt{color:var(--lime);font-family:var(--mono);font-size:11px;font-weight:700}
+.tc-input{flex:1;background:transparent;border:none;color:var(--gold);font-family:var(--mono);font-size:9px;outline:none}
+
+/* STORE */
+.store-body{padding:8px;overflow-y:auto;flex:1}
+.member-card{background:rgba(180,255,46,.04);border:1px solid rgba(180,255,46,.12);border-radius:10px;padding:10px;margin-bottom:8px}
+.member-addr{font-size:12px;color:var(--lime);font-weight:700;font-family:var(--mono)}
+.member-meta{font-size:7px;color:var(--muted);letter-spacing:.08em;margin:3px 0 8px}
+.member-stats{display:flex;gap:12px}
+.stat .sv{font-size:14px;color:var(--gold);font-weight:700}
+.stat .sk{font-size:6.5px;color:var(--muted);letter-spacing:.08em}
+.store-sec{font-size:7.5px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin:8px 0 5px}
+.artifact{border:1px solid var(--line);border-radius:8px;padding:7px 9px;margin-bottom:5px;cursor:pointer;transition:all .2s}
+.artifact:hover{border-color:var(--line-strong);background:rgba(180,255,46,.03)}
+.aname{font-size:9px;color:var(--white);font-weight:600}
+.adesc{font-size:7px;color:var(--muted);margin:2px 0}
+.ameta{display:flex;justify-content:space-between;font-size:6.5px;color:var(--cyan);margin-top:3px}
+.fork-btn{width:100%;margin-top:8px;padding:8px;border-radius:8px;border:1px solid rgba(180,255,46,.3);background:rgba(180,255,46,.08);color:var(--lime);font-family:var(--mono);font-size:9px;cursor:pointer;font-weight:700;letter-spacing:.06em}
+
+/* BOOT */
+.boot-body{flex:1;overflow-y:auto;padding:8px;font-family:var(--mono);font-size:7.5px;line-height:1.55;color:var(--muted)}
+.boot-body .m{color:var(--lime)}.boot-body .b{color:var(--lime)}.boot-body .w{color:var(--gold)}
+.boot-input-row{display:flex;align-items:center;gap:5px;padding:5px 8px;border-top:1px solid var(--line)}
+.boot-prompt{color:var(--lime);font-family:var(--mono);font-size:10px}
+.boot-input{flex:1;background:transparent;border:none;color:var(--gold);font-family:var(--mono);font-size:9px;outline:none}
+
+/* NODES */
+.node-list{padding:6px;overflow-y:auto;flex:1}
+.node-card{border:1px solid var(--line);border-radius:8px;padding:7px 9px;margin-bottom:5px;cursor:pointer;transition:all .2s}
+.node-card:hover{border-color:var(--line-strong)}
+.naddr{font-size:9px;color:var(--lime);font-weight:600;font-family:var(--mono)}
+.nrole{font-size:7px;color:var(--muted);margin:2px 0}
+.nstatus{display:flex;align-items:center;gap:4px;font-size:6.5px;color:var(--muted)}
+.npip{width:5px;height:5px;border-radius:50%;background:var(--lime);box-shadow:0 0 4px var(--lime)}
+.npip.off{background:var(--muted);box-shadow:none}
+.ntype{letter-spacing:.08em}
+
+/* CHAT */
+.chat-msgs{flex:1;overflow-y:auto;padding:8px;font-size:8px;line-height:1.5}
+.msg{margin-bottom:8px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,.02);border:1px solid var(--line)}
+.msg.a{border-color:rgba(180,255,46,.15)}
+.alabel{display:block;font-size:7px;color:var(--lime);margin-bottom:3px;font-weight:700}
+.chat-in-row{display:flex;gap:5px;padding:5px 8px;border-top:1px solid var(--line)}
+.chat-input{flex:1;background:transparent;border:none;color:var(--gold);font-family:var(--mono);font-size:9px;outline:none}
+.send-btn{background:rgba(180,255,46,.1);border:1px solid rgba(180,255,46,.25);color:var(--lime);border-radius:6px;padding:3px 10px;font-family:var(--mono);font-size:10px;cursor:pointer;font-weight:700}
+
+/* PROOF */
+.proof-body{padding:10px;overflow-y:auto;flex:1;font-size:8px;line-height:1.55}
+.proof-body h2{font-size:11px;color:var(--gold);margin-bottom:6px}
+.proof-body h3{font-size:9px;color:var(--lime);margin:8px 0 3px}
+.proof-body p{color:var(--muted);margin-bottom:4px}
+.eq{font-family:var(--mono);background:rgba(0,0,0,.4);padding:6px 8px;border-radius:6px;margin:5px 0;color:var(--cyan);font-size:7.5px}
+.sim-panel{margin-top:8px;border:1px solid var(--line);border-radius:8px;padding:8px}
+.sim-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.sim-row label{font-size:7px;color:var(--muted)}
+.sim-row input{width:48px;background:rgba(0,0,0,.4);border:1px solid var(--line);color:var(--gold);border-radius:4px;padding:2px 4px;font-family:var(--mono);font-size:8px}
+.sim-row button{background:rgba(180,255,46,.1);border:1px solid rgba(180,255,46,.3);color:var(--lime);border-radius:5px;padding:3px 8px;font-size:8px;cursor:pointer;font-family:var(--mono)}
+.sim-result{font-family:var(--mono);font-size:8px;color:var(--cyan)}
+
+/* TOAST */
+.toast{position:absolute;bottom:60px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(180,255,46,.12);border:1px solid rgba(180,255,46,.25);color:var(--lime);padding:6px 14px;border-radius:99px;font-size:8px;font-family:var(--mono);letter-spacing:.1em;opacity:0;transition:.3s;z-index:2000;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@keyframes orbPulse{0%,100%{box-shadow:0 0 20px rgba(180,255,46,.2),0 0 50px rgba(180,255,46,.08),inset 0 1px 0 rgba(180,255,46,.2)}50%{box-shadow:0 0 30px rgba(180,255,46,.35),0 0 70px rgba(180,255,46,.12),inset 0 1px 0 rgba(180,255,46,.3)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- Atmosphere -->
+  <div class="bg-layers">
+    <div class="aurora-blob"></div><div class="aurora-blob"></div><div class="aurora-blob"></div><div class="aurora-blob"></div>
+    <div class="stars"></div>
+    <div class="scanline"></div>
+    <div class="crt-overlay"></div>
+  </div>
+
+  <div class="os" id="os">
+    <div class="grid-bg"></div>
+    <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+
+    <!-- TASKBAR -->
+    <div class="taskbar">
+      <div class="tb-left">
+        <span class="tb-brand">æ.store</span>
+        <span class="tb-sep">·</span><span>Pico OS</span>
+        <span class="tb-sep">·</span><span id="clock">--:--:--</span>
+        <span class="tb-sep">·</span><span id="now-playing" style="color:var(--cyan)">no signal</span>
+      </div>
+      <div class="tb-right">
+        <div class="tag g"><span class="sdot"></span>RUNTIME</div>
+        <div class="tag b">DAO·LIVE</div>
+        <div class="tag y" id="tc-status-tag">/✨ READY</div>
+      </div>
+    </div>
+
+    <div class="desktop" id="desktop">
+      <!-- TV -->
+      <div class="win" id="win-tv">
+        <div class="titlebar" onmousedown="startDrag(event,'win-tv')" ontouchstart="startDrag(event,'win-tv')">
+          <div class="tb-title"><span>📺</span><span id="tv-title">TV · No Signal</span></div>
+          <div class="tb-controls"><div class="ctrl close" onclick="toggleWin('win-tv')"></div><div class="ctrl min"></div><div class="ctrl max" onclick="toggleMaxTV()"></div></div>
+        </div>
+        <div class="win-body" style="flex-direction:column">
+          <div class="tv-screen" id="tv-screen">
+            <div class="no-signal" id="no-signal">
+              <canvas id="static-canvas" style="position:absolute;inset:0;width:100%;height:100%"></canvas>
+              <div class="ns-text"><div class="big">æ</div><p>NO SIGNAL</p></div>
+            </div>
+            <div class="scanlines"></div><div class="tv-vignette"></div>
+          </div>
+          <div class="tv-bar">
+            <div class="ch-btn" onclick="playChannel(this,'🎵 Lofi','https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1')">🎵 Lofi</div>
+            <div class="ch-btn" onclick="playChannel(this,'🚀 NASA','https://www.youtube.com/embed/21X5lGlDOfg?autoplay=1')">🚀 NASA</div>
+            <div class="ch-btn" onclick="playChannel(this,'🌍 Earth','https://www.youtube.com/embed/4993sBLAzGA?autoplay=1')">🌍 Earth</div>
+            <div class="ch-btn" onclick="playChannel(this,'🎷 Jazz','https://www.youtube.com/embed/Dx5qFachd3A?autoplay=1')">🎷 Jazz</div>
+            <div class="ch-btn" onclick="playChannel(this,'🌆 Synth','https://www.youtube.com/embed/4xDzrJKXOOY?autoplay=1')">🌆 Synth</div>
+            <div class="ch-btn" onclick="playChannel(this,'🌿 Nature','https://www.youtube.com/embed/1ZYbU82GVz4?autoplay=1')">🌿 Nature</div>
+            <div class="ch-btn" onclick="playChannel(this,'⛩ Anime','https://www.youtube.com/embed/Na0w3Mz46GA?autoplay=1')">⛩ Anime</div>
+            <div class="ch-btn" onclick="playChannel(this,'🎻 Classical','https://www.youtube.com/embed/jgpJVI3tDbY?autoplay=1')">🎻 Classical</div>
+            <div class="ch-btn" onclick="playChannel(this,'🤖 Cyber','https://www.youtube.com/embed/umFqMFn61wc?autoplay=1')">🤖 Cyber</div>
+            <div class="tv-ctrl"><button onclick="muteToggle()" id="mute-btn">🔇</button><button onclick="noSignal()">⏹</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRANSCODER -->
+      <div class="win" id="win-transcoder">
+        <div class="titlebar" onmousedown="startDrag(event,'win-transcoder')" ontouchstart="startDrag(event,'win-transcoder')">
+          <div class="tb-title"><span>⚡</span>WASM // æ🫵store · Transcoder Core</div>
+          <div class="tb-controls"><div class="ctrl close" onclick="toggleWin('win-transcoder')"></div><div class="ctrl min"></div><div class="ctrl max"></div></div>
+        </div>
+        <div class="win-body transcoder-body">
+          <div class="tc-canvas-wrap"><canvas id="three-canvas"></canvas><div class="tc-hud"><div class="hud-label">Core State</div><div class="hud-task" id="tc-task">IDLE</div></div></div>
+          <div class="tc-stream" id="tc-stream"></div>
+          <div class="tc-input-row"><span class="tc-prompt">λ</span><input id="tc-input" class="tc-input" placeholder="/ nodes · # mcp · /perf /storage /net" onkeydown="if(event.key==='Enter'){executeTCCmd(this.value);this.value=''}"/></div>
+        </div>
+      </div>
+
+      <!-- STORE -->
+      <div class="win" id="win-store">
+        <div class="titlebar" onmousedown="startDrag(event,'win-store')" ontouchstart="startDrag(event,'win-store')">
+          <div class="tb-title"><span>🏬</span>æ.store · Member Node</div>
+          <div class="tb-controls"><div class="ctrl close" onclick="toggleWin('win-store')"></div><div class="ctrl min"></div><div class="ctrl max"></div></div>
+        </div>
+        <div class="win-body"><div class="store-body">
+          <div class="member-card"><div class="member-addr" id="member-addr">you.æ.store</div><div class="member-meta">DAO MEMBER · SOVEREIGN NODE · FORK-FREELY</div><div class="member-stats"><div class="stat"><div class="sv" id="stat-forks">0</div><div class="sk">FORKS</div></div><div class="stat"><div class="sv">4</div><div class="sk">ARTIFACTS</div></div><div class="stat"><div class="sv">8</div><div class="sk">NODES</div></div></div></div>
+          <div class="store-sec">Artifacts</div>
+          <div class="artifact" onclick="forkArtifact(this,'Pico OS Shell')"><div class="aname">🖥 Pico OS Shell</div><div class="adesc">WASM · TV · Transcoder · Omnicursor</div><div class="ameta"><div class="aprice">price: remix</div><div class="aforks">↗ 0 forks</div></div></div>
+          <div class="artifact" onclick="forkArtifact(this,'Transcoder Core')"><div class="aname">⚡ Transcoder Core</div><div class="adesc">FFmpeg nodes · 3D sphere · MCP</div><div class="ameta"><div class="aprice">price: remix</div><div class="aforks">↗ 0 forks</div></div></div>
+          <div class="artifact" onclick="forkArtifact(this,'æ Node Manifest')"><div class="aname">📄 æ Node Manifest</div><div class="adesc">JSON schema · agent-readable</div><div class="ameta"><div class="aprice">price: remix</div><div class="aforks">↗ 0 forks</div></div></div>
+          <div class="artifact" onclick="forkArtifact(this,'Omnicursor')"><div class="aname">🔘 Omnicursor</div><div class="adesc">Collapsible CLI · OS launcher orb</div><div class="ameta"><div class="aprice">price: remix</div><div class="aforks">↗ 0 forks</div></div></div>
+          <button class="fork-btn" onclick="forkOS()">⚡ Fork This Store</button>
+        </div></div>
+      </div>
+
+      <!-- BOOTLOG -->
+      <div class="win" id="win-boot">
+        <div class="titlebar" onmousedown="startDrag(event,'win-boot')" ontouchstart="startDrag(event,'win-boot')">
+          <div class="tb-title"><span>⬛</span>Bootlog · Runtime</div>
+          <div class="tb-controls"><div class="ctrl close" onclick="toggleWin('win-boot')"></div><div class="ctrl min"></div><div class="ctrl max"></div></div>
+        </div>
+        <div class="win-body"><div class="boot-body" id="boot-body">
+          <span class="m">$ æ.store init</span><br>[ok] pico-os runtime<br>[ok] wasm modules<br><span class="b">[ok] transcoder online</span><br>[ok] tv · 9 channels<br><span class="b">[ok] dao hydrated</span><br><span class="w">[æ] alt+1,4,5 → æ</span><br><span class="w">[🔘] omnicursor ready</span>
+        </div><div class="boot-input-row"><span class="boot-prompt">æ&gt;</span><input class="boot-input" placeholder="shell…" onkeydown="if(event.key==='Enter'){bootLog(this.value,'m');this.value=''}"/></div></div>
+      </div>
+
+      <!-- NODES -->
+      <div class="win" id="win-nodes">
+        <div class="titlebar" onmousedown="startDrag(event,'win-nodes')" ontouchstart="startDrag(event,'win-nodes')">
+          <div class="tb-title"><span>🧩</span>Node Map</div>
+          <div class="tb-controls"><div class="ctrl close" onclick="toggleWin('win-nodes')"></div><div class="ctrl min"></div><div class="ctrl max"></div></div>
+        </div>
+        <div class="win-body"><div class="node-list">
+          <div class="node-card" onclick="pingNode('æ.store','protocol.root')"><div class="naddr">æ.store</div><div class="nrole">Protocol root · fork market</div><div class="nstatus"><div class="npip"></div><div class="ntype">ROOT</div></div></div>
+          <div class="node-card" onclick="pingNode('commandprompt.ai','command.hub')"><div class="naddr">commandprompt.ai</div><div class="nrole">/✨ command hub</div><div class="nstatus"><div class="npip"></div><div class="ntype">CMD</div></div></div>
+          <div class="node-card" onclick="pingNode('privateclient.ai','secure.enclave')"><div class="naddr">privateclient.ai</div><div class="nrole">Secure enclave</div><div class="nstatus"><div class="npip"></div><div class="ntype">PRIVATE</div></div></div>
+          <div class="node-card" onclick="pingNode('teologia.ai','theological.node')"><div class="naddr">teologia.ai</div><div class="nrole">Theological-digital node</div><div class="nstatus"><div class="npip"></div><div class="ntype">NODE</div></div></div>
+          <div class="node-card" onclick="pingNode('neuromitosis.com','rd.lab')"><div class="naddr">neuromitosis.com</div><div class="nrole">R&D binary lab</div><div class="nstatus"><div class="npip"></div><div class="ntype">R&D</div></div></div>
+          <div class="node-card" onclick="pingNode('llm.store','model.market')"><div class="naddr">llm.store</div><div class="nrole">Model market</div><div class="nstatus"><div class="npip off"></div><div class="ntype">MARKET</div></div></div>
+          <div class="node-card" onclick="pingNode('soværeign.com','identity.layer')"><div class="naddr">soværeign.com</div><div class="nrole">Identity · ownership</div><div class="nstatus"><div class="npip off"></div><div class="ntype">ID</div></div></div>
+          <div class="node-card" onclick="pingNode('moltcontextprotocol.com','mcp.layer')"><div class="naddr">moltcontextprotocol.com</div><div class="nrole">MCP · context exchange</div><div class="nstatus"><div class="npip off"></div><div class="ntype">MCP</div></div></div>
+        </div></div>
+      </div>
+
+      <!-- CHAT -->
+      <div class="win" id="win-chat">
+        <div class="titlebar" onmousedown="startDrag(event,'win-chat')" ontouchstart="startDrag(event,'win-chat')">
+          <div class="tb-title"><span>💬</span>Chat · /✨</div>
+          <div class="tb-controls"><div class="ctrl close" onclick="toggleWin('win-chat')"></div><div class="ctrl min"></div><div class="ctrl max"></div></div>
+        </div>
+        <div class="win-body"><div class="chat-msgs" id="chat-msgs"><div class="msg a"><span class="alabel">🧠 Core Ægnt</span><code>æ.store</code> online. Click <code>🔘</code> to expand the Omnicursor CLI.<br>Try <code>/✨ play lofi</code> · <code>/✨ set name you</code></div></div><div class="chat-in-row"><input id="chat-in" class="chat-input" placeholder='/✨ command…' onkeydown="if(event.key==='Enter')sendChat()"/><button class="send-btn" onclick="sendChat()">æ</button></div></div>
+      </div>
+
+      <!-- PROOF -->
+      <div class="win" id="win-proof">
+        <div class="titlebar" onmousedown="startDrag(event,'win-proof')" ontouchstart="startDrag(event,'win-proof')">
+          <div class="tb-title"><span>📐</span>Occupancy · Poisson Limit</div>
+          <div class="tb-controls"><div class="ctrl close" onclick="toggleWin('win-proof')"></div><div class="ctrl min"></div><div class="ctrl max"></div></div>
+        </div>
+        <div class="win-body"><div class="proof-body">
+          <h2>Asymptotic Poisson Limit · Occupancy Problem</h2>
+          <h3>1. Setup</h3><p><em>r</em> balls uniformly into <em>n</em> bins. Z<sub>k</sub> = bins with exactly <em>k</em> balls.</p>
+          <h3>2. Expectation</h3><div class="eq">𝔼[Z<sub>k</sub>] = n · C(r,k) · (1/n)<sup>k</sup> · (1 − 1/n)<sup>r−k</sup></div>
+          <h3>3. Asymptotic Regime</h3><p><em>n, r → ∞</em> with λ = n·(r/n)<sup>k</sup>/k!·e<sup>−r/n</sup> constant.</p>
+          <div class="eq">𝔼[Z<sub>k</sub><sup>̲m</sup>] → λ<sup>m</sup> &nbsp;⟹&nbsp; Z<sub>k</sub> → Poisson(λ)</div>
+          <h3>▸ Simulator</h3>
+          <div class="sim-panel"><div class="sim-row"><label>n</label><input id="sim-n" type="number" min="1" max="500" value="100"><label>r</label><input id="sim-r" type="number" min="1" max="500" value="100"><label>k</label><input id="sim-k" type="number" min="0" max="5" value="1"><button onclick="runOccupancyTrial()">Run Trial</button></div><div class="sim-result" id="sim-result"><span>λ</span> = <span id="sim-lambda">—</span> &nbsp;|&nbsp; <span>Z<sub>k</sub></span> = <span id="sim-zk">—</span> &nbsp;|&nbsp; <span>P</span> = <span id="sim-prob">—</span></div></div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- OMNICURSOR -->
+    <div class="omni-wrap collapsed" id="omni-wrap">
+      <div class="omni-cli" id="omni-cli">
+        <div class="cli-header"><span class="cli-brand">🔘 æ · Omnicursor</span><div class="cli-tags"><span class="cli-tag g">WASM</span><span class="cli-tag b">DAO</span></div><span class="cli-close" onclick="collapseOmni()">✕</span></div>
+        <div class="cli-grid" id="cli-win-grid">
+          <div class="cli-win-btn" id="btn-win-tv" onclick="cliToggleWin('win-tv')"><span class="wb-ico">📺</span>TV</div>
+          <div class="cli-win-btn" id="btn-win-transcoder" onclick="cliToggleWin('win-transcoder')"><span class="wb-ico">⚡</span>Transcoder</div>
+          <div class="cli-win-btn" id="btn-win-store" onclick="cliToggleWin('win-store')"><span class="wb-ico">🏬</span>Store</div>
+          <div class="cli-win-btn" id="btn-win-chat" onclick="cliToggleWin('win-chat')"><span class="wb-ico">💬</span>Chat</div>
+          <div class="cli-win-btn" id="btn-win-boot" onclick="cliToggleWin('win-boot')"><span class="wb-ico">⬛</span>Bootlog</div>
+          <div class="cli-win-btn" id="btn-win-nodes" onclick="cliToggleWin('win-nodes')"><span class="wb-ico">🧩</span>Nodes</div>
+          <div class="cli-win-btn" id="btn-win-proof" onclick="cliToggleWin('win-proof')"><span class="wb-ico">📐</span>Proof</div>
+          <div class="cli-win-btn" onclick="allWinsToggle()"><span class="wb-ico">◈</span>All</div>
+        </div>
+        <div class="cli-stream" id="cli-stream"></div>
+        <div class="cli-input-row"><span class="cli-prompt">æ&gt;_</span><input id="cli-input" class="cli-input" placeholder="/✨ command · / nodes · # mcp · set name…" onkeydown="if(event.key==='Enter'){executeCLI(this.value);this.value=''} if(event.key==='Escape')collapseOmni()"/></div>
+      </div>
+      <div class="omni-orb" id="omni-orb" onclick="toggleOmni()">🔘</div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const ALL_WINS = ['win-tv','win-transcoder','win-store','win-chat','win-boot','win-nodes','win-proof'];
+let zCounter = 10;
+let memberName = 'you';
+let forkCount = 0;
+let muted = true;
+
+/* ── CLOCK ── */
+function tick(){
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+}
+tick(); setInterval(tick,1000);
+
+/* ── TOAST ── */
+let toastTimer;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'),1600);
+}
+
+/* ── STATIC NOISE ── */
+const cv = document.getElementById('static-canvas');
+const sctx = cv.getContext('2d');
+let staticOn = true;
+function resizeSt(){ cv.width = cv.offsetWidth||240; cv.height = cv.offsetHeight||140; }
+resizeSt(); window.addEventListener('resize',resizeSt);
+function drawStatic(){
+  if(!staticOn) return;
+  const w=cv.width, h=cv.height, img=sctx.createImageData(w,h);
+  for(let i=0;i<img.data.length;i+=4){
+    const v = Math.random()*55|0;
+    img.data[i]=img.data[i+1]=img.data[i+2]=v; img.data[i+3]=255;
+  }
+  sctx.putImageData(img,0,0);
+  requestAnimationFrame(drawStatic);
+}
+drawStatic();
+
+/* ── THREE.JS ── */
+(function(){
+  const canvas = document.getElementById('three-canvas');
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(50,1,.1,1000);
+  camera.position.z = 6;
+  const renderer = new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  const core = new THREE.Mesh(
+    new THREE.SphereGeometry(1.4,32,32),
+    new THREE.MeshPhysicalMaterial({color:0xe0b84a,wireframe:true,transparent:true,opacity:.1,emissive:0xb8a35c,emissiveIntensity:.4})
+  );
+  scene.add(core);
+  const dataMesh = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(.7,1),
+    new THREE.MeshBasicMaterial({color:0xb4ff2e,wireframe:true,transparent:true,opacity:.3})
+  );
+  scene.add(dataMesh);
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(2,.015,8,80),
+    new THREE.MeshBasicMaterial({color:0x00eaff,transparent:true,opacity:.15})
+  );
+  ring.rotation.x = Math.PI/2; scene.add(ring);
+  function resize(){
+    const w = canvas.parentElement.clientWidth, h = canvas.parentElement.clientHeight;
+    renderer.setSize(w,h,false); camera.aspect = w/h; camera.updateProjectionMatrix();
+  }
+  resize(); new ResizeObserver(resize).observe(canvas.parentElement);
+  (function animate(){
+    const t = Date.now()*.001;
+    core.rotation.y = t*.08; dataMesh.rotation.x = -t*.3; dataMesh.rotation.y = t*.2; ring.rotation.z = t*.05;
+    const s = 1 + Math.sin(t*3)*.05;
+    core.scale.setScalar(s); dataMesh.scale.setScalar(s);
+    renderer.render(scene,camera); requestAnimationFrame(animate);
+  })();
+})();
+
+/* ── WINDOW MANAGEMENT ── */
+function bringToFront(el){ el.style.zIndex = ++zCounter; }
+function toggleWin(id){
+  const el = document.getElementById(id);
+  el.classList.toggle('visible');
+  if(el.classList.contains('visible')) bringToFront(el);
+  updateCliBtns();
+}
+function cliToggleWin(id){ toggleWin(id); expandOmni(); }
+function allWinsToggle(){
+  const anyOpen = ALL_WINS.some(id => document.getElementById(id).classList.contains('visible'));
+  ALL_WINS.forEach(id => {
+    const el = document.getElementById(id);
+    if(anyOpen) el.classList.remove('visible');
+    else { el.classList.add('visible'); bringToFront(el); }
+  });
+  updateCliBtns();
+}
+function updateCliBtns(){
+  ALL_WINS.forEach(id => {
+    const btn = document.getElementById('btn-'+id);
+    if(btn) btn.classList.toggle('open', document.getElementById(id).classList.contains('visible'));
+  });
+}
+
+/* ── DRAG ── */
+let drag = null;
+function startDrag(e, id){
+  const el = document.getElementById(id);
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  const rect = el.getBoundingClientRect();
+  const parent = el.parentElement.getBoundingClientRect();
+  drag = { el, ox: clientX - rect.left, oy: clientY - rect.top, parent };
+  bringToFront(el);
+  e.preventDefault();
+}
+function moveDrag(e){
+  if(!drag) return;
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  const {el,ox,oy,parent} = drag;
+  el.style.left = (clientX - parent.left - ox) + 'px';
+  el.style.top  = (clientY - parent.top  - oy) + 'px';
+}
+function endDrag(){ drag = null; }
+document.addEventListener('mousemove', moveDrag);
+document.addEventListener('mouseup', endDrag);
+document.addEventListener('touchmove', moveDrag, {passive:false});
+document.addEventListener('touchend', endDrag);
+
+/* ── OMNICURSOR ── */
+let omniOpen = false;
+function toggleOmni(){ omniOpen ? collapseOmni() : expandOmni(); }
+function expandOmni(){
+  omniOpen = true;
+  document.getElementById('omni-wrap').classList.remove('collapsed');
+  document.getElementById('omni-wrap').classList.add('expanded');
+  document.getElementById('omni-orb').classList.add('active');
+  setTimeout(()=>document.getElementById('cli-input').focus(), 280);
+}
+function collapseOmni(){
+  omniOpen = false;
+  document.getElementById('omni-wrap').classList.remove('expanded');
+  document.getElementById('omni-wrap').classList.add('collapsed');
+  document.getElementById('omni-orb').classList.remove('active');
+}
+
+function cliLog(txt, type='ok'){
+  const stream = document.getElementById('cli-stream');
+  const line = document.createElement('div');
+  line.className = 'cli-line cl-'+type;
+  const t = new Date().toLocaleTimeString('en',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  line.innerHTML = `<span class="cl-t">${t}</span><span class="cl-txt">${txt}</span>`;
+  stream.appendChild(line);
+  stream.scrollTop = stream.scrollHeight;
+}
+
+function executeCLI(raw){
+  const cmd = raw.trim().toLowerCase();
+  if(!cmd) return;
+  cliLog('> '+cmd, 'sys');
+  if(cmd === 'help' || cmd === '?'){
+    cliLog('Commands: play [channel] · set name [x] · open [tv|store|…] · nodes · clear · fork');
+  } else if(cmd.startsWith('play ')){
+    const ch = cmd.slice(5).trim();
+    const map = { lofi:'🎵 Lofi', nasa:'🚀 NASA', earth:'🌍 Earth', jazz:'🎷 Jazz', synth:'🌆 Synth', nature:'🌿 Nature', anime:'⛩ Anime', classical:'🎻 Classical', cyber:'🤖 Cyber' };
+    const label = map[ch] || ch;
+    const urls = { '🎵 Lofi':'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1', '🚀 NASA':'https://www.youtube.com/embed/21X5lGlDOfg?autoplay=1', '🌍 Earth':'https://www.youtube.com/embed/4993sBLAzGA?autoplay=1', '🎷 Jazz':'https://www.youtube.com/embed/Dx5qFachd3A?autoplay=1', '🌆 Synth':'https://www.youtube.com/embed/4xDzrJKXOOY?autoplay=1', '🌿 Nature':'https://www.youtube.com/embed/1ZYbU82GVz4?autoplay=1', '⛩ Anime':'https://www.youtube.com/embed/Na0w3Mz46GA?autoplay=1', '🎻 Classical':'https://www.youtube.com/embed/jgpJVI3tDbY?autoplay=1', '🤖 Cyber':'https://www.youtube.com/embed/umFqMFn61wc?autoplay=1' };
+    if(urls[label]){
+      playChannel(null, label, urls[label]);
+      cliLog('Playing '+label);
+    } else cliLog('Unknown channel', 'err');
+  } else if(cmd.startsWith('set name ')){
+    memberName = cmd.slice(9).trim() || 'you';
+    document.getElementById('member-addr').textContent = memberName + '.æ.store';
+    cliLog('Identity set → '+memberName+'.æ.store');
+    toast('NAME · '+memberName);
+  } else if(cmd.startsWith('open ')){
+    const target = 'win-' + cmd.slice(5).trim();
+    if(document.getElementById(target)){ toggleWin(target); cliLog('Opened '+target); }
+    else cliLog('Unknown window', 'err');
+  } else if(cmd === 'nodes'){ toggleWin('win-nodes'); cliLog('Node map opened'); }
+  else if(cmd === 'clear'){ document.getElementById('cli-stream').innerHTML = ''; }
+  else if(cmd === 'fork'){ forkOS(); }
+  else { cliLog('Unknown · type help', 'err'); }
+}
+
+/* ── TV ── */
+function playChannel(btn, label, url){
+  staticOn = false;
+  document.getElementById('no-signal').style.display = 'none';
+  let iframe = document.querySelector('#tv-screen iframe');
+  if(!iframe){
+    iframe = document.createElement('iframe');
+    iframe.allow = 'autoplay; encrypted-media';
+    iframe.style.cssText = 'width:100%;height:100%;border:none;position:absolute;inset:0;z-index:4';
+    document.getElementById('tv-screen').appendChild(iframe);
+  }
+  iframe.src = url + (muted ? '&mute=1' : '');
+  document.getElementById('tv-title').textContent = 'TV · ' + label;
+  document.getElementById('now-playing').textContent = label;
+  document.querySelectorAll('.ch-btn').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  if(!document.getElementById('win-tv').classList.contains('visible')) toggleWin('win-tv');
+  toast('CHANNEL · ' + label);
+}
+function noSignal(){
+  staticOn = true;
+  const iframe = document.querySelector('#tv-screen iframe');
+  if(iframe) iframe.remove();
+  document.getElementById('no-signal').style.display = 'flex';
+  document.getElementById('tv-title').textContent = 'TV · No Signal';
+  document.getElementById('now-playing').textContent = 'no signal';
+  document.querySelectorAll('.ch-btn').forEach(b => b.classList.remove('active'));
+  drawStatic();
+}
+function muteToggle(){
+  muted = !muted;
+  document.getElementById('mute-btn').textContent = muted ? '🔇' : '🔊';
+  const iframe = document.querySelector('#tv-screen iframe');
+  if(iframe && iframe.src){
+    iframe.src = iframe.src.replace(/&mute=\d/,'') + (muted ? '&mute=1' : '&mute=0');
+  }
+}
+function toggleMaxTV(){
+  const el = document.getElementById('win-tv');
+  if(el.style.height === '70%'){ el.style.height = '38%'; el.style.top = '4%'; }
+  else { el.style.height = '70%'; el.style.top = '4%'; }
+}
+
+/* ── TRANSCODER ── */
+function tcLog(msg){
+  const s = document.getElementById('tc-stream');
+  const d = document.createElement('div');
+  d.textContent = msg;
+  s.appendChild(d);
+  s.scrollTop = s.scrollHeight;
+}
+function executeTCCmd(raw){
+  const cmd = raw.trim().toLowerCase();
+  if(!cmd) return;
+  document.getElementById('tc-task').textContent = 'EXEC';
+  tcLog('λ ' + cmd);
+  setTimeout(()=>{
+    if(cmd.includes('nodes')) tcLog('[ok] 8 nodes reachable');
+    else if(cmd.includes('mcp')) tcLog('[ok] MCP context exchange ready');
+    else if(cmd.includes('perf')) tcLog('[ok] WASM core · 60 fps · 12 MB');
+    else if(cmd.includes('storage')) tcLog('[ok] localStorage · forks persisted');
+    else if(cmd.includes('net')) tcLog('[ok] latency · 14 ms avg');
+    else tcLog('[ok] command acknowledged');
+    document.getElementById('tc-task').textContent = 'IDLE';
+    document.getElementById('tc-status-tag').textContent = '/✨ IDLE';
+  }, 400);
+}
+
+/* ── STORE ── */
+function forkArtifact(el, name){
+  forkCount++;
+  document.getElementById('stat-forks').textContent = forkCount;
+  const af = el.querySelector('.aforks');
+  if(af) af.textContent = '↗ ' + (parseInt(af.textContent.match(/\d+/)||0)+1) + ' forks';
+  toast('FORKED · ' + name);
+  cliLog('Artifact forked: ' + name);
+}
+function forkOS(){
+  forkCount += 4;
+  document.getElementById('stat-forks').textContent = forkCount;
+  toast('STORE FORKED · +4 artifacts');
+  cliLog('Full store forked');
+}
+
+/* ── BOOTLOG ── */
+function bootLog(txt, cls='m'){
+  const body = document.getElementById('boot-body');
+  body.innerHTML += `<br><span class="${cls}">${txt}</span>`;
+  body.scrollTop = body.scrollHeight;
+}
+
+/* ── NODES ── */
+function pingNode(addr, role){
+  toast('PING · ' + addr);
+  cliLog('ping ' + addr + ' → alive (' + role + ')');
+}
+
+/* ── CHAT ── */
+function sendChat(){
+  const input = document.getElementById('chat-in');
+  const txt = input.value.trim();
+  if(!txt) return;
+  const msgs = document.getElementById('chat-msgs');
+  const user = document.createElement('div');
+  user.className = 'msg';
+  user.innerHTML = `<span class="alabel">you</span>${txt}`;
+  msgs.appendChild(user);
+  setTimeout(()=>{
+    const reply = document.createElement('div');
+    reply.className = 'msg a';
+    let resp = 'Acknowledged.';
+    if(txt.toLowerCase().includes('play')) resp = 'Try the TV window or type <code>play lofi</code> in Omnicursor.';
+    else if(txt.toLowerCase().includes('name')) resp = 'Use <code>set name yourname</code> in the CLI.';
+    else if(txt.toLowerCase().includes('help')) resp = 'Open Omnicursor 🔘 → type help.';
+    reply.innerHTML = `<span class="alabel">🧠 Core Ægnt</span>${resp}`;
+    msgs.appendChild(reply);
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 500);
+  input.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+/* ── OCCUPANCY ── */
+function runOccupancyTrial(){
+  const n = +document.getElementById('sim-n').value || 100;
+  const r = +document.getElementById('sim-r').value || 100;
+  const k = +document.getElementById('sim-k').value || 1;
+  const bins = new Array(n).fill(0);
+  for(let i=0;i<r;i++) bins[Math.floor(Math.random()*n)]++;
+  let Zk = bins.filter(c => c === k).length;
+  const lambda = n * Math.pow(r/n, k) / factorial(k) * Math.exp(-r/n);
+  const p = Zk / n;
+  document.getElementById('sim-lambda').textContent = lambda.toFixed(3);
+  document.getElementById('sim-zk').textContent = Zk;
+  document.getElementById('sim-prob').textContent = p.toFixed(4);
+  toast('TRIAL · Zk=' + Zk);
+}
+function factorial(x){ let r=1; for(let i=2;i<=x;i++) r*=i; return r; }
+
+/* ── BOOT ── */
+setTimeout(()=>{
+  toggleWin('win-tv');
+  toggleWin('win-store');
+  cliLog('Pico OS online · WASM ready', 'ok');
+  cliLog('Omnicursor listening', 'sys');
+  toast('æ.store · RUNTIME');
+}, 600);
+
+console.log('%cæ.store · Pico OS · unified School of Hermes','color:#b4ff2e;font-family:monospace');
+</script>
+</body>
+</html>

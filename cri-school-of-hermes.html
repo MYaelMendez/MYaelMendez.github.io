@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#05051a">
+    <meta name="description" content="Consumer Redline Index · CRI v0.1 · School of Hermes Economic Faculty">
+    <title>Consumer Redline Index // CRI v0.1 · School of Hermes</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700;900&family=Space+Grotesk:wght@700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #050516;
+            --bg2: #080820;
+            --panel: #0b0c1d;
+            --panel2: #111229;
+            --lime: #b4ff2e;
+            --lime-glow: rgba(180, 255, 46, 0.28);
+            --cyan: #00eaff;
+            --cyan-glow: rgba(0, 234, 255, 0.22);
+            --violet: #8367ff;
+            --violet-glow: rgba(131, 103, 255, 0.25);
+            --blue: #2934ff;
+            --blue-glow: rgba(41, 52, 255, 0.25);
+            --gold: #e0b84a;
+            --gold-glow: rgba(224, 184, 74, 0.25);
+            --white: #f5f6fa;
+            --soft: #b5b8c6;
+            --muted: #65687c;
+            --line: rgba(86, 94, 255, 0.23);
+            --line-strong: rgba(86, 94, 255, 0.42);
+            --red: #ff4d5f;
+            --red-glow: rgba(255, 77, 95, 0.25);
+            --orange: #ff9a4d;
+            --orange-glow: rgba(255, 154, 77, 0.2);
+            --green: #b4ff2e;
+
+            --mono: 'JetBrains Mono', monospace;
+            --cond: 'Barlow Condensed', sans-serif;
+            --sans: 'Space Grotesk', sans-serif;
+
+            --ease-smooth: cubic-bezier(0.65, 0, 0.35, 1);
+            --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --viewport-h: calc(100dvh * 0.75);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            overscroll-behavior: none;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: var(--safe-top);
+            font-family: var(--mono);
+            color: var(--white);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ============ VIEWPORT ============ */
+        .viewport {
+            position: relative;
+            width: min(100vw, calc(var(--viewport-h) * 9 / 16));
+            height: var(--viewport-h);
+            overflow: hidden;
+            background:
+                radial-gradient(ellipse 80% 45% at 50% 10%, rgba(41, 52, 255, 0.2), transparent 60%),
+                radial-gradient(ellipse 60% 35% at 22% 40%, rgba(0, 234, 255, 0.06), transparent 58%),
+                radial-gradient(ellipse 55% 40% at 80% 50%, rgba(131, 103, 255, 0.08), transparent 60%),
+                radial-gradient(ellipse 55% 35% at 50% 70%, rgba(180, 255, 46, 0.03), transparent 55%),
+                linear-gradient(180deg, var(--bg2) 0%, var(--bg) 50%, #010204 100%);
+            border-left: 5px solid #10156d;
+            border-right: 5px solid #10156d;
+            isolation: isolate;
+            z-index: 0;
+            flex-shrink: 0;
+            border-radius: 18px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .viewport::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border: 1px solid rgba(72, 82, 255, 0.36);
+            pointer-events: none;
+            z-index: 40;
+            border-radius: 18px;
+        }
+
+        /* ============ BACKGROUND LAYERS ============ */
+        .bg-layers {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+            border-radius: 18px;
+        }
+
+        .aurora-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(45px);
+            opacity: 0.25;
+            animation: aurora-drift 18s var(--ease-smooth) infinite alternate;
+            will-change: transform;
+        }
+
+        .aurora-blob:nth-child(1) {
+            width: 150px;
+            height: 150px;
+            background: rgba(41, 52, 255, 0.35);
+            top: -8%;
+            left: -5%;
+            animation-duration: 20s;
+        }
+        .aurora-blob:nth-child(2) {
+            width: 125px;
+            height: 125px;
+            background: rgba(255, 77, 95, 0.15);
+            top: 30%;
+            right: -10%;
+            animation-direction: alternate-reverse;
+            animation-duration: 23s;
+        }
+        .aurora-blob:nth-child(3) {
+            width: 110px;
+            height: 110px;
+            background: rgba(131, 103, 255, 0.28);
+            bottom: 5%;
+            left: 8%;
+            animation-duration: 16s;
+        }
+        .aurora-blob:nth-child(4) {
+            width: 90px;
+            height: 90px;
+            background: rgba(0, 234, 255, 0.18);
+            top: 55%;
+            right: 12%;
+            animation-duration: 21s;
+            animation-delay: -8s;
+        }
+
+        @keyframes aurora-drift {
+            0% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(22px, -18px) scale(1.06); }
+            50% { transform: translate(-15px, 12px) scale(0.94); }
+            75% { transform: translate(10px, 22px) scale(1.04); }
+            100% { transform: translate(-12px, -8px) scale(0.97); }
+        }
+
+        .stars {
+            position: absolute;
+            inset: 0;
+            opacity: 0.2;
+            background-image:
+                radial-gradient(circle at 13% 18%, #fff 0 1px, transparent 1.4px),
+                radial-gradient(circle at 76% 11%, #fff 0 1px, transparent 1.4px),
+                radial-gradient(circle at 26% 65%, var(--cyan) 0 1px, transparent 1.5px),
+                radial-gradient(circle at 88% 58%, #fff 0 1px, transparent 1.5px),
+                radial-gradient(circle at 42% 30%, #fff 0 0.6px, transparent 1px),
+                radial-gradient(circle at 68% 6%, #fff 0 0.6px, transparent 1px);
+            animation: stars-twinkle 6s ease-in-out infinite alternate;
+        }
+
+        @keyframes stars-twinkle {
+            0% { opacity: 0.1; }
+            50% { opacity: 0.26; }
+            100% { opacity: 0.15; }
+        }
+
+        .scanline {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: -22%;
+            height: 22%;
+            background: linear-gradient(180deg, transparent, rgba(69, 79, 255, 0.06) 40%, rgba(180, 255, 46, 0.02) 70%, transparent);
+            animation: scan 7s linear infinite;
+            pointer-events: none;
+            z-index: 58;
+        }
+
+        @keyframes scan {
+            to { transform: translateY(560%); }
+        }
+
+        .crt-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 59;
+            pointer-events: none;
+            opacity: 0.07;
+            background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(0, 0, 0, 0.14) 3px 4px);
+            mix-blend-mode: overlay;
+            border-radius: 18px;
+        }
+
+        /* ============ SCROLLABLE CONTENT ============ */
+        .scroll-content {
+            position: relative;
+            z-index: 10;
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            pointer-events: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .scroll-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        .inner-content {
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============ HEADER ============ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 25;
+            padding: calc(10px + var(--safe-top)) 12px 8px;
+            background: linear-gradient(180deg, rgba(5, 5, 22, 0.92) 60%, transparent 100%);
+            backdrop-filter: blur(12px) saturate(140%);
+            -webkit-backdrop-filter: blur(12px) saturate(140%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .pill {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 9px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: rgba(3, 3, 16, 0.65);
+            backdrop-filter: blur(14px) saturate(140%);
+            -webkit-backdrop-filter: blur(14px) saturate(140%);
+            color: #80839b;
+            font-size: 5.5px;
+            letter-spacing: 0.1em;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: border-color 0.3s var(--ease-smooth), background 0.3s var(--ease-smooth);
+        }
+
+        .pill:hover {
+            border-color: var(--line-strong);
+            background: rgba(5, 5, 22, 0.8);
+        }
+
+        .live {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--lime);
+            box-shadow: 0 0 8px var(--lime), 0 0 20px var(--lime-glow);
+            animation: blink 1.4s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.2; transform: scale(0.8); }
+        }
+
+        .brand {
+            color: var(--lime);
+            font-weight: 900;
+            font-size: 6.5px;
+            letter-spacing: 0.08em;
+            text-shadow: 0 0 14px var(--lime-glow);
+        }
+
+        /* ============ HERO ============ */
+        .hero {
+            padding: 14px 14px 10px;
+            text-align: left;
+        }
+
+        .eyebrow {
+            font-size: 6px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--cyan);
+            margin-bottom: 4px;
+            font-weight: 500;
+            text-shadow: 0 0 8px var(--cyan-glow);
+        }
+
+        .hero h1 {
+            font-family: var(--cond);
+            font-size: clamp(20px, 5.8vw, 25px);
+            font-weight: 400;
+            line-height: 1.02;
+            letter-spacing: -0.03em;
+            color: var(--white);
+            margin-bottom: 6px;
+        }
+
+        .hero-copy {
+            color: var(--soft);
+            font-size: 10px;
+            line-height: 1.5;
+            max-width: 320px;
+        }
+
+        /* ============ SCORE CARD ============ */
+        .score-card {
+            margin: 8px 12px 0;
+            border: 1px solid rgba(255, 77, 95, 0.2);
+            border-radius: 12px;
+            background:
+                linear-gradient(135deg, rgba(255, 77, 95, 0.06), rgba(41, 52, 255, 0.04));
+            padding: 12px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .score-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .score-num {
+            font-family: var(--mono);
+            font-size: clamp(38px, 11vw, 46px);
+            font-weight: 900;
+            letter-spacing: -0.06em;
+            line-height: 0.85;
+            color: var(--white);
+            text-shadow: 0 0 20px rgba(255, 77, 95, 0.2);
+        }
+
+        .score-num span {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .regime {
+            text-align: right;
+        }
+
+        .regime .big {
+            display: inline-block;
+            font-family: var(--mono);
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            color: var(--white);
+            background: var(--red);
+            padding: 5px 7px;
+            border-radius: 999px;
+            box-shadow: 0 0 16px rgba(255, 77, 95, 0.2);
+        }
+
+        .regime small {
+            display: block;
+            margin-top: 4px;
+            color: var(--muted);
+            font-family: var(--mono);
+            font-size: 6px;
+            letter-spacing: 0.06em;
+            line-height: 1.3;
+        }
+
+        .scale {
+            height: 6px;
+            border-radius: 999px;
+            margin-top: 11px;
+            overflow: hidden;
+            background: linear-gradient(90deg,
+                    var(--lime) 0 24%,
+                    var(--gold) 24% 44%,
+                    var(--orange) 44% 64%,
+                    var(--red) 64% 79%,
+                    #9b1830 79%);
+            position: relative;
+        }
+
+        .marker {
+            position: absolute;
+            top: -3px;
+            left: 67%;
+            width: 2px;
+            height: 12px;
+            background: var(--white);
+            box-shadow: 0 0 8px var(--white);
+            animation: nudge 2.5s ease-in-out infinite;
+        }
+
+        @keyframes nudge {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(2px); }
+        }
+
+        .meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 7px;
+            color: var(--muted);
+            font-family: var(--mono);
+            font-size: 6px;
+            letter-spacing: 0.08em;
+            font-weight: 500;
+        }
+
+        /* ============ SECTION ============ */
+        .section {
+            padding: 12px 12px 0;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 7px;
+        }
+
+        .section-title h2 {
+            font-family: var(--mono);
+            font-size: 7.5px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--soft);
+        }
+
+        .section-title span {
+            color: var(--muted);
+            font-family: var(--mono);
+            font-size: 6px;
+            letter-spacing: 0.06em;
+        }
+
+        /* ============ METRICS ============ */
+        .components {
+            display: grid;
+            gap: 6px;
+        }
+
+        .metric {
+            padding: 8px 9px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.012);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            transition: border-color 0.3s var(--ease-smooth);
+        }
+
+        .metric:hover {
+            border-color: var(--line-strong);
+        }
+
+        .metric-head {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .metric-name {
+            font-family: var(--mono);
+            font-size: 8px;
+            font-weight: 700;
+            color: var(--soft);
+            letter-spacing: 0.04em;
+        }
+
+        .metric-name small {
+            display: block;
+            color: var(--muted);
+            font-size: 5.5px;
+            font-weight: 400;
+            margin-top: 1px;
+            letter-spacing: 0.04em;
+        }
+
+        .metric-val {
+            color: var(--white);
+            font-family: var(--mono);
+            font-size: 9px;
+            font-weight: 800;
+        }
+
+        .metric-weight {
+            color: var(--muted);
+            font-family: var(--mono);
+            font-size: 6px;
+            font-weight: 500;
+        }
+
+        .bar {
+            height: 4px;
+            border-radius: 999px;
+            background: rgba(20, 26, 33, 0.8);
+            margin-top: 6px;
+            overflow: hidden;
+        }
+
+        .fill {
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--blue), var(--cyan));
+            transform-origin: left;
+            animation: grow 1.2s ease both;
+        }
+
+        .fill.red {
+            background: linear-gradient(90deg, #ff7c68, var(--red));
+            box-shadow: 0 0 6px var(--red-glow);
+        }
+
+        .fill.orange {
+            background: linear-gradient(90deg, #ffc067, var(--orange));
+            box-shadow: 0 0 6px var(--orange-glow);
+        }
+
+        .fill.green {
+            background: linear-gradient(90deg, var(--lime), #39e6a2);
+            box-shadow: 0 0 6px var(--lime-glow);
+        }
+
+        @keyframes grow {
+            from { transform: scaleX(0); }
+            to { transform: scaleX(1); }
+        }
+
+        /* ============ RUNTIME TERMINAL ============ */
+        .runtime {
+            margin: 10px 12px 0;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: rgba(5, 8, 12, 0.85);
+            padding: 10px 11px;
+            font-family: var(--mono);
+            font-size: 6.5px;
+            line-height: 1.7;
+            color: var(--muted);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.04em;
+        }
+
+        .runtime::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(transparent 50%, rgba(255, 255, 255, 0.012) 50%);
+            background-size: 100% 4px;
+        }
+
+        .prompt { color: var(--lime); text-shadow: 0 0 6px var(--lime-glow); }
+        .cmd { color: var(--white); }
+        .redtxt { color: var(--red); text-shadow: 0 0 6px var(--red-glow); }
+        .cyantxt { color: var(--cyan); text-shadow: 0 0 6px var(--cyan-glow); }
+        .goldtxt { color: var(--gold); text-shadow: 0 0 6px var(--gold-glow); }
+
+        .cursor {
+            display: inline-block;
+            width: 6px;
+            height: 10px;
+            background: var(--lime);
+            margin-left: 3px;
+            vertical-align: -2px;
+            animation: blinkCursor 1s steps(1) infinite;
+        }
+
+        @keyframes blinkCursor {
+            50% { opacity: 0; }
+        }
+
+        /* ============ FOOTER ============ */
+        .footer {
+            padding: 10px 12px 12px;
+            margin-top: auto;
+        }
+
+        .sources {
+            border-top: 1px solid var(--line);
+            padding-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            color: var(--muted);
+            font-family: var(--mono);
+            font-size: 5.5px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .ae {
+            color: var(--lime);
+            text-shadow: 0 0 6px var(--lime-glow);
+        }
+
+        /* ============ REDUCED MOTION ============ */
+        @media (prefers-reduced-motion: reduce) {
+            .aurora-blob,
+            .stars,
+            .scanline,
+            .marker,
+            .cursor,
+            .fill {
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="viewport" role="main" aria-label="Consumer Redline Index - School of Hermes Economic Faculty">
+
+        <!-- Background Layers -->
+        <div class="bg-layers" aria-hidden="true">
+            <div class="aurora-blob"></div>
+            <div class="aurora-blob"></div>
+            <div class="aurora-blob"></div>
+            <div class="aurora-blob"></div>
+            <div class="stars"></div>
+            <div class="scanline"></div>
+            <div class="crt-overlay"></div>
+        </div>
+
+        <!-- Scrollable Content -->
+        <div class="scroll-content">
+            <div class="inner-content">
+
+                <!-- Header -->
+                <div class="header">
+                    <div class="pill">
+                        <span class="live" aria-hidden="true"></span>
+                        CRI v0.1 · ECONOMIC FACULTY
+                    </div>
+                    <div class="pill">
+                        <span class="brand">HERMES://</span>
+                        SCHOOL
+                    </div>
+                </div>
+
+                <!-- Hero -->
+                <section class="hero">
+                    <div class="eyebrow">🧮 &gt;_ Consumer Redline Index</div>
+                    <h1>Can ordinary life still be funded from current income?</h1>
+                    <div class="hero-copy">
+                        A household balance-sheet stress instrument tracking essential costs, debt pressure, credit deterioration, savings capacity, and real-income momentum.
+                    </div>
+                </section>
+
+                <!-- Score Card -->
+                <section class="score-card">
+                    <div class="score-row">
+                        <div class="score-num">67<span>.2</span></div>
+                        <div class="regime">
+                            <span class="big">REDLINE</span>
+                            <small>MODEL ESTIMATE<br>NOT OFFICIAL STATISTIC</small>
+                        </div>
+                    </div>
+                    <div class="scale"><span class="marker"></span></div>
+                    <div class="meta">
+                        <span>00 RESILIENT</span>
+                        <span>65 REDLINE</span>
+                        <span>100 DISTRESS</span>
+                    </div>
+                </section>
+
+                <!-- Metrics Section -->
+                <section class="section">
+                    <div class="section-title">
+                        <h2>Pressure + buffer failure</h2>
+                        <span>WEIGHTED 0–100</span>
+                    </div>
+                    <div class="components">
+
+                        <div class="metric">
+                            <div class="metric-head">
+                                <div class="metric-name">H // HOUSING<small>rent + shelter burden</small></div>
+                                <div class="metric-val">74</div>
+                                <div class="metric-weight">20%</div>
+                            </div>
+                            <div class="bar"><div class="fill red" style="width:74%"></div></div>
+                        </div>
+
+                        <div class="metric">
+                            <div class="metric-head">
+                                <div class="metric-name">D // DEBT SERVICE<small>fixed household claims</small></div>
+                                <div class="metric-val">68</div>
+                                <div class="metric-weight">15%</div>
+                            </div>
+                            <div class="bar"><div class="fill orange" style="width:68%"></div></div>
+                        </div>
+
+                        <div class="metric">
+                            <div class="metric-head">
+                                <div class="metric-name">C // CREDIT STRESS<small>cards + auto delinquency</small></div>
+                                <div class="metric-val">71</div>
+                                <div class="metric-weight">15%</div>
+                            </div>
+                            <div class="bar"><div class="fill red" style="width:71%"></div></div>
+                        </div>
+
+                        <div class="metric">
+                            <div class="metric-head">
+                                <div class="metric-name">F // FOOD<small>essential consumption</small></div>
+                                <div class="metric-val">58</div>
+                                <div class="metric-weight">10%</div>
+                            </div>
+                            <div class="bar"><div class="fill orange" style="width:58%"></div></div>
+                        </div>
+
+                        <div class="metric">
+                            <div class="metric-head">
+                                <div class="metric-name">E // ENERGY<small>home + motor fuel</small></div>
+                                <div class="metric-val">64</div>
+                                <div class="metric-weight">10%</div>
+                            </div>
+                            <div class="bar"><div class="fill orange" style="width:64%"></div></div>
+                        </div>
+
+                        <div class="metric">
+                            <div class="metric-head">
+                                <div class="metric-name">CONN // CONNECTIVITY<small>mobile + broadband</small></div>
+                                <div class="metric-val">49</div>
+                                <div class="metric-weight">5%</div>
+                            </div>
+                            <div class="bar"><div class="fill" style="width:49%"></div></div>
+                        </div>
+
+                        <div class="metric">
+                            <div class="metric-head">
+                                <div class="metric-name">COMP // COMPUTE<small>incremental digital burden</small></div>
+                                <div class="metric-val">42</div>
+                                <div class="metric-weight">5%</div>
+                            </div>
+                            <div class="bar"><div class="fill" style="width:42%"></div></div>
+                        </div>
+
+                        <div class="metric">
+                            <div class="metric-head">
+                                <div class="metric-name">S // SAVINGS FAILURE<small>buffer inverted</small></div>
+                                <div class="metric-val">82</div>
+                                <div class="metric-weight">15%</div>
+                            </div>
+                            <div class="bar"><div class="fill red" style="width:82%"></div></div>
+                        </div>
+
+                        <div class="metric">
+                            <div class="metric-head">
+                                <div class="metric-name">Y // REAL DPI MOMENTUM<small>income buffer inverted</small></div>
+                                <div class="metric-val">31</div>
+                                <div class="metric-weight">5%</div>
+                            </div>
+                            <div class="bar"><div class="fill green" style="width:31%"></div></div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- Runtime Terminal -->
+                <section class="runtime">
+                    <div><span class="prompt">$</span> <span class="cmd">curl cri://usa</span></div>
+                    <div>REGIME ........ <span class="redtxt">REDLINE</span></div>
+                    <div>CREDIT ABSORB .. <span class="redtxt">DETECTING</span></div>
+                    <div>ENERGY IMPULSE . <span class="cyantxt">ELEVATED</span></div>
+                    <div>SAVINGS BUFFER . <span class="redtxt">THIN</span></div>
+                    <div><span class="prompt">$</span> <span class="cmd">watch household://balance-sheet</span><span class="cursor"></span></div>
+                </section>
+
+                <!-- Footer -->
+                <footer class="footer">
+                    <div class="sources">
+                        <span>BEA · BLS · FED · NYFED · EIA</span>
+                        <span class="ae">æ:// opensourceware · School of Hermes</span>
+                    </div>
+                </footer>
+
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        console.log(
+            '%cCRI v0.1 · Consumer Redline Index %c\n%cSchool of Hermes · Economic Faculty · OpenSourceWare',
+            'color:#b4ff2e;font-size:14px;font-weight:bold;font-family:monospace;',
+            'color:#ff4d5f;font-size:9px;font-family:monospace;',
+            'color:#65687c;font-size:8px;font-family:monospace;'
+        );
+    </script>
+
+</body>
+</html>

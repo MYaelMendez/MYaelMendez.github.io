@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#04040f">
+<title>Soværeign OS · Authority Topology</title>
+
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;900&family=Space+Grotesk:wght@700;900&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#03040b;
+  --panel:#080b16;
+  --line:rgba(255,255,255,.08);
+
+  --public:#00eaff;
+  --private:#00ff9d;
+  --sovereign:#e0b84a;
+
+  --hermes:#8367ff;
+  --claw:#ff5a68;
+
+  --white:#f8fafc;
+  --soft:#9da5b4;
+  --muted:#505768;
+
+  --mono:'JetBrains Mono',monospace;
+  --sans:'Space Grotesk',sans-serif;
+
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+}
+
+body{
+  display:grid;
+  place-items:start center;
+  padding-top:var(--safe-top);
+  color:var(--white);
+  font-family:var(--mono);
+}
+
+#app{
+  width:min(100vw,420px);
+  height:100dvh;
+  max-height:820px;
+  position:relative;
+  overflow:hidden;
+
+  background:
+    radial-gradient(circle at 50% 18%,rgba(224,184,74,.08),transparent 22%),
+    radial-gradient(circle at 25% 35%,rgba(0,234,255,.07),transparent 28%),
+    radial-gradient(circle at 75% 42%,rgba(131,103,255,.07),transparent 30%),
+    linear-gradient(#070817,#020305 70%);
+
+  border-left:1px solid rgba(255,255,255,.05);
+  border-right:1px solid rgba(255,255,255,.05);
+}
+
+/* atmosphere */
+
+#app:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.11;
+  background:
+    linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+
+.scan{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:50;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 3px,
+      rgba(0,0,0,.16) 3px 4px
+    );
+  opacity:.2;
+}
+
+/* header */
+
+header{
+  height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 13px;
+  border-bottom:1px solid var(--line);
+  position:relative;
+  z-index:20;
+}
+
+.brand{
+  font-family:var(--sans);
+  font-weight:900;
+  font-size:13px;
+  letter-spacing:.04em;
+}
+
+.brand span{
+  color:var(--sovereign);
+}
+
+.live{
+  font-size:6px;
+  letter-spacing:.13em;
+  color:var(--sovereign);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.live i{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--sovereign);
+  box-shadow:0 0 12px rgba(224,184,74,.7);
+  animation:pulse 1.8s infinite;
+}
+
+@keyframes pulse{
+  50%{opacity:.35}
+}
+
+/* authority ladder */
+
+.ladder{
+  height:58px;
+  display:grid;
+  grid-template-columns:1fr 12px 1fr 12px 1fr;
+  align-items:center;
+  padding:0 12px;
+  border-bottom:1px solid var(--line);
+  background:rgba(0,0,0,.2);
+  position:relative;
+  z-index:20;
+}
+
+.level{
+  text-align:center;
+  opacity:.38;
+}
+
+.level.active{
+  opacity:1;
+}
+
+.level small{
+  display:block;
+  font-size:4.5px;
+  letter-spacing:.13em;
+  color:var(--muted);
+}
+
+.level strong{
+  display:block;
+  margin-top:3px;
+  font-size:6px;
+  white-space:nowrap;
+}
+
+.level.public strong{color:var(--public)}
+.level.private strong{color:var(--private)}
+.level.sovereign strong{
+  color:var(--sovereign);
+  text-shadow:0 0 10px rgba(224,184,74,.4);
+}
+
+.arrow{
+  text-align:center;
+  color:#33394a;
+  font-size:7px;
+}
+
+/* human principal */
+
+.principal{
+  position:absolute;
+  top:118px;
+  left:50%;
+  transform:translateX(-50%);
+  width:152px;
+  height:152px;
+  z-index:15;
+}
+
+.ring{
+  position:absolute;
+  border-radius:50%;
+  border:1px solid rgba(224,184,74,.13);
+}
+
+.r1{
+  inset:0;
+  border-style:dashed;
+  animation:spin 20s linear infinite;
+}
+
+.r2{
+  inset:13px;
+  animation:spinBack 13s linear infinite;
+}
+
+.r3{
+  inset:25px;
+  border-style:dotted;
+  animation:spin 8s linear infinite;
+}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spinBack{to{transform:rotate(-360deg)}}
+
+.core{
+  position:absolute;
+  inset:38px;
+  border-radius:50%;
+  border:1px solid rgba(224,184,74,.55);
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  background:
+    radial-gradient(circle,rgba(224,184,74,.15),rgba(0,0,0,.88) 70%);
+
+  box-shadow:
+    0 0 40px rgba(224,184,74,.13),
+    inset 0 0 18px rgba(224,184,74,.08);
+}
+
+.core small{
+  font-size:4px;
+  letter-spacing:.12em;
+  color:var(--muted);
+}
+
+.core strong{
+  font-family:var(--sans);
+  color:var(--sovereign);
+  font-size:11px;
+}
+
+.core span{
+  font-size:4.5px;
+  letter-spacing:.14em;
+}
+
+/* custody panel */
+
+.custody{
+  position:absolute;
+  top:278px;
+  left:12px;
+  right:12px;
+
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:5px;
+
+  z-index:20;
+}
+
+.custody div{
+  height:30px;
+  border:1px solid rgba(224,184,74,.12);
+  border-radius:5px;
+
+  padding:0 7px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  background:rgba(0,0,0,.3);
+}
+
+.custody span{
+  font-size:4.5px;
+  color:var(--muted);
+}
+
+.custody b{
+  font-size:4.5px;
+  color:var(--sovereign);
+}
+
+/* fleet */
+
+.fleet-title{
+  position:absolute;
+  top:382px;
+  left:12px;
+  right:12px;
+
+  display:flex;
+  justify-content:space-between;
+
+  font-size:5px;
+  letter-spacing:.12em;
+  color:var(--muted);
+
+  z-index:20;
+}
+
+.agents{
+  position:absolute;
+  top:405px;
+  left:12px;
+  right:12px;
+
+  display:grid;
+  grid-template-columns:1fr 18px 1fr 18px 1fr;
+  align-items:center;
+
+  z-index:20;
+}
+
+.agent{
+  height:78px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:rgba(0,0,0,.4);
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  opacity:.38;
+  transition:.25s ease;
+}
+
+.agent.active{
+  opacity:1;
+  transform:translateY(-2px);
+}
+
+.agent .icon{
+  font-size:20px;
+  line-height:1;
+}
+
+.agent strong{
+  margin-top:5px;
+  font-size:6px;
+}
+
+.agent small{
+  margin-top:2px;
+  font-size:4px;
+  color:var(--muted);
+}
+
+.agent.human{
+  border-color:rgba(224,184,74,.25);
+}
+
+.agent.hermes{
+  border-color:rgba(131,103,255,.22);
+}
+
+.agent.claw{
+  border-color:rgba(255,90,104,.22);
+}
+
+.agent.human.active{
+  box-shadow:0 0 18px rgba(224,184,74,.12);
+  border-color:rgba(224,184,74,.62);
+}
+
+.agent.hermes.active{
+  box-shadow:0 0 18px rgba(131,103,255,.12);
+  border-color:rgba(131,103,255,.62);
+}
+
+.agent.claw.active{
+  box-shadow:0 0 18px rgba(255,90,104,.12);
+  border-color:rgba(255,90,104,.62);
+}
+
+.route{
+  height:1px;
+  position:relative;
+  background:rgba(255,255,255,.08);
+  overflow:hidden;
+}
+
+.route:after{
+  content:"";
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  background:var(--sovereign);
+  box-shadow:0 0 7px var(--sovereign);
+
+  position:absolute;
+  top:-1.5px;
+  left:-5px;
+
+  animation:flow 1.8s linear infinite;
+}
+
+@keyframes flow{
+  to{left:105%}
+}
+
+/* invariants */
+
+.invariants{
+  position:absolute;
+  top:500px;
+  left:12px;
+  right:12px;
+
+  border:1px solid var(--line);
+  border-radius:7px;
+  background:rgba(0,0,0,.3);
+
+  padding:8px;
+
+  z-index:20;
+}
+
+.inv-head{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:6px;
+  font-size:5px;
+  letter-spacing:.1em;
+}
+
+.inv-head b{color:var(--sovereign)}
+
+.inv{
+  display:flex;
+  gap:6px;
+  font-size:5px;
+  line-height:1.7;
+  color:var(--soft);
+}
+
+.inv span{
+  color:var(--sovereign);
+}
+
+/* command */
+
+.terminal{
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:0;
+
+  height:145px;
+  padding:9px 12px calc(10px + var(--safe-bottom));
+
+  background:
+    linear-gradient(to top,#010101,rgba(0,0,0,.82));
+
+  border-top:1px solid var(--line);
+  z-index:30;
+}
+
+.state{
+  display:flex;
+  justify-content:space-between;
+  font-size:5px;
+  margin-bottom:6px;
+}
+
+#state{
+  color:var(--sovereign);
+}
+
+#authority{
+  color:var(--private);
+}
+
+.prompt{
+  height:39px;
+  border:1px solid rgba(224,184,74,.28);
+  border-radius:6px;
+
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+
+  gap:6px;
+  padding:0 5px 0 10px;
+
+  background:#000;
+}
+
+.prompt span{
+  color:var(--sovereign);
+  font-size:7px;
+}
+
+#cmd{
+  border:0;
+  outline:0;
+  min-width:0;
+
+  background:transparent;
+  color:#fff;
+
+  font:7px var(--mono);
+}
+
+#cmd::placeholder{
+  color:#31343c;
+}
+
+#exec{
+  height:27px;
+  padding:0 10px;
+
+  border:1px solid rgba(224,184,74,.4);
+  border-radius:4px;
+
+  background:rgba(224,184,74,.08);
+  color:var(--sovereign);
+
+  font:700 6px var(--mono);
+}
+
+#exec.running{
+  background:var(--sovereign);
+  color:#161003;
+}
+
+.receipt{
+  margin-top:7px;
+
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+
+  font-size:5px;
+}
+
+.receipt span:first-child{
+  color:var(--muted);
+}
+
+#receipt{
+  color:var(--public);
+
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.footer{
+  margin-top:8px;
+  display:flex;
+  justify-content:space-around;
+
+  font-size:4.5px;
+  color:var(--muted);
+}
+
+.footer b{
+  color:var(--sovereign);
+  font-weight:500;
+}
+
+/* mode selector */
+
+.mode{
+  position:absolute;
+  top:357px;
+  left:50%;
+  transform:translateX(-50%);
+
+  display:flex;
+  gap:3px;
+
+  z-index:25;
+}
+
+.mode button{
+  border:1px solid var(--line);
+  border-radius:999px;
+
+  padding:4px 8px;
+
+  background:rgba(0,0,0,.55);
+  color:var(--muted);
+
+  font:5px var(--mono);
+}
+
+.mode button.active{
+  border-color:rgba(224,184,74,.45);
+  color:var(--sovereign);
+  background:rgba(224,184,74,.06);
+}
+
+@media(max-height:700px){
+  .principal{
+    top:112px;
+    width:135px;
+    height:135px;
+  }
+
+  .custody{top:252px}
+  .mode{top:328px}
+  .fleet-title{top:352px}
+  .agents{top:373px}
+  .invariants{top:460px}
+}
+</style>
+</head>
+
+<body>
+
+<main id="app">
+
+  <div class="scan"></div>
+
+  <header>
+    <div class="brand">SOV<span>Æ</span>REIGN OS</div>
+
+    <div class="live">
+      <i></i>
+      HUMAN://PRINCIPAL
+    </div>
+  </header>
+
+
+  <section class="ladder">
+
+    <div class="level public">
+      <small>PUBLIC</small>
+      <strong>&gt;_æ://</strong>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="level private">
+      <small>PRIVATE</small>
+      <strong>&gt;_æ://private_client</strong>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="level sovereign active">
+      <small>SOVEREIGN</small>
+      <strong>&gt;_soværeign://</strong>
+    </div>
+
+  </section>
+
+
+  <section class="principal">
+
+    <div class="ring r1"></div>
+    <div class="ring r2"></div>
+    <div class="ring r3"></div>
+
+    <div class="core">
+      <small>ROOT OF TRUST</small>
+      <strong>HUMAN</strong>
+      <span>PRINCIPAL</span>
+    </div>
+
+  </section>
+
+
+  <section class="custody">
+    <div><span>IDENTITY</span><b>SELF</b></div>
+    <div><span>KEYS</span><b>SELF</b></div>
+    <div><span>MEMORY</span><b>SELF</b></div>
+    <div><span>CONTEXT</span><b>SELF</b></div>
+    <div><span>CAPITAL</span><b>SELF</b></div>
+    <div><span>LINEAGE</span><b>SELF</b></div>
+  </section>
+
+
+  <div class="mode">
+    <button data-mode="observe">OBSERVE</button>
+    <button data-mode="delegate" class="active">DELEGATE</button>
+    <button data-mode="execute">EXECUTE</button>
+  </div>
+
+
+  <div class="fleet-title">
+    <span>AUTHORITY TOPOLOGY</span>
+    <span id="scope">SCOPE://BOUNDED</span>
+  </div>
+
+
+  <section class="agents">
+
+    <article class="agent human active" data-agent="human">
+      <div class="icon">&gt;_</div>
+      <strong>HUMAN</strong>
+      <small>root authority</small>
+    </article>
+
+    <div class="route"></div>
+
+    <article class="agent hermes" data-agent="hermes">
+      <div class="icon">🪽</div>
+      <strong>HERMES</strong>
+      <small>orchestrator</small>
+    </article>
+
+    <div class="route"></div>
+
+    <article class="agent claw" data-agent="claw">
+      <div class="icon">🦞</div>
+      <strong>OPENCLAW</strong>
+      <small>executor</small>
+    </article>
+
+  </section>
+
+
+  <section class="invariants">
+
+    <div class="inv-head">
+      <span>SOVÆREIGN INVARIANTS</span>
+      <b>4/4 LOCKED</b>
+    </div>
+
+    <div class="inv">
+      <span>01</span>
+      <div>NO MOLT WITHOUT A PARENT</div>
+    </div>
+
+    <div class="inv">
+      <span>02</span>
+      <div>NO CAPABILITY WITHOUT PROVENANCE</div>
+    </div>
+
+    <div class="inv">
+      <span>03</span>
+      <div>NO AUTHORITY WITHOUT A PRINCIPAL</div>
+    </div>
+
+    <div class="inv">
+      <span>04</span>
+      <div>CONTEXT MAY PROPAGATE · AUTHORITY NEVER DOES IMPLICITLY</div>
+    </div>
+
+  </section>
+
+
+  <section class="terminal">
+
+    <div class="state">
+      <span id="state">◆ SOVEREIGN://READY</span>
+      <span id="authority">AUTHORITY://ROOT</span>
+    </div>
+
+    <div class="prompt">
+      <span>&gt;_soværeign://</span>
+
+      <input
+        id="cmd"
+        placeholder="address agency..."
+        autocomplete="off"
+        spellcheck="false"
+      >
+
+      <button id="exec">EXEC</button>
+    </div>
+
+    <div class="receipt">
+      <span>RCPT::</span>
+      <span id="receipt">AWAITING INVOCATION</span>
+    </div>
+
+    <div class="footer">
+      <span>OPEN INTELLIGENCE</span>
+      <b>PRIVATE AUTHORITY</b>
+      <span>SOVEREIGN VALUE</span>
+    </div>
+
+  </section>
+
+</main>
+
+
+<script>
+(() => {
+
+  const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+
+  const input = $("#cmd");
+  const exec = $("#exec");
+  const state = $("#state");
+  const authority = $("#authority");
+  const receipt = $("#receipt");
+  const scope = $("#scope");
+
+  const agents = $$(".agent");
+  const levels = $$(".level");
+  const modeButtons = $$(".mode button");
+
+  let running = false;
+  let mode = "delegate";
+
+  const sleep = ms =>
+    new Promise(resolve => setTimeout(resolve, ms));
+
+
+  function activateAgent(name) {
+
+    agents.forEach(agent => {
+
+      agent.classList.toggle(
+        "active",
+        agent.dataset.agent === name
+      );
+
+    });
+
+  }
+
+
+  function activateLevel(name) {
+
+    levels.forEach(level =>
+      level.classList.remove("active")
+    );
+
+    $(`.level.${name}`)?.classList.add("active");
+
+  }
+
+
+  function makeReceipt() {
+
+    if (crypto?.randomUUID) {
+      return crypto.randomUUID()
+        .slice(0,8)
+        .toUpperCase();
+    }
+
+    return Math.random()
+      .toString(16)
+      .slice(2,10)
+      .toUpperCase();
+
+  }
+
+
+  function setMode(next) {
+
+    mode = next;
+
+    modeButtons.forEach(button => {
+
+      button.classList.toggle(
+        "active",
+        button.dataset.mode === next
+      );
+
+    });
+
+
+    if(next === "observe"){
+
+      scope.textContent =
+        "SCOPE://READ_ONLY";
+
+      authority.textContent =
+        "AUTHORITY://NONE";
+
+    }
+
+
+    if(next === "delegate"){
+
+      scope.textContent =
+        "SCOPE://BOUNDED";
+
+      authority.textContent =
+        "AUTHORITY://ROOT";
+
+    }
+
+
+    if(next === "execute"){
+
+      scope.textContent =
+        "SCOPE://ATTENUATED";
+
+      authority.textContent =
+        "AUTHORITY://EXPLICIT";
+
+    }
+
+  }
+
+
+  modeButtons.forEach(button => {
+
+    button.addEventListener(
+      "click",
+      () => setMode(button.dataset.mode)
+    );
+
+  });
+
+
+  async function invoke(){
+
+    if(running) return;
+
+    const intent =
+      input.value.trim();
+
+    if(!intent){
+
+      state.textContent =
+        "◇ INTENT://EMPTY";
+
+      receipt.textContent =
+        "NO INTENT · NO EXECUTION";
+
+      return;
+
+    }
+
+    running = true;
+
+    exec.classList.add("running");
+    exec.textContent = "RUN";
+
+
+    /* HUMAN ROOT */
+
+    activateAgent("human");
+    activateLevel("sovereign");
+
+    state.textContent =
+      "◆ HUMAN://PRINCIPAL";
+
+    authority.textContent =
+      "AUTHORITY://ROOT";
+
+    receipt.textContent =
+      "INTENT RECEIVED";
+
+    await sleep(500);
+
+
+    /*
+      OBSERVE MODE
+    */
+
+    if(mode === "observe"){
+
+      activateAgent("hermes");
+
+      state.textContent =
+        "🪽 HERMES://OBSERVE";
+
+      authority.textContent =
+        "AUTHORITY://NONE";
+
+      receipt.textContent =
+        "READ ONLY · NO EXECUTION";
+
+      await sleep(800);
+
+      activateAgent("human");
+
+      state.textContent =
+        "◆ SOVEREIGN://READY";
+
+      authority.textContent =
+        "AUTHORITY://ROOT";
+
+      exec.classList.remove("running");
+      exec.textContent = "EXEC";
+
+      running = false;
+
+      return;
+    }
+
+
+    /* HERMES ORCHESTRATION */
+
+    activateAgent("hermes");
+
+    state.textContent =
+      "🪽 HERMES://ORCHESTRATE";
+
+    authority.textContent =
+      "AUTHORITY://BOUNDED";
+
+    receipt.textContent =
+      "CONTEXT SHARED · CUSTODY RETAINED";
+
+    await sleep(750);
+
+
+    /*
+      DELEGATE MODE
+      stops before OpenClaw
+    */
+
+    if(mode === "delegate"){
+
+      const id = makeReceipt();
+
+      receipt.textContent =
+        `RCPT_${id} · PLAN RETURNED`;
+
+      state.textContent =
+        "✓ DELEGATION://COMPLETE";
+
+      authority.textContent =
+        "AUTHORITY://ROOT";
+
+      await sleep(700);
+
+      activateAgent("human");
+
+      state.textContent =
+        "◆ SOVEREIGN://READY";
+
+      exec.classList.remove("running");
+      exec.textContent = "EXEC";
+
+      running = false;
+
+      return;
+    }
+
+
+    /*
+      EXECUTION MODE
+    */
+
+    activateAgent("claw");
+
+    state.textContent =
+      "🦞 OPENCLAW://EXECUTE";
+
+    authority.textContent =
+      "AUTHORITY://ATTENUATED";
+
+    receipt.textContent =
+      "CAPABILITY BOUNDED · EXECUTING";
+
+    await sleep(900);
+
+
+    /* RECEIPT */
+
+    const id = makeReceipt();
+
+    receipt.textContent =
+      `RCPT_${id} · LINEAGE PRESERVED`;
+
+    state.textContent =
+      "✓ EXECUTION://SEALED";
+
+    authority.textContent =
+      "AUTHORITY://RETURNING";
+
+    await sleep(700);
+
+
+    /* RETURN TO HUMAN */
+
+    activateAgent("human");
+
+    state.textContent =
+      "◆ SOVEREIGN://READY";
+
+    authority.textContent =
+      "AUTHORITY://ROOT";
+
+    receipt.textContent =
+      `RCPT_${id} · VALUE RETURNED TO PRINCIPAL`;
+
+    exec.classList.remove("running");
+    exec.textContent = "EXEC";
+
+    running = false;
+
+
+    window.dispatchEvent(
+      new CustomEvent(
+        "soværeign:receipt",
+        {
+          detail:{
+            intent,
+            mode,
+            receipt:id,
+            principal:"HUMAN://PRINCIPAL",
+            authority:"ROOT"
+          }
+        }
+      )
+    );
+
+  }
+
+
+  exec.addEventListener("click", invoke);
+
+  input.addEventListener("keydown", e => {
+
+    if(e.key === "Enter") invoke();
+
+  });
+
+
+  /*
+    MACHINE SURFACE
+  */
+
+  window.SOVAREIGN = {
+
+    root:">_soværeign://",
+
+    hierarchy:{
+      public:">_æ://",
+      private:">_æ://private_client",
+      sovereign:">_soværeign://"
+    },
+
+    principal:"HUMAN://PRINCIPAL",
+
+    custody:{
+      identity:"SELF",
+      keys:"SELF",
+      memory:"SELF",
+      context:"SELF",
+      capital:"SELF",
+      lineage:"SELF"
+    },
+
+    runtime:{
+      orchestrator:"HERMES 🪽",
+      executor:"OPENCLAW 🦞"
+    },
+
+    authority:{
+      root:"HUMAN",
+      propagation:"NON_TRANSITIVE",
+      delegation:"EXPLICIT",
+      attenuation:"REQUIRED"
+    },
+
+    modes:[
+      "OBSERVE",
+      "DELEGATE",
+      "EXECUTE"
+    ],
+
+    invariants:[
+      "NO_MOLT_WITHOUT_PARENT",
+      "NO_CAPABILITY_WITHOUT_PROVENANCE",
+      "NO_AUTHORITY_WITHOUT_PRINCIPAL",
+      "CONTEXT_MAY_PROPAGATE_AUTHORITY_MAY_NOT"
+    ],
+
+    invoke,
+
+    setMode
+
+  };
+
+
+  console.info(
+    "%c>_soværeign://",
+    "background:#020202;color:#e0b84a;padding:5px 10px;font-family:monospace"
+  );
+
+  console.info(
+    "PUBLIC → PRIVATE → SOVEREIGN"
+  );
+
+})();
+</script>
+
+</body>
+</html>

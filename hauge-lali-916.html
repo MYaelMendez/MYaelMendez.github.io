@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Haugean Legacy · LALI · 9:16</title>
+
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#010204;
+  --bg2:#04050a;
+  --panel:#0a0d12;
+  --panel2:#10151c;
+
+  --gold:#e7c46a;
+  --gold2:#b28d3f;
+  --cyan:#67e8f9;
+  --green:#b4ff2e;
+  --violet:#8367ff;
+
+  --white:#f8fafc;
+  --text:#d7dde4;
+  --soft:#a5afba;
+  --muted:#66727e;
+
+  --line:rgba(103,232,249,.18);
+  --line-gold:rgba(231,196,106,.35);
+
+  --mono:'JetBrains Mono',monospace;
+  --serif:Georgia,"Times New Roman",serif;
+
+  --ease:cubic-bezier(.65,0,.35,1);
+  --viewport-h:calc(100dvh * .82);
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+}
+
+body{
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  font-family:var(--mono);
+  color:var(--white);
+}
+
+
+/* =========================
+   9:16 VIEWPORT
+========================= */
+
+.viewport{
+  position:relative;
+
+  width:min(100vw,calc(var(--viewport-h) * 9 / 16));
+  height:var(--viewport-h);
+
+  overflow:hidden;
+
+  background:
+    radial-gradient(
+      ellipse 80% 45% at 50% 10%,
+      rgba(103,232,249,.10),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 65% 45% at 80% 55%,
+      rgba(231,196,106,.07),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 55% 40% at 15% 72%,
+      rgba(131,103,255,.08),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      var(--bg2),
+      var(--bg)
+    );
+
+  border-left:4px solid #101623;
+  border-right:4px solid #101623;
+
+  isolation:isolate;
+}
+
+.viewport::before{
+  content:"";
+  position:absolute;
+  inset:0;
+
+  border:1px solid rgba(103,232,249,.16);
+
+  pointer-events:none;
+  z-index:80;
+}
+
+
+/* =========================
+   ATMOSPHERE
+========================= */
+
+.bg-layers{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+}
+
+.aurora{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(50px);
+  opacity:.28;
+
+  animation:
+    drift 18s var(--ease)
+    infinite alternate;
+}
+
+.aurora.a{
+  width:170px;
+  height:170px;
+  left:-12%;
+  top:-6%;
+  background:rgba(103,232,249,.25);
+}
+
+.aurora.b{
+  width:150px;
+  height:150px;
+  right:-15%;
+  top:35%;
+  background:rgba(231,196,106,.18);
+}
+
+.aurora.c{
+  width:130px;
+  height:130px;
+  left:15%;
+  bottom:-5%;
+  background:rgba(131,103,255,.22);
+}
+
+@keyframes drift{
+  0%{
+    transform:translate(0,0) scale(1);
+  }
+  50%{
+    transform:translate(25px,-15px) scale(1.1);
+  }
+  100%{
+    transform:translate(-18px,20px) scale(.95);
+  }
+}
+
+.stars{
+  position:absolute;
+  inset:0;
+
+  opacity:.24;
+
+  background-image:
+    radial-gradient(circle at 10% 20%,#fff 0 1px,transparent 1.3px),
+    radial-gradient(circle at 80% 15%,var(--cyan) 0 1px,transparent 1.3px),
+    radial-gradient(circle at 30% 70%,#fff 0 1px,transparent 1.3px),
+    radial-gradient(circle at 90% 60%,var(--gold) 0 1px,transparent 1.3px),
+    radial-gradient(circle at 55% 87%,var(--green) 0 1px,transparent 1.3px),
+    radial-gradient(circle at 44% 33%,#fff 0 .6px,transparent 1px);
+
+  animation:
+    twinkle 6s ease-in-out
+    infinite alternate;
+}
+
+@keyframes twinkle{
+  from{opacity:.12}
+  to{opacity:.34}
+}
+
+.scan{
+  position:absolute;
+
+  left:0;
+  right:0;
+  top:-20%;
+  height:20%;
+
+  background:
+    linear-gradient(
+      180deg,
+      transparent,
+      rgba(103,232,249,.06),
+      rgba(231,196,106,.025),
+      transparent
+    );
+
+  animation:
+    scan 7s linear infinite;
+}
+
+@keyframes scan{
+  to{
+    transform:translateY(600%);
+  }
+}
+
+.crt{
+  position:absolute;
+  inset:0;
+
+  opacity:.10;
+
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 3px,
+      rgba(0,0,0,.2) 3px 4px
+    );
+
+  mix-blend-mode:overlay;
+}
+
+
+/* =========================
+   HUD
+========================= */
+
+.header{
+  position:absolute;
+
+  top:10px;
+  left:12px;
+  right:12px;
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  z-index:30;
+}
+
+.pill{
+  display:flex;
+  align-items:center;
+  gap:5px;
+
+  padding:5px 9px;
+
+  background:
+    rgba(4,7,10,.72);
+
+  border:
+    1px solid var(--line);
+
+  border-radius:999px;
+
+  backdrop-filter:blur(14px);
+
+  color:#8c98a4;
+
+  font-size:5.5px;
+  letter-spacing:.1em;
+}
+
+.live{
+  width:5px;
+  height:5px;
+
+  background:var(--green);
+  border-radius:50%;
+
+  box-shadow:
+    0 0 8px var(--green),
+    0 0 18px rgba(180,255,46,.35);
+
+  animation:
+    pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse{
+  50%{
+    opacity:.2;
+    transform:scale(.8);
+  }
+}
+
+.brand{
+  color:var(--gold);
+  font-weight:700;
+}
+
+
+/* =========================
+   HERO COPY
+========================= */
+
+.hero-copy{
+  position:absolute;
+
+  top:52px;
+  left:18px;
+  right:18px;
+
+  text-align:center;
+
+  z-index:20;
+}
+
+.kicker{
+  color:var(--cyan);
+
+  font-size:6px;
+  letter-spacing:.2em;
+}
+
+.hero-copy h1{
+  margin-top:8px;
+
+  font-family:var(--serif);
+
+  font-size:31px;
+  line-height:.95;
+  font-weight:400;
+}
+
+.hero-copy h1 span{
+  color:var(--gold);
+}
+
+.years{
+  margin-top:7px;
+
+  color:var(--muted);
+
+  font-size:6px;
+  letter-spacing:.18em;
+}
+
+
+/* =========================
+   RADAR
+========================= */
+
+.radar-container{
+  position:absolute;
+
+  top:48%;
+  left:50%;
+
+  transform:translate(-50%,-50%);
+
+  z-index:16;
+}
+
+.radar-hub{
+  position:relative;
+
+  width:250px;
+  height:250px;
+
+  overflow:hidden;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(16,22,29,.95),
+      rgba(4,7,10,.98)
+    );
+
+  border:
+    1px solid
+    rgba(103,232,249,.30);
+
+  border-radius:50%;
+
+  box-shadow:
+    0 0 40px rgba(103,232,249,.10),
+    inset 0 0 60px rgba(0,0,0,.85);
+}
+
+.radar-grid{
+  position:absolute;
+  inset:0;
+
+  border-radius:50%;
+
+  background:
+    radial-gradient(
+      circle,
+      transparent 24%,
+      rgba(103,232,249,.12) 25%,
+      transparent 26%,
+      transparent 49%,
+      rgba(103,232,249,.10) 50%,
+      transparent 51%,
+      transparent 74%,
+      rgba(231,196,106,.12) 75%,
+      transparent 76%
+    );
+}
+
+.radar-cross{
+  position:absolute;
+  inset:0;
+
+  border-radius:50%;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent 49.5%,
+      rgba(103,232,249,.12) 50%,
+      transparent 50.5%
+    ),
+    linear-gradient(
+      0deg,
+      transparent 49.5%,
+      rgba(103,232,249,.12) 50%,
+      transparent 50.5%
+    );
+}
+
+.radar-sweep{
+  position:absolute;
+  inset:0;
+
+  border-radius:50%;
+
+  background:
+    conic-gradient(
+      from 0deg,
+      transparent 72%,
+      rgba(103,232,249,.38) 100%
+    );
+
+  animation:
+    sweep 5s linear infinite;
+}
+
+@keyframes sweep{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
+
+/* =========================
+   ORBIT NODES
+========================= */
+
+.node{
+  position:absolute;
+
+  width:6px;
+  height:6px;
+
+  margin-left:-3px;
+  margin-top:-3px;
+
+  background:var(--gold);
+
+  border-radius:50%;
+
+  box-shadow:
+    0 0 9px var(--gold),
+    0 0 18px rgba(231,196,106,.28);
+}
+
+.node::after{
+  content:"";
+
+  position:absolute;
+  inset:-3px;
+
+  border:
+    1px solid var(--gold);
+
+  border-radius:50%;
+
+  animation:
+    ping 1.8s cubic-bezier(0,0,.2,1)
+    infinite;
+}
+
+@keyframes ping{
+  75%,100%{
+    transform:scale(2.7);
+    opacity:0;
+  }
+}
+
+.node-label{
+  position:absolute;
+
+  color:#c9d2db;
+
+  font-size:5px;
+  letter-spacing:.1em;
+
+  white-space:nowrap;
+}
+
+#label-faith{
+  top:53px;
+  left:147px;
+}
+
+#label-work{
+  bottom:45px;
+  left:46px;
+}
+
+#label-service{
+  bottom:58px;
+  right:28px;
+}
+
+
+/* =========================
+   CENTER CORE
+========================= */
+
+.center-core{
+  position:absolute;
+
+  top:50%;
+  left:50%;
+
+  transform:
+    translate(-50%,-50%);
+
+  width:62px;
+  height:62px;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(231,196,106,.08),
+      rgba(4,7,10,.95)
+    );
+
+  border:
+    1px solid
+    rgba(231,196,106,.42);
+
+  box-shadow:
+    0 0 20px rgba(231,196,106,.09);
+
+  z-index:8;
+
+  cursor:pointer;
+}
+
+.center-core .cross{
+  color:var(--gold);
+
+  font-family:var(--serif);
+  font-size:27px;
+}
+
+.center-core small{
+  margin-top:2px;
+
+  color:var(--cyan);
+
+  font-size:5px;
+  letter-spacing:.1em;
+}
+
+
+/* =========================
+   DOCTRINE STRIP
+========================= */
+
+.doctrine{
+  position:absolute;
+
+  left:18px;
+  right:18px;
+  bottom:96px;
+
+  z-index:20;
+}
+
+.doctrine-path{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+
+  gap:6px;
+
+  color:var(--gold);
+
+  font-size:5.5px;
+  letter-spacing:.11em;
+}
+
+.doctrine-path b{
+  color:#46515c;
+}
+
+.doctrine h2{
+  margin-top:10px;
+
+  text-align:center;
+
+  font-family:var(--serif);
+
+  font-size:19px;
+  line-height:1.1;
+  font-weight:400;
+}
+
+.doctrine h2 span{
+  color:var(--gold);
+}
+
+
+/* =========================
+   BOTTOM STATUS
+========================= */
+
+.telemetry{
+  position:absolute;
+
+  left:15px;
+  right:15px;
+  bottom:44px;
+
+  display:grid;
+  grid-template-columns:1fr 1fr;
+
+  gap:7px;
+
+  z-index:20;
+}
+
+.telemetry-card{
+  padding:8px;
+
+  background:
+    rgba(5,9,13,.76);
+
+  border:
+    1px solid
+    rgba(103,232,249,.14);
+
+  border-radius:9px;
+
+  backdrop-filter:blur(10px);
+}
+
+.telemetry-card small{
+  color:var(--muted);
+
+  display:block;
+
+  font-size:5px;
+  letter-spacing:.12em;
+}
+
+.telemetry-card strong{
+  display:block;
+
+  margin-top:4px;
+
+  color:#d8e0e7;
+
+  font-size:6px;
+}
+
+.telemetry-card strong.gold{
+  color:var(--gold);
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+.footer{
+  position:absolute;
+
+  left:0;
+  right:0;
+  bottom:0;
+
+  height:35px;
+
+  padding:
+    0 12px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  background:
+    rgba(0,0,0,.88);
+
+  border-top:
+    1px solid
+    rgba(255,255,255,.08);
+
+  color:#66727f;
+
+  font-size:4.8px;
+  letter-spacing:.1em;
+
+  z-index:40;
+}
+
+
+/* =========================
+   TERMINAL OVERLAY
+========================= */
+
+#terminal{
+  position:absolute;
+  inset:0;
+
+  z-index:60;
+
+  padding:
+    34px
+    23px;
+
+  display:flex;
+  flex-direction:column;
+
+  background:
+    rgba(3,6,9,.96);
+
+  border-radius:50%;
+
+  backdrop-filter:blur(8px);
+
+  opacity:0;
+  pointer-events:none;
+
+  transition:
+    opacity .3s ease;
+}
+
+#terminal.active{
+  opacity:1;
+  pointer-events:auto;
+}
+
+.term-header{
+  text-align:center;
+
+  color:var(--gold);
+
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:.15em;
+}
+
+.term-header span{
+  color:var(--cyan);
+
+  display:block;
+
+  margin-top:3px;
+
+  font-size:5px;
+}
+
+.term-logs{
+  flex:1;
+
+  margin:
+    12px 0 8px;
+
+  overflow-y:auto;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+
+  gap:5px;
+
+  color:#9da8b2;
+
+  font-size:7px;
+  line-height:1.45;
+
+  scrollbar-width:none;
+}
+
+.term-logs::-webkit-scrollbar{
+  display:none;
+}
+
+.term-line.sys{
+  color:var(--gold);
+}
+
+.term-line.user{
+  color:var(--white);
+}
+
+.term-input-box{
+  display:flex;
+  align-items:center;
+
+  padding-top:8px;
+
+  border-top:
+    1px solid
+    rgba(103,232,249,.18);
+}
+
+.term-input-box span{
+  margin-right:6px;
+  color:var(--cyan);
+}
+
+.term-input{
+  flex:1;
+
+  background:transparent;
+
+  border:0;
+  outline:0;
+
+  color:#fff;
+
+  font-family:var(--mono);
+  font-size:8px;
+}
+
+
+/* =========================
+   INFO OVERLAY
+========================= */
+
+#infoPanel{
+  position:absolute;
+  inset:0;
+
+  z-index:55;
+
+  padding:
+    28px 22px;
+
+  background:
+    rgba(2,5,8,.97);
+
+  border-radius:50%;
+
+  display:flex;
+  flex-direction:column;
+
+  opacity:0;
+  pointer-events:none;
+
+  transition:
+    opacity .3s ease;
+}
+
+#infoPanel.active{
+  opacity:1;
+  pointer-events:auto;
+}
+
+.info-kicker{
+  color:var(--cyan);
+
+  text-align:center;
+
+  font-size:6px;
+  letter-spacing:.14em;
+}
+
+#infoPanel h3{
+  margin-top:9px;
+
+  text-align:center;
+
+  color:var(--gold);
+
+  font-family:var(--serif);
+
+  font-size:19px;
+  font-weight:400;
+}
+
+.info-copy{
+  margin-top:14px;
+
+  color:#aab4bd;
+
+  font-family:var(--serif);
+
+  font-size:9px;
+  line-height:1.55;
+}
+
+.info-path{
+  margin-top:14px;
+
+  display:flex;
+  flex-direction:column;
+
+  gap:7px;
+}
+
+.info-path div{
+  padding:7px 8px;
+
+  background:#070b0f;
+
+  border:
+    1px solid
+    rgba(231,196,106,.18);
+
+  border-radius:7px;
+
+  color:#c9d2da;
+
+  font-size:6px;
+}
+
+.info-path b{
+  color:var(--gold);
+}
+
+.close-info{
+  margin-top:auto;
+
+  padding:9px;
+
+  border:
+    1px solid
+    rgba(103,232,249,.24);
+
+  border-radius:8px;
+
+  color:var(--cyan);
+
+  text-align:center;
+
+  font-size:6px;
+
+  cursor:pointer;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-height:650px){
+
+  .radar-hub{
+    width:210px;
+    height:210px;
+  }
+
+  .hero-copy h1{
+    font-size:25px;
+  }
+
+}
+
+@media(min-height:800px){
+
+  .radar-hub{
+    width:280px;
+    height:280px;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<main class="viewport">
+
+  <!-- ATMOSPHERE -->
+  <div class="bg-layers" aria-hidden="true">
+    <div class="aurora a"></div>
+    <div class="aurora b"></div>
+    <div class="aurora c"></div>
+    <div class="stars"></div>
+    <div class="scan"></div>
+    <div class="crt"></div>
+  </div>
+
+
+  <!-- HUD -->
+  <header class="header">
+
+    <div class="pill">
+      <span class="live"></span>
+      HAUGEAN LEGACY
+    </div>
+
+    <div class="pill">
+      <span class="brand">LALI://</span>
+      FORMATION
+    </div>
+
+  </header>
+
+
+  <!-- HERO -->
+  <section class="hero-copy">
+
+    <div class="kicker">
+      LATIN AMERICAN LUTHERAN INSTITUTE
+    </div>
+
+    <h1>
+      Hans Nielsen<br>
+      <span>Hauge</span>
+    </h1>
+
+    <div class="years">
+      NORWAY · 1771—1824
+    </div>
+
+  </section>
+
+
+  <!-- RADAR CORE -->
+  <div class="radar-container">
+
+    <div class="radar-hub" id="hubFrame">
+
+      <div class="radar-grid"></div>
+      <div class="radar-cross"></div>
+      <div class="radar-sweep"></div>
+
+      <div
+        class="node"
+        id="nodeFaith">
+      </div>
+
+      <div
+        class="node"
+        id="nodeWork">
+      </div>
+
+      <div
+        class="node"
+        id="nodeService">
+      </div>
+
+      <div
+        class="node-label"
+        id="label-faith">
+        FAITH
+      </div>
+
+      <div
+        class="node-label"
+        id="label-work">
+        WORK
+      </div>
+
+      <div
+        class="node-label"
+        id="label-service">
+        SERVICE
+      </div>
+
+
+      <!-- CORE -->
+      <button
+        class="center-core"
+        id="core"
+        aria-label="Open Haugean legacy"
+      >
+        <span class="cross">☩</span>
+        <small>HAUGE</small>
+      </button>
+
+
+      <!-- INFO PANEL -->
+      <div id="infoPanel">
+
+        <div class="info-kicker">
+          &gt;_hauge://legacy
+        </div>
+
+        <h3>
+          Faith in Motion
+        </h3>
+
+        <p class="info-copy">
+          Hans Nielsen Hauge was a Norwegian
+          Lutheran lay preacher, writer and
+          entrepreneur whose awakening became
+          a movement of Christian formation,
+          literacy, enterprise and service.
+        </p>
+
+        <div class="info-path">
+
+          <div>
+            <b>FAITH</b>
+            → personal conviction and discipleship
+          </div>
+
+          <div>
+            <b>LITERACY</b>
+            → reading, teaching and local leadership
+          </div>
+
+          <div>
+            <b>WORK</b>
+            → vocation, stewardship and enterprise
+          </div>
+
+          <div>
+            <b>COMMUNITY</b>
+            → networks of trust and mutual responsibility
+          </div>
+
+          <div>
+            <b>AGENCY</b>
+            → ordinary people equipped to build
+          </div>
+
+        </div>
+
+        <div
+          class="close-info"
+          id="closeInfo"
+        >
+          CLOSE ×
+        </div>
+
+      </div>
+
+
+      <!-- TERMINAL -->
+      <div id="terminal">
+
+        <div class="term-header">
+          HAUGEAN TERMINAL
+          <span>LATIN AMERICAN LUTHERAN INSTITUTE</span>
+        </div>
+
+        <div
+          class="term-logs"
+          id="termLogs"
+        >
+
+          <div class="term-line sys">
+            Legacy initialized.
+          </div>
+
+          <div class="term-line sys">
+            Commands:
+            faith · literacy · work · service · latam · exit
+          </div>
+
+        </div>
+
+        <div class="term-input-box">
+
+          <span>&gt;_</span>
+
+          <input
+            id="termInput"
+            class="term-input"
+            type="text"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="enter command..."
+          >
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- DOCTRINE -->
+  <section class="doctrine">
+
+    <div class="doctrine-path">
+      <span>FAITH</span>
+      <b>→</b>
+      <span>LITERACY</span>
+      <b>→</b>
+      <span>WORK</span>
+      <b>→</b>
+      <span>SERVICE</span>
+    </div>
+
+    <h2>
+      Lutheran conviction<br>
+      became <span>human agency.</span>
+    </h2>
+
+  </section>
+
+
+  <!-- STATUS -->
+  <section class="telemetry">
+
+    <div class="telemetry-card">
+      <small>LINEAGE</small>
+      <strong>
+        NORWAY → LATIN AMERICA
+      </strong>
+    </div>
+
+    <div class="telemetry-card">
+      <small>LALI MISSION</small>
+      <strong class="gold">
+        CONFESS · TEACH · BUILD · SERVE
+      </strong>
+    </div>
+
+  </section>
+
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <span>INSTITUTO LUTERANO LATINOAMERICANO</span>
+    <span>☩ SOLI DEO GLORIA</span>
+  </footer>
+
+</main>
+
+
+<script>
+
+/* =========================
+   ORBIT ENGINE
+========================= */
+
+const hub =
+  document.getElementById("hubFrame");
+
+const faith =
+  document.getElementById("nodeFaith");
+
+const work =
+  document.getElementById("nodeWork");
+
+const service =
+  document.getElementById("nodeService");
+
+let t = 0;
+
+function orbit(){
+
+  t += .015;
+
+  const cx =
+    hub.clientWidth / 2;
+
+  const cy =
+    hub.clientHeight / 2;
+
+  const scale =
+    hub.clientWidth / 250;
+
+
+  placeNode(
+    faith,
+    cx,
+    cy,
+    46 * scale,
+    t * 1.25
+  );
+
+  placeNode(
+    work,
+    cx,
+    cy,
+    78 * scale,
+    t * -.72 + 2.3
+  );
+
+  placeNode(
+    service,
+    cx,
+    cy,
+    105 * scale,
+    t * .45 + 4.2
+  );
+
+  requestAnimationFrame(orbit);
+
+}
+
+
+function placeNode(
+  el,
+  cx,
+  cy,
+  radius,
+  angle
+){
+
+  const x =
+    cx +
+    Math.cos(angle) *
+    radius;
+
+  const y =
+    cy +
+    Math.sin(angle) *
+    radius;
+
+  el.style.left =
+    x + "px";
+
+  el.style.top =
+    y + "px";
+
+}
+
+
+orbit();
+
+
+
+/* =========================
+   INFO PANEL
+========================= */
+
+const core =
+  document.getElementById("core");
+
+const info =
+  document.getElementById("infoPanel");
+
+const closeInfo =
+  document.getElementById("closeInfo");
+
+
+core.addEventListener(
+  "click",
+  () => {
+
+    info.classList.add(
+      "active"
+    );
+
+  }
+);
+
+
+closeInfo.addEventListener(
+  "click",
+  () => {
+
+    info.classList.remove(
+      "active"
+    );
+
+  }
+);
+
+
+
+/* =========================
+   DOUBLE-TAP TERMINAL
+========================= */
+
+const terminal =
+  document.getElementById("terminal");
+
+const input =
+  document.getElementById("termInput");
+
+const logs =
+  document.getElementById("termLogs");
+
+let lastTap = 0;
+
+
+core.addEventListener(
+  "pointerup",
+  () => {
+
+    const now =
+      Date.now();
+
+    if(
+      now - lastTap < 320 &&
+      now - lastTap > 0
+    ){
+
+      info.classList.remove(
+        "active"
+      );
+
+      terminal.classList.add(
+        "active"
+      );
+
+      setTimeout(
+        () => input.focus(),
+        120
+      );
+
+    }
+
+    lastTap = now;
+
+  }
+);
+
+
+
+/* =========================
+   TERMINAL COMMANDS
+========================= */
+
+function log(
+  text,
+  type="sys"
+){
+
+  const line =
+    document.createElement(
+      "div"
+    );
+
+  line.className =
+    "term-line " + type;
+
+  line.textContent =
+    type === "user"
+      ? ">_ " + text
+      : text;
+
+  logs.appendChild(line);
+
+  logs.scrollTop =
+    logs.scrollHeight;
+
+}
+
+
+const responses = {
+
+  faith:
+    "FAITH:// Hauge taught that Christian conviction must become lived vocation.",
+
+  literacy:
+    "LITERACY:// Scripture, reading and teaching strengthened ordinary people and local leadership.",
+
+  work:
+    "WORK:// Enterprise became stewardship: farms, mills, workshops, printing, trade and industry.",
+
+  service:
+    "SERVICE:// Spiritual awakening moved outward toward neighbor, community and mutual responsibility.",
+
+  latam:
+    "LATAM:// LALI translates the pattern into theological education, digital learning, local leadership and service in hard-to-reach communities."
+
+};
+
+
+input.addEventListener(
+  "keydown",
+  e => {
+
+    if(
+      e.key !== "Enter"
+    ) return;
+
+    const command =
+      input.value
+      .trim()
+      .toLowerCase();
+
+    if(!command)
+      return;
+
+    log(
+      command,
+      "user"
+    );
+
+    input.value =
+      "";
+
+
+    if(
+      command === "exit"
+    ){
+
+      terminal.classList.remove(
+        "active"
+      );
+
+      input.blur();
+
+      return;
+
+    }
+
+
+    if(
+      responses[command]
+    ){
+
+      setTimeout(
+        () => log(
+          responses[command]
+        ),
+        180
+      );
+
+    }
+
+    else{
+
+      setTimeout(
+        () => log(
+          "Unknown command. Use: faith · literacy · work · service · latam · exit"
+        ),
+        180
+      );
+
+    }
+
+  }
+);
+
+</script>
+
+</body>
+</html>

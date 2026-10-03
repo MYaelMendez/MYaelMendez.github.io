@@ -1,0 +1,2770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
+/>
+<meta name="theme-color" content="#030303"/>
+
+<title>æææ OS · Any Ontology Compute · Master Runtime</title>
+
+<style>
+:root{
+  --bg:#030303;
+  --panel:#090909;
+  --panel2:#0d0d0d;
+
+  --fg:#f5f3ea;
+  --dim:#77736a;
+
+  --gold:#d7b45a;
+  --gold2:#f0d487;
+
+  --green:#9fe870;
+  --cyan:#61e7ff;
+  --violet:#b793ff;
+  --red:#ff5f5f;
+  --orange:#ff9a4d;
+
+  --line:rgba(215,180,90,.18);
+
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+  color:var(--fg);
+  font-family:var(--sans);
+}
+
+body{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* =========================================================
+   ROOT SHELL
+========================================================= */
+
+.os{
+  width:min(100vw,430px);
+  height:100dvh;
+
+  position:relative;
+  overflow:hidden;
+
+  display:grid;
+
+  grid-template-rows:
+    auto
+    auto
+    auto
+    1fr
+    auto
+    auto;
+
+  gap:7px;
+
+  padding:
+    max(10px,env(safe-area-inset-top))
+    10px
+    max(10px,env(safe-area-inset-bottom));
+
+  background:
+    radial-gradient(
+      circle at 50% 12%,
+      rgba(215,180,90,.08),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 18% 70%,
+      rgba(97,231,255,.035),
+      transparent 30%
+    ),
+    linear-gradient(
+      180deg,
+      #050505,
+      #010101 60%,
+      #000
+    );
+}
+
+.os::before{
+  content:"";
+
+  position:absolute;
+  inset:0;
+
+  pointer-events:none;
+
+  opacity:.08;
+
+  background-image:
+    linear-gradient(
+      rgba(215,180,90,.14) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(215,180,90,.14) 1px,
+      transparent 1px
+    );
+
+  background-size:26px 26px;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.topbar{
+  position:relative;
+  z-index:5;
+
+  min-height:42px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  border:1px solid var(--line);
+
+  background:
+    rgba(8,8,8,.82);
+
+  backdrop-filter:blur(18px);
+
+  padding:8px 10px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.logo{
+  font-size:26px;
+  line-height:1;
+
+  color:var(--gold);
+
+  letter-spacing:-.08em;
+
+  font-weight:700;
+}
+
+.brand-copy strong{
+  display:block;
+
+  font-size:10px;
+  letter-spacing:.13em;
+}
+
+.brand-copy span{
+  display:block;
+
+  margin-top:2px;
+
+  font:6px var(--mono);
+
+  color:var(--dim);
+
+  letter-spacing:.12em;
+}
+
+.status{
+  text-align:right;
+}
+
+.status .live{
+  font:7px var(--mono);
+
+  color:var(--green);
+
+  letter-spacing:.12em;
+}
+
+.status .sub{
+  margin-top:2px;
+
+  font:6px var(--mono);
+
+  color:#5c5c5c;
+}
+
+
+/* =========================================================
+   COMPILER PIPELINE
+========================================================= */
+
+.pipeline{
+  position:relative;
+  z-index:5;
+
+  display:grid;
+  grid-template-columns:
+    repeat(5,1fr);
+
+  gap:4px;
+}
+
+.pipe{
+  min-width:0;
+
+  padding:6px 3px;
+
+  text-align:center;
+
+  border:1px solid var(--line);
+
+  background:
+    rgba(255,255,255,.012);
+
+  font:5px var(--mono);
+
+  color:var(--dim);
+
+  transition:.16s ease;
+}
+
+.pipe strong{
+  display:block;
+
+  margin-bottom:2px;
+
+  font-size:5.5px;
+
+  color:#aaa;
+}
+
+.pipe.active{
+  border-color:
+    rgba(97,231,255,.45);
+
+  color:var(--cyan);
+
+  background:
+    rgba(97,231,255,.04);
+
+  box-shadow:
+    0 0 12px
+    rgba(97,231,255,.05);
+}
+
+.pipe.active strong{
+  color:var(--cyan);
+}
+
+
+/* =========================================================
+   ONTOLOGY SELECTOR
+========================================================= */
+
+.lensbar{
+  position:relative;
+  z-index:5;
+
+  display:grid;
+  grid-template-columns:auto 1fr;
+
+  gap:8px;
+  align-items:center;
+
+  border:1px solid var(--line);
+
+  background:
+    rgba(8,8,8,.78);
+
+  padding:7px 9px;
+}
+
+.lens-label{
+  font:6px var(--mono);
+
+  color:var(--dim);
+
+  letter-spacing:.14em;
+}
+
+.lenses{
+  display:flex;
+
+  gap:4px;
+
+  overflow-x:auto;
+
+  scrollbar-width:none;
+}
+
+.lenses::-webkit-scrollbar{
+  display:none;
+}
+
+.lens{
+  flex:0 0 auto;
+
+  border:1px solid var(--line);
+
+  background:
+    rgba(255,255,255,.015);
+
+  color:var(--dim);
+
+  font:6px var(--mono);
+
+  padding:5px 7px;
+
+  cursor:pointer;
+
+  white-space:nowrap;
+}
+
+.lens.active{
+  color:var(--cyan);
+
+  border-color:
+    rgba(97,231,255,.5);
+
+  background:
+    rgba(97,231,255,.05);
+
+  box-shadow:
+    0 0 12px
+    rgba(97,231,255,.06);
+}
+
+
+/* =========================================================
+   DESKTOP
+========================================================= */
+
+.desktop{
+  position:relative;
+  z-index:5;
+
+  min-height:0;
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(6,1fr);
+
+  grid-template-rows:
+    repeat(8,1fr);
+
+  gap:6px;
+}
+
+.tile{
+  position:relative;
+
+  overflow:hidden;
+
+  border:1px solid var(--line);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.025),
+      transparent 65%
+    ),
+    rgba(8,8,8,.86);
+
+  backdrop-filter:blur(16px);
+
+  padding:9px;
+
+  cursor:pointer;
+
+  transition:.15s ease;
+}
+
+.tile:hover{
+  border-color:
+    rgba(215,180,90,.55);
+}
+
+.tile:active{
+  transform:scale(.985);
+}
+
+.tile-kicker{
+  font:6px var(--mono);
+
+  letter-spacing:.14em;
+
+  color:var(--dim);
+}
+
+.tile-title{
+  margin-top:4px;
+
+  font-size:
+    clamp(11px,3.8vw,17px);
+
+  line-height:.95;
+
+  letter-spacing:-.03em;
+
+  font-weight:700;
+}
+
+.tile-sub{
+  margin-top:5px;
+
+  font:6px/1.35 var(--mono);
+
+  color:#8b887f;
+}
+
+.tile-symbol{
+  position:absolute;
+
+  right:9px;
+  bottom:8px;
+
+  font-size:20px;
+
+  color:var(--gold);
+
+  opacity:.88;
+}
+
+
+/* =========================================================
+   TILE LAYOUT
+========================================================= */
+
+.ethics{
+  grid-column:1/3;
+  grid-row:1/3;
+}
+
+.economics{
+  grid-column:3/5;
+  grid-row:1/3;
+}
+
+.engineering{
+  grid-column:5/7;
+  grid-row:1/3;
+}
+
+.ontology{
+  grid-column:1/4;
+  grid-row:3/5;
+
+  border-color:
+    rgba(97,231,255,.25);
+}
+
+.compute{
+  grid-column:4/7;
+  grid-row:3/5;
+
+  border-color:
+    rgba(183,147,255,.25);
+}
+
+.agency{
+  grid-column:1/4;
+  grid-row:5/7;
+
+  border-color:
+    rgba(159,232,112,.24);
+}
+
+.receipt{
+  grid-column:4/7;
+  grid-row:5/7;
+
+  border-color:
+    rgba(215,180,90,.24);
+}
+
+.private{
+  grid-column:1/3;
+  grid-row:7/8;
+}
+
+.hermes{
+  grid-column:3/5;
+  grid-row:7/8;
+}
+
+.store{
+  grid-column:5/7;
+  grid-row:7/8;
+}
+
+.root{
+  grid-column:1/7;
+  grid-row:8/9;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:8px 10px;
+
+  border-color:
+    rgba(97,231,255,.25);
+}
+
+.root .tile-title{
+  margin:0;
+
+  color:var(--cyan);
+
+  font:9px var(--mono);
+
+  letter-spacing:.06em;
+}
+
+.root .tile-sub{
+  margin:0;
+  text-align:right;
+}
+
+.ethics .tile-symbol{
+  color:var(--gold2);
+}
+
+.economics .tile-symbol{
+  color:#d9e96a;
+}
+
+.engineering .tile-symbol{
+  color:var(--cyan);
+}
+
+.ontology .tile-symbol{
+  color:var(--cyan);
+}
+
+.compute .tile-symbol{
+  color:var(--violet);
+}
+
+.agency .tile-symbol{
+  color:var(--green);
+}
+
+.receipt .tile-symbol{
+  color:var(--gold);
+}
+
+.private .tile-symbol{
+  color:var(--green);
+}
+
+.hermes .tile-symbol{
+  color:var(--gold);
+}
+
+.store .tile-symbol{
+  color:var(--violet);
+}
+
+
+/* =========================================================
+   COMMAND
+========================================================= */
+
+.command{
+  position:relative;
+  z-index:5;
+
+  min-height:40px;
+
+  display:flex;
+  align-items:center;
+
+  gap:8px;
+
+  padding:8px 10px;
+
+  border:1px solid var(--line);
+
+  background:
+    rgba(5,5,5,.94);
+}
+
+.prompt{
+  color:var(--gold);
+
+  font:10px var(--mono);
+
+  white-space:nowrap;
+}
+
+.cmd{
+  flex:1;
+
+  min-width:0;
+
+  background:transparent;
+
+  border:none;
+  outline:none;
+
+  color:#fff;
+
+  font:9px var(--mono);
+}
+
+.cmd::placeholder{
+  color:#484848;
+}
+
+.exec{
+  border:
+    1px solid
+    rgba(215,180,90,.25);
+
+  background:transparent;
+
+  color:var(--gold);
+
+  font:7px var(--mono);
+
+  padding:5px 8px;
+
+  cursor:pointer;
+}
+
+
+/* =========================================================
+   OUTPUT STRIP
+========================================================= */
+
+.output{
+  position:relative;
+  z-index:5;
+
+  min-height:36px;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+
+  gap:2px;
+
+  padding:7px 9px;
+
+  border:1px solid var(--line);
+
+  background:
+    rgba(3,3,3,.9);
+
+  font:5.8px var(--mono);
+
+  overflow:hidden;
+}
+
+.output-main{
+  color:var(--cyan);
+
+  white-space:nowrap;
+
+  overflow:hidden;
+
+  text-overflow:ellipsis;
+}
+
+.output-sub{
+  color:#585858;
+
+  white-space:nowrap;
+
+  overflow:hidden;
+
+  text-overflow:ellipsis;
+}
+
+
+/* =========================================================
+   OVERLAY
+========================================================= */
+
+.overlay{
+  position:absolute;
+  inset:10px;
+
+  z-index:50;
+
+  border:
+    1px solid
+    rgba(215,180,90,.45);
+
+  background:
+    rgba(3,3,3,.97);
+
+  backdrop-filter:
+    blur(26px);
+
+  padding:18px;
+
+  display:flex;
+  flex-direction:column;
+
+  opacity:0;
+
+  pointer-events:none;
+
+  transform:
+    scale(.96);
+
+  transition:
+    .22s ease;
+}
+
+.overlay.open{
+  opacity:1;
+
+  pointer-events:auto;
+
+  transform:scale(1);
+}
+
+.ov-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+}
+
+.ov-symbol{
+  font-size:42px;
+
+  color:var(--gold);
+}
+
+.close{
+  border:1px solid var(--line);
+
+  background:transparent;
+
+  color:#aaa;
+
+  padding:5px 8px;
+
+  font:8px var(--mono);
+
+  cursor:pointer;
+}
+
+.ov-kicker{
+  margin-top:20px;
+
+  font:8px var(--mono);
+
+  color:var(--dim);
+
+  letter-spacing:.16em;
+}
+
+.ov-title{
+  margin-top:5px;
+
+  font-size:30px;
+
+  line-height:.95;
+
+  letter-spacing:-.05em;
+}
+
+.ov-body{
+  margin-top:16px;
+
+  color:#aaa;
+
+  font-size:12px;
+
+  line-height:1.6;
+}
+
+.ov-context{
+  margin-top:16px;
+
+  padding:10px;
+
+  border:
+    1px solid
+    rgba(97,231,255,.15);
+
+  color:var(--cyan);
+
+  font:9px/1.5 var(--mono);
+
+  white-space:pre-wrap;
+}
+
+.ov-principle{
+  margin-top:auto;
+
+  border-top:
+    1px solid var(--line);
+
+  padding-top:14px;
+
+  font:11px/1.55 var(--mono);
+
+  color:#ddd1aa;
+}
+
+
+/* =========================================================
+   RECEIPT DRAWER
+========================================================= */
+
+.receipt-panel{
+  position:absolute;
+
+  left:10px;
+  right:10px;
+  bottom:10px;
+
+  z-index:60;
+
+  max-height:45%;
+
+  overflow:auto;
+
+  border:
+    1px solid
+    rgba(215,180,90,.45);
+
+  background:
+    rgba(4,4,4,.97);
+
+  backdrop-filter:
+    blur(22px);
+
+  padding:12px;
+
+  transform:
+    translateY(calc(100% + 20px));
+
+  transition:.22s ease;
+}
+
+.receipt-panel.open{
+  transform:translateY(0);
+}
+
+.receipt-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  margin-bottom:8px;
+}
+
+.receipt-head strong{
+  font:8px var(--mono);
+
+  color:var(--gold);
+}
+
+.receipt-list{
+  display:flex;
+  flex-direction:column;
+
+  gap:6px;
+}
+
+.receipt-row{
+  padding:7px;
+
+  border:1px solid var(--line);
+
+  background:
+    rgba(255,255,255,.015);
+
+  font:5.5px/1.5 var(--mono);
+
+  color:#aaa;
+}
+
+.receipt-row b{
+  color:var(--cyan);
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.footer{
+  position:absolute;
+
+  left:10px;
+  right:10px;
+  bottom:
+    max(4px,env(safe-area-inset-bottom));
+
+  z-index:5;
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  pointer-events:none;
+
+  font:5px var(--mono);
+
+  color:#393939;
+
+  letter-spacing:.1em;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-height:700px){
+
+  .tile{
+    padding:7px;
+  }
+
+  .tile-title{
+    font-size:10px;
+  }
+
+  .tile-sub{
+    font-size:5.5px;
+  }
+
+  .tile-symbol{
+    font-size:16px;
+  }
+
+  .pipeline{
+    display:none;
+  }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="os">
+
+
+<!-- =======================================================
+     HEADER
+======================================================= -->
+
+<header class="topbar">
+
+  <div class="brand">
+
+    <div class="logo">
+      æææ
+    </div>
+
+    <div class="brand-copy">
+
+      <strong>
+        ANY ONTOLOGY COMPUTE
+      </strong>
+
+      <span>
+        HUMAN PRINCIPAL · META-RUNTIME
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <div class="status">
+
+    <div class="live" id="runtimeStatus">
+      ● HUMAN://ROOT
+    </div>
+
+    <div class="sub" id="receiptCounter">
+      RCPT://000
+    </div>
+
+  </div>
+
+</header>
+
+
+<!-- =======================================================
+     COMPILER PIPELINE
+======================================================= -->
+
+<section class="pipeline">
+
+  <div class="pipe active" data-pipe="select">
+    <strong>01</strong>
+    SELECT
+  </div>
+
+  <div class="pipe" data-pipe="compile">
+    <strong>02</strong>
+    COMPILE
+  </div>
+
+  <div class="pipe" data-pipe="compute">
+    <strong>03</strong>
+    COMPUTE
+  </div>
+
+  <div class="pipe" data-pipe="direct">
+    <strong>04</strong>
+    DIRECT
+  </div>
+
+  <div class="pipe" data-pipe="receipt">
+    <strong>05</strong>
+    RCPT
+  </div>
+
+</section>
+
+
+<!-- =======================================================
+     ONTOLOGY LENSES
+======================================================= -->
+
+<section class="lensbar">
+
+  <div class="lens-label">
+    ONTOLOGY://
+  </div>
+
+  <div class="lenses">
+
+    <button
+      class="lens active"
+      data-lens="agentic">
+      AGENTIC
+    </button>
+
+    <button
+      class="lens"
+      data-lens="neural">
+      NEURAL
+    </button>
+
+    <button
+      class="lens"
+      data-lens="biological">
+      BIOLOGICAL
+    </button>
+
+    <button
+      class="lens"
+      data-lens="economic">
+      ECONOMIC
+    </button>
+
+    <button
+      class="lens"
+      data-lens="organizational">
+      ORGANIZATIONAL
+    </button>
+
+    <button
+      class="lens"
+      data-lens="physical">
+      PHYSICAL
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- =======================================================
+     DESKTOP
+======================================================= -->
+
+<main class="desktop">
+
+
+<!-- ETHICS -->
+
+<section
+  class="tile ethics"
+
+  data-symbol="æ¹"
+
+  data-kicker="AGENTIC ETHICS"
+
+  data-title="Who should act?"
+
+  data-body="Authority, consent, dignity, stewardship, accountability and revocation define whether an action should exist."
+
+  data-principle="The human remains the principal."
+>
+
+  <div class="tile-kicker">
+    SHOULD?
+  </div>
+
+  <div class="tile-title">
+    Agentic<br>
+    Ethics
+  </div>
+
+  <div class="tile-sub">
+    authority · stewardship
+  </div>
+
+  <div class="tile-symbol">
+    æ¹
+  </div>
+
+</section>
+
+
+<!-- ECONOMICS -->
+
+<section
+  class="tile economics"
+
+  data-symbol="æ²"
+
+  data-kicker="AGENTIC ECONOMICS"
+
+  data-title="Who captures value?"
+
+  data-body="Ownership, attribution, incentives, productivity and settlement determine where machine-created value ultimately flows."
+
+  data-principle="Agency should compound human opportunity."
+>
+
+  <div class="tile-kicker">
+    VALUE?
+  </div>
+
+  <div class="tile-title">
+    Agentic<br>
+    Economics
+  </div>
+
+  <div class="tile-sub">
+    ownership · incentives
+  </div>
+
+  <div class="tile-symbol">
+    æ²
+  </div>
+
+</section>
+
+
+<!-- ENGINEERING -->
+
+<section
+  class="tile engineering"
+
+  data-symbol="æ³"
+
+  data-kicker="AGENTIC ENGINEERING"
+
+  data-title="How does it execute?"
+
+  data-body="Identity, capability resolution, agents, tools, orchestration, execution boundaries and receipts convert intent into bounded action."
+
+  data-principle="Authority must become executable architecture."
+>
+
+  <div class="tile-kicker">
+    HOW?
+  </div>
+
+  <div class="tile-title">
+    Agentic<br>
+    Engineering
+  </div>
+
+  <div class="tile-sub">
+    systems · execution
+  </div>
+
+  <div class="tile-symbol">
+    æ³
+  </div>
+
+</section>
+
+
+<!-- ONTOLOGY -->
+
+<section
+  class="tile ontology"
+
+  data-symbol="◌"
+
+  data-kicker="ONTOLOGY://SELECT"
+
+  data-title="Choose the lens"
+
+  data-body="Ontologies define the entities, relations, states and transformations through which computation is interpreted."
+
+  data-principle="Ontology describes the objects. It does not own the substrate."
+>
+
+  <div class="tile-kicker">
+    WHAT IS IT?
+  </div>
+
+  <div class="tile-title">
+    Ontology<br>
+    Compiler
+  </div>
+
+  <div
+    class="tile-sub"
+    id="ontologySub"
+  >
+    AGENTIC · node = delegate
+  </div>
+
+  <div
+    class="tile-symbol"
+    id="ontologySymbol"
+  >
+    🛸
+  </div>
+
+</section>
+
+
+<!-- COMPUTE -->
+
+<section
+  class="tile compute"
+
+  data-symbol="∿"
+
+  data-kicker="COMPUTE://TRANSFORM"
+
+  data-title="Transform state"
+
+  data-body="Compute transforms a represented state according to executable rules independent of the ontology used to describe that state."
+
+  data-principle="Compute is substrate-independent transformation."
+>
+
+  <div class="tile-kicker">
+    CHANGE?
+  </div>
+
+  <div class="tile-title">
+    Compute
+  </div>
+
+  <div
+    class="tile-sub"
+    id="computeSub"
+  >
+    state → transformation
+  </div>
+
+  <div class="tile-symbol">
+    ∿
+  </div>
+
+</section>
+
+
+<!-- AGENCY -->
+
+<section
+  class="tile agency"
+
+  data-symbol="→"
+
+  data-kicker="AGENCY://DIRECT"
+
+  data-title="Give transformation direction"
+
+  data-body="Agency appears when transformation is directed toward a goal under an explicit principal, authority boundary, capability and constraint."
+
+  data-principle="Agency is directed compute under authority."
+>
+
+  <div class="tile-kicker">
+    TOWARD WHAT?
+  </div>
+
+  <div class="tile-title">
+    Agency
+  </div>
+
+  <div
+    class="tile-sub"
+    id="agencySub"
+  >
+    intent · direction · action
+  </div>
+
+  <div class="tile-symbol">
+    →
+  </div>
+
+</section>
+
+
+<!-- RECEIPT -->
+
+<section
+  class="tile receipt"
+
+  data-symbol="↻"
+
+  data-kicker="RCPT://VERIFY"
+
+  data-title="Preserve lineage"
+
+  data-body="Each consequential transformation emits provenance: principal, ontology, capability, delegate, policy, state transition, result and timestamp."
+
+  data-principle="Transformation may change state. It may not erase lineage."
+>
+
+  <div class="tile-kicker">
+    HOW DO WE KNOW?
+  </div>
+
+  <div class="tile-title">
+    Receipt
+  </div>
+
+  <div class="tile-sub">
+    provenance · lineage
+  </div>
+
+  <div class="tile-symbol">
+    ↻
+  </div>
+
+</section>
+
+
+<!-- PRIVATE -->
+
+<section
+  class="tile private"
+
+  data-symbol="🧿"
+
+  data-kicker="PRIVATECLIENT.AI"
+
+  data-title="Principal boundary"
+
+  data-body="Private context, consent, grants, policy and delegation boundaries remain anchored to the human."
+
+  data-principle="No authority without a principal."
+>
+
+  <div class="tile-kicker">
+    WHO?
+  </div>
+
+  <div class="tile-title">
+    Private Client
+  </div>
+
+  <div class="tile-symbol">
+    🧿
+  </div>
+
+</section>
+
+
+<!-- HERMES -->
+
+<section
+  class="tile hermes"
+
+  data-symbol="🪽"
+
+  data-kicker="HERMES"
+
+  data-title="Compose delegates"
+
+  data-body="Hermes resolves intent across models, agents, tools and capabilities without implicitly inheriting principal authority."
+
+  data-principle="Composition is not authority."
+>
+
+  <div class="tile-kicker">
+    COMPOSE
+  </div>
+
+  <div class="tile-title">
+    Hermes
+  </div>
+
+  <div class="tile-symbol">
+    🪽
+  </div>
+
+</section>
+
+
+<!-- STORE -->
+
+<section
+  class="tile store"
+
+  data-symbol="æ"
+
+  data-kicker="Æ.STORE"
+
+  data-title="Discover capability"
+
+  data-body="Models, tools, skills, agents and protocol endpoints become discoverable capability primitives."
+
+  data-principle="Discoverability does not equal permission."
+>
+
+  <div class="tile-kicker">
+    CAN?
+  </div>
+
+  <div class="tile-title">
+    æ.store
+  </div>
+
+  <div class="tile-symbol">
+    æ
+  </div>
+
+</section>
+
+
+<!-- ROOT -->
+
+<section
+  class="tile root"
+
+  data-symbol=">_æ://"
+
+  data-kicker="HUMAN INVOCATION LAYER"
+
+  data-title="Any ontology. One principal."
+
+  data-body="Human intent selects an ontology, compiles its primitives, directs compute, delegates bounded agency and receives a verifiable lineage receipt."
+
+  data-principle="ONE PRINCIPAL · ANY ONTOLOGY · COMPUTE THROUGH IT."
+>
+
+  <div class="tile-title">
+    &gt;_æ:// HUMAN://ROOT
+  </div>
+
+  <div class="tile-sub">
+    ontology → compile → compute → agency → receipt
+  </div>
+
+</section>
+
+
+</main>
+
+
+<!-- =======================================================
+     COMMAND
+======================================================= -->
+
+<form
+  class="command"
+  id="command"
+>
+
+  <div class="prompt">
+    &gt;_æ://
+  </div>
+
+  <input
+    id="cmd"
+    class="cmd"
+    placeholder="ontology neural | compute"
+    autocomplete="off"
+    spellcheck="false"
+  />
+
+  <button class="exec">
+    EXEC
+  </button>
+
+</form>
+
+
+<!-- =======================================================
+     COMPILER OUTPUT
+======================================================= -->
+
+<section class="output">
+
+  <div
+    class="output-main"
+    id="outputMain"
+  >
+    AGENTIC:// NODE=delegate · EDGE=authority-relation
+  </div>
+
+  <div
+    class="output-sub"
+    id="outputSub"
+  >
+    STATE=capability+context · TRANSFORM=delegation/execution
+  </div>
+
+</section>
+
+
+<!-- =======================================================
+     OVERLAY
+======================================================= -->
+
+<section
+  class="overlay"
+  id="overlay"
+>
+
+  <div class="ov-head">
+
+    <div
+      class="ov-symbol"
+      id="ovSymbol"
+    >
+      æ
+    </div>
+
+    <button
+      class="close"
+      id="close"
+    >
+      ESC
+    </button>
+
+  </div>
+
+
+  <div
+    class="ov-kicker"
+    id="ovKicker"
+  ></div>
+
+
+  <div
+    class="ov-title"
+    id="ovTitle"
+  ></div>
+
+
+  <div
+    class="ov-body"
+    id="ovBody"
+  ></div>
+
+
+  <div
+    class="ov-context"
+    id="ovContext"
+  ></div>
+
+
+  <div
+    class="ov-principle"
+    id="ovPrinciple"
+  ></div>
+
+</section>
+
+
+<!-- =======================================================
+     RECEIPT PANEL
+======================================================= -->
+
+<section
+  class="receipt-panel"
+  id="receiptPanel"
+>
+
+  <div class="receipt-head">
+
+    <strong>
+      RCPT://LINEAGE
+    </strong>
+
+    <button
+      class="close"
+      id="closeReceipts"
+    >
+      CLOSE
+    </button>
+
+  </div>
+
+
+  <div
+    class="receipt-list"
+    id="receiptList"
+  ></div>
+
+</section>
+
+
+<footer class="footer">
+  <span>æææ.com</span>
+  <span>ONE PRINCIPAL · ANY ONTOLOGY</span>
+</footer>
+
+</div>
+
+
+<script>
+(() => {
+
+/* =========================================================
+   DOM
+========================================================= */
+
+const $ =
+  id =>
+    document.getElementById(id);
+
+
+const overlay =
+  $("overlay");
+
+
+const receiptPanel =
+  $("receiptPanel");
+
+
+const feedbackMain =
+  $("outputMain");
+
+
+const feedbackSub =
+  $("outputSub");
+
+
+const runtimeStatus =
+  $("runtimeStatus");
+
+
+const cmd =
+  $("cmd");
+
+
+const form =
+  $("command");
+
+
+/* =========================================================
+   CANONICAL ONTOLOGY REGISTRY
+========================================================= */
+
+const ONTOLOGIES = {
+
+  agentic:{
+
+    symbol:"🛸",
+
+    node:"delegate",
+
+    edge:"authority relation",
+
+    state:"capability + context",
+
+    transform:
+      "delegation / execution",
+
+    direction:
+      "goal under bounded authority",
+
+    example:
+      "human → Hermes → agent → receipt"
+
+  },
+
+
+  neural:{
+
+    symbol:"🧠",
+
+    node:"artificial neuron",
+
+    edge:"weighted connection",
+
+    state:"activation",
+
+    transform:
+      "forward propagation",
+
+    direction:
+      "loss minimization / inference objective",
+
+    example:
+      "input → weights → activation → output"
+
+  },
+
+
+  biological:{
+
+    symbol:"🧬",
+
+    node:"cell / organism",
+
+    edge:
+      "biological interaction",
+
+    state:
+      "biological condition",
+
+    transform:
+      "adaptation / differentiation",
+
+    direction:
+      "survival / function / regulation",
+
+    example:
+      "signal → response → adaptation"
+
+  },
+
+
+  economic:{
+
+    symbol:"æ²",
+
+    node:"economic actor",
+
+    edge:
+      "exchange / incentive",
+
+    state:
+      "resources + claims",
+
+    transform:
+      "allocation / settlement",
+
+    direction:
+      "utility / productivity / value",
+
+    example:
+      "actor → exchange → settlement → ownership"
+
+  },
+
+
+  organizational:{
+
+    symbol:"🏛",
+
+    node:
+      "role / institution",
+
+    edge:
+      "delegation / reporting",
+
+    state:
+      "responsibility + policy",
+
+    transform:
+      "coordination / decision",
+
+    direction:
+      "organizational objective",
+
+    example:
+      "principal → role → decision → accountability"
+
+  },
+
+
+  physical:{
+
+    symbol:"∿",
+
+    node:
+      "physical state",
+
+    edge:
+      "causal relation",
+
+    state:
+      "matter / energy",
+
+    transform:
+      "dynamics",
+
+    direction:
+      "constraint-bound evolution",
+
+    example:
+      "state₀ → law → state₁"
+
+  }
+
+};
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+const state = {
+
+  principal:
+    "HUMAN://ROOT",
+
+  ontology:
+    "agentic",
+
+  phase:
+    "select",
+
+  receipts:[],
+
+  commandCount:0
+
+};
+
+
+/* =========================================================
+   PIPELINE
+========================================================= */
+
+const PIPELINE = [
+  "select",
+  "compile",
+  "compute",
+  "direct",
+  "receipt"
+];
+
+
+function setPhase(
+  phase
+){
+
+  state.phase =
+    phase;
+
+
+  document
+    .querySelectorAll(
+      "[data-pipe]"
+    )
+    .forEach(
+      pipe => {
+
+        pipe.classList.toggle(
+          "active",
+          pipe.dataset.pipe === phase
+        );
+
+      }
+    );
+
+
+  runtimeStatus.textContent =
+    `● ${phase.toUpperCase()}://${state.ontology.toUpperCase()}`;
+
+}
+
+
+/* =========================================================
+   ONTOLOGY COMPILER
+========================================================= */
+
+function compileOntology(
+  name = state.ontology
+){
+
+  const o =
+    ONTOLOGIES[name];
+
+
+  if(!o)
+    return null;
+
+
+  return {
+
+    ontology:
+      name,
+
+    principal:
+      state.principal,
+
+    NODE:
+      o.node,
+
+    EDGE:
+      o.edge,
+
+    STATE:
+      o.state,
+
+    TRANSFORM:
+      o.transform,
+
+    DIRECTION:
+      o.direction,
+
+    EXAMPLE:
+      o.example
+
+  };
+
+}
+
+
+/* =========================================================
+   RECEIPTS
+========================================================= */
+
+function makeReceiptID(){
+
+  if(
+    window.crypto &&
+    crypto.randomUUID
+  ){
+
+    return crypto
+      .randomUUID()
+      .slice(0,8)
+      .toUpperCase();
+
+  }
+
+
+  return Math.random()
+    .toString(16)
+    .slice(2,10)
+    .toUpperCase();
+
+}
+
+
+function emitReceipt(
+  command,
+  compiled
+){
+
+  const receipt = {
+
+    id:
+      makeReceiptID(),
+
+    timestamp:
+      new Date()
+        .toISOString(),
+
+    principal:
+      state.principal,
+
+    ontology:
+      compiled.ontology,
+
+    command,
+
+    node:
+      compiled.NODE,
+
+    edge:
+      compiled.EDGE,
+
+    state:
+      compiled.STATE,
+
+    transform:
+      compiled.TRANSFORM,
+
+    direction:
+      compiled.DIRECTION,
+
+    result:
+      "REINTEGRATE://HUMAN"
+
+  };
+
+
+  state.receipts.push(
+    receipt
+  );
+
+
+  $("receiptCounter").textContent =
+    `RCPT://${String(
+      state.receipts.length
+    ).padStart(3,"0")}`;
+
+
+  renderReceipts();
+
+
+  return receipt;
+
+}
+
+
+/* =========================================================
+   ONTOLOGY SELECTION
+========================================================= */
+
+function lensText(
+  name
+){
+
+  const o =
+    ONTOLOGIES[name];
+
+
+  return (
+    `${name.toUpperCase()}:// ` +
+    `NODE=${o.node} · ` +
+    `EDGE=${o.edge}`
+  );
+
+}
+
+
+function setOntology(
+  name
+){
+
+  if(
+    !ONTOLOGIES[name]
+  )
+    return;
+
+
+  state.ontology =
+    name;
+
+
+  document
+    .querySelectorAll(
+      ".lens"
+    )
+    .forEach(
+      button => {
+
+        button.classList.toggle(
+          "active",
+          button.dataset.lens === name
+        );
+
+      }
+    );
+
+
+  const o =
+    ONTOLOGIES[name];
+
+
+  $("ontologySub").textContent =
+    `${name.toUpperCase()} · node = ${o.node}`;
+
+
+  $("ontologySymbol").textContent =
+    o.symbol;
+
+
+  $("computeSub").textContent =
+    `${o.state} → ${o.transform}`;
+
+
+  $("agencySub").textContent =
+    o.direction;
+
+
+  feedbackMain.textContent =
+    lensText(name);
+
+
+  feedbackSub.textContent =
+    `STATE=${o.state} · TRANSFORM=${o.transform}`;
+
+
+  setPhase(
+    "select"
+  );
+
+}
+
+
+/* =========================================================
+   TILE OVERLAY
+========================================================= */
+
+function openTile(
+  tile
+){
+
+  const o =
+    ONTOLOGIES[
+      state.ontology
+    ];
+
+
+  $("ovSymbol").textContent =
+    tile.dataset.symbol || "æ";
+
+
+  $("ovKicker").textContent =
+    tile.dataset.kicker || "";
+
+
+  $("ovTitle").textContent =
+    tile.dataset.title || "";
+
+
+  $("ovBody").textContent =
+    tile.dataset.body || "";
+
+
+  $("ovPrinciple").textContent =
+    tile.dataset.principle || "";
+
+
+  $("ovContext").textContent =
+`ONTOLOGY://${state.ontology.toUpperCase()}
+NODE://${o.node}
+EDGE://${o.edge}
+STATE://${o.state}
+TRANSFORM://${o.transform}
+DIRECTION://${o.direction}`;
+
+
+  overlay
+    .classList
+    .add(
+      "open"
+    );
+
+}
+
+
+function closeOverlay(){
+
+  overlay
+    .classList
+    .remove(
+      "open"
+    );
+
+}
+
+
+/* =========================================================
+   RECEIPT RENDERER
+========================================================= */
+
+function renderReceipts(){
+
+  const target =
+    $("receiptList");
+
+
+  if(
+    state.receipts.length === 0
+  ){
+
+    target.innerHTML = `
+      <div class="receipt-row">
+        No receipts yet.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  target.innerHTML =
+    [...state.receipts]
+      .reverse()
+      .map(
+        receipt => `
+
+          <div class="receipt-row">
+
+            <b>
+              RCPT://${receipt.id}
+            </b>
+
+            <br>
+
+            ${receipt.principal}
+
+            <br>
+
+            ONTOLOGY://${receipt.ontology.toUpperCase()}
+
+            <br>
+
+            NODE://${receipt.node}
+
+            <br>
+
+            EDGE://${receipt.edge}
+
+            <br>
+
+            TRANSFORM://${receipt.transform}
+
+            <br>
+
+            RESULT://${receipt.result}
+
+          </div>
+
+        `
+      )
+      .join("");
+
+}
+
+
+/* =========================================================
+   EXECUTION ENGINE
+========================================================= */
+
+const sleep =
+  ms =>
+    new Promise(
+      resolve =>
+        setTimeout(resolve,ms)
+    );
+
+
+async function executeCommand(
+  raw
+){
+
+  const q =
+    String(raw || "")
+      .trim();
+
+
+  if(!q)
+    return;
+
+
+  state.commandCount++;
+
+
+  const lower =
+    q.toLowerCase();
+
+
+  /* SELECT */
+
+  setPhase(
+    "select"
+  );
+
+
+  for(
+    const name
+    of Object.keys(
+      ONTOLOGIES
+    )
+  ){
+
+    if(
+      lower.includes(
+        name
+      )
+    ){
+
+      setOntology(
+        name
+      );
+
+      break;
+
+    }
+
+  }
+
+
+  await sleep(180);
+
+
+  /* COMPILE */
+
+  setPhase(
+    "compile"
+  );
+
+
+  const compiled =
+    compileOntology();
+
+
+  feedbackMain.textContent =
+    `COMPILE://${compiled.ontology.toUpperCase()}`;
+
+
+  feedbackSub.textContent =
+    `NODE=${compiled.NODE} · EDGE=${compiled.EDGE}`;
+
+
+  await sleep(220);
+
+
+  /* COMPUTE */
+
+  if(
+    lower.includes("compute") ||
+    lower.includes("run") ||
+    lower.includes("transform") ||
+    lower.includes("|")
+  ){
+
+    setPhase(
+      "compute"
+    );
+
+
+    feedbackMain.textContent =
+      `COMPUTE://${compiled.TRANSFORM}`;
+
+
+    feedbackSub.textContent =
+      `STATE://${compiled.STATE}`;
+
+
+    await sleep(260);
+
+
+    /* DIRECT */
+
+    setPhase(
+      "direct"
+    );
+
+
+    feedbackMain.textContent =
+      `AGENCY://${compiled.DIRECTION}`;
+
+
+    feedbackSub.textContent =
+      `PRINCIPAL://${state.principal}`;
+
+
+    await sleep(260);
+
+
+    /* RECEIPT */
+
+    setPhase(
+      "receipt"
+    );
+
+
+    const receipt =
+      emitReceipt(
+        q,
+        compiled
+      );
+
+
+    feedbackMain.textContent =
+      `RCPT://${receipt.id}`;
+
+
+    feedbackSub.textContent =
+      `${compiled.ontology.toUpperCase()} → ${compiled.TRANSFORM} → REINTEGRATE://HUMAN`;
+
+
+    await sleep(300);
+
+
+    setPhase(
+      "select"
+    );
+
+
+    return receipt;
+
+  }
+
+
+  /* INFORMATIONAL COMMANDS */
+
+  const map = [
+
+    [
+      "æ¹",
+      ".ethics"
+    ],
+
+    [
+      "ethics",
+      ".ethics"
+    ],
+
+    [
+      "æ²",
+      ".economics"
+    ],
+
+    [
+      "economics",
+      ".economics"
+    ],
+
+    [
+      "æ³",
+      ".engineering"
+    ],
+
+    [
+      "engineering",
+      ".engineering"
+    ],
+
+    [
+      "ontology",
+      ".ontology"
+    ],
+
+    [
+      "agency",
+      ".agency"
+    ],
+
+    [
+      "receipt",
+      ".receipt"
+    ],
+
+    [
+      "provenance",
+      ".receipt"
+    ],
+
+    [
+      "private",
+      ".private"
+    ],
+
+    [
+      "hermes",
+      ".hermes"
+    ],
+
+    [
+      "store",
+      ".store"
+    ],
+
+    [
+      "mcp",
+      ".store"
+    ],
+
+    [
+      "root",
+      ".root"
+    ],
+
+    [
+      "æ://",
+      ".root"
+    ]
+
+  ];
+
+
+  const hit =
+    map.find(
+      ([key]) =>
+        lower.includes(key)
+    );
+
+
+  if(hit){
+
+    const tile =
+      document
+        .querySelector(
+          hit[1]
+        );
+
+
+    if(tile)
+      openTile(tile);
+
+  }
+
+  else{
+
+    feedbackMain.textContent =
+      `UNKNOWN://${q}`;
+
+
+    feedbackSub.textContent =
+      `ONTOLOGY://${state.ontology.toUpperCase()} remains selected`;
+
+  }
+
+
+  setPhase(
+    "select"
+  );
+
+}
+
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+document
+  .querySelectorAll(
+    ".lens"
+  )
+  .forEach(
+    button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          setOntology(
+            button.dataset.lens
+          );
+
+        }
+      );
+
+    }
+  );
+
+
+document
+  .querySelectorAll(
+    ".tile"
+  )
+  .forEach(
+    tile => {
+
+      tile.addEventListener(
+        "click",
+        () =>
+          openTile(
+            tile
+          )
+      );
+
+    }
+  );
+
+
+$("close")
+  .addEventListener(
+    "click",
+    closeOverlay
+  );
+
+
+$("closeReceipts")
+  .addEventListener(
+    "click",
+    () => {
+
+      receiptPanel
+        .classList
+        .remove(
+          "open"
+        );
+
+    }
+  );
+
+
+document
+  .querySelector(
+    ".receipt"
+  )
+  .addEventListener(
+    "dblclick",
+    () => {
+
+      receiptPanel
+        .classList
+        .add(
+          "open"
+        );
+
+    }
+  );
+
+
+document
+  .addEventListener(
+    "keydown",
+    event => {
+
+      if(
+        event.key ===
+        "Escape"
+      ){
+
+        closeOverlay();
+
+
+        receiptPanel
+          .classList
+          .remove(
+            "open"
+          );
+
+      }
+
+    }
+  );
+
+
+form.addEventListener(
+  "submit",
+  event => {
+
+    event.preventDefault();
+
+
+    const value =
+      cmd.value;
+
+
+    cmd.value =
+      "";
+
+
+    executeCommand(
+      value
+    );
+
+  }
+);
+
+
+/* =========================================================
+   PUBLIC API
+========================================================= */
+
+window.AAA_OS =
+  Object.freeze({
+
+    ontology:
+      name =>
+        setOntology(
+          name
+        ),
+
+
+    compile:
+      name =>
+        compileOntology(
+          name || state.ontology
+        ),
+
+
+    execute:
+      command =>
+        executeCommand(
+          command
+        ),
+
+
+    receipts:
+      () =>
+        [
+          ...state.receipts
+        ],
+
+
+    state:
+      () => ({
+        ...state,
+        receipts:[
+          ...state.receipts
+        ]
+      }),
+
+
+    registry:
+      ONTOLOGIES
+
+  });
+
+
+/* =========================================================
+   BOOT
+========================================================= */
+
+renderReceipts();
+
+setOntology(
+  "agentic"
+);
+
+
+console.log(
+  "%cæææ OS · ANY ONTOLOGY COMPUTE",
+  "color:#d7b45a;background:#030303;padding:6px 12px;border:1px solid #d7b45a;font-weight:bold"
+);
+
+
+console.log(
+  "%c>_æ://ontology neural | compute",
+  "color:#61e7ff"
+);
+
+
+/* Example API:
+   AAA_OS.execute(
+     "ontology economic | compute"
+   );
+
+   AAA_OS.compile(
+     "neural"
+   );
+*/
+
+})();
+</script>
+
+</body>
+</html>
