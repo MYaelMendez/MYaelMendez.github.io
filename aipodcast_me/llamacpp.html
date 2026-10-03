@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#050505"/>
+<title>æ:/llamacpp · agent loop in the tab</title>
+<meta name="description" content="Spike: llama.cpp (wllama WASM+WebGPU) driving a browser-resident agent loop with real tool dispatch."/>
+<link rel="canonical" href="https://myaelmendez.github.io/aipodcast_me/llamacpp.html"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --void:#050505;--gold:#D4AF37;--gold2:#f0d487;--emerald:#00ff9d;--cyan:#00eaff;
+  --violet:#8c72ff;--red:#ff4d5f;--ink:#e8e6df;--muted:#6f6a5c;--line:rgba(212,175,55,.22);
+  --mono:"JetBrains Mono",ui-monospace,monospace;--display:"Orbitron",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;min-height:100%;background:var(--void);color:var(--ink);font-family:var(--mono)}
+body{padding:max(12px,env(safe-area-inset-top)) 12px calc(28px + env(safe-area-inset-bottom))}
+.scan{position:fixed;inset:0;z-index:9;pointer-events:none;opacity:.18;
+  background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.5) 2px 4px)}
+.vig{position:fixed;inset:0;z-index:8;pointer-events:none;
+  background:radial-gradient(circle at 50% 30%,transparent 34%,rgba(5,5,5,.55) 76%,rgba(5,5,5,.96) 100%)}
+.wrap{position:relative;z-index:10;width:min(100%,1080px);margin:0 auto}
+
+.bar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  font-size:9px;letter-spacing:.16em;color:var(--muted);
+  border:1px solid var(--line);border-top:2px solid var(--gold);
+  padding:9px 12px;background:rgba(8,8,7,.82)}
+.bar a{color:var(--gold);text-decoration:none}
+.hero{text-align:center;padding:30px 12px 20px}
+.hero h1{font-family:var(--display);font-weight:900;font-size:clamp(18px,4.4vw,28px);letter-spacing:.05em;
+  background:linear-gradient(90deg,var(--gold2),var(--gold),var(--cyan));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero .sub{margin-top:10px;font-size:9.5px;letter-spacing:.19em;color:var(--muted)}
+.hero .sub b{color:var(--emerald);font-weight:400}
+
+.panel{margin-top:18px;border:1px solid var(--line);background:rgba(8,8,7,.78)}
+.panel-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;
+  padding:11px 14px;border-bottom:1px solid var(--line);
+  font-size:10px;letter-spacing:.18em;color:var(--gold)}
+.panel-head .tag{color:var(--muted);font-size:8px;letter-spacing:.14em}
+.panel-body{padding:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line)}
+.cell{background:#070706;padding:14px}
+
+.lbl{font-size:8px;letter-spacing:.18em;color:var(--muted);margin-bottom:6px;display:block}
+select,input{font:10px var(--mono);background:#000;color:var(--ink);
+  border:1px solid rgba(212,175,55,.3);padding:8px 10px;outline:0;width:100%}
+select{cursor:pointer}
+button{font:700 9px var(--mono);letter-spacing:.12em;padding:9px 14px;cursor:pointer;
+  border:1px solid rgba(0,255,157,.4);background:rgba(0,255,157,.07);color:var(--emerald)}
+button:active{background:var(--emerald);color:#00160e}
+button:disabled{border-color:rgba(255,77,95,.3);background:rgba(255,77,95,.05);
+  color:rgba(255,77,95,.6);cursor:not-allowed}
+button.alt{border-color:rgba(212,175,55,.4);background:rgba(212,175,55,.07);color:var(--gold)}
+.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.row.mt{margin-top:11px}
+
+.bar-l{height:3px;background:rgba(212,175,55,.14);margin-top:10px;overflow:hidden}
+.bar-l i{display:block;height:100%;width:0;background:var(--gold);transition:width .25s}
+.meta{margin-top:10px;font-size:8px;line-height:1.7;color:var(--muted);word-break:break-word}
+.meta b{color:var(--gold);font-weight:400}
+
+#out{margin-top:11px;min-height:200px;max-height:400px;overflow-y:auto;
+  border:1px solid rgba(212,175,55,.16);background:#020202;padding:11px;
+  font-size:9.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word;color:#cfd8d2}
+#out .u{color:var(--gold2)}
+#out .a{color:var(--emerald)}
+#out .t{color:var(--cyan)}
+#out .e{color:var(--red)}
+#out .tool{color:var(--violet)}
+#out .res{color:#9fe8c0}
+
+.metrics{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:8px;color:var(--muted)}
+.metrics b{display:block;color:var(--cyan);font-weight:700;font-size:11px;margin-top:3px}
+
+.tools{display:flex;flex-direction:column;gap:6px;margin-top:11px}
+.tool{border:1px solid rgba(212,175,55,.16);background:#020202;padding:9px 11px;font-size:8.5px}
+.tool .n{color:var(--cyan);font-weight:700}
+.tool .ds{margin-top:4px;color:var(--muted);line-height:1.5}
+
+.blocked{margin-top:11px;border:1px solid rgba(255,77,95,.35);background:rgba(255,77,95,.05);
+  padding:11px;font-size:8.5px;line-height:1.65;color:#ffb3bb}
+.blocked b{color:var(--red)}
+.warn{margin-top:11px;border:1px solid rgba(212,175,55,.4);background:rgba(212,175,55,.05);
+  padding:11px;font-size:8.5px;line-height:1.65;color:#e8d9a8}
+.warn b{color:var(--gold)}
+.foot{margin-top:22px;padding-top:13px;border-top:1px solid var(--line);
+  display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;
+  font-size:8.5px;letter-spacing:.13em;color:var(--muted)}
+.foot a{color:var(--gold);text-decoration:none}
+@media(max-width:820px){ .grid2{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="vig"></div><div class="scan"></div>
+
+<main class="wrap">
+  <div class="bar">
+    <span>æ:/llamacpp</span>
+    <span>LLAMA.CPP · WASM+WEBGPU · AGENT LOOP</span>
+    <span><a href="./">← HQ</a></span>
+  </div>
+
+  <section class="hero">
+    <h1>AGENT LOOP IN THE TAB</h1>
+    <div class="sub">LLAMA.CPP INFERENCE · BROWSER-NATIVE TOOLS · <b>NO SERVER</b></div>
+  </section>
+
+  <!-- environment -->
+  <section class="panel">
+    <div class="panel-head"><span>◈ ENVIRONMENT</span><span class="tag">SPIKE://PROBE</span></div>
+    <div class="panel-body">
+      <div class="meta" id="envMeta">probing…</div>
+      <div id="envBlock"></div>
+    </div>
+  </section>
+
+  <!-- engine + agent -->
+  <section class="panel">
+    <div class="panel-head"><span>◈ RUNTIME</span><span class="tag">ENGINE://LOAD + LOOP://RUN</span></div>
+    <div class="grid2">
+
+      <div class="cell">
+        <div class="lbl">WLLAMA · LLAMA.CPP ENGINE</div>
+        <select id="model" aria-label="Model">
+          <option value="ggml-org/models|tinyllamas/stories260K.gguf">stories260K · smoke test (tiny)</option>
+          <option value="Qwen/Qwen2.5-0.5B-Instruct-GGUF|qwen2.5-0.5b-instruct-q4_k_m.gguf">Qwen2.5-0.5B-Instruct · q4_k_m (~400MB)</option>
+          <option value="bartowski/Llama-3.2-1B-Instruct-GGUF|Llama-3.2-1B-Instruct-Q4_K_M.gguf">Llama-3.2-1B-Instruct · Q4_K_M (~800MB)</option>
+        </select>
+        <div class="row mt">
+          <button id="bLoad">LOAD ENGINE</button>
+          <button id="bAbort" class="alt" disabled>ABORT</button>
+        </div>
+        <div class="bar-l"><i id="loadBar"></i></div>
+        <div class="meta" id="loadMeta">idle · weights download on first load, then cached in OPFS</div>
+        <div class="meta" id="engineMeta">—</div>
+      </div>
+
+      <div class="cell">
+        <div class="lbl">AGENT LOOP · TOOL DISPATCH</div>
+        <input id="goal" value="Write a haiku about a sovereign browser agent, then save it to a file called haiku.txt and read it back." autocomplete="off"/>
+        <div class="row mt">
+          <button id="bRun" disabled>RUN AGENT</button>
+          <button id="bClear" class="alt">CLEAR</button>
+        </div>
+        <div class="metrics">
+          <div>TTFT<b id="mTtft">—</b></div>
+          <div>TOK/S<b id="mTps">—</b></div>
+          <div>STEPS<b id="mSteps">—</b></div>
+          <div>TOOL CALLS<b id="mTools">—</b></div>
+        </div>
+        <div class="lbl" style="margin-top:14px">TOOLS THE LOOP CAN CALL</div>
+        <div class="tools" id="toolList"></div>
+      </div>
+
+    </div>
+    <div class="panel-body">
+      <div class="lbl">TRACE</div>
+      <div id="out">READY · load an engine to begin</div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span>æ.store · llm.store · <a href="./">aipodcast_me</a></span>
+    <span>#HERMIPHICATIONISINEVITABLE</span>
+  </div>
+</main>
+
+<script type="module">
+/* ══════════════════════════════════════════════════════════════
+   æ:/llamacpp — SPIKE
+   llama.cpp (wllama WASM) runs the model in the tab; a JS agent
+   loop dispatches real browser-native tools. No server, no API key.
+   Honest reporting: whatever fails is printed, not papered over.
+   ══════════════════════════════════════════════════════════════ */
+
+const $ = id => document.getElementById(id);
+const out = $("out");
+const log = (t, c="") => {
+  const s = document.createElement("span");
+  if(c) s.className = c;
+  s.textContent = t + "\n";
+  out.appendChild(s);
+  out.scrollTop = out.scrollHeight;
+};
+
+/* ── environment probe ─────────────────────────────────────── */
+
+function probeEnv(){
+  const crossOriginIsolated = !!self.crossOriginIsolated;
+  const simd = (() => { try { return WebAssembly.validate(new Uint8Array(
+    [0,97,115,109,1,0,0,0,1,5,1,96,0,1,123,3,2,1,0,10,10,1,8,0,65,0,253,15,253,98,11])); }
+    catch(_){ return false; } })();
+  const memory64 = (() => {
+    // constructing a 64-bit-indexed Memory is the reliable probe;
+    // validating a hand-written module is fragile across engines.
+    try { new WebAssembly.Memory({ initial:1, maximum:2, index:"i64" }); return true; }
+    catch(_){ return false; }
+  })();
+  const opfs = !!(navigator.storage && navigator.storage.getDirectory);
+  const gpu = !!navigator.gpu;
+
+  const rows = [
+    ["webgpu",        gpu,                    gpu ? "present — wllama can offload layers" : "absent — WASM SIMD only"],
+    ["wasm simd",     simd,                   simd ? "present" : "ABSENT — engine will not run"],
+    ["memory64",      memory64,               memory64 ? "present — wllama v3 requirement met" : "ABSENT — wllama v3 needs Memory64 (Safari drops out)"],
+    ["opfs",          opfs,                   opfs ? "present — model cache persistent" : "absent — no persistent model cache"],
+    ["crossOriginIsolated", crossOriginIsolated, crossOriginIsolated ? "true — multithread available" : "false — SINGLE-THREAD ONLY (needs COOP+COEP headers)"]
+  ];
+
+  $("envMeta").innerHTML = rows.map(([k,v,d]) =>
+    `<b>${k}</b> ${v ? "✓" : "✗"} · ${d}`).join("<br>");
+
+  if(!crossOriginIsolated){
+    $("envBlock").innerHTML =
+      '<div class="warn"><b>MULTI-THREAD UNAVAILABLE.</b> GitHub Pages cannot set ' +
+      '<code>Cross-Origin-Embedder-Policy</code> / <code>Cross-Origin-Opener-Policy</code>, ' +
+      'so this runs the single-thread build — roughly 2-4x slower than the multithread one. ' +
+      'Serve the same file with those two headers and it picks up multithread automatically.</div>';
+  }
+  if(!simd){
+    $("envBlock").innerHTML +=
+      '<div class="blocked"><b>WASM SIMD ABSENT.</b> The llama.cpp WASM build requires SIMD. ' +
+      'Engine load is blocked.</div>';
+  }
+  return { simd, crossOriginIsolated, opfs, gpu, memory64 };
+}
+
+/* ── browser-native tools ──────────────────────────────────── */
+
+const TOOLS = {
+  write_file: {
+    desc:"Write text to a file in the browser's Origin Private File System.",
+    args:{ path:"string", content:"string" },
+    run: async ({ path, content }) => {
+      const root = await navigator.storage.getDirectory();
+      const fh = await root.getFileHandle(String(path), { create:true });
+      const w  = await fh.createWritable();
+      await w.write(String(content ?? ""));
+      await w.close();
+      return { ok:true, path, bytes:String(content ?? "").length };
+    }
+  },
+  read_file: {
+    desc:"Read text back from a file in the browser's Origin Private File System.",
+    args:{ path:"string" },
+    run: async ({ path }) => {
+      const root = await navigator.storage.getDirectory();
+      try{
+        const fh = await root.getFileHandle(String(path));
+        const f  = await fh.getFile();
+        return { ok:true, path, content: await f.text() };
+      }catch(e){ return { ok:false, error:"not found: " + path }; }
+    }
+  },
+  list_files: {
+    desc:"List files present in the browser's Origin Private File System.",
+    args:{},
+    run: async () => {
+      const root = await navigator.storage.getDirectory();
+      const names = [];
+      for await (const [name] of root.entries()) names.push(name);
+      return { ok:true, files:names };
+    }
+  },
+  dom_query: {
+    desc:"Read the visible text of an element on this page, by CSS selector.",
+    args:{ selector:"string" },
+    run: async ({ selector }) => {
+      const el = document.querySelector(String(selector));
+      return el ? { ok:true, selector, text:(el.textContent || "").trim().slice(0,400) }
+                : { ok:false, error:"no match: " + selector };
+    }
+  },
+  now: {
+    desc:"Current date and time in ISO format.",
+    args:{},
+    run: async () => ({ ok:true, iso:new Date().toISOString() })
+  }
+};
+
+$("toolList").innerHTML = Object.entries(TOOLS).map(([n,t]) =>
+  `<div class="tool"><div class="n">${n}</div><div class="ds">${t.desc}</div></div>`).join("");
+
+/* ── engine ────────────────────────────────────────────────── */
+
+let Wllama = null, wllama = null, env = null;
+
+async function loadEngineModule(){
+  try{
+    const mod = await import("https://esm.run/@wllama/wllama@3");
+    Wllama = mod.Wllama || mod.default?.Wllama || mod.default;
+    if(typeof Wllama !== "function") throw new Error("Wllama export not found");
+    log("wllama · module resolved", "t");
+    return true;
+  }catch(err){
+    log("wllama · module import failed: " + (err.message||err), "e");
+    log("  note: the CDN build needs Memory64 + SIMD; check the ENVIRONMENT panel.", "t");
+    return false;
+  }
+}
+
+$("bLoad").onclick = async () => {
+  const [repo, file] = $("model").value.split("|");
+  $("bLoad").disabled = true; $("bAbort").disabled = false;
+  $("loadBar").style.width = "0%";
+  log("wllama · loading " + file, "t");
+
+  try{
+    if(!Wllama && !(await loadEngineModule())) throw new Error("engine module unavailable");
+
+    // CDN wasm paths (single-thread is what GitHub Pages can serve)
+    const CONFIG = {
+      default: "https://cdn.jsdelivr.net/npm/@wllama/wllama@3/esm/wasm/wllama.wasm"
+    };
+    wllama = new Wllama(CONFIG, { allowOffline:false });
+
+    await wllama.loadModelFromHF({ repo, file }, {
+      n_ctx: 2048,
+      progressCallback: ({ loaded, total }) => {
+        const pct = total ? Math.round((loaded/total)*100) : 0;
+        $("loadBar").style.width = pct + "%";
+        $("loadMeta").textContent = "downloading · " + pct + "% (" +
+          (loaded/1048576).toFixed(1) + " / " + (total/1048576).toFixed(1) + " MB)";
+      }
+    });
+
+    $("loadBar").style.width = "100%";
+    $("loadMeta").textContent = "engine ready · " + file;
+
+    const info = (() => { try { return wllama.getModelMetadata?.() || {}; } catch(_){ return {}; } })();
+    $("engineMeta").innerHTML = "<b>file</b> " + file + "<br><b>ctx</b> 2048" +
+      (Object.keys(info).length ? "<br><b>meta</b> " + JSON.stringify(info).slice(0,220) : "");
+
+    $("bRun").disabled = false;
+    log("wllama · engine ready", "a");
+  }catch(err){
+    log("wllama · load failed: " + (err.message||err), "e");
+    $("loadMeta").textContent = "load failed";
+  }finally{
+    $("bLoad").disabled = false; $("bAbort").disabled = true;
+  }
+};
+
+$("bAbort").onclick = () => {
+  try{ wllama?.exit?.(); }catch(_){}
+  log("wllama · abort requested", "t");
+};
+
+/* ── the agent loop ────────────────────────────────────────
+   Protocol: model must answer with exactly one JSON object.
+     {"tool":"name","args":{...}}   -> dispatch, feed result back
+     {"final":"..."}                -> done
+   Small models are unreliable at native tool-calling, so the
+   loop enforces a strict protocol and recovers from bad output.
+   ─────────────────────────────────────────────────────────── */
+
+const SYS = `You are a browser-resident agent. You have tools:
+${Object.entries(TOOLS).map(([n,t]) => `- ${n}(${Object.keys(t.args).join(", ")}): ${t.desc}`).join("\n")}
+
+Reply with EXACTLY ONE JSON object and nothing else.
+To call a tool: {"tool":"name","args":{...}}
+To finish:      {"final":"your answer"}
+No prose. No markdown. JSON only.`;
+
+function extractJSON(text){
+  if(!text) return null;
+  const s = text.indexOf("{");
+  const e = text.lastIndexOf("}");
+  if(s === -1 || e === -1 || e <= s) return null;
+  try{ return JSON.parse(text.slice(s, e+1)); }catch(_){ return null; }
+}
+
+let running = false;
+
+$("bRun").onclick = async () => {
+  if(!wllama || running) return;
+  const goal = $("goal").value.trim();
+  if(!goal) return;
+
+  running = true;
+  $("bRun").disabled = true;
+
+  const messages = [{ role:"system", content:SYS }, { role:"user", content:goal }];
+  log("\n> " + goal, "u");
+
+  let steps = 0, toolCalls = 0, totalTokens = 0;
+  const t0 = performance.now();
+  let firstTokenAt = 0;
+  const MAX_STEPS = 6;
+
+  try{
+    for(let step = 0; step < MAX_STEPS; step++){
+      steps++;
+      $("mSteps").textContent = steps;
+
+      const tStep = performance.now();
+      let acc = "";
+
+      const stream = await wllama.createChatCompletion({
+        messages,
+        stream:true,
+        max_tokens:256,
+        temperature:0.2,
+        top_k:40,
+        top_p:0.9
+      });
+
+      for await (const chunk of stream){
+        const d = chunk?.choices?.[0]?.delta?.content || "";
+        if(!d) continue;
+        if(!firstTokenAt){ firstTokenAt = performance.now() - t0; $("mTtft").textContent = Math.round(firstTokenAt) + "ms"; }
+        acc += d; totalTokens++;
+      }
+
+      const elapsed = performance.now() - t0;
+      $("mTps").textContent = (totalTokens / Math.max(1, (elapsed - firstTokenAt)/1000)).toFixed(1);
+      log("  step " + steps + " · " + ((performance.now()-tStep)/1000).toFixed(1) + "s · " +
+          totalTokens + " tok so far", "t");
+
+      const parsed = extractJSON(acc);
+
+      if(!parsed){
+        log("  model emitted no parseable JSON — nudging", "e");
+        log("  raw: " + acc.slice(0,200), "t");
+        messages.push({ role:"assistant", content:acc });
+        messages.push({ role:"user", content:'Invalid. Reply with exactly one JSON object: {"tool":...} or {"final":...}' });
+        continue;
+      }
+
+      if(parsed.final !== undefined){
+        log("\n✓ FINAL: " + parsed.final, "a");
+        break;
+      }
+
+      if(parsed.tool){
+        toolCalls++;
+        $("mTools").textContent = toolCalls;
+
+        const t = TOOLS[parsed.tool];
+        if(!t){
+          log("  unknown tool: " + parsed.tool, "e");
+          messages.push({ role:"assistant", content:acc });
+          messages.push({ role:"user", content:'Unknown tool "' + parsed.tool + '". Use one of: ' + Object.keys(TOOLS).join(", ") });
+          continue;
+        }
+
+        log('  → ' + parsed.tool + '(' + JSON.stringify(parsed.args||{}) + ')', "tool");
+        let result;
+        try{ result = await t.run(parsed.args || {}); }
+        catch(e){ result = { ok:false, error:String(e.message||e) }; }
+        log("  ← " + JSON.stringify(result).slice(0,300), "res");
+
+        messages.push({ role:"assistant", content:acc });
+        messages.push({ role:"user", content:"TOOL RESULT: " + JSON.stringify(result) });
+        continue;
+      }
+
+      log("  JSON had neither tool nor final", "e");
+      break;
+    }
+
+    if(steps >= MAX_STEPS) log("\n[step budget exhausted]", "t");
+
+  }catch(err){
+    log("\nloop error: " + (err.message||err), "e");
+  }finally{
+    running = false;
+    $("bRun").disabled = false;
+  }
+};
+
+$("bClear").onclick = () => { out.innerHTML = ""; };
+
+/* ── boot ──────────────────────────────────────────────────── */
+
+env = probeEnv();
+log("æ:/llamacpp · spike", "t");
+log("llama.cpp via wllama WASM · agent loop in JS · tools browser-native", "t");
+log("", "t");
+if(!env.simd)        log("BLOCKED: no WASM SIMD", "e");
+else if(!env.memory64) log("WARNING: no Memory64 — wllama v3 may refuse to instantiate", "e");
+else                 log("environment OK · load an engine", "a");
+
+console.info("%cæ:/llamacpp%c llama.cpp agent loop in the tab",
+  "color:#D4AF37;background:#050505;padding:5px 10px;font-weight:bold",
+  "color:#00ff9d;font-family:monospace");
+</script>
+</body>
+</html>
