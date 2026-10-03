@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>&gt;_æ://llm.store · 4D OPENBASIC ATLAS</title>
+
+<style>
+:root{
+  --bg:#010204;
+  --panel:rgba(2,7,12,.82);
+  --line:rgba(255,255,255,.10);
+
+  --white:#f7fbff;
+  --lime:#00ff9d;
+  --cyan:#00eaff;
+  --violet:#8b72ff;
+  --gold:#e0b84a;
+  --red:#ff4d5f;
+  --orange:#ff7a18;
+
+  --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+  color:var(--white);
+  font-family:var(--mono);
+}
+
+body{
+  display:grid;
+  place-items:center;
+}
+
+#atlas{
+  width:min(100vw,calc(100dvh * 9 / 16));
+  height:100dvh;
+  max-height:900px;
+  position:relative;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 50% 42%,rgba(0,234,255,.08),transparent 28%),
+    radial-gradient(circle at 50% 50%,#061016 0%,#010204 70%);
+  border-left:1px solid rgba(0,234,255,.18);
+  border-right:1px solid rgba(0,234,255,.18);
+}
+
+canvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  touch-action:none;
+}
+
+.scan{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.18;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 3px,
+      rgba(255,255,255,.035) 3px,
+      rgba(255,255,255,.035) 4px
+    );
+}
+
+header{
+  position:absolute;
+  top:max(12px,env(safe-area-inset-top));
+  left:12px;
+  right:12px;
+  z-index:10;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+}
+
+.brand{
+  font-size:11px;
+  letter-spacing:.14em;
+  color:var(--lime);
+  text-shadow:0 0 12px rgba(0,255,157,.35);
+}
+
+.sub{
+  display:block;
+  margin-top:4px;
+  font-size:6px;
+  letter-spacing:.2em;
+  color:rgba(255,255,255,.35);
+}
+
+.live{
+  border:1px solid rgba(0,255,157,.25);
+  background:rgba(0,0,0,.45);
+  border-radius:999px;
+  padding:5px 8px;
+  font-size:6px;
+  color:var(--lime);
+}
+
+#dimensions{
+  position:absolute;
+  top:62px;
+  left:12px;
+  z-index:10;
+  font-size:7px;
+  line-height:1.8;
+  color:rgba(255,255,255,.38);
+}
+
+#dimensions b:nth-child(1){color:var(--gold)}
+#dimensions b:nth-child(2){color:var(--cyan)}
+#dimensions b:nth-child(3){color:var(--lime)}
+#dimensions b:nth-child(4){color:var(--red)}
+
+#wGauge{
+  position:absolute;
+  right:12px;
+  top:65px;
+  height:150px;
+  width:8px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.55);
+  z-index:10;
+}
+
+#wFill{
+  position:absolute;
+  left:1px;
+  right:1px;
+  bottom:1px;
+  height:12%;
+  background:linear-gradient(to top,var(--red),var(--gold),var(--lime));
+  box-shadow:0 0 12px rgba(255,77,95,.55);
+  transition:height .2s;
+}
+
+#wLabel{
+  position:absolute;
+  right:24px;
+  top:65px;
+  writing-mode:vertical-rl;
+  font-size:6px;
+  color:rgba(255,255,255,.35);
+  letter-spacing:.14em;
+}
+
+#receipt{
+  position:absolute;
+  left:12px;
+  right:12px;
+  bottom:126px;
+  z-index:12;
+  min-height:28px;
+  display:flex;
+  align-items:center;
+  padding:7px 9px;
+  border:1px solid rgba(0,234,255,.15);
+  border-radius:7px;
+  background:rgba(0,0,0,.64);
+  color:var(--cyan);
+  font-size:7px;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+
+#ontology{
+  position:absolute;
+  left:12px;
+  bottom:165px;
+  z-index:10;
+  padding:8px 10px;
+  background:rgba(0,0,0,.48);
+  border:1px solid rgba(255,255,255,.08);
+  font-size:6px;
+  line-height:1.6;
+  color:rgba(255,255,255,.4);
+}
+
+#ontology strong{color:var(--white)}
+#ontology .authority{color:var(--gold)}
+
+.command{
+  position:absolute;
+  left:12px;
+  right:12px;
+  bottom:max(18px,env(safe-area-inset-bottom));
+  height:96px;
+  z-index:20;
+  background:rgba(1,5,9,.92);
+  border:1px solid rgba(0,255,157,.2);
+  border-radius:12px;
+  overflow:hidden;
+  backdrop-filter:blur(12px);
+}
+
+.cmd-head{
+  height:27px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 9px;
+  border-bottom:1px solid rgba(0,255,157,.1);
+  color:var(--lime);
+  font-size:7px;
+}
+
+.keys{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:4px;
+  padding:6px;
+}
+
+button{
+  border:1px solid rgba(255,255,255,.09);
+  background:rgba(255,255,255,.025);
+  color:rgba(255,255,255,.55);
+  border-radius:6px;
+  padding:7px 2px;
+  font:6.5px var(--mono);
+  cursor:pointer;
+}
+
+button:active{
+  color:#000;
+  background:var(--lime);
+}
+
+.center-label{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  z-index:5;
+  pointer-events:none;
+  text-align:center;
+  opacity:.12;
+}
+
+.center-label .ae{
+  font-size:64px;
+  font-weight:900;
+}
+
+.center-label small{
+  display:block;
+  font-size:6px;
+  letter-spacing:.3em;
+}
+</style>
+</head>
+
+<body>
+
+<div id="atlas">
+
+  <canvas id="c"></canvas>
+  <div class="scan"></div>
+
+  <header>
+    <div>
+      <div class="brand">&gt;_æ://llm.store</div>
+      <span class="sub">OPENBASIC ATLAS · 4D COMPUTE MANIFOLD</span>
+    </div>
+    <div class="live">● LOCAL-SOVEREIGN</div>
+  </header>
+
+  <div id="dimensions">
+    <b>æ¹</b> AUTHORITY<br>
+    <b>æ²</b> COGNITION<br>
+    <b>æ³</b> CAPABILITY<br>
+    <b>æ⁴</b> COMPUTE
+  </div>
+
+  <div id="wLabel">æ⁴ COMPUTE</div>
+  <div id="wGauge"><div id="wFill"></div></div>
+
+  <div class="center-label">
+    <div class="ae">æ</div>
+    <small>COMPUTE MANIFOLD</small>
+  </div>
+
+  <div id="ontology">
+    <strong>INVARIANT:</strong><br>
+    context may move.<br>
+    capability may execute.<br>
+    <span class="authority">authority remains with principal.</span>
+  </div>
+
+  <div id="receipt">
+    RCPT::READY · HUMAN://PRINCIPAL · COMPUTE=0.000
+  </div>
+
+  <div class="command">
+    <div class="cmd-head">
+      <span>æ&gt;_ KEY BINDINGS</span>
+      <span id="phase">OBSERVE</span>
+    </div>
+
+    <div class="keys">
+      <button onclick="executeNode('discover')">1 · DISCOVER</button>
+      <button onclick="executeNode('distribute')">2 · DISTRIBUTE</button>
+      <button onclick="executeNode('molt')">3 · MOLT</button>
+      <button onclick="executeNode('return')">4 · RETURN</button>
+
+      <button onclick="setPlane('xw')">XW</button>
+      <button onclick="setPlane('yw')">YW</button>
+      <button onclick="setPlane('zw')">ZW</button>
+      <button onclick="resetAtlas()">RESET</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+const receipt = document.getElementById('receipt');
+const phase = document.getElementById('phase');
+const wFill = document.getElementById('wFill');
+
+let W=0,H=0,DPR=Math.min(devicePixelRatio||1,2);
+
+const state = {
+  ax:.25,
+  ay:.25,
+  az:0,
+  xw:0,
+  yw:0,
+  zw:0,
+  plane:'xw',
+  compute:.10,
+  targetCompute:.10,
+  selected:null,
+  dragging:false,
+  px:0,
+  py:0,
+  tick:0
+};
+
+const COLORS = {
+  white:'#ffffff',
+  gold:'#e0b84a',
+  cyan:'#00eaff',
+  lime:'#00ff9d',
+  violet:'#8b72ff',
+  red:'#ff4d5f',
+  orange:'#ff7a18'
+};
+
+/*
+  x = authority
+  y = cognition
+  z = capability
+  w = compute
+*/
+const nodes = [
+  {
+    id:'principal',
+    label:'HUMAN://PRINCIPAL',
+    x:0,y:-1.25,z:0,w:-.15,
+    color:COLORS.white,
+    fixedAuthority:true
+  },
+  {
+    id:'local',
+    label:'LOCAL-SOVEREIGN',
+    x:0,y:-.72,z:0,w:0,
+    color:COLORS.gold
+  },
+  {
+    id:'discover',
+    label:'DISCOVER · Æ.STORE',
+    x:-1.05,y:0,z:.22,w:.18,
+    color:COLORS.lime
+  },
+  {
+    id:'distribute',
+    label:'DISTRIBUTE · NEUROMITOSIS',
+    x:0,y:.02,z:.85,w:.38,
+    color:COLORS.cyan
+  },
+  {
+    id:'molt',
+    label:'MOLT · CONTEXT PROTOCOL',
+    x:1.05,y:0,z:.22,w:.62,
+    color:COLORS.violet
+  },
+  {
+    id:'hermes',
+    label:'HERMES://COGNITION',
+    x:-.62,y:.72,z:-.45,w:.52,
+    color:COLORS.violet
+  },
+  {
+    id:'openclaw',
+    label:'OPENCLAW://EXECUTION',
+    x:.62,y:.72,z:-.45,w:.80,
+    color:COLORS.orange
+  },
+  {
+    id:'return',
+    label:'REINTEGRATE → PRINCIPAL',
+    x:0,y:1.25,z:0,w:1.0,
+    color:COLORS.lime
+  }
+];
+
+const edges = [
+  ['principal','local'],
+  ['local','discover'],
+  ['local','distribute'],
+  ['local','molt'],
+  ['discover','hermes'],
+  ['distribute','hermes'],
+  ['molt','openclaw'],
+  ['hermes','openclaw'],
+  ['openclaw','return'],
+  ['hermes','return'],
+  ['return','principal']
+];
+
+function resize(){
+  const r=canvas.getBoundingClientRect();
+  W=r.width;
+  H=r.height;
+  canvas.width=W*DPR;
+  canvas.height=H*DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+resize();
+addEventListener('resize',resize);
+
+function rotate2(a,b,t){
+  const c=Math.cos(t), s=Math.sin(t);
+  return [a*c-b*s,a*s+b*c];
+}
+
+function rotate4(v){
+  let {x,y,z,w}=v;
+
+  [x,w]=rotate2(x,w,state.xw);
+  [y,w]=rotate2(y,w,state.yw);
+  [z,w]=rotate2(z,w,state.zw);
+
+  [x,z]=rotate2(x,z,state.ay);
+  [y,z]=rotate2(y,z,state.ax);
+  [x,y]=rotate2(x,y,state.az);
+
+  return {x,y,z,w};
+}
+
+function project4(v){
+  const p=rotate4(v);
+
+  const d4=3.4;
+  const k4=d4/(d4-p.w);
+
+  let x=p.x*k4;
+  let y=p.y*k4;
+  let z=p.z*k4;
+
+  const d3=4.6;
+  const k3=d3/(d3-z);
+
+  x*=k3;
+  y*=k3;
+
+  const scale=Math.min(W,H)*.235;
+
+  return {
+    x:W/2+x*scale,
+    y:H*.46+y*scale,
+    depth:z,
+    w:p.w,
+    scale:k3*k4
+  };
+}
+
+function nodeById(id){
+  return nodes.find(n=>n.id===id);
+}
+
+function hexAlpha(hex,a){
+  const n=parseInt(hex.slice(1),16);
+  const r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+function drawGrid(){
+  ctx.save();
+  ctx.strokeStyle='rgba(255,255,255,.035)';
+  ctx.lineWidth=.5;
+
+  const gap=28;
+
+  for(let x=(W/2)%gap;x<W;x+=gap){
+    ctx.beginPath();
+    ctx.moveTo(x,0);
+    ctx.lineTo(x,H);
+    ctx.stroke();
+  }
+
+  for(let y=(H*.46)%gap;y<H;y+=gap){
+    ctx.beginPath();
+    ctx.moveTo(0,y);
+    ctx.lineTo(W,y);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawTesseract(){
+  const s=.7;
+
+  const pts=[];
+  for(let i=0;i<16;i++){
+    pts.push({
+      x:(i&1)?s:-s,
+      y:(i&2)?s:-s,
+      z:(i&4)?s:-s,
+      w:(i&8)?s:-s
+    });
+  }
+
+  const pp=pts.map(project4);
+
+  ctx.save();
+  ctx.lineWidth=.6;
+
+  for(let i=0;i<16;i++){
+    for(let bit=0;bit<4;bit++){
+      const j=i^(1<<bit);
+
+      if(j<i) continue;
+
+      const a=pp[i], b=pp[j];
+
+      const computeEdge=bit===3;
+
+      ctx.strokeStyle=computeEdge
+        ? 'rgba(255,77,95,.18)'
+        : 'rgba(0,234,255,.08)';
+
+      ctx.beginPath();
+      ctx.moveTo(a.x,a.y);
+      ctx.lineTo(b.x,b.y);
+      ctx.stroke();
+    }
+  }
+
+  ctx.restore();
+}
+
+function drawEdges(projected){
+  edges.forEach(([aID,bID],index)=>{
+    const a=projected[aID];
+    const b=projected[bID];
+
+    ctx.strokeStyle='rgba(255,255,255,.10)';
+    ctx.lineWidth=.7;
+
+    ctx.beginPath();
+    ctx.moveTo(a.x,a.y);
+    ctx.lineTo(b.x,b.y);
+    ctx.stroke();
+
+    const energy=(state.tick*.012+index*.14)%1;
+
+    const ex=a.x+(b.x-a.x)*energy;
+    const ey=a.y+(b.y-a.y)*energy;
+
+    ctx.fillStyle=hexAlpha(nodeById(bID).color,.65*state.compute);
+    ctx.beginPath();
+    ctx.arc(ex,ey,1.4+state.compute*1.8,0,Math.PI*2);
+    ctx.fill();
+  });
+}
+
+function drawNodes(projected){
+  const sorted=[...nodes].sort(
+    (a,b)=>projected[a.id].depth-projected[b.id].depth
+  );
+
+  sorted.forEach(n=>{
+    const p=projected[n.id];
+    const selected=state.selected===n.id;
+
+    const pulse=1+Math.sin(state.tick*.04+n.x*3)*.15;
+    const radius=(selected?6:3.2)*pulse*Math.max(.65,p.scale);
+
+    const wEnergy=Math.max(0,Math.min(1,(p.w+1.4)/2.8));
+
+    ctx.save();
+
+    ctx.shadowColor=n.color;
+    ctx.shadowBlur=selected?24:8+wEnergy*10;
+
+    ctx.fillStyle=n.color;
+    ctx.globalAlpha=.45+wEnergy*.55;
+
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,radius,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.shadowBlur=0;
+    ctx.globalAlpha=1;
+
+    ctx.font=`${selected?7:5.5}px ui-monospace,monospace`;
+    ctx.textAlign='center';
+    ctx.fillStyle=selected ? '#fff' : hexAlpha(n.color,.65);
+
+    ctx.fillText(
+      n.label,
+      p.x,
+      p.y-radius-7
+    );
+
+    if(n.fixedAuthority){
+      ctx.strokeStyle='rgba(224,184,74,.55)';
+      ctx.lineWidth=1;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,radius+5,0,Math.PI*2);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  });
+}
+
+function drawComputeRing(){
+  const cx=W/2, cy=H*.46;
+  const r=75+state.compute*65;
+
+  ctx.save();
+
+  ctx.strokeStyle=`rgba(255,77,95,${.05+state.compute*.18})`;
+  ctx.lineWidth=1;
+  ctx.setLineDash([3,7]);
+
+  ctx.beginPath();
+  ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.stroke();
+
+  ctx.setLineDash([]);
+
+  ctx.font='6px ui-monospace,monospace';
+  ctx.textAlign='center';
+  ctx.fillStyle=`rgba(255,77,95,${.25+state.compute*.6})`;
+  ctx.fillText(
+    `æ⁴ COMPUTE ${(state.compute*100).toFixed(0)}%`,
+    cx,
+    cy-r-8
+  );
+
+  ctx.restore();
+}
+
+function frame(){
+  state.tick++;
+
+  state.compute += (state.targetCompute-state.compute)*.035;
+
+  if(state.selected){
+    state.targetCompute=Math.max(
+      .18,
+      state.targetCompute-.00065
+    );
+  }
+
+  if(state.plane==='xw') state.xw+=.0022+.004*state.compute;
+  if(state.plane==='yw') state.yw+=.0022+.004*state.compute;
+  if(state.plane==='zw') state.zw+=.0022+.004*state.compute;
+
+  ctx.clearRect(0,0,W,H);
+
+  drawGrid();
+  drawTesseract();
+
+  const projected={};
+  nodes.forEach(n=>{
+    projected[n.id]=project4({
+      x:n.x,
+      y:n.y,
+      z:n.z,
+      w:n.w*state.compute
+    });
+  });
+
+  drawEdges(projected);
+  drawComputeRing();
+  drawNodes(projected);
+
+  wFill.style.height=`${Math.max(5,state.compute*100)}%`;
+
+  requestAnimationFrame(frame);
+}
+frame();
+
+function executeNode(id){
+  state.selected=id;
+  state.targetCompute=.96;
+
+  const n=nodeById(id);
+
+  phase.textContent=id.toUpperCase();
+
+  const rcpt=
+    `RCPT::${crypto.randomUUID().slice(0,8).toUpperCase()} · `+
+    `${n.label} · COMPUTE=${state.targetCompute.toFixed(3)} · `+
+    `AUTHORITY=HUMAN://PRINCIPAL`;
+
+  receipt.textContent=rcpt;
+
+  if(navigator.vibrate) navigator.vibrate(12);
+}
+
+function setPlane(p){
+  state.plane=p;
+  phase.textContent=`ROTATE:${p.toUpperCase()}`;
+  receipt.textContent=
+    `4D ROTATION · ${p.toUpperCase()} PLANE · æ⁴=COMPUTE`;
+}
+
+function resetAtlas(){
+  state.ax=.25;
+  state.ay=.25;
+  state.az=0;
+  state.xw=0;
+  state.yw=0;
+  state.zw=0;
+  state.selected=null;
+  state.targetCompute=.10;
+
+  phase.textContent='OBSERVE';
+
+  receipt.textContent=
+    'RCPT::READY · HUMAN://PRINCIPAL · COMPUTE=0.000';
+}
+
+canvas.addEventListener('pointerdown',e=>{
+  state.dragging=true;
+  state.px=e.clientX;
+  state.py=e.clientY;
+  canvas.setPointerCapture?.(e.pointerId);
+});
+
+canvas.addEventListener('pointermove',e=>{
+  if(!state.dragging)return;
+
+  const dx=e.clientX-state.px;
+  const dy=e.clientY-state.py;
+
+  state.ay+=dx*.008;
+  state.ax+=dy*.008;
+
+  state.px=e.clientX;
+  state.py=e.clientY;
+});
+
+canvas.addEventListener('pointerup',()=>{
+  state.dragging=false;
+});
+
+canvas.addEventListener('click',e=>{
+  const rect=canvas.getBoundingClientRect();
+
+  const mx=e.clientX-rect.left;
+  const my=e.clientY-rect.top;
+
+  let nearest=null;
+  let best=24;
+
+  nodes.forEach(n=>{
+    const p=project4({
+      x:n.x,
+      y:n.y,
+      z:n.z,
+      w:n.w*state.compute
+    });
+
+    const d=Math.hypot(mx-p.x,my-p.y);
+
+    if(d<best){
+      best=d;
+      nearest=n;
+    }
+  });
+
+  if(nearest) executeNode(nearest.id);
+});
+
+addEventListener('keydown',e=>{
+  if(e.key==='1') executeNode('discover');
+  if(e.key==='2') executeNode('distribute');
+  if(e.key==='3') executeNode('molt');
+  if(e.key==='4') executeNode('return');
+
+  if(e.key.toLowerCase()==='x') setPlane('xw');
+  if(e.key.toLowerCase()==='y') setPlane('yw');
+  if(e.key.toLowerCase()==='z') setPlane('zw');
+
+  if(e.key==='Escape') resetAtlas();
+});
+</script>
+
+</body>
+</html>

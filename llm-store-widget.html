@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>&gt;_æ://llm.store</title>
+
+<style>
+:root{
+  --bg:#010204;
+  --panel:#050912;
+  --panel2:#08101a;
+
+  --fg:#e8fff7;
+  --dim:#526b69;
+
+  --local:#00ff9d;
+  --private:#35ff79;
+  --public:#ffffff;
+  --sovereign:#e0b84a;
+
+  --hermes:#8d7dff;
+  --claw:#ff643c;
+
+  --line:rgba(0,255,157,.15);
+  --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+
+  --radius:18px;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+  color:var(--fg);
+  font-family:var(--mono);
+}
+
+body{
+  display:grid;
+  place-items:center;
+}
+
+/* 9:16 chassis */
+#widget{
+  position:relative;
+  width:min(100vw,300px);
+  aspect-ratio:9/16;
+  max-height:100dvh;
+
+  overflow:hidden;
+  border:1px solid rgba(0,255,157,.22);
+  border-radius:var(--radius);
+
+  background:
+    radial-gradient(circle at 50% 20%,rgba(0,255,157,.08),transparent 34%),
+    radial-gradient(circle at 80% 56%,rgba(141,125,255,.06),transparent 32%),
+    linear-gradient(180deg,#03070d,#010204);
+
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.9),
+    inset 0 0 45px rgba(0,255,157,.025);
+
+  display:grid;
+  grid-template-rows:
+    34px
+    minmax(0,1fr)
+    minmax(0,1fr)
+    34%;
+}
+
+/* CRT */
+#widget::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:100;
+
+  background:repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 3px,
+    rgba(0,0,0,.15) 3px,
+    rgba(0,0,0,.15) 4px
+  );
+
+  opacity:.45;
+}
+
+/* HEADER */
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 10px;
+
+  border-bottom:1px solid var(--line);
+  background:rgba(0,0,0,.45);
+
+  z-index:10;
+}
+
+.root{
+  color:var(--local);
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.02em;
+  text-shadow:0 0 10px rgba(0,255,157,.35);
+}
+
+.mode{
+  display:flex;
+  align-items:center;
+  gap:5px;
+
+  color:var(--sovereign);
+  font-size:7px;
+  letter-spacing:.1em;
+}
+
+.dot{
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:var(--local);
+  box-shadow:0 0 8px var(--local);
+  animation:pulse 1.8s infinite;
+}
+
+@keyframes pulse{
+  50%{opacity:.3}
+}
+
+/* COMMON WINDOW */
+.window{
+  position:relative;
+  overflow:hidden;
+  border-bottom:1px solid var(--line);
+  min-height:0;
+}
+
+.window-head{
+  height:23px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 8px;
+
+  color:var(--dim);
+  background:rgba(255,255,255,.018);
+
+  font-size:7px;
+  letter-spacing:.1em;
+}
+
+.window-head strong{
+  color:var(--local);
+}
+
+/* TOP WINDOW */
+#topWindow{
+  display:flex;
+  flex-direction:column;
+}
+
+#orbStage{
+  flex:1;
+  position:relative;
+  display:grid;
+  place-items:center;
+  min-height:0;
+}
+
+.orb{
+  width:92px;
+  height:92px;
+  border-radius:50%;
+
+  position:relative;
+  display:grid;
+  place-items:center;
+
+  border:1px solid rgba(0,255,157,.35);
+
+  background:
+    radial-gradient(circle at 35% 25%,rgba(255,255,255,.13),transparent 22%),
+    radial-gradient(circle,rgba(0,255,157,.10),rgba(0,0,0,.4) 60%,#000 75%);
+
+  box-shadow:
+    0 0 35px rgba(0,255,157,.16),
+    inset 0 0 30px rgba(0,255,157,.08);
+
+  cursor:pointer;
+}
+
+.orb::before,
+.orb::after{
+  content:"";
+  position:absolute;
+  border-radius:50%;
+  border:1px solid rgba(0,255,157,.12);
+}
+
+.orb::before{
+  inset:-12px;
+  animation:spin 14s linear infinite;
+}
+
+.orb::after{
+  inset:-24px;
+  border-style:dashed;
+  animation:spinR 21s linear infinite;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg)}
+}
+@keyframes spinR{
+  to{transform:rotate(-360deg)}
+}
+
+.orb-inner{
+  text-align:center;
+  z-index:2;
+}
+
+.orb-root{
+  font-size:19px;
+  font-weight:900;
+  color:var(--local);
+  text-shadow:0 0 14px rgba(0,255,157,.55);
+}
+
+.orb-sub{
+  margin-top:3px;
+  font-size:5.5px;
+  color:var(--dim);
+  letter-spacing:.1em;
+}
+
+.agent{
+  position:absolute;
+  bottom:7px;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+
+  font-size:7px;
+}
+
+.agent span:first-child{
+  font-size:22px;
+}
+
+.agent small{
+  font-size:5px;
+  letter-spacing:.08em;
+}
+
+#hermes{
+  left:12px;
+  color:var(--hermes);
+}
+
+#claw{
+  right:12px;
+  color:var(--claw);
+}
+
+/* AUTHORITY RAIL */
+.authority{
+  position:absolute;
+  top:7px;
+  left:7px;
+  right:7px;
+
+  display:flex;
+  gap:4px;
+}
+
+.auth{
+  flex:1;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:3px 2px;
+
+  text-align:center;
+  font-size:5px;
+  color:var(--dim);
+
+  cursor:pointer;
+}
+
+.auth.active{
+  color:#00160c;
+  background:var(--local);
+  border-color:var(--local);
+  font-weight:900;
+}
+
+/* SECOND WINDOW */
+#middleWindow{
+  display:flex;
+  flex-direction:column;
+}
+
+#manifest{
+  flex:1;
+  overflow:auto;
+  padding:7px 9px;
+
+  font-size:6.5px;
+  line-height:1.62;
+  color:#a9c8be;
+}
+
+#manifest b{
+  color:var(--local);
+}
+
+#manifest .gold{
+  color:var(--sovereign);
+}
+
+#manifest .purple{
+  color:var(--hermes);
+}
+
+#manifest .orange{
+  color:var(--claw);
+}
+
+/* FEEDBACK */
+#feedback{
+  position:absolute;
+  left:7px;
+  right:7px;
+  bottom:4px;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+
+  color:var(--local);
+  font-size:6px;
+}
+
+/* KEYBOARD THIRD */
+#keyboard{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+
+  padding:6px;
+  background:rgba(1,5,8,.96);
+
+  min-height:0;
+}
+
+#cmdRow{
+  display:flex;
+  gap:5px;
+  align-items:center;
+
+  border:1px solid var(--line);
+  border-radius:7px;
+
+  padding:5px 7px;
+  min-height:30px;
+}
+
+.prompt{
+  color:var(--local);
+  font-weight:900;
+  font-size:10px;
+  white-space:nowrap;
+}
+
+#cmd{
+  flex:1;
+  min-width:0;
+
+  background:transparent;
+  border:0;
+  outline:0;
+
+  color:var(--fg);
+  font:8px var(--mono);
+}
+
+#exec{
+  border:1px solid rgba(0,255,157,.3);
+  background:rgba(0,255,157,.08);
+  color:var(--local);
+
+  border-radius:5px;
+  padding:3px 7px;
+
+  font:7px var(--mono);
+  cursor:pointer;
+}
+
+.keyRow{
+  display:flex;
+  gap:3px;
+  flex:1;
+}
+
+.key{
+  flex:1;
+  min-width:0;
+
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:5px;
+
+  background:var(--panel2);
+  color:#6e8580;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  font:700 7px var(--mono);
+
+  cursor:pointer;
+  transition:.12s;
+}
+
+.key:active{
+  transform:translateY(1px);
+  background:rgba(0,255,157,.08);
+  color:var(--local);
+}
+
+.key strong{
+  font-size:9px;
+  color:var(--local);
+}
+
+.key small{
+  margin-top:2px;
+  font-size:4.7px;
+  color:var(--dim);
+}
+
+.key.local{
+  border-color:rgba(0,255,157,.3);
+  background:rgba(0,255,157,.07);
+}
+
+.key.hermes strong{color:var(--hermes)}
+.key.claw strong{color:var(--claw)}
+.key.gold strong{color:var(--sovereign)}
+
+.footer{
+  display:flex;
+  justify-content:space-between;
+  color:#263c39;
+  font-size:4.5px;
+  letter-spacing:.08em;
+  padding:0 2px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="widget">
+
+<header>
+  <div class="root">&gt;_æ://llm.store</div>
+
+  <div class="mode">
+    <span class="dot"></span>
+    <span id="modeLabel">LOCAL-SOVEREIGN</span>
+  </div>
+</header>
+
+
+<!-- WINDOW 1 -->
+<section class="window" id="topWindow">
+
+  <div class="window-head">
+    <span>01 · RUNTIME</span>
+    <strong>LOCAL FIRST</strong>
+  </div>
+
+  <div id="orbStage">
+
+    <div class="authority">
+      <div class="auth active" data-mode="LOCAL-SOVEREIGN">LOCAL</div>
+      <div class="auth" data-mode="PRIVATE">PRIVATE</div>
+      <div class="auth" data-mode="PUBLIC">PUBLIC</div>
+    </div>
+
+    <div class="agent" id="hermes">
+      <span>🪽</span>
+      <small>HERMES</small>
+    </div>
+
+    <div class="orb" id="orb">
+      <div class="orb-inner">
+        <div class="orb-root">æ</div>
+        <div class="orb-sub">LOCAL ROOT</div>
+      </div>
+    </div>
+
+    <div class="agent" id="claw">
+      <span>🦞</span>
+      <small>OPENCLAW</small>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- WINDOW 2 -->
+<section class="window" id="middleWindow">
+
+  <div class="window-head">
+    <span>02 · ONTOLOGY</span>
+    <strong>AUTHORITY GRAPH</strong>
+  </div>
+
+  <div id="manifest">
+
+    <b>HUMAN://PRINCIPAL</b><br>
+    └─ <span class="gold">AUTHORITY://LOCAL</span><br>
+    &nbsp;&nbsp;&nbsp;├─ OMARCHY://HOST<br>
+    &nbsp;&nbsp;&nbsp;├─ PRIVATE://MEMORY<br>
+    &nbsp;&nbsp;&nbsp;├─ LOCAL://MODELS<br>
+    &nbsp;&nbsp;&nbsp;├─ <span class="purple">HERMES://COGNITION</span><br>
+    &nbsp;&nbsp;&nbsp;└─ <span class="orange">OPENCLAW://EXECUTION</span><br><br>
+
+    <b>DISCOVER</b> → æ.store<br>
+    <b>DISTRIBUTE</b> → neuromitosis.com<br>
+    <b>MOLT</b> → moltcontextprotocol.com<br>
+    <b>REINTEGRATE</b> → HUMAN://PRINCIPAL
+
+  </div>
+
+  <div id="feedback">READY · authority remains local</div>
+
+</section>
+
+
+<!-- KEYBOARD -->
+<section id="keyboard">
+
+  <div id="cmdRow">
+    <span class="prompt">æ&gt;_</span>
+    <input id="cmd"
+           value="local"
+           autocomplete="off"
+           spellcheck="false"
+           aria-label="Command"/>
+    <button id="exec">EXEC</button>
+  </div>
+
+  <div class="keyRow">
+
+    <button class="key local" data-command="local">
+      <strong>LOCAL</strong>
+      <small>default</small>
+    </button>
+
+    <button class="key hermes" data-command="hermes">
+      <strong>🪽</strong>
+      <small>cognition</small>
+    </button>
+
+    <button class="key claw" data-command="claw">
+      <strong>🦞</strong>
+      <small>execute</small>
+    </button>
+
+    <button class="key gold" data-command="receipt">
+      <strong>RCPT</strong>
+      <small>lineage</small>
+    </button>
+
+  </div>
+
+  <div class="keyRow">
+
+    <button class="key" data-command="discover">
+      <strong>Æ</strong>
+      <small>discover</small>
+    </button>
+
+    <button class="key" data-command="distribute">
+      <strong>∴</strong>
+      <small>distribute</small>
+    </button>
+
+    <button class="key" data-command="molt">
+      <strong>MOLT</strong>
+      <small>specialize</small>
+    </button>
+
+    <button class="key" data-command="return">
+      <strong>↩</strong>
+      <small>principal</small>
+    </button>
+
+  </div>
+
+  <div class="keyRow">
+
+    <button class="key" data-command="private">
+      <strong>🟢://</strong>
+      <small>delegate</small>
+    </button>
+
+    <button class="key" data-command="public">
+      <strong>⚫://</strong>
+      <small>publish</small>
+    </button>
+
+    <button class="key" data-command="namespace">
+      <strong>&gt;_æ://</strong>
+      <small>root</small>
+    </button>
+
+    <button class="key" data-command="help">
+      <strong>?</strong>
+      <small>bindings</small>
+    </button>
+
+  </div>
+
+  <div class="footer">
+    <span>LOCAL IS PRESUMED</span>
+    <span>REMOTE IS DELEGATED</span>
+    <span>PUBLIC IS EXPLICIT</span>
+  </div>
+
+</section>
+
+</div>
+
+
+<script>
+(() => {
+
+  const cmd       = document.getElementById("cmd");
+  const exec      = document.getElementById("exec");
+  const feedback  = document.getElementById("feedback");
+  const modeLabel = document.getElementById("modeLabel");
+  const orb       = document.getElementById("orb");
+
+  const state = {
+    authority: "LOCAL-SOVEREIGN",
+    agent: "HERMES",
+    executor: "OPENCLAW",
+    principal: "HUMAN",
+    receipts: 0
+  };
+
+  function say(text){
+    feedback.textContent = text;
+  }
+
+  function setAuthority(mode){
+
+    state.authority = mode;
+    modeLabel.textContent = mode;
+
+    document
+      .querySelectorAll(".auth")
+      .forEach(el =>
+        el.classList.toggle(
+          "active",
+          el.dataset.mode === mode
+        )
+      );
+
+    say(`AUTHORITY · ${mode}`);
+  }
+
+  document
+    .querySelectorAll(".auth")
+    .forEach(el => {
+
+      el.addEventListener("click", () => {
+
+        const mode = el.dataset.mode;
+
+        if(mode === "LOCAL-SOVEREIGN"){
+          setAuthority(mode);
+        }
+
+        else if(mode === "PRIVATE"){
+          setAuthority("PRIVATE");
+          say("PRIVATE · remote delegation authorized");
+        }
+
+        else if(mode === "PUBLIC"){
+          setAuthority("PUBLIC");
+          say("PUBLIC · explicit publication boundary");
+        }
+
+      });
+
+    });
+
+  function execute(raw){
+
+    const input = raw.trim().toLowerCase();
+
+    if(!input) return;
+
+    cmd.value = input;
+
+    switch(input){
+
+      case "local":
+        setAuthority("LOCAL-SOVEREIGN");
+        break;
+
+      case "private":
+        setAuthority("PRIVATE");
+        break;
+
+      case "public":
+        setAuthority("PUBLIC");
+        break;
+
+      case "hermes":
+        state.agent = "HERMES";
+        say("🪽 HERMES · cognition bound locally");
+        break;
+
+      case "claw":
+        state.executor = "OPENCLAW";
+        say("🦞 OPENCLAW · execution awaits principal");
+        break;
+
+      case "discover":
+        say("Æ.STORE · capability discovery");
+        break;
+
+      case "distribute":
+        say("NEUROMITOSIS · cognition distributed");
+        break;
+
+      case "molt":
+        orb.animate(
+          [
+            {transform:"scale(1)"},
+            {transform:"scale(1.16)"},
+            {transform:"scale(1)"}
+          ],
+          {
+            duration:600,
+            easing:"cubic-bezier(.2,.8,.2,1)"
+          }
+        );
+
+        say("MOLT · inherit → specialize → constrain");
+        break;
+
+      case "return":
+        say("↩ RESULT · reintegrated to HUMAN://PRINCIPAL");
+        break;
+
+      case "receipt":
+
+        state.receipts++;
+
+        const id =
+          crypto.randomUUID ?
+          crypto.randomUUID().slice(0,8).toUpperCase() :
+          Math.random()
+            .toString(16)
+            .slice(2,10)
+            .toUpperCase();
+
+        say(`RCPT://${id} · lineage sealed · ${state.receipts}`);
+
+        break;
+
+      case "namespace":
+        say(">_æ://llm.store · namespace root");
+        break;
+
+      case "status":
+        say(
+          `${state.authority} · ${state.agent} → ${state.executor}`
+        );
+        break;
+
+      case "help":
+        say(
+          "LOCAL · HERMES · CLAW · DISCOVER · DISTRIBUTE · MOLT · RCPT"
+        );
+        break;
+
+      default:
+        say(`> ${input} · local runtime received`);
+    }
+  }
+
+  exec.addEventListener("click", () =>
+    execute(cmd.value)
+  );
+
+  cmd.addEventListener("keydown", e => {
+
+    if(e.key === "Enter"){
+      execute(cmd.value);
+    }
+
+  });
+
+  document
+    .querySelectorAll(".key")
+    .forEach(key => {
+
+      key.addEventListener("click", () => {
+
+        const command = key.dataset.command;
+
+        if(navigator.vibrate){
+          navigator.vibrate(5);
+        }
+
+        execute(command);
+
+      });
+
+    });
+
+  orb.addEventListener("click", () =>
+    execute("status")
+  );
+
+  /* machine-readable contract */
+  window.AE_LLM_STORE = Object.freeze({
+
+    root: ">_æ://llm.store",
+
+    principal: "HUMAN",
+
+    defaultAuthority: "LOCAL-SOVEREIGN",
+
+    cognition: "HERMES",
+
+    execution: "OPENCLAW",
+
+    host: "OMARCHY",
+
+    lifecycle:[
+      "DISCOVER",
+      "DISTRIBUTE",
+      "MOLT",
+      "REINTEGRATE"
+    ],
+
+    invariants:[
+      "NO_MOLT_WITHOUT_PARENT",
+      "NO_CAPABILITY_WITHOUT_PROVENANCE",
+      "NO_AUTHORITY_WITHOUT_PRINCIPAL",
+      "AUTHORITY_NEVER_PROPAGATES_IMPLICITLY"
+    ]
+
+  });
+
+  console.info(
+    "%c>_æ://llm.store%c LOCAL-SOVEREIGN",
+    "color:#00ff9d;font:700 14px monospace",
+    "color:#e0b84a;font:11px monospace"
+  );
+
+})();
+</script>
+
+</body>
+</html>
