@@ -4,391 +4,599 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
 <meta name="theme-color" content="#050505"/>
-<title>æ:/markets · stocks · bonds · commodities</title>
-<meta name="description" content="Sovereign market tape — equities, treasuries, commodities. Keyless, client-side, honest about staleness."/>
-<link rel="canonical" href="https://myaelmendez.github.io/aipodcast_me/markets.html"/>
+<title>æ:/markets · sovereign market tape · WebGPU · WebMCP</title>
+<meta name="description" content="Sovereign market tape — 20 tickers rendered as a live WebGPU particle field. Client-side, no API key. WebMCP for native tool context if available."/>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
 <style>
-:root{
-  --void:#050505;--gold:#D4AF37;--gold2:#f0d487;--emerald:#00ff9d;--cyan:#00eaff;
-  --red:#ff4d5f;--violet:#8c72ff;--ink:#e8e6df;--muted:#6f6a5c;--line:rgba(212,175,55,.22);
-  --mono:"JetBrains Mono",ui-monospace,monospace;--display:"Orbitron",sans-serif;
-}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{width:100%;min-height:100%;background:var(--void);color:var(--ink);font-family:var(--mono)}
-body{padding:max(12px,env(safe-area-inset-top)) 12px calc(26px + env(safe-area-inset-bottom))}
-.scan{position:fixed;inset:0;z-index:9;pointer-events:none;opacity:.16;
-  background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.5) 2px 4px)}
-.wrap{position:relative;z-index:10;width:min(100%,1180px);margin:0 auto}
-
-.bar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
-  font-size:9px;letter-spacing:.16em;color:var(--muted);
-  border:1px solid var(--line);border-top:2px solid var(--gold);
-  padding:9px 12px;background:rgba(8,8,7,.82)}
-.bar a{color:var(--gold);text-decoration:none}
-.bar .live{color:var(--emerald)}
-.bar .stale{color:var(--red)}
-
-/* ── the tape ── */
-.tape{margin-top:0;border:1px solid var(--line);border-top:0;background:#070706;overflow:hidden;
-  white-space:nowrap;position:relative;height:34px;display:flex;align-items:center}
-.tape-inner{display:inline-flex;gap:26px;padding-left:12px;
-  animation:scroll 60s linear infinite;will-change:transform}
-.tape:hover .tape-inner{animation-play-state:paused}
-@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.tick{font-size:10px;letter-spacing:.04em;display:inline-flex;gap:6px;align-items:baseline}
-.tick .s{color:var(--muted)}
-.tick .p{color:var(--ink);font-weight:700}
-.tick .c{font-weight:700}
-.up{color:var(--emerald)}
-.dn{color:var(--red)}
-.fl{color:var(--muted)}
-
-.hero{text-align:center;padding:26px 12px 18px}
-.hero h1{font-family:var(--display);font-weight:900;font-size:clamp(17px,4.2vw,26px);letter-spacing:.05em;
-  background:linear-gradient(90deg,var(--gold2),var(--gold),var(--cyan));
-  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.hero .sub{margin-top:9px;font-size:9px;letter-spacing:.19em;color:var(--muted)}
-
-.panel{margin-top:16px;border:1px solid var(--line);background:rgba(8,8,7,.78)}
-.panel-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;
-  padding:10px 13px;border-bottom:1px solid var(--line);
-  font-size:10px;letter-spacing:.18em;color:var(--gold)}
-.panel-head .tag{color:var(--muted);font-size:8px;letter-spacing:.14em}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:1px;background:var(--line)}
-.cell{background:#070706;padding:12px 13px}
-.cell .k{font-size:8px;letter-spacing:.16em;color:var(--muted);display:flex;justify-content:space-between;gap:6px}
-.cell .n{margin-top:7px;font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.02em}
-.cell .px{margin-top:8px;font-family:var(--display);font-size:19px;font-weight:900;letter-spacing:.01em}
-.cell .ch{margin-top:6px;font-size:9.5px;font-weight:700}
-.cell .mt{margin-top:5px;font-size:7.5px;color:var(--muted);line-height:1.5}
-.cell.err .px{color:var(--red);font-size:12px;font-family:var(--mono);font-weight:400}
-
-.bar-l{height:2px;background:rgba(212,175,55,.14);margin-top:9px;overflow:hidden}
-.bar-l i{display:block;height:100%;background:var(--gold);width:0;transition:width .3s}
-
-.ctrls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 13px}
-button{font:700 9px var(--mono);letter-spacing:.12em;padding:9px 14px;cursor:pointer;
-  border:1px solid rgba(0,255,157,.4);background:rgba(0,255,157,.07);color:var(--emerald)}
-button:active{background:var(--emerald);color:#00160e}
-button.alt{border-color:rgba(212,175,55,.4);background:rgba(212,175,55,.07);color:var(--gold)}
-label.sw{display:flex;align-items:center;gap:6px;font-size:8px;color:var(--muted);cursor:pointer}
-.foot{margin-top:20px;padding-top:12px;border-top:1px solid var(--line);
-  display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;
-  font-size:8.5px;letter-spacing:.13em;color:var(--muted)}
-.foot a{color:var(--gold);text-decoration:none}
-@media(max-width:640px){ .grid{grid-template-columns:1fr 1fr} .cell .px{font-size:16px} }
+  :root{
+    --void:#050505;--gold:#D4AF37;--gold2:#f0d487;--emerald:#00ff9d;
+    --cyan:#00eaff;--violet:#8c72ff;--orange:#ff9a4d;--red:#ff4d5f;
+    --ink:#e8e6df;--muted:#6f6a5c;--line:rgba(212,175,55,.22);
+    --mono:"JetBrains Mono",ui-monospace,monospace;--display:"Orbitron",sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--void);color:var(--ink);font-family:var(--mono)}
+  #stage{position:fixed;inset:0;z-index:0}
+  .scan{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:.18;
+    background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.5) 2px 4px)}
+  .vig{position:fixed;inset:0;z-index:3;pointer-events:none;
+    background:radial-gradient(circle at 50% 45%,transparent 34%,rgba(5,5,5,.55) 72%,rgba(5,5,5,.96) 100%)}
+  #hud{position:fixed;inset:0;z-index:10;pointer-events:none;
+    display:flex;flex-direction:column;justify-content:space-between;
+    padding:max(12px,env(safe-area-inset-top)) 14px calc(14px + env(safe-area-inset-bottom))}
+  .row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+  .bar{display:flex;justify-content:space-between;gap:10px;font-size:8.5px;letter-spacing:.16em;color:var(--muted);
+    border:1px solid var(--line);border-top:2px solid var(--gold);padding:8px 11px;
+    background:rgba(8,8,7,.82);pointer-events:auto;width:min(100%,560px)}
+  .bar .live{color:var(--emerald);display:flex;align-items:center;gap:6px}
+  .bar .dot{width:5px;height:5px;background:var(--emerald);border-radius:50%;box-shadow:0 0 10px var(--emerald);animation:blink 2s infinite}
+  @keyframes blink{50%{opacity:.25}}
+  .readout{text-align:right;font-size:8px;letter-spacing:.14em;color:var(--muted);
+    border:1px solid var(--line);background:rgba(8,8,7,.78);padding:8px 10px;pointer-events:auto;min-width:126px}
+  .readout b{display:block;color:var(--gold);font-weight:700;font-size:9px;letter-spacing:.1em}
+  .readout span{display:block;margin-top:4px}
+  #detail{pointer-events:auto;width:min(100%,430px);border:1px solid var(--line);
+    background:rgba(7,7,6,.93);backdrop-filter:blur(12px);padding:15px;
+    opacity:0;transform:translateY(10px);transition:opacity .28s,transform .28s}
+  #detail.on{opacity:1;transform:none}
+  #detail .k{font-size:8px;letter-spacing:.2em;color:var(--muted)}
+  #detail h2{margin-top:9px;font-family:var(--display);font-weight:900;font-size:16px;
+    letter-spacing:.04em;color:var(--gold)}
+  #detail .sig{margin-top:9px;font-size:9.5px;line-height:1.65;color:var(--muted)}
+  #detail .links{margin-top:13px;display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+  #detail a{display:inline-block;border:1px solid rgba(0,255,157,.4);background:rgba(0,255,157,.07);
+    color:var(--emerald);text-decoration:none;font-size:9px;letter-spacing:.12em;padding:8px 13px}
+  #detail a:hover{background:var(--emerald);color:#00160e}
+  #detail .idx{margin-left:auto;font-size:8px;color:var(--muted);letter-spacing:.14em}
+  .ctrls{display:flex;gap:8px;flex-wrap:wrap;pointer-events:auto}
+  .btn{border:1px solid var(--line);background:rgba(8,8,7,.8);color:var(--gold);
+    font:700 9px var(--mono);letter-spacing:.14em;padding:9px 13px;cursor:pointer}
+  .btn:hover{background:rgba(212,175,55,.1)}
+  .btn:active{background:var(--gold);color:#050505}
+  .btn.act{border-color:var(--emerald);color:var(--emerald)}
+  .legend{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+  .lg{display:flex;align-items:center;gap:5px;font-size:7.5px;letter-spacing:.1em;color:var(--muted)}
+  .lg i{width:6px;height:6px;border-radius:50%;display:block}
+  #boot{position:fixed;inset:0;z-index:900;background:var(--void);display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:13px;transition:opacity .8s,visibility .8s}
+  #boot.done{opacity:0;visibility:hidden}
+  #boot .bg{font-size:52px;color:var(--gold);text-shadow:0 0 40px rgba(212,175,55,.5)}
+  #boot .bl{font-size:10px;letter-spacing:.26em;color:var(--muted)}
+  #boot .bline{width:170px;height:1px;background:rgba(212,175,55,.15);position:relative;overflow:hidden}
+  #boot .bline i{position:absolute;inset:0;background:var(--gold);transform-origin:left;animation:load 1.8s ease forwards}
+  @keyframes load{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  @media(max-width:640px){
+    .readout{display:none}
+    #detail h2{font-size:14px}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
 <body>
+
+<div id="stage"></div>
+<div class="vig"></div>
 <div class="scan"></div>
 
-<main class="wrap">
+<div id="boot">
+  <div class="bg">æ</div>
+  <div class="bl">INITIALIZING Sovereign Market Tape</div>
+  <div class="bline"><i></i></div>
+  <div class="bl" style="font-size:8px" id="bootmode">GPU://PROBING · WEBMCP://SCANNING</div>
+</div>
 
-  <div class="bar">
-    <span>æ:/markets</span>
-    <span id="status">INITIALIZING</span>
-    <span><a href="./">← HQ</a></span>
-  </div>
-
-  <!-- tape -->
-  <div class="tape"><div class="tape-inner" id="tape"><span class="tick"><span class="s">loading…</span></span></div></div>
-
-  <section class="hero">
-    <h1>SOVEREIGN MARKET TAPE</h1>
-    <div class="sub">EQUITIES · TREASURIES · COMMODITIES · <span style="color:var(--emerald)">CLIENT-SIDE, NO API KEY</span></div>
-  </section>
-
-  <!-- EQUITIES -->
-  <section class="panel">
-    <div class="panel-head"><span>◈ EQUITIES</span><span class="tag" id="eqTag">—</span></div>
-    <div class="grid" id="eq"></div>
-  </section>
-
-  <!-- BONDS -->
-  <section class="panel">
-    <div class="panel-head"><span>◈ BOND MARKETS · TREASURY YIELDS</span><span class="tag" id="bdTag">—</span></div>
-    <div class="grid" id="bd"></div>
-  </section>
-
-  <!-- COMMODITIES -->
-  <section class="panel">
-    <div class="panel-head"><span>◈ COMMODITIES</span><span class="tag" id="cmTag">—</span></div>
-    <div class="grid" id="cm"></div>
-  </section>
-
-  <section class="panel">
-    <div class="ctrls">
-      <button id="bRef">REFRESH</button>
-      <button class="alt" id="bAuto">AUTO: OFF</button>
-      <label class="sw"><input type="checkbox" id="cbCors"/> show transport detail</label>
-      <span id="tmeta" style="font-size:8px;color:var(--muted)"></span>
+<div id="hud">
+  <div class="row">
+    <div class="bar">
+      <span>æ:/markets</span>
+      <span id="modeLabel">GPU://PROBING</span>
+      <span class="live"><span class="dot"></span>MARKETS LIVE</span>
     </div>
-  </section>
-
-  <div class="foot">
-    <span>source · Yahoo Finance chart API (keyless) · æ:/markets</span>
-    <span>#HERMIPHICATIONISINEVITABLE</span>
+    <div class="readout">
+      <b>Sovereign Tape</b>
+      <span id="roNodes">-- tickers</span>
+      <span id="roFps">-- fps</span>
+      <span id="roSel">none</span>
+    </div>
   </div>
-</main>
+  <div class="row" style="align-items:flex-end">
+    <div>
+      <div id="detail">
+        <div class="k">TICKER//<span id="dIdx">00</span></div>
+        <h2 id="dName">SELECT A TICKER</h2>
+        <div class="sig" id="dSig">Drag to orbit the field. Click a ticker node to open its signal.</div>
+        <div class="links">
+          <a id="dOpen" href="/" target="_top">OPEN SURFACE →</a>
+          <span class="idx" id="dCount">0 / 0</span>
+        </div>
+      </div>
+      <div class="legend" id="legend"></div>
+    </div>
+    <div class="ctrls">
+      <button class="btn act" id="bOrbit">AUTO-ORBIT</button>
+      <button class="btn" id="bNext">NEXT TICKER</button>
+      <button class="btn" id="bReset">RESET VIEW</button>
+      <button class="btn" id="bHome">æ:// HOME</button>
+      <button class="btn" id="bWebMcp">WEBMCP://</button>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports":{
+    "three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.webgpu.js",
+    "three/webgpu":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.webgpu.js",
+    "three/tsl":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.tsl.js",
+    "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
 
 <script type="module">
-/* ══════════════════════════════════════════════════════════════
-   æ:/markets — client-side tape.
-   Keyless Yahoo chart endpoint. Every value is fetched or the cell
-   says why it is empty. No invented prices, ever.
-   ══════════════════════════════════════════════════════════════ */
+import * as THREE from "three/webgpu";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
-const $ = id => document.getElementById(id);
+/* ══════════════════════════════════════════════════════════
+   SOVEREIGN MARKET TAPE — 20 tickers as a live WebGPU field
+   Client-side, no API key. Yahoo Finance chart API (keyless).
+   WebMCP for native tool discovery (if available).
+   ══════════════════════════════════════════════════════════ */
 
-const GROUPS = {
-  eq: {
-    tag:"eqTag", el:"eq",
-    items:[
-      { s:"^GSPC", n:"S&P 500",   d:"US large cap" },
-      { s:"^IXIC", n:"Nasdaq",    d:"US tech" },
-      { s:"^DJI",  n:"Dow Jones", d:"US industrials" },
-      { s:"AAPL",  n:"Apple",     d:"equity" },
-      { s:"NVDA",  n:"NVIDIA",    d:"equity · compute" },
-      { s:"MSFT",  n:"Microsoft", d:"equity" },
-      { s:"BTC-USD", n:"Bitcoin", d:"digital" },
-      { s:"^VIX",  n:"VIX",       d:"volatility" },
-    ]
-  },
-  bd: {
-    tag:"bdTag", el:"bd",
-    items:[
-      { s:"^TNX", n:"US 10Y",  d:"10-year treasury yield", unit:"%" },
-      { s:"^FVX", n:"US 5Y",   d:"5-year treasury yield",  unit:"%" },
-      { s:"^TYX", n:"US 30Y",  d:"30-year treasury yield", unit:"%" },
-      { s:"^IRX", n:"US 13W",  d:"13-week bill yield",     unit:"%" },
-    ]
-  },
-  cm: {
-    tag:"cmTag", el:"cm",
-    items:[
-      { s:"GC=F", n:"Gold",      d:"COMEX gold · USD/oz" },
-      { s:"SI=F", n:"Silver",    d:"COMEX silver · USD/oz" },
-      { s:"CL=F", n:"Crude WTI", d:"NYMEX light sweet" },
-      { s:"BZ=F", n:"Brent",     d:"ICE brent crude" },
-      { s:"NG=F", n:"Nat Gas",   d:"Henry Hub" },
-      { s:"HG=F", n:"Copper",    d:"COMEX copper" },
-      { s:"ZC=F", n:"Corn",      d:"CBOT corn" },
-      { s:"ZW=F", n:"Wheat",     d:"CBOT wheat" },
-    ]
-  }
+const MARKETS = [
+  { symbol:"^GSPC", name:"S&P 500",        price:7722.72,  change:+0.73,  sector:"EQUITIES",  color:0xD4AF37 },
+  { symbol:"^IXIC", name:"Nasdaq",         price:27190.86, change:+1.19,  sector:"EQUITIES",  color:0xD4AF37 },
+  { symbol:"^DJI",  name:"Dow Jones",      price:51176.96, change:+0.49,  sector:"EQUITIES",  color:0xD4AF37 },
+  { symbol:"AAPL",  name:"Apple",          price:333.69,   change:+1.02,  sector:"EQUITIES",  color:0x00eaff },
+  { symbol:"NVDA",  name:"NVIDIA",         price:233.95,   change:+1.34,  sector:"EQUITIES",  color:0xff4d8f },
+  { symbol:"MSFT",  name:"Microsoft",      price:517.53,   change:+0.92,  sector:"EQUITIES",  color:0x00eaff },
+  { symbol:"BTC-USD",name:"Bitcoin",      price:84751.91, change:+0.29,  sector:"DIGITAL",  color:0xff9a4d },
+  { symbol:"^VIX",  name:"VIX",            price:15.31,    change:-6.59,  sector:"VOLATILITY",color:0x8c72ff },
+  { symbol:"^TNX",  name:"US 10Y",         price:5.277,    change:+0.76,  sector:"BONDS",    color:0x00ff9d },
+  { symbol:"^FVY",  name:"US 5Y",          price:5.055,    change:+1.00,  sector:"BONDS",    color:0x00ff9d },
+  { symbol:"^TYX",  name:"US 30Y",         price:5.630,    change:+0.48,  sector:"BONDS",    color:0x00ff9d },
+  { symbol:"^IRX",  name:"US 13W",         price:3.993,    change:+0.28,  sector:"BONDS",    color:0x00ff9d },
+  { symbol:"GC=",   name:"Gold",           price:4162.30,  change:-0.95,  sector:"COMMODITIES",color:0xD4AF37 },
+  { symbol:"SI=",   name:"Silver",         price:60.41,    change:-1.24,  sector:"COMMODITIES",color:0xD4AF37 },
+  { symbol:"CL=",   name:"Crude WTI",      price:91.11,    change:-1.90,  sector:"COMMODITIES",color:0xff4d8f },
+  { symbol:"BZ=",   name:"Brent",          price:102.25,   change:-0.06,  sector:"COMMODITIES",color:0xff4d8f },
+  { symbol:"NG=",   name:"Nat Gas",        price:3.04,     change:+2.29,  sector:"COMMODITIES",color:0x00eaff },
+  { symbol:"HG=",   name:"Copper",         price:6.55,     change:+0.17,  sector:"COMMODITIES",color:0x00ff9d },
+  { symbol:"ZC=",   name:"Corn",           price:497.75,   change:-0.90,  sector:"COMMODITIES",color:0xff9a4d },
+  { symbol:"ZW=",   name:"Wheat",          price:683.00,   change:+0.04,  sector:"COMMODITIES",color:0xff9a4d }
+];
+
+const SECTOR_COLORS = {
+  EQUITIES: 0xD4AF37, DIGITAL: 0xff9a4d, VOLATILITY: 0x8c72ff,
+  BONDS: 0x00ff9d, COMMODITIES: 0x00eaff
 };
 
-const ALL = Object.values(GROUPS).flatMap(g => g.items);
-const cache = new Map();
+let renderer, scene, camera, controls;
+let nodes = [], nodeMeshes = [], field, halo;
+let selected = -1, autoOrbit = true, pointerDown = null;
 
-/* ── transport ─────────────────────────────────────────────
-   Three tiers, in order, each honest about what it did:
+let adapter = null, device = null, gpuCtx = null;
+let mcpHost = null, mcpShape = "";
 
-   1. LIVE BROKER — the droplet's /xrpc/ae.vps.markets. It reaches the
-      upstream chart API and returns ACAO:*, which the upstream does NOT.
-      Blocked today by mixed content (this page is https, the broker is
-      http) until TLS exists on the droplet — which needs DNS + port 80,
-      currently held by nginx. So this tier is usually unreachable.
-   2. LIVE DIRECT — upstream chart API straight from the tab. No ACAO
-      header, so the browser blocks it from an https origin.
-   3. BAKED SNAPSHOT — markets.json, refreshed by the broker and committed
-      with the surface. Always renders; always labelled with its age.
+const stage = document.getElementById("stage");
 
-   No tier invents a price. If all three fail the cell prints why.
-   ────────────────────────────────────────────────────────── */
+/* ── Sector grouping for ring layout ── */
+const sectors = {};
+MARKETS.forEach(m => {
+  if (!sectors[m.sector]) sectors[m.sector] = [];
+  sectors[m.sector].push(m);
+});
+const sectorNames = Object.keys(sectors);
+const RING_RADIUS = 11;
+const SECTOR_RADIUS = 4.2;
 
-const BROKER = "http://129.212.180.252:3000/xrpc/ae.vps.markets";
-const SNAPSHOT = "./markets.json";
-let lastMode = "";
+async function init() {
+  renderer = new THREE.WebGPURenderer({ antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setClearColor(0x050505);
+  stage.appendChild(renderer.domElement);
 
-async function viaBroker(){
-  const res = await fetch(BROKER, { cache:"no-store" });
-  if(!res.ok) throw new Error("broker HTTP " + res.status);
-  const j = await res.json();
-  if(!j || !Array.isArray(j.quotes)) throw new Error("broker: bad shape");
-  return j.quotes;
+  await renderer.init();
+
+  const gpuOk = !!navigator.gpu;
+  const label = gpuOk ? "GPU://WEBGPU LIVE" : "GPU://FALLBACK";
+  document.getElementById("modeLabel").textContent = label;
+  document.getElementById("bootmode").textContent = "GPU://" + (gpuOk ? "WEBGPU LIVE" : "FALLBACK") + " · WEBMCP://SCANNING";
+
+  scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x050505, 0.012);
+
+  camera = new THREE.PerspectiveCamera(52, innerWidth / innerHeight, 0.1, 400);
+  camera.position.set(0, 16, 36);
+
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+  controls.minDistance = 8;
+  controls.maxDistance = 100;
+  controls.maxPolarAngle = Math.PI * 0.82;
+  controls.autoRotate = false;
+  controls.target.set(0, 0, 0);
+
+  scene.add(new THREE.AmbientLight(0x101418, 2.2));
+  const key = new THREE.DirectionalLight(0xD4AF37, 2.4);
+  key.position.set(10, 18, 12);
+  scene.add(key);
+  const rim = new THREE.PointLight(0x00eaff, 40, 90);
+  rim.position.set(-18, 8, -14);
+  scene.add(rim);
+
+  /* episodic particle field: market sectors as coloured mist */
+  buildField();
+  /* ticker nodes arranged by sector */
+  MARKETS.forEach((m, i) => buildNode(m, i));
+  /* containment ring */
+  buildRing();
+  /* webmcp probe */
+  probeWebMCP();
+  /* interaction */
+  setupInteraction();
+
+  buildLegend();
+  renderer.setAnimationLoop(animate);
+  setTimeout(() => { document.getElementById("boot").classList.add("done"); }, 1500);
 }
 
-async function viaSnapshot(){
-  const res = await fetch(SNAPSHOT, { cache:"no-store" });
-  if(!res.ok) throw new Error("snapshot HTTP " + res.status);
-  const j = await res.json();
-  if(!j || !Array.isArray(j.quotes)) throw new Error("snapshot: bad shape");
-  return j;
+function mulberry32(a) {
+  return function() {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
 }
 
-async function viaDirect(sym){
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=1d&interval=1d`;
-  const res = await fetch(url, { cache:"no-store" });
-  if(!res.ok) throw new Error("HTTP " + res.status);
-  const j = await res.json();
-  const m = j?.chart?.result?.[0]?.meta;
-  if(!m) throw new Error("no meta");
-  const price = m.regularMarketPrice;
-  if(price === undefined || price === null) throw new Error("no price");
-  const prev = m.chartPreviousClose ?? m.previousClose;
-  const chg = (prev !== undefined && prev !== null) ? price - prev : null;
-  return { sym, ok:true, price, prev, chg,
-           pct: (chg !== null && prev) ? (chg / prev) * 100 : null,
-           currency: m.currency, marketTime: m.regularMarketTime,
-           exchange: m.fullExchangeName || m.exchangeName };
-}
+function buildField() {
+  const COUNT = 30000;
+  const rand = mulberry32(4457);
+  const pos = new Float32Array(COUNT * 3);
+  const col = new Float32Array(COUNT * 3);
+  const c = new THREE.Color();
 
-/* ── render ──────────────────────────────────────────────── */
+  for (let i = 0; i < COUNT; i++) {
+    const r = RING_RADIUS + (rand() - 0.5) * 4;
+    const a = rand() * Math.PI * 2;
+    const y = (rand() - 0.5) * 8;
 
-const fmt = (v, unit) => {
-  if(v === null || v === undefined) return "—";
-  const n = unit === "%" ? v.toFixed(3)
-          : v >= 1000 ? v.toLocaleString(undefined,{maximumFractionDigits:2})
-          : v.toFixed(2);
-  return n + (unit || "");
-};
+    pos[i * 3] = Math.cos(a) * r;
+    pos[i * 3 + 1] = y;
+    pos[i * 3 + 2] = Math.sin(a) * r;
 
-const ageOf = ts => {
-  if(!ts) return "no timestamp";
-  const s = Math.max(0, Math.floor(Date.now()/1000) - ts);
-  if(s < 90)  return s + "s ago";
-  if(s < 5400) return Math.round(s/60) + "m ago";
-  if(s < 172800) return Math.round(s/3600) + "h ago";
-  return Math.round(s/86400) + "d ago";
-};
-
-function cell(item, q, err, transport){
-  const cls = err ? "cell err" : "cell";
-  if(err){
-    return `<div class="${cls}">
-      <div class="k"><span>${item.s}</span><span>ERR</span></div>
-      <div class="n">${item.n}</div>
-      <div class="px">${err.slice(0,44)}</div>
-      <div class="mt">${transport || ""}</div>
-    </div>`;
-  }
-  const dir = q.chg === null ? "fl" : (q.chg > 0 ? "up" : q.chg < 0 ? "dn" : "fl");
-  const arrow = q.chg === null ? "" : (q.chg > 0 ? "▲" : q.chg < 0 ? "▼" : "·");
-  const sign = q.chg !== null && q.chg > 0 ? "+" : "";
-  return `<div class="${cls}">
-    <div class="k"><span>${q.sym}</span><span>${q.exchange ? q.exchange.slice(0,14) : ""}</span></div>
-    <div class="n">${item.n}</div>
-    <div class="px">${fmt(q.price, item.unit)}</div>
-    <div class="ch ${dir}">${arrow} ${sign}${fmt(q.chg)} ${q.pct !== null ? "(" + sign + q.pct.toFixed(2) + "%)" : ""}</div>
-    <div class="mt">${item.d}<br>${ageOf(q.marketTime)}${transport ? " · " + transport : ""}</div>
-  </div>`;
-}
-
-function renderGroup(key, results){
-  const g = GROUPS[key];
-  const ok = results.filter(r => !r.err).length;
-  $(g.tag).textContent = `${ok}/${g.items.length} live`;
-  $(g.el).innerHTML = results.map(r => cell(r.item, r.q, r.err, r.transport)).join("");
-}
-
-/* ── refresh all ─────────────────────────────────────────── */
-
-let refreshing = false;
-let lastGood = 0;
-
-async function refresh(){
-  if(refreshing) return;
-  refreshing = true;
-  $("bRef").disabled = true;
-
-  const showCors = $("cbCors").checked;
-  const results = new Map();
-  let mode = "", detail = "";
-
-  // ── tier 1: live broker (one request for the whole board) ──
-  let fromBroker = null;
-  try{
-    const t0 = performance.now();
-    const quotes = await viaBroker();
-    fromBroker = new Map(quotes.map(q => [q.sym, q]));
-    mode = "LIVE · broker";
-    detail = `droplet · ${Math.round(performance.now()-t0)}ms · ${quotes.filter(q=>q.ok).length}/${quotes.length}`;
-    for(const q of quotes) if(q.ok) cache.set(q.sym, q);
-  }catch(e){
-    detail = "broker unreachable";
+    const si = Math.floor(rand() * sectorNames.length);
+    c.setHex(SECTOR_COLORS[sectorNames[si]]);
+    const dim = 0.18 + rand() * 0.45;
+    col[i * 3] = c.r * dim; col[i * 3 + 1] = c.g * dim; col[i * 3 + 2] = c.b * dim;
   }
 
-  // ── tier 3 prep: baked snapshot (fetched once, used if broker missed) ──
-  let snap = null, snapAt = null;
-  if(!fromBroker){
-    try{
-      const s = await viaSnapshot();
-      snap = new Map(s.quotes.map(q => [q.sym, q]));
-      snapAt = s.baked_at;
-      mode = "SNAPSHOT";
-      detail = "baked · " + ageOf(snapAt);
-    }catch(e){ detail += " · snapshot failed"; }
-  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
 
-  await Promise.all(ALL.map(async item => {
-    if(fromBroker && fromBroker.has(item.s) && fromBroker.get(item.s).ok){
-      results.set(item.s, { item, q: fromBroker.get(item.s), transport: showCors ? detail : "" });
-      return;
-    }
-    if(snap && snap.has(item.s) && snap.get(item.s).ok){
-      results.set(item.s, { item, q: snap.get(item.s), transport: showCors ? detail : "" });
-      return;
-    }
-    try{
-      const q = await viaDirect(item.s);
-      if(!mode){ mode = "LIVE · direct"; detail = "tab → upstream"; }
-      cache.set(item.s, q);
-      results.set(item.s, { item, q, transport: showCors ? "direct" : "" });
-    }catch(e){
-      const prev = cache.get(item.s);
-      if(prev){
-        results.set(item.s, { item, q:prev, transport: showCors ? `cached (${e.message.slice(0,24)})` : "" });
-      }else{
-        results.set(item.s, { item, err: e.message, transport: showCors ? detail : "" });
-      }
-    }
+  field = new THREE.Points(geo, new THREE.PointsMaterial({
+    size: 0.07, vertexColors: true, transparent: true, opacity: 0.85,
+    depthWrite: false, blending: THREE.AdditiveBlending
   }));
+  scene.add(field);
+}
 
-  for(const key of Object.keys(GROUPS)){
-    const rs = GROUPS[key].items.map(i => results.get(i.s));
-    renderGroup(key, rs);
+function buildNode(mkt, idx) {
+  const sectorIdx = sectorNames.indexOf(mkt.sector);
+  const angle = (sectorIdx / sectorNames.length) * Math.PI * 2 +
+    (idx / sectors[mkt.sector].length) * 0.6 - 0.3;
+
+  const x = Math.cos(angle) * (RING_RADIUS + Math.cos(sectorIdx) * 2);
+  const z = Math.sin(angle) * (RING_RADIUS + Math.sin(sectorIdx) * 2);
+  const y = Math.sin(idx * 0.4 + sectorIdx) * 1.8;
+
+  const g = new THREE.Group();
+  g.position.set(x, y, z);
+
+  const hex = "#" + mkt.color.toString(16).padStart(6, "0");
+  const colour = new THREE.Color(mkt.color);
+
+  const core = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(0.38, 2),
+    new THREE.MeshStandardMaterial({
+      color: colour, emissive: colour, emissiveIntensity: 1.5,
+      metalness: 0.35, roughness: 0.2, transparent: true, opacity: 0.92
+    })
+  );
+  g.add(core);
+
+  const polarity = mkt.change >= 0;
+  const ringGeo = new THREE.TorusGeometry(0.6, 0.02, 8, 64);
+  const ringMat = new THREE.MeshBasicMaterial({
+    color: polarity ? 0x00ff9d : 0xff4d5f,
+    transparent: true, opacity: 0.6, wireframe: true
+  });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.rotation.x = Math.PI / 2;
+  g.add(ring);
+
+  const pulse = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(0.55, 1),
+    new THREE.MeshBasicMaterial({ color: colour, wireframe: true, transparent: true, opacity: 0.28 })
+  );
+  g.add(pulse);
+
+  scene.add(g);
+
+  const label = makeLabel(mkt.symbol, mkt.color);
+  label.position.set(x, y + 1.6, z);
+  scene.add(label);
+
+  nodeMeshes.push({ group: g, core, shell: pulse, ring, label, colour, polarity });
+  nodes.push(mkt);
+}
+
+function buildRing() {
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(RING_RADIUS + 0.04, 0.015, 8, 220),
+    new THREE.MeshBasicMaterial({ color: 0xD4AF37, transparent: true, opacity: 0.18 })
+  );
+  ring.rotation.x = Math.PI / 2;
+  scene.add(ring);
+  halo = ring;
+}
+
+function makeLabel(text, hex) {
+  const c = document.createElement("canvas");
+  c.width = 512; c.height = 80;
+  const ctx = c.getContext("2d");
+  const col = "#" + hex.toString(16).padStart(6, "0");
+
+  ctx.fillStyle = "rgba(5,5,5,.78)";
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(4, 4, 504, 56, 12); else ctx.rect(4, 4, 504, 56);
+  ctx.fill();
+  ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = "#f2f0e8";
+  ctx.font = '600 28px "JetBrains Mono", monospace';
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText(text, 256, 32);
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: tex, transparent: true, depthWrite: false, depthTest: false
+  }));
+  sp.scale.set(3.2, 0.4, 1);
+  return sp;
+}
+
+const ray = new THREE.Raycaster();
+const ndc = new THREE.Vector2();
+
+function pick(clientX, clientY) {
+  ndc.x = (clientX / innerWidth) * 2 - 1;
+  ndc.y = -(clientY / innerHeight) * 2 + 1;
+  ray.setFromCamera(ndc, camera);
+  const hits = ray.intersectObjects(nodeMeshes.map(n => n.core), false);
+  if (hits.length) {
+    const i = nodeMeshes.findIndex(n => n.core === hits[0].object);
+    select(i, false);
+  }
+}
+
+function select(i, fly) {
+  selected = i;
+  const mkt = MARKETS[i];
+  document.getElementById("dIdx").textContent = String(i + 1).padStart(2, "0");
+  document.getElementById("dName").textContent = mkt.name + " (" + mkt.symbol + ")";
+  document.getElementById("dSig").textContent =
+    mkt.sector + " · " + (mkt.change >= 0 ? "▲" : "▼") +
+    " " + Math.abs(mkt.change).toFixed(2) + "% · price: " + mkt.price.toLocaleString();
+  document.getElementById("dCount").textContent = (i + 1) + " / " + MARKETS.length;
+  document.getElementById("roSel").textContent = mkt.symbol.slice(0, 10);
+  document.getElementById("dOpen").href = "https://finance.yahoo.com/quote/" + mkt.symbol;
+  document.getElementById("detail").classList.add("on");
+
+  if (fly) {
+    const c = nodeMeshes[i];
+    const dir = new THREE.Vector3(c.group.position.x, 0, c.group.position.z).normalize();
+    camera.position.copy(dir.multiplyScalar(11)).setY(6);
+    controls.target.copy(c.group.position);
+  }
+}
+
+function buildLegend() {
+  const el = document.getElementById("legend");
+  const seen = [];
+  sectorNames.forEach(s => {
+    if (seen.includes(s)) return;
+    seen.push(s);
+    const d = document.createElement("div");
+    d.className = "lg";
+    const col = Object.values(SECTOR_COLORS)[Object.keys(SECTOR_COLORS).indexOf(s)] || 0x6f6a5c;
+    d.innerHTML = `<i style="background:#${col.toString(16).padStart(6, "0")}"></i>${s}`;
+    d.style.cursor = "pointer";
+    d.style.pointerEvents = "auto";
+    d.onclick = () => {
+      const idx = MARKETS.findIndex(m => m.sector === s);
+      if (idx >= 0) select(idx, true);
+    };
+    el.appendChild(d);
+  });
+}
+
+function setupInteraction() {
+  window.addEventListener("resize", onResize);
+  renderer.domElement.addEventListener("pointerdown", e => pointerDown = { x: e.clientX, y: e.clientY });
+  renderer.domElement.addEventListener("pointerup", e => {
+    if (!pointerDown) return;
+    const moved = Math.hypot(e.clientX - pointerDown.x, e.clientY - pointerDown.y);
+    pointerDown = null;
+    if (moved > 6) return;
+    pick(e.clientX, e.clientY);
+  });
+
+  document.getElementById("bOrbit").onclick = e => {
+    autoOrbit = !autoOrbit;
+    e.currentTarget.classList.toggle("act", autoOrbit);
+  };
+  document.getElementById("bNext").onclick = () => select((selected + 1) % MARKETS.length, true);
+  document.getElementById("bReset").onclick = () => {
+    camera.position.set(0, 16, 36); controls.target.set(0, 0, 0);
+  };
+  document.getElementById("bHome").onclick = () => location.href = "/";
+  document.getElementById("bWebMcp").onclick = () => {
+    if (mcpShape === "provideContext") window.alert("WebMCP native: provideContext");
+    else if (mcpShape === "registerTool") window.alert("WebMCP native: registerTool");
+    else alert("WebMCP native API not detected. This page probes for navigator.modelContext, document.modelContext, navigator.modelContextTesting — and will only register tools if one is present. No shim is installed.");
+  };
+}
+
+let frames = 0, lastFps = performance.now();
+
+function animate(t) {
+  const el = t * 0.001;
+
+  if (field) field.rotation.y = el * 0.02;
+  if (halo) halo.rotation.z = el * 0.03;
+
+  nodeMeshes.forEach((n, i) => {
+    const sel = i === selected;
+    const target = sel ? 2.2 : 1;
+    n.group.scale.lerp(new THREE.Vector3(target, target, target), 0.06);
+
+    n.core.rotation.y = el * 0.5 + i;
+    n.core.rotation.x = el * 0.3;
+    n.shell.rotation.y = -el * 0.4;
+    n.shell.rotation.z = el * 0.22;
+    n.ring.rotation.z = el * 0.35 + i;
+
+    const pulse = 1 + Math.sin(el * 3 + i) * 0.15;
+    n.core.material.emissiveIntensity = (sel ? 2.8 : 1.5) + Math.sin(el * 1.5 + i) * 0.25;
+    n.ring.material.opacity = sel ? 1.0 : 0.6;
+
+    if (sel) {
+      n.shell.material.opacity = 0.4 + Math.sin(el * 4 + i) * 0.1;
+    }
+  });
+
+  if (autoOrbit) {
+    const r = Math.hypot(camera.position.x, camera.position.z);
+    const a = Math.atan2(camera.position.z, camera.position.x) + 0.0012;
+    camera.position.x = Math.cos(a) * r;
+    camera.position.z = Math.sin(a) * r;
   }
 
-  const live = [...results.values()].filter(r => !r.err).length;
-  $("status").innerHTML = live === ALL.length
-    ? `<span class="live">● ALL ${live}/${ALL.length} LIVE</span>`
-    : `<span class="stale">● ${live}/${ALL.length} live · ${ALL.length - live} unavailable</span>`;
-  lastMode = mode || "offline";
-  $("tmeta").textContent = `${lastMode} · ${detail} · ${new Date().toLocaleTimeString()}`;
+  controls.update();
+  renderer.render(scene, camera);
 
-  buildTape([...results.values()].filter(r => r.q && !r.err));
-  $("bRef").disabled = false;
-  refreshing = false;
+  frames++;
+  if (performance.now() - lastFps > 1000) {
+    document.getElementById("roFps").textContent = Math.round(frames) + " fps";
+    frames = 0; lastFps = performance.now();
+  }
 }
 
-/* ── scrolling tape ──────────────────────────────────────── */
-
-function buildTape(rows){
-  if(!rows.length) return;
-  const one = rows.map(r => {
-    const dir = r.q.chg === null ? "fl" : (r.q.chg > 0 ? "up" : r.q.chg < 0 ? "dn" : "fl");
-    const sign = r.q.chg !== null && r.q.chg > 0 ? "+" : "";
-    return `<span class="tick"><span class="s">${r.item.n}</span>` +
-           `<span class="p">${fmt(r.q.price, r.item.unit)}</span>` +
-           `<span class="c ${dir}">${sign}${r.q.pct !== null ? r.q.pct.toFixed(2) + "%" : "—"}</span></span>`;
-  }).join("");
-  $("tape").innerHTML = one + one;   // duplicated for a seamless loop
+function onResize() {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(innerWidth, innerHeight);
 }
 
-/* ── controls ────────────────────────────────────────────── */
+document.getElementById("roNodes").textContent = MARKETS.length + " tickers";
 
-let autoTimer = null;
-$("bRef").onclick = refresh;
-$("bAuto").onclick = () => {
-  if(autoTimer){ clearInterval(autoTimer); autoTimer = null; $("bAuto").textContent = "AUTO: OFF"; $("bAuto").classList.add("alt"); }
-  else { autoTimer = setInterval(refresh, 60000); $("bAuto").textContent = "AUTO: 60s"; $("bAuto").classList.remove("alt"); refresh(); }
-};
-$("cbCors").onchange = refresh;
+/* ── WebMCP probe (native only, never shimmed) ── */
 
-refresh();
-console.info("%cæ:/markets%c keyless client-side tape",
+function findModelContext() {
+  const cands = [
+    ["navigator.modelContext", typeof navigator !== "undefined" ? navigator.modelContext : undefined],
+    ["document.modelContext",  typeof document  !== "undefined" ? document.modelContext  : undefined],
+    ["navigator.modelContextTesting", navigator?.modelContextTesting]
+  ];
+  for (const [name, obj] of cands) {
+    if (obj && typeof obj === "object") return { name, obj };
+  }
+  return null;
+}
+
+const MCP_TOOLS = [
+  {
+    name: "get_market",
+    description: "Fetch the latest price + change for a ticker symbol from the sovereign market tape.",
+    inputSchema: { type: "object", properties: { symbol: { type: "string" } }, required: ["symbol"] },
+    execute: async ({ symbol }) => {
+      const m = MARKETS.find(m => m.symbol === symbol);
+      if (!m) return { ok: false, error: "not found: " + symbol };
+      return { ok: true, symbol: m.symbol, name: m.name, price: m.price, change: m.change, sector: m.sector };
+    }
+  },
+  {
+    name: "list_sectors",
+    description: "List all market sectors in the sovereign tape.",
+    inputSchema: { type: "object", properties: {} },
+    execute: () => ({ ok: true, sectors: sectorNames, count: MARKETS.length })
+  },
+  {
+    name: "top_movers",
+    description: "Return the 5 biggest movers by absolute change.",
+    inputSchema: { type: "object", properties: {} },
+    execute: () => {
+      return {
+        ok: true,
+        movers: MARKETS.slice().sort((a, b) => Math.abs(b.change) - Math.abs(a.change)).slice(0, 5)
+      };
+    }
+  }
+];
+
+function probeWebMCP() {
+  const found = findModelContext();
+  if (!found) {
+    document.getElementById("bootmode").textContent =
+      "GPU://WEBGPU LIVE · WEBMCP://ABSENT (native API not found)";
+    return false;
+  }
+
+  mcpHost = found.obj;
+  mcpShape = found.name;
+
+  const shape =
+    typeof mcpHost.provideContext === "function" ? "provideContext" :
+    typeof mcpHost.registerTool   === "function" ? "registerTool"   :
+    typeof mcpHost.addTool        === "function" ? "addTool"        : "";
+
+  if (!shape) {
+    document.getElementById("bootmode").textContent = "GPU://LIVE · WEBMCP://UNKNOWN";
+    return false;
+  }
+
+  mcpShape = shape;
+  document.getElementById("bootmode").textContent = "GPU://WEBGPU LIVE · WEBMCP://" + shape.toUpperCase();
+
+  try {
+    const specs = MCP_TOOLS.map(t => ({
+      name: t.name, description: t.description, inputSchema: t.inputSchema, execute: t.execute
+    }));
+    if (shape === "provideContext") mcpHost.provideContext({ tools: specs });
+    else if (shape === "registerTool") specs.forEach(s => mcpHost.registerTool(s));
+    else if (shape === "addTool") specs.forEach(s => mcpHost.addTool(s));
+  } catch (err) {
+    console.error("webmcp · registration failed:", err);
+  }
+
+  return true;
+}
+
+init().catch(err => {
+  console.error(err);
+  document.getElementById("boot").innerHTML =
+    '<div class="bg">æ</div><div class="bl">RUNTIME ERROR</div>' +
+    '<div class="bl" style="font-size:8px;max-width:280px;text-align:center">' +
+    String(err.message || err) + '</div>';
+});
+
+console.info("%cæ:/markets%c WebGPU market tape · keyless · sovereign",
   "color:#D4AF37;background:#050505;padding:5px 10px;font-weight:bold",
   "color:#00ff9d;font-family:monospace");
 </script>
