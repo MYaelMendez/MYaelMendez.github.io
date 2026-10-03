@@ -1,28 +1,60 @@
 # MYaelMendez.github.io
 
-Public developer surface for Yæl Méndez / æ.store.
+**Public source fabric for the æææ.com root namespace.**
 
-## Hackathon artifact
+The canonical public root is **https://æææ.com**. This repository deliberately carries the heavier public artifacts: specifications, runtimes, HTML applications, WebGPU/WebMCP/WebLLM experiments, demos, research and reference implementations.
 
-- `/ae/` — clean mobile-first 9:16 æ.store viewport
-- `/agentic.html` — self-hosted Hermes install storefront
-- `/SKILL.md` — single-file installable Hermes skill
-- `/domain-stack.json` — domain Code Mode registry
+```text
+HUMAN://ROOT 🧿
+      │
+     >_
+      │
+   æææ.com
+CANONICAL ROOT
+      │
+     ➿➿➿
+      │
+MYaelMendez.github.io
+PUBLIC SOURCE FABRIC
+      │
+   >_://|||
+ ┌────┼────┐
+🛸₁   🛸₂   🛸₃
+ └────┼────┘
+      🪡
+      🧶
+      ↺
+```
+
+## Contract
+
+- **æææ.com** — namespace, discovery, resolution, ontology, policy and provenance pointers.
+- **MYaelMendez.github.io** — public source fabric and executable laboratory.
+- **Git** — lineage: commits, diffs, branches, tags and releases.
+- **Authority** — remains rooted in the human principal.
+
+> Context may propagate; authority never propagates implicitly.
+
+See [ROOT-ARCHITECTURE.md](./ROOT-ARCHITECTURE.md) and [root-registry.json](./root-registry.json).
+
+## Existing artifacts
+
+- `/PRIMITIVE.md` — primitive proposal
+- `/aaa-protocol.html` — æææ protocol surface
+- `/agentic.html` — agentic entrepreneurship surface
+- `/glocal-mesh.html` — glocal mesh
+- `/glocal-cuda-mesh.html` — compute fabric
+- `/sovereign-state.html` — sovereign state
+- `/SKILL.md` — installable Hermes skill
 
 ## Install
 
 ```bash
-hermes skills install https://myaelmendez.github.io/SKILL.md
-```
-
-Canonical future install URL:
-
-```bash
-hermes skills install https://xn--6ca.store/SKILL.md
+hermes skills install https://MYaelMendez.github.io/SKILL.md
 ```
 
 ## Mission
 
-We embody #opensourceware and equip new business owners with care.
+**Compute may distribute. Cognition may multiply. Authority remains human. 🧿**
 
->_æ:#startabusiness→
+>_://|||
