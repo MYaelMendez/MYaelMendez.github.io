@@ -1,0 +1,2629 @@
+Refactor for agentic engineering 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#02040a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+<title>🜁 From Conversation to Delegation · #zeitgeist 4D</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+<style>
+:root{
+  --void:#02040a;
+  --cyan:#00f0ff;
+  --magenta:#ff00aa;
+  --emerald:#22c55e;
+  --orange:#ff9500;
+  --gold:#f5c451;
+  --glass:rgba(6,10,22,.82);
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:var(--void);
+  color:#e2e8f0;
+  font-family:"Fira Code",monospace;
+  user-select:none;
+  overscroll-behavior:none;
+}
+
+.orbitron{
+  font-family:"Orbitron",sans-serif;
+}
+
+#canvas-wrap{
+  position:fixed;
+  inset:0;
+  z-index:0;
+}
+
+canvas{
+  display:block;
+  width:100%!important;
+  height:100%!important;
+}
+
+.scanlines{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:5;
+  opacity:.28;
+  background:
+    repeating-linear-gradient(
+      transparent 0,
+      transparent 2px,
+      rgba(0,0,0,.18) 2px,
+      rgba(0,0,0,.18) 4px
+    );
+}
+
+.vignette{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:4;
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      transparent 32%,
+      rgba(2,4,10,.32) 70%,
+      rgba(2,4,10,.96) 100%
+    );
+}
+
+.glass{
+  background:var(--glass);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border:1px solid rgba(0,240,255,.18);
+  box-shadow:0 8px 32px rgba(0,0,0,.55);
+}
+
+.glass-btn{
+  background:rgba(15,23,42,.70);
+  border:1px solid rgba(255,255,255,.08);
+  transition:.2s ease;
+}
+
+.glass-btn:hover,
+.glass-btn.active{
+  background:rgba(0,240,255,.12);
+  border-color:var(--cyan);
+  box-shadow:0 0 16px rgba(0,240,255,.24);
+}
+
+.signal{
+  width:6px;
+  height:6px;
+  border-radius:999px;
+  background:var(--emerald);
+  box-shadow:0 0 12px var(--emerald);
+}
+
+.authority-rail{
+  background:
+    linear-gradient(
+      90deg,
+      rgba(34,197,94,.02),
+      rgba(34,197,94,.12),
+      rgba(34,197,94,.02)
+    );
+  border:1px solid rgba(34,197,94,.22);
+}
+
+#stageBadge{
+  color:var(--emerald);
+  border-color:rgba(34,197,94,.25);
+}
+
+input[type=range]{
+  -webkit-appearance:none;
+  appearance:none;
+  height:4px;
+  border-radius:8px;
+  background:rgba(255,255,255,.12);
+  outline:none;
+}
+
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:15px;
+  height:15px;
+  border-radius:50%;
+  background:var(--cyan);
+  cursor:pointer;
+  box-shadow:0 0 10px var(--cyan);
+}
+
+#loading{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  background:var(--void);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  font-family:"Orbitron",sans-serif;
+  letter-spacing:.22em;
+  color:var(--cyan);
+  transition:opacity .6s;
+}
+
+#loading.hidden{
+  opacity:0;
+  pointer-events:none;
+}
+
+#progressLine{
+  position:fixed;
+  top:0;
+  left:0;
+  height:2px;
+  width:0%;
+  z-index:50;
+  background:
+    linear-gradient(
+      90deg,
+      var(--cyan),
+      var(--magenta),
+      var(--emerald)
+    );
+  box-shadow:0 0 12px var(--cyan);
+  transition:width .08s linear;
+}
+
+#authorityHUD{
+  position:fixed;
+  left:50%;
+  top:88px;
+  z-index:18;
+  transform:translateX(-50%);
+  pointer-events:none;
+}
+
+@media(max-width:520px){
+  #authorityHUD{
+    top:94px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  *{
+    animation-duration:.001ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.001ms!important;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="loading">
+  <div class="text-3xl mb-4">🜁</div>
+  <div class="text-sm tracking-widest">INITIALIZING ZEITGEIST</div>
+  <div id="renderMode" class="text-[10px] text-cyan-500/70 mt-3">
+    WEBGPU · æOS LATTICE
+  </div>
+</div>
+
+<div id="progressLine"></div>
+
+<div id="canvas-wrap"></div>
+<div class="scanlines"></div>
+<div class="vignette"></div>
+
+<!-- HUMAN AUTHORITY HUD -->
+<div id="authorityHUD"
+     class="authority-rail rounded-full px-3 py-1.5 text-[8px] md:text-[9px] font-mono tracking-[.18em] text-green-300">
+  🧿 HUMAN PRINCIPAL
+  <span class="text-gray-500 mx-1">→</span>
+  DELEGATED AUTHORITY
+  <span class="text-gray-500 mx-1">→</span>
+  🛸 AGENT
+</div>
+
+<div class="fixed inset-0 z-20 flex flex-col justify-between p-3 md:p-4 pointer-events-none">
+
+  <!-- HEADER -->
+  <header class="glass rounded-2xl p-3 flex flex-wrap items-center justify-between gap-2 pointer-events-auto">
+
+    <div class="flex items-center gap-3">
+
+      <div class="w-10 h-10 rounded-xl
+                  bg-gradient-to-br from-cyan-400 via-fuchsia-500 to-emerald-400
+                  flex items-center justify-center
+                  text-black font-black text-lg
+                  shadow-[0_0_22px_rgba(0,240,255,.35)]">
+        🜁
+      </div>
+
+      <div>
+        <h1 class="orbitron font-bold text-[12px] md:text-base tracking-wider
+                   bg-gradient-to-r from-cyan-300 via-white to-fuchsia-300
+                   bg-clip-text text-transparent">
+          FROM CONVERSATION TO DELEGATION
+        </h1>
+
+        <div class="text-[8px] md:text-[10px]
+                    text-cyan-400/80 tracking-[.16em]
+                    uppercase flex items-center gap-2">
+
+          <span>#HumanAIAdoption → #INTERNETofAGENTS</span>
+
+          <span class="signal"></span>
+
+          <span id="fps">-- FPS</span>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div class="flex items-center gap-2">
+
+      <button onclick="toggleAudio()"
+              id="audioBtn"
+              class="glass-btn px-3 py-2 rounded-xl text-xs">
+        <i class="fa-solid fa-volume-xmark text-cyan-400" id="audioIcon"></i>
+      </button>
+
+      <button onclick="resetCam()"
+              class="glass-btn px-3 py-2 rounded-xl text-xs">
+        <i class="fa-solid fa-arrows-rotate text-fuchsia-400"></i>
+      </button>
+
+      <div class="px-3 py-1.5 rounded-xl
+                  bg-black/40 border border-cyan-500/30
+                  text-[11px] text-cyan-300">
+        <span id="posText" class="text-white font-bold">0%</span>
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <!-- STAGE -->
+  <div class="self-center mt-3 pointer-events-none">
+
+    <div id="stageBadge"
+         class="glass rounded-full border
+                px-4 py-2 text-center">
+
+      <div id="stageTitle"
+           class="orbitron text-[9px] md:text-[11px] font-bold tracking-widest">
+        CONVERSATION
+      </div>
+
+      <div id="stageSub"
+           class="text-[7px] md:text-[8px] text-gray-400 mt-1 tracking-wider">
+        HUMANS USE AI
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- MODAL -->
+  <div id="modal"
+       class="self-center glass p-5 rounded-2xl
+              max-w-sm w-full pointer-events-auto
+              hidden opacity-0 scale-90
+              transition-all duration-300">
+
+    <div class="flex justify-between items-start mb-2">
+
+      <div class="flex items-center gap-2">
+
+        <span id="mIcon" class="text-2xl">⚡</span>
+
+        <h3 id="mTitle"
+            class="orbitron font-bold text-cyan-300 text-sm">
+        </h3>
+
+      </div>
+
+      <button onclick="closeModal()"
+              class="text-gray-400 hover:text-white">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+    </div>
+
+    <p id="mDesc"
+       class="text-xs text-gray-300 leading-relaxed mb-3">
+    </p>
+
+    <div id="mTags"
+         class="flex flex-wrap gap-1.5 text-[10px]">
+    </div>
+
+  </div>
+
+
+  <!-- FOOTER -->
+  <footer class="glass rounded-2xl p-3 md:p-4
+                 flex flex-col gap-3
+                 pointer-events-auto">
+
+    <div class="flex items-center gap-3">
+
+      <button onclick="togglePlay()"
+              id="playBtn"
+              class="w-10 h-10 rounded-xl
+                     bg-gradient-to-tr from-cyan-400 to-fuchsia-500
+                     text-black flex items-center justify-center
+                     shadow-[0_0_16px_rgba(0,240,255,.35)]">
+
+        <i class="fa-solid fa-pause" id="playIcon"></i>
+
+      </button>
+
+      <div class="flex-1 min-w-0">
+
+        <div class="flex justify-between gap-2
+                    text-[9px] md:text-[10px]
+                    font-mono text-gray-400 mb-1">
+
+          <span class="text-cyan-400">2022</span>
+
+          <span id="portalName"
+                class="text-fuchsia-300 font-bold truncate text-center">
+            CHAT → TOOLS → WORKFLOWS → AGENCY
+          </span>
+
+          <span class="text-green-400">NEXT</span>
+
+        </div>
+
+        <input type="range"
+               id="scrubber"
+               min="0"
+               max="1000"
+               value="0"
+               class="w-full"/>
+
+      </div>
+
+      <div class="flex items-center gap-1.5
+                  bg-black/40 px-2 py-1 rounded-xl
+                  border border-white/10">
+
+        <input type="range"
+               id="speed"
+               min=".2"
+               max="2.5"
+               value="1"
+               step=".1"
+               class="w-14"/>
+
+        <span id="speedText"
+              class="text-[10px] text-cyan-400 w-7 text-right">
+          1.0x
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div class="flex flex-wrap items-center justify-between gap-2
+                pt-2 border-t border-white/10">
+
+      <div class="flex gap-1.5 overflow-x-auto">
+
+        <button onclick="setCam('follow')"
+                id="cam-follow"
+                class="glass-btn active px-2.5 py-1.5 rounded-xl text-[10px]">
+          FOLLOW
+        </button>
+
+        <button onclick="setCam('orbit')"
+                id="cam-orbit"
+                class="glass-btn px-2.5 py-1.5 rounded-xl text-[10px]">
+          ORBIT
+        </button>
+
+        <button onclick="setCam('tunnel')"
+                id="cam-tunnel"
+                class="glass-btn px-2.5 py-1.5 rounded-xl text-[10px]">
+          TUNNEL
+        </button>
+
+        <button onclick="setCam('cinema')"
+                id="cam-cinema"
+                class="glass-btn px-2.5 py-1.5 rounded-xl text-[10px]">
+          CINEMA
+        </button>
+
+      </div>
+
+      <div class="flex gap-1.5 flex-1 max-w-xs ml-auto">
+
+        <input id="tagInput"
+               type="text"
+               placeholder="#chronicle"
+               class="flex-1 bg-black/60
+                      border border-cyan-500/30
+                      rounded-xl px-2.5 py-1.5
+                      text-xs text-cyan-300
+                      outline-none focus:border-cyan-400"/>
+
+        <button onclick="spawnTag()"
+                class="glass-btn px-3 py-1.5 rounded-xl
+                       text-[10px] text-cyan-300">
+          +
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="flex items-center justify-between
+                text-[7px] md:text-[8px]
+                text-gray-500 tracking-[.14em]
+                border-t border-white/5 pt-2">
+
+      <span>@yaelmendez</span>
+
+      <span>
+        #HumanAIAdoption · #Promptification · #AgenticEngineering
+      </span>
+
+      <span class="text-green-400">&gt;_æ:</span>
+
+    </div>
+
+  </footer>
+
+</div>
+
+
+<script type="importmap">
+{
+  "imports":{
+    "three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.webgpu.js",
+    "three/webgpu":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.webgpu.js",
+    "three/tsl":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.tsl.js",
+    "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+
+
+<script type="module">
+
+import * as THREE from "three/webgpu";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+
+/* ============================================================
+   CANONICAL CHRONOLOGY
+============================================================ */
+
+const PORTALS = [
+
+  {
+    t:.04,
+    year:"2022",
+    stage:"CONVERSATION",
+    sub:"HUMANS USE AI",
+    name:"2022 — CONVERSATIONAL FOUNDATION",
+    desc:
+      "Prompt-and-response interaction becomes a mass interface. " +
+      "The model waits. The human asks. The machine answers.",
+    icon:"💬",
+    color:"#64748b",
+    tags:[
+      "#HumanAIAdoption",
+      "CHAT",
+      "PROMPT→RESPONSE"
+    ]
+  },
+
+  {
+    t:.22,
+    year:"2023",
+    stage:"TOOL USE",
+    sub:"HUMANS EXPRESS INTENT",
+    name:"2023 — TOOLS + FUNCTION CALLING",
+    desc:
+      "Language models begin invoking APIs, code, search and external tools. " +
+      "Conversation starts becoming machine-actionable intent.",
+    icon:"⌨️",
+    color:"#00f0ff",
+    tags:[
+      "#Promptification",
+      "TOOLS",
+      "FUNCTION_CALLING"
+    ]
+  },
+
+  {
+    t:.42,
+    year:"2024–25",
+    stage:"WORKFLOWS",
+    sub:"AI EXECUTES MULTI-STEP TASKS",
+    name:"2024–25 — MULTI-STEP ORCHESTRATION",
+    desc:
+      "Long context, retrieval, planners, specialized agents and handoffs " +
+      "turn isolated tool calls into longer computational trajectories.",
+    icon:"🧠",
+    color:"#a855f7",
+    tags:[
+      "#AgenticEngineering",
+      "WORKFLOWS",
+      "MULTI_AGENT"
+    ]
+  },
+
+  {
+    t:.62,
+    year:"2025–26",
+    stage:"DELEGATED AGENCY",
+    sub:"HUMANS AUTHORIZE → AGENTS ACT",
+    name:"2025–26 — DELEGATED AGENCY",
+    desc:
+      "Conversation becomes the entrance to execution rather than its end. " +
+      "Agents maintain state, use tools, parallelize work and pursue outcomes.",
+    icon:"🧿",
+    color:"#ff9500",
+    tags:[
+      "#AgenticEngineering",
+      "PRINCIPAL→AGENT",
+      "DELEGATION"
+    ]
+  },
+
+  {
+    t:.80,
+    year:"2026",
+    stage:"COORDINATION",
+    sub:"AGENTS DISCOVER + COORDINATE",
+    name:"2026 — INTERNET OF AGENTS",
+    desc:
+      "Agent proliferation creates a second-order problem: discovery, identity, " +
+      "authority, communication, coordination, transactions and proof.",
+    icon:"🛸",
+    color:"#00ff9d",
+    tags:[
+      "#INTERNETofAGENTS",
+      "#IoA",
+      "DISCOVERY",
+      "COORDINATION"
+    ]
+  },
+
+  {
+    t:.96,
+    year:"NEXT",
+    stage:"COMPOSABILITY",
+    sub:"CAPABILITIES BECOME COMPOSABLE",
+    name:"NEXT — OPEN CAPABILITY LAYER",
+    desc:
+      "Agent capabilities become increasingly inspectable, discoverable, " +
+      "portable and composable across runtimes and principals.",
+    icon:"∞",
+    color:"#f5c451",
+    tags:[
+      "#OpenSourceware",
+      "#llmstore",
+      "COMPOSABILITY"
+    ]
+  }
+
+];
+
+
+const DEFAULT_TAGS = [
+  "#HumanAIAdoption",
+  "#Promptification",
+  "#AgenticEngineering",
+  "#INTERNETofAGENTS",
+  "#OpenSourceware",
+  "#llmstore",
+  "HUMAN AGENCY ↑",
+  ">_æ:"
+];
+
+
+let renderer;
+let scene;
+let camera;
+let controls;
+
+let curve;
+let timelineSpine;
+
+let agent;
+
+let portals = [];
+let tags = [];
+
+let progress = 0;
+let speed = 1;
+let playing = true;
+let camMode = "follow";
+
+let currentPortal = -1;
+
+let audioCtx;
+let audioOn = false;
+let drone;
+let droneGain;
+
+
+/* ============================================================
+   INITIALIZATION
+============================================================ */
+
+async function init(){
+
+  renderer =
+    new THREE.WebGPURenderer({
+      antialias:true,
+      alpha:false
+    });
+
+  renderer.setPixelRatio(
+    Math.min(
+      window.devicePixelRatio || 1,
+      2
+    )
+  );
+
+  renderer.setSize(
+    innerWidth,
+    innerHeight
+  );
+
+  renderer.setClearColor(
+    0x02040a
+  );
+
+  document
+    .getElementById("canvas-wrap")
+    .appendChild(renderer.domElement);
+
+  await renderer.init();
+
+
+  document
+    .getElementById("renderMode")
+    .textContent =
+      navigator.gpu
+        ? "WEBGPU · æOS LATTICE"
+        : "WEBGL2 FALLBACK · æOS LATTICE";
+
+
+  scene =
+    new THREE.Scene();
+
+  scene.fog =
+    new THREE.FogExp2(
+      0x02040a,
+      .018
+    );
+
+
+  camera =
+    new THREE.PerspectiveCamera(
+      54,
+      innerWidth / innerHeight,
+      .1,
+      180
+    );
+
+  camera.position.set(
+    0,
+    4,
+    10
+  );
+
+
+  controls =
+    new OrbitControls(
+      camera,
+      renderer.domElement
+    );
+
+  controls.enableDamping = true;
+  controls.dampingFactor = .06;
+
+  controls.minDistance = 2;
+  controls.maxDistance = 50;
+
+  controls.enabled = false;
+
+
+/* ============================================================
+   LIGHT
+============================================================ */
+
+  scene.add(
+    new THREE.AmbientLight(
+      0x102030,
+      1.6
+    )
+  );
+
+
+  const cyan =
+    new THREE.DirectionalLight(
+      0x00f0ff,
+      2.5
+    );
+
+  cyan.position.set(
+    8,
+    14,
+    10
+  );
+
+  scene.add(cyan);
+
+
+  const magenta =
+    new THREE.PointLight(
+      0xff00aa,
+      3,
+      34
+    );
+
+  magenta.position.set(
+    -9,
+    5,
+    2
+  );
+
+  scene.add(magenta);
+
+
+  const green =
+    new THREE.PointLight(
+      0x22c55e,
+      2.6,
+      32
+    );
+
+  green.position.set(
+    12,
+    4,
+    -8
+  );
+
+  scene.add(green);
+
+
+/* ============================================================
+   FLOOR
+============================================================ */
+
+  const grid =
+    new THREE.GridHelper(
+      120,
+      60,
+      0x00f0ff,
+      0x081818
+    );
+
+  grid.position.y = -.04;
+
+  scene.add(grid);
+
+
+/* ============================================================
+   STARS
+============================================================ */
+
+  const starCount = 1200;
+
+  const starPositions =
+    new Float32Array(
+      starCount * 3
+    );
+
+
+  for(
+    let i = 0;
+    i < starCount;
+    i++
+  ){
+
+    starPositions[i*3] =
+      (Math.random()-.5) * 130;
+
+    starPositions[i*3+1] =
+      (Math.random()-.5) * 80;
+
+    starPositions[i*3+2] =
+      (Math.random()-.5) * 130;
+  }
+
+
+  const starGeo =
+    new THREE.BufferGeometry();
+
+
+  starGeo.setAttribute(
+    "position",
+    new THREE.BufferAttribute(
+      starPositions,
+      3
+    )
+  );
+
+
+  scene.add(
+    new THREE.Points(
+
+      starGeo,
+
+      new THREE.PointsMaterial({
+        color:0x4488ff,
+        size:.10,
+        transparent:true,
+        opacity:.62,
+        depthWrite:false
+      })
+
+    )
+  );
+
+
+/* ============================================================
+   OPEN 4D TIMELINE
+============================================================ */
+
+  const timelinePoints = [
+
+    new THREE.Vector3(
+      -24,
+      0,
+      -18
+    ),
+
+    new THREE.Vector3(
+      -17,
+      1,
+      -7
+    ),
+
+    new THREE.Vector3(
+      -8,
+      .4,
+      2
+    ),
+
+    new THREE.Vector3(
+      1,
+      2,
+      10
+    ),
+
+    new THREE.Vector3(
+      11,
+      .8,
+      8
+    ),
+
+    new THREE.Vector3(
+      20,
+      2.7,
+      -2
+    ),
+
+    new THREE.Vector3(
+      18,
+      1.2,
+      -15
+    ),
+
+    new THREE.Vector3(
+      8,
+      2,
+      -26
+    )
+  ];
+
+
+  curve =
+    new THREE.CatmullRomCurve3(
+      timelinePoints,
+      false,
+      "catmullrom",
+      .5
+    );
+
+
+  timelineSpine =
+    new THREE.Mesh(
+
+      new THREE.TubeGeometry(
+        curve,
+        260,
+        .12,
+        10,
+        false
+      ),
+
+      new THREE.MeshStandardMaterial({
+        color:0x00f0ff,
+        emissive:0x003e48,
+        emissiveIntensity:1.3,
+        metalness:.7,
+        roughness:.22
+      })
+
+    );
+
+
+  scene.add(
+    timelineSpine
+  );
+
+
+/* context sheath */
+
+  scene.add(
+
+    new THREE.Mesh(
+
+      new THREE.TubeGeometry(
+        curve,
+        260,
+        .46,
+        8,
+        false
+      ),
+
+      new THREE.MeshBasicMaterial({
+        color:0xff00aa,
+        wireframe:true,
+        transparent:true,
+        opacity:.09
+      })
+
+    )
+
+  );
+
+
+/* ============================================================
+   PORTALS
+============================================================ */
+
+  PORTALS.forEach(
+    (portal,index)=>{
+
+      const position =
+        curve.getPointAt(
+          portal.t
+        );
+
+
+      const tangent =
+        curve.getTangentAt(
+          Math.min(
+            portal.t,
+            .9999
+          )
+        );
+
+
+      const group =
+        new THREE.Group();
+
+
+      group.position.copy(
+        position
+      );
+
+
+      const color =
+        new THREE.Color(
+          portal.color
+        );
+
+
+      const ring =
+        new THREE.Mesh(
+
+          new THREE.TorusGeometry(
+            1.55,
+            .08,
+            14,
+            50
+          ),
+
+          new THREE.MeshStandardMaterial({
+            color,
+            emissive:color,
+            emissiveIntensity:.8,
+            metalness:.42,
+            roughness:.14
+          })
+
+        );
+
+
+      ring.quaternion
+        .setFromUnitVectors(
+
+          new THREE.Vector3(
+            0,
+            0,
+            1
+          ),
+
+          tangent
+
+        );
+
+
+      const halo =
+        new THREE.Mesh(
+
+          new THREE.TorusGeometry(
+            1.95,
+            .025,
+            8,
+            48
+          ),
+
+          new THREE.MeshBasicMaterial({
+            color,
+            transparent:true,
+            opacity:.34,
+            wireframe:true
+          })
+
+        );
+
+
+      halo.quaternion.copy(
+        ring.quaternion
+      );
+
+
+      group.add(
+        ring,
+        halo
+      );
+
+
+      scene.add(
+        group
+      );
+
+
+      const label =
+        makeTagSprite(
+          portal.year,
+          portal.color,
+          .80
+        );
+
+
+      label.position.set(
+        position.x,
+        position.y + 2.35,
+        position.z
+      );
+
+
+      scene.add(
+        label
+      );
+
+
+      portals.push({
+        ...portal,
+        group,
+        ring,
+        halo,
+        label
+      });
+
+    }
+  );
+
+
+/* ============================================================
+   HUMAN PRINCIPAL + DELEGATED AGENT
+============================================================ */
+
+  agent =
+    createAgent();
+
+  scene.add(
+    agent.group
+  );
+
+
+/* ============================================================
+   PUBLIC HASHTAG CORPUS
+============================================================ */
+
+  DEFAULT_TAGS.forEach(
+    (tag,index)=>{
+
+      const color =
+        index < 3
+          ? "#00f0ff"
+          : index < 6
+            ? "#ff00aa"
+            : "#00ff9d";
+
+
+      const sprite =
+        makeTagSprite(
+          tag,
+          color
+        );
+
+
+      const pct =
+        .05 +
+        (
+          index /
+          Math.max(
+            1,
+            DEFAULT_TAGS.length - 1
+          )
+        ) * .88;
+
+
+      const p =
+        curve.getPointAt(
+          pct
+        );
+
+
+      const angle =
+        Math.random() *
+        Math.PI *
+        2;
+
+
+      const radius =
+        2.3 +
+        Math.random() *
+        2.8;
+
+
+      sprite.position.set(
+
+        p.x +
+        Math.cos(angle) *
+        radius,
+
+        p.y +
+        1 +
+        Math.random(),
+
+        p.z +
+        Math.sin(angle) *
+        radius
+
+      );
+
+
+      sprite.userData = {
+
+        baseY:
+          sprite.position.y,
+
+        speed:
+          .55 +
+          Math.random() *
+          .75,
+
+        phase:
+          Math.random() *
+          Math.PI *
+          2
+
+      };
+
+
+      scene.add(
+        sprite
+      );
+
+
+      tags.push(
+        sprite
+      );
+
+    }
+  );
+
+
+/* ============================================================
+   EVENTS
+============================================================ */
+
+  window.addEventListener(
+    "resize",
+    onResize
+  );
+
+
+  document
+    .getElementById("scrubber")
+    .addEventListener(
+      "input",
+      e=>{
+
+        progress =
+          Number(
+            e.target.value
+          ) /
+          1000;
+
+        playing = false;
+
+        document
+          .getElementById(
+            "playIcon"
+          )
+          .className =
+            "fa-solid fa-play";
+
+      }
+    );
+
+
+  document
+    .getElementById("speed")
+    .addEventListener(
+      "input",
+      e=>{
+
+        speed =
+          Number(
+            e.target.value
+          );
+
+
+        document
+          .getElementById(
+            "speedText"
+          )
+          .textContent =
+            speed.toFixed(1) +
+            "x";
+
+      }
+    );
+
+
+  document
+    .getElementById("tagInput")
+    .addEventListener(
+      "keydown",
+      e=>{
+
+        if(
+          e.key === "Enter"
+        ){
+
+          window.spawnTag();
+
+        }
+
+      }
+    );
+
+
+  document
+    .getElementById("loading")
+    .classList.add(
+      "hidden"
+    );
+
+
+  renderer.setAnimationLoop(
+    animate
+  );
+}
+
+
+/* ============================================================
+   AGENT MODEL
+
+   🧿 human principal
+       ↓ authority
+   🛸 delegated agent
+       ↓ execution
+   🤗 accountable return
+============================================================ */
+
+function createAgent(){
+
+  const group =
+    new THREE.Group();
+
+
+  const authority =
+    new THREE.Mesh(
+
+      new THREE.OctahedronGeometry(
+        .18,
+        2
+      ),
+
+      new THREE.MeshStandardMaterial({
+        color:0x22c55e,
+        emissive:0x22c55e,
+        emissiveIntensity:1.2
+      })
+
+    );
+
+
+  authority.position.y =
+    1.90;
+
+
+  group.add(
+    authority
+  );
+
+
+  const core =
+    new THREE.Mesh(
+
+      new THREE.IcosahedronGeometry(
+        .40,
+        3
+      ),
+
+      new THREE.MeshStandardMaterial({
+        color:0x00f0ff,
+        emissive:0x007f99,
+        emissiveIntensity:1.7,
+        metalness:.4,
+        roughness:.18
+      })
+
+    );
+
+
+  core.position.y =
+    1.15;
+
+
+  group.add(
+    core
+  );
+
+
+  const shell =
+    new THREE.Mesh(
+
+      new THREE.IcosahedronGeometry(
+        .64,
+        2
+      ),
+
+      new THREE.MeshBasicMaterial({
+        color:0xff00aa,
+        wireframe:true,
+        transparent:true,
+        opacity:.25
+      })
+
+    );
+
+
+  shell.position.y =
+    1.15;
+
+
+  group.add(
+    shell
+  );
+
+
+/* authority tether */
+
+  const tether =
+    new THREE.Line(
+
+      new THREE.BufferGeometry()
+        .setFromPoints([
+
+          new THREE.Vector3(
+            0,
+            1.73,
+            0
+          ),
+
+          new THREE.Vector3(
+            0,
+            1.48,
+            0
+          )
+
+        ]),
+
+      new THREE.LineBasicMaterial({
+        color:0x22c55e
+      })
+
+    );
+
+
+  group.add(
+    tether
+  );
+
+
+/* return ring */
+
+  const returnRing =
+    new THREE.Mesh(
+
+      new THREE.TorusGeometry(
+        .83,
+        .025,
+        8,
+        32
+      ),
+
+      new THREE.MeshBasicMaterial({
+        color:0x00ff9d,
+        transparent:true,
+        opacity:.34
+      })
+
+    );
+
+
+  returnRing.position.y =
+    1.15;
+
+
+  returnRing.rotation.x =
+    Math.PI / 2;
+
+
+  group.add(
+    returnRing
+  );
+
+
+  return {
+    group,
+    authority,
+    core,
+    shell,
+    returnRing
+  };
+}
+
+
+/* ============================================================
+   SPRITE LABELS
+============================================================ */
+
+function makeTagSprite(
+  text,
+  color,
+  scale=.72
+){
+
+  const c =
+    document.createElement(
+      "canvas"
+    );
+
+
+  c.width =
+    768;
+
+  c.height =
+    160;
+
+
+  const ctx =
+    c.getContext(
+      "2d"
+    );
+
+
+  ctx.fillStyle =
+    "rgba(2,4,10,.78)";
+
+
+  ctx.beginPath();
+
+  ctx.roundRect(
+    8,
+    8,
+    752,
+    144,
+    24
+  );
+
+  ctx.fill();
+
+
+  ctx.strokeStyle =
+    color;
+
+  ctx.lineWidth =
+    3;
+
+  ctx.stroke();
+
+
+  ctx.shadowColor =
+    color;
+
+  ctx.shadowBlur =
+    18;
+
+
+  ctx.fillStyle =
+    "#fff";
+
+
+  ctx.font =
+    '600 42px "Fira Code"';
+
+
+  ctx.textAlign =
+    "center";
+
+
+  ctx.textBaseline =
+    "middle";
+
+
+  ctx.fillText(
+    text,
+    384,
+    80
+  );
+
+
+  const texture =
+    new THREE.CanvasTexture(
+      c
+    );
+
+
+  texture.colorSpace =
+    THREE.SRGBColorSpace;
+
+
+  const sprite =
+    new THREE.Sprite(
+
+      new THREE.SpriteMaterial({
+        map:texture,
+        transparent:true,
+        depthWrite:false
+      })
+
+    );
+
+
+  sprite.scale.set(
+    4.4 * scale,
+    .92 * scale,
+    1
+  );
+
+
+  return sprite;
+}
+
+
+/* ============================================================
+   CURRENT STAGE
+============================================================ */
+
+function nearestPortal(){
+
+  let nearest =
+    PORTALS[0];
+
+  let nearestIndex =
+    0;
+
+  let distance =
+    Infinity;
+
+
+  PORTALS.forEach(
+    (portal,index)=>{
+
+      const d =
+        Math.abs(
+          progress -
+          portal.t
+        );
+
+
+      if(
+        d <
+        distance
+      ){
+
+        nearest =
+          portal;
+
+        nearestIndex =
+          index;
+
+        distance =
+          d;
+
+      }
+
+    }
+  );
+
+
+  return {
+    portal:nearest,
+    index:nearestIndex,
+    distance
+  };
+}
+
+
+function updateStage(){
+
+  const result =
+    nearestPortal();
+
+
+  document
+    .getElementById(
+      "stageTitle"
+    )
+    .textContent =
+      result.portal.stage;
+
+
+  document
+    .getElementById(
+      "stageSub"
+    )
+    .textContent =
+      result.portal.sub;
+
+
+  document
+    .getElementById(
+      "stageBadge"
+    )
+    .style.borderColor =
+      result.portal.color;
+
+
+  document
+    .getElementById(
+      "stageTitle"
+    )
+    .style.color =
+      result.portal.color;
+
+
+  document
+    .getElementById(
+      "progressLine"
+    )
+    .style.width =
+      (
+        progress *
+        100
+      ) +
+      "%";
+
+
+  if(
+    result.distance <
+    .027 &&
+    result.index !==
+    currentPortal
+  ){
+
+    currentPortal =
+      result.index;
+
+
+    document
+      .getElementById(
+        "portalName"
+      )
+      .textContent =
+        result.portal.name;
+
+
+    showModal(
+      result.portal.name,
+      result.portal.desc,
+      result.portal.icon,
+      result.portal.tags
+    );
+
+  }
+
+
+  if(
+    result.distance >
+    .045
+  ){
+
+    currentPortal = -1;
+
+  }
+}
+
+
+/* ============================================================
+   MODAL
+============================================================ */
+
+function showModal(
+  title,
+  description,
+  icon,
+  tagList=[]
+){
+
+  document
+    .getElementById(
+      "mTitle"
+    )
+    .textContent =
+      title;
+
+
+  document
+    .getElementById(
+      "mDesc"
+    )
+    .textContent =
+      description;
+
+
+  document
+    .getElementById(
+      "mIcon"
+    )
+    .textContent =
+      icon;
+
+
+  document
+    .getElementById(
+      "mTags"
+    )
+    .innerHTML =
+      tagList
+      .map(
+        tag => `
+          <span class="
+            px-2 py-1 rounded-lg
+            border border-cyan-500/20
+            bg-black/40 text-cyan-300
+          ">
+            ${tag}
+          </span>
+        `
+      )
+      .join("");
+
+
+  const modal =
+    document.getElementById(
+      "modal"
+    );
+
+
+  modal.classList.remove(
+    "hidden"
+  );
+
+
+  requestAnimationFrame(
+    ()=>{
+
+      modal.classList.remove(
+        "opacity-0",
+        "scale-90"
+      );
+
+    }
+  );
+}
+
+
+window.closeModal =
+  ()=>{
+
+    const modal =
+      document.getElementById(
+        "modal"
+      );
+
+
+    modal.classList.add(
+      "opacity-0",
+      "scale-90"
+    );
+
+
+    setTimeout(
+      ()=>{
+
+        modal.classList.add(
+          "hidden"
+        );
+
+      },
+      300
+    );
+
+  };
+
+
+/* ============================================================
+   PLAYBACK
+============================================================ */
+
+window.togglePlay =
+  ()=>{
+
+    playing =
+      !playing;
+
+
+    if(
+      progress >= 1 &&
+      playing
+    ){
+
+      progress = 0;
+
+    }
+
+
+    document
+      .getElementById(
+        "playIcon"
+      )
+      .className =
+        playing
+        ? "fa-solid fa-pause"
+        : "fa-solid fa-play";
+
+  };
+
+
+window.setCam =
+  mode=>{
+
+    camMode =
+      mode;
+
+
+    document
+      .querySelectorAll(
+        "[id^=cam-]"
+      )
+      .forEach(
+        b=>
+          b.classList.remove(
+            "active"
+          )
+      );
+
+
+    document
+      .getElementById(
+        "cam-" +
+        mode
+      )
+      ?.classList.add(
+        "active"
+      );
+
+
+    controls.enabled =
+      mode ===
+      "orbit";
+
+  };
+
+
+window.resetCam =
+  ()=>{
+
+    window.setCam(
+      "follow"
+    );
+
+
+    camera.position.set(
+      0,
+      4,
+      10
+    );
+
+  };
+
+
+/* ============================================================
+   AUDIO
+============================================================ */
+
+window.toggleAudio =
+  ()=>{
+
+    if(
+      !audioCtx
+    ){
+
+      audioCtx =
+        new (
+          window.AudioContext ||
+          window.webkitAudioContext
+        )();
+
+
+      drone =
+        audioCtx.createOscillator();
+
+
+      droneGain =
+        audioCtx.createGain();
+
+
+      drone.type =
+        "sine";
+
+
+      drone.frequency.value =
+        55;
+
+
+      droneGain.gain.value =
+        0;
+
+
+      drone.connect(
+        droneGain
+      );
+
+
+      droneGain.connect(
+        audioCtx.destination
+      );
+
+
+      drone.start();
+    }
+
+
+    if(
+      audioCtx.state ===
+      "suspended"
+    ){
+
+      audioCtx.resume();
+
+    }
+
+
+    audioOn =
+      !audioOn;
+
+
+    droneGain.gain
+      .setTargetAtTime(
+        audioOn
+        ? .018
+        : 0,
+        audioCtx.currentTime,
+        .15
+      );
+
+
+    document
+      .getElementById(
+        "audioIcon"
+      )
+      .className =
+        audioOn
+        ? "fa-solid fa-volume-high text-cyan-400"
+        : "fa-solid fa-volume-xmark text-gray-400";
+
+  };
+
+
+/* ============================================================
+   SPAWN CORPUS TAG
+============================================================ */
+
+window.spawnTag =
+  ()=>{
+
+    const input =
+      document.getElementById(
+        "tagInput"
+      );
+
+
+    let text =
+      input.value.trim();
+
+
+    if(
+      !text
+    )return;
+
+
+    if(
+      !text.startsWith("#") &&
+      !text.startsWith("🜁") &&
+      !text.startsWith(">_")
+    ){
+
+      text =
+        "#" +
+        text;
+
+    }
+
+
+    const sprite =
+      makeTagSprite(
+        text,
+        "#ff00aa"
+      );
+
+
+    const p =
+      agent.group.position;
+
+
+    sprite.position.set(
+
+      p.x +
+      (
+        Math.random() -
+        .5
+      ) * 4,
+
+      p.y +
+      2,
+
+      p.z +
+      (
+        Math.random() -
+        .5
+      ) * 4
+
+    );
+
+
+    sprite.userData = {
+
+      baseY:
+        sprite.position.y,
+
+      speed:1.2,
+
+      phase:
+        Math.random() *
+        Math.PI *
+        2
+
+    };
+
+
+    scene.add(
+      sprite
+    );
+
+
+    tags.push(
+      sprite
+    );
+
+
+    input.value =
+      "";
+
+
+    showModal(
+      text,
+      "Injected into the public longitudinal corpus.",
+      "⚡",
+      [
+        "#zeitgeist",
+        "#HumanAIAdoption"
+      ]
+    );
+
+  };
+
+
+/* ============================================================
+   ANIMATION
+============================================================ */
+
+const clock =
+  new THREE.Clock();
+
+
+let frames = 0;
+
+let lastFPS =
+  performance.now();
+
+
+function animate(){
+
+  const elapsed =
+    clock.getElapsedTime();
+
+
+/* FPS */
+
+  frames++;
+
+
+  if(
+    performance.now() -
+    lastFPS >
+    1000
+  ){
+
+    const fps =
+      Math.round(
+        frames *
+        1000 /
+        (
+          performance.now() -
+          lastFPS
+        )
+      );
+
+
+    document
+      .getElementById(
+        "fps"
+      )
+      .textContent =
+        fps +
+        " FPS";
+
+
+    frames = 0;
+
+    lastFPS =
+      performance.now();
+
+  }
+
+
+/* chronology */
+
+  if(
+    playing
+  ){
+
+    progress +=
+      .00032 *
+      speed;
+
+
+    if(
+      progress >=
+      1
+    ){
+
+      progress =
+        1;
+
+
+      playing =
+        false;
+
+
+      document
+        .getElementById(
+          "playIcon"
+        )
+        .className =
+          "fa-solid fa-play";
+
+    }
+
+  }
+
+
+  document
+    .getElementById(
+      "scrubber"
+    )
+    .value =
+      progress *
+      1000;
+
+
+  document
+    .getElementById(
+      "posText"
+    )
+    .textContent =
+      Math.round(
+        progress *
+        100
+      ) +
+      "%";
+
+
+/* agent */
+
+  const position =
+    curve.getPointAt(
+      progress
+    );
+
+
+  const tangent =
+    curve.getTangentAt(
+      Math.min(
+        progress,
+        .9999
+      )
+    );
+
+
+  agent.group.position
+    .copy(
+      position
+    );
+
+
+  agent.group.lookAt(
+    position
+      .clone()
+      .add(
+        tangent
+      )
+  );
+
+
+  agent.core.rotation.y =
+    elapsed *
+    .7;
+
+
+  agent.shell.rotation.y =
+    -elapsed *
+    .42;
+
+
+  agent.authority.rotation.y =
+    elapsed *
+    .35;
+
+
+  agent.returnRing.rotation.z =
+    elapsed *
+    .25;
+
+
+/* portals */
+
+  portals.forEach(
+    portal=>{
+
+      portal.ring.rotation.z +=
+        .008;
+
+
+      portal.halo.rotation.z -=
+        .005;
+
+    }
+  );
+
+
+  updateStage();
+
+
+/* public corpus */
+
+  tags.forEach(
+    sprite=>{
+
+      if(
+        sprite.userData
+      ){
+
+        sprite.position.y =
+          sprite.userData.baseY +
+          Math.sin(
+            elapsed *
+            sprite.userData.speed +
+            sprite.userData.phase
+          ) *
+          .2;
+
+      }
+
+    }
+  );
+
+
+/* camera */
+
+  if(
+    camMode ===
+    "follow"
+  ){
+
+    const offset =
+      tangent
+      .clone()
+      .multiplyScalar(
+        -6.5
+      )
+      .add(
+        new THREE.Vector3(
+          0,
+          2.6,
+          0
+        )
+      );
+
+
+    camera.position.lerp(
+
+      position
+      .clone()
+      .add(
+        offset
+      ),
+
+      .06
+
+    );
+
+
+    controls.target.lerp(
+
+      position
+      .clone()
+      .add(
+        new THREE.Vector3(
+          0,
+          1.2,
+          0
+        )
+      ),
+
+      .08
+
+    );
+
+  }
+
+
+  else if(
+    camMode ===
+    "tunnel"
+  ){
+
+    camera.position.lerp(
+
+      position
+      .clone()
+      .add(
+        tangent
+        .clone()
+        .multiplyScalar(
+          .72
+        )
+      )
+      .add(
+        new THREE.Vector3(
+          0,
+          1.5,
+          0
+        )
+      ),
+
+      .09
+
+    );
+
+
+    controls.target.lerp(
+
+      position
+      .clone()
+      .add(
+        tangent
+        .clone()
+        .multiplyScalar(
+          8
+        )
+      ),
+
+      .1
+
+    );
+
+  }
+
+
+  else if(
+    camMode ===
+    "cinema"
+  ){
+
+    const angle =
+      elapsed *
+      .16;
+
+
+    camera.position.set(
+
+      Math.sin(angle) *
+      26,
+
+      11 +
+      Math.sin(
+        elapsed *
+        .3
+      ) *
+      3,
+
+      Math.cos(angle) *
+      26 -
+      7
+
+    );
+
+
+    controls.target.lerp(
+
+      new THREE.Vector3(
+        0,
+        1.5,
+        -7
+      ),
+
+      .035
+
+    );
+
+  }
+
+
+  controls.update();
+
+
+  renderer.render(
+    scene,
+    camera
+  );
+}
+
+
+/* ============================================================
+   RESIZE
+============================================================ */
+
+function onResize(){
+
+  camera.aspect =
+    innerWidth /
+    innerHeight;
+
+
+  camera.updateProjectionMatrix();
+
+
+  renderer.setPixelRatio(
+    Math.min(
+      window.devicePixelRatio ||
+      1,
+      2
+    )
+  );
+
+
+  renderer.setSize(
+    innerWidth,
+    innerHeight
+  );
+
+}
+
+
+/* ============================================================
+   BOOT
+============================================================ */
+
+init()
+.catch(
+  error=>{
+
+    console.error(
+      error
+    );
+
+
+    document
+      .getElementById(
+        "loading"
+      )
+      .innerHTML = `
+
+        <div class="text-3xl mb-4">
+          🜁
+        </div>
+
+        <div class="text-sm">
+          RUNTIME ERROR
+        </div>
+
+        <div class="
+          text-[10px]
+          text-cyan-500/70
+          mt-3
+          max-w-xs
+          text-center
+        ">
+          ${error.message}
+        </div>
+
+      `;
+
+  }
+);
+
+</script>
+
+</body>
+</html>
+
+🛸🛸🛸

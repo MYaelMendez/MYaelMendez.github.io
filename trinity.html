@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#010204"/>
+<title>Æ Trinity · Parallel Sovereignty</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&family=Space+Grotesk:wght@600;700;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#010204;--panel:#070b12;
+  --green:#00ff9d;--cyan:#00eaff;--violet:#8c72ff;--gold:#e0b84a;--orange:#ff7a18;
+  --text:#f5f7fa;--muted:#667786;--line:rgba(255,255,255,.08);
+  --mono:"JetBrains Mono",monospace;--sans:"Space Grotesk",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;min-height:100%;background:#000;color:var(--text);font-family:var(--mono)}
+body{
+  min-height:100dvh;
+  padding:max(12px,env(safe-area-inset-top)) 12px max(88px,calc(env(safe-area-inset-bottom)+76px));
+  background:
+    radial-gradient(circle at 50% 0%,rgba(0,234,255,.05),transparent 28%),
+    radial-gradient(circle at 50% 100%,rgba(0,255,157,.05),transparent 34%),#000;
+}
+.app{width:min(100%,1400px);margin:0 auto}
+
+.header{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px 14px;border:1px solid var(--line);border-radius:14px;
+  background:rgba(4,7,12,.88);backdrop-filter:blur(12px);
+}
+.brand small{display:block;color:var(--cyan);font-size:7px;letter-spacing:.18em}
+.brand h1{margin-top:3px;font-family:var(--sans);font-size:clamp(15px,3.6vw,22px);letter-spacing:-.03em}
+.brand h1 span{color:var(--green)}
+.header-status{text-align:right;font-size:7px;line-height:1.55;color:var(--muted)}
+.header-status strong{color:var(--green)}
+
+.doctrine{margin-top:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.doctrine-item{
+  padding:8px 6px;text-align:center;border:1px solid var(--line);border-radius:9px;
+  background:rgba(255,255,255,.015);cursor:pointer;transition:.2s;
+}
+.doctrine-item strong{display:block;font-size:7px}
+.doctrine-item small{display:block;margin-top:3px;color:var(--muted);font-size:5px}
+.doctrine-item.intelligence strong{color:var(--cyan)}
+.doctrine-item.authority strong{color:var(--green)}
+.doctrine-item.value strong{color:var(--gold)}
+.doctrine-item.on{transform:translateY(-1px)}
+.doctrine-item.intelligence.on{border-color:rgba(0,234,255,.5);background:rgba(0,234,255,.05)}
+.doctrine-item.authority.on{border-color:rgba(0,255,157,.5);background:rgba(0,255,157,.05)}
+.doctrine-item.value.on{border-color:rgba(224,184,74,.5);background:rgba(224,184,74,.05)}
+
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}
+.card{
+  position:relative;min-height:460px;overflow:hidden;
+  border:1px solid var(--line);border-radius:18px;
+  background:radial-gradient(circle at 50% 18%,rgba(255,255,255,.03),transparent 30%),linear-gradient(180deg,#08101a,#020407 72%,#000);
+  box-shadow:0 18px 50px rgba(0,0,0,.55);
+}
+.card::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.12;
+  background:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size:22px 22px;
+}
+.card-head{
+  position:relative;z-index:2;height:44px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 12px;border-bottom:1px solid var(--line);font-size:8px;letter-spacing:.08em;
+}
+.card-head span{font-size:6px;color:var(--muted)}
+.card-head .live{color:var(--green)}
+#command-card{border-color:rgba(0,234,255,.18)}
+#private-card{border-color:rgba(0,255,157,.2)}
+#sovereign-card{border-color:rgba(224,184,74,.18)}
+
+.stage{position:relative;z-index:2;padding:16px 12px;min-height:240px}
+.flow-row{display:grid;grid-template-columns:1fr 18px 1fr 18px 1fr;align-items:center;gap:2px}
+.node{
+  min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:1px solid var(--line);border-radius:8px;background:rgba(0,0,0,.4);opacity:.35;transition:.25s;font-size:11px;
+}
+.node.active{opacity:1;transform:translateY(-2px)}
+.node.human.active{border-color:rgba(0,255,157,.45)}
+.node.hermes.active{border-color:rgba(140,114,255,.5)}
+.node.claw.active{border-color:rgba(255,122,24,.5)}
+.node strong{margin-top:2px;font-size:6px}
+.node small{color:var(--muted);font-size:5px}
+.route{height:1px;background:rgba(0,234,255,.2);position:relative;overflow:hidden}
+.route::after{
+  content:"";position:absolute;top:-2px;left:-4px;width:5px;height:5px;border-radius:50%;
+  background:var(--cyan);box-shadow:0 0 6px var(--cyan);animation:flow 1.5s linear infinite;
+}
+@keyframes flow{to{left:100%}}
+
+.orb{
+  margin:18px auto 0;width:100px;height:100px;border-radius:50%;display:grid;place-items:center;text-align:center;
+  border:1px solid rgba(0,234,255,.28);background:radial-gradient(circle,rgba(0,234,255,.1),rgba(0,0,0,.9));
+  box-shadow:0 0 28px rgba(0,234,255,.12);transition:.25s;
+}
+.orb.hot{border-color:rgba(255,122,24,.5);box-shadow:0 0 36px rgba(255,122,24,.22)}
+.orb small{display:block;color:var(--muted);font-size:5px;letter-spacing:.12em}
+.orb strong{display:block;margin-top:4px;color:var(--cyan);font-size:16px}
+
+.principal-wrap{display:grid;place-items:center;padding-top:8px}
+.principal{
+  position:relative;width:100px;height:100px;display:grid;place-items:center;
+}
+.ring{position:absolute;inset:0;border-radius:50%;border:1px dashed rgba(0,255,157,.2);animation:spin 16s linear infinite}
+.ring.two{inset:10px;border-style:solid;border-color:rgba(0,234,255,.14);animation:spinBack 11s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spinBack{to{transform:rotate(-360deg)}}
+.core{
+  width:70px;height:70px;border-radius:50%;display:grid;place-items:center;text-align:center;
+  border:1px solid rgba(0,255,157,.45);background:radial-gradient(circle,rgba(0,255,157,.12),#010403 70%);
+  box-shadow:0 0 24px rgba(0,255,157,.14);transition:.25s;position:relative;z-index:1;
+}
+.core.active{box-shadow:0 0 40px rgba(0,255,157,.3)}
+.core small{font-size:4px;color:var(--muted)}
+.core strong{display:block;color:var(--green);font-size:9px}
+.custody{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:16px}
+.custody div{
+  height:28px;padding:0 6px;display:flex;align-items:center;justify-content:space-between;
+  border:1px solid rgba(0,255,157,.1);border-radius:6px;background:rgba(0,0,0,.35);font-size:5px;
+}
+.custody span{color:var(--muted)}.custody b{color:var(--green)}
+
+.sov-lineage{text-align:center;color:var(--muted);font-size:5px;letter-spacing:.1em;margin-bottom:12px}
+.sov-map{position:relative;height:200px}
+.sov-orbit{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:160px;height:160px;border-radius:50%;border:1px solid rgba(0,234,255,.12);animation:spin 22s linear infinite;
+}
+.sov-orbit::before{content:"";position:absolute;inset:22px;border-radius:50%;border:1px dashed rgba(0,255,157,.14)}
+.sov-core{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:72px;height:72px;border-radius:50%;display:grid;place-items:center;text-align:center;cursor:pointer;
+  border:1px solid rgba(224,184,74,.45);background:radial-gradient(circle,rgba(224,184,74,.12),#020407 70%);
+  box-shadow:0 0 26px rgba(224,184,74,.12);
+}
+.sov-core strong{color:var(--gold);font-size:9px}
+.sov-core small{display:block;color:var(--muted);font-size:4px}
+.sov-node{
+  position:absolute;width:88px;min-height:48px;padding:6px;text-align:center;
+  border:1px solid var(--line);border-radius:8px;background:rgba(3,6,12,.94);font-size:5px;
+}
+.sov-node strong{display:block;font-size:6px;margin-bottom:2px}
+.sov-node small{color:var(--muted)}
+#sov-open{top:0;left:0}#sov-private{top:0;right:0}
+#sov-custody{bottom:0;left:0}#sov-value{bottom:0;right:0}
+#sov-open strong{color:var(--cyan)}#sov-private strong{color:var(--green)}#sov-value strong{color:var(--gold)}
+.sov-thesis{margin-top:12px;text-align:center;color:var(--muted);font-size:6px;line-height:1.45}
+
+.terminal{
+  position:relative;z-index:2;border-top:1px solid var(--line);background:rgba(0,0,0,.28);
+  padding:10px 12px;min-height:140px;display:flex;flex-direction:column;
+}
+.log{flex:1;min-height:70px;max-height:90px;overflow:auto;color:#8b9ca4;font-size:6.5px;line-height:1.55;scrollbar-width:none}
+.log::-webkit-scrollbar{display:none}
+.log div:last-child{color:#fff}
+.omnibox{
+  margin-top:8px;height:40px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:7px;
+  padding:0 6px 0 10px;border:1px solid rgba(0,234,255,.25);border-radius:8px;background:#000;
+}
+.omnibox span{color:var(--cyan);font-weight:900;font-size:11px}
+.omnibox input{min-width:0;border:0;outline:0;background:transparent;color:#fff;font:7px var(--mono)}
+.omnibox button{
+  height:26px;padding:0 10px;border-radius:5px;border:1px solid rgba(0,255,157,.38);
+  background:rgba(0,255,157,.08);color:var(--green);font:700 6px var(--mono);cursor:pointer;
+}
+
+.receipt{
+  margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:12px;background:rgba(5,8,14,.86);
+  display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;
+}
+.receipt-icon{font-size:18px}
+.receipt-copy strong{display:block;color:var(--green);font-size:8px}
+.receipt-copy small{display:block;margin-top:3px;color:var(--muted);font-size:6px}
+#receipt-id{color:var(--cyan);font-size:7px}
+
+.cta{
+  position:fixed;z-index:100;left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right));
+  bottom:max(12px,env(safe-area-inset-bottom));max-width:520px;margin:0 auto;min-height:58px;
+  padding:10px 16px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;
+  border-radius:999px;color:#04100b;text-decoration:none;
+  background:linear-gradient(110deg,var(--green),var(--cyan),var(--violet),var(--green));
+  background-size:300% 300%;animation:ctaFlow 8s ease infinite;
+  box-shadow:0 14px 40px rgba(0,0,0,.65),0 0 24px rgba(0,255,157,.18);
+}
+@keyframes ctaFlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.cta strong{display:block;font-size:10px;letter-spacing:.06em}
+.cta small{display:block;margin-top:2px;font-size:6px;opacity:.7}
+.cta-arrow{font-size:18px}
+
+.aaa-link{margin-top:10px;text-align:center;font-size:8px;letter-spacing:.1em}
+.aaa-link a{color:var(--green);text-decoration:none}
+
+@media(max-width:960px){
+  .grid{grid-template-columns:1fr}
+  .card{min-height:auto}
+}
+</style>
+</head>
+<body>
+<main class="app">
+
+<header class="header">
+  <div class="brand">
+    <small>Æ TRINITY · PARALLEL SOVEREIGNTY</small>
+    <h1>One intent. <span>One principal.</span></h1>
+  </div>
+  <div class="header-status">HUMAN://ROOT<br><strong id="global-status">READY</strong></div>
+</header>
+
+<section class="doctrine" id="doctrine">
+  <button type="button" class="doctrine-item intelligence on" data-rail="intelligence"><strong>OPEN INTELLIGENCE</strong><small>DISCOVER</small></button>
+  <button type="button" class="doctrine-item authority on" data-rail="authority"><strong>PRIVATE AUTHORITY</strong><small>AUTHORIZE</small></button>
+  <button type="button" class="doctrine-item value on" data-rail="value"><strong>SOVEREIGN VALUE</strong><small>COMPOUND</small></button>
+</section>
+
+<section class="grid">
+
+  <!-- COMMANDPROMPT -->
+  <article class="card" id="command-card">
+    <header class="card-head"><strong>COMMANDPROMPT.AI</strong><span>INTENT://INVOCATION</span></header>
+    <div class="stage">
+      <div class="flow-row">
+        <div class="node human active" data-cp="human"><span>&gt;_</span><strong>HUMAN</strong><small>principal</small></div>
+        <div class="route"></div>
+        <div class="node hermes" data-cp="hermes"><span>🪽</span><strong>HERMES</strong><small>compose</small></div>
+        <div class="route"></div>
+        <div class="node claw" data-cp="claw"><span>🦞</span><strong>OPENCLAW</strong><small>execute</small></div>
+      </div>
+      <div class="orb" id="intent-orb"><div><small id="intent-phase">INTENT</small><strong>&gt;_æ://</strong></div></div>
+    </div>
+    <section class="terminal">
+      <div class="log" id="command-log"><div>COMMANDPROMPT.AI:// READY</div><div>HUMAN://ROOT attached.</div></div>
+      <form class="omnibox" id="intent-form">
+        <span>&gt;_</span>
+        <input id="intent-input" autocomplete="off" spellcheck="false" placeholder="Open_intelligence|Private_authority|Sovereign_value"/>
+        <button type="submit">EXEC</button>
+      </form>
+    </section>
+  </article>
+
+  <!-- PRIVATECLIENT -->
+  <article class="card" id="private-card">
+    <header class="card-head"><strong>PRIVATECLIENT.AI</strong><span class="live">● HUMAN-BOUND</span></header>
+    <div class="stage">
+      <div class="principal-wrap">
+        <div class="principal">
+          <div class="ring"></div><div class="ring two"></div>
+          <div class="core" id="principal-core"><div><small>ROOT OF TRUST</small><strong>HUMAN</strong></div></div>
+        </div>
+      </div>
+      <div class="custody">
+        <div><span>IDENTITY</span><b>SELF</b></div>
+        <div><span>MEMORY</span><b>SELF</b></div>
+        <div><span>CONTEXT</span><b>SELF</b></div>
+        <div><span>KEYS</span><b>SELF</b></div>
+        <div><span>CAPITAL</span><b>SELF</b></div>
+        <div><span>AUTHORITY</span><b>ROOT</b></div>
+      </div>
+      <div class="flow-row" style="margin-top:16px">
+        <div class="node human active" data-pc="human"><span>&gt;_</span><strong>HUMAN</strong><small>root</small></div>
+        <div class="route" style="background:rgba(0,255,157,.2)"></div>
+        <div class="node hermes" data-pc="hermes"><span>🪽</span><strong>HERMES</strong><small>delegate</small></div>
+        <div class="route" style="background:rgba(0,255,157,.2)"></div>
+        <div class="node claw" data-pc="claw"><span>🦞</span><strong>OPENCLAW</strong><small>scope</small></div>
+      </div>
+    </div>
+    <section class="terminal">
+      <div class="log" id="private-log"><div>PRIVATECLIENT.AI:// ACTIVE</div><div>AUTHORITY:// HUMAN</div></div>
+      <div class="omnibox"><span>&gt;_æ://</span><input value="private_authority" readonly/><button type="button" id="private-audit">AUDIT</button></div>
+    </section>
+  </article>
+
+  <!-- SOVÆREIGN -->
+  <article class="card" id="sovereign-card">
+    <header class="card-head"><strong>SOVÆREIGN.COM</strong><span>CUSTODY://VALUE</span></header>
+    <div class="stage">
+      <div class="sov-lineage">HUMAN → KNOWLEDGE → CAPABILITY → AGENCY → VALUE</div>
+      <div class="sov-map">
+        <div class="sov-orbit"></div>
+        <button class="sov-core" id="sov-core" type="button"><div><strong id="sov-core-label">CUSTODY</strong><small>HUMAN</small></div></button>
+        <div class="sov-node" id="sov-open"><strong>OPEN INTELLIGENCE</strong><small>models · knowledge</small></div>
+        <div class="sov-node" id="sov-private"><strong>PRIVATE AUTHORITY</strong><small>identity · consent</small></div>
+        <div class="sov-node" id="sov-custody"><strong>SELF CUSTODY</strong><small>keys · memory</small></div>
+        <div class="sov-node" id="sov-value"><strong>SOVEREIGN VALUE</strong><small>ownership · capital</small></div>
+      </div>
+      <div class="sov-thesis" id="sov-thesis">Intelligence may be open. Authority remains private. Value remains sovereign.</div>
+    </div>
+    <section class="terminal">
+      <div class="log" id="sovereign-log"><div>SOVÆREIGN:// CUSTODY ONLINE</div><div>VALUE:// PRINCIPAL-OWNED</div></div>
+      <div class="omnibox"><span>&gt;_æ://</span><input value="sovereign_value" readonly/><button type="button" id="custody-check">VERIFY</button></div>
+    </section>
+  </article>
+</section>
+
+<section class="receipt">
+  <div class="receipt-icon">📟</div>
+  <div class="receipt-copy">
+    <strong>SHARED LINEAGE RECEIPT</strong>
+    <small id="receipt-copy">HUMAN://ROOT · waiting for invocation</small>
+  </div>
+  <div id="receipt-id">RCPT://—</div>
+</section>
+
+<p class="aaa-link"><a href="https://MYaelMendez.github.io/">&gt;_æææ:// · centralize at the root</a></p>
+</main>
+
+<a class="cta" href="https://MYaelMendez.github.io/" target="_blank" rel="noopener noreferrer">
+  <strong>&gt;_æææ://</strong>
+  <span><strong>CENTRALIZE AT THE ROOT</strong><small>æææ.com · one principal</small></span>
+  <span class="cta-arrow">→</span>
+</a>
+
+<script>
+(()=>{
+  const $=id=>document.getElementById(id);
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  const state={phase:"READY",intent:null,iteration:0,lineage:[]};
+
+  function log(id,msg){
+    const t=$(id);if(!t)return;
+    const row=document.createElement("div");row.textContent=msg;t.appendChild(row);
+    while(t.children.length>8)t.removeChild(t.firstChild);
+    t.scrollTop=t.scrollHeight;
+  }
+  const cp=m=>log("command-log",m),pc=m=>log("private-log",m),sv=m=>log("sovereign-log",m);
+
+  function setNodes(sel,name){
+    document.querySelectorAll(sel).forEach(n=>n.classList.toggle("active",n.dataset.cp===name||n.dataset.pc===name));
+  }
+  function setCP(name){setNodes("[data-cp]",name)}
+  function setPC(name){
+    document.querySelectorAll("[data-pc]").forEach(n=>n.classList.toggle("active",n.dataset.pc===name));
+    $("principal-core")?.classList.toggle("active",name==="human");
+  }
+
+  function rid(){
+    return(crypto?.randomUUID?.()||Math.random().toString(16).slice(2)).slice(0,8).toUpperCase();
+  }
+
+  async function invoke(intent){
+    intent=String(intent||"").trim();
+    if(!intent){cp("NO INTENT · REFUSED");return}
+    if(state.phase!=="READY"){cp(`BUSY://${state.phase}`);return}
+
+    state.intent=intent;state.phase="INTENT";
+    $("global-status").textContent="INTENT";$("intent-phase").textContent="INTENT";
+    setCP("human");setPC("human");cp(`HUMAN:// ${intent}`);
+    await wait(400);
+
+    state.phase="AUTHORIZE";$("global-status").textContent="AUTHORIZE";$("intent-phase").textContent="AUTHORIZE";
+    setPC("hermes");cp("→ PRIVATECLIENT.AI://AUTHORIZE");pc("AUTHORITY:// SCOPED");
+    await wait(500);
+
+    state.phase="ROUTE";$("global-status").textContent="ROUTE";$("intent-phase").textContent="ROUTE";
+    setCP("hermes");setPC("hermes");cp("→ HERMES://COMPOSE");pc("HERMES:// delegated");
+    await wait(550);
+
+    state.phase="EXECUTE";$("global-status").textContent="EXECUTE";$("intent-phase").textContent="EXECUTE";
+    setCP("claw");setPC("claw");$("intent-orb").classList.add("hot");
+    cp("→ OPENCLAW://EXECUTE");pc("OPENCLAW:// bounded execution");
+    await wait(650);
+
+    state.phase="REINTEGRATE";$("global-status").textContent="REINTEGRATE";$("intent-phase").textContent="RETURN";
+    const id=rid();state.iteration++;state.lineage.push({id,intent,t:Date.now()});
+    cp(`RCPT://${id}`);pc(`LINEAGE://${id}`);sv(`VALUE://${id} · HUMAN OWNED`);
+    $("sov-core-label").textContent="OWN";
+    $("sov-thesis").textContent="Open intelligence → private authority → sovereign value → human principal.";
+    $("receipt-id").textContent=`RCPT://${id}`;
+    $("receipt-copy").textContent=`HUMAN://ROOT · ${intent} · iteration ${state.iteration}`;
+    await wait(500);
+
+    state.phase="READY";setCP("human");setPC("human");$("intent-orb").classList.remove("hot");
+    $("intent-phase").textContent="READY";$("global-status").textContent="READY";
+    cp("→ REINTEGRATE://HUMAN");pc("AUTHORITY:// RETURNED TO HUMAN");sv("CUSTODY:// PRESERVED");
+  }
+
+  $("intent-form").addEventListener("submit",e=>{
+    e.preventDefault();
+    const v=$("intent-input").value.trim();if(!v)return;
+    invoke(v);$("intent-input").value="";
+  });
+  $("private-audit").onclick=()=>pc("AUDIT:// identity=SELF · memory=SELF · keys=SELF · authority=HUMAN");
+  $("custody-check").onclick=()=>{sv("VERIFY:// custody=SELF · capital=SELF");$("sov-core-label").textContent="VERIFIED"};
+  $("sov-core").onclick=()=>{$("sov-thesis").textContent="The human remains the principal."};
+
+  // doctrine rails toggle (visual only — always available in invoke)
+  document.querySelectorAll("[data-rail]").forEach(btn=>{
+    btn.addEventListener("click",()=>btn.classList.toggle("on"));
+  });
+
+  setTimeout(()=>cp("OPEN_INTELLIGENCE:// AVAILABLE"),200);
+  setTimeout(()=>pc("PRIVATE_AUTHORITY:// HUMAN-BOUND"),450);
+  setTimeout(()=>sv("SOVEREIGN_VALUE:// PRINCIPAL-OWNED"),700);
+  setTimeout(()=>cp("TRINITY:// SHARED RUNTIME ONLINE"),950);
+
+  window.AE_TRINITY={invoke,state:()=>({...state,lineage:[...state.lineage]})};
+})();
+</script>
+</body>
+</html>

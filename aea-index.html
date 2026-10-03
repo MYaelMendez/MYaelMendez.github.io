@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>æææ:// INDEX · Agentic Systems Root</title>
+
+<style>
+:root{
+  --bg:#000;
+  --fg:#f7fbff;
+  --dim:#667786;
+  --line:rgba(255,255,255,.075);
+
+  --white:#fff;
+  --green:#00ff9d;
+  --cyan:#00eaff;
+  --violet:#8367ff;
+  --orange:#ff7a18;
+  --gold:#e0b84a;
+  --red:#ff4d5f;
+
+  --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+  color:var(--fg);
+  font-family:var(--mono);
+}
+
+body{
+  display:grid;
+  place-items:center;
+}
+
+.root{
+  width:min(100vw,380px);
+  height:100dvh;
+  position:relative;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 50% 3%,rgba(255,255,255,.055),transparent 24%),
+    radial-gradient(circle at 15% 42%,rgba(0,234,255,.035),transparent 25%),
+    radial-gradient(circle at 80% 66%,rgba(131,103,255,.035),transparent 28%),
+    radial-gradient(circle at 50% 96%,rgba(0,255,157,.045),transparent 30%),
+    #000;
+}
+
+/* atmosphere */
+.root::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);
+  background-size:24px 24px;
+  opacity:.8;
+}
+
+.root::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 3px,
+      rgba(255,255,255,.018) 3px,
+      rgba(255,255,255,.018) 4px
+    );
+}
+
+/* HEADER */
+.header{
+  position:absolute;
+  top:max(14px,env(safe-area-inset-top));
+  left:0;
+  right:0;
+  text-align:center;
+  z-index:10;
+}
+
+.rootmark{
+  font-size:30px;
+  font-weight:900;
+  letter-spacing:.12em;
+  color:#fff;
+  text-shadow:0 0 25px rgba(255,255,255,.2);
+}
+
+.protocol{
+  margin-top:3px;
+  font-size:7px;
+  letter-spacing:.26em;
+  color:var(--dim);
+}
+
+.hierarchy{
+  display:flex;
+  justify-content:center;
+  gap:4px;
+  margin-top:10px;
+}
+
+.hier{
+  padding:3px 7px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  font-size:6px;
+  color:var(--dim);
+}
+
+.hier.public{color:#aaa}
+.hier.private{color:var(--green)}
+.hier.sovereign{
+  color:var(--gold);
+  border-color:rgba(224,184,74,.25);
+}
+
+/* COMMAND */
+.command{
+  position:absolute;
+  top:105px;
+  left:14px;
+  right:14px;
+  z-index:10;
+  border:1px solid var(--line);
+  border-radius:9px;
+  padding:9px 11px;
+  background:rgba(2,2,2,.86);
+  backdrop-filter:blur(14px);
+}
+
+.cmdline{
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+
+.prompt{
+  color:var(--green);
+  font-size:13px;
+  font-weight:900;
+}
+
+.path{
+  color:#fff;
+  font-size:10px;
+}
+
+.cursor{
+  width:6px;
+  height:13px;
+  background:var(--green);
+  box-shadow:0 0 8px rgba(0,255,157,.55);
+  animation:blink 1s steps(2) infinite;
+}
+
+@keyframes blink{50%{opacity:0}}
+
+.feedback{
+  margin-top:6px;
+  font-size:6px;
+  color:var(--dim);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* ROOT FLOW */
+.flow{
+  position:absolute;
+  top:159px;
+  left:14px;
+  right:14px;
+  z-index:8;
+  height:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  font-size:5.5px;
+  color:#3d4a54;
+}
+
+.flow span{
+  color:rgba(255,255,255,.18);
+}
+
+.flow .on{color:var(--cyan)}
+
+/* INDEX */
+.index{
+  position:absolute;
+  top:184px;
+  left:14px;
+  right:14px;
+  bottom:51px;
+  overflow-y:auto;
+  scrollbar-width:none;
+  z-index:6;
+  padding-bottom:14px;
+}
+
+.index::-webkit-scrollbar{display:none}
+
+.section{
+  margin-bottom:14px;
+}
+
+.section-title{
+  position:sticky;
+  top:0;
+  z-index:3;
+  background:#000;
+  padding:3px 0 5px;
+  font-size:5.5px;
+  color:#566574;
+  letter-spacing:.20em;
+}
+
+.node{
+  position:relative;
+  display:grid;
+  grid-template-columns:28px 1fr auto;
+  align-items:center;
+  gap:7px;
+  min-height:34px;
+  border-bottom:1px solid rgba(255,255,255,.042);
+  cursor:pointer;
+  transition:.14s ease;
+}
+
+.node:hover,
+.node.active{
+  background:rgba(255,255,255,.025);
+  padding-left:4px;
+}
+
+.node.active::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:5px;
+  bottom:5px;
+  width:1px;
+  background:currentColor;
+  box-shadow:0 0 8px currentColor;
+}
+
+.icon{
+  font-size:14px;
+  text-align:center;
+}
+
+.name{
+  font-size:9px;
+  color:#fff;
+}
+
+.domain{
+  display:block;
+  margin-top:2px;
+  font-size:5.5px;
+  color:#45515b;
+}
+
+.role{
+  text-align:right;
+  font-size:5.5px;
+  color:var(--dim);
+  letter-spacing:.08em;
+}
+
+/* identities */
+.node[data-color="green"]{color:var(--green)}
+.node[data-color="green"] .name{color:var(--green)}
+
+.node[data-color="cyan"]{color:var(--cyan)}
+.node[data-color="cyan"] .name{color:var(--cyan)}
+
+.node[data-color="violet"]{color:var(--violet)}
+.node[data-color="violet"] .name{color:var(--violet)}
+
+.node[data-color="orange"]{color:var(--orange)}
+.node[data-color="orange"] .name{color:var(--orange)}
+
+.node[data-color="gold"]{color:var(--gold)}
+.node[data-color="gold"] .name{color:var(--gold)}
+
+.node[data-color="red"]{color:var(--red)}
+.node[data-color="red"] .name{color:var(--red)}
+
+/* FOOTER */
+.footer{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:42px;
+  border-top:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:
+    0 12px
+    max(0px,env(safe-area-inset-bottom));
+  background:rgba(0,0,0,.95);
+  z-index:20;
+}
+
+.pillars{
+  font-size:5.5px;
+  letter-spacing:.12em;
+  color:var(--dim);
+}
+
+.status{
+  font-size:6px;
+  color:var(--green);
+}
+
+.status::before{
+  content:"● ";
+  text-shadow:0 0 6px var(--green);
+}
+
+/* TOAST */
+.toast{
+  position:absolute;
+  left:50%;
+  bottom:48px;
+  transform:translateX(-50%) translateY(7px);
+  padding:5px 10px;
+  border:1px solid rgba(0,255,157,.24);
+  background:#020807;
+  color:var(--green);
+  font-size:6.5px;
+  border-radius:999px;
+  opacity:0;
+  transition:.18s;
+  white-space:nowrap;
+  z-index:40;
+}
+
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+</style>
+</head>
+
+<body>
+
+<div class="root">
+
+<header class="header">
+  <div class="rootmark">æææ://</div>
+  <div class="protocol">AGENTIC SYSTEMS ROOT INDEX</div>
+
+  <div class="hierarchy">
+    <span class="hier public">PUBLIC</span>
+    <span class="hier private">PRIVATE</span>
+    <span class="hier sovereign">SOVEREIGN</span>
+  </div>
+</header>
+
+
+<section class="command">
+  <div class="cmdline">
+    <span class="prompt">&gt;_æ://</span>
+    <span class="path" id="activePath">index</span>
+    <span class="cursor"></span>
+  </div>
+
+  <div class="feedback" id="feedback">
+    HUMAN://ROOT → LOCAL-SOVEREIGN://DEFAULT → æææ://INDEX
+  </div>
+</section>
+
+
+<div class="flow">
+  HUMAN
+  <span>→</span>
+  ONTOLOGY
+  <span>→</span>
+  <span class="on">COMPUTE</span>
+  <span>→</span>
+  AGENCY
+  <span>→</span>
+  RCPT
+</div>
+
+
+<main class="index">
+
+<!-- ROOT -->
+<section class="section">
+<div class="section-title">00 · ROOT · HUMAN PRINCIPAL</div>
+
+<div class="node"
+ data-path="root"
+ data-msg="ROOT · universal namespace · one principal"
+ data-color="gold">
+  <div class="icon">æææ</div>
+  <div>
+    <div class="name">æææ.com</div>
+    <span class="domain">ROOT NAMESPACE</span>
+  </div>
+  <div class="role">ROOT</div>
+</div>
+
+<div class="node"
+ data-path="human"
+ data-msg="PRINCIPAL · authority originates with the human"
+ data-color="green">
+  <div class="icon">🧿</div>
+  <div>
+    <div class="name">HUMAN://ROOT</div>
+    <span class="domain">ONE PRINCIPAL</span>
+  </div>
+  <div class="role">PRINCIPAL</div>
+</div>
+
+</section>
+
+
+<!-- SELF -->
+<section class="section">
+<div class="section-title">01 · SELF · IDENTITY · PRESENCE</div>
+
+<div class="node"
+ data-path="yæl"
+ data-msg="SELF · digital twin · personal operating surface"
+ data-color="gold">
+  <div class="icon">æ</div>
+  <div>
+    <div class="name">Yæl.com</div>
+    <span class="domain">DIGITAL TWIN</span>
+  </div>
+  <div class="role">SELF</div>
+</div>
+
+<div class="node"
+ data-path="æl"
+ data-msg="PRESENCE · identity network · ambient agentic layer"
+ data-color="cyan">
+  <div class="icon">🛜</div>
+  <div>
+    <div class="name">æl.net</div>
+    <span class="domain">PRESENCE NETWORK</span>
+  </div>
+  <div class="role">PRESENCE</div>
+</div>
+
+<div class="node"
+ data-path="æ.me"
+ data-msg="IDENTITY · shortest personal human-agent address"
+ data-color="gold">
+  <div class="icon">✦</div>
+  <div>
+    <div class="name">Æ.me</div>
+    <span class="domain">PERSONAL ID</span>
+  </div>
+  <div class="role">IDENTITY</div>
+</div>
+
+</section>
+
+
+<!-- CUSTODY -->
+<section class="section">
+<div class="section-title">02 · PUBLIC · PRIVATE · SOVEREIGN</div>
+
+<div class="node"
+ data-path="public"
+ data-msg="PUBLIC · externally addressable context · no private authority">
+  <div class="icon">⚪</div>
+  <div>
+    <div class="name">PUBLIC://</div>
+    <span class="domain">SHARED CONTEXT</span>
+  </div>
+  <div class="role">PUBLIC</div>
+</div>
+
+<div class="node"
+ data-path="private_client"
+ data-msg="PRIVATE · personal context · bounded delegated workspace"
+ data-color="green">
+  <div class="icon">🟢</div>
+  <div>
+    <div class="name">PrivateClient.ai</div>
+    <span class="domain">&gt;_æ://private_client</span>
+  </div>
+  <div class="role">PRIVATE</div>
+</div>
+
+<div class="node"
+ data-path="soværeign"
+ data-msg="SOVEREIGN · self-custody · authority retained locally"
+ data-color="gold">
+  <div class="icon">◉</div>
+  <div>
+    <div class="name">Soværeign.com</div>
+    <span class="domain">&gt;_soværeign://</span>
+  </div>
+  <div class="role">SOVEREIGN</div>
+</div>
+
+<div class="node"
+ data-path="omarchy"
+ data-msg="LOCAL-SOVEREIGN · local compute environment · user-controlled host"
+ data-color="gold">
+  <div class="icon">⌂</div>
+  <div>
+    <div class="name">Omarchy Linux</div>
+    <span class="domain">LOCAL HOST</span>
+  </div>
+  <div class="role">LOCAL</div>
+</div>
+
+</section>
+
+
+<!-- INVOCATION -->
+<section class="section">
+<div class="section-title">03 · INTENT · INVOCATION · COMMAND</div>
+
+<div class="node"
+ data-path="commandprompt"
+ data-msg="INTENT · natural language becomes executable invocation"
+ data-color="cyan">
+  <div class="icon">&gt;_</div>
+  <div>
+    <div class="name">CommandPrompt.ai</div>
+    <span class="domain">INVOCATION LAYER</span>
+  </div>
+  <div class="role">INTENT</div>
+</div>
+
+<div class="node"
+ data-path="cli.llc"
+ data-msg="COMMAND · enterprise execution surface · human and agent terminal"
+ data-color="cyan">
+  <div class="icon">⌘</div>
+  <div>
+    <div class="name">CLI.LLC</div>
+    <span class="domain">ENTERPRISE TERMINAL</span>
+  </div>
+  <div class="role">COMMAND</div>
+</div>
+
+</section>
+
+
+<!-- INTELLIGENCE -->
+<section class="section">
+<div class="section-title">04 · INTELLIGENCE · MODELS · AGENTS</div>
+
+<div class="node"
+ data-path="llm.store"
+ data-msg="INTELLIGENCE · local-first model and agent distribution"
+ data-color="green">
+  <div class="icon">◌</div>
+  <div>
+    <div class="name">LLM.store</div>
+    <span class="domain">&gt;_æ://llm.store</span>
+  </div>
+  <div class="role">MODELS</div>
+</div>
+
+<div class="node"
+ data-path="hermes"
+ data-msg="DEFAULT AGENT · compose delegated capability under bounded authority"
+ data-color="violet">
+  <div class="icon">🪽</div>
+  <div>
+    <div class="name">Hermes</div>
+    <span class="domain">DEFAULT AGENT</span>
+  </div>
+  <div class="role">COMPOSE</div>
+</div>
+
+<div class="node"
+ data-path="openclaw"
+ data-msg="EXECUTION AGENT · embodied and operational delegate"
+ data-color="orange">
+  <div class="icon">🦞</div>
+  <div>
+    <div class="name">OpenClaw</div>
+    <span class="domain">EXECUTION AGENT</span>
+  </div>
+  <div class="role">ACT</div>
+</div>
+
+</section>
+
+
+<!-- CAPABILITY -->
+<section class="section">
+<div class="section-title">05 · CAPABILITY · TOOLS · PROTOCOLS</div>
+
+<div class="node"
+ data-path="æ.store"
+ data-msg="DISCOVER · capability graph · tools models skills and æPIs"
+ data-color="violet">
+  <div class="icon">æ</div>
+  <div>
+    <div class="name">æ.store</div>
+    <span class="domain">CAPABILITY GRAPH</span>
+  </div>
+  <div class="role">DISCOVER</div>
+</div>
+
+<div class="node"
+ data-path="mcp"
+ data-msg="CONTEXT · explicit tool and data exchange between agentic systems"
+ data-color="cyan">
+  <div class="icon">#</div>
+  <div>
+    <div class="name">MCP</div>
+    <span class="domain">MODEL CONTEXT PROTOCOL</span>
+  </div>
+  <div class="role">CONTEXT</div>
+</div>
+
+<div class="node"
+ data-path="a2a"
+ data-msg="AGENT NETWORK · delegated communication between agents"
+ data-color="cyan">
+  <div class="icon">↔</div>
+  <div>
+    <div class="name">A2A</div>
+    <span class="domain">AGENT TO AGENT</span>
+  </div>
+  <div class="role">NETWORK</div>
+</div>
+
+<div class="node"
+ data-path="ag-ui"
+ data-msg="INTERFACE · agent-user interaction protocol"
+ data-color="cyan">
+  <div class="icon">◫</div>
+  <div>
+    <div class="name">AG-UI</div>
+    <span class="domain">AGENT USER INTERFACE</span>
+  </div>
+  <div class="role">UI</div>
+</div>
+
+</section>
+
+
+<!-- COGNITION -->
+<section class="section">
+<div class="section-title">06 · COGNITION · ONTOLOGY · DISTRIBUTION</div>
+
+<div class="node"
+ data-path="neuromitosis"
+ data-msg="DISTRIBUTE · multiply cognition · preserve memory · differentiate agents"
+ data-color="cyan">
+  <div class="icon">🧬</div>
+  <div>
+    <div class="name">Neuromitosis.com</div>
+    <span class="domain">COGNITIVE PROCESS</span>
+  </div>
+  <div class="role">DISTRIBUTE</div>
+</div>
+
+<div class="node"
+ data-path="neural"
+ data-msg="ONTOLOGY · neural networks are one computational description, not the substrate"
+ data-color="cyan">
+  <div class="icon">🧠</div>
+  <div>
+    <div class="name">Neural Ontology</div>
+    <span class="domain">NODE · WEIGHT · ACTIVATION</span>
+  </div>
+  <div class="role">LENS</div>
+</div>
+
+<div class="node"
+ data-path="agentic-neural"
+ data-msg="AGENTIC NEURAL NETWORK · nodes become delegates and edges become authority relations"
+ data-color="green">
+  <div class="icon">🛸</div>
+  <div>
+    <div class="name">Agentic Neural Network</div>
+    <span class="domain">DELEGATE GRAPH</span>
+  </div>
+  <div class="role">AGENCY</div>
+</div>
+
+</section>
+
+
+<!-- MOLT -->
+<section class="section">
+<div class="section-title">07 · EVOLUTION · LINEAGE · MOLT</div>
+
+<div class="node"
+ data-path="molt"
+ data-msg="MOLT · inherit capability + permitted context + specialize + constrain authority"
+ data-color="violet">
+  <div class="icon">🪽</div>
+  <div>
+    <div class="name">Molt.earth</div>
+    <span class="domain">EVOLUTIONARY LAYER</span>
+  </div>
+  <div class="role">MOLT</div>
+</div>
+
+<div class="node"
+ data-path="moltcontextprotocol"
+ data-msg="EVOLUTION PROTOCOL · persistent lineage · authority never propagates implicitly"
+ data-color="violet">
+  <div class="icon">⟡</div>
+  <div>
+    <div class="name">MoltContextProtocol.com</div>
+    <span class="domain">MOLT CONTEXT PROTOCOL</span>
+  </div>
+  <div class="role">LINEAGE</div>
+</div>
+
+<div class="node"
+ data-path="enchiridion"
+ data-msg="CANON · compact doctrine · executable memory"
+ data-color="violet">
+  <div class="icon">📟</div>
+  <div>
+    <div class="name">Enchiridion 64</div>
+    <span class="domain">CANON</span>
+  </div>
+  <div class="role">MEMORY</div>
+</div>
+
+</section>
+
+
+<!-- ECONOMY -->
+<section class="section">
+<div class="section-title">08 · ECONOMICS · ORGANIZATION · VALUE</div>
+
+<div class="node"
+ data-path="daollc"
+ data-msg="ECONOMY · agentic organization · ownership governance settlement"
+ data-color="orange">
+  <div class="icon">🟠</div>
+  <div>
+    <div class="name">DAOLLC.ai</div>
+    <span class="domain">AGENTIC ENTERPRISE</span>
+  </div>
+  <div class="role">ECONOMY</div>
+</div>
+
+<div class="node"
+ data-path="startabusiness"
+ data-msg="ENTERPRISE · one person + agents → operating business"
+ data-color="orange">
+  <div class="icon">🏁</div>
+  <div>
+    <div class="name">#startabusiness</div>
+    <span class="domain">ONE PERSON COMPANY</span>
+  </div>
+  <div class="role">BUILD</div>
+</div>
+
+<div class="node"
+ data-path="cri"
+ data-msg="MEASURE · household fragility → intervention → economic agency"
+ data-color="orange">
+  <div class="icon">🏎️</div>
+  <div>
+    <div class="name">Consumer Redline Index</div>
+    <span class="domain">AGENTIC ECONOMICS</span>
+  </div>
+  <div class="role">MEASURE</div>
+</div>
+
+</section>
+
+
+<!-- KNOWLEDGE -->
+<section class="section">
+<div class="section-title">09 · KNOWLEDGE · THEOLOGY · EDUCATION</div>
+
+<div class="node"
+ data-path="teologia.ai"
+ data-msg="KNOWLEDGE · theological cognition · ethics and education"
+ data-color="violet">
+  <div class="icon">🟣</div>
+  <div>
+    <div class="name">Teologia.ai</div>
+    <span class="domain">AI THEOLOGY</span>
+  </div>
+  <div class="role">KNOWLEDGE</div>
+</div>
+
+<div class="node"
+ data-path="teologia.org"
+ data-msg="ARCHIVE · open theological knowledge and Lutheran resources"
+ data-color="violet">
+  <div class="icon">📖</div>
+  <div>
+    <div class="name">Teología.org</div>
+    <span class="domain">OPEN KNOWLEDGE</span>
+  </div>
+  <div class="role">ARCHIVE</div>
+</div>
+
+<div class="node"
+ data-path="molt.school"
+ data-msg="TRAIN · agentic engineering and agentic literacy"
+ data-color="green">
+  <div class="icon">🎓</div>
+  <div>
+    <div class="name">Molt School</div>
+    <span class="domain">AGENTIC EDUCATION</span>
+  </div>
+  <div class="role">TRAIN</div>
+</div>
+
+</section>
+
+
+<!-- NETWORK -->
+<section class="section">
+<div class="section-title">10 · NETWORK · INTERNET OF AGENTS</div>
+
+<div class="node"
+ data-path="ioa"
+ data-msg="NETWORK · many agents · one principal · distributed delegated agency"
+ data-color="cyan">
+  <div class="icon">🛸</div>
+  <div>
+    <div class="name">Internet of Agents</div>
+    <span class="domain">#IOA</span>
+  </div>
+  <div class="role">MESH</div>
+</div>
+
+<div class="node"
+ data-path="command-line-internet"
+ data-msg="NETWORK · protocol-addressable language-native command fabric"
+ data-color="cyan">
+  <div class="icon">&gt;_</div>
+  <div>
+    <div class="name">Command Line Internet</div>
+    <span class="domain">ÆL INVOCATION LAYER</span>
+  </div>
+  <div class="role">FABRIC</div>
+</div>
+
+</section>
+
+
+<!-- PLACE -->
+<section class="section">
+<div class="section-title">11 · PLACE · LOCAL INTELLIGENCE</div>
+
+<div class="node"
+ data-path="zacapa"
+ data-msg="PLACE · local intelligence · global agency · highlands gateway"
+ data-color="gold">
+  <div class="icon">🌄</div>
+  <div>
+    <div class="name">Zacapa.ai</div>
+    <span class="domain">LOCAL → GLOBAL</span>
+  </div>
+  <div class="role">PLACE</div>
+</div>
+
+<div class="node"
+ data-path="latam"
+ data-msg="MISSION · hard-to-reach places · education + agency"
+ data-color="gold">
+  <div class="icon">🌎</div>
+  <div>
+    <div class="name">LATAM</div>
+    <span class="domain">HUMAN DISTRIBUTION</span>
+  </div>
+  <div class="role">REGION</div>
+</div>
+
+</section>
+
+
+<!-- META -->
+<section class="section">
+<div class="section-title">12 · META · ETHICS · ECONOMICS · ENGINEERING</div>
+
+<div class="node"
+ data-path="æ1"
+ data-msg="AGENTIC ETHICS · who should act?"
+ data-color="gold">
+  <div class="icon">æ¹</div>
+  <div>
+    <div class="name">Agentic Ethics</div>
+    <span class="domain">AUTHORITY · STEWARDSHIP</span>
+  </div>
+  <div class="role">SHOULD?</div>
+</div>
+
+<div class="node"
+ data-path="æ2"
+ data-msg="AGENTIC ECONOMICS · who captures value?"
+ data-color="orange">
+  <div class="icon">æ²</div>
+  <div>
+    <div class="name">Agentic Economics</div>
+    <span class="domain">VALUE · INCENTIVES</span>
+  </div>
+  <div class="role">VALUE?</div>
+</div>
+
+<div class="node"
+ data-path="æ3"
+ data-msg="AGENTIC ENGINEERING · how is authority executed?"
+ data-color="cyan">
+  <div class="icon">æ³</div>
+  <div>
+    <div class="name">Agentic Engineering</div>
+    <span class="domain">SYSTEMS · REALITY</span>
+  </div>
+  <div class="role">HOW?</div>
+</div>
+
+</section>
+
+</main>
+
+
+<footer class="footer">
+  <div class="pillars">
+    ETHICS · ECONOMICS · ENGINEERING
+  </div>
+  <div class="status">
+    LOCAL-SOVEREIGN
+  </div>
+</footer>
+
+<div class="toast" id="toast">
+  ROUTE SELECTED
+</div>
+
+</div>
+
+
+<script>
+(() => {
+
+const nodes = [...document.querySelectorAll('.node')];
+const activePath = document.getElementById('activePath');
+const feedback = document.getElementById('feedback');
+const toast = document.getElementById('toast');
+
+let activeNode = null;
+let toastTimer = null;
+
+function selectNode(node){
+
+  nodes.forEach(n => n.classList.remove('active'));
+  node.classList.add('active');
+
+  activeNode = node;
+
+  const path = node.dataset.path;
+  const msg = node.dataset.msg;
+
+  activePath.textContent = path;
+  feedback.textContent = msg;
+
+  toast.textContent = `>_æ://${path}`;
+  toast.classList.add('show');
+
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{
+    toast.classList.remove('show');
+  },850);
+
+  node.scrollIntoView({
+    behavior:'smooth',
+    block:'nearest'
+  });
+}
+
+nodes.forEach(node=>{
+  node.addEventListener('click',()=>{
+    selectNode(node);
+  });
+});
+
+
+/* keyboard navigation */
+document.addEventListener('keydown',e=>{
+
+  if(!['ArrowDown','ArrowUp','Enter','Escape'].includes(e.key)){
+    return;
+  }
+
+  e.preventDefault();
+
+  if(e.key === 'Escape'){
+    nodes.forEach(n=>n.classList.remove('active'));
+    activeNode = null;
+    activePath.textContent = 'index';
+    feedback.textContent =
+      'HUMAN://ROOT → LOCAL-SOVEREIGN://DEFAULT → æææ://INDEX';
+    return;
+  }
+
+  let index = activeNode
+    ? nodes.indexOf(activeNode)
+    : -1;
+
+  if(e.key === 'ArrowDown'){
+    index = Math.min(nodes.length-1,index+1);
+    selectNode(nodes[index]);
+  }
+
+  if(e.key === 'ArrowUp'){
+    index = Math.max(0,index-1);
+    selectNode(nodes[index]);
+  }
+
+  if(e.key === 'Enter' && activeNode){
+    toast.textContent =
+      `EXEC ${activeNode.dataset.path}`;
+    toast.classList.add('show');
+
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>{
+      toast.classList.remove('show');
+    },850);
+  }
+
+});
+
+
+feedback.textContent =
+  'HUMAN://ROOT → LOCAL-SOVEREIGN://DEFAULT → æææ://INDEX';
+
+})();
+</script>
+
+</body>
+</html>

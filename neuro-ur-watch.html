@@ -1,0 +1,2329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
+>
+
+<title>NEURO·UR · æOS Watch vΩ+11</title>
+
+<style>
+:root{
+  --outer:#030712;
+
+  --surface:#f7f8f8;
+  --surface2:#e7ebeb;
+
+  --fg:#171b1f;
+  --muted:#75828a;
+
+  --gold:#c9a84c;
+  --cyan:#00d8ff;
+  --green:#00d4aa;
+  --orange:#ff7a18;
+  --red:#ff4d67;
+
+  --mono:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace;
+
+  --sans:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+
+  background:
+    radial-gradient(
+      circle at 50% 20%,
+      rgba(0,216,255,.08),
+      transparent 32%
+    ),
+    var(--outer);
+
+  font-family:var(--sans);
+}
+
+body{
+  display:grid;
+  place-items:center;
+
+  padding:
+    max(10px,env(safe-area-inset-top))
+    10px
+    max(10px,env(safe-area-inset-bottom));
+}
+
+
+/* ==================================================
+   CHASSIS
+================================================== */
+
+#neuro-watch{
+  position:relative;
+
+  width:min(
+    344px,
+    calc(100vw - 20px)
+  );
+
+  aspect-ratio:344/504;
+
+  padding:11px;
+
+  border-radius:72px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #2a2e32,
+      #090b0d 48%,
+      #191c1f
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.12);
+
+  box-shadow:
+    0 35px 95px rgba(0,0,0,.82),
+    inset 0 0 0 2px #34393d,
+    inset 0 0 25px rgba(255,255,255,.04);
+}
+
+
+/* crown */
+
+#neuro-watch::after{
+  content:"";
+
+  position:absolute;
+
+  right:-7px;
+  top:128px;
+
+  width:9px;
+  height:60px;
+
+  border-radius:
+    0 6px 6px 0;
+
+  background:
+    linear-gradient(
+      #343a40,
+      #0b0d0f
+    );
+
+  border:
+    1px solid #41484d;
+}
+
+
+/* ==================================================
+   SCREEN
+================================================== */
+
+#watch{
+  position:relative;
+
+  width:100%;
+  height:100%;
+
+  overflow:hidden;
+
+  border-radius:61px;
+
+  background:
+    linear-gradient(
+      145deg,
+      var(--surface),
+      var(--surface2)
+    );
+
+  color:var(--fg);
+
+  box-shadow:
+    inset 0 0 45px
+    rgba(0,0,0,.11);
+
+  transition:
+    background .55s ease,
+    color .55s ease;
+}
+
+
+/* CRT texture */
+
+.scan{
+  position:absolute;
+  inset:0;
+
+  z-index:100;
+
+  pointer-events:none;
+
+  opacity:.08;
+
+  background:
+    repeating-linear-gradient(
+      transparent 0 3px,
+      rgba(0,0,0,.12)
+      3px 4px
+    );
+}
+
+
+/* ==================================================
+   STATUS
+================================================== */
+
+.status{
+  position:absolute;
+
+  top:21px;
+  left:21px;
+  right:21px;
+
+  z-index:30;
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  font-family:var(--mono);
+
+  font-size:6.5px;
+  font-weight:900;
+
+  letter-spacing:.09em;
+}
+
+.status-side{
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+
+.dot{
+  width:5px;
+  height:5px;
+
+  border-radius:50%;
+
+  background:#a6b0b5;
+}
+
+.dot.live{
+  background:var(--green);
+
+  box-shadow:
+    0 0 8px var(--green);
+}
+
+.root-state{
+  color:var(--green);
+}
+
+
+/* ==================================================
+   FACE
+================================================== */
+
+#face{
+  position:absolute;
+
+  top:53px;
+  left:50%;
+
+  transform:
+    translateX(-50%);
+
+  width:268px;
+  height:268px;
+
+  border-radius:50%;
+
+  background:
+    radial-gradient(
+      circle at 50% 44%,
+      #fff,
+      #f2f4f4
+    );
+
+  box-shadow:
+    inset 0 0 25px rgba(0,0,0,.08),
+    0 0 0 7px rgba(255,255,255,.68),
+    0 12px 35px rgba(0,0,0,.10);
+
+  transition:
+    box-shadow .4s ease;
+}
+
+#ticks{
+  position:absolute;
+  inset:0;
+}
+
+
+/* ==================================================
+   DOMAIN RING
+================================================== */
+
+#domain-ring{
+  position:absolute;
+  inset:0;
+
+  transition:
+    transform .62s
+    cubic-bezier(.4,0,.2,1);
+}
+
+.domain-marker{
+  position:absolute;
+  inset:0;
+}
+
+.domain-tick{
+  position:absolute;
+
+  top:7px;
+  left:50%;
+
+  width:2px;
+  height:13px;
+
+  transform:
+    translateX(-50%);
+
+  border-radius:4px;
+
+  background:#b6c7c7;
+}
+
+.domain-label{
+  position:absolute;
+
+  top:26px;
+  left:50%;
+
+  width:72px;
+
+  transform:
+    translateX(-50%);
+
+  text-align:center;
+
+  color:#99a3a8;
+
+  font-family:var(--mono);
+
+  font-size:8px;
+  font-weight:900;
+
+  letter-spacing:.09em;
+
+  transition:
+    color .3s ease,
+    transform .6s ease;
+}
+
+
+/* ==================================================
+   CLOCK
+================================================== */
+
+#digital{
+  position:absolute;
+
+  top:70px;
+  left:50%;
+
+  transform:
+    translateX(-50%);
+
+  z-index:5;
+
+  color:var(--fg);
+
+  font-family:var(--mono);
+
+  font-size:13px;
+  font-weight:900;
+
+  letter-spacing:.16em;
+}
+
+.hand{
+  position:absolute;
+
+  bottom:50%;
+  left:50%;
+
+  transform-origin:
+    50% 100%;
+
+  border-radius:3px;
+
+  z-index:10;
+}
+
+#hour{
+  width:5px;
+  height:66px;
+  margin-left:-2.5px;
+
+  background:var(--fg);
+}
+
+#minute{
+  width:3px;
+  height:91px;
+  margin-left:-1.5px;
+
+  background:var(--fg);
+}
+
+#second{
+  width:2px;
+  height:103px;
+  margin-left:-1px;
+
+  background:var(--green);
+
+  box-shadow:
+    0 0 7px
+    rgba(0,212,170,.45);
+}
+
+
+/* ==================================================
+   Æ CORE
+================================================== */
+
+#ae-core{
+  position:absolute;
+
+  top:50%;
+  left:50%;
+
+  transform:
+    translate(-50%,-50%);
+
+  z-index:20;
+
+  width:62px;
+  height:62px;
+
+  display:grid;
+  place-items:center;
+
+  border:
+    1px solid
+    rgba(201,168,76,.34);
+
+  border-radius:50%;
+
+  background:
+    rgba(255,255,255,.76);
+
+  color:var(--gold);
+
+  font-family:
+    Arial Black,
+    Arial,
+    sans-serif;
+
+  font-size:39px;
+  font-weight:900;
+
+  text-shadow:
+    0 0 18px
+    rgba(201,168,76,.45);
+
+  box-shadow:
+    0 0 25px
+    rgba(201,168,76,.08);
+
+  cursor:pointer;
+
+  transition:
+    transform .18s ease,
+    color .35s ease,
+    border-color .35s ease;
+}
+
+#ae-core:active{
+  transform:
+    translate(-50%,-50%)
+    scale(.90);
+}
+
+#ae-core::after{
+  content:"MCP64";
+
+  position:absolute;
+
+  bottom:-17px;
+
+  color:#849097;
+
+  font-family:var(--mono);
+
+  font-size:5px;
+
+  letter-spacing:.15em;
+
+  text-shadow:none;
+}
+
+
+/* ==================================================
+   DOMAIN DOCTRINE
+================================================== */
+
+.doctrine{
+  position:absolute;
+
+  top:330px;
+  left:25px;
+  right:25px;
+
+  text-align:center;
+
+  font-family:var(--mono);
+}
+
+.doctrine strong{
+  display:block;
+
+  color:var(--fg);
+
+  font-size:9px;
+
+  letter-spacing:.12em;
+}
+
+.doctrine span{
+  display:block;
+
+  margin-top:3px;
+
+  color:var(--muted);
+
+  font-size:6.5px;
+}
+
+
+/* ==================================================
+   LOG
+================================================== */
+
+#log{
+  position:absolute;
+
+  left:30px;
+  right:30px;
+  bottom:83px;
+
+  height:48px;
+
+  overflow:hidden;
+
+  padding:7px 9px;
+
+  border:
+    1px solid
+    rgba(0,0,0,.07);
+
+  border-radius:10px;
+
+  background:
+    rgba(255,255,255,.68);
+
+  backdrop-filter:
+    blur(8px);
+
+  color:#4f5b61;
+
+  font-family:var(--mono);
+
+  font-size:7px;
+  line-height:1.45;
+}
+
+
+/* ==================================================
+   CLI
+================================================== */
+
+#command{
+  position:absolute;
+
+  left:30px;
+  right:30px;
+  bottom:41px;
+
+  height:34px;
+
+  display:flex;
+  align-items:center;
+  gap:5px;
+
+  overflow:hidden;
+
+  border:
+    1px solid
+    rgba(0,212,170,.32);
+
+  border-radius:999px;
+
+  background:
+    rgba(255,255,255,.90);
+
+  backdrop-filter:
+    blur(12px);
+}
+
+.prefix{
+  padding-left:10px;
+
+  color:var(--green);
+
+  font-family:var(--mono);
+
+  font-size:8px;
+  font-weight:900;
+}
+
+#cmd{
+  flex:1;
+  min-width:0;
+
+  border:0;
+  outline:0;
+
+  background:transparent;
+
+  color:var(--fg);
+
+  font-family:var(--mono);
+
+  font-size:8px;
+}
+
+#cmd::placeholder{
+  color:#8d979c;
+}
+
+.exec{
+  align-self:stretch;
+
+  border:0;
+
+  padding:0 10px;
+
+  background:var(--green);
+
+  color:#001713;
+
+  font-family:var(--mono);
+
+  font-size:6px;
+  font-weight:900;
+
+  cursor:pointer;
+}
+
+
+/* ==================================================
+   ROOT CTA
+================================================== */
+
+.root-cta{
+  position:absolute;
+
+  left:50%;
+  bottom:14px;
+
+  transform:
+    translateX(-50%);
+
+  z-index:25;
+
+  color:var(--green);
+
+  text-decoration:none;
+
+  font-family:var(--mono);
+
+  font-size:7px;
+  font-weight:900;
+
+  letter-spacing:.12em;
+
+  white-space:nowrap;
+}
+
+.root-cta small{
+  color:#7d898f;
+
+  font-size:5px;
+}
+
+
+/* ==================================================
+   MCP64
+================================================== */
+
+#mcp64{
+  position:absolute;
+  inset:0;
+
+  z-index:80;
+
+  display:flex;
+  flex-direction:column;
+
+  padding:
+    34px 19px
+    23px;
+
+  border-radius:60px;
+
+  background:
+    radial-gradient(
+      circle at 50% 25%,
+      rgba(0,216,255,.09),
+      transparent 42%
+    ),
+    rgba(4,8,14,.975);
+
+  backdrop-filter:
+    blur(12px);
+
+  color:#b9ebff;
+
+  font-family:var(--mono);
+
+  opacity:0;
+  pointer-events:none;
+
+  transition:
+    opacity .3s ease;
+}
+
+#mcp64.active{
+  opacity:1;
+  pointer-events:auto;
+}
+
+.mcp-head{
+  text-align:center;
+}
+
+.mcp-head small{
+  color:var(--green);
+
+  font-size:6px;
+
+  letter-spacing:.18em;
+}
+
+.mcp-head h2{
+  margin-top:4px;
+
+  color:white;
+
+  font-size:13px;
+
+  letter-spacing:.13em;
+}
+
+.mcp-head p{
+  margin-top:5px;
+
+  color:#617d89;
+
+  font-size:6px;
+}
+
+#mcp-log{
+  flex:1;
+
+  margin:
+    17px 0 10px;
+
+  overflow:auto;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+
+  gap:5px;
+
+  font-size:8px;
+  line-height:1.45;
+
+  scrollbar-width:none;
+}
+
+#mcp-log::-webkit-scrollbar{
+  display:none;
+}
+
+.mcp.sys{color:#688894}
+.mcp.ok{color:var(--green)}
+.mcp.root{color:var(--cyan)}
+.mcp.warn{color:var(--gold)}
+.mcp.err{color:var(--red)}
+
+.mcp-command{
+  min-height:38px;
+
+  display:flex;
+  align-items:center;
+
+  padding-top:8px;
+
+  border-top:
+    1px solid
+    rgba(0,216,255,.20);
+}
+
+.mcp-command span{
+  margin-right:7px;
+
+  color:var(--green);
+
+  font-size:8px;
+  font-weight:900;
+}
+
+#mcp-input{
+  flex:1;
+  min-width:0;
+
+  border:0;
+  outline:0;
+
+  background:transparent;
+
+  color:white;
+
+  font-family:var(--mono);
+
+  font-size:8px;
+}
+
+
+/* ==================================================
+   ACCESSIBILITY
+================================================== */
+
+@media(prefers-reduced-motion:reduce){
+  #domain-ring{
+    transition:none;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="neuro-watch">
+
+  <div id="watch">
+
+    <div class="scan"></div>
+
+
+    <!-- STATUS -->
+    <header class="status">
+
+      <div class="status-side">
+
+        <span class="dot live"></span>
+
+        <span>
+          HUMAN://PRINCIPAL
+        </span>
+
+      </div>
+
+
+      <div class="status-side root-state">
+
+        <span class="dot live"></span>
+
+        <span>
+          æææ://ROOT
+        </span>
+
+      </div>
+
+    </header>
+
+
+    <!-- WATCH FACE -->
+    <section id="face">
+
+      <div id="ticks"></div>
+
+      <div id="domain-ring"></div>
+
+      <div id="digital">
+        00:00
+      </div>
+
+
+      <div
+        id="hour"
+        class="hand">
+      </div>
+
+      <div
+        id="minute"
+        class="hand">
+      </div>
+
+      <div
+        id="second"
+        class="hand">
+      </div>
+
+
+      <button
+        id="ae-core"
+        type="button"
+        aria-label="Open MCP64 terminal"
+      >
+        æ
+      </button>
+
+    </section>
+
+
+    <!-- DOCTRINE -->
+    <section class="doctrine">
+
+      <strong id="domain-title">
+        ICE · PRECISION
+      </strong>
+
+      <span id="domain-copy">
+        stillness → signal → exact execution
+      </span>
+
+    </section>
+
+
+    <!-- LOG -->
+    <div
+      id="log"
+      aria-live="polite">
+    </div>
+
+
+    <!-- COMMAND -->
+    <form id="command">
+
+      <span class="prefix">
+        &gt;_æ:
+      </span>
+
+      <input
+        id="cmd"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="molt · route · root · tea"
+      >
+
+      <button
+        class="exec"
+        type="submit">
+        EXEC
+      </button>
+
+    </form>
+
+
+    <!-- CANONICAL ROOT -->
+    <a
+      class="root-cta"
+      href="https://MYaelMendez.github.io/"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      &gt;_æææ://
+      <small>CENTRALIZE</small>
+    </a>
+
+
+    <!-- MCP64 TERMINAL -->
+    <section id="mcp64">
+
+      <header class="mcp-head">
+
+        <small>
+          NEURO·UR · æOS
+        </small>
+
+        <h2>
+          MCP64
+        </h2>
+
+        <p>
+          CONTEXT PROPAGATES · AUTHORITY DOES NOT
+        </p>
+
+      </header>
+
+
+      <div id="mcp-log">
+
+        <div class="mcp sys">
+          MCP64 subsystem online.
+        </div>
+
+        <div class="mcp ok">
+          HUMAN://PRINCIPAL retained.
+        </div>
+
+        <div class="mcp root">
+          &gt;_æææ:// canonical root active.
+        </div>
+
+        <div class="mcp sys">
+          type help
+        </div>
+
+      </div>
+
+
+      <div class="mcp-command">
+
+        <span>
+          root@æ:~#
+        </span>
+
+        <input
+          id="mcp-input"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="command..."
+        >
+
+      </div>
+
+    </section>
+
+  </div>
+
+</div>
+
+
+<script>
+(() => {
+
+  /* ==================================================
+     STATE
+  ================================================== */
+
+  let activeDomain = 0;
+  let molts = 0;
+  let sequence = 0;
+
+
+  const domains = [
+
+    {
+      name:"ICE",
+      mode:"PRECISION",
+      copy:"stillness → signal → exact execution",
+
+      color:"#c9a84c",
+      accent:"#00d4aa",
+      fg:"#171b1f",
+
+      background:
+        "linear-gradient(145deg,#f6f7f7,#e5eaea)"
+    },
+
+    {
+      name:"FOREST",
+      mode:"GROWTH",
+      copy:"root → branch → adapt → regenerate",
+
+      color:"#2f9f59",
+      accent:"#63d471",
+      fg:"#15301d",
+
+      background:
+        "linear-gradient(145deg,#edf7ee,#cfe5d3)"
+    },
+
+    {
+      name:"MARITIME",
+      mode:"FLOW",
+      copy:"sense → navigate → route → return",
+
+      color:"#0077b6",
+      accent:"#00d8ff",
+      fg:"#0c3550",
+
+      background:
+        "linear-gradient(145deg,#e9f7fc,#c9e8f4)"
+    },
+
+    {
+      name:"MOUNTAIN",
+      mode:"CONSTRAINT",
+      copy:"boundary → climb → verify → seal",
+
+      color:"#65747e",
+      accent:"#ff7a18",
+      fg:"#202a31",
+
+      background:
+        "linear-gradient(145deg,#f0f2f3,#d5dce0)"
+    }
+
+  ];
+
+
+  /* ==================================================
+     ELEMENTS
+  ================================================== */
+
+  const root =
+    document.getElementById(
+      "neuro-watch"
+    );
+
+  const watch =
+    document.getElementById(
+      "watch"
+    );
+
+  const face =
+    document.getElementById(
+      "face"
+    );
+
+  const ae =
+    document.getElementById(
+      "ae-core"
+    );
+
+  const ring =
+    document.getElementById(
+      "domain-ring"
+    );
+
+  const title =
+    document.getElementById(
+      "domain-title"
+    );
+
+  const copy =
+    document.getElementById(
+      "domain-copy"
+    );
+
+  const log =
+    document.getElementById(
+      "log"
+    );
+
+  const form =
+    document.getElementById(
+      "command"
+    );
+
+  const cmd =
+    document.getElementById(
+      "cmd"
+    );
+
+  const mcp =
+    document.getElementById(
+      "mcp64"
+    );
+
+  const mcpLog =
+    document.getElementById(
+      "mcp-log"
+    );
+
+  const mcpInput =
+    document.getElementById(
+      "mcp-input"
+    );
+
+
+  /* ==================================================
+     CLOCK
+  ================================================== */
+
+  function clock(){
+
+    const now =
+      new Date();
+
+    const hh =
+      now.getHours();
+
+    const mm =
+      now.getMinutes();
+
+    const ss =
+      now.getSeconds();
+
+    const ms =
+      now.getMilliseconds();
+
+
+    const h =
+      (hh % 12)*30 +
+      mm*.5;
+
+    const m =
+      mm*6 +
+      ss*.1;
+
+    const s =
+      ss*6 +
+      ms*.006;
+
+
+    document
+      .getElementById("hour")
+      .style.transform =
+      `rotate(${h}deg)`;
+
+
+    document
+      .getElementById("minute")
+      .style.transform =
+      `rotate(${m}deg)`;
+
+
+    document
+      .getElementById("second")
+      .style.transform =
+      `rotate(${s}deg)`;
+
+
+    document
+      .getElementById("digital")
+      .textContent =
+      `${String(hh).padStart(2,"0")}:${String(mm).padStart(2,"0")}`;
+
+
+    requestAnimationFrame(
+      clock
+    );
+
+  }
+
+
+  clock();
+
+
+  /* ==================================================
+     TICKS
+  ================================================== */
+
+  const ticks =
+    document.getElementById(
+      "ticks"
+    );
+
+
+  for(
+    let i=0;
+    i<60;
+    i++
+  ){
+
+    const wrap =
+      document.createElement(
+        "div"
+      );
+
+
+    wrap.style.position =
+      "absolute";
+
+    wrap.style.inset =
+      "0";
+
+    wrap.style.transform =
+      `rotate(${i*6}deg)`;
+
+
+    const tick =
+      document.createElement(
+        "div"
+      );
+
+
+    const hour =
+      i%5 === 0;
+
+
+    tick.style.width =
+      hour ? "3px" : "1px";
+
+    tick.style.height =
+      hour ? "15px" : "7px";
+
+    tick.style.margin =
+      "0 auto";
+
+    tick.style.borderRadius =
+      "3px";
+
+    tick.style.background =
+      hour
+        ? "rgba(201,168,76,.72)"
+        : "rgba(70,80,86,.18)";
+
+
+    wrap.appendChild(
+      tick
+    );
+
+    ticks.appendChild(
+      wrap
+    );
+
+  }
+
+
+  /* ==================================================
+     DOMAIN RING
+  ================================================== */
+
+  function buildRing(){
+
+    ring.innerHTML = "";
+
+
+    domains.forEach(
+      (domain,index) => {
+
+        const marker =
+          document.createElement(
+            "div"
+          );
+
+
+        marker.className =
+          "domain-marker";
+
+
+        marker.style.transform =
+          `rotate(${index*90}deg)`;
+
+
+        const tick =
+          document.createElement(
+            "div"
+          );
+
+        tick.className =
+          "domain-tick";
+
+
+        const label =
+          document.createElement(
+            "div"
+          );
+
+        label.className =
+          "domain-label";
+
+        label.dataset.index =
+          index;
+
+        label.textContent =
+          domain.name;
+
+
+        marker.appendChild(
+          tick
+        );
+
+        marker.appendChild(
+          label
+        );
+
+        ring.appendChild(
+          marker
+        );
+
+      }
+    );
+
+  }
+
+
+  buildRing();
+
+
+  function refreshLabels(){
+
+    const rootRotation =
+      -activeDomain*90;
+
+
+    ring
+      .querySelectorAll(
+        ".domain-label"
+      )
+      .forEach(
+        (label,index) => {
+
+          const angle =
+            index*90 +
+            rootRotation;
+
+
+          label.style.transform =
+            `translateX(-50%) rotate(${-angle}deg)`;
+
+
+          label.style.color =
+            index === activeDomain
+              ? domains[index].color
+              : "#99a3a8";
+
+        }
+      );
+
+  }
+
+
+  function setDomain(index){
+
+    activeDomain =
+      (
+        index +
+        domains.length
+      ) %
+      domains.length;
+
+
+    const d =
+      domains[
+        activeDomain
+      ];
+
+
+    watch.style.background =
+      d.background;
+
+
+    document
+      .documentElement
+      .style
+      .setProperty(
+        "--fg",
+        d.fg
+      );
+
+
+    document
+      .documentElement
+      .style
+      .setProperty(
+        "--green",
+        d.accent
+      );
+
+
+    ring.style.transform =
+      `rotate(${-activeDomain*90}deg)`;
+
+
+    ae.style.color =
+      d.color;
+
+
+    ae.style.borderColor =
+      d.color + "66";
+
+
+    ae.style.textShadow =
+      `0 0 18px ${d.color}88`;
+
+
+    title.textContent =
+      `${d.name} · ${d.mode}`;
+
+
+    title.style.color =
+      d.color;
+
+
+    copy.textContent =
+      d.copy;
+
+
+    refreshLabels();
+
+
+    print(
+      `domain → ${d.name}`,
+      "system"
+    );
+
+  }
+
+
+  /* ==================================================
+     LOG
+  ================================================== */
+
+  function print(
+    text,
+    type=""
+  ){
+
+    const row =
+      document.createElement(
+        "div"
+      );
+
+
+    row.textContent =
+      ">_æ: " + text;
+
+
+    if(
+      type === "ok"
+    ){
+
+      row.style.color =
+        "var(--green)";
+
+    }
+
+
+    else if(
+      type === "root"
+    ){
+
+      row.style.color =
+        "var(--cyan)";
+
+    }
+
+
+    else{
+
+      row.style.color =
+        "#78858c";
+
+    }
+
+
+    log.appendChild(
+      row
+    );
+
+
+    while(
+      log.children.length > 5
+    ){
+
+      log.removeChild(
+        log.firstChild
+      );
+
+    }
+
+
+    log.scrollTop =
+      log.scrollHeight;
+
+  }
+
+
+  /* ==================================================
+     GESTURE LOOM
+  ================================================== */
+
+  let pointerX = 0;
+  let pointerY = 0;
+  let dragging = false;
+
+
+  watch.addEventListener(
+    "pointerdown",
+    event => {
+
+      if(
+        event.target.closest(
+          "input,button,a"
+        ) ||
+        mcp.classList.contains(
+          "active"
+        )
+      ){
+
+        return;
+
+      }
+
+
+      pointerX =
+        event.clientX;
+
+      pointerY =
+        event.clientY;
+
+      dragging =
+        true;
+
+    }
+  );
+
+
+  window.addEventListener(
+    "pointerup",
+    event => {
+
+      if(!dragging)
+        return;
+
+
+      dragging =
+        false;
+
+
+      const dx =
+        event.clientX -
+        pointerX;
+
+      const dy =
+        event.clientY -
+        pointerY;
+
+
+      /*
+        Only horizontal gestures
+        shift topology.
+      */
+
+      if(
+        Math.abs(dx) <
+        Math.abs(dy)
+      ){
+
+        return;
+
+      }
+
+
+      if(
+        dx > 55
+      ){
+
+        setDomain(
+          activeDomain - 1
+        );
+
+      }
+
+
+      else if(
+        dx < -55
+      ){
+
+        setDomain(
+          activeDomain + 1
+        );
+
+      }
+
+    }
+  );
+
+
+  /* ==================================================
+     MOLT
+  ================================================== */
+
+  function molt(){
+
+    molts++;
+
+
+    print(
+      `MOLT #${molts} → specialize`,
+      "ok"
+    );
+
+
+    ae.style.transform =
+      "translate(-50%,-50%) scale(1.17)";
+
+
+    face.style.boxShadow =
+      `
+        inset 0 0 25px rgba(0,0,0,.08),
+        0 0 0 7px ${domains[activeDomain].color}88,
+        0 0 38px ${domains[activeDomain].color}44
+      `;
+
+
+    setTimeout(
+      () => {
+
+        ae.style.transform =
+          "translate(-50%,-50%) scale(1)";
+
+
+        face.style.boxShadow =
+          `
+            inset 0 0 25px rgba(0,0,0,.08),
+            0 0 0 7px rgba(255,255,255,.68),
+            0 12px 35px rgba(0,0,0,.10)
+          `;
+
+
+        print(
+          "REINTEGRATE → HUMAN",
+          "ok"
+        );
+
+      },
+      650
+    );
+
+  }
+
+
+  /* ==================================================
+     ROUTE
+  ================================================== */
+
+  const wait =
+    ms =>
+      new Promise(
+        resolve =>
+          setTimeout(resolve,ms)
+      );
+
+
+  async function route(){
+
+    const token =
+      ++sequence;
+
+
+    print(
+      "HUMAN → INTENT"
+    );
+
+
+    await wait(260);
+
+    if(
+      token !== sequence
+    ) return;
+
+
+    print(
+      "æ → CONTEXT"
+    );
+
+
+    await wait(260);
+
+    if(
+      token !== sequence
+    ) return;
+
+
+    print(
+      "AGENT → EXECUTE"
+    );
+
+
+    await wait(260);
+
+    if(
+      token !== sequence
+    ) return;
+
+
+    print(
+      "REINTEGRATE → HUMAN",
+      "ok"
+    );
+
+  }
+
+
+  /* ==================================================
+     MAIN COMMANDS
+  ================================================== */
+
+  function execute(raw){
+
+    const command =
+      raw
+      .trim()
+      .toLowerCase();
+
+
+    if(!command)
+      return;
+
+
+    if(
+      command === "molt"
+    ){
+
+      molt();
+
+      return;
+
+    }
+
+
+    if(
+      command === "run" ||
+      command === "route"
+    ){
+
+      route();
+
+      return;
+
+    }
+
+
+    if(
+      command === "root" ||
+      command === "æææ" ||
+      command === ">_æææ://"
+    ){
+
+      print(
+        ">_æææ:// canonical root",
+        "root"
+      );
+
+      print(
+        "AUTHORITY → HUMAN",
+        "ok"
+      );
+
+      return;
+
+    }
+
+
+    if(
+      command === "ice"
+    ){
+
+      setDomain(0);
+
+      return;
+
+    }
+
+
+    if(
+      command === "grow" ||
+      command === "forest"
+    ){
+
+      setDomain(1);
+
+      return;
+
+    }
+
+
+    if(
+      command === "flow" ||
+      command === "maritime"
+    ){
+
+      setDomain(2);
+
+      return;
+
+    }
+
+
+    if(
+      command === "seal" ||
+      command === "mountain"
+    ){
+
+      setDomain(3);
+
+      return;
+
+    }
+
+
+    if(
+      command === "tea"
+    ){
+
+      print(
+        "🍵 human presence prioritized",
+        "ok"
+      );
+
+      return;
+
+    }
+
+
+    if(
+      command === "mcp64"
+    ){
+
+      openMCP();
+
+      return;
+
+    }
+
+
+    print(
+      `directive accepted · ${command}`
+    );
+
+  }
+
+
+  form.addEventListener(
+    "submit",
+    event => {
+
+      event.preventDefault();
+
+
+      const raw =
+        cmd.value;
+
+
+      cmd.value =
+        "";
+
+
+      execute(raw);
+
+    }
+  );
+
+
+  /* ==================================================
+     MCP64
+  ================================================== */
+
+  function mcpPrint(
+    text,
+    type="sys"
+  ){
+
+    const row =
+      document.createElement(
+        "div"
+      );
+
+
+    row.className =
+      "mcp " + type;
+
+
+    row.textContent =
+      text;
+
+
+    mcpLog.appendChild(
+      row
+    );
+
+
+    while(
+      mcpLog.children.length > 22
+    ){
+
+      mcpLog.removeChild(
+        mcpLog.firstChild
+      );
+
+    }
+
+
+    mcpLog.scrollTop =
+      mcpLog.scrollHeight;
+
+  }
+
+
+  function openMCP(){
+
+    mcp.classList.add(
+      "active"
+    );
+
+
+    mcpPrint(
+      "terminal override active.",
+      "sys"
+    );
+
+
+    setTimeout(
+      () =>
+        mcpInput.focus(),
+      90
+    );
+
+  }
+
+
+  function closeMCP(){
+
+    mcp.classList.remove(
+      "active"
+    );
+
+
+    mcpInput.blur();
+
+  }
+
+
+  ae.addEventListener(
+    "click",
+    openMCP
+  );
+
+
+  mcpInput.addEventListener(
+    "keydown",
+    async event => {
+
+      if(
+        event.key !== "Enter"
+      ){
+
+        return;
+
+      }
+
+
+      const raw =
+        mcpInput
+        .value
+        .trim();
+
+
+      if(!raw)
+        return;
+
+
+      const command =
+        raw.toLowerCase();
+
+
+      mcpPrint(
+        `root@æ:~# ${raw}`,
+        "root"
+      );
+
+
+      mcpInput.value =
+        "";
+
+
+      if(
+        command === "exit"
+      ){
+
+        mcpPrint(
+          "return → watch surface",
+          "sys"
+        );
+
+
+        setTimeout(
+          closeMCP,
+          220
+        );
+
+        return;
+
+      }
+
+
+      if(
+        command === "help"
+      ){
+
+        mcpPrint(
+          "status · root · authority · topology · lineage · molt · domains · exit",
+          "sys"
+        );
+
+        return;
+
+      }
+
+
+      if(
+        command === "status"
+      ){
+
+        mcpPrint(
+          "æOS ........ ONLINE",
+          "ok"
+        );
+
+        mcpPrint(
+          "MCP64 ...... READY",
+          "ok"
+        );
+
+        mcpPrint(
+          `DOMAIN ..... ${domains[activeDomain].name}`,
+          "sys"
+        );
+
+        mcpPrint(
+          `MOLTS ...... ${molts}`,
+          "sys"
+        );
+
+        mcpPrint(
+          "ROOT ....... æææ://",
+          "root"
+        );
+
+        return;
+
+      }
+
+
+      if(
+        command === "root" ||
+        command === "æææ"
+      ){
+
+        mcpPrint(
+          ">_æææ://",
+          "root"
+        );
+
+        mcpPrint(
+          "canonical root resolved.",
+          "root"
+        );
+
+        mcpPrint(
+          "many surfaces → one root",
+          "sys"
+        );
+
+        return;
+
+      }
+
+
+      if(
+        command === "authority"
+      ){
+
+        mcpPrint(
+          "HUMAN://PRINCIPAL",
+          "ok"
+        );
+
+        mcpPrint(
+          "context may propagate.",
+          "sys"
+        );
+
+        mcpPrint(
+          "authority does not propagate implicitly.",
+          "warn"
+        );
+
+        return;
+
+      }
+
+
+      if(
+        command === "topology"
+      ){
+
+        mcpPrint(
+          "HUMAN → æ → AGENT → æ → HUMAN",
+          "root"
+        );
+
+        return;
+
+      }
+
+
+      if(
+        command === "lineage"
+      ){
+
+        mcpPrint(
+          "PARENT",
+          "sys"
+        );
+
+        mcpPrint(
+          "↓ capability",
+          "sys"
+        );
+
+        mcpPrint(
+          "↓ permitted context",
+          "sys"
+        );
+
+        mcpPrint(
+          "↓ specialize",
+          "sys"
+        );
+
+        mcpPrint(
+          "↓ constrained authority",
+          "warn"
+        );
+
+        mcpPrint(
+          "↓ REINTEGRATE",
+          "ok"
+        );
+
+        return;
+
+      }
+
+
+      if(
+        command === "domains"
+      ){
+
+        domains.forEach(
+          domain =>
+            mcpPrint(
+              `${domain.name}://${domain.mode}`,
+              "sys"
+            )
+        );
+
+        return;
+
+      }
+
+
+      if(
+        command === "molt"
+      ){
+
+        molt();
+
+
+        mcpPrint(
+          `MOLT #${molts}`,
+          "ok"
+        );
+
+        mcpPrint(
+          "parent lineage preserved.",
+          "ok"
+        );
+
+        mcpPrint(
+          "authority constrained.",
+          "warn"
+        );
+
+        return;
+
+      }
+
+
+      mcpPrint(
+        `directive accepted: ${raw}`,
+        "sys"
+      );
+
+    }
+  );
+
+
+  /* ==================================================
+     BOOT
+  ================================================== */
+
+  setDomain(0);
+
+
+  setTimeout(
+    () => {
+
+      print(
+        "NEURO·UR æOS vΩ+11",
+        "ok"
+      );
+
+      print(
+        "Gesture Loom → horizontal swipe"
+      );
+
+      print(
+        ">_æææ:// ROOT",
+        "root"
+      );
+
+    },
+    300
+  );
+
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#010204"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<title>æOS · 9:16</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&family=Space+Grotesk:wght@700;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#010204;--green:#00ff9d;--cyan:#00eaff;--gold:#e0b84a;--violet:#8c72ff;
+  --text:#f5f7fa;--muted:#667786;--line:rgba(255,255,255,.08);
+  --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Space Grotesk",system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;color:var(--text);font-family:var(--mono)}
+body{display:flex;align-items:center;justify-content:center}
+
+/* ── 9:16 CHASSIS ── */
+.os{
+  position:relative;
+  width:min(100vw, calc(100dvh * 9 / 16));
+  height:min(100dvh, calc(100vw * 16 / 9));
+  max-width:430px;
+  aspect-ratio:9/16;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  background:
+    radial-gradient(circle at 50% 10%,rgba(0,255,157,.08),transparent 28%),
+    radial-gradient(circle at 80% 60%,rgba(0,234,255,.04),transparent 32%),
+    var(--bg);
+  border-left:1px solid rgba(0,255,157,.1);
+  border-right:1px solid rgba(0,255,157,.1);
+}
+canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.scan{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.14;
+  background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(0,255,157,.02) 3px 4px)}
+
+/* STATUS BAR */
+.status{
+  position:relative;z-index:20;flex-shrink:0;
+  height:calc(36px + env(safe-area-inset-top));
+  padding:env(safe-area-inset-top) 14px 0;
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:8px;letter-spacing:.1em;border-bottom:1px solid var(--line);
+  background:rgba(1,2,4,.92);
+}
+.status .l{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.status .r{color:var(--green);font-weight:700}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2s infinite}
+@keyframes blink{50%{opacity:.35;box-shadow:none}}
+
+/* HEADER */
+.hdr{
+  position:relative;z-index:10;flex-shrink:0;padding:12px 16px 10px;text-align:center;
+}
+.mark{font-family:var(--sans);font-size:22px;font-weight:900;letter-spacing:.12em;color:#fff;
+  text-shadow:0 0 24px rgba(0,255,157,.3)}
+.sub{margin-top:3px;font-size:7px;letter-spacing:.2em;color:var(--muted)}
+
+/* PORTÆL */
+.stage{
+  position:relative;z-index:10;flex:1;min-height:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:0 16px;
+}
+.portal{position:relative;width:min(56vw,180px);height:min(56vw,180px);display:grid;place-items:center}
+.ring{position:absolute;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.r1{width:46%;height:46%;border:1.5px solid rgba(0,255,157,.4);box-shadow:0 0 16px rgba(0,255,157,.2),inset 0 0 14px rgba(0,255,157,.08);animation:pulse 3.6s ease-in-out infinite}
+.r2{width:66%;height:66%;border:1px dashed rgba(0,234,255,.22);animation:spin 24s linear infinite}
+.r3{width:86%;height:86%;border:1px solid rgba(224,184,74,.14);animation:spinR 36s linear infinite}
+.r4{width:100%;height:100%;border:1px solid rgba(0,255,157,.08);animation:spin 48s linear infinite}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes spinR{to{transform:translate(-50%,-50%) rotate(-360deg)}}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 12px rgba(0,255,157,.12),inset 0 0 10px rgba(0,255,157,.04)}
+  50%{box-shadow:0 0 26px rgba(0,255,157,.3),inset 0 0 20px rgba(0,255,157,.1)}
+}
+.glyph{
+  position:relative;z-index:5;font-family:var(--sans);font-size:clamp(48px,14vw,64px);font-weight:900;
+  color:var(--green);letter-spacing:.06em;
+  text-shadow:0 0 22px rgba(0,255,157,.65),0 0 55px rgba(0,255,157,.25);
+  animation:breathe 3.8s ease-in-out infinite;cursor:pointer;user-select:none;
+}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.label{margin-top:16px;text-align:center}
+.label strong{display:block;font-size:11px;letter-spacing:.14em;color:var(--green)}
+.label small{display:block;margin-top:5px;font-size:8px;color:var(--muted);letter-spacing:.06em}
+
+/* RAILS */
+.rails{
+  position:relative;z-index:10;flex-shrink:0;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:6px;
+  padding:0 14px 10px;
+}
+.rail{
+  padding:10px 4px;text-align:center;border:1px solid var(--line);border-radius:10px;
+  background:rgba(255,255,255,.02);font-size:6px;cursor:pointer;
+}
+.rail strong{display:block;font-size:7px;margin-bottom:3px}
+.rail.i strong{color:var(--cyan)}.rail.a strong{color:var(--green)}.rail.v strong{color:var(--gold)}
+.rail small{color:var(--muted);font-size:5px}
+.rail.on{border-color:rgba(0,255,157,.35);background:rgba(0,255,157,.05)}
+
+/* CLI */
+.cli{
+  position:relative;z-index:20;flex-shrink:0;
+  margin:0 14px 8px;height:42px;
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;
+  padding:0 6px 0 12px;border:1px solid rgba(0,255,157,.28);border-radius:999px;
+  background:rgba(0,0,0,.65);
+}
+.cli span{color:var(--green);font-weight:900;font-size:12px}
+.cli input{
+  min-width:0;border:0;outline:0;background:transparent;color:#fff;
+  font:10px var(--mono);
+}
+.cli input::placeholder{color:rgba(255,255,255,.28)}
+.cli button{
+  height:30px;padding:0 14px;border:0;border-radius:999px;
+  background:var(--green);color:#01140c;font:700 9px var(--mono);cursor:pointer;
+}
+
+/* LOG */
+.log{
+  position:relative;z-index:10;flex-shrink:0;
+  margin:0 14px 8px;max-height:72px;overflow:auto;
+  padding:8px 10px;border:1px solid var(--line);border-radius:10px;
+  background:rgba(0,0,0,.35);font-size:8px;line-height:1.5;color:var(--muted);
+  scrollbar-width:none;
+}
+.log::-webkit-scrollbar{display:none}
+.log .ok{color:var(--green)}.log .info{color:var(--cyan)}
+
+/* CTA */
+.cta{
+  position:relative;z-index:20;flex-shrink:0;
+  margin:0 14px max(12px,env(safe-area-inset-bottom));
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;
+  min-height:52px;padding:10px 14px;border-radius:14px;text-decoration:none;color:#04100b;
+  background:linear-gradient(110deg,var(--green),var(--cyan),var(--violet),var(--green));
+  background-size:300% 100%;animation:flow 8s ease infinite;
+  box-shadow:0 10px 32px rgba(0,0,0,.4),0 0 20px rgba(0,255,157,.15);
+}
+@keyframes flow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.cta strong{display:block;font-size:10px;letter-spacing:.06em}
+.cta small{display:block;margin-top:2px;font-size:7px;opacity:.7}
+</style>
+</head>
+<body>
+<div class="os" id="os">
+  <canvas id="c"></canvas>
+  <div class="scan"></div>
+
+  <header class="status">
+    <div class="l"><span class="dot"></span><span>HUMAN://PRINCIPAL</span></div>
+    <div class="r" id="clk">00:00</div>
+  </header>
+
+  <div class="hdr">
+    <div class="mark">æOS</div>
+    <div class="sub">9:16 · SOVEREIGN RUNTIME</div>
+  </div>
+
+  <main class="stage">
+    <div class="portal">
+      <div class="ring r4"></div>
+      <div class="ring r3"></div>
+      <div class="ring r2"></div>
+      <div class="ring r1"></div>
+      <div class="glyph" id="glyph">æ</div>
+    </div>
+    <div class="label">
+      <strong>PORTÆL</strong>
+      <small>intent → authorize → execute → return</small>
+    </div>
+  </main>
+
+  <section class="rails">
+    <button type="button" class="rail i on" data-r="intel"><strong>OPEN</strong><small>INTELLIGENCE</small></button>
+    <button type="button" class="rail a on" data-r="auth"><strong>PRIVATE</strong><small>AUTHORITY</small></button>
+    <button type="button" class="rail v on" data-r="value"><strong>SOVEREIGN</strong><small>VALUE</small></button>
+  </section>
+
+  <form class="cli" id="cli">
+    <span>&gt;_æ:</span>
+    <input id="cmd" autocomplete="off" spellcheck="false" placeholder="root · status · molt · run"/>
+    <button type="submit">EXEC</button>
+  </form>
+
+  <div class="log" id="log" aria-live="polite"></div>
+
+  <a class="cta" href="https://MYaelMendez.github.io/" target="_blank" rel="noopener noreferrer">
+    <strong>&gt;_æææ://</strong>
+    <span><strong>CENTRALIZE AT THE ROOT</strong><small>æææ.com</small></span>
+    <span>→</span>
+  </a>
+</div>
+
+<script>
+(()=>{
+  const os=document.getElementById("os"),canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
+  const logEl=document.getElementById("log");
+  let W,H,dpr;
+
+  function resize(){
+    const r=os.getBoundingClientRect();W=r.width;H=r.height;
+    dpr=Math.min(devicePixelRatio||1,2);
+    canvas.width=W*dpr;canvas.height=H*dpr;
+    canvas.style.width=W+"px";canvas.style.height=H+"px";
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  resize();addEventListener("resize",resize);
+
+  const pts=Array.from({length:36},()=>({
+    x:Math.random(),y:Math.random(),
+    vx:(Math.random()-.5)*.0004,vy:(Math.random()-.5)*.0004,r:.5+Math.random()
+  }));
+
+  function frame(){
+    ctx.fillStyle="rgba(1,2,4,.2)";ctx.fillRect(0,0,W,H);
+    pts.forEach((p,i)=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>1)p.vx*=-1;if(p.y<0||p.y>1)p.vy*=-1;
+      const x=p.x*W,y=p.y*H;
+      ctx.fillStyle="rgba(0,255,157,.4)";ctx.beginPath();ctx.arc(x,y,p.r,0,7);ctx.fill();
+      for(let j=i+1;j<pts.length;j+=5){
+        const q=pts[j],qx=q.x*W,qy=q.y*H,d=Math.hypot(x-qx,y-qy);
+        if(d<80){ctx.strokeStyle=`rgba(0,234,255,${(1-d/80)*.1})`;ctx.lineWidth=.5;
+          ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(qx,qy);ctx.stroke()}
+      }
+    });
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  function clock(){
+    const n=new Date();
+    document.getElementById("clk").textContent=
+      String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");
+  }
+  clock();setInterval(clock,1000);
+
+  function log(msg,cls=""){
+    const d=document.createElement("div");
+    if(cls)d.className=cls;
+    d.textContent=">_æ: "+msg;
+    logEl.appendChild(d);
+    while(logEl.children.length>5)logEl.removeChild(logEl.firstChild);
+    logEl.scrollTop=logEl.scrollHeight;
+  }
+
+  document.getElementById("cli").addEventListener("submit",e=>{
+    e.preventDefault();
+    const v=document.getElementById("cmd").value.trim().toLowerCase();
+    document.getElementById("cmd").value="";
+    if(!v)return;
+    if(v==="root"||v==="æææ"){log("æææ:// canonical root","ok");log("AUTHORITY → HUMAN","ok")}
+    else if(v==="status"){log("æOS ONLINE · PRINCIPAL=HUMAN","ok")}
+    else if(v==="molt"){log("MOLT → specialize · lineage preserved","info")}
+    else if(v==="run"){log("INTENT → AUTHORIZE → EXECUTE → RETURN","info")}
+    else log("directive · "+v);
+  });
+
+  document.querySelectorAll("[data-r]").forEach(b=>{
+    b.addEventListener("click",()=>{b.classList.toggle("on");log("RAIL://"+b.dataset.r+" "+(b.classList.contains("on")?"ON":"OFF"))});
+  });
+
+  document.getElementById("glyph").addEventListener("click",()=>log("PORTÆL · threshold open","ok"));
+
+  setTimeout(()=>log("æOS 9:16 · ONLINE","ok"),200);
+  setTimeout(()=>log("HUMAN://PRINCIPAL","ok"),450);
+  setTimeout(()=>log(">_æææ:// ROOT","info"),700);
+})();
+</script>
+</body>
+</html>

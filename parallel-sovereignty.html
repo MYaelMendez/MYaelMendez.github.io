@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>æ:// Parallel Sovereignty</title>
+
+<style>
+:root{
+  --bg:#000;
+  --panel:#060706;
+  --card:#0d0f0e;
+  --line:#202522;
+  --line2:#303833;
+  --text:#f5fff9;
+  --muted:#67736c;
+
+  --green:#00ff9d;
+  --cyan:#00eaff;
+  --gold:#e0b84a;
+  --violet:#8b6cff;
+
+  --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+  width:100%;
+  min-height:100%;
+  background:#000;
+  color:var(--text);
+  font-family:var(--mono);
+}
+
+body{
+  min-height:100dvh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:
+    calc(14px + env(safe-area-inset-top))
+    14px
+    calc(14px + env(safe-area-inset-bottom));
+  overflow:hidden;
+}
+
+/* ============================================================
+   9:16 CHASSIS
+============================================================ */
+
+.widget{
+  width:min(100%,430px);
+  height:min(94dvh,820px);
+
+  position:relative;
+  overflow:hidden;
+
+  display:flex;
+  flex-direction:column;
+
+  border:1px solid var(--line);
+  border-radius:28px;
+
+  background:
+    radial-gradient(circle at 50% 12%,rgba(0,255,157,.07),transparent 28%),
+    radial-gradient(circle at 80% 80%,rgba(0,234,255,.04),transparent 30%),
+    #020302;
+
+  box-shadow:
+    0 40px 120px rgba(0,0,0,.9),
+    inset 0 0 60px rgba(0,255,157,.018);
+}
+
+.widget::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.045;
+
+  background:
+    linear-gradient(rgba(255,255,255,.1) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.1) 1px,transparent 1px);
+
+  background-size:28px 28px;
+}
+
+.widget::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.055;
+
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 3px,
+      rgba(255,255,255,.12) 4px
+    );
+}
+
+/* ============================================================
+   HEADER
+============================================================ */
+
+.header{
+  position:relative;
+  z-index:3;
+
+  padding:18px 18px 14px;
+
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+
+  border-bottom:1px solid var(--line);
+}
+
+.brand{
+  font-size:17px;
+  font-weight:900;
+  letter-spacing:-.05em;
+}
+
+.brand span{
+  color:var(--green);
+}
+
+.sub{
+  margin-top:4px;
+
+  color:var(--muted);
+
+  font-size:7px;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+}
+
+.status{
+  text-align:right;
+
+  color:var(--green);
+
+  font-size:8px;
+  line-height:1.5;
+  letter-spacing:.12em;
+}
+
+.status small{
+  display:block;
+
+  color:var(--muted);
+
+  font-size:6px;
+}
+
+/* ============================================================
+   COMMAND
+============================================================ */
+
+.command{
+  position:relative;
+  z-index:3;
+
+  margin:12px 14px 0;
+  padding:11px 12px;
+
+  display:flex;
+  align-items:center;
+  gap:7px;
+
+  background:rgba(7,9,8,.9);
+
+  border:1px solid var(--line);
+  border-radius:10px;
+
+  overflow:hidden;
+}
+
+.prompt{
+  flex-shrink:0;
+
+  color:var(--green);
+
+  font-weight:900;
+  font-size:12px;
+
+  text-shadow:0 0 12px rgba(0,255,157,.35);
+}
+
+.command-text{
+  min-width:0;
+
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+
+  color:#dfe9e3;
+
+  font-size:9px;
+}
+
+/* ============================================================
+   PARALLEL RAILS
+============================================================ */
+
+.rails{
+  position:relative;
+  z-index:3;
+
+  padding:10px 14px;
+
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:7px;
+}
+
+.rail{
+  min-width:0;
+  min-height:152px;
+
+  position:relative;
+
+  padding:13px 10px;
+
+  text-align:left;
+
+  cursor:pointer;
+
+  border:1px solid var(--line);
+  border-radius:12px;
+
+  background:rgba(11,13,12,.94);
+
+  color:var(--text);
+
+  transition:
+    transform .18s ease,
+    border-color .18s ease,
+    background .18s ease,
+    box-shadow .18s ease;
+}
+
+.rail::after{
+  content:"";
+
+  position:absolute;
+  left:10px;
+  right:10px;
+  bottom:9px;
+
+  height:2px;
+
+  border-radius:999px;
+
+  background:#282e2a;
+}
+
+.rail.active{
+  transform:translateY(-2px);
+}
+
+.rail.intelligence.active{
+  border-color:rgba(0,234,255,.72);
+  background:rgba(0,234,255,.045);
+  box-shadow:0 0 18px rgba(0,234,255,.06);
+}
+
+.rail.authority.active{
+  border-color:rgba(0,255,157,.72);
+  background:rgba(0,255,157,.045);
+  box-shadow:0 0 18px rgba(0,255,157,.06);
+}
+
+.rail.value.active{
+  border-color:rgba(224,184,74,.72);
+  background:rgba(224,184,74,.045);
+  box-shadow:0 0 18px rgba(224,184,74,.06);
+}
+
+.rail.intelligence.active::after{
+  background:var(--cyan);
+  box-shadow:0 0 8px var(--cyan);
+}
+
+.rail.authority.active::after{
+  background:var(--green);
+  box-shadow:0 0 8px var(--green);
+}
+
+.rail.value.active::after{
+  background:var(--gold);
+  box-shadow:0 0 8px var(--gold);
+}
+
+.primitive{
+  color:var(--muted);
+
+  font-size:6px;
+  letter-spacing:.15em;
+}
+
+.title{
+  margin-top:7px;
+
+  font-size:11px;
+  line-height:1.15;
+  font-weight:900;
+}
+
+.desc{
+  margin-top:7px;
+
+  color:var(--muted);
+
+  font-size:7px;
+  line-height:1.5;
+}
+
+.stack{
+  margin-top:9px;
+
+  font-size:6.5px;
+  line-height:1.55;
+}
+
+.intelligence .stack{color:var(--cyan)}
+.authority .stack{color:var(--green)}
+.value .stack{color:var(--gold)}
+
+/* ============================================================
+   PARALLEL GRAPH
+============================================================ */
+
+.resolution{
+  position:relative;
+  z-index:3;
+
+  flex:1;
+  min-height:0;
+
+  margin:0 14px 10px;
+  padding:12px;
+
+  display:flex;
+  flex-direction:column;
+
+  border:1px solid var(--line);
+  border-radius:14px;
+
+  background:rgba(4,5,4,.92);
+}
+
+.resolution-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.resolution-title{
+  color:var(--muted);
+
+  font-size:7px;
+  letter-spacing:.18em;
+}
+
+.run{
+  padding:7px 11px;
+
+  cursor:pointer;
+
+  border:1px solid var(--green);
+  border-radius:7px;
+
+  background:rgba(0,255,157,.06);
+
+  color:var(--green);
+
+  font-family:var(--mono);
+  font-size:8px;
+  font-weight:900;
+}
+
+.run:active{
+  background:var(--green);
+  color:#00160e;
+}
+
+/* principal */
+
+.principal{
+  margin-top:12px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+
+.principal-core{
+  min-width:112px;
+
+  padding:8px 12px;
+
+  text-align:center;
+
+  border:1px solid var(--green);
+  border-radius:999px;
+
+  background:rgba(0,255,157,.04);
+
+  color:var(--green);
+
+  font-size:8px;
+  font-weight:900;
+
+  box-shadow:0 0 20px rgba(0,255,157,.05);
+}
+
+.split{
+  color:var(--violet);
+
+  font-size:18px;
+  font-weight:900;
+}
+
+/* lines */
+
+.parallel{
+  flex:1;
+
+  min-height:0;
+
+  margin-top:9px;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:6px;
+}
+
+.flow{
+  display:grid;
+  grid-template-columns:20px 1fr 20px;
+  align-items:center;
+  gap:6px;
+}
+
+.arrow{
+  text-align:center;
+
+  color:#343a36;
+
+  font-size:10px;
+}
+
+.flow-node{
+  position:relative;
+
+  padding:8px 9px;
+
+  border:1px solid var(--line);
+  border-radius:8px;
+
+  background:#090b0a;
+
+  opacity:.35;
+
+  transition:.2s ease;
+}
+
+.flow-node.on{
+  opacity:1;
+  border-color:var(--line2);
+}
+
+.flow[data-flow="intelligence"] .flow-node.on{
+  border-color:rgba(0,234,255,.55);
+}
+
+.flow[data-flow="authority"] .flow-node.on{
+  border-color:rgba(0,255,157,.55);
+}
+
+.flow[data-flow="value"] .flow-node.on{
+  border-color:rgba(224,184,74,.55);
+}
+
+.flow-node strong{
+  display:block;
+
+  font-size:7px;
+  letter-spacing:.04em;
+}
+
+.flow-node small{
+  display:block;
+
+  margin-top:3px;
+
+  color:var(--muted);
+
+  font-size:6px;
+}
+
+.return-arrow{
+  color:var(--green);
+}
+
+/* Æ convergence */
+
+.reintegrate{
+  margin-top:8px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+
+.reintegrate::before,
+.reintegrate::after{
+  content:"";
+
+  width:48px;
+  height:1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      var(--green)
+    );
+}
+
+.reintegrate::after{
+  transform:scaleX(-1);
+}
+
+.ae-core{
+  width:44px;
+  height:44px;
+
+  border-radius:50%;
+
+  display:grid;
+  place-items:center;
+
+  border:1px solid var(--green);
+
+  background:#020403;
+
+  color:var(--green);
+
+  font-size:17px;
+  font-weight:900;
+
+  box-shadow:
+    0 0 22px rgba(0,255,157,.12),
+    inset 0 0 14px rgba(0,255,157,.04);
+}
+
+/* ============================================================
+   RECEIPT
+============================================================ */
+
+.receipt{
+  margin-top:9px;
+
+  padding:9px;
+
+  min-height:42px;
+
+  border:1px solid var(--line);
+  border-radius:8px;
+
+  background:#020302;
+
+  color:var(--cyan);
+
+  font-size:7px;
+  line-height:1.55;
+
+  word-break:break-word;
+}
+
+.receipt .hash{
+  color:var(--green);
+}
+
+/* ============================================================
+   FOOTER
+============================================================ */
+
+.footer{
+  position:relative;
+  z-index:3;
+
+  padding:0 14px 12px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.reset{
+  padding:7px 9px;
+
+  border:1px solid var(--line);
+  border-radius:7px;
+
+  background:#080908;
+
+  color:var(--muted);
+
+  cursor:pointer;
+
+  font-family:var(--mono);
+  font-size:7px;
+}
+
+.doctrine{
+  text-align:right;
+
+  color:var(--muted);
+
+  font-size:6.5px;
+  letter-spacing:.05em;
+}
+
+.doctrine strong{
+  color:var(--green);
+  font-weight:700;
+}
+
+/* pulse */
+
+.widget.running .ae-core{
+  animation:corePulse .7s ease;
+}
+
+@keyframes corePulse{
+  50%{
+    transform:scale(1.15);
+    box-shadow:0 0 50px rgba(0,255,157,.4);
+  }
+}
+
+@media(max-height:680px){
+  .rail{
+    min-height:125px;
+  }
+
+  .desc{
+    display:none;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<main class="widget" id="ae-widget">
+
+  <!-- HEADER -->
+  <header class="header">
+
+    <div>
+
+      <div class="brand">
+        <span>&gt;_æ://</span>
+        PARALLEL SOVEREIGNTY
+      </div>
+
+      <div class="sub">
+        DISCOVER · AUTHORIZE · COMPOUND · REINTEGRATE
+      </div>
+
+    </div>
+
+    <div class="status">
+      PRINCIPAL://LIVE
+      <small>PARALLEL ∞</small>
+    </div>
+
+  </header>
+
+
+  <!-- COMMAND -->
+  <div class="command">
+
+    <span class="prompt">
+      &gt;_æ:
+    </span>
+
+    <span
+      class="command-text"
+      id="command-text"
+    >
+      Open_intelligence|Private_authority|Sovereign_value
+    </span>
+
+  </div>
+
+
+  <!-- THREE PARALLEL RAILS -->
+  <section class="rails">
+
+    <button
+      class="rail intelligence active"
+      data-rail="intelligence"
+      type="button"
+    >
+
+      <div class="primitive">
+        01 · DISCOVER
+      </div>
+
+      <div class="title">
+        Open<br>intelligence
+      </div>
+
+      <div class="desc">
+        Models, tools, knowledge and agents remain discoverable.
+      </div>
+
+      <div class="stack">
+        LLM.store<br>
+        æ.store<br>
+        MCP
+      </div>
+
+    </button>
+
+
+    <button
+      class="rail authority active"
+      data-rail="authority"
+      type="button"
+    >
+
+      <div class="primitive">
+        02 · AUTHORIZE
+      </div>
+
+      <div class="title">
+        Private<br>authority
+      </div>
+
+      <div class="desc">
+        Identity, consent, context and delegation remain human-rooted.
+      </div>
+
+      <div class="stack">
+        HUMAN://ROOT<br>
+        PrivateClient.ai<br>
+        CLI.LLC
+      </div>
+
+    </button>
+
+
+    <button
+      class="rail value active"
+      data-rail="value"
+      type="button"
+    >
+
+      <div class="primitive">
+        03 · COMPOUND
+      </div>
+
+      <div class="title">
+        Sovereign<br>value
+      </div>
+
+      <div class="desc">
+        Ownership, enterprise and economic value return to the principal.
+      </div>
+
+      <div class="stack">
+        DAOLLC.ai<br>
+        ENTITY://<br>
+        VALUE://OWNER
+      </div>
+
+    </button>
+
+  </section>
+
+
+  <!-- RESOLUTION ENGINE -->
+  <section class="resolution">
+
+    <div class="resolution-header">
+
+      <div class="resolution-title">
+        PARALLEL RESOLUTION ENGINE
+      </div>
+
+      <button
+        class="run"
+        id="run"
+        type="button"
+      >
+        RUN |
+      </button>
+
+    </div>
+
+
+    <!-- HUMAN ROOT -->
+    <div class="principal">
+
+      <div class="principal-core">
+        🧿 HUMAN://ROOT
+      </div>
+
+      <div class="split">
+        |
+      </div>
+
+    </div>
+
+
+    <!-- BRANCHES -->
+    <div class="parallel">
+
+      <div
+        class="flow"
+        data-flow="intelligence"
+      >
+
+        <span class="arrow">
+          ↳
+        </span>
+
+        <div class="flow-node on">
+
+          <strong>
+            OPEN_INTELLIGENCE
+          </strong>
+
+          <small>
+            DISCOVER · models · tools · agents
+          </small>
+
+        </div>
+
+        <span class="arrow return-arrow">
+          ↘
+        </span>
+
+      </div>
+
+
+      <div
+        class="flow"
+        data-flow="authority"
+      >
+
+        <span class="arrow">
+          ↳
+        </span>
+
+        <div class="flow-node on">
+
+          <strong>
+            PRIVATE_AUTHORITY
+          </strong>
+
+          <small>
+            AUTHORIZE · identity · consent · context
+          </small>
+
+        </div>
+
+        <span class="arrow return-arrow">
+          →
+        </span>
+
+      </div>
+
+
+      <div
+        class="flow"
+        data-flow="value"
+      >
+
+        <span class="arrow">
+          ↳
+        </span>
+
+        <div class="flow-node on">
+
+          <strong>
+            SOVEREIGN_VALUE
+          </strong>
+
+          <small>
+            COMPOUND · ownership · economics
+          </small>
+
+        </div>
+
+        <span class="arrow return-arrow">
+          ↗
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <!-- CONVERGENCE -->
+    <div class="reintegrate">
+
+      <div
+        class="ae-core"
+        id="ae-core"
+      >
+        Æ
+      </div>
+
+    </div>
+
+
+    <!-- RECEIPT -->
+    <div
+      class="receipt"
+      id="output"
+      aria-live="polite"
+    >
+      STATUS://READY<br>
+      HUMAN://ROOT → DISCOVER | AUTHORIZE | COMPOUND → REINTEGRATE://HUMAN
+    </div>
+
+  </section>
+
+
+  <!-- FOOTER -->
+  <footer class="footer">
+
+    <button
+      class="reset"
+      id="reset"
+      type="button"
+    >
+      RESET
+    </button>
+
+    <div class="doctrine">
+      Multiply cognition.<br>
+      Preserve authority.<br>
+      <strong>Many agents · one principal.</strong>
+    </div>
+
+  </footer>
+
+</main>
+
+
+<script>
+(() => {
+
+  const root =
+    document.getElementById("ae-widget");
+
+  const commandText =
+    document.getElementById("command-text");
+
+  const output =
+    document.getElementById("output");
+
+  const runButton =
+    document.getElementById("run");
+
+
+  const rails = [
+    "intelligence",
+    "authority",
+    "value"
+  ];
+
+
+  const config = {
+
+    intelligence:{
+      label:"Open_intelligence",
+      verb:"DISCOVER",
+      route:"LLM.store"
+    },
+
+    authority:{
+      label:"Private_authority",
+      verb:"AUTHORIZE",
+      route:"PrivateClient.ai"
+    },
+
+    value:{
+      label:"Sovereign_value",
+      verb:"COMPOUND",
+      route:"DAOLLC.ai"
+    }
+
+  };
+
+
+  const active =
+    new Set(rails);
+
+
+  let receiptIndex = 0;
+
+
+  function selected(){
+
+    return rails.filter(
+      key =>
+        active.has(key)
+    );
+
+  }
+
+
+  function render(){
+
+    rails.forEach(
+      key => {
+
+        const rail =
+          root.querySelector(
+            `[data-rail="${key}"]`
+          );
+
+        const node =
+          root.querySelector(
+            `[data-flow="${key}"] .flow-node`
+          );
+
+        const enabled =
+          active.has(key);
+
+
+        rail.classList.toggle(
+          "active",
+          enabled
+        );
+
+
+        node.classList.toggle(
+          "on",
+          enabled
+        );
+
+
+        rail.setAttribute(
+          "aria-pressed",
+          String(enabled)
+        );
+
+      }
+    );
+
+
+    const list =
+      selected();
+
+
+    commandText.textContent =
+      list.length
+        ? list
+            .map(
+              key =>
+                config[key].label
+            )
+            .join("|")
+        : "∅";
+
+
+    if(!list.length){
+
+      output.innerHTML =
+        "STATUS://IDLE<br>No parallel rails selected.";
+
+      return;
+
+    }
+
+
+    output.innerHTML =
+      "STATUS://READY<br>" +
+      "HUMAN://ROOT → " +
+      list
+        .map(
+          key =>
+            config[key].verb
+        )
+        .join(" | ") +
+      " → REINTEGRATE://HUMAN";
+
+  }
+
+
+  async function digest(text){
+
+    if(
+      crypto?.subtle
+    ){
+
+      const encoded =
+        new TextEncoder()
+          .encode(text);
+
+      const hash =
+        await crypto.subtle.digest(
+          "SHA-256",
+          encoded
+        );
+
+      return Array
+        .from(
+          new Uint8Array(hash)
+        )
+        .map(
+          byte =>
+            byte
+              .toString(16)
+              .padStart(2,"0")
+        )
+        .join("");
+
+    }
+
+
+    let h = 2166136261;
+
+    for(
+      let i = 0;
+      i < text.length;
+      i++
+    ){
+
+      h ^= text.charCodeAt(i);
+
+      h =
+        Math.imul(
+          h,
+          16777619
+        );
+
+    }
+
+    return (
+      h >>> 0
+    )
+      .toString(16)
+      .padStart(8,"0");
+
+  }
+
+
+  async function run(){
+
+    const list =
+      selected();
+
+
+    if(
+      !list.length
+    ){
+
+      output.innerHTML =
+        "STATUS://BLOCKED<br>Select at least one rail.";
+
+      return;
+
+    }
+
+
+    root.classList.add(
+      "running"
+    );
+
+
+    runButton.textContent =
+      "RUNNING";
+
+
+    receiptIndex++;
+
+
+    const receipt =
+      {
+        version:"Æ1",
+        principal:"HUMAN://ROOT",
+        parallel:true,
+
+        rails:
+          list.map(
+            key => ({
+              id:key,
+              verb:config[key].verb,
+              route:config[key].route
+            })
+          ),
+
+        reintegrate:"HUMAN://ROOT",
+        receipt:
+          `RCPT_${String(receiptIndex).padStart(4,"0")}`
+      };
+
+
+    const canonical =
+      JSON.stringify(
+        receipt
+      );
+
+
+    const hash =
+      await digest(
+        canonical
+      );
+
+
+    setTimeout(
+      () => {
+
+        output.innerHTML =
+
+          `STATUS://COMMITTED<br>` +
+
+          `HUMAN://ROOT → ` +
+
+          list
+            .map(
+              key =>
+                `${config[key].verb}://${config[key].route}`
+            )
+            .join(" | ") +
+
+          ` → Æ://REINTEGRATE<br>` +
+
+          `<span class="hash">` +
+
+          `${receipt.receipt} · ${hash.slice(0,16).toUpperCase()}` +
+
+          `</span>`;
+
+
+        root.classList.remove(
+          "running"
+        );
+
+
+        runButton.textContent =
+          "RUN |";
+
+      },
+      420
+    );
+
+  }
+
+
+  root
+    .querySelectorAll(
+      ".rail"
+    )
+    .forEach(
+      button => {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            const key =
+              button.dataset.rail;
+
+
+            if(
+              active.has(key)
+            ){
+
+              active.delete(key);
+
+            }
+            else{
+
+              active.add(key);
+
+            }
+
+
+            render();
+
+          }
+        );
+
+      }
+    );
+
+
+  runButton
+    .addEventListener(
+      "click",
+      run
+    );
+
+
+  document
+    .getElementById(
+      "reset"
+    )
+    .addEventListener(
+      "click",
+      () => {
+
+        active.clear();
+
+        rails.forEach(
+          key =>
+            active.add(key)
+        );
+
+
+        receiptIndex = 0;
+
+
+        render();
+
+      }
+    );
+
+
+  window.AE_PARALLEL = {
+
+    state(){
+
+      return {
+
+        principal:
+          "HUMAN://ROOT",
+
+        active:
+          [...active],
+
+        doctrine:
+          "Many agents. One principal."
+
+      };
+
+    },
+
+
+    run,
+
+
+    enable(key){
+
+      if(
+        rails.includes(key)
+      ){
+
+        active.add(key);
+
+        render();
+
+      }
+
+    },
+
+
+    disable(key){
+
+      active.delete(key);
+
+      render();
+
+    },
+
+
+    all(){
+
+      rails.forEach(
+        key =>
+          active.add(key)
+      );
+
+      render();
+
+    }
+
+  };
+
+
+  render();
+
+})();
+</script>
+
+</body>
+</html>
