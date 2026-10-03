@@ -182,31 +182,57 @@ const GROUPS = {
 const ALL = Object.values(GROUPS).flatMap(g => g.items);
 const cache = new Map();
 
-/* ── fetch one quote ─────────────────────────────────────── */
+/* ── transport ─────────────────────────────────────────────
+   Three tiers, in order, each honest about what it did:
 
-async function quote(sym){
+   1. LIVE BROKER — the droplet's /xrpc/ae.vps.markets. It reaches the
+      upstream chart API and returns ACAO:*, which the upstream does NOT.
+      Blocked today by mixed content (this page is https, the broker is
+      http) until TLS exists on the droplet — which needs DNS + port 80,
+      currently held by nginx. So this tier is usually unreachable.
+   2. LIVE DIRECT — upstream chart API straight from the tab. No ACAO
+      header, so the browser blocks it from an https origin.
+   3. BAKED SNAPSHOT — markets.json, refreshed by the broker and committed
+      with the surface. Always renders; always labelled with its age.
+
+   No tier invents a price. If all three fail the cell prints why.
+   ────────────────────────────────────────────────────────── */
+
+const BROKER = "http://129.212.180.252:3000/xrpc/ae.vps.markets";
+const SNAPSHOT = "./markets.json";
+let lastMode = "";
+
+async function viaBroker(){
+  const res = await fetch(BROKER, { cache:"no-store" });
+  if(!res.ok) throw new Error("broker HTTP " + res.status);
+  const j = await res.json();
+  if(!j || !Array.isArray(j.quotes)) throw new Error("broker: bad shape");
+  return j.quotes;
+}
+
+async function viaSnapshot(){
+  const res = await fetch(SNAPSHOT, { cache:"no-store" });
+  if(!res.ok) throw new Error("snapshot HTTP " + res.status);
+  const j = await res.json();
+  if(!j || !Array.isArray(j.quotes)) throw new Error("snapshot: bad shape");
+  return j;
+}
+
+async function viaDirect(sym){
   const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=1d&interval=1d`;
-  const t0 = performance.now();
   const res = await fetch(url, { cache:"no-store" });
   if(!res.ok) throw new Error("HTTP " + res.status);
   const j = await res.json();
   const m = j?.chart?.result?.[0]?.meta;
-  if(!m) throw new Error("no meta in response");
-
+  if(!m) throw new Error("no meta");
   const price = m.regularMarketPrice;
-  const prev  = m.chartPreviousClose ?? m.previousClose;
   if(price === undefined || price === null) throw new Error("no price");
-
+  const prev = m.chartPreviousClose ?? m.previousClose;
   const chg = (prev !== undefined && prev !== null) ? price - prev : null;
-  const pct = (chg !== null && prev) ? (chg / prev) * 100 : null;
-
-  return {
-    sym, price, prev, chg, pct,
-    currency: m.currency,
-    marketTime: m.regularMarketTime,   // unix seconds — real, not now()
-    exchange: m.fullExchangeName || m.exchangeName,
-    ms: Math.round(performance.now() - t0)
-  };
+  return { sym, ok:true, price, prev, chg,
+           pct: (chg !== null && prev) ? (chg / prev) * 100 : null,
+           currency: m.currency, marketTime: m.regularMarketTime,
+           exchange: m.fullExchangeName || m.exchangeName };
 }
 
 /* ── render ──────────────────────────────────────────────── */
@@ -269,21 +295,53 @@ async function refresh(){
 
   const showCors = $("cbCors").checked;
   const results = new Map();
+  let mode = "", detail = "";
+
+  // ── tier 1: live broker (one request for the whole board) ──
+  let fromBroker = null;
+  try{
+    const t0 = performance.now();
+    const quotes = await viaBroker();
+    fromBroker = new Map(quotes.map(q => [q.sym, q]));
+    mode = "LIVE · broker";
+    detail = `droplet · ${Math.round(performance.now()-t0)}ms · ${quotes.filter(q=>q.ok).length}/${quotes.length}`;
+    for(const q of quotes) if(q.ok) cache.set(q.sym, q);
+  }catch(e){
+    detail = "broker unreachable";
+  }
+
+  // ── tier 3 prep: baked snapshot (fetched once, used if broker missed) ──
+  let snap = null, snapAt = null;
+  if(!fromBroker){
+    try{
+      const s = await viaSnapshot();
+      snap = new Map(s.quotes.map(q => [q.sym, q]));
+      snapAt = s.baked_at;
+      mode = "SNAPSHOT";
+      detail = "baked · " + ageOf(snapAt);
+    }catch(e){ detail += " · snapshot failed"; }
+  }
 
   await Promise.all(ALL.map(async item => {
-    let transport = "";
+    if(fromBroker && fromBroker.has(item.s) && fromBroker.get(item.s).ok){
+      results.set(item.s, { item, q: fromBroker.get(item.s), transport: showCors ? detail : "" });
+      return;
+    }
+    if(snap && snap.has(item.s) && snap.get(item.s).ok){
+      results.set(item.s, { item, q: snap.get(item.s), transport: showCors ? detail : "" });
+      return;
+    }
     try{
-      const q = await quote(item.s);
+      const q = await viaDirect(item.s);
+      if(!mode){ mode = "LIVE · direct"; detail = "tab → upstream"; }
       cache.set(item.s, q);
-      results.set(item.s, { item, q });
-      transport = showCors ? `direct · ${q.ms}ms` : "";
+      results.set(item.s, { item, q, transport: showCors ? "direct" : "" });
     }catch(e){
-      // fall back to last-good rather than showing nothing
       const prev = cache.get(item.s);
       if(prev){
         results.set(item.s, { item, q:prev, transport: showCors ? `cached (${e.message.slice(0,24)})` : "" });
       }else{
-        results.set(item.s, { item, err: e.message, transport: showCors ? "direct fetch failed" : "" });
+        results.set(item.s, { item, err: e.message, transport: showCors ? detail : "" });
       }
     }
   }));
@@ -294,12 +352,11 @@ async function refresh(){
   }
 
   const live = [...results.values()].filter(r => !r.err).length;
-  const fresh = [...results.values()].filter(r => r.q && !r.err).length;
-  lastGood = live;
   $("status").innerHTML = live === ALL.length
     ? `<span class="live">● ALL ${live}/${ALL.length} LIVE</span>`
     : `<span class="stale">● ${live}/${ALL.length} live · ${ALL.length - live} unavailable</span>`;
-  $("tmeta").textContent = `updated ${new Date().toLocaleTimeString()} · ${ALL.length} symbols`;
+  lastMode = mode || "offline";
+  $("tmeta").textContent = `${lastMode} · ${detail} · ${new Date().toLocaleTimeString()}`;
 
   buildTape([...results.values()].filter(r => r.q && !r.err));
   $("bRef").disabled = false;
