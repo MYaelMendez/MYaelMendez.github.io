@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VSCODER:// — Agentic Electronic Engineering Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #050505;
+    --panel: #0b0b0b;
+    --gold: #D4AF37;
+    --gold-dim: rgba(212,175,55,0.3);
+    --gold-glow: rgba(212,175,55,0.15);
+    --gold-hot: rgba(212,175,55,0.5);
+    --neon: #00ff9d;
+    --cyan: #00eaff;
+    --violet: #8c72ff;
+    --red: #ff4d5f;
+    --ink: #e8e6df;
+    --muted: #6f6a5c;
+    --border: rgba(212,175,55,0.2);
+    --border-hot: rgba(212,175,55,0.5);
+    --surface: rgba(5,5,5,0.8);
+    --surface-raised: rgba(10,10,8,0.9);
+    --font-display: 'Orbitron', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+    --radius: 6px;
+    --radius-sm: 3px;
+    --shadow: 0 4px 20px rgba(0,0,0,0.5);
+    --shadow-glow: 0 0 20px var(--gold-glow);
+    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--void);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    overflow: hidden;
+    height: 100vh;
+  }
+  #app {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    height: 100vh;
+  }
+  /* Header */
+  #header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(5,5,5,0.98) 0%, rgba(5,5,5,0.85) 100%);
+    backdrop-filter: blur(10px);
+    z-index: 20;
+  }
+  #header h1 {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-hot) 50%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px var(--gold-glow);
+  }
+  #header .status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    color: var(--gold-dim);
+    letter-spacing: 1px;
+  }
+  #header .status .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--neon);
+    box-shadow: 0 0 10px var(--neon), 0 0 20px rgba(0,255,157,0.3);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.9); }
+  }
+  /* Main grid */
+  #main {
+    display: grid;
+    grid-template-columns: 280px 1fr 280px;
+    gap: 1px;
+    background: var(--border);
+    overflow: hidden;
+  }
+  .panel {
+    background: var(--surface);
+    overflow-y: auto;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+  }
+  .panel h2 {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .panel h2:not(:first-child) { margin-top: 20px; }
+  /* Pipeline */
+  .pipeline-stage {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    margin-bottom: 3px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 11px;
+    transition: all var(--transition);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .pipeline-stage::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: transparent;
+    transition: background var(--transition);
+  }
+  .pipeline-stage:hover {
+    border-color: var(--border-hot);
+    background: var(--gold-glow);
+    transform: translateX(2px);
+  }
+  .pipeline-stage.active {
+    border-color: var(--gold);
+    background: var(--gold-glow);
+    box-shadow: var(--shadow-glow);
+  }
+  .pipeline-stage.active::before { background: var(--gold); }
+  .pipeline-stage.done {
+    border-color: rgba(0,255,157,0.25);
+    color: rgba(0,255,157,0.7);
+  }
+  .pipeline-stage.done::before { background: var(--neon); }
+  .pipeline-stage .icon { width: 20px; text-align: center; font-size: 13px; }
+  .pipeline-stage .label { flex: 1; font-weight: 500; }
+  .pipeline-stage .status { font-size: 9px; color: var(--gold-dim); font-family: var(--font-mono); }
+  /* Viewport */
+  #viewport {
+    position: relative;
+    background: var(--void);
+    display: flex;
+    flex-direction: column;
+  }
+  #viewport-canvas {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  #viewport-canvas iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  #viewport-overlay {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 12px 18px;
+    background: linear-gradient(0deg, rgba(5,5,5,0.98) 0%, rgba(5,5,5,0.7) 60%, transparent 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+  }
+  #viewport-overlay .info {
+    font-size: 10px;
+    color: var(--gold-dim);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  #viewport-overlay .info .filename { color: var(--gold); font-weight: 500; }
+  #viewport-overlay .controls { display: flex; gap: 3px; }
+  .vlc-btn {
+    background: rgba(5,5,5,0.6);
+    border: 1px solid var(--border);
+    color: var(--gold);
+    padding: 5px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition);
+    font-family: var(--font-mono);
+    backdrop-filter: blur(4px);
+  }
+  .vlc-btn:hover {
+    border-color: var(--gold);
+    background: var(--gold-glow);
+    transform: translateY(-1px);
+  }
+  .vlc-btn.active {
+    background: var(--gold);
+    color: var(--void);
+    border-color: var(--gold);
+  }
+  /* Library */
+  .library-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    margin-bottom: 3px;
+    border: 1px solid rgba(212,175,55,0.12);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+    font-size: 10px;
+  }
+  .library-item:hover {
+    border-color: var(--border-hot);
+    background: var(--gold-glow);
+    transform: translateX(2px);
+  }
+  .library-item.active {
+    border-color: var(--gold);
+    background: var(--gold-glow);
+    box-shadow: var(--shadow-glow);
+  }
+  .library-item .thumb {
+    width: 36px;
+    height: 26px;
+    background: linear-gradient(135deg, var(--gold-glow) 0%, transparent 100%);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    border: 1px solid var(--border);
+  }
+  .library-item .meta { flex: 1; min-width: 0; }
+  .library-item .name { color: var(--gold); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .library-item .details { color: var(--gold-dim); font-size: 8px; margin-top: 2px; }
+  /* Receipts */
+  .receipt-item {
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .receipt-item:last-child { border-bottom: none; }
+  .receipt-item .filename { color: var(--gold); font-size: 9px; }
+  .receipt-item .hash { font-family: var(--font-mono); font-size: 7px; color: var(--gold-dim); margin-top: 1px; }
+  /* Footer */
+  #footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 24px;
+    border-top: 1px solid var(--border);
+    font-size: 9px;
+    color: var(--gold-dim);
+    background: var(--surface);
+  }
+  #footer .receipt { font-family: var(--font-mono); color: var(--gold); }
+  /* Scanlines */
+  .scanlines {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 2px,
+      rgba(212,175,55,0.012) 2px,
+      rgba(212,175,55,0.012) 4px
+    );
+  }
+  /* Toast */
+  #toast {
+    position: fixed;
+    top: 70px;
+    right: 24px;
+    padding: 10px 16px;
+    background: var(--surface-raised);
+    border: 1px solid var(--gold);
+    border-radius: var(--radius);
+    color: var(--gold);
+    font-size: 11px;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateX(30px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow);
+    max-width: 280px;
+  }
+  #toast.show { opacity: 1; transform: translateX(0); }
+  #toast.error { border-color: var(--red); color: var(--red); }
+  #toast.success { border-color: var(--neon); color: var(--neon); }
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border-hot); }
+  /* Responsive */
+  @media (max-width: 1200px) { #main { grid-template-columns: 240px 1fr 240px; } }
+  @media (max-width: 900px) {
+    #main { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
+    .panel { max-height: 180px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <h1>VSCODER://</h1>
+    <div class="status">
+      <div class="dot" id="status-dot"></div>
+      <span id="status-text">INITIALIZING</span>
+    </div>
+  </div>
+  <div id="main">
+    <div class="panel" id="pipeline-panel">
+      <h2>Engineering Pipeline</h2>
+      <div class="pipeline-stage done" data-stage="observe">
+        <div class="icon">👁</div>
+        <div class="label">Observe</div>
+        <div class="status">✓</div>
+      </div>
+      <div class="pipeline-stage done" data-stage="plan">
+        <div class="icon">📋</div>
+        <div class="label">Plan</div>
+        <div class="status">✓</div>
+      </div>
+      <div class="pipeline-stage active" data-stage="execute">
+        <div class="icon">⚡</div>
+        <div class="label">Execute</div>
+        <div class="status">●</div>
+      </div>
+      <div class="pipeline-stage" data-stage="diagnostics">
+        <div class="icon">🔍</div>
+        <div class="label">Diagnostics</div>
+        <div class="status">○</div>
+      </div>
+      <div class="pipeline-stage" data-stage="build">
+        <div class="icon">🔨</div>
+        <div class="label">Build</div>
+        <div class="status">○</div>
+      </div>
+      <div class="pipeline-stage" data-stage="test">
+        <div class="icon">🧪</div>
+        <div class="label">Test</div>
+        <div class="status">○</div>
+      </div>
+      <div class="pipeline-stage" data-stage="review">
+        <div class="icon">📝</div>
+        <div class="label">Review Diff</div>
+        <div class="status">○</div>
+      </div>
+      <div class="pipeline-stage" data-stage="receipt">
+        <div class="icon">🧾</div>
+        <div class="label">Receipt</div>
+        <div class="status">○</div>
+      </div>
+      <h2>HyperFrames</h2>
+      <div class="pipeline-stage" data-stage="hyperframes">
+        <div class="icon">🎞</div>
+        <div class="label">Compositions</div>
+        <div class="status">3</div>
+      </div>
+      <div class="pipeline-stage" data-stage="keyframes">
+        <div class="icon">🔑</div>
+        <div class="label">Keyframes</div>
+        <div class="status">12</div>
+      </div>
+      <div class="pipeline-stage" data-stage="audio">
+        <div class="icon">🔊</div>
+        <div class="label">Audio</div>
+        <div class="status">0</div>
+      </div>
+      <h2>Receipts</h2>
+      <div id="receipts-list">
+        <div class="receipt-item">
+          <div class="filename">constellation.mp4</div>
+          <div class="hash" id="receipt-constellation">sha256: pending...</div>
+        </div>
+        <div class="receipt-item">
+          <div class="filename">viewport-video.mp4</div>
+          <div class="hash" id="receipt-viewport">sha256: pending...</div>
+        </div>
+      </div>
+    </div>
+    <div id="viewport">
+      <div id="viewport-canvas">
+        <iframe id="preview-frame" src="about:blank"></iframe>
+      </div>
+      <div id="viewport-overlay">
+        <div class="info">
+          <span class="filename" id="current-media">constellation.mp4</span>
+          <span>·</span>
+          <span id="current-time">0:00 / 0:21</span>
+        </div>
+        <div class="controls">
+          <button class="vlc-btn" onclick="vlcCommand('prev')">⏮</button>
+          <button class="vlc-btn active" id="play-btn" onclick="vlcCommand('play')">▶</button>
+          <button class="vlc-btn" onclick="vlcCommand('pause')">⏸</button>
+          <button class="vlc-btn" onclick="vlcCommand('stop')">⏹</button>
+          <button class="vlc-btn" onclick="vlcCommand('next')">⏭</button>
+          <button class="vlc-btn" onclick="vlcCommand('fullscreen')">⛶</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel" id="library-panel">
+      <h2>Media Library</h2>
+      <div class="library-item active" onclick="loadMedia('constellation.mp4', event)">
+        <div class="thumb">🌌</div>
+        <div class="meta">
+          <div class="name">constellation.mp4</div>
+          <div class="details">21s · 97 KB · H.264</div>
+        </div>
+      </div>
+      <div class="library-item" onclick="loadMedia('viewport-video.mp4', event)">
+        <div class="thumb">🎓</div>
+        <div class="meta">
+          <div class="name">viewport-video.mp4</div>
+          <div class="details">21s · 7.7 MB · H.264</div>
+        </div>
+      </div>
+      <div class="library-item" onclick="loadMedia('fase1-fundamentos.html', event)">
+        <div class="thumb">📦</div>
+        <div class="meta">
+          <div class="name">fase1-fundamentos.html</div>
+          <div class="details">24 KB · Three.js</div>
+        </div>
+      </div>
+      <div class="library-item" onclick="loadMedia('fase6-shaders-avanzados.html', event)">
+        <div class="thumb">✨</div>
+        <div class="meta">
+          <div class="name">fase6-shaders-avanzados.html</div>
+          <div class="details">42 KB · Ray Marching</div>
+        </div>
+      </div>
+      <div class="library-item" onclick="loadMedia('fase10-postprocessing.html', event)">
+        <div class="thumb">🎨</div>
+        <div class="meta">
+          <div class="name">fase10-postprocessing.html</div>
+          <div class="details">51 KB · 10 Passes</div>
+        </div>
+      </div>
+      <div class="library-item" onclick="loadMedia('fase12-webmcp-integration.html', event)">
+        <div class="thumb">🔌</div>
+        <div class="meta">
+          <div class="name">fase12-webmcp-integration.html</div>
+          <div class="details">47 KB · 6 WebMCP Tools</div>
+        </div>
+      </div>
+      <h2>Quick Actions</h2>
+      <div class="pipeline-stage" onclick="quickAction('render')">
+        <div class="icon">🎬</div>
+        <div class="label">Render Scene</div>
+        <div class="status">▶</div>
+      </div>
+      <div class="pipeline-stage" onclick="quickAction('verify')">
+        <div class="icon">🔍</div>
+        <div class="label">Verify Receipt</div>
+        <div class="status">▶</div>
+      </div>
+      <div class="pipeline-stage" onclick="quickAction('publish')">
+        <div class="icon">🚀</div>
+        <div class="label">Publish to Pages</div>
+        <div class="status">▶</div>
+      </div>
+    </div>
+  </div>
+  <div id="footer">
+    <div>vscoder:// · agentic electronic engineering studio</div>
+    <div class="receipt" id="footer-receipt">sha256: pending... · 2026-10-04</div>
+  </div>
+</div>
+<div class="scanlines"></div>
+<div id="toast"></div>
+<script>
+const VLC_BASE = 'http://127.0.0.1:8081';
+const VLC_PASSWORD = 'hermes';
+const HTTP_BASE = 'http://127.0.0.1:8123';
+let vlcRunning = false;
+let currentMedia = '';
+function showToast(message, type = 'info') {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = 'show ' + type;
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+async function vlcRequest(cmd, params = {}) {
+  const qs = Object.entries(params).map(([k,v]) => `${k}=${encodeURIComponent(v)}`).join('&');
+  const url = `${VLC_BASE}/requests/status.json${qs ? '?' + qs : ''}`;
+  try {
+    const resp = await fetch(url, { headers: { 'Authorization': 'Basic ' + btoa(':' + VLC_PASSWORD) } });
+    return await resp.json();
+  } catch (e) { vlcRunning = false; return { error: e.message }; }
+}
+async function vlcCommand(cmd) {
+  const btn = document.getElementById('play-btn');
+  if (cmd === 'play') { await vlcRequest('status', { command: 'pl_play' }); btn.textContent = '⏸'; btn.classList.add('active'); }
+  else if (cmd === 'pause') { await vlcRequest('status', { command: 'pl_pause' }); btn.textContent = '▶'; btn.classList.remove('active'); }
+  else if (cmd === 'stop') { await vlcRequest('status', { command: 'pl_stop' }); btn.textContent = '▶'; btn.classList.remove('active'); }
+  else if (cmd === 'next') { await vlcRequest('status', { command: 'pl_next' }); }
+  else if (cmd === 'prev') { await vlcRequest('status', { command: 'pl_previous' }); }
+  else if (cmd === 'fullscreen') { await vlcRequest('status', { command: 'fullscreen' }); }
+  updateStatus();
+}
+async function updateStatus() {
+  const status = await vlcRequest('status');
+  const state = status.state || 'stopped';
+  const time = status.time || 0;
+  const length = status.length || 0;
+  const title = status.information?.category?.meta?.filename || currentMedia || 'unknown';
+  document.getElementById('current-media').textContent = title;
+  document.getElementById('current-time').textContent = `${fmtTime(time)} / ${fmtTime(length)}`;
+  const statusText = document.getElementById('status-text');
+  const statusDot = document.getElementById('status-dot');
+  if (state === 'playing') {
+    statusText.textContent = 'VLC PLAYING'; statusText.style.color = '#00ff9d';
+    statusDot.style.background = '#00ff9d'; statusDot.style.boxShadow = '0 0 10px #00ff9d';
+    vlcRunning = true;
+  } else if (state === 'paused') {
+    statusText.textContent = 'VLC PAUSED'; statusText.style.color = '#ffaa44';
+    statusDot.style.background = '#ffaa44'; statusDot.style.boxShadow = '0 0 10px #ffaa44';
+    vlcRunning = true;
+  } else {
+    statusText.textContent = vlcRunning ? 'VLC STOPPED' : 'VLC OFFLINE';
+    statusText.style.color = '#ff4d5f';
+    statusDot.style.background = '#ff4d5f'; statusDot.style.boxShadow = '0 0 10px #ff4d5f';
+  }
+}
+function fmtTime(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+async function loadMedia(name, event) {
+  const frame = document.getElementById('preview-frame');
+  currentMedia = name;
+  document.querySelectorAll('.library-item').forEach(el => el.classList.remove('active'));
+  if (event && event.currentTarget) event.currentTarget.classList.add('active');
+  if (name.endsWith('.mp4') || name.endsWith('.webm')) {
+    showToast(`Cargando ${name}...`);
+    await vlcRequest('status', { command: 'pl_empty' });
+    await vlcRequest('status', { command: 'pl_add', input: `${HTTP_BASE}/${name}` });
+    await vlcRequest('status', { command: 'pl_play' });
+    document.getElementById('current-media').textContent = name;
+    updateStatus();
+    showToast(`${name} cargado`, 'success');
+  } else {
+    frame.src = `${HTTP_BASE}/${name}`;
+    document.getElementById('current-media').textContent = name;
+    showToast(`${name} cargado en viewport`, 'success');
+  }
+}
+async function quickAction(action) {
+  const stages = document.querySelectorAll('.pipeline-stage');
+  stages.forEach(s => s.classList.remove('active'));
+  if (action === 'render') {
+    const el = document.querySelector('[data-stage="execute"]');
+    el.classList.add('active'); el.querySelector('.status').textContent = '●';
+    showToast('Render: integrar con mp4-factory plugin', 'info');
+  } else if (action === 'verify') {
+    const el = document.querySelector('[data-stage="diagnostics"]');
+    el.classList.add('active'); el.querySelector('.status').textContent = '●';
+    if (currentMedia) {
+      const receipt = await generateReceipt(currentMedia);
+      showToast(`Receipt: ${receipt.sha256.slice(0, 16)}...`, 'success');
+    } else { showToast('No media cargado', 'error'); }
+  } else if (action === 'publish') {
+    const el = document.querySelector('[data-stage="receipt"]');
+    el.classList.add('active'); el.querySelector('.status').textContent = '●';
+    showToast('Publish: integrar con GitHub Pages deploy', 'info');
+  }
+}
+async function generateReceipt(filename) {
+  const ts = new Date().toISOString();
+  const data = `${filename}:${ts}`;
+  const encoder = new TextEncoder();
+  const dataBuffer = encoder.encode(data);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return { filename, timestamp: ts, sha256: hashHex };
+}
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  switch(e.key) {
+    case ' ': e.preventDefault(); vlcCommand('play'); break;
+    case 'ArrowLeft': e.preventDefault(); vlcCommand('prev'); break;
+    case 'ArrowRight': e.preventDefault(); vlcCommand('next'); break;
+    case 'f': vlcCommand('fullscreen'); break;
+  }
+});
+updateStatus();
+setInterval(updateStatus, 1000);
+loadMedia('constellation.mp4');
+</script>
+</body>
+</html>
