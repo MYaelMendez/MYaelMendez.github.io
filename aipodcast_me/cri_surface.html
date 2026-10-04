@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRI:// Consumer Redline Index</title>
+<style>
+  :root {
+    --void: #050505;
+    --gold: #D4AF37;
+    --gold-dim: #8B7D3C;
+    --bg: #050505;
+    --card: #0A0A0A;
+    --border: #D4AF3733;
+    --text: #E8E0D0;
+    --muted: #8B8070;
+    --green: #4CAF50;
+    --red: #F44336;
+    --font-display: 'Orbitron', 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  .container { max-width: 430px; margin: 0 auto; padding: 16px; }
+  .header {
+    text-align: center;
+    padding: 20px 0 12px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .header h1 {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 3px;
+  }
+  .header .subtitle { font-size: 10px; color: var(--muted); margin-top: 4px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .card h2 {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .score-display {
+    text-align: center;
+    padding: 16px;
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  .score-value {
+    font-family: var(--font-display);
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--gold);
+  }
+  .score-label { font-size: 10px; color: var(--muted); letter-spacing: 2px; }
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--void);
+    border-radius: 4px;
+    margin: 8px 0;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 4px;
+    transition: width 0.3s;
+  }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .status-chip {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    display: inline-block;
+  }
+  .status-chip.live { background: var(--green); color: #000; }
+  .btn {
+    display: inline-block;
+    padding: 6px 12px;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 4px;
+    margin: 2px;
+  }
+  .btn:hover { background: var(--gold); color: var(--void); }
+  .ledger { max-height: 150px; overflow-y: auto; font-size: 9px; }
+  .ledger-entry {
+    padding: 4px 6px;
+    border-left: 2px solid var(--border);
+    margin-bottom: 3px;
+    color: var(--muted);
+  }
+  .ledger-entry .kind { color: var(--gold); font-weight: 700; }
+  .toast {
+    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+    background: var(--gold); color: var(--void); padding: 8px 16px;
+    border-radius: 4px; font-size: 11px; font-weight: 700; z-index: 1000;
+    display: none;
+  }
+  .toast.show { display: block; }
+  .scanlines {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none; z-index: 9999;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+  }
+  @media (max-width: 480px) {
+    .container { padding: 10px; }
+    .score-value { font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="container">
+  <div class="header">
+    <h1>CRI://</h1>
+    <div class="subtitle">Consumer Redline Index · Evidence-Backed Measurement</div>
+  </div>
+
+  <div class="score-display">
+    <div class="score-label">CRI SCORE</div>
+    <div class="score-value" id="cri-score">--</div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="cri-bar" style="width: 50%"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted)">
+      <span>HEADROOM</span><span>REDLINE</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>⚡ Status</h2>
+    <div class="grid">
+      <div><span class="status-chip live" id="status-chip">LIVE</span></div>
+      <div><span class="status-chip" id="coverage-chip">--% COVERAGE</span></div>
+    </div>
+    <div style="margin-top:8px;font-size:10px">
+      <div>Score: <span id="cri-score2">--</span></div>
+      <div>Coverage: <span id="coverage">--</span>%</div>
+      <div>Freshness: <span id="freshness">--</span>%</div>
+      <div>Status: <span id="status">--</span></div>
+      <div>Hash: <span id="hash" style="font-size:9px">--</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📊 Components</h2>
+    <div id="components" class="ledger"></div>
+  </div>
+
+  <div class="card">
+    <h2>▶ Calculate</h2>
+    <button class="btn primary" onclick="calculateCRI()">CALCULATE</button>
+    <button class="btn" onclick="loadCurrent()">CURRENT</button>
+    <button class="btn" onclick="loadHistory()">HISTORY</button>
+    <div id="calc-result" class="ledger" style="margin-top:8px"></div>
+  </div>
+
+  <div class="card">
+    <h2>🪙 Ledger</h2>
+    <button class="btn" onclick="refreshLedger()">REFRESH</button>
+    <div class="ledger" id="ledger-output"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'http://127.0.0.1:3052';
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+async function fetchJSON(url) {
+  const resp = await fetch(url);
+  return resp.json();
+}
+
+async function loadCurrent() {
+  try {
+    const data = await fetchJSON(`${API}/api/cri/current`);
+    document.getElementById('cri-score').textContent = data.cri_score ?? '--';
+    document.getElementById('cri-score2').textContent = data.cri_score ?? '--';
+    document.getElementById('coverage').textContent = data.coverage ?? '--';
+    document.getElementById('freshness').textContent = data.freshness ?? '--';
+    document.getElementById('status').textContent = data.status ?? '--';
+    document.getElementById('hash').textContent = data.release_hash ?? '--';
+    document.getElementById('cri-bar').style.width = (data.cri_score || 0) + '%';
+
+    const comps = document.getElementById('components');
+    comps.innerHTML = Object.entries(data.components || {})
+      .map(([k, v]) => `<div class="ledger-entry"><span class="kind">${k}</span> ${v.score?.toFixed(1) ?? 'N/A'}</div>`)
+      .join('');
+
+    toast('CRI loaded');
+  } catch (e) {
+    toast('Server offline');
+  }
+}
+
+async function calculateCRI() {
+  toast('Calculating...');
+  // Sample observations for demo
+  const observations = [
+    { indicator_id: 'cpi.all_items', value: 3.2, observation_date: '2026-09-01', source_reference: 'BLS' },
+    { indicator_id: 'unemployment_rate', value: 4.2, observation_date: '2026-09-01', source_reference: 'BLS' },
+    { indicator_id: 'savings.personal_rate', value: 3.5, observation_date: '2026-06-30', source_reference: 'BEA' },
+    { indicator_id: 'debt_service_ratio', value: 9.8, observation_date: '2026-06-30', source_reference: 'FRED' },
+    { indicator_id: 'credit_utilization', value: 78.5, observation_date: '2026-08-01', source_reference: 'FRED' },
+    { indicator_id: 'real_disposable_income', value: 2.1, observation_date: '2026-06-30', source_reference: 'BEA' },
+    { indicator_id: 'liquidty_headroom', value: 12.0, observation_date: '2026-08-01', source_reference: 'FRED' },
+  ];
+
+  try {
+    const resp = await fetch(`${API}/api/cri/calculate`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ observations }),
+    });
+    const data = await resp.json();
+    document.getElementById('cri-score').textContent = data.cri_score ?? '--';
+    document.getElementById('cri-score2').textContent = data.cri_score ?? '--';
+    document.getElementById('coverage').textContent = data.coverage ?? '--';
+    document.getElementById('freshness').textContent = data.freshness ?? '--';
+    document.getElementById('status').textContent = data.status ?? '--';
+    document.getElementById('cri-bar').style.width = (data.cri_score || 0) + '%';
+
+    const comps = document.getElementById('components');
+    comps.innerHTML = Object.entries(data.components || {})
+      .map(([k, v]) => `<div class="ledger-entry"><span class="kind">${k}</span> ${v.score?.toFixed(1) ?? 'N/A'}</div>`)
+      .join('');
+
+    toast('CRI calculated');
+  } catch (e) {
+    toast('Calculation failed');
+  }
+}
+
+async function loadHistory() {
+  try {
+    const data = await fetchJSON(`${API}/api/cri/history`);
+    const output = document.getElementById('calc-result');
+    output.innerHTML = (data.releases || [])
+      .map(r => `<div class="ledger-entry"><span class="kind">${r.as_of}</span> ${r.cri_score} ${r.status} <span style="font-size:8px">${r.release_hash}</span></div>`)
+      .join('');
+    toast(` ${data.releases.length} releases`);
+  } catch (e) {
+    toast('No history');
+  }
+}
+
+async function refreshLedger() {
+  try {
+    const data = await fetchJSON(`${API}/api/status`);
+    document.getElementById('ledger-output').innerHTML =
+      `<div class="ledger-entry"><span class="kind">API</span> live at ${API}</div>`;
+  } catch (e) {
+    document.getElementById('ledger-output').innerHTML =
+      '<div class="ledger-entry" style="color:var(--red)">Server offline</div>';
+  }
+}
+
+loadCurrent();
+</script>
+</body>
+</html>
