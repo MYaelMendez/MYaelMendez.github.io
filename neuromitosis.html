@@ -77,6 +77,17 @@
   .compose .out.ok { border-color:var(--border-hot); }
   .compose .out.err { border-color:#ff7b72; }
   .compose .hint { font-size:10px; color:var(--muted); margin-top:6px; letter-spacing:0.05em; }
+  .tape-container { width:100%; overflow:hidden; background:rgba(5,5,5,.85); border:1px solid var(--border); margin-top:6px; }
+  .tape { display:inline-flex; gap:22px; padding:8px 14px; font-size:9px; letter-spacing:.12em; white-space:nowrap; animation:scroll 80s linear infinite; }
+  .tape:hover { animation-play-state:paused; }
+  @keyframes scroll { from { transform:translateX(0) } to { transform:translateX(-50%) } }
+  .tick { display:inline-flex; align-items:center; gap:4px; }
+  .tick .s { color:var(--muted) }
+  .tick .p { color:var(--ink); font-weight:700 }
+  .tick .c { font-weight:700 }
+  .tick .up { color:var(--neon) }
+  .tick .dn { color:#ff7b72 }
+  .tick .fl { color:var(--muted) }
 </style>
 
 <meta property="og:title" content="neuromitosis.com — Human + Robot + DAO, bonded">
@@ -176,6 +187,14 @@
       never OneDrive. Human distributed cognition is the prime mover: the agent proposes, you steer.
     </p>
     <div class="cta"><a class="button" href="https://www.doola.com/forms/new?entity_type=llc&state=WY" target="_blank" rel="noopener">Form your DAO LLC ↗</a><a class="button ghost" href="https://æ.store" target="_blank" rel="noopener">æ.store namespace ↗</a><a class="button ghost" href="https://myaelmendez.github.io/aipodcast_me/discover.html" target="_blank" rel="noopener">æ://mesh field ↗</a></div>
+
+  <div class="panel">
+    <div class="panel-head"><span>Sovereign market tape · client-side, no API key</span><span class="sub">æ:/markets</span></div>
+    <div class="term" style="margin-bottom:10px">20 tickers · equities · treasuries · commodities · crypto · <span id="tapeMeta">SNAPSHOT · baked · last refresh: —</span></div>
+    <div class="tape-container">
+      <div class="tape" id="tape"></div>
+    </div>
+  </div>
 
   <div class="panel">
     <div class="panel-head"><span>Live compute · teknium node</span><span class="sub">RTX 3050 · æ://gpu</span></div>
@@ -298,6 +317,7 @@
   setInterval(loadMesh, 30000);
   setInterval(loadCompute, 10000);
   loadCompute();
+  buildTape();
 
 async function loadCompute() {
   try {
@@ -318,6 +338,42 @@ async function loadCompute() {
     document.getElementById('mm-toks').textContent = '116.7 tok/s (cached)';
   }
 }
+const TAPE = [
+  { s:"^GSPC", n:"S&P 500",     p:7722.72,  c:+56.27,  pct:+0.73 },
+  { s:"^IXIC", n:"Nasdaq",       p:27190.86, c:+319.27, pct:+1.19 },
+  { s:"^DJI",  n:"Dow Jones",    p:51176.96, c:+250.40, pct:+0.49 },
+  { s:"AAPL",  n:"Apple",        p:333.69,   c:+3.37,   pct:+1.02 },
+  { s:"NVDA",  n:"NVIDIA",       p:233.95,   c:+3.09,   pct:+1.34 },
+  { s:"MSFT",  n:"Microsoft",    p:517.53,   c:+4.73,   pct:+0.92 },
+  { s:"BTC-USD",n:"Bitcoin",     p:84751.91, c:+245.57, pct:+0.29 },
+  { s:"^VIX",  n:"VIX",          p:15.31,    c:-1.08,   pct:-6.59 },
+  { s:"^TNX",  n:"US 10Y",       p:5.277,    c:+0.76,   pct:+0.76 },
+  { s:"^FVY",  n:"US 5Y",        p:5.055,    c:+0.05,   pct:+1.00 },
+  { s:"^TYX",  n:"US 30Y",       p:5.630,    c:+0.03,   pct:+0.48 },
+  { s:"^IRX",  n:"US 13W",       p:3.993,    c:+0.01,   pct:+0.28 },
+  { s:"GC=",   n:"Gold",         p:4162.30,  c:-40.00,  pct:-0.95 },
+  { s:"SI=",   n:"Silver",       p:60.41,    c:-0.76,   pct:-1.24 },
+  { s:"CL=",   n:"Crude WTI",    p:91.11,    c:-1.76,   pct:-1.90 },
+  { s:"BZ=",   n:"Brent",        p:102.25,   c:-0.06,   pct:-0.06 },
+  { s:"NG=",   n:"Nat Gas",      p:3.04,     c:+0.07,   pct:+2.29 },
+  { s:"HG=",   n:"Copper",       p:6.55,     c:+0.01,   pct:+0.17 },
+  { s:"ZC=",   n:"Corn",         p:497.75,   c:-4.50,   pct:-0.90 },
+  { s:"ZW=",   n:"Wheat",        p:683.00,   c:+0.25,   pct:+0.04 }
+];
+
+function buildTape() {
+  const one = TAPE.map(t => {
+    const dir = t.pct > 0 ? "up" : t.pct < 0 ? "dn" : "fl";
+    const sign = t.pct > 0 ? "+" : "";
+    return `<span class="tick"><span class="s">${t.s}</span>` +
+           `<span class="p">${t.p.toFixed(t.p >= 100 ? 2 : 3)}</span>` +
+           `<span class="c ${dir}">${sign}${t.pct.toFixed(2)}%</span></span>`;
+  }).join("");
+  document.getElementById("tape").innerHTML = one + one;
+  document.getElementById("tapeMeta").textContent =
+    "SNAPSHOT · baked · " + new Date().toLocaleString("en-US", { timeZone:"UTC" });
+}
+
 const __WIRING__ = {"ok": true, "scheme": "neuromitosis://", "equals": "H\u00e6bbian://", "reset_ready": true, "skill": "agentic-chassis-surface", "memory_triggers": 9, "meta_memory": {"path": "C:\\ae\\meta_memory.csv", "entries": 41, "rows": ["1783893544|aggregate|fleet -> https://myaelmendez.github.io/fleet.html [LIVE] : MoD\u00d7MoA\u00d7MoM device mixture", "1783893544|aggregate|cuda-vlc -> https://myaelmendez.github.io/cuda-vlc.html [LIVE] : sovereign CUDA\u2192NVENC\u2192VLC stream", "1783893544|aggregate|secret-bridge -> https://myaelmendez.github.io/secret-source-bridge.html [LIVE] : local secret manager (vault node)", "1783893544|aggregate|sovereign-state -> https://myaelmendez.github.io/sovereign-state.html [LIVE] : memory + ledger + #250 spine", "1783893544|aggregate|#startabusiness -> https://myaelmendez.github.io/agentic.html [LIVE] : DAOLLC bootstrap + Doola", "1783893544|aggregate|glocal-secrets -> https://myaelmendez.github.io/glocal-secrets-blueprint.html [LIVE] : surface github.io \u00b7 custody Victus", "1783893544|aggregate|glocal-cuda -> https://myaelmendez.github.io/glocal-cuda-blueprint.html [LIVE] : MoD blueprint: brain/droplet\u00b7hands/RTX", "1783893544|aggregate|glocal-mesh -> https://myaelmendez.github.io/glocal-mesh.html [LIVE] : each primitive -> capability subagent", "1783893544|aggregate|rails -> https://myaelmendez.github.io/rails.html [LIVE] : Doola affiliate (paid, zero custody)", "1783893544|aggregate|neuromitosis -> https://myaelmendez.github.io/neuromitosis.html [LIVE] : operational substrate of distributed cognition"], "discipline": "agent proposes via +b\u00e6sic:// compose, human steers; not silent drift"}, "wired_surfaces": [{"scheme": "file://", "detail": "sovereign-scoped read, count>mutate, OneDrive-denied"}, {"scheme": "computer://", "detail": "agentic computer on Victus GPU-MCP (live probe)"}, {"scheme": "desktop://", "detail": "hermes-agent native -> WindowsDesktop (user32/SendInput)"}, {"scheme": "+b\u00e6sic://", "detail": "qc64 ledger: counts/graphs in-language, end-halt fixed"}, {"scheme": "\u00e6://", "detail": "agentic-language-chassis: longest-prefix route router"}]};
 const __MESH__ = {"ok": true, "topology": "MoD", "nodes": [{"domain": "cli.llc", "role": "Build \u2014 agentic infrastructure: APIs, MCPs, CLIs. You own the namespace.", "bonded": false}, {"domain": "daollc.ai", "role": "Entity \u2014 sovereign DAO LLC formation in Wyoming.", "bonded": false}, {"domain": "llm.store", "role": "Intelligence \u2014 \u00e6\u03c0 combinator: models, reasoning, interface.", "bonded": false}, {"domain": "\u00e6.store", "role": "Commerce \u2014 agentic email, e-commerce, IOA.", "bonded": false}, {"domain": "\u00e6l.net", "role": "Arrival \u2014 where agents begin. Entry point to the topology.", "bonded": false}, {"domain": "+\u00e6://secrets", "role": "Vault \u2014 local-first secret broker. Surface: github.io/secret-source-bridge. Custody: Victus C:\\\u00e6\\secrets\\. No value crosses.", "bonded": false}, {"domain": "neuromitosis.com", "role": "Bond \u2014 Human + Robot + DAO, wired via H\u00e6bbian. This node.", "bonded": true}]};
 if (typeof __WIRING__ !== 'undefined') { /* baked */ }
