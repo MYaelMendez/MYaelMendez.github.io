@@ -5,68 +5,139 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#050505">
 <title>æ Video Lab — Sovereign Compute Mesh</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
 <style>
+  :root {
+    --void: #050505; --gold: #D4AF37; --gold-dim: rgba(212,175,55,0.16);
+    --gold-glow: rgba(212,175,55,0.32); --neon: #00ff9d; --ink: #f0ece4;
+    --muted: rgba(240,236,228,0.38); --border: rgba(212,175,55,0.16);
+    --border-hot: rgba(212,175,55,0.5);
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { margin: 0; width: 100%; height: 100%; overflow: hidden;
-    background: #050505; color: #D4AF37;
+    background: var(--void); color: var(--ink);
     font-family: 'JetBrains Mono', 'Consolas', monospace; }
   #root { width: 100%; height: 100vh; position: relative; overflow: hidden; }
+  #mesh-canvas { position: absolute; inset: 0; z-index: 1; }
   .scanlines { position: absolute; inset: 0; pointer-events: none; z-index: 100;
     background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.25) 3px, rgba(0,0,0,0.25) 4px); }
-  .neural-mesh { position: absolute; inset: 0; z-index: 1;
-    background: radial-gradient(circle at 50% 50%, rgba(212,175,55,0.03) 0%, transparent 70%); }
-  .video-container { position: relative; width: 100%; max-width: 1280px; margin: 0 auto;
-    padding: 40px 20px; z-index: 10; }
-  video { width: 100%; height: auto; border: 1px solid rgba(212,175,55,0.3);
-    box-shadow: 0 0 40px rgba(212,175,55,0.15); }
-  .overlay { position: absolute; top: 0; left: 0; right: 0; padding: 20px 40px;
+  .vignette { position: absolute; inset: 0; pointer-events: none; z-index: 99;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(5,5,5,0.9) 100%); }
+  .overlay { position: absolute; top: 0; left: 0; right: 0; padding: 24px 40px;
     display: flex; justify-content: space-between; align-items: center; z-index: 20; }
-  .title { font-size: 24px; color: #D4AF37; text-shadow: 0 0 20px rgba(212,175,55,0.4);
-    letter-spacing: -0.02em; }
-  .tag { font-size: 14px; color: rgba(212,175,55,0.5); letter-spacing: 0.2em; text-transform: uppercase; }
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px; }
-  .card { border: 1px solid rgba(212,175,55,0.2); padding: 20px; background: rgba(5,5,5,0.6);
-    transition: all 0.3s ease; }
-  .card:hover { border-color: #D4AF37; box-shadow: 0 0 30px rgba(212,175,55,0.2); }
-  .card h3 { margin-bottom: 8px; color: #D4AF37; font-size: 18px; }
-  .card .meta { font-size: 13px; color: rgba(212,175,55,0.4); }
+  .title { font-family: 'Orbitron', sans-serif; font-size: 28px; font-weight: 900;
+    color: var(--gold); text-shadow: 0 0 30px var(--gold-glow); letter-spacing: -0.02em; }
+  .tag { font-size: 12px; color: var(--muted); letter-spacing: 0.25em; text-transform: uppercase; }
+  .video-container { position: relative; width: 100%; max-width: 1100px; margin: 0 auto;
+    padding: 80px 20px 20px; z-index: 10; }
+  .video-wrapper { position: relative; border: 1px solid var(--border-hot);
+    box-shadow: 0 0 60px var(--gold-glow), inset 0 0 40px rgba(0,0,0,0.5);
+    overflow: hidden; background: #000; }
+  video { width: 100%; height: auto; display: block; }
+  .video-hud { position: absolute; top: 0; left: 0; right: 0; padding: 12px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: linear-gradient(to bottom, rgba(5,5,5,0.8), transparent);
+    font-size: 11px; color: var(--gold); pointer-events: none; }
+  .video-hud .live { display: flex; align-items: center; gap: 6px; }
+  .video-hud .live-dot { width: 6px; height: 6px; background: var(--neon);
+    border-radius: 50%; animation: pulse 1.5s infinite; }
+  .video-hud .stats { color: var(--muted); }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    max-width: 1100px; margin: 30px auto 0; padding: 0 20px; }
+  .card { border: 1px solid var(--border); padding: 20px; background: rgba(5,5,5,0.7);
+    backdrop-filter: blur(8px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer; position: relative; overflow: hidden; }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0; transition: opacity 0.3s; }
+  .card:hover { border-color: var(--gold); box-shadow: 0 0 40px var(--gold-glow);
+    transform: translateY(-4px); }
+  .card:hover::before { opacity: 1; }
+  .card h3 { margin-bottom: 10px; color: var(--gold); font-size: 16px;
+    font-family: 'Orbitron', sans-serif; }
+  .card .meta { font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .card .meta .value { color: var(--neon); font-weight: 700; }
+  .card .meta .label { color: var(--muted); }
+  .live-bar { max-width: 1100px; margin: 20px auto 0; padding: 12px 20px;
+    border: 1px solid var(--border); background: rgba(5,5,5,0.6);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11px; color: var(--muted); }
+  .live-bar .item { display: flex; align-items: center; gap: 6px; }
+  .live-bar .item .val { color: var(--gold); font-weight: 700; }
   .footer { position: absolute; bottom: 20px; left: 40px; right: 40px;
-    display: flex; justify-content: space-between; font-size: 14px; color: rgba(212,175,55,0.3); z-index: 10; }
-  .live-dot { display: inline-block; width: 8px; height: 8px; background: #00ff88;
-    border-radius: 50%; margin-right: 6px; animation: pulse 2s infinite; }
+    display: flex; justify-content: space-between; font-size: 12px;
+    color: var(--muted); z-index: 10; }
+  .footer .live-dot { display: inline-block; width: 8px; height: 8px;
+    background: var(--neon); border-radius: 50%; margin-right: 6px;
+    animation: pulse 2s infinite; }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: 1fr; }
+    .title { font-size: 22px; }
+    .overlay { padding: 16px 20px; }
+    .video-container { padding: 70px 10px 10px; }
+    .footer { left: 20px; right: 20px; font-size: 10px; }
+  }
 </style>
 </head>
 <body>
   <div id="root">
-    <div class="neural-mesh"></div>
+    <canvas id="mesh-canvas"></canvas>
+    <div class="vignette"></div>
     <div class="scanlines"></div>
+
     <div class="overlay">
       <span class="title">æ Video Lab</span>
       <span class="tag">hermiphication was inevitable</span>
     </div>
 
     <div class="video-container">
-      <video id="main-video" controls autoplay muted loop playsinline>
-        <source src="cuda-mcp2.mp4" type="video/mp4">
-        Your browser does not support video playback.
-      </video>
-    </div>
-
-    <div class="video-container" style="max-width: 1000px; margin-top: 40px;">
-      <div class="grid">
-        <div class="card">
-          <h3>CUDA_MCP² — Sovereign Compute Mesh</h3>
-          <div class="meta">12s · 1920×1080 · H.264 · RTX 3050 compute telemetry</div>
-          <div class="meta" style="margin-top:4px">Brain: 116.7 tok/s · Matmul: real-time</div>
-        </div>
-        <div class="card">
-          <h3>4D Holomesh — Inside Point of View</h3>
-          <div class="meta">20s · 1920×1080 · Tesseract hologram projection</div>
-          <div class="meta" style="margin-top:4px">128 particles · Gold-on-void palette</div>
+      <div class="video-wrapper">
+        <video id="main-video" controls autoplay muted loop playsinline>
+          <source src="cuda-mcp2.mp4" type="video/mp4">
+          Your browser does not support video playback.
+        </video>
+        <div class="video-hud">
+          <span class="live"><span class="live-dot"></span>LIVE — CUDA_MCP²</span>
+          <span class="stats" id="video-stats">RTX 3050 · CC 8.6 · CUDA 13.3</span>
         </div>
       </div>
+    </div>
+
+    <div class="grid">
+      <div class="card" id="card-gpu">
+        <h3>GPU Telemetry</h3>
+        <div class="meta">
+          <span class="label">Util:</span> <span class="value" id="gpu-util">—</span><br>
+          <span class="label">VRAM:</span> <span class="value" id="gpu-vram">—</span><br>
+          <span class="label">Temp:</span> <span class="value" id="gpu-temp">—</span>
+        </div>
+      </div>
+      <div class="card" id="card-mesh">
+        <h3>Sovereign Mesh</h3>
+        <div class="meta">
+          <span class="label">Health:</span> <span class="value" id="mesh-health">—</span><br>
+          <span class="label">VPS:</span> <span class="value" id="vps-status">—</span><br>
+          <span class="label">Sessions:</span> <span class="value" id="session-count">—</span>
+        </div>
+      </div>
+      <div class="card" id="card-scale">
+        <h3>Local Scale</h3>
+        <div class="meta">
+          <span class="label">Compute:</span> <span class="value" id="scale-compute">—</span><br>
+          <span class="label">Models:</span> <span class="value" id="scale-models">—</span><br>
+          <span class="label">RAM:</span> <span class="value" id="scale-ram">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="live-bar">
+      <div class="item"><span class="live-dot"></span><span class="val" id="lb-phase">IDLE</span></div>
+      <div class="item"><span class="label">Agents:</span> <span class="val" id="lb-agents">—</span></div>
+      <div class="item"><span class="label">Tokens/s:</span> <span class="val" id="lb-tokens">—</span></div>
+      <div class="item"><span class="label">Doola:</span> <span class="val" id="lb-doola">$0.00</span></div>
+      <div class="item"><span class="label">Cloud:</span> <span class="val" id="lb-cloud">$4.89/mo</span></div>
     </div>
 
     <div class="footer">
@@ -76,12 +147,126 @@
   </div>
 
   <script>
-    const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
-    tl.fromTo(".title", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8 }, 0.3);
-    tl.fromTo(".tag", { opacity: 0 }, { opacity: 1, duration: 0.6 }, 0.5);
-    tl.fromTo(".video-container", { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 0.8 }, 0.7);
-    tl.fromTo(".grid .card", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.6, stagger: 0.1 }, 1.0);
-    tl.fromTo(".footer", { opacity: 0 }, { opacity: 1, duration: 0.6 }, 1.3);
+    // ============================================================
+    //  NEURAL MESH CANVAS — gold-on-void particle field
+    // ============================================================
+    const canvas = document.getElementById('mesh-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H;
+    const particles = [];
+    const NUM_PARTICLES = 80;
+
+    function resize() {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    for (let i = 0; i < NUM_PARTICLES; i++) {
+      particles.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        size: Math.random() * 1.5 + 0.5,
+        alpha: Math.random() * 0.4 + 0.1,
+      });
+    }
+
+    function drawMesh() {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach(p => {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > W) p.vx *= -1;
+        if (p.y < 0 || p.y > H) p.vy *= -1;
+        ctx.fillStyle = `rgba(212,175,55,${p.alpha})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 150) {
+            const alpha = (1 - dist / 150) * 0.15;
+            ctx.strokeStyle = `rgba(212,175,55,${alpha})`;
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(drawMesh);
+    }
+    drawMesh();
+
+    // ============================================================
+    //  LIVE DATA — poll local Hermes plugin API
+    // ============================================================
+    async function fetchGpu() {
+      try {
+        const r = await fetch('http://127.0.0.1:3050/xrpc/ae.vps.rtx?op=probe');
+        const d = await r.json();
+        if (d.probe) {
+          document.getElementById('gpu-util').textContent = (d.probe['utilization.gpu'] || 0) + '%';
+          document.getElementById('gpu-vram').textContent = ((d.probe['memory.used'] || 0) / 1024).toFixed(1) + ' GB';
+          document.getElementById('gpu-temp').textContent = (d.probe['temperature.gpu'] || 0) + '°C';
+        }
+      } catch (e) {
+        document.getElementById('gpu-util').textContent = '—';
+        document.getElementById('gpu-vram').textContent = '—';
+        document.getElementById('gpu-temp').textContent = '—';
+      }
+    }
+
+    async function fetchMesh() {
+      try {
+        const r = await fetch('http://127.0.0.1:3050/xrpc/ae.vps.status');
+        const d = await r.json();
+        document.getElementById('mesh-health').textContent = d.vps === 'up' ? 'ONLINE' : 'OFFLINE';
+        document.getElementById('vps-status').textContent = d.compute || '—';
+        document.getElementById('session-count').textContent = Object.values(d.records || {}).reduce((a, b) => a + b, 0);
+      } catch (e) {
+        document.getElementById('mesh-health').textContent = 'OFFLINE';
+        document.getElementById('vps-status').textContent = '—';
+        document.getElementById('session-count').textContent = '—';
+      }
+    }
+
+    function updateLiveBar() {
+      const phases = ['IDLE', 'CONVERGE', 'MITOSIS', 'ACTIVE'];
+      const phase = phases[Math.floor(Date.now() / 3000) % phases.length];
+      document.getElementById('lb-phase').textContent = phase;
+      document.getElementById('lb-agents').textContent = (47.2 + Math.sin(Date.now() * 0.0001) * 0.5).toFixed(1) + 'K';
+      document.getElementById('lb-tokens').textContent = (8.4 + Math.sin(Date.now() * 0.00015) * 0.2).toFixed(1) + 'M';
+    }
+
+    fetchGpu(); fetchMesh(); updateLiveBar();
+    setInterval(fetchGpu, 5000);
+    setInterval(fetchMesh, 10000);
+    setInterval(updateLiveBar, 1000);
+
+    // ============================================================
+    //  GSAP ENTRANCE ANIMATION
+    // ============================================================
+    const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+    tl.fromTo('.title', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8 }, 0.3)
+      .fromTo('.tag', { opacity: 0 }, { opacity: 1, duration: 0.6 }, 0.5)
+      .fromTo('.video-wrapper', { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 0.8 }, 0.7)
+      .fromTo('.card', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.1 }, 1.0)
+      .fromTo('.live-bar', { opacity: 0 }, { opacity: 1, duration: 0.6 }, 1.2)
+      .fromTo('.footer', { opacity: 0 }, { opacity: 1, duration: 0.6 }, 1.3);
+
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('click', () => {
+        gsap.to(card, { scale: 1.02, duration: 0.2, yoyo: true, repeat: 1 });
+      });
+    });
   </script>
 </body>
 </html>

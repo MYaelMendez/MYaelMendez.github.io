@@ -96,6 +96,7 @@
       <b>Sovereign Tape</b>
       <span id="roNodes">-- tickers</span>
       <span id="roFps">-- fps</span>
+      <span id="roUpdate">fetching…</span>
       <span id="roSel">none</span>
     </div>
   </div>
@@ -116,6 +117,7 @@
       <button class="btn act" id="bOrbit">AUTO-ORBIT</button>
       <button class="btn" id="bNext">NEXT TICKER</button>
       <button class="btn" id="bReset">RESET VIEW</button>
+      <button class="btn" id="bRefresh">↻ REFRESH</button>
       <button class="btn" id="bHome">æ:// HOME</button>
       <button class="btn" id="bWebMcp">WEBMCP://</button>
     </div>
@@ -143,28 +145,124 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
    WebMCP for native tool discovery (if available).
    ══════════════════════════════════════════════════════════ */
 
-const MARKETS = [
-  { symbol:"^GSPC", name:"S&P 500",        price:7722.72,  change:+0.73,  sector:"EQUITIES",  color:0xD4AF37 },
-  { symbol:"^IXIC", name:"Nasdaq",         price:27190.86, change:+1.19,  sector:"EQUITIES",  color:0xD4AF37 },
-  { symbol:"^DJI",  name:"Dow Jones",      price:51176.96, change:+0.49,  sector:"EQUITIES",  color:0xD4AF37 },
-  { symbol:"AAPL",  name:"Apple",          price:333.69,   change:+1.02,  sector:"EQUITIES",  color:0x00eaff },
-  { symbol:"NVDA",  name:"NVIDIA",         price:233.95,   change:+1.34,  sector:"EQUITIES",  color:0xff4d8f },
-  { symbol:"MSFT",  name:"Microsoft",      price:517.53,   change:+0.92,  sector:"EQUITIES",  color:0x00eaff },
-  { symbol:"BTC-USD",name:"Bitcoin",      price:84751.91, change:+0.29,  sector:"DIGITAL",  color:0xff9a4d },
-  { symbol:"^VIX",  name:"VIX",            price:15.31,    change:-6.59,  sector:"VOLATILITY",color:0x8c72ff },
-  { symbol:"^TNX",  name:"US 10Y",         price:5.277,    change:+0.76,  sector:"BONDS",    color:0x00ff9d },
-  { symbol:"^FVY",  name:"US 5Y",          price:5.055,    change:+1.00,  sector:"BONDS",    color:0x00ff9d },
-  { symbol:"^TYX",  name:"US 30Y",         price:5.630,    change:+0.48,  sector:"BONDS",    color:0x00ff9d },
-  { symbol:"^IRX",  name:"US 13W",         price:3.993,    change:+0.28,  sector:"BONDS",    color:0x00ff9d },
-  { symbol:"GC=",   name:"Gold",           price:4162.30,  change:-0.95,  sector:"COMMODITIES",color:0xD4AF37 },
-  { symbol:"SI=",   name:"Silver",         price:60.41,    change:-1.24,  sector:"COMMODITIES",color:0xD4AF37 },
-  { symbol:"CL=",   name:"Crude WTI",      price:91.11,    change:-1.90,  sector:"COMMODITIES",color:0xff4d8f },
-  { symbol:"BZ=",   name:"Brent",          price:102.25,   change:-0.06,  sector:"COMMODITIES",color:0xff4d8f },
-  { symbol:"NG=",   name:"Nat Gas",        price:3.04,     change:+2.29,  sector:"COMMODITIES",color:0x00eaff },
-  { symbol:"HG=",   name:"Copper",         price:6.55,     change:+0.17,  sector:"COMMODITIES",color:0x00ff9d },
-  { symbol:"ZC=",   name:"Corn",           price:497.75,   change:-0.90,  sector:"COMMODITIES",color:0xff9a4d },
-  { symbol:"ZW=",   name:"Wheat",          price:683.00,   change:+0.04,  sector:"COMMODITIES",color:0xff9a4d }
+const MARKET_DEFS = [
+  { symbol:"^GSPC", name:"S&P 500",        sector:"EQUITIES",  color:0xD4AF37 },
+  { symbol:"^IXIC", name:"Nasdaq",         sector:"EQUITIES",  color:0xD4AF37 },
+  { symbol:"^DJI",  name:"Dow Jones",      sector:"EQUITIES",  color:0xD4AF37 },
+  { symbol:"AAPL",  name:"Apple",          sector:"EQUITIES",  color:0x00eaff },
+  { symbol:"NVDA",  name:"NVIDIA",         sector:"EQUITIES",  color:0xff4d8f },
+  { symbol:"MSFT",  name:"Microsoft",      sector:"EQUITIES",  color:0x00eaff },
+  { symbol:"BTC-USD",name:"Bitcoin",      sector:"DIGITAL",  color:0xff9a4d },
+  { symbol:"^VIX",  name:"VIX",            sector:"VOLATILITY",color:0x8c72ff },
+  { symbol:"^TNX",  name:"US 10Y",         sector:"BONDS",    color:0x00ff9d },
+  { symbol:"^FVY",  name:"US 5Y",          sector:"BONDS",    color:0x00ff9d },
+  { symbol:"^TYX",  name:"US 30Y",         sector:"BONDS",    color:0x00ff9d },
+  { symbol:"^IRX",  name:"US 13W",         sector:"BONDS",    color:0x00ff9d },
+  { symbol:"GC=",   name:"Gold",           sector:"COMMODITIES",color:0xD4AF37 },
+  { symbol:"SI=",   name:"Silver",         sector:"COMMODITIES",color:0xD4AF37 },
+  { symbol:"CL=",   name:"Crude WTI",      sector:"COMMODITIES",color:0xff4d8f },
+  { symbol:"BZ=",   name:"Brent",          sector:"COMMODITIES",color:0xff4d8f },
+  { symbol:"NG=",   name:"Nat Gas",        sector:"COMMODITIES",color:0x00eaff },
+  { symbol:"HG=",   name:"Copper",         sector:"COMMODITIES",color:0x00ff9d },
+  { symbol:"ZC=",   name:"Corn",           sector:"COMMODITIES",color:0xff9a4d },
+  { symbol:"ZW=",   name:"Wheat",          sector:"COMMODITIES",color:0xff9a4d }
 ];
+
+// Fallback prices (used when fetch fails — keeps the tape alive)
+const FALLBACK_PRICES = {
+  "^GSPC": 7722.72, "^IXIC": 27190.86, "^DJI": 51176.96,
+  "AAPL": 333.69, "NVDA": 233.95, "MSFT": 517.53,
+  "BTC-USD": 84751.91, "^VIX": 15.31,
+  "^TNX": 5.277, "^FVY": 5.055, "^TYX": 5.630, "^IRX": 3.993,
+  "GC=": 4162.30, "SI=": 60.41, "CL=": 91.11, "BZ=": 102.25,
+  "NG=": 3.04, "HG=": 6.55, "ZC=": 497.75, "ZW=": 683.00
+};
+const FALLBACK_CHANGES = {
+  "^GSPC": +0.73, "^IXIC": +1.19, "^DJI": +0.49,
+  "AAPL": +1.02, "NVDA": +1.34, "MSFT": +0.92,
+  "BTC-USD": +0.29, "^VIX": -6.59,
+  "^TNX": +0.76, "^FVY": +1.00, "^TYX": +0.48, "^IRX": +0.28,
+  "GC=": -0.95, "SI=": -1.24, "CL=": -1.90, "BZ=": -0.06,
+  "NG=": +2.29, "HG=": +0.17, "ZC=": -0.90, "ZW=": +0.04
+};
+
+// Live data cache — populated by fetchMarkets()
+let MARKETS = MARKET_DEFS.map(d => ({
+  ...d,
+  price: FALLBACK_PRICES[d.symbol] || 0,
+  change: FALLBACK_CHANGES[d.symbol] || 0,
+  prevClose: 0,
+  lastUpdate: null,
+  stale: true
+}));
+let lastFetchTime = null;
+let fetchError = null;
+let autoRefreshInterval = null;
+const REFRESH_INTERVAL_MS = 60000; // 60s
+
+async function fetchMarkets() {
+  const symbols = MARKET_DEFS.map(d => d.symbol);
+  const CORS_PROXY = "https://api.allorigins.win/raw?url=";
+  const results = await Promise.allSettled(
+    symbols.map(async (sym) => {
+      const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=1d`;
+      const url = CORS_PROXY + encodeURIComponent(yahooUrl);
+      const resp = await fetch(url, { signal: AbortSignal.timeout(15000) });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${sym}`);
+      const data = await resp.json();
+      const result = data?.chart?.result?.[0];
+      if (!result) throw new Error(`No data for ${sym}`);
+      const meta = result.meta;
+      const price = meta.regularMarketPrice;
+      const prevClose = meta.chartPreviousClose || meta.previousClose;
+      const change = prevClose ? ((price - prevClose) / prevClose) * 100 : 0;
+      return { symbol: sym, price, prevClose, change, lastUpdate: Date.now() };
+    })
+  );
+
+  let successCount = 0;
+  results.forEach((r, i) => {
+    if (r.status === 'fulfilled') {
+      const d = r.value;
+      MARKETS[i] = { ...MARKETS[i], ...d, stale: false };
+      successCount++;
+    } else {
+      console.warn(`fetch ${symbols[i]} failed:`, r.reason?.message || r.reason);
+      // Keep old data but mark stale
+      MARKETS[i].stale = true;
+    }
+  });
+
+  lastFetchTime = Date.now();
+  fetchError = successCount === 0 ? 'All fetches failed' : null;
+  updateRefreshUI();
+  return successCount;
+}
+
+function updateRefreshUI() {
+  const el = document.getElementById('roUpdate');
+  if (!el) return;
+  if (fetchError) {
+    el.innerHTML = `<span style="color:var(--red)">ERROR: ${fetchError}</span>`;
+  } else if (lastFetchTime) {
+    const secs = Math.round((Date.now() - lastFetchTime) / 1000);
+    el.textContent = `${secs}s ago · ${MARKETS.filter(m => !m.stale).length}/${MARKETS.length} live`;
+  }
+}
+
+function startAutoRefresh() {
+  if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+  autoRefreshInterval = setInterval(async () => {
+    await fetchMarkets();
+  }, REFRESH_INTERVAL_MS);
+}
+
+function stopAutoRefresh() {
+  if (autoRefreshInterval) {
+    clearInterval(autoRefreshInterval);
+    autoRefreshInterval = null;
+  }
+}
 
 const SECTOR_COLORS = {
   EQUITIES: 0xD4AF37, DIGITAL: 0xff9a4d, VOLATILITY: 0x8c72ff,
@@ -238,9 +336,13 @@ async function init() {
   /* interaction */
   setupInteraction();
 
+  // Fetch live market data before building the scene
+  await fetchMarkets();
   buildLegend();
   renderer.setAnimationLoop(animate);
   setTimeout(() => { document.getElementById("boot").classList.add("done"); }, 1500);
+  // Start auto-refresh
+  startAutoRefresh();
 }
 
 function mulberry32(a) {
@@ -445,6 +547,11 @@ function setupInteraction() {
     camera.position.set(0, 16, 36); controls.target.set(0, 0, 0);
   };
   document.getElementById("bHome").onclick = () => location.href = "/";
+  document.getElementById("bRefresh").onclick = async (e) => {
+    e.currentTarget.classList.add("act");
+    await fetchMarkets();
+    setTimeout(() => e.currentTarget.classList.remove("act"), 1000);
+  };
   document.getElementById("bWebMcp").onclick = () => {
     if (mcpShape === "provideContext") window.alert("WebMCP native: provideContext");
     else if (mcpShape === "registerTool") window.alert("WebMCP native: registerTool");

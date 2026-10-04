@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#050505">
+<title>æ:/indices — The Fear Pulse</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<style>
+  :root {
+    --void: #050505; --gold: #D4AF37; --gold2: #f0d487;
+    --neon: #00ff9d; --cyan: #00eaff; --violet: #8c72ff;
+    --orange: #ff9a4d; --red: #ff4d5f; --ink: #e8e6df;
+    --muted: #6f6a5c; --line: rgba(212,175,55,.22);
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+    --display: "Orbitron", sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden;
+    background: var(--void); color: var(--ink); font-family: var(--mono); }
+
+  #stage { position: fixed; inset: 0; z-index: 0; }
+  .scan { position: fixed; inset: 0; z-index: 4; pointer-events: none; opacity: .18;
+    background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,0,0,.5) 2px 4px); }
+  .vig { position: fixed; inset: 0; z-index: 3; pointer-events: none;
+    background: radial-gradient(circle at 50% 45%, transparent 34%, rgba(5,5,5,.55) 72%, rgba(5,5,5,.96) 100%); }
+
+  #hud { position: fixed; inset: 0; z-index: 10; pointer-events: none;
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: max(12px, env(safe-area-inset-top)) 14px calc(14px + env(safe-area-inset-bottom)); }
+  .row { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+
+  /* ── VIX PULSE — the fear gauge ── */
+  .vix-pulse { pointer-events: auto; width: min(100%, 340px);
+    border: 1px solid var(--line); border-top: 2px solid var(--violet);
+    background: rgba(8,8,7,.85); padding: 16px; position: relative; overflow: hidden; }
+  .vix-pulse::before { content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(140,114,255,.08) 0%, transparent 60%); }
+  .vix-pulse .label { font-size: 8px; letter-spacing: .2em; color: var(--muted);
+    text-transform: uppercase; margin-bottom: 8px; }
+  .vix-pulse .value { font-family: var(--display); font-size: 36px; font-weight: 900;
+    color: var(--violet); text-shadow: 0 0 20px rgba(140,114,255,.4); }
+  .vix-pulse .change { font-size: 11px; margin-top: 4px; }
+  .vix-pulse .change.down { color: var(--neon); }
+  .vix-pulse .change.up { color: var(--red); }
+  .vix-pulse .bar { height: 3px; background: rgba(140,114,255,.15); margin-top: 10px;
+    border-radius: 2px; overflow: hidden; }
+  .vix-pulse .bar i { display: block; height: 100%; background: var(--violet);
+    border-radius: 2px; transition: width .8s ease; box-shadow: 0 0 8px var(--violet); }
+  .vix-pulse .narrative { font-size: 9px; color: var(--muted); margin-top: 10px;
+    line-height: 1.5; font-style: italic; }
+
+  /* ── INDEX CARDS ── */
+  .indices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+    pointer-events: auto; width: min(100%, 560px); }
+  .idx-card { border: 1px solid var(--line); background: rgba(8,8,7,.82);
+    padding: 14px; cursor: pointer; transition: all .3s ease; position: relative; overflow: hidden; }
+  .idx-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0; transition: opacity .3s; }
+  .idx-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+  .idx-card:hover::after { opacity: 1; }
+  .idx-card .sym { font-size: 8px; letter-spacing: .15em; color: var(--muted); }
+  .idx-card .name { font-family: var(--display); font-size: 13px; font-weight: 700;
+    color: var(--gold); margin: 4px 0; }
+  .idx-card .price { font-size: 20px; font-weight: 700; color: var(--ink); }
+  .idx-card .chg { font-size: 10px; margin-top: 2px; }
+  .idx-card .chg.up { color: var(--neon); }
+  .idx-card .chg.down { color: var(--red); }
+
+  /* ── TAPE ── */
+  .tape { pointer-events: auto; width: min(100%, 560px);
+    border: 1px solid var(--line); background: rgba(8,8,7,.78);
+    padding: 10px 12px; font-size: 9px; }
+  .tape .tape-row { display: flex; justify-content: space-between; padding: 3px 0;
+    border-bottom: 1px solid rgba(212,175,55,.06); }
+  .tape .tape-row:last-child { border-bottom: none; }
+  .tape .tape-row .sym { color: var(--gold); width: 60px; }
+  .tape .tape-row .price { color: var(--ink); flex: 1; text-align: right; }
+  .tape .tape-row .chg { width: 70px; text-align: right; }
+  .tape .tape-row .chg.up { color: var(--neon); }
+  .tape .tape-row .chg.down { color: var(--red); }
+
+  /* ── CONTROLS ── */
+  .ctrls { display: flex; gap: 8px; flex-wrap: wrap; pointer-events: auto; }
+  .btn { border: 1px solid var(--line); background: rgba(8,8,7,.8); color: var(--gold);
+    font: 700 9px var(--mono); letter-spacing: .14em; padding: 9px 13px; cursor: pointer; }
+  .btn:hover { background: rgba(212,175,55,.1); }
+  .btn:active { background: var(--gold); color: #050505; }
+  .btn.act { border-color: var(--neon); color: var(--neon); }
+
+  /* ── READOUT ── */
+  .readout { text-align: right; font-size: 8px; letter-spacing: .14em; color: var(--muted);
+    border: 1px solid var(--line); background: rgba(8,8,7,.78); padding: 8px 10px;
+    pointer-events: auto; min-width: 126px; }
+  .readout b { display: block; color: var(--gold); font-weight: 700; font-size: 9px; letter-spacing: .1em; }
+  .readout span { display: block; margin-top: 4px; }
+
+  /* ── BOOT ── */
+  #boot { position: fixed; inset: 0; z-index: 900; background: var(--void);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 13px;
+    transition: opacity .8s, visibility .8s; }
+  #boot.done { opacity: 0; visibility: hidden; }
+  #boot .bg { font-size: 52px; color: var(--gold); text-shadow: 0 0 40px rgba(212,175,55,.5); }
+  #boot .bl { font-size: 10px; letter-spacing: .26em; color: var(--muted); }
+  #boot .bline { width: 170px; height: 1px; background: rgba(212,175,55,.15);
+    position: relative; overflow: hidden; }
+  #boot .bline i { position: absolute; inset: 0; background: var(--gold);
+    transform-origin: left; animation: load 1.8s ease forwards; }
+  @keyframes load { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  @media (max-width: 640px) {
+    .indices { grid-template-columns: 1fr; }
+    .readout { display: none; }
+    .vix-pulse .value { font-size: 28px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+</head>
+<body>
+
+<div id="stage"></div>
+<div class="vig"></div>
+<div class="scan"></div>
+
+<div id="boot">
+  <div class="bg">æ</div>
+  <div class="bl">INITIALIZING THE FEAR PULSE</div>
+  <div class="bline"><i></i></div>
+</div>
+
+<div id="hud">
+  <div class="row">
+    <div class="vix-pulse">
+      <div class="label">VIX · Volatility Index</div>
+      <div class="value" id="vix-value">—</div>
+      <div class="change" id="vix-change">—</div>
+      <div class="bar"><i id="vix-bar" style="width:0%"></i></div>
+      <div class="narrative" id="vix-narrative">The market's fear gauge. When VIX rises, panic spreads. When it falls, calm returns.</div>
+    </div>
+    <div class="readout">
+      <b>æ:/indices</b>
+      <span id="roNodes">— tickers</span>
+      <span id="roUpdate">fetching…</span>
+      <span id="roFps">— fps</span>
+    </div>
+  </div>
+
+  <div class="row" style="align-items:flex-end">
+    <div>
+      <div class="indices">
+        <div class="idx-card" data-sym="^GSPC">
+          <div class="sym">SNP</div>
+          <div class="name">S&P 500</div>
+          <div class="price" id="p-GSPC">—</div>
+          <div class="chg up" id="c-GSPC">—</div>
+        </div>
+        <div class="idx-card" data-sym="^IXIC">
+          <div class="sym">Nasdaq GIDS</div>
+          <div class="name">Nasdaq</div>
+          <div class="price" id="p-IXIC">—</div>
+          <div class="chg up" id="c-IXIC">—</div>
+        </div>
+        <div class="idx-card" data-sym="^DJI">
+          <div class="sym">DJI</div>
+          <div class="name">Dow Jones</div>
+          <div class="price" id="p-DJI">—</div>
+          <div class="chg up" id="c-DJI">—</div>
+        </div>
+      </div>
+      <div class="tape" id="tape" style="margin-top:14px"></div>
+    </div>
+    <div class="ctrls">
+      <button class="btn act" id="bPulse">PULSE</button>
+      <button class="btn" id="bRefresh">↻ REFRESH</button>
+      <button class="btn" id="bHome">æ:// HOME</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  æ:/indices — The Fear Pulse
+//  VIX as the narrative thread. Indices as the body.
+// ══════════════════════════════════════════════════════════
+
+const INDEX_DEFS = [
+  { symbol: "^GSPC", name: "S&P 500", sector: "EQUITIES" },
+  { symbol: "^IXIC", name: "Nasdaq", sector: "EQUITIES" },
+  { symbol: "^DJI", name: "Dow Jones", sector: "EQUITIES" },
+  { symbol: "AAPL", name: "Apple", sector: "EQUITIES" },
+  { symbol: "NVDA", name: "NVIDIA", sector: "EQUITIES" },
+  { symbol: "MSFT", name: "Microsoft", sector: "EQUITIES" },
+  { symbol: "BTC-USD", name: "Bitcoin", sector: "DIGITAL" },
+  { symbol: "^VIX", name: "VIX", sector: "VOLATILITY" },
+  { symbol: "^TNX", name: "US 10Y", sector: "BONDS" },
+  { symbol: "^FVY", name: "US 5Y", sector: "BONDS" },
+  { symbol: "^TYX", name: "US 30Y", sector: "BONDS" },
+  { symbol: "^IRX", name: "US 13W", sector: "BONDS" },
+  { symbol: "GC=", name: "Gold", sector: "COMMODITIES" },
+  { symbol: "SI=", name: "Silver", sector: "COMMODITIES" },
+  { symbol: "CL=", name: "Crude WTI", sector: "COMMODITIES" },
+  { symbol: "BZ=", name: "Brent", sector: "COMMODITIES" },
+  { symbol: "NG=", name: "Nat Gas", sector: "COMMODITIES" },
+  { symbol: "HG=", name: "Copper", sector: "COMMODITIES" },
+  { symbol: "ZC=", name: "Corn", sector: "COMMODITIES" },
+  { symbol: "ZW=", name: "Wheat", sector: "COMMODITIES" }
+];
+
+const FALLBACK = {
+  "^GSPC": { price: 7722.72, change: +0.73 },
+  "^IXIC": { price: 27190.86, change: +1.19 },
+  "^DJI": { price: 51176.96, change: +0.49 },
+  "AAPL": { price: 333.69, change: +1.02 },
+  "NVDA": { price: 233.95, change: +1.34 },
+  "MSFT": { price: 517.53, change: +0.92 },
+  "BTC-USD": { price: 84751.91, change: +0.29 },
+  "^VIX": { price: 15.31, change: -6.59 },
+  "^TNX": { price: 5.277, change: +0.76 },
+  "^FVY": { price: 5.055, change: +1.00 },
+  "^TYX": { price: 5.630, change: +0.48 },
+  "^IRX": { price: 3.993, change: +0.28 },
+  "GC=": { price: 4162.30, change: -0.95 },
+  "SI=": { price: 60.41, change: -1.24 },
+  "CL=": { price: 91.11, change: -1.90 },
+  "BZ=": { price: 102.25, change: -0.06 },
+  "NG=": { price: 3.04, change: +2.29 },
+  "HG=": { price: 6.55, change: +0.17 },
+  "ZC=": { price: 497.75, change: -0.90 },
+  "ZW=": { price: 683.00, change: +0.04 }
+};
+
+let MARKETS = INDEX_DEFS.map(d => ({
+  ...d,
+  price: FALLBACK[d.symbol]?.price || 0,
+  change: FALLBACK[d.symbol]?.change || 0,
+  stale: true
+}));
+
+let lastFetchTime = null;
+let fetchError = null;
+let pulseMode = true;
+let pulseInterval = null;
+
+// ── VIX NARRATIVE — the fear story ──
+function vixNarrative(vix, change) {
+  if (vix < 15) return "Calm. The market sleeps. Fear is dormant.";
+  if (vix < 20) return "Unease. Traders watch the shadows. Volatility stirs.";
+  if (vix < 25) return "Anxiety. The pulse quickens. Protection is priced in.";
+  if (vix < 30) return "Fear. The market trembles. Risk is being shed.";
+  if (vix < 40) return "Panic. The crowd runs. Volatility feeds on itself.";
+  return "Terror. The abyss stares back. Maximum fear.";
+}
+
+function updateVixPulse() {
+  const vix = MARKETS.find(m => m.symbol === "^VIX");
+  if (!vix) return;
+
+  const val = vix.price;
+  const chg = vix.change;
+  const pct = Math.min(100, (val / 50) * 100); // VIX 50 = max fear
+
+  document.getElementById("vix-value").textContent = val.toFixed(2);
+  const chgEl = document.getElementById("vix-change");
+  chgEl.textContent = (chg >= 0 ? "▲ +" : "▼ ") + chg.toFixed(2) + "%";
+  chgEl.className = "change " + (chg >= 0 ? "up" : "down");
+  document.getElementById("vix-bar").style.width = pct + "%";
+  document.getElementById("vix-narrative").textContent = vixNarrative(val, chg);
+
+  // Pulse animation on the VIX card
+  if (pulseMode && chg < 0) {
+    // VIX falling = calm spreading = green pulse
+    gsap.fromTo(".vix-pulse",
+      { boxShadow: "0 0 0px rgba(0,255,157,0)" },
+      { boxShadow: "0 0 30px rgba(0,255,157,.3)", duration: 0.6, yoyo: true, repeat: 1 }
+    );
+  } else if (pulseMode && chg > 0) {
+    // VIX rising = fear spreading = red pulse
+    gsap.fromTo(".vix-pulse",
+      { boxShadow: "0 0 0px rgba(255,77,95,0)" },
+      { boxShadow: "0 0 30px rgba(255,77,95,.3)", duration: 0.6, yoyo: true, repeat: 1 }
+    );
+  }
+}
+
+// ── FETCH — live data ──
+async function fetchMarkets() {
+  const CORS_PROXY = "https://api.allorigins.win/raw?url=";
+  const results = await Promise.allSettled(
+    INDEX_DEFS.map(async (d) => {
+      const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(d.symbol)}?interval=1d&range=1d`;
+      const resp = await fetch(CORS_PROXY + encodeURIComponent(yahooUrl), { signal: AbortSignal.timeout(15000) });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      const result = data?.chart?.result?.[0];
+      if (!result) throw new Error("No data");
+      const meta = result.meta;
+      const price = meta.regularMarketPrice;
+      const prevClose = meta.chartPreviousClose || meta.previousClose;
+      const change = prevClose ? ((price - prevClose) / prevClose) * 100 : 0;
+      return { symbol: d.symbol, price, change, lastUpdate: Date.now() };
+    })
+  );
+
+  let successCount = 0;
+  results.forEach((r, i) => {
+    if (r.status === "fulfilled") {
+      MARKETS[i] = { ...MARKETS[i], ...r.value, stale: false };
+      successCount++;
+    } else {
+      MARKETS[i].stale = true;
+    }
+  });
+
+  lastFetchTime = Date.now();
+  fetchError = successCount === 0 ? "All fetches failed" : null;
+  updateUI();
+  return successCount;
+}
+
+function updateUI() {
+  // Index cards
+  ["^GSPC", "^IXIC", "^DJI"].forEach(sym => {
+    const m = MARKETS.find(x => x.symbol === sym);
+    if (!m) return;
+    const pEl = document.getElementById("p-" + sym.replace(/[^A-Z]/g, ""));
+    const cEl = document.getElementById("c-" + sym.replace(/[^A-Z]/g, ""));
+    if (pEl) pEl.textContent = m.price.toLocaleString();
+    if (cEl) {
+      cEl.textContent = (m.change >= 0 ? "▲ +" : "▼ ") + m.change.toFixed(2) + "%";
+      cEl.className = "chg " + (m.change >= 0 ? "up" : "down");
+    }
+  });
+
+  // Tape
+  const tape = document.getElementById("tape");
+  tape.innerHTML = MARKETS.map(m => {
+    const symShort = m.symbol.replace(/[^A-Z]/g, "").slice(0, 8);
+    return `<div class="tape-row">
+      <span class="sym">${symShort}</span>
+      <span class="price">${m.price.toLocaleString()}</span>
+      <span class="chg ${m.change >= 0 ? "up" : "down"}">${m.change >= 0 ? "+" : ""}${m.change.toFixed(2)}%</span>
+    </div>`;
+  }).join("");
+
+  // Readout
+  document.getElementById("roNodes").textContent = MARKETS.length + " tickers";
+  if (fetchError) {
+    document.getElementById("roUpdate").innerHTML = `<span style="color:var(--red)">${fetchError}</span>`;
+  } else if (lastFetchTime) {
+    const secs = Math.round((Date.now() - lastFetchTime) / 1000);
+    document.getElementById("roUpdate").textContent = `${secs}s ago · ${MARKETS.filter(m => !m.stale).length}/${MARKETS.length} live`;
+  }
+
+  // VIX pulse
+  updateVixPulse();
+}
+
+// ── CONTROLS ──
+document.getElementById("bRefresh").onclick = async (e) => {
+  e.currentTarget.classList.add("act");
+  await fetchMarkets();
+  setTimeout(() => e.currentTarget.classList.remove("act"), 1000);
+};
+document.getElementById("bPulse").onclick = (e) => {
+  pulseMode = !pulseMode;
+  e.currentTarget.classList.toggle("act", pulseMode);
+};
+document.getElementById("bHome").onclick = () => location.href = "/";
+
+// ── ANIMATION LOOP ──
+let frames = 0, lastFps = performance.now();
+function animate() {
+  requestAnimationFrame(animate);
+  frames++;
+  if (performance.now() - lastFps > 1000) {
+    document.getElementById("roFps").textContent = Math.round(frames) + " fps";
+    frames = 0; lastFps = performance.now();
+  }
+}
+animate();
+
+// ── INIT ──
+async function init() {
+  await fetchMarkets();
+  // Auto-refresh every 60s
+  setInterval(fetchMarkets, 60000);
+  // Boot done
+  setTimeout(() => document.getElementById("boot").classList.add("done"), 1500);
+  // GSAP entrance
+  gsap.fromTo(".vix-pulse", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.8 }, 0.3);
+  gsap.fromTo(".idx-card", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.1 }, 0.5);
+  gsap.fromTo(".tape", { opacity: 0 }, { opacity: 1, duration: 0.6 }, 0.8);
+  gsap.fromTo(".ctrls", { opacity: 0 }, { opacity: 1, duration: 0.6 }, 1.0);
+}
+
+init().catch(err => {
+  console.error(err);
+  document.getElementById("boot").innerHTML =
+    '<div class="bg">æ</div><div class="bl">RUNTIME ERROR</div>' +
+    '<div class="bl" style="font-size:8px;max-width:280px;text-align:center">' +
+    String(err.message || err) + '</div>';
+});
+</script>
+</body>
+</html>
