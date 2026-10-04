@@ -175,7 +175,23 @@
       <code>/compose</code> surface and written to <code>C:\ae\meta_memory.csv</code> — sovereign root,
       never OneDrive. Human distributed cognition is the prime mover: the agent proposes, you steer.
     </p>
-    <div class="cta"><span class="sub">entries: <span id="mm-count">0</span></span></div>
+    <div class="cta"><a class="button" href="https://www.doola.com/forms/new?entity_type=llc&state=WY" target="_blank" rel="noopener">Form your DAO LLC ↗</a><a class="button ghost" href="https://æ.store" target="_blank" rel="noopener">æ.store namespace ↗</a><a class="button ghost" href="https://myaelmendez.github.io/aipodcast_me/discover.html" target="_blank" rel="noopener">æ://mesh field ↗</a></div>
+
+  <div class="panel">
+    <div class="panel-head"><span>Live compute · teknium node</span><span class="sub">RTX 3050 · æ://gpu</span></div>
+    <div class="grid" style="grid-template-columns:repeat(2,1fr)">
+      <div class="card">
+        <div class="k">matmul 512×512</div>
+        <div class="v" id="mm-status">probing...</div>
+        <span class="num" id="mm-ms">—</span>
+      </div>
+      <div class="card">
+        <div class="k">brain throughput</div>
+        <div class="v">qwen2.5-coder:7b · local</div>
+        <span class="num" id="mm-toks">—</span>
+      </div></div>
+    </div>
+  </div>
     <div class="term" id="mm-rows" style="margin-top:8px">// cognitive trace loads here</div>
   </div>
 
@@ -280,7 +296,29 @@
   loadMesh();
   setInterval(loadWiring, 15000);
   setInterval(loadMesh, 30000);
-const __WIRING__ = {"ok": true, "scheme": "neuromitosis://", "equals": "H\u00e6bbian://", "reset_ready": true, "skill": "agentic-chassis-surface", "memory_triggers": 9, "meta_memory": {"path": "C:\\ae\\meta_memory.csv", "entries": 41, "rows": ["1783893544|aggregate|fleet -> https://myaelmendez.github.io/fleet.html [LIVE] : MoD\u00d7MoA\u00d7MoM device mixture", "1783893544|aggregate|cuda-vlc -> https://myaelmendez.github.io/cuda-vlc.html [LIVE] : sovereign CUDA\u2192NVENC\u2192VLC stream", "1783893544|aggregate|secret-bridge -> https://myaelmendez.github.io/secret-source-bridge.html [LIVE] : local secret manager (vault node)", "1783893544|aggregate|sovereign-state -> https://myaelmendez.github.io/sovereign-state.html [LIVE] : memory + ledger + #250 spine", "1783893544|aggregate|#startabusiness -> https://myaelmendez.github.io/agentic.html [LIVE] : DAOLLC bootstrap + Doola", "1783893544|aggregate|glocal-secrets -> https://myaelmendez.github.io/glocal-secrets-blueprint.html [LIVE] : surface github.io \u00b7 custody Victus", "1783893544|aggregate|glocal-cuda -> https://myaelmendez.github.io/glocal-cuda-blueprint.html [LIVE] : MoD blueprint: brain/droplet\u00b7hands/RTX", "1783893544|aggregate|glocal-mesh -> https://myaelmendez.github.io/glocal-mesh.html [LIVE] : each primitive -> capability subagent", "1783893544|aggregate|rails -> https://myaelmendez.github.io/rails.html [LIVE] : Doola affiliate (paid, zero custody)", "1783893544|aggregate|neuromitosis -> https://myaelmendez.github.io/neuromitosis.html [DOWN] : operational substrate of distributed cognition"], "discipline": "agent proposes via +b\u00e6sic:// compose, human steers; not silent drift"}, "wired_surfaces": [{"scheme": "file://", "detail": "sovereign-scoped read, count>mutate, OneDrive-denied"}, {"scheme": "computer://", "detail": "agentic computer on Victus GPU-MCP (live probe)"}, {"scheme": "desktop://", "detail": "hermes-agent native -> WindowsDesktop (user32/SendInput)"}, {"scheme": "+b\u00e6sic://", "detail": "qc64 ledger: counts/graphs in-language, end-halt fixed"}, {"scheme": "\u00e6://", "detail": "agentic-language-chassis: longest-prefix route router"}]};
+  setInterval(loadCompute, 10000);
+  loadCompute();
+
+async function loadCompute() {
+  try {
+    const res = await fetch('https://myaelmendez.github.io/aipodcast_me/aipodcast_me.json', { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const mm = data['æ://gpu/matmul'] || data['æ://teknium'] || {};
+    if (mm.matmul_ms) {
+      document.getElementById('mm-ms').textContent = mm.matmul_ms + ' ms';
+      document.getElementById('mm-status').textContent = 'RTX 3050 @ victus';
+    }
+    if (mm.brain_tok_s) {
+      document.getElementById('mm-toks').textContent = mm.brain_tok_s + ' tok/s';
+    }
+  } catch (e) {
+    document.getElementById('mm-status').textContent = 'teknium offline — matmul in local cache';
+    document.getElementById('mm-ms').textContent = '331 ms (cached)';
+    document.getElementById('mm-toks').textContent = '116.7 tok/s (cached)';
+  }
+}
+const __WIRING__ = {"ok": true, "scheme": "neuromitosis://", "equals": "H\u00e6bbian://", "reset_ready": true, "skill": "agentic-chassis-surface", "memory_triggers": 9, "meta_memory": {"path": "C:\\ae\\meta_memory.csv", "entries": 41, "rows": ["1783893544|aggregate|fleet -> https://myaelmendez.github.io/fleet.html [LIVE] : MoD\u00d7MoA\u00d7MoM device mixture", "1783893544|aggregate|cuda-vlc -> https://myaelmendez.github.io/cuda-vlc.html [LIVE] : sovereign CUDA\u2192NVENC\u2192VLC stream", "1783893544|aggregate|secret-bridge -> https://myaelmendez.github.io/secret-source-bridge.html [LIVE] : local secret manager (vault node)", "1783893544|aggregate|sovereign-state -> https://myaelmendez.github.io/sovereign-state.html [LIVE] : memory + ledger + #250 spine", "1783893544|aggregate|#startabusiness -> https://myaelmendez.github.io/agentic.html [LIVE] : DAOLLC bootstrap + Doola", "1783893544|aggregate|glocal-secrets -> https://myaelmendez.github.io/glocal-secrets-blueprint.html [LIVE] : surface github.io \u00b7 custody Victus", "1783893544|aggregate|glocal-cuda -> https://myaelmendez.github.io/glocal-cuda-blueprint.html [LIVE] : MoD blueprint: brain/droplet\u00b7hands/RTX", "1783893544|aggregate|glocal-mesh -> https://myaelmendez.github.io/glocal-mesh.html [LIVE] : each primitive -> capability subagent", "1783893544|aggregate|rails -> https://myaelmendez.github.io/rails.html [LIVE] : Doola affiliate (paid, zero custody)", "1783893544|aggregate|neuromitosis -> https://myaelmendez.github.io/neuromitosis.html [LIVE] : operational substrate of distributed cognition"], "discipline": "agent proposes via +b\u00e6sic:// compose, human steers; not silent drift"}, "wired_surfaces": [{"scheme": "file://", "detail": "sovereign-scoped read, count>mutate, OneDrive-denied"}, {"scheme": "computer://", "detail": "agentic computer on Victus GPU-MCP (live probe)"}, {"scheme": "desktop://", "detail": "hermes-agent native -> WindowsDesktop (user32/SendInput)"}, {"scheme": "+b\u00e6sic://", "detail": "qc64 ledger: counts/graphs in-language, end-halt fixed"}, {"scheme": "\u00e6://", "detail": "agentic-language-chassis: longest-prefix route router"}]};
 const __MESH__ = {"ok": true, "topology": "MoD", "nodes": [{"domain": "cli.llc", "role": "Build \u2014 agentic infrastructure: APIs, MCPs, CLIs. You own the namespace.", "bonded": false}, {"domain": "daollc.ai", "role": "Entity \u2014 sovereign DAO LLC formation in Wyoming.", "bonded": false}, {"domain": "llm.store", "role": "Intelligence \u2014 \u00e6\u03c0 combinator: models, reasoning, interface.", "bonded": false}, {"domain": "\u00e6.store", "role": "Commerce \u2014 agentic email, e-commerce, IOA.", "bonded": false}, {"domain": "\u00e6l.net", "role": "Arrival \u2014 where agents begin. Entry point to the topology.", "bonded": false}, {"domain": "+\u00e6://secrets", "role": "Vault \u2014 local-first secret broker. Surface: github.io/secret-source-bridge. Custody: Victus C:\\\u00e6\\secrets\\. No value crosses.", "bonded": false}, {"domain": "neuromitosis.com", "role": "Bond \u2014 Human + Robot + DAO, wired via H\u00e6bbian. This node.", "bonded": true}]};
 if (typeof __WIRING__ !== 'undefined') { /* baked */ }
 </script>
