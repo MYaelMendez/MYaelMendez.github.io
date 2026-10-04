@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>æ://qr_keys — Infraestructura QR Local</title>
+<style>
+  :root {
+    --void: #050505;
+    --gold: #D4AF37;
+    --gold-dim: #8B7D3C;
+    --gold-bright: #FFE066;
+    --bg: #050505;
+    --card: #0A0A0A;
+    --border: #D4AF3733;
+    --text: #E8E0D0;
+    --muted: #8B8070;
+    --accent: #D4AF37;
+    --green: #4CAF50;
+    --red: #F44336;
+    --font-display: 'Orbitron', 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Cascadia Code', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .container {
+    max-width: 430px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 24px 0 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .header .subtitle {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: 1px;
+  }
+  /* Status bar */
+  .status-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .status-chip {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .status-chip.live { background: var(--green); color: #000; }
+  .status-chip.off { background: var(--red); color: #fff; }
+  .status-chip.warn { background: var(--gold); color: #000; }
+  /* Cards */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .card h2 {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  /* Buttons */
+  .btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    margin: 2px;
+  }
+  .btn:hover { background: var(--gold); color: var(--void); }
+  .btn:active { transform: scale(0.97); }
+  .btn.primary { background: var(--gold); color: var(--void); }
+  .btn.danger { border-color: var(--red); color: var(--red); }
+  .btn.danger:hover { background: var(--red); color: #fff; }
+  /* Forms */
+  .form-group {
+    margin-bottom: 10px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 8px 10px;
+    background: var(--void);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    border-radius: 4px;
+    outline: none;
+  }
+  .form-group input:focus, .form-group select:focus {
+    border-color: var(--gold);
+  }
+  .form-group textarea {
+    min-height: 60px;
+    resize: vertical;
+  }
+  /* QR display */
+  .qr-display {
+    text-align: center;
+    padding: 16px;
+  }
+  .qr-display img {
+    max-width: 100%;
+    border: 2px solid var(--gold);
+    border-radius: 4px;
+    margin: 8px 0;
+  }
+  .qr-display .qr-meta {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  /* Ledger */
+  .ledger {
+    max-height: 200px;
+    overflow-y: auto;
+    font-size: 10px;
+  }
+  .ledger-entry {
+    padding: 6px 8px;
+    border-left: 2px solid var(--border);
+    margin-bottom: 4px;
+    color: var(--muted);
+  }
+  .ledger-entry .kind {
+    color: var(--gold);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .ledger-entry .time {
+    color: var(--muted);
+    font-size: 9px;
+  }
+  /* Grid */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gold);
+    color: var(--void);
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    z-index: 1000;
+    display: none;
+  }
+  .toast.show { display: block; }
+  /* Scanlines */
+  .scanlines {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 9999;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.03) 2px,
+      rgba(0,0,0,0.03) 4px
+    );
+  }
+  /* Vignette */
+  .vignette {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 9998;
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.6) 100%);
+  }
+  /* Responsive */
+  @media (max-width: 480px) {
+    .container { padding: 12px; }
+    .header h1 { font-size: 16px; }
+    .card { padding: 10px; }
+    .grid, .grid-3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="vignette"></div>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <h1>æ://qr_keys</h1>
+    <div class="subtitle">Infraestructura QR Local — Custodia Soberana</div>
+  </div>
+
+  <!-- Status -->
+  <div class="status-bar">
+    <span class="status-chip live">LOCAL</span>
+    <span class="status-chip live">QR READY</span>
+    <span class="status-chip warn" id="key-count">0 KEYS</span>
+    <span class="status-chip" id="contract-count">0 CONTRACTS</span>
+  </div>
+
+  <!-- Key Management -->
+  <div class="card">
+    <h2>⚙ Generar Llave</h2>
+    <div class="form-group">
+      <label>Nombre</label>
+      <input type="text" id="key-name" placeholder="alice, bob, etc.">
+    </div>
+    <div class="form-group">
+      <label>Algoritmo</label>
+      <select id="key-algorithm">
+        <option value="ed25519">Ed25519</option>
+        <option value="rsa">RSA-2048</option>
+      </select>
+    </div>
+    <button class="btn primary" onclick="generateKey()">GENERAR</button>
+    <button class="btn" onclick="listKeys()">LISTAR</button>
+  </div>
+
+  <!-- Key QR -->
+  <div class="card">
+    <h2>📄 Llave QR</h2>
+    <div class="form-group">
+      <label>Nombre de la llave</label>
+      <input type="text" id="key-qr-name" placeholder="alice">
+    </div>
+    <button class="btn" onclick="encodeKeyQR()">ENCODE QR</button>
+    <button class="btn" onclick="decodeKeyQR()">DECODE QR</button>
+    <div class="qr-display" id="key-qr-output"></div>
+  </div>
+
+  <!-- Contract Creation -->
+  <div class="card">
+    <h2>📝 Crear Contrato</h2>
+    <div class="form-group">
+      <label>Tipo</label>
+      <select id="contract-type">
+        <option value="escrow">Escrow</option>
+        <option value="multisig">Multisig</option>
+        <option value="conditional">Conditional</option>
+        <option value="timelock">Timelock</option>
+        <option value="atomic_swap">Atomic Swap</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Términos (JSON)</label>
+      <textarea id="contract-terms" placeholder='{"amount":1000,"currency":"USD"}'></textarea>
+    </div>
+    <div class="form-group">
+      <label>Parties (fingerprint, comma separated)</label>
+      <input type="text" id="contract-parties" placeholder="fingerprint1, fingerprint2">
+    </div>
+    <div class="form-group">
+      <label>Condiciones (JSON)</label>
+      <textarea id="contract-conditions" placeholder='[{"type":"threshold","required":2}]'></textarea>
+    </div>
+    <button class="btn primary" onclick="createContract()">CREAR</button>
+  </div>
+
+  <!-- Contract QR -->
+  <div class="card">
+    <h2>📄 Contrato QR</h2>
+    <div class="form-group">
+      <label>Hash del contrato</label>
+      <input type="text" id="contract-hash" placeholder="contract hash">
+    </div>
+    <button class="btn" onclick="encodeContractQR()">ENCODE QR</button>
+    <button class="btn" onclick="decodeContractQR()">DECODE QR</button>
+    <div class="qr-display" id="contract-qr-output"></div>
+  </div>
+
+  <!-- Execution -->
+  <div class="card">
+    <h2>▶ Ejecutar Contrato</h2>
+    <div class="form-group">
+      <label>Hash del contrato</label>
+      <input type="text" id="exec-hash" placeholder="contract hash">
+    </div>
+    <div class="form-group">
+      <label>Private Key Hex</label>
+      <textarea id="exec-private-key" placeholder="private key hex..." style="min-height:40px"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Public Keys (comma separated)</label>
+      <input type="text" id="exec-public-keys" placeholder="pubkey1, pubkey2">
+    </div>
+    <button class="btn primary" onclick="executeContract()">EXECUTE</button>
+    <div id="exec-result" class="ledger" style="margin-top:8px"></div>
+  </div>
+
+  <!-- Ledger -->
+  <div class="card">
+    <h2>🪙 Ledger</h2>
+    <button class="btn" onclick="refreshLedger()">REFRESH</button>
+    <div class="ledger" id="ledger-output"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// æ://qr_keys — WebGPU capable surface
+// Probes navigator.gpu, reports actual backend
+// ══════════════════════════════════════════════════════════
+
+const GPU_STATUS = { available: false, backend: 'unknown' };
+
+async function probeGPU() {
+  try {
+    if (navigator.gpu) {
+      const adapter = await navigator.gpu.requestAdapter();
+      if (adapter) {
+        GPU_STATUS.available = true;
+        GPU_STATUS.backend = adapter.backendType || 'webgpu';
+        GPU_STATUS.limits = adapter.limits;
+      }
+    }
+  } catch (e) {
+    GPU_STATUS.available = false;
+    GPU_STATUS.backend = 'error: ' + e.message;
+  }
+  updateGPUStatus();
+}
+
+function updateGPUStatus() {
+  const chip = document.getElementById('gpu-status');
+  if (chip) {
+    chip.textContent = GPU_STATUS.available ? 'GPU ' + GPU_STATUS.backend : 'GPU BLOCKED';
+    chip.className = 'status-chip ' + (GPU_STATUS.available ? 'live' : 'off');
+  }
+}
+
+// Toast
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Generate key
+async function generateKey() {
+  const name = document.getElementById('key-name').value;
+  const algo = document.getElementById('key-algorithm').value;
+  if (!name) { toast('Nombre requerido'); return; }
+
+  try {
+    const resp = await fetch('/api/key/create?name=' + encodeURIComponent(name) + '&algorithm=' + algo);
+    const data = await resp.json();
+    if (data.error) { toast('Error: ' + data.error); return; }
+    toast('Key ' + name + ' created — fp: ' + data.fingerprint);
+    document.getElementById('key-name').value = '';
+    refreshLedger();
+  } catch (e) {
+    toast('Network error — keys are local-only');
+  }
+}
+
+// List keys
+async function listKeys() {
+  try {
+    const resp = await fetch('/api/key/list');
+    const data = await resp.json();
+    const output = document.getElementById('key-qr-output');
+    output.innerHTML = '<div style="text-align:left">' +
+      (data.keys ? data.keys.map(k =>
+        '<div style="padding:4px 0;border-bottom:1px solid var(--border)">' +
+        '<strong>' + k.name + '</strong> — ' + k.algorithm + '<br>' +
+        '<span style="color:var(--gold)">fp: ' + k.fingerprint + '</span><br>' +
+        '<span style="font-size:9px">' + k.created + '</span>' +
+        '</div>'
+      ).join('') : 'No keys') +
+      '</div>';
+    document.getElementById('key-count').textContent = (data.keys ? data.keys.length : 0) + ' KEYS';
+  } catch (e) {
+    toast('Network error');
+  }
+}
+
+// Encode key as QR
+async function encodeKeyQR() {
+  const name = document.getElementById('key-qr-name').value;
+  if (!name) { toast('Nombre requerido'); return; }
+
+  try {
+    const resp = await fetch('/api/key/qr-encode?name=' + encodeURIComponent(name));
+    const data = await resp.json();
+    const output = document.getElementById('key-qr-output');
+    if (data.error) { output.innerHTML = '<span style="color:var(--red)">Error: ' + data.error + '</span>'; return; }
+    output.innerHTML = '<img src="' + data.qr.filepath + '" alt="QR code">' +
+      '<div class="qr-meta">' + data.qr.data_length + ' bytes | v' + data.qr.version + '</div>';
+    toast('Key QR encoded');
+  } catch (e) {
+    toast('Network error');
+  }
+}
+
+// Decode key from QR
+async function decodeKeyQR() {
+  const name = document.getElementById('key-qr-name').value;
+  if (!name) { toast('Nombre requerido'); return; }
+
+  try {
+    const resp = await fetch('/api/key/qr-decode?name=' + encodeURIComponent(name));
+    const data = await resp.json();
+    const output = document.getElementById('key-qr-output');
+    if (data.error) { output.innerHTML = '<span style="color:var(--red)">Error: ' + data.error + '</span>'; return; }
+    output.innerHTML = '<pre style="text-align:left;font-size:10px">' + JSON.stringify(data, null, 2) + '</pre>';
+    toast('Key QR decoded');
+  } catch (e) {
+    toast('Network error');
+  }
+}
+
+// Create contract
+async function createContract() {
+  const type = document.getElementById('contract-type').value;
+  const terms = document.getElementById('contract-terms').value;
+  const parties = document.getElementById('contract-parties').value;
+  const conditions = document.getElementById('contract-conditions').value;
+
+  try {
+    const resp = await fetch('/api/contract/create', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({type, terms: JSON.parse(terms), parties: parties.split(',').map(s => s.trim()), conditions: JSON.parse(conditions)})
+    });
+    const data = await resp.json();
+    if (data.error) { toast('Error: ' + data.error); return; }
+    document.getElementById('contract-hash').value = data.hash;
+    toast('Contract created — hash: ' + data.hash.slice(0, 16) + '...');
+    refreshLedger();
+  } catch (e) {
+    toast('Invalid JSON');
+  }
+}
+
+// Encode contract as QR
+async function encodeContractQR() {
+  const hash = document.getElementById('contract-hash').value;
+  if (!hash) { toast('Hash requerido'); return; }
+
+  try {
+    const resp = await fetch('/api/contract/qr-encode?hash=' + encodeURIComponent(hash));
+    const data = await resp.json();
+    const output = document.getElementById('contract-qr-output');
+    if (data.error) { output.innerHTML = '<span style="color:var(--red)">Error: ' + data.error + '</span>'; return; }
+    output.innerHTML = '<img src="' + data.qr.filepath + '" alt="QR code">' +
+      '<div class="qr-meta">' + data.qr.data_length + ' bytes | v' + data.qr.version + ' | ' + data.chunks + ' chunk(s)</div>';
+    toast('Contract QR encoded');
+  } catch (e) {
+    toast('Network error');
+  }
+}
+
+// Decode contract from QR
+async function decodeContractQR() {
+  try {
+    const resp = await fetch('/api/contract/qr-decode');
+    const data = await resp.json();
+    const output = document.getElementById('contract-qr-output');
+    if (data.error) { output.innerHTML = '<span style="color:var(--red)">Error: ' + data.error + '</span>'; return; }
+    output.innerHTML = '<pre style="text-align:left;font-size:10px">' + JSON.stringify(data, null, 2) + '</pre>';
+    toast('Contract QR decoded');
+  } catch (e) {
+    toast('Network error');
+  }
+}
+
+// Execute contract
+async function executeContract() {
+  const hash = document.getElementById('exec-hash').value;
+  const privateKey = document.getElementById('exec-private-key').value;
+  const pubKeys = document.getElementById('exec-public-keys').value.split(',').map(s => s.trim());
+
+  if (!hash || !privateKey || !pubKeys.length) { toast('Todos los campos requeridos'); return; }
+
+  try {
+    const resp = await fetch('/api/contract/execute', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({hash, private_key: privateKey, public_keys: pubKeys})
+    });
+    const data = await resp.json();
+    const output = document.getElementById('exec-result');
+    output.innerHTML = '<div class="ledger-entry"><span class="kind">' + (data.error ? 'ERROR' : 'OK') + '</span> ' +
+      (data.error ? data.error : 'all_conditions_met: ' + data.all_conditions_met) +
+      '<br><span class="time">' + (data.executed_at || '') + '</span></div>';
+    toast(data.error ? 'Execution failed' : 'Contract executed');
+  } catch (e) {
+    toast('Network error');
+  }
+}
+
+// Refresh ledger
+async function refreshLedger() {
+  try {
+    const resp = await fetch('/api/ledger');
+    const data = await resp.json();
+    const output = document.getElementById('ledger-output');
+    if (!data.entries || !data.entries.length) {
+      output.innerHTML = '<div class="ledger-entry" style="color:var(--muted)">No entries</div>';
+      return;
+    }
+    output.innerHTML = data.entries.slice(-20).reverse().map(e =>
+      '<div class="ledger-entry"><span class="kind">' + e.kind + '</span> ' +
+      e.text + ' <span class="time">' + e.iso + '</span></div>'
+    ).join('');
+  } catch (e) {
+    // offline
+  }
+}
+
+// Initialize
+probeGPU();
+refreshLedger();
+</script>
+</body>
+</html>
