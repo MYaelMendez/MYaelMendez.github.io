@@ -1,0 +1,58 @@
+{
+  "manifest_version": 1,
+  "release_date_utc": "2026-10-04",
+  "package": {
+    "id": "store.væult",
+    "name": "væult",
+    "version": "0.1.0",
+    "license": "MIT",
+    "boundary": "OPENSOURCEWARE_BOUNDARY.md"
+  },
+  "artifact": {
+    "path": "væult.py",
+    "size_bytes": 15023,
+    "sha256": "816a0b7e36bc30f7e815893d951cbfe200e0fceb1257ad437371a4c32ee4f84c",
+    "lines": 360,
+    "single_file": true
+  },
+  "runtime": {
+    "python": ">=3.10",
+    "hard_dependencies": ["cryptography"],
+    "optional_dependencies": ["qrcode", "pillow", "pyzbar"],
+    "network": false
+  },
+  "crypto": {
+    "kdf": "scrypt",
+    "kdf_params": { "n": 32768, "r": 8, "p": 1 },
+    "cipher": "AES-256-GCM",
+    "aead": true,
+    "nonce_bits": 96,
+    "name_binding": "AAD"
+  },
+  "commands": [
+    "init", "set", "get", "list", "rm", "export", "verify",
+    "qr", "qr-show", "qr-open"
+  ],
+  "env": {
+    "VAEULT_PATH": "vault file location (default: <root>/secrets/privateclient/privateclient.væult)",
+    "VAEULT_PASSPHRASE": "non-interactive unlock for scripts (never persisted)",
+    "VAEULT_VALUE": "non-interactive value for `set` (never persisted)"
+  },
+  "verification": {
+    "compile": "pass",
+    "self_test": "pass",
+    "neutral_path": "pass",
+    "no_network": "pass",
+    "qr_roundtrip": "pass",
+    "wrong_passphrase_refused": "pass"
+  },
+  "consumers": [
+    "plugins/privateclient-vault (Hermes desktop pane)",
+    "any local agent via the GLOCAL secret-source contract"
+  ],
+  "custody": {
+    "secrets_local_only": true,
+    "qr_carries": "sealed envelope (ciphertext), never plaintext",
+    "crosses_network": "never"
+  }
+}
