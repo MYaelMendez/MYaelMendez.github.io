@@ -7,14 +7,14 @@
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden;
-        background: #010204; color: #f5f7fa;
+        background: #0a1420; color: #f5f7fa;
         font-family: 'JetBrains Mono', 'Consolas', monospace; }
       #root { width: 100%; height: 100%; position: relative; overflow: hidden; }
       .scanlines { position: absolute; inset: 0; pointer-events: none; z-index: 100;
         background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.25) 3px, rgba(0,0,0,0.25) 4px); }
       .neural-mesh { position: absolute; inset: 0; z-index: 1;
-        background: radial-gradient(circle at 50% 50%, rgba(0,234,255,0.03) 0%, transparent 70%),
-                    radial-gradient(circle at 30% 30%, rgba(212,175,55,0.02) 0%, transparent 50%); }
+        background: radial-gradient(circle at 50% 50%, rgba(0,234,255,0.08) 0%, transparent 70%),
+                    radial-gradient(circle at 30% 30%, rgba(212,175,55,0.04) 0%, transparent 50%); }
       #stage { position: absolute; inset: 0; z-index: 5; overflow: hidden; }
       #stage canvas { width: 100%; height: 100%; display: block; }
       .overlay { position: absolute; top: 40px; left: 40px; right: 40px; display: flex;
@@ -32,10 +32,11 @@
     </style>
 </head>
 <body>
-    <!-- Fleet waves development — 1 manager + 1393 worker agents
-         Teknium's autonomous refactor: 1,063,826 → 698,363 lines (34.4% reduction)
-         This laptop named teknium in his honor -->
-    <div id="root" data-composition-id="fleet-waves-dev" data-no-timeline
+    <!-- Fleet waves: agentic electronic engineering development methodology.
+         1 manager agent + 1393 worker agents refactoring 1,063,826→698,363 lines
+         This laptop named teknium honoring Teknium (Nous Research).
+         VS Code C² surface wired for local fleet orchestration. -->
+    <div id="root" data-composition-id="fleet-waves-dev"
          data-start="0" data-duration="12" data-width="1920" data-height="1080">
       <div class="neural-mesh"></div>
       <div class="scanlines"></div>
@@ -43,7 +44,7 @@
       <div class="progress-bar clip" data-start="0" data-duration="12" data-track-index="4"></div>
       <div id="overlay" class="overlay clip" data-start="0" data-duration="12" data-track-index="1">
         <span class="title">Fleet Waves Development</span>
-        <span class="tag">1 manager + 1393 worker agents · Teknium method · æ://teknium</span>
+        <span class="tag">VS Code C² · 1 manager + 1393 worker agents · Teknium method · æ://teknium</span>
       </div>
       <div id="footer" class="footer clip" data-start="0" data-duration="12" data-track-index="3">
         <div><b>HOST:</b> teknium · i5-13420H 12t · RTX 3050 6GB · CUDA 13.3</div>
@@ -127,11 +128,19 @@
     });
   }
 
-  /* GSAP timeline for deterministic time */
+  /* GSAP timeline for deterministic time — registered as a hyperframe track */
   var tl = gsap.timeline({ paused: true });
   tl.to({}, { duration: 12, onUpdate: function() { seedTime = tl.progress() * Math.PI * 6; } });
   window.__timelines = window.__timelines || {};
   window.__timelines["fleet-waves-dev"] = tl;
+
+  /* VS Code C² / hyperframes deterministic frame hook
+     æRTXrender drives frames via this; the vidæo AEE cycle uses it too.
+     Uses tl.progress() (0-1) not tl.pause() (seconds) to seek the timeline. */
+  window.__renderFrame = function(i, total) {
+    tl.progress(i / Math.max(1, total - 1));
+    render();
+  };
 
   function project3to2(x, y, z) {
     var fov = 52, dist = 800;
@@ -148,13 +157,13 @@
   }
 
   function render() {
-    ctx.fillStyle = "#010204";
+    ctx.fillStyle = "#0a1420";
     ctx.fillRect(0, 0, 1920, 1080);
 
-    /* Fog */
+    /* Fog — brighter to push luminance above 20 (vidæo gate threshold) */
     var fogGrad = ctx.createRadialGradient(960, 540, 0, 960, 540, 960);
-    fogGrad.addColorStop(0, "rgba(1,2,4,0)");
-    fogGrad.addColorStop(1, "rgba(1,2,4,0.9)");
+    fogGrad.addColorStop(0, "rgba(10,20,32,0)");
+    fogGrad.addColorStop(1, "rgba(10,20,32,0.93)");
     ctx.fillStyle = fogGrad;
     ctx.fillRect(0, 0, 1920, 1080);
 
@@ -169,8 +178,8 @@
       return az - bz;
     });
 
-    /* Draw connection lines */
-    ctx.strokeStyle = "rgba(0,234,255,0.08)";
+    /* Connection lines — brighter */
+    ctx.strokeStyle = "rgba(0,234,255,0.30)";
     ctx.lineWidth = 0.5;
     for (var c = 0; c < connections.length; c++) {
       var cf = particles[connections[c].from];
@@ -210,16 +219,16 @@
       if (proj.scale < 0.03) continue;
 
       var size = particle.size * proj.scale * (0.7 + wave * 0.3);
-      var alpha = Math.max(0.2, Math.min(1, proj.scale * 2.5));
+      var alpha = Math.max(0.5, Math.min(1, proj.scale * 2.5));
 
       ctx.fillStyle = hexWithAlpha(fleet.color, alpha);
       ctx.beginPath();
       ctx.arc(proj.x, proj.y, size, 0, Math.PI * 2);
       ctx.fill();
 
-      /* Glow */
+      /* Glow — brighter */
       var grad = ctx.createRadialGradient(proj.x, proj.y, 0, proj.x, proj.y, size * 5);
-      grad.addColorStop(0, hexWithAlpha(fleet.color, alpha * 0.6));
+      grad.addColorStop(0, hexWithAlpha(fleet.color, alpha * 0.8));
       grad.addColorStop(1, hexWithAlpha(fleet.color, 0));
       ctx.fillStyle = grad;
       ctx.beginPath();
@@ -227,8 +236,8 @@
       ctx.fill();
     }
 
-    /* Orbit rings */
-    ctx.strokeStyle = "rgba(212,175,55,0.08)";
+    /* Orbit rings — brighter */
+    ctx.strokeStyle = "rgba(212,175,55,0.30)";
     for (var ring = 80; ring <= 360; ring += 40) {
       ctx.lineWidth = 0.6;
       ctx.beginPath();
@@ -269,6 +278,20 @@
   /* Hook render into GSAP timeline onUpdate for deterministic frame sync */
   tl.eventCallback("onUpdate", function() { tick(); });
   tl.play();
+
+  /* VS Code C² integration: expose timeline for external seek
+     The extension's remoteUse.fleetWaves command drives this timeline */
+  window.fleetWaves = {
+    seek: function(progress) { tl.pause(progress); },
+    timeline: tl,
+    particles: particles.length
+  };
+
+  /* Manual render for hyperframes frame seeking */
+  window.__renderFleetWaves = function(progress) {
+    if (progress !== undefined) tl.pause(progress);
+    render();
+  };
 })();
 </script>
 </body>
