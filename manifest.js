@@ -2,11 +2,34 @@
 const MANIFEST = {
   "factory": "æ://mp4-factory",
   "generated": "2026-10-04",
-  "count": 6,
-  "total_mb": 98.5,
-  "total_frames": 2415,
+  "count": 7,
+  "total_mb": 119.2,
+  "total_frames": 2865,
   "all_pass": true,
   "videos": [
+    {
+      "file": "storyboards.mp4",
+      "title": "HOLLYWOOD GOLDEN AGE STORYBOARDS",
+      "source": "URL → web_extract → 3 films noir → animatic panels",
+      "pipeline": "URL → CDP → NVENC",
+      "date": "2026-10-04",
+      "status": "published",
+      "width": 720,
+      "height": 1280,
+      "fps": 30,
+      "frames": 450,
+      "duration_s": 15.0,
+      "size_mb": 20.7,
+      "bitrate_mbps": 11.6,
+      "vision": {
+        "calidad": "PASS",
+        "luminancia": 64.09,
+        "contraste": 51.77,
+        "movimiento": 41.229,
+        "frames_negros": 0,
+        "receipt": "c511b13911f455b80d14768ea58298d585de63da9c5937f6d8c6186ed4819451"
+      }
+    },
     {
       "file": "zeitgeist.mp4",
       "title": "@yaelmendez #zeitgeist",
