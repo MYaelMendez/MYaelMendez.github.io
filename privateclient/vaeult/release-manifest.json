@@ -1,0 +1,60 @@
+{
+  "manifest_version": 1,
+  "release_date_utc": "2026-10-04",
+  "package": {
+    "id": "store.væult",
+    "name": "væult",
+    "version": "0.1.0",
+    "license": "MIT",
+    "boundary": "OPENSOURCEWARE_BOUNDARY.md"
+  },
+  "artifact": {
+    "path": "væult.py",
+    "size_bytes": 14663,
+    "sha256": "bff14237a6ad9000dd359b0e4f14c84914f5b34cd762d30f484450359e981f1e",
+    "lines": 360,
+    "single_file": true,
+    "line_endings": "LF",
+    "hash_note": "sha256 is over the SHIPPED (LF) artifact — git normalizes CRLF on commit, so a Windows checkout will differ until renormalized. Verify the download, not the working copy."
+  },
+  "runtime": {
+    "python": ">=3.10",
+    "hard_dependencies": ["cryptography"],
+    "optional_dependencies": ["qrcode", "pillow", "pyzbar"],
+    "network": false
+  },
+  "crypto": {
+    "kdf": "scrypt",
+    "kdf_params": { "n": 32768, "r": 8, "p": 1 },
+    "cipher": "AES-256-GCM",
+    "aead": true,
+    "nonce_bits": 96,
+    "name_binding": "AAD"
+  },
+  "commands": [
+    "init", "set", "get", "list", "rm", "export", "verify",
+    "qr", "qr-show", "qr-open"
+  ],
+  "env": {
+    "VAEULT_PATH": "vault file location (default: <root>/secrets/privateclient/privateclient.væult)",
+    "VAEULT_PASSPHRASE": "non-interactive unlock for scripts (never persisted)",
+    "VAEULT_VALUE": "non-interactive value for `set` (never persisted)"
+  },
+  "verification": {
+    "compile": "pass",
+    "self_test": "pass",
+    "neutral_path": "pass",
+    "no_network": "pass",
+    "qr_roundtrip": "pass",
+    "wrong_passphrase_refused": "pass"
+  },
+  "consumers": [
+    "plugins/privateclient-vault (Hermes desktop pane)",
+    "any local agent via the GLOCAL secret-source contract"
+  ],
+  "custody": {
+    "secrets_local_only": true,
+    "qr_carries": "sealed envelope (ciphertext), never plaintext",
+    "crosses_network": "never"
+  }
+}

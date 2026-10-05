@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#050505"/>
+<title>væult — password-secured local vault · æ://</title>
+<meta name="description" content="væult: a password-secured local vault (scrypt → AES-256-GCM) with QR air-gap transport. #opensourceware — the tool is open, the secrets are not."/>
+<link rel="canonical" href="https://myaelmendez.github.io/væult/"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="væult — password-secured local vault"/>
+<meta property="og:description" content="scrypt → AES-256-GCM · QR air-gap transport · #opensourceware"/>
+<meta property="og:url" content="https://myaelmendez.github.io/væult/"/>
+<meta property="og:image" content="https://myaelmendez.github.io/og-image.png"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:creator" content="@yaelmendez"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold2:#f0d487;--neon:#00ff9d;--ink:#f0ece4;
+  --muted:rgba(240,236,228,.42);--border:rgba(212,175,55,.16);--hot:rgba(212,175,55,.5);
+  --glow:rgba(212,175,55,.32)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;line-height:1.6}
+canvas#mesh{position:fixed;inset:0;z-index:0;opacity:.5}
+.scan{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(transparent 0 2px,rgba(212,175,55,.012) 2px 4px)}
+.vig{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 45%,rgba(5,5,5,.9) 100%)}
+.wrap{position:relative;z-index:10;max-width:820px;margin:0 auto;padding:28px 18px 72px}
+.bar{display:flex;justify-content:space-between;gap:10px;border:1px solid var(--border);padding:8px 12px;
+  font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.bar .live{color:var(--neon);display:flex;align-items:center;gap:6px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.hero{text-align:center;padding:40px 0 26px}
+.glyph{font-size:clamp(60px,13vw,110px);color:var(--gold);text-shadow:0 0 40px var(--glow);animation:breathe 4s ease-in-out infinite;line-height:1}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;letter-spacing:3px;font-size:clamp(28px,6vw,54px);margin-top:10px;
+  background:linear-gradient(90deg,var(--gold2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);font-size:clamp(12px,2.3vw,16px);margin-top:12px}
+.panel{border:1px solid var(--border);background:rgba(5,5,5,.62);margin-top:24px}
+.panel-head{padding:11px 16px;border-bottom:1px solid var(--border);font-family:'Orbitron',sans-serif;
+  font-weight:700;letter-spacing:2px;font-size:13px;color:var(--gold);display:flex;justify-content:space-between}
+.panel-head .tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px}
+.panel-body{padding:16px}
+pre{background:#0a0a0a;border:1px solid var(--border);padding:14px;overflow-x:auto;font-size:12.5px;color:var(--ink)}
+pre .c{color:var(--muted)}pre .g{color:var(--gold)}pre .n{color:var(--neon)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.cell{border:1px solid var(--border);padding:13px;background:rgba(212,175,55,.03)}
+.cell h3{font-family:'Orbitron',sans-serif;font-size:12px;letter-spacing:1px;color:var(--gold);margin-bottom:5px}
+.cell p{font-size:11.5px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+td,th{border:1px solid var(--border);padding:8px 10px;text-align:left}
+th{color:var(--gold);font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:1px}
+td:first-child{color:var(--muted)}
+a{color:var(--gold);text-decoration:none}a:hover{text-decoration:underline}
+.foot{margin-top:32px;border-top:1px solid var(--border);padding-top:16px;font-size:10.5px;color:var(--muted);letter-spacing:1px}
+.hash{text-align:center;margin-top:22px;font-size:10px;letter-spacing:3px;color:var(--muted)}
+.badge{display:inline-block;font-size:10px;border:1px solid var(--hot);color:var(--gold);padding:2px 8px;margin:0 3px}
+</style>
+</head>
+<body>
+<canvas id="mesh"></canvas><div class="scan"></div><div class="vig"></div>
+<div class="wrap">
+  <div class="bar">
+    <span>æ:// væult</span>
+    <span class="badge">#opensourceware</span>
+    <span class="live"><span class="dot"></span>MIT</span>
+  </div>
+
+  <div class="hero">
+    <div class="glyph">æ</div>
+    <h1>væult</h1>
+    <p class="sub">A password-secured local vault · scrypt → AES-256-GCM · QR air-gap transport</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>◈ INSTALL</span><span class="tag">single file</span></div>
+    <div class="panel-body">
+<pre><span class="c"># the only hard dependency</span>
+pip install cryptography
+<span class="c"># optional — QR transport only</span>
+pip install qrcode pillow pyzbar
+
+<span class="c"># fetch the vault (single file)</span>
+curl -O <span class="g">https://myaelmendez.github.io/vaeult/vaeult.py</span></pre>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>◈ USE</span><span class="tag">&gt;_æ|</span></div>
+    <div class="panel-body">
+<pre>python væult.py init              <span class="c"># passphrase ×2, min 8 chars</span>
+python væult.py set STRIPE_KEY    <span class="c"># value read hidden</span>
+python væult.py get STRIPE_KEY    <span class="c"># print to stdout</span>
+python væult.py list              <span class="c"># names only — never values</span>
+python væult.py verify            <span class="n"># round-trip · tamper · name-binding</span>
+
+<span class="c"># QR air-gap — carries the SEALED blob, never plaintext</span>
+python væult.py qr STRIPE_KEY     <span class="c"># → QR PNG</span>
+python væult.py qr-open qr.png    <span class="c"># decode + import</span></pre>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>◈ DESIGN</span><span class="tag">AEAD</span></div>
+    <div class="panel-body">
+      <div class="grid">
+        <div class="cell"><h3>Encrypted at rest</h3><p>AES-256-GCM, fresh 96-bit nonce per entry.</p></div>
+        <div class="cell"><h3>Tamper detection</h3><p>GCM auth tag — a flipped byte fails closed.</p></div>
+        <div class="cell"><h3>Name binding</h3><p>Entry name is AEAD associated data — a renamed entry won't open.</p></div>
+        <div class="cell"><h3>Wrong passphrase</h3><p>Sealed sentinel → clear refusal, not a crypto error.</p></div>
+        <div class="cell"><h3>Atomic writes</h3><p>Write .tmp then os.replace.</p></div>
+        <div class="cell"><h3>No network</h3><p>Never makes a request. Cannot exfiltrate by design.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>◈ BOUNDARY</span><span class="tag">custody</span></div>
+    <div class="panel-body">
+      <table>
+        <tr><th>Element</th><th>Ships?</th></tr>
+        <tr><td>væult.py (the tool)</td><td>✓ open, MIT</td></tr>
+        <tr><td>*.væult (your encrypted secrets)</td><td>✗ never</td></tr>
+        <tr><td>passphrase</td><td>✗ never stored, logged, or sent</td></tr>
+        <tr><td>QR payload</td><td>sealed envelope — inert without the passphrase</td></tr>
+      </table>
+      <p style="margin-top:12px;font-size:12px;color:var(--gold)">The tool is open. The secrets are not.</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>◈ RELEASE</span><span class="tag">v0.1.0</span></div>
+    <div class="panel-body">
+<pre>væult.py   15023 B   sha256 816a0b7e36bc30f7e815893d951cbfe200e0fceb1257ad437371a4c32ee4f84c
+kdf        scrypt n=32768 r=8 p=1
+cipher     AES-256-GCM · AEAD · 96-bit nonce
+runtime    Python ≥3.10 · no network</pre>
+      <p style="margin-top:10px;font-size:11px;color:var(--muted)">
+        <a href="./vaeult.py">væult.py</a> · <a href="./README.md">README</a> ·
+        <a href="./OPENSOURCEWARE_BOUNDARY.md">boundary</a> ·
+        <a href="./release-manifest.json">manifest</a> · <a href="./LICENSE">LICENSE</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="foot">
+    <a href="../">æ:// home</a> · <a href="../skill-guide/">skill-guide</a> ·
+    æ:// language is compute
+  </div>
+  <div class="hash">#HERMIPHICATIONISINEVITABLE</div>
+</div>
+
+<script>
+(function(){
+  const c=document.getElementById('mesh'),x=c.getContext('2d');let W,H,pts=[];
+  function size(){W=c.width=innerWidth;H=c.height=innerHeight;
+    const n=Math.min(60,Math.floor(W*H/32000));
+    pts=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.28,vy:(Math.random()-.5)*.28}));}
+  addEventListener('resize',size);size();
+  (function loop(){x.clearRect(0,0,W,H);
+    for(const p of pts){p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;}
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.hypot(dx,dy);
+      if(d<130){x.strokeStyle=`rgba(212,175,55,${(1-d/130)*.13})`;x.lineWidth=1;
+        x.beginPath();x.moveTo(pts[i].x,pts[i].y);x.lineTo(pts[j].x,pts[j].y);x.stroke();}}
+    for(const p of pts){x.fillStyle='rgba(212,175,55,.5)';x.beginPath();x.arc(p.x,p.y,1.5,0,7);x.fill();}
+    requestAnimationFrame(loop);})();
+})();
+</script>
+</body>
+</html>
