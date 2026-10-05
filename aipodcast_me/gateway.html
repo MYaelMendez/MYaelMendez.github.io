@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#050505"/>
+<title>vps:// — droplet gateway</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--void:#050505;--gold:#D4AF37;--ink:#f0ece4;--muted:rgba(240,236,228,.42);--border:rgba(212,175,55,.16);--hot:rgba(212,175,55,.5);--glow:rgba(212,175,55,.32);--neon:#00ff9d;--red:#ff4444}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow:hidden}
+canvas#mesh{position:fixed;inset:0;z-index:0}
+.scan{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(transparent 0 2px,rgba(212,175,55,.014) 2px 4px)}
+.vig{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 40%,rgba(5,5,5,.92) 100%)}
+.wrap{position:relative;z-index:10;max-width:1080px;margin:0 auto;padding:28px 18px 64px}
+.statusbar{display:flex;justify-content:space-between;gap:10px;border:1px solid var(--border);padding:8px 12px;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.statusbar .live{color:var(--neon);display:flex;align-items:center;gap:6px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.hero{text-align:center;padding:44px 0 30px}
+.glyph{font-size:clamp(64px,14vw,120px);color:var(--gold);text-shadow:0 0 40px var(--glow);animation:breathe 4s ease-in-out infinite;line-height:1}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.cmd{font-family:'Orbitron',sans-serif;font-weight:900;letter-spacing:4px;font-size:clamp(18px,4vw,34px);color:var(--gold);margin-top:12px;text-shadow:0 0 18px var(--glow)}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;letter-spacing:2px;font-size:clamp(26px,6vw,54px);margin-top:18px;background:linear-gradient(90deg,#f0d487,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);font-size:clamp(13px,2.4vw,17px);margin-top:12px}
+.panel{border:1px solid var(--border);background:rgba(5,5,5,.62);margin-top:26px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);font-family:'Orbitron',sans-serif;font-weight:700;letter-spacing:2px;font-size:clamp(13px,2.4vw,18px);color:var(--gold)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;padding:16px}
+.card{border:1px solid var(--border);padding:16px;background:rgba(5,5,5,.4);transition:border-color .2s}
+.card:hover{border-color:var(--hot)}
+.card .label{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.card .value{font-size:20px;font-weight:700;color:var(--gold);margin-top:4px}
+.card .status{font-size:11px;margin-top:6px}
+.card .status.ok{color:var(--neon)}.card .status.err{color:var(--red)}
+.api-box{border:1px solid var(--border);background:rgba(5,5,5,.4);padding:16px;margin-top:16px}
+.api-box .method{display:inline-block;font-size:10px;padding:2px 6px;border:1px solid var(--hot);color:var(--gold);margin-right:6px}
+.api-box .path{color:var(--ink);font-size:12px;margin:8px 0}
+.api-box .res{margin-top:8px;padding:8px;background:rgba(0,0,0,.4);font-size:11px;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow-y:auto;color:var(--neon)}
+.btn{border:1px solid var(--gold);background:transparent;color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:11px;padding:6px 14px;cursor:pointer;letter-spacing:1px;transition:all .15s}
+.btn:hover{background:var(--gold);color:#050505}.btn:active{transform:scale(.97)}
+.btn-sm{font-size:9px;padding:3px 8px}
+.hint{padding:8px 16px;font-size:9px;color:rgba(240,236,228,.28);letter-spacing:.5px;line-height:1.5}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--gold);color:#050505;padding:8px 16px;border-radius:4px;font-size:11px;font-weight:700;z-index:1000;display:none}
+.toast.show{display:block}
+</style>
+</head>
+<body>
+<canvas id="mesh"></canvas><div class="scan"></div><div class="vig"></div>
+<div class="wrap">
+  <div class="statusbar">
+    <span class="live"><span class="dot"></span>vps:// ONLINE</span>
+    <span>droplet 129.212.180.252:3000</span>
+    <span id="lat">lat --</span>
+  </div>
+  <div class="hero">
+    <div class="glyph">◈</div>
+    <div class="cmd">vps://</div>
+    <h1>DROPLET GATEWAY</h1>
+    <div class="sub">MCP² broker → Victus RTX 3050 via reverse tunnel</div>
+  </div>
+  <div class="panel">
+    <div class="panel-head">◈ STATUS</div>
+    <div class="grid">
+      <div class="card"><div class="label">VPS</div><div class="value" id="vps-status">--</div><div class="status" id="vps-status-msg">probing...</div></div>
+      <div class="card"><div class="label">GPU (RTX 3050)</div><div class="value" id="gpu-status">--</div><div class="status" id="gpu-status-msg">remote probe</div></div>
+      <div class="card"><div class="label">Droplet RAM</div><div class="value" id="ram-status">--</div><div class="status" id="ram-status-msg">--</div></div>
+      <div class="card"><div class="label">Uptime</div><div class="value" id="uptime-status">--</div><div class="status" id="uptime-status-msg">--</div></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-head">◈ MCP² TOOLS</div>
+    <div class="grid" id="tools-grid"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-head">◈ API CONSOLE</div>
+    <div class="api-box">
+      <div><span class="method">GET</span><span class="path">/xrpc/ae.vps.status</span><button class="btn btn-sm" onclick="callAPI('status')">exec</button></div>
+      <div class="res" id="res-status">waiting...</div>
+      <div style="margin-top:8px"><span class="method">GET</span><span class="path">/xrpc/ae.vps.rtx?op=probe&n=512</span><button class="btn btn-sm" onclick="callAPI('rtx')">exec</button></div>
+      <div class="res" id="res-rtx">waiting...</div>
+      <div style="margin-top:8px"><span class="method">POST</span><span class="path">/xrpc/ae.vps.record {nsid, value}</span><button class="btn btn-sm" onclick="callAPI('record')">exec</button></div>
+      <div class="res" id="res-record">waiting...</div>
+      <div style="margin-top:8px"><span class="method">GET</span><span class="path">/xrpc/ae.vps.markets?s=AAPL</span><button class="btn btn-sm" onclick="callAPI('markets')">exec</button></div>
+      <div class="res" id="res-markets">waiting...</div>
+    </div>
+  </div>
+  <div class="hint">vps:// gateway → droplet API → MCP² leaf proxy → RTX 3050 · CORS enabled · gold-on-void</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const DROPLET='http://129.212.180.252:3000';
+const canvas=document.getElementById('mesh'),ctx=canvas.getContext('2d');
+let W,H;function resize(){W=innerWidth;H=innerHeight;canvas.width=W;canvas.height=H;}
+addEventListener('resize',resize);resize();
+const N=60,pts=[];for(let i=0;i<N;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.5+.5});
+function drawMesh(){ctx.clearRect(0,0,W,H);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;});for(let i=0;i<N;i++){for(let j=i+1;j<N;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.hypot(dx,dy);if(d<120){ctx.strokeStyle=`rgba(212,175,55,${.08*(1-d/120)})`;ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke();}}ctx.fillStyle='rgba(212,175,55,.5)';ctx.beginPath();ctx.arc(pts[i].x,pts[i].y,pts[i].r,0,Math.PI*2);ctx.fill();}requestAnimationFrame(drawMesh);}
+drawMesh();
+async function probe(){const t0=performance.now();try{const r=await fetch(`${DROPLET}/`);const j=await r.json();const lat=Math.round(performance.now()-t0);document.getElementById('lat').textContent=`${lat}ms`;document.getElementById('vps-status').textContent='UP';document.getElementById('vps-status').className='value';document.getElementById('vps-status-msg').textContent=`HTTP ${r.status} · ${lat}ms`;document.getElementById('vps-status-msg').className='status ok';}catch(e){document.getElementById('vps-status').textContent='DOWN';document.getElementById('vps-status').style.color='var(--red)';document.getElementById('vps-status-msg').textContent=e.message;document.getElementById('vps-status-msg').className='status err';}}
+async function callAPI(type){const el=document.getElementById(`res-${type}`);el.textContent='loading...';const t0=performance.now();try{let url=`${DROPLET}/xrpc/ae.vps.${type}`;let opts={};if(type==='record'){url=`${DROPLET}/xrpc/ae.vps.record`;opts={method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nsid:'ae.core#ledgerEvent',value:{action:'gateway_test',timestamp:Date.now()}})};}const r=await fetch(url,opts);const j=await r.json();el.textContent=JSON.stringify(j,null,2);el.style.color='var(--neon)';}catch(e){el.textContent=`error: ${e.message}`;el.style.color='var(--red)';}}
+async function loadTools(){const el=document.getElementById('tools-grid');try{const r=await fetch(`${DROPLET}/mcp/tools`);const j=await r.json();if(j.tools){el.innerHTML=j.tools.map(t=>`<div class="card"><div class="label">${t.name}</div><div class="value" style="font-size:12px">${t.desc}</div></div>`).join('');}else{el.innerHTML='<div class="card"><div class="label">no tools</div></div>';}}catch(e){el.innerHTML=`<div class="card"><div class="label">error</div><div class="value" style="font-size:12px;color:var(--red)">${e.message}</div></div>`;}}
+probe();loadTools();setInterval(probe,30000);
+</script>
+</body>
+</html>
