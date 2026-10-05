@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#050505"/>
+<title>aipodcast.me · MEDIA PRODUCTION HUB</title>
+<meta name="description" content="aipodcast.me — every media asset we produce. Video and audio, local-rendered, supervision-verified. One principal. Many agents. #aipodcast #opensourceware"/>
+<meta name="author" content="Yæl Méndez"/>
+<link rel="canonical" href="https://myaelmendez.github.io/aipodcast_me/media.html"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --void:#050505; --panel:rgba(8,8,7,.82);
+  --gold:#D4AF37; --gold2:#f0d487; --emerald:#00ff9d; --cyan:#00eaff;
+  --violet:#8c72ff; --ink:#e8e6df; --muted:#6f6a5c; --line:rgba(212,175,55,.22);
+  --mono:"JetBrains Mono",ui-monospace,monospace; --display:"Orbitron",system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;min-height:100%;background:var(--void);color:var(--ink);font-family:var(--mono)}
+body{padding:max(12px,env(safe-area-inset-top)) 12px calc(40px + env(safe-area-inset-bottom))}
+#mesh{position:fixed;inset:0;z-index:0;pointer-events:none}
+.scan{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.22;
+  background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.5) 2px 4px)}
+.vig{position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(circle at 50% 30%,transparent 32%,rgba(5,5,5,.6) 74%,rgba(5,5,5,.97) 100%)}
+.wrap{position:relative;z-index:10;width:min(100%,1120px);margin:0 auto}
+
+.statusbar{display:flex;justify-content:space-between;gap:10px;font-size:9px;letter-spacing:.16em;
+  color:var(--muted);border:1px solid var(--line);border-top:2px solid var(--gold);
+  padding:8px 12px;background:var(--panel)}
+.statusbar a{color:var(--gold);text-decoration:none}
+.statusbar .live{color:var(--emerald);display:flex;align-items:center;gap:6px}
+.statusbar .dot{width:5px;height:5px;background:var(--emerald);border-radius:50%;
+  box-shadow:0 0 10px var(--emerald);animation:blink 2s infinite}
+@keyframes blink{50%{opacity:.25}}
+
+.hero{text-align:center;padding:42px 14px 26px}
+.hero h1{font-family:var(--display);font-weight:900;font-size:clamp(22px,5.6vw,40px);letter-spacing:.05em;
+  background:linear-gradient(90deg,var(--gold2),var(--gold),var(--cyan));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero .sub{margin-top:12px;font-size:11px;letter-spacing:.2em;color:var(--muted)}
+.hero .sub b{color:var(--emerald);font-weight:400}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);margin-top:22px}
+.stat{background:var(--panel);padding:14px 10px;text-align:center}
+.stat .n{font-family:var(--display);font-size:22px;font-weight:700;color:var(--gold)}
+.stat .n.pass{color:var(--emerald)}
+.stat .l{font-size:8px;letter-spacing:.16em;color:var(--muted);margin-top:5px;text-transform:uppercase}
+
+.panel{margin-top:22px;border:1px solid var(--line);background:var(--panel)}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:11px 14px;border-bottom:1px solid var(--line);font-size:10px;letter-spacing:.18em;color:var(--gold)}
+.panel-head .tag{color:var(--muted);font-size:8px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:var(--line)}
+.card{background:#070706;padding:12px}
+.card video{width:100%;display:block;background:#000;aspect-ratio:9/16;object-fit:cover}
+.card .t{margin-top:10px;font-size:12px;font-weight:700;color:var(--gold)}
+.card .s{margin-top:5px;font-size:9px;line-height:1.5;color:var(--muted);min-height:2.6em}
+.badges{display:flex;flex-wrap:wrap;gap:4px;margin-top:9px}
+.badge{font-size:7.5px;padding:3px 6px;border:1px solid var(--line);color:var(--muted);letter-spacing:.05em}
+.badge.pass{color:var(--emerald);border-color:rgba(0,255,157,.4)}
+.badge.epi{color:var(--cyan);border-color:rgba(0,234,255,.4)}
+.receipt{margin-top:8px;font-size:7px;color:rgba(212,175,55,.45);word-break:break-all}
+
+.arow{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line)}
+.arow:last-child{border-bottom:0}
+.arow .meta{flex:1;min-width:0}
+.arow .t{font-size:11px;color:var(--ink)}
+.arow .s{font-size:8px;color:var(--muted);margin-top:3px}
+.arow audio{width:190px;max-width:44vw;height:30px}
+
+.feat{padding:16px 14px}
+.feat .fk{font-size:8px;letter-spacing:.2em;color:var(--emerald)}
+.feat .ft{margin-top:7px;font-family:var(--display);font-size:20px;font-weight:900;color:var(--gold);letter-spacing:.02em}
+.feat .fs{margin-top:8px;font-size:9.5px;line-height:1.6;color:var(--muted);max-width:640px}
+.frow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:11px}
+.fdl{border:1px solid var(--line);background:rgba(212,175,55,.05);color:var(--gold);
+  padding:6px 11px;font-size:8.5px;letter-spacing:.1em;text-decoration:none}
+.fdl:hover{background:rgba(212,175,55,.12)}
+.fnote{font-size:8px;color:var(--muted);letter-spacing:.1em}
+
+.truth{padding:16px 14px;font-size:9px;line-height:1.8;color:var(--muted)}
+.truth code{color:var(--cyan)}
+.truth b{color:var(--gold)}
+
+.foot{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;
+  gap:10px;justify-content:space-between;font-size:8.5px;letter-spacing:.14em;color:var(--muted)}
+.foot a{color:var(--gold);text-decoration:none}
+.foot .hash{color:rgba(212,175,55,.5)}
+@media(max-width:560px){.arow{flex-direction:column;align-items:stretch}.arow audio{width:100%;max-width:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div id="mesh"></div><div class="vig"></div><div class="scan"></div>
+
+<main class="wrap">
+  <div class="statusbar">
+    <span>aipodcast.me</span>
+    <span>MEDIA PRODUCTION HUB</span>
+    <span class="live"><span class="dot"></span>LOCAL-SOVEREIGN</span>
+  </div>
+
+  <section class="hero">
+    <h1>MEDIA PRODUCTION</h1>
+    <div class="sub">VIDEO · AUDIO · <b>VERIFIED</b> · ONE PRINCIPAL · MANY AGENTS</div>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><span>◈ FEATURED EPISODE</span><span class="tag">#aipodcast · 001</span></div>
+    <div class="feat" id="feat">
+      <div class="fmeta">
+        <div class="fk">EPISODE 001 · 3.9 MIN</div>
+        <div class="ft">The Human Loop</div>
+        <div class="fs">One principal. Many agents. The human is the loop — read from @yaelmendez #zeitgeist and the æ:// thesis. Generated locally, narrated by æ://.</div>
+      </div>
+      <audio controls preload="metadata" style="width:100%;margin-top:12px">
+        <source src="./episodes/episode-001-the-human-loop.mp3" type="audio/mpeg">
+      </audio>
+      <div class="frow">
+        <a class="fdl" href="./episodes/episode-001-the-human-loop.mp3" download>⬇ AUDIO</a>
+        <a class="fdl" href="./episodes/episode-001-the-human-loop.md" download>⬇ SCRIPT</a>
+        <span class="fnote">source · 601 words · edge TTS · zero cloud</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><span>◈ VIDEO</span><span class="tag" id="vcount"></span></div>
+    <div class="grid" id="vgrid"></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><span>◈ AUDIO</span><span class="tag" id="acount"></span></div>
+    <div id="alist"></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><span>◈ HONEST NOTES</span><span class="tag">WHAT IS TRUE HERE</span></div>
+    <div class="truth">
+      <p>Every number on this page comes from <code>ffprobe</code> (duration, size, bitrate, dimensions) or <code>SupervisorVideo</code> (luminance, contrast, motion, verdict) — <b>measured, not asserted</b>.</p>
+      <p>Corpus videos carry a <code>SHA-256 receipt</code>. A render that fails its gate is <b>refused</b> — it never appears here.</p>
+      <p>Rendering is <b>fully local</b> on the RTX 3050. No cloud render farm, no per-minute billing, no vendor lock-in.</p>
+      <p>Episodic videos are existing surfaces; the corpus is the supervised pipeline output.</p>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span><a href="./index.html">aipodcast.me HQ</a> · <a href="/factory.html">mp4-factory</a> · <a href="/">æ://</a></span>
+    <span class="hash">#HERMIPHICATIONISINEVITABLE</span>
+  </div>
+</main>
+
+<script src="media-manifest.js"></script>
+<script>
+(function(){
+  "use strict";
+  var M = (typeof MEDIA !== "undefined") ? MEDIA : {videos:[],audio:[]};
+
+  /* stats — from the manifest, not typed */
+  document.getElementById("stats").innerHTML = [
+    ['n', M.video_count, 'videos'],
+    ['n', M.audio_count, 'audio'],
+    ['n', M.total_video_mb + M.total_audio_mb, 'MB total'],
+    ['n pass', M.all_pass ? 'ALL' : '—', 'corpus PASS'],
+    ['n', '9:16', 'portable'],
+  ].map(function(s){
+    return '<div class="stat"><div class="'+s[0]+'">'+s[1]+'</div><div class="l">'+s[2]+'</div></div>';
+  }).join("");
+
+  document.getElementById("vcount").textContent = M.video_count + " assets · " + M.total_video_mb + " MB";
+
+  /* video cards */
+  var vg = document.getElementById("vgrid");
+  M.videos.forEach(function(v){
+    var vision = v.vision || {};
+    var isCorpus = v.kind === "corpus";
+    var src = (v.where === "aipodcast_me" ? "./" : "/") + v.file;
+    var badges = [
+      '<span class="badge '+(isCorpus?'pass':'epi')+'">'+(isCorpus?'CORPUS':'EPISODIC')+'</span>',
+      '<span class="badge">'+v.width+'×'+v.height+'</span>',
+      '<span class="badge">'+(v.fps||'?')+'fps</span>',
+      '<span class="badge">'+v.duration_s+'s</span>',
+      '<span class="badge">'+v.size_mb+'MB</span>',
+    ];
+    if (vision.calidad) badges.push('<span class="badge pass">'+vision.calidad+'</span>');
+    var card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML =
+      '<video controls preload="metadata" playsinline><source src="'+src+'" type="video/mp4"></video>'+
+      '<div class="t">'+v.title+'</div>'+
+      '<div class="s">'+v.source+'</div>'+
+      '<div class="badges">'+badges.join("")+'</div>'+
+      (vision.receipt ? '<div class="receipt">receipt sha256:'+vision.receipt.slice(0,40)+'…</div>' : '');
+    vg.appendChild(card);
+  });
+
+  document.getElementById("acount").textContent = M.audio_count + " assets · " + M.total_audio_mb + " MB";
+
+  /* audio rows */
+  var al = document.getElementById("alist");
+  if (!M.audio.length) {
+    al.innerHTML = '<div class="truth">No audio assets yet — produce one with the TTS tool or ffmpeg.</div>';
+  }
+  M.audio.forEach(function(a){
+    var row = document.createElement("div");
+    row.className = "arow";
+    row.innerHTML =
+      '<div class="meta"><div class="t">'+a.title+'</div>'+
+      '<div class="s">'+a.file+' · '+a.duration_s+'s · '+a.size_mb+'MB · '+(a.sample_rate||'?')+'Hz · '+(a.channels||'?')+'ch</div></div>'+
+      '<audio controls preload="metadata"><source src="/'+(a.where==='voice-memos'?'voice-memos/':'threejs-curriculo/')+a.file+'" type="audio/mpeg"></audio>';
+    al.appendChild(row);
+  });
+
+  /* neural mesh */
+  var cv=document.createElement("canvas"); document.getElementById("mesh").appendChild(cv);
+  var cx=cv.getContext("2d"), W=0,H=0,DPR=Math.min(window.devicePixelRatio||1,2),N=64,nodes=[],a=0,b=0,t=0;
+  function resize(){W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+"px";cv.style.height=H+"px";cx.setTransform(DPR,0,0,DPR,0,0);}
+  resize(); addEventListener("resize",resize);
+  for(var i=0;i<N;i++){var th=Math.random()*6.2832,ph=Math.acos(2*Math.random()-1),r=220+Math.random()*220;
+    nodes.push({x:r*Math.sin(ph)*Math.cos(th),y:r*Math.sin(ph)*Math.sin(th)*.72,z:r*Math.cos(ph),s:.5+Math.random()*1.5,p:Math.random()*6.2832});}
+  function rot(p,aa,bb){var ca=Math.cos(aa),sa=Math.sin(aa),cb=Math.cos(bb),sb=Math.sin(bb);
+    var x=p.x*ca-p.z*sa,z=p.x*sa+p.z*ca,y=p.y*cb-z*sb;z=p.y*sb+z*cb;return{x:x,y:y,z:z};}
+  (function frame(){t+=.006;a+=.0016;b=Math.sin(t*.28)*.2;cx.clearRect(0,0,W,H);
+    var cxp=W/2,cyp=H*.38,F=620,proj=[];
+    for(var i=0;i<N;i++){var n=nodes[i];n.p+=.02;var q=rot(n,a,b),z=q.z+F;
+      if(z<40){proj.push(null);continue}var k=F/z;proj.push({x:cxp+q.x*k,y:cyp+q.y*k,k:k,s:n.s,p:n.p});}
+    for(var A=0;A<N;A++){var P=proj[A];if(!P)continue;
+      for(var B=A+1;B<N;B++){var Q=proj[B];if(!Q)continue;
+        var dx=P.x-Q.x,dy=P.y-Q.y,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<132){var al=(1-d/132)*.16*Math.min(P.k,Q.k);
+          cx.strokeStyle="rgba(212,175,55,"+al.toFixed(3)+")";cx.lineWidth=.6;
+          cx.beginPath();cx.moveTo(P.x,P.y);cx.lineTo(Q.x,Q.y);cx.stroke();}}}
+    for(var j=0;j<N;j++){var R=proj[j];if(!R)continue;var pu=1+Math.sin(R.p)*.34,rad=Math.max(.4,R.s*R.k*1.7*pu);
+      cx.fillStyle="rgba(212,175,55,"+(.10*R.k).toFixed(3)+")";cx.beginPath();cx.arc(R.x,R.y,rad*5.5,0,6.2832);cx.fill();
+      cx.fillStyle="rgba(240,212,135,"+Math.min(.9,.30+R.k*.55).toFixed(3)+")";cx.beginPath();cx.arc(R.x,R.y,rad,0,6.2832);cx.fill();}
+    requestAnimationFrame(frame);})();
+
+  console.info("%caipodcast.me%c MEDIA PRODUCTION HUB · "+M.video_count+" video · "+M.audio_count+" audio",
+    "color:#D4AF37;background:#050505;padding:5px 10px;font-weight:bold","color:#00ff9d;font-family:monospace");
+})();
+</script>
+</body>
+</html>
