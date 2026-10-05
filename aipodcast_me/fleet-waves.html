@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden;
+        background: #010204; color: #f5f7fa;
+        font-family: 'JetBrains Mono', 'Consolas', monospace; }
+      #root { width: 100%; height: 100%; position: relative; overflow: hidden; }
+      .scanlines { position: absolute; inset: 0; pointer-events: none; z-index: 100;
+        background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.25) 3px, rgba(0,0,0,0.25) 4px); }
+      .neural-mesh { position: absolute; inset: 0; z-index: 1;
+        background: radial-gradient(circle at 50% 50%, rgba(0,234,255,0.03) 0%, transparent 70%),
+                    radial-gradient(circle at 30% 30%, rgba(212,175,55,0.02) 0%, transparent 50%); }
+      #stage { position: absolute; inset: 0; z-index: 5; overflow: hidden; }
+      #stage canvas { width: 100%; height: 100%; display: block; }
+      .overlay { position: absolute; top: 40px; left: 40px; right: 40px; display: flex;
+        justify-content: space-between; align-items: center; z-index: 10; }
+      .title { font-size: 42px; color: #D4AF37; text-shadow: 0 0 20px rgba(212,175,55,0.4);
+        letter-spacing: -0.02em; font-weight: 700; }
+      .tag { font-size: 16px; color: rgba(212,175,55,0.5); letter-spacing: 0.15em; }
+      .footer { position: absolute; bottom: 30px; left: 40px; right: 40px;
+        display: flex; justify-content: space-between; font-size: 14px; color: rgba(212,175,55,0.3); z-index: 10; }
+      .stats { font-size: 12px; color: rgba(0,234,255,0.5); letter-spacing: 0.1em; }
+      .stats b { color: #D4AF37; }
+      .progress-bar { position: absolute; bottom: 0; left: 0; height: 2px;
+        background: linear-gradient(90deg, transparent, #00eaff, transparent);
+        z-index: 4; }
+    </style>
+</head>
+<body>
+    <!-- Fleet waves development — 1 manager + 1393 worker agents
+         Teknium's autonomous refactor: 1,063,826 → 698,363 lines (34.4% reduction)
+         This laptop named teknium in his honor -->
+    <div id="root" data-composition-id="fleet-waves-dev" data-no-timeline
+         data-start="0" data-duration="12" data-width="1920" data-height="1080">
+      <div class="neural-mesh"></div>
+      <div class="scanlines"></div>
+      <div id="stage"></div>
+      <div class="progress-bar clip" data-start="0" data-duration="12" data-track-index="4"></div>
+      <div id="overlay" class="overlay clip" data-start="0" data-duration="12" data-track-index="1">
+        <span class="title">Fleet Waves Development</span>
+        <span class="tag">1 manager + 1393 worker agents · Teknium method · æ://teknium</span>
+      </div>
+      <div id="footer" class="footer clip" data-start="0" data-duration="12" data-track-index="3">
+        <div><b>HOST:</b> teknium · i5-13420H 12t · RTX 3050 6GB · CUDA 13.3</div>
+        <div><b>REFACTOR:</b> 1,063,826 → 698,363 lines (34.4% reduction) · zero human mid-task</div>
+        <div>#hermiphicationisinevitable · æ:// language is compute</div>
+      </div>
+    </div>
+
+<script>
+/* Fleet Waves Development — visualizing the autonomous agent fleet methodology
+   1 manager agent + 1393 worker agents refactoring 1M+ lines of Python
+   Deterministic: seeded PRNG, gsap-driven timeline, canvas render loop */
+(function() {
+  function mulberry32(a) {
+    return function() {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  /* Fleet waves — 3 tiers of the Teknium methodology */
+  var FLEETS = [
+    { name: "manager",     color: "#D4AF37", particleCount: 1,    size: 18, orbitRadius: 120, speed: 0.0 },
+    { name: "reasoners",   color: "#00eaff", particleCount: 64,   size: 8,  orbitRadius: 220, speed: 0.12 },
+    { name: "workers",     color: "#00ff9d", particleCount: 1393, size: 3,  orbitRadius: 320, speed: 0.35 }
+  ];
+
+  /* Wave phases — representing the refactor progression
+     1063826 → 698363 lines (34.4% reduction) */
+  var LINES_START = 1063826;
+  var LINES_END   = 698363;
+
+  var stage = document.getElementById("stage");
+  var canv = document.createElement("canvas");
+  canv.width = 1920; canv.height = 1080;
+  stage.appendChild(canv);
+  var ctx = canv.getContext("2d");
+  ctx.imageSmoothingEnabled = false;
+
+  var seedTime = 0;
+
+  /* Generate fleet particles */
+  var r = mulberry32(1393);
+  var particles = [];
+
+  FLEETS.forEach(function(fleet, fi) {
+    for (var i = 0; i < fleet.particleCount; i++) {
+      var angleOffset = r() * Math.PI * 2;
+      particles.push({
+        fleet: fi,
+        angle: angleOffset,
+        orbitRadius: fleet.orbitRadius + (r() - 0.5) * 40,
+        speed: fleet.speed * (0.8 + r() * 0.4),
+        size: fleet.size * (0.7 + r() * 0.6),
+        phase: r() * Math.PI * 2,
+      });
+    }
+  });
+
+  /* Connection lines between fleets */
+  var connections = [];
+  for (var i = 0; i < 120; i++) {
+    connections.push({
+      from: Math.floor(r() * particles.length),
+      to: Math.floor(r() * particles.length),
+      alpha: 0.02 + r() * 0.08
+    });
+  }
+
+  /* Code line drift text */
+  var codeLines = [];
+  for (var i = 0; i < 80; i++) {
+    codeLines.push({
+      x: r() * 1920,
+      y: 300 + r() * 200,
+      speed: 2 + r() * 6,
+      char: "+-=/~\\*" [Math.floor(r() * 6)],
+      active: r() > 0.5
+    });
+  }
+
+  /* GSAP timeline for deterministic time */
+  var tl = gsap.timeline({ paused: true });
+  tl.to({}, { duration: 12, onUpdate: function() { seedTime = tl.progress() * Math.PI * 6; } });
+  window.__timelines = window.__timelines || {};
+  window.__timelines["fleet-waves-dev"] = tl;
+
+  function project3to2(x, y, z) {
+    var fov = 52, dist = 800;
+    var scale = dist / (dist + z);
+    return { x: 960 + x * scale, y: 540 - y * scale, scale: scale };
+  }
+
+  function hexWithAlpha(hex, a) {
+    var h = hex.replace("#", "");
+    return "rgba(" +
+      parseInt(h.substr(0,2),16) + "," +
+      parseInt(h.substr(2,2),16) + "," +
+      parseInt(h.substr(4,2),16) + "," + a + ")";
+  }
+
+  function render() {
+    ctx.fillStyle = "#010204";
+    ctx.fillRect(0, 0, 1920, 1080);
+
+    /* Fog */
+    var fogGrad = ctx.createRadialGradient(960, 540, 0, 960, 540, 960);
+    fogGrad.addColorStop(0, "rgba(1,2,4,0)");
+    fogGrad.addColorStop(1, "rgba(1,2,4,0.9)");
+    ctx.fillStyle = fogGrad;
+    ctx.fillRect(0, 0, 1920, 1080);
+
+    /* Camera orbit */
+    var camRY = seedTime * 0.05;
+    var camRX = Math.sin(seedTime * 0.08) * 0.15;
+
+    /* Sort particles by Z for depth */
+    var sorted = particles.slice().sort(function(a, b) {
+      var az = Math.sin(a.angle + seedTime * a.speed) * a.orbitRadius;
+      var bz = Math.sin(b.angle + seedTime * b.speed) * b.orbitRadius;
+      return az - bz;
+    });
+
+    /* Draw connection lines */
+    ctx.strokeStyle = "rgba(0,234,255,0.08)";
+    ctx.lineWidth = 0.5;
+    for (var c = 0; c < connections.length; c++) {
+      var cf = particles[connections[c].from];
+      var ct = particles[connections[c].to];
+      var pf = project3to2(
+        Math.cos(cf.angle + seedTime * cf.speed) * cf.orbitRadius,
+        Math.sin(cf.angle + seedTime * cf.speed * 0.7) * cf.orbitRadius * 0.3,
+        Math.cos(cf.angle + seedTime * cf.speed * 0.5) * cf.orbitRadius
+      );
+      var pt = project3to2(
+        Math.cos(ct.angle + seedTime * ct.speed) * ct.orbitRadius,
+        Math.sin(ct.angle + seedTime * ct.speed * 0.7) * ct.orbitRadius * 0.3,
+        Math.cos(ct.angle + seedTime * ct.speed * 0.5) * ct.orbitRadius
+      );
+      if (pf.scale > 0.03 && pt.scale > 0.03) {
+        ctx.globalAlpha = connections[c].alpha;
+        ctx.beginPath();
+        ctx.moveTo(pf.x, pf.y);
+        ctx.lineTo(pt.x, pt.y);
+        ctx.stroke();
+      }
+    }
+    ctx.globalAlpha = 1.0;
+
+    /* Draw particles */
+    for (var p = 0; p < sorted.length; p++) {
+      var particle = sorted[p];
+      var fleet = FLEETS[particle.fleet];
+      var t = seedTime * particle.speed + particle.phase;
+      var wave = Math.sin(t * 2 + particle.angle) * 0.3;
+
+      var px = Math.cos(particle.angle + t) * particle.orbitRadius;
+      var py = Math.sin(t * 0.7) * (particle.orbitRadius * 0.3);
+      var pz = Math.cos(particle.angle + t * 0.5) * particle.orbitRadius;
+
+      var proj = project3to2(px, py, pz);
+      if (proj.scale < 0.03) continue;
+
+      var size = particle.size * proj.scale * (0.7 + wave * 0.3);
+      var alpha = Math.max(0.2, Math.min(1, proj.scale * 2.5));
+
+      ctx.fillStyle = hexWithAlpha(fleet.color, alpha);
+      ctx.beginPath();
+      ctx.arc(proj.x, proj.y, size, 0, Math.PI * 2);
+      ctx.fill();
+
+      /* Glow */
+      var grad = ctx.createRadialGradient(proj.x, proj.y, 0, proj.x, proj.y, size * 5);
+      grad.addColorStop(0, hexWithAlpha(fleet.color, alpha * 0.6));
+      grad.addColorStop(1, hexWithAlpha(fleet.color, 0));
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(proj.x, proj.y, size * 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    /* Orbit rings */
+    ctx.strokeStyle = "rgba(212,175,55,0.08)";
+    for (var ring = 80; ring <= 360; ring += 40) {
+      ctx.lineWidth = 0.6;
+      ctx.beginPath();
+      ctx.arc(960, 540, ring, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    /* Code line counter — drift text showing lines reduced */
+    var reduction = LINES_START - Math.floor((LINES_START - LINES_END) * (0.5 + Math.sin(seedTime * 0.3) * 0.5));
+    codeLines.forEach(function(line) {
+      if (!line.active || seedTime < 2) return;
+      ctx.fillStyle = "rgba(0,234,255,0.15)";
+      ctx.font = "11px 'JetBrains Mono', monospace";
+      ctx.textAlign = "left";
+      line.x -= line.speed * 0.03;
+      if (line.x < -10) line.x = 1930;
+      ctx.fillText(line.char, line.x, line.y);
+    });
+
+    /* Progress indicator */
+    var progress = seedTime / (Math.PI * 6);
+    var progressPct = Math.floor(progress * 100);
+    ctx.fillStyle = hexWithAlpha("#00ff9d", 0.7);
+    ctx.font = "bold 16px 'JetBrains Mono', monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("Lines Refactored: " + reduction.toLocaleString() + " / " + LINES_START.toLocaleString() + " (" + progressPct + "%)", 960, 980);
+
+    /* Fleet labels */
+    ctx.fillStyle = "rgba(212,175,55,0.4)";
+    ctx.font = "10px 'JetBrains Mono', monospace";
+    ctx.textAlign = "left";
+    ctx.fillText("manager", 40, 540 - 120);
+    ctx.fillText("reasoners \u00d7 64", 40, 540 - 220);
+    ctx.fillText("workers \u00d7 1393", 40, 540 - 320);
+  }
+
+  function tick() { render(); }
+  /* Hook render into GSAP timeline onUpdate for deterministic frame sync */
+  tl.eventCallback("onUpdate", function() { tick(); });
+  tl.play();
+})();
+</script>
+</body>
+</html>
