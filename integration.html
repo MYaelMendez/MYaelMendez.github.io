@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>æ:// github.io integration · surface index</title>
+<meta name="description" content="Full integration page for github.io surfaces — every surface, every category, agent-ready manifest.">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./assets/aether.css">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-glow:rgba(212,175,55,.32);--neon:#00ff9d;--ink:#f0ece4;--muted:rgba(240,236,228,.4);--border:rgba(212,175,55,.16);--border-hot:rgba(212,175,55,.5);--danger:#ff6b6b;--dur:.2s;--ease:cubic-bezier(.2,.7,.2,1)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100dvh;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");opacity:.025;pointer-events:none}
+body::after{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,transparent 35%,rgba(5,5,5,.92) 100%)}
+.scan{position:fixed;inset:0;z-index:2;pointer-events:none;background:repeating-linear-gradient(transparent 0 2px,rgba(212,175,55,.012) 2px 4px)}
+.wrap{position:relative;z-index:10;max-width:960px;margin:0 auto;padding:clamp(20px,5vw,56px) clamp(14px,4vw,28px);display:flex;flex-direction:column;gap:clamp(14px,2.6vh,24px);min-height:100dvh}
+.statusbar{display:flex;justify-content:space-between;align-items:center;font-size:clamp(7px,1.1vw,10px);letter-spacing:2px;color:var(--muted);text-transform:uppercase;border:1px solid var(--border);padding:8px 14px}
+.statusbar .live{display:flex;align-items:center;gap:6px;color:var(--neon)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+.hero{text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+.glyph{font-size:clamp(44px,11vw,88px);filter:drop-shadow(0 0 24px var(--gold-glow));animation:breathe 4s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.cmd{font-family:'Orbitron';font-weight:900;font-size:clamp(20px,5.5vw,46px);letter-spacing:clamp(1px,.4vw,4px);color:var(--gold);text-shadow:0 0 28px var(--gold-glow);line-height:1}
+.cmd .dim{color:var(--muted)}.cmd .cur{display:inline-block;width:.5ch;background:var(--gold);animation:blink 1s step-end infinite;margin-left:2px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.sub{font-size:clamp(9px,1.8vw,13px);letter-spacing:2px;color:var(--ink);text-transform:uppercase}
+.sub em{font-style:normal;color:var(--gold)}
+.pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.pill{font-size:clamp(6px,1vw,9px);letter-spacing:1.5px;padding:3px 10px;border-radius:999px;border:1px solid var(--border);color:var(--muted);text-transform:uppercase}
+.pill.hot{border-color:rgba(212,175,55,.4);color:var(--gold)}
+.panel{border:1px solid var(--border-hot);background:rgba(5,5,5,.7);box-shadow:0 0 40px rgba(212,175,55,.08);padding:16px;display:flex;flex-direction:column;gap:12px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;font-size:clamp(7px,1.1vw,10px);letter-spacing:2px;color:var(--gold);text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:8px}
+.panel-head .tag{color:var(--neon);border:1px solid rgba(0,255,157,.25);padding:2px 8px;border-radius:999px;font-size:8px}
+.cat-header{font-size:10px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-top:12px;display:flex;align-items:center;gap:8px}
+.cat-header::after{content:'';flex:1;height:1px;background:var(--border)}
+.surface-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.surface-card{border:1px solid var(--border);background:rgba(0,0,0,.3);padding:12px;transition:border-color var(--dur) var(--ease),box-shadow var(--dur) var(--ease);display:flex;flex-direction:column;gap:6px}
+.surface-card:hover{border-color:var(--border-hot);box-shadow:0 0 12px rgba(212,175,55,.06)}
+.surface-card .name{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:1px}
+.surface-card .desc{font-size:9px;color:var(--muted);line-height:1.5;flex:1}
+.surface-card .caps{display:flex;flex-wrap:wrap;gap:4px}
+.surface-card .cap{font-size:8px;letter-spacing:1px;padding:2px 6px;border:1px solid var(--border);color:var(--muted);border-radius:2px}
+.surface-card .cap.hot{border-color:rgba(212,175,55,.3);color:var(--gold)}
+.surface-card .link{font-size:10px;color:var(--gold);text-decoration:none}
+.surface-card .link:hover{text-decoration:underline}
+.surface-card .badge{display:inline-block;font-size:7px;letter-spacing:1px;padding:2px 6px;border:1px solid rgba(0,255,157,.25);color:var(--neon);border-radius:999px;text-transform:uppercase}
+.surface-card .badge.write{border-color:rgba(212,175,55,.4);color:var(--gold)}
+.agent-section{border:1px solid rgba(0,255,157,.2);background:rgba(0,255,157,.03);padding:16px;display:flex;flex-direction:column;gap:10px}
+.agent-section .panel-head{color:var(--neon)}
+.agent-section pre{font-size:10px;color:var(--muted);background:#0b0b0b;border:1px solid var(--border);padding:12px;border-radius:4px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.agent-section pre b{color:var(--gold)}
+.agent-section pre .ok{color:var(--neon)}
+.hash{text-align:center;font-family:'Orbitron';font-weight:700;font-size:clamp(9px,1.6vw,13px);background:linear-gradient(90deg,var(--gold),var(--neon),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
+.foot{display:flex;flex-wrap:wrap;gap:4px 16px;justify-content:center;font-size:clamp(7px,1.1vw,10px);letter-spacing:1px}
+.foot a{color:var(--muted);text-decoration:none;transition:color .15s}
+.foot a:hover{color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="scan"></div>
+<div class="wrap">
+
+  <div class="statusbar">
+    <span>æ:// GITHUB.IO</span>
+    <span>INTEGRATION</span>
+    <span class="live"><span class="dot"></span>AGENT-READY</span>
+  </div>
+
+  <div class="hero">
+    <div class="glyph">æ</div>
+    <div class="cmd">SURFACE <span class="dim">INDEX</span><span class="cur"></span></div>
+    <div class="sub">every surface · every category · <em>agent-ready manifest</em></div>
+    <div class="pills">
+      <span class="pill hot">#opensourceware</span>
+      <span class="pill">19 surfaces</span>
+      <span class="pill">11 categories</span>
+      <span class="pill">zero cloud rent</span>
+    </div>
+  </div>
+
+  <!-- ═══ QUICK ACCESS ═══ -->
+  <div class="panel">
+    <div class="panel-head"><span>◈ QUICK ACCESS</span><span class="tag">PRIMARY</span></div>
+    <div class="surface-grid">
+      <div class="surface-card">
+        <div class="name">🔐 VÆULT VAULT</div>
+        <div class="desc">Password-secured local vault · create, manage, QR air-gap · 7 security layers</div>
+        <div class="caps"><span class="cap hot">AES-256-GCM</span><span class="cap">QR air-gap</span><span class="cap">scrypt</span></div>
+        <a class="link" href="./privateclient/vault.html">open vault →</a>
+      </div>
+      <div class="surface-card">
+        <div class="name">📊 VAULT LAYERS</div>
+        <div class="desc">3D visualization · 7 security layers · load + unlock vault in-browser</div>
+        <div class="caps"><span class="cap hot">WebGPU</span><span class="cap">Three.js</span><span class="cap">3D</span></div>
+        <a class="link" href="./privateclient/vault-layers.html">open layers →</a>
+      </div>
+      <div class="surface-card">
+        <div class="name">⌨ TERMINAL</div>
+        <div class="desc">Command prompt · æ.store · agentic entrepreneurship</div>
+        <div class="caps"><span class="cap">terminal</span><span class="cap">æ-store</span></div>
+        <a class="link" href="./privateclient/terminal.html">open terminal →</a>
+      </div>
+      <div class="surface-card">
+        <div class="name">🔑 SECRET BRIDGE</div>
+        <div class="desc">Browser UI · push to local · sovereign handoff</div>
+        <div class="caps"><span class="cap">secrets</span><span class="cap">bridge</span></div>
+        <a class="link" href="./privateclient/secret-source-bridge.html">open bridge →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PRIVATECLIENT — SECRETS ═══ -->
+  <div class="cat-header">PRIVATECLIENT · SECRETS</div>
+  <div class="surface-grid">
+    <div class="surface-card">
+      <div class="name">VÆULT WEB</div>
+      <div class="desc">Password-secured vault · create, manage, QR air-gap</div>
+      <div class="caps"><span class="cap hot">vault</span><span class="cap">encryption</span><span class="cap">QR</span></div>
+      <a class="link" href="./privateclient/vault.html">open →</a>
+    </div>
+    <div class="surface-card">
+      <div class="name">VÆULT CLI</div>
+      <div class="desc">Python tool · scrypt/PBKDF2 · AES-256-GCM · QR export</div>
+      <div class="caps"><span class="cap hot">CLI</span><span class="cap">scrypt</span><span class="cap">PBKDF2</span></div>
+      <a class="link" href="./privateclient/vaeult/vaeult.py">vaeult.py →</a>
+    </div>
+    <div class="surface-card">
+      <div class="name">VAULT LAYERS</div>
+      <div class="desc">3D visualization · 7 security layers · load + unlock vault</div>
+      <div class="caps"><span class="cap hot">3D</span><span class="cap">WebGPU</span><span class="cap">Three.js</span></div>
+      <a class="link" href="./privateclient/vault-layers.html">open →</a>
+    </div>
+    <div class="surface-card">
+      <div class="name">SECRET BRIDGE</div>
+      <div class="desc">Browser UI · push to local · sovereign handoff</div>
+      <div class="caps"><span class="cap">secrets</span><span class="cap">bridge</span><span class="cap">local</span></div>
+      <a class="link" href="./privateclient/secret-source-bridge.html">open →</a>
+    </div>
+    <div class="surface-card">
+      <div class="name">GLOCAL SECRETS</div>
+      <div class="desc">Blueprint · surface github.io · custody Victus · broker +æ://</div>
+      <div class="caps"><span class="cap">blueprint</span><span class="cap">glocal</span><span class="cap">broker</span></div>
+      <a class="link" href="./privateclient/glocal-secrets-blueprint.html">open →</a>
+    </div>
+    <div class="surface-card">
+      <div class="name">SECRET SYSTEM</div>
+      <div class="desc">Architecture · local contract · boundaries</div>
+      <div class="caps"><span class="cap">architecture</span><span class="cap">contract</span></div>
+      <a class="link" href="./privateclient/SECRET_SOURCE_SYSTEM.md">docs →</a>
+    </div>
+    <div class="surface-card">
+      <div class="name">VÆULT REPO</div>
+      <div class="desc">Open sourceware · MIT · standalone public repo</div>
+      <div class="caps"><span class="cap hot">MIT</span><span class="cap">github</span></div>
+      <a class="link" href="https://github.com/MYaelMendez/vaeult">github →</a>
+    </div>
+  </div>
+
+  <!-- ═══ PRIVATECLIENT — SURFACES ═══ -->
+  <div class="cat-header">PRIVATECLIENT · SURFACES</div>
+  <div class="surface-grid">
+    <div class="surface-card">
+      <div class="name">TERMINAL</div>
+      <div class="desc">Command prompt · æ.store · agentic entrepreneurship</div>
+      <div class="caps"><span class="cap">terminal</span><span class="cap">æ-store</span></div>
+      <a class="link" href="./privateclient/terminal.html">open →</a>
+    </div>
+    <div class="surface-card">
+      <div class="name">COMPUTE</div>
+      <div class="desc">Sovereign compute surface</div>
+      <div class="caps"><span class="cap">compute</span><span class="cap">sovereign</span></div>
+      <a class="link" href="./privateclient/compute.html">open →</a>
+    </div>
+    <div class="surface-card">
+      <div class="name">OMNIBOX</div>
+      <div class="desc">Command Line Internet Gateway</div>
+      <div class="caps"><span class="cap">omnibox</span><span class="cap">gateway</span><span class="cap">CLI</span></div>
+      <a class="link" href="./privateclient/omnibox.html">open →</a>
+    </div>
+  </div>
+
+  <!-- ═══ AGENT PROTOCOL ═══ -->
+  <div class="agent-section">
+    <div class="panel-head"><span>◈ AGENT PROTOCOL</span><span class="tag">CODE MODE</span></div>
+    <pre><b>GET /surface-manifest.json</b>  →  19 surfaces, 11 categories
+
+<b>Authentication:</b>  passphrase (vault surfaces) · public read (others)
+<b>Access levels:</b>  read · write
+<b>Discovery:</b>      /surface-manifest.json
+
+<span class="ok">// Agent request flow:</span>
+1. Fetch manifest → parse surfaces
+2. Filter by category / capabilities
+3. Check agent_access level
+4. Authenticate if required (passphrase)
+5. Execute surface operation
+
+<span class="ok">// Example: agent wants to store a secret</span>
+→ GET /surface-manifest.json
+→ find surface with capabilities: ["vault", "write"]
+→ POST /privateclient/vault.html (passphrase auth)
+→ vault.add(key, value)</pre>
+    <a class="link" href="./surface-manifest.json" style="color:var(--neon);font-size:11px">fetch manifest →</a>
+  </div>
+
+  <!-- ═══ ALL CATEGORIES ═══ -->
+  <div class="cat-header">ALL CATEGORIES</div>
+  <div class="surface-grid">
+    <div class="surface-card">
+      <div class="name">NETWORKING</div>
+      <div class="desc">Mesh agenti · QR pairing · node discovery</div>
+      <div class="caps"><span class="cap">mesh</span><span class="cap">QR</span></div>
+      <a class="link" href="./mesh-agenti.html">open →</a>
+    </div>
+    <div class="surface-card">
+      <div class="name">ORCHESTRATION</div>
+      <div class="desc">Fleet · MoD×MoA×MoM device mixture</div>
+      <div class="caps"><span class="cap">fleet</span><span class="cap">bootstrap</span></div>
+      <a class="link" href="./fleet.html">open →</a>
+    </div>
+    <div class="surface-card">
+      <div class="name">MEDIA</div>
+      <div class="desc">CUDA→NVENC→VLC live stream</div>
+      <div class="caps"><span class="cap">CUDA</span><span class="cap">NVENC</span></div>
+      <a class="link" href="./cuda-vlc.html">open →</a>
+    </div>
+    <div class="surface-card">
+      <div class="name">GPU</div>
+      <div class="desc">Agentic CUDA GUI · WebGPU brain + hands</div>
+      <div class="caps"><span class="cap hot">WebGPU</span><span class="cap">CUDA</span></div>
+      <a class="link" href="./gpu-preview.html">open →</a>
+    </div>
+    <div class="surface-card">
+      <div class="name">SKILLS</div>
+      <div class="desc">206 skills · catalog + sovereign topology graph</div>
+      <div class="caps"><span class="cap">skills</span><span class="cap">graph</span></div>
+      <a class="link" href="./skill-guide/">open →</a>
+    </div>
+    <div class="surface-card">
+      <div class="name">BUSINESS</div>
+      <div class="desc">#startabusiness · Stripe · DAOLLC</div>
+      <div class="caps"><span class="cap">business</span><span class="cap">Stripe</span></div>
+      <a class="link" href="./agentic.html">open →</a>
+    </div>
+    <div class="surface-card">
+      <div class="name">BLUEPRINT</div>
+      <div class="desc">CUDA blueprint · #opensourceware</div>
+      <div class="caps"><span class="cap">blueprint</span></div>
+      <a class="link" href="./cuda-blueprint.html">open →</a>
+    </div>
+    <div class="surface-card">
+      <div class="name">STATE</div>
+      <div class="desc">Memory + ledger + #250 mission spine</div>
+      <div class="caps"><span class="cap">memory</span><span class="cap">ledger</span></div>
+      <a class="link" href="./sovereign-state.html">open →</a>
+    </div>
+    <div class="surface-card">
+      <div class="name">DEMO</div>
+      <div class="desc">Local HTML + VS Code primitive link</div>
+      <div class="caps"><span class="cap">demo</span></div>
+      <a class="link" href="./demo.html">open →</a>
+    </div>
+  </div>
+
+  <div class="hash">#HERMIPHICATIONISINEVITABLE</div>
+
+  <div class="foot">
+    <a href="./privateclient/vault.html">vault</a>
+    <a href="./privateclient/vault-layers.html">layers</a>
+    <a href="./privateclient/terminal.html">terminal</a>
+    <a href="./privateclient/compute.html">compute</a>
+    <a href="./privateclient/omnibox.html">omnibox</a>
+    <a href="./privateclient/secret-source-bridge.html">bridge</a>
+    <a href="./privateclient/glocal-secrets-blueprint.html">blueprint</a>
+    <a href="./surface-manifest.json">manifest</a>
+    <a href="./mesh-agenti.html">mesh</a>
+    <a href="./fleet.html">fleet</a>
+    <a href="./cuda-vlc.html">cuda-vlc</a>
+    <a href="./gpu-preview.html">gpu</a>
+    <a href="./skill-guide/">skills</a>
+    <a href="./agentic.html">#startabusiness</a>
+    <a href="./sovereign-state.html">state</a>
+    <a href="./demo.html">demo</a>
+  </div>
+</div>
+
+<script src="./assets/aether.js?v=2"></script>
+<script>
+if(window.Aether && Aether.mount){Aether.mount('#mesh','#D4AF37');}
+</script>
+</body>
+</html>
