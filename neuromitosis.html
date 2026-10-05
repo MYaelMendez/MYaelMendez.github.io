@@ -59,6 +59,21 @@
   .err { color:#ff7b72; }
   .mesh { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); margin-top:1px; }
   @media(max-width:820px){ .mesh{grid-template-columns:1fr;} }
+
+  /* the brain — the site index, classified by the agentic engineering ontology */
+  .brain { display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:1px; background:var(--border); }
+  .brain-cat { background:var(--void); padding:14px; }
+  .brain-head { display:flex; align-items:center; gap:9px; }
+  .brain-head .bg { color:var(--gold); font-size:15px; }
+  .brain-head .bid { color:var(--ink); font-weight:700; letter-spacing:0.1em; font-size:11px; flex:1; }
+  .brain-head .bc { color:var(--muted); font-size:9px; border:1px solid var(--border); padding:1px 6px; }
+  .brain-role { margin-top:7px; font-size:8.5px; line-height:1.5; color:var(--muted); }
+  .brain-rows { margin-top:10px; display:flex; flex-direction:column; gap:2px; max-height:220px; overflow-y:auto; }
+  .brain-row { display:flex; gap:8px; align-items:baseline; text-decoration:none; padding:3px 5px;
+    border-left:2px solid transparent; transition:background .15s, border-color .15s; }
+  .brain-row:hover { background:rgba(212,175,55,.06); border-left-color:var(--gold); }
+  .brain-row .bn { color:var(--gold); font-size:9.5px; white-space:nowrap; }
+  .brain-row .bt { color:var(--muted); font-size:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .node { background:var(--panel); padding:14px 16px; }
   .node.bonded { border:1px solid var(--border-hot); box-shadow:inset 0 0 18px var(--glow); }
   .node .n { color:var(--gold); font-family:'Orbitron',sans-serif; font-size:13px; letter-spacing:0.08em; }
@@ -141,6 +156,11 @@
       <div class="k">The Surface</div>
       <div class="v">Gold on void. Orbitron + JetBrains Mono. Sharp edges, neural mesh, scanlines. Truth over marketing.</div>
     </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>The brain · agentic engineering ontology</span><span class="sub" id="brain-total">loading brain index…</span></div>
+    <div class="brain" id="brain"><div class="term">loading the site brain…</div></div>
   </div>
 
   <div class="panel">
@@ -247,8 +267,13 @@
   <div class="foot">#hermiphicationisinevitable · #opensourceware #250 · +æ^victus · co-webmastered with Hermes</div>
 </div>
 
+<script src="brain.js"></script>
 <script>
   // live co-webmastering: pull the real neuromitosis:// wiring map from the chassis bridge
+  // NOTE: the baked consts (__WIRING__, __MESH__, BRAIN) are declared at the end of this
+  // script; loadWiring/loadMesh read them at CALL time (line ~314), which is after their
+  // declaration — but only because they are called from a later statement, not at parse.
+  // Calling them before the consts exist is a TDZ error. Keep the calls at the bottom.
   async function loadWiring() {
     try {
       const data = __WIRING__;
@@ -257,13 +282,19 @@
       ).join("");
       document.getElementById("wiring").innerHTML = rows +
         `<div class="term">reload: <b>skill_view(name='${data.skill}')</b> · memory triggers: ${data.memory_triggers} · reset_ready=${data.reset_ready}</div>`;
-      document.getElementById("live-label").textContent = "LIVE · " + data.wired_surfaces.length + " synapses";
+      const ll = document.getElementById("live-label");
+      if (ll) ll.textContent = "LIVE · " + data.wired_surfaces.length + " synapses";
       if (data.meta_memory) {
         const mm = data.meta_memory;
-        document.getElementById("mm-count").textContent = mm.entries;
-        const lines = (mm.rows || []).map(r =>
-          `<div>${r.replace(/\|/g, " · ")}</div>`).join("");
-        document.getElementById("mm-rows").innerHTML = lines || "// no cognitive trace yet — compose a delta";
+        // the meta_memory panel is optional — render only into elements that exist
+        const mc = document.getElementById("mm-count");
+        if (mc) mc.textContent = mm.entries;
+        const mr = document.getElementById("mm-rows");
+        if (mr) {
+          const lines = (mm.rows || []).map(r =>
+            `<div>${r.replace(/\|/g, " · ")}</div>`).join("");
+          mr.innerHTML = lines || "// no cognitive trace yet — compose a delta";
+        }
       }
     } catch (e) {
       document.getElementById("wiring").innerHTML =
@@ -311,13 +342,31 @@
     }
   }
 
-  loadWiring();
-  loadMesh();
-  setInterval(loadWiring, 15000);
-  setInterval(loadMesh, 30000);
-  setInterval(loadCompute, 10000);
-  loadCompute();
-  buildTape();
+  // ── the brain: the site index, classified by the agentic engineering ontology ──
+  function loadBrain() {
+    const host = document.getElementById("brain");
+    if (!host) return;
+    if (typeof BRAIN === "undefined") {
+      host.innerHTML = '<div class="term err">brain index missing — run brain_index.py</div>';
+      return;
+    }
+    const cats = (BRAIN.categories || []).map(function (c) {
+      const rows = c.surfaces.map(function (s) {
+        return '<a class="brain-row" href="./' + s.file + '">' +
+          '<span class="bn">' + s.name + '</span>' +
+          '<span class="bt">' + (s.title || "") + '</span></a>';
+      }).join("");
+      return '<div class="brain-cat">' +
+        '<div class="brain-head"><span class="bg">' + c.glyph + '</span>' +
+        '<span class="bid">' + c.id + '</span>' +
+        '<span class="bc">' + c.count + '</span></div>' +
+        '<div class="brain-role">' + c.role + '</div>' +
+        '<div class="brain-rows">' + rows + '</div></div>';
+    }).join("");
+    host.innerHTML = cats;
+    const n = document.getElementById("brain-total");
+    if (n) n.textContent = BRAIN.total_surfaces + " surfaces · " + BRAIN.total_categories + " categories";
+  }
 
 async function loadCompute() {
   try {
@@ -377,6 +426,17 @@ function buildTape() {
 const __WIRING__ = {"ok": true, "scheme": "neuromitosis://", "equals": "H\u00e6bbian://", "reset_ready": true, "skill": "agentic-chassis-surface", "memory_triggers": 9, "meta_memory": {"path": "C:\\ae\\meta_memory.csv", "entries": 41, "rows": ["1783893544|aggregate|fleet -> https://myaelmendez.github.io/fleet.html [LIVE] : MoD\u00d7MoA\u00d7MoM device mixture", "1783893544|aggregate|cuda-vlc -> https://myaelmendez.github.io/cuda-vlc.html [LIVE] : sovereign CUDA\u2192NVENC\u2192VLC stream", "1783893544|aggregate|secret-bridge -> https://myaelmendez.github.io/secret-source-bridge.html [LIVE] : local secret manager (vault node)", "1783893544|aggregate|sovereign-state -> https://myaelmendez.github.io/sovereign-state.html [LIVE] : memory + ledger + #250 spine", "1783893544|aggregate|#startabusiness -> https://myaelmendez.github.io/agentic.html [LIVE] : DAOLLC bootstrap + Doola", "1783893544|aggregate|glocal-secrets -> https://myaelmendez.github.io/glocal-secrets-blueprint.html [LIVE] : surface github.io \u00b7 custody Victus", "1783893544|aggregate|glocal-cuda -> https://myaelmendez.github.io/glocal-cuda-blueprint.html [LIVE] : MoD blueprint: brain/droplet\u00b7hands/RTX", "1783893544|aggregate|glocal-mesh -> https://myaelmendez.github.io/glocal-mesh.html [LIVE] : each primitive -> capability subagent", "1783893544|aggregate|rails -> https://myaelmendez.github.io/rails.html [LIVE] : Doola affiliate (paid, zero custody)", "1783893544|aggregate|neuromitosis -> https://myaelmendez.github.io/neuromitosis.html [LIVE] : operational substrate of distributed cognition"], "discipline": "agent proposes via +b\u00e6sic:// compose, human steers; not silent drift"}, "wired_surfaces": [{"scheme": "file://", "detail": "sovereign-scoped read, count>mutate, OneDrive-denied"}, {"scheme": "computer://", "detail": "agentic computer on Victus GPU-MCP (live probe)"}, {"scheme": "desktop://", "detail": "hermes-agent native -> WindowsDesktop (user32/SendInput)"}, {"scheme": "+b\u00e6sic://", "detail": "qc64 ledger: counts/graphs in-language, end-halt fixed"}, {"scheme": "\u00e6://", "detail": "agentic-language-chassis: longest-prefix route router"}]};
 const __MESH__ = {"ok": true, "topology": "MoD", "nodes": [{"domain": "cli.llc", "role": "Build \u2014 agentic infrastructure: APIs, MCPs, CLIs. You own the namespace.", "bonded": false}, {"domain": "daollc.ai", "role": "Entity \u2014 sovereign DAO LLC formation in Wyoming.", "bonded": false}, {"domain": "llm.store", "role": "Intelligence \u2014 \u00e6\u03c0 combinator: models, reasoning, interface.", "bonded": false}, {"domain": "\u00e6.store", "role": "Commerce \u2014 agentic email, e-commerce, IOA.", "bonded": false}, {"domain": "\u00e6l.net", "role": "Arrival \u2014 where agents begin. Entry point to the topology.", "bonded": false}, {"domain": "+\u00e6://secrets", "role": "Vault \u2014 local-first secret broker. Surface: github.io/secret-source-bridge. Custody: Victus C:\\\u00e6\\secrets\\. No value crosses.", "bonded": false}, {"domain": "neuromitosis.com", "role": "Bond \u2014 Human + Robot + DAO, wired via H\u00e6bbian. This node.", "bonded": true}]};
 if (typeof __WIRING__ !== 'undefined') { /* baked */ }
+
+// ── boot: run AFTER the consts above exist (reading them earlier is a TDZ error,
+//    which is why the bridges reported "offline") ──
+loadBrain();
+loadWiring();
+loadMesh();
+setInterval(loadWiring, 15000);
+setInterval(loadMesh, 30000);
+setInterval(loadCompute, 10000);
+loadCompute();
+buildTape();
 </script>
 </body>
 </html>
