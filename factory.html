@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>æ:// MP4 FACTORY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #D4AF37; --gold-bright: #FFD700; --void: #050505;
+    --cyan: #00eaff; --neon: #00ff9d; --amber: #ffaa33;
+    --line: rgba(212,175,55,0.22); --dim: #7a7468;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--void); color: #e8e4dc;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    line-height: 1.55; overflow-x: hidden;
+  }
+  #mesh { position: fixed; inset: 0; z-index: 0; opacity: 0.5; }
+  #scan {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(212,175,55,0.022) 0 1px, transparent 1px 3px);
+  }
+  #vig {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.75) 100%);
+  }
+  .wrap { position: relative; z-index: 2; max-width: 1180px; margin: 0 auto; padding: 0 1.5rem 6rem; }
+
+  header { padding: 5rem 0 3rem; text-align: center; }
+  .glyph { font-size: 2.4rem; color: var(--gold); letter-spacing: 0.3em; text-shadow: 0 0 30px rgba(212,175,55,0.5); }
+  h1 { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: clamp(1.9rem, 6vw, 3.4rem);
+       letter-spacing: 0.12em; margin: 0.6rem 0; color: var(--gold); text-shadow: 0 0 40px rgba(212,175,55,0.35); }
+  .tagline { color: var(--dim); font-size: 0.85rem; letter-spacing: 0.18em; text-transform: uppercase; }
+  .tagline b { color: var(--cyan); }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 1px;
+           background: var(--line); border: 1px solid var(--line); margin: 3rem 0; }
+  .stat { background: var(--void); padding: 1.5rem 1rem; text-align: center; }
+  .stat .n { font-family: 'Orbitron', sans-serif; font-size: 1.9rem; font-weight: 700; color: var(--gold); }
+  .stat .n.pass { color: var(--neon); }
+  .stat .l { font-size: 0.62rem; letter-spacing: 0.16em; color: var(--dim); text-transform: uppercase; margin-top: 0.35rem; }
+
+  .section-h { font-family: 'Orbitron', sans-serif; font-size: 0.8rem; letter-spacing: 0.3em;
+               color: var(--gold); text-transform: uppercase; margin: 3.5rem 0 1.5rem;
+               padding-bottom: 0.6rem; border-bottom: 1px solid var(--line); }
+
+  .pipeline { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem;
+              padding: 1.5rem; border: 1px solid var(--line); background: rgba(212,175,55,0.02); }
+  .pstep { padding: 0.5rem 0.9rem; border: 1px solid var(--line); font-size: 0.7rem; color: var(--gold);
+           background: rgba(212,175,55,0.04); white-space: nowrap; }
+  .parrow { color: var(--dim); font-size: 0.8rem; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px,1fr)); gap: 1.5rem; }
+  .card { border: 1px solid var(--line); background: rgba(10,10,10,0.6); overflow: hidden;
+          transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s; }
+  .card:hover { border-color: var(--gold); transform: translateY(-3px); box-shadow: 0 8px 40px rgba(212,175,55,0.15); }
+  .card video { width: 100%; display: block; background: #000; aspect-ratio: 9/16; object-fit: cover; }
+  .cbody { padding: 1rem 1.1rem 1.2rem; }
+  .ctitle { font-family: 'Orbitron', sans-serif; font-size: 0.92rem; color: var(--gold); letter-spacing: 0.04em; }
+  .csrc { font-size: 0.68rem; color: var(--dim); margin: 0.4rem 0 0.8rem; min-height: 2.2em; }
+  .badges { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.9rem; }
+  .badge { font-size: 0.58rem; padding: 0.16rem 0.45rem; border: 1px solid var(--line); color: var(--dim); letter-spacing: 0.05em; }
+  .badge.hot { color: var(--cyan); border-color: rgba(0,234,255,0.4); }
+  .badge.pass { color: var(--neon); border-color: rgba(0,255,157,0.4); }
+  .verdict { display: flex; justify-content: space-between; align-items: center;
+             padding-top: 0.8rem; border-top: 1px solid var(--line); font-size: 0.6rem; color: var(--dim); }
+  .v-pass { color: var(--neon); font-weight: 700; letter-spacing: 0.1em; }
+  .receipt { font-size: 0.54rem; color: rgba(212,175,55,0.5); word-break: break-all; margin-top: 0.4rem; }
+  .dl { display: inline-block; margin-top: 0.9rem; padding: 0.5rem 1rem; background: var(--gold); color: var(--void);
+        text-decoration: none; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; transition: background 0.2s; }
+  .dl:hover { background: var(--gold-bright); }
+
+  .truth { border: 1px solid var(--line); padding: 1.6rem; background: rgba(212,175,55,0.02); margin-top: 1.5rem; }
+  .truth h3 { font-family: 'Orbitron', sans-serif; font-size: 0.75rem; letter-spacing: 0.2em; color: var(--gold); margin-bottom: 0.9rem; }
+  .truth p { font-size: 0.74rem; color: var(--dim); margin-bottom: 0.5rem; }
+  .truth code { color: var(--cyan); }
+
+  footer { text-align: center; padding: 4rem 0 2rem; color: var(--dim); font-size: 0.68rem; letter-spacing: 0.14em; }
+  footer b { color: var(--gold); }
+</style>
+</head>
+<body>
+<canvas id="mesh"></canvas>
+<div id="scan"></div>
+<div id="vig"></div>
+
+<div class="wrap">
+  <header>
+    <div class="glyph">æ://</div>
+    <h1>MP4 FACTORY</h1>
+    <p class="tagline">local render · <b>zero cloud</b> · verified by its own vision</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><div class="n">6</div><div class="l">videos</div></div>
+    <div class="stat"><div class="n">2415</div><div class="l">frames rendered</div></div>
+    <div class="stat"><div class="n">98.5</div><div class="l">MB total</div></div>
+    <div class="stat"><div class="n pass">6/6</div><div class="l">supervision PASS</div></div>
+    <div class="stat"><div class="n">9:16</div><div class="l">720×1280</div></div>
+  </div>
+
+  <div class="section-h">The Pipeline</div>
+  <div class="pipeline">
+    <span class="pstep">llama.cpp · spec</span><span class="parrow">→</span>
+    <span class="pstep">Three.js / CuPy · render</span><span class="parrow">→</span>
+    <span class="pstep">CDP · capture</span><span class="parrow">→</span>
+    <span class="pstep">NVENC · encode</span><span class="parrow">→</span>
+    <span class="pstep">SupervisorVideo · verify</span><span class="parrow">→</span>
+    <span class="pstep">receipt</span>
+  </div>
+
+  <div class="section-h">The Corpus</div>
+  <div class="grid" id="corpus"></div>
+
+  <div class="section-h">Honest Notes</div>
+  <div class="truth">
+    <h3>WHAT IS TRUE HERE</h3>
+    <p>Every number on this page comes from <code>ffprobe</code> (dimensions, frames, bitrate) or <code>SupervisorVideo</code> (luminance, contrast, motion, verdict) — measured, not asserted.</p>
+    <p>Each video carries a <code>SHA-256 receipt</code> of its supervision metrics. Same video → same receipt.</p>
+    <p>The vision is <b>deterministic computer vision</b> (statistics + geometry), not machine learning. It is auditable: every verdict traces to a measurable threshold.</p>
+    <p>Rendering is <b>fully local</b> on the RTX 3050. No cloud render farm, no vendor lock-in, no per-minute billing.</p>
+  </div>
+
+  <footer>
+    <b>æ://</b> MP4 FACTORY · RTX 3050 · NVENC · deterministic vision<br>
+    <span style="opacity:0.5">#opensourceware · #internetofagents · the URL is the command</span>
+  </footer>
+</div>
+
+<script src="manifest.js"></script>
+<script>
+// ── The corpus renders from manifest.js — generated by mp4_manifest.py,
+//    measured by ffprobe + SupervisorVideo. No hand-typed numbers. ──
+const corpus = document.getElementById('corpus');
+for (const v of MANIFEST.videos) {
+  if (v.status !== 'published') continue;
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <video controls preload="metadata" playsinline>
+      <source src="${v.file}" type="video/mp4">
+    </video>
+    <div class="cbody">
+      <div class="ctitle">${v.title}</div>
+      <div class="csrc">${v.source}</div>
+      <div class="badges">
+        <span class="badge hot">${v.pipeline}</span>
+        <span class="badge">${v.width}×${v.height}</span>
+        <span class="badge">${v.fps}fps</span>
+        <span class="badge">${v.duration_s}s</span>
+        <span class="badge">${v.frames} frames</span>
+        <span class="badge">${v.size_mb} MB</span>
+        <span class="badge">${v.bitrate_mbps} Mbps</span>
+        <span class="badge pass">${v.vision.calidad}</span>
+      </div>
+      <div class="verdict">
+        <span>lum ${v.vision.luminancia} · con ${v.vision.contraste} · mov ${v.vision.movimiento}</span>
+        <span class="v-pass">${v.vision.calidad}</span>
+      </div>
+      <div class="receipt">receipt sha256:${v.vision.receipt}…</div>
+      <a href="${v.file}" class="dl" download>⬇ DOWNLOAD</a>
+    </div>`;
+  corpus.appendChild(card);
+}
+
+// stats from the manifest, not typed
+document.querySelectorAll('.stat .n')[0].textContent = MANIFEST.count;
+document.querySelectorAll('.stat .n')[1].textContent = MANIFEST.total_frames;
+document.querySelectorAll('.stat .n')[2].textContent = MANIFEST.total_mb;
+document.querySelectorAll('.stat .n.pass')[0].textContent = MANIFEST.all_pass ? MANIFEST.count + '/' + MANIFEST.count : 'FAIL';
+
+// ── neural mesh (gold-on-void) ──
+const cv = document.getElementById('mesh');
+const ctx = cv.getContext('2d');
+let W, H, nodes = [];
+function resize() {
+  W = cv.width = window.innerWidth; H = cv.height = window.innerHeight;
+  nodes = Array.from({length: Math.min(70, Math.floor(W/22))}, () => ({
+    x: Math.random()*W, y: Math.random()*H,
+    vx: (Math.random()-0.5)*0.25, vy: (Math.random()-0.5)*0.25
+  }));
+}
+resize(); window.addEventListener('resize', resize);
+function draw() {
+  ctx.clearRect(0,0,W,H);
+  for (const n of nodes) {
+    n.x += n.vx; n.y += n.vy;
+    if (n.x<0||n.x>W) n.vx*=-1;
+    if (n.y<0||n.y>H) n.vy*=-1;
+  }
+  for (let i=0;i<nodes.length;i++) for (let j=i+1;j<nodes.length;j++) {
+    const dx=nodes[i].x-nodes[j].x, dy=nodes[i].y-nodes[j].y;
+    const d=Math.hypot(dx,dy);
+    if (d<130) {
+      ctx.strokeStyle=`rgba(212,175,55,${(1-d/130)*0.16})`;
+      ctx.lineWidth=0.6; ctx.beginPath();
+      ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
+    }
+  }
+  for (const n of nodes) {
+    ctx.fillStyle='rgba(212,175,55,0.4)';
+    ctx.beginPath(); ctx.arc(n.x,n.y,1.4,0,Math.PI*2); ctx.fill();
+  }
+  requestAnimationFrame(draw);
+}
+draw();
+</script>
+</body>
+</html>
