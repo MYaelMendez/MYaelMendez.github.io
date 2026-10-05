@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/scrypt-js@3.0.1/scrypt.min.js"></script>
 <style>
 :root{--void:#050505;--gold:#D4AF37;--gold-glow:rgba(212,175,55,.32);--neon:#00ff9d;--ink:#f0ece4;--muted:rgba(240,236,228,.4);--border:rgba(212,175,55,.16);--border-hot:rgba(212,175,55,.5);--danger:#ff6b6b;--dur:.2s;--ease:cubic-bezier(.2,.7,.2,1)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -106,6 +107,13 @@ label{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:upperca
     <div class="field" id="confirm-field">
       <label>Confirm Passphrase</label>
       <input type="password" id="passphrase-confirm" placeholder="Repeat passphrase" autocomplete="off"/>
+    </div>
+    <div class="field">
+      <label>Vault Format</label>
+      <select id="vault-format" style="background:rgba(0,0,0,.4);border:1px solid var(--border);padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink);outline:none">
+        <option value="pbkdf2">PBKDF2 (v2) — web-native, fast</option>
+        <option value="scrypt">scrypt (v1) — Python-compatible, harder</option>
+      </select>
     </div>
     <div class="btn-row">
       <button class="btn primary" id="btn-create">Create Vault</button>
@@ -259,19 +267,30 @@ async function openEntry(key, name, blob) {
 
 // ── vault operations ──────────────────────────────────────────────────────────
 
-async function createVault(passphrase) {
+async function createVault(passphrase, format) {
   const salt = randomBytes(32);
-  const key = await deriveKeyPBKDF2(passphrase, salt, PBKDF2_ITERATIONS);
-  const checkBlob = await seal(key, '__check__', 'ok');
-  const doc = {
-    v: 2,
-    kdf: 'pbkdf2',
-    iterations: PBKDF2_ITERATIONS,
-    salt: b64e(salt),
-    created: new Date().toISOString(),
-    entries: {},
-    check: checkBlob
-  };
+  let key, doc;
+  if (format === 'scrypt') {
+    const N = 32768, r = 8, p = 1;
+    const keyBytes = scrypt.sync(
+      new TextEncoder().encode(passphrase), salt, N, r, p, 32
+    );
+    key = await crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    const checkBlob = await seal(key, '__check__', 'ok');
+    doc = {
+      v: 1, kdf: 'scrypt', n: N, r: r, p: p,
+      salt: b64e(salt), created: new Date().toISOString(),
+      entries: {}, check: checkBlob
+    };
+  } else {
+    key = await deriveKeyPBKDF2(passphrase, salt, PBKDF2_ITERATIONS);
+    const checkBlob = await seal(key, '__check__', 'ok');
+    doc = {
+      v: 2, kdf: 'pbkdf2', iterations: PBKDF2_ITERATIONS,
+      salt: b64e(salt), created: new Date().toISOString(),
+      entries: {}, check: checkBlob
+    };
+  }
   return { doc, key, salt };
 }
 
@@ -280,8 +299,22 @@ async function unlockVault(doc, passphrase) {
   let key;
   if (doc.kdf === 'pbkdf2') {
     key = await deriveKeyPBKDF2(passphrase, salt, doc.iterations || PBKDF2_ITERATIONS);
+  } else if (doc.kdf === 'scrypt' || doc.v === 1) {
+    // scrypt-js: synchronous scrypt (N, r, p from vault doc)
+    const N = doc.n || 32768;
+    const r = doc.r || 8;
+    const p = doc.p || 1;
+    const dkLen = 32;
+    const keyBytes = scrypt.sync(
+      new TextEncoder().encode(passphrase),
+      salt,
+      N, r, p, dkLen
+    );
+    key = await crypto.subtle.importKey(
+      'raw', keyBytes, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
+    );
   } else {
-    throw new Error('Unsupported KDF: ' + doc.kdf + ' (use Python væult.py for scrypt vaults)');
+    throw new Error('Unsupported KDF: ' + doc.kdf);
   }
   // verify passphrase
   if (doc.check) {
@@ -393,10 +426,11 @@ function escHtml(s) {
 $('btn-create').addEventListener('click', async () => {
   const p1 = $('passphrase').value;
   const p2 = $('passphrase-confirm').value;
+  const format = $('vault-format').value;
   if (p1.length < 8) return toast('Passphrase must be at least 8 chars', true);
   if (p1 !== p2) return toast('Passphrases do not match', true);
   try {
-    const { doc, key, salt } = await createVault(p1);
+    const { doc, key, salt } = await createVault(p1, format);
     vaultDoc = doc;
     vaultKey = key;
     vaultSalt = salt;
