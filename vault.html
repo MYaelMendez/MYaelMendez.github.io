@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505"/>
+<title>væult · sovereign secret vault</title>
+<meta name="description" content="Password-secured local vault. Create, manage, and air-gap secrets with QR. Zero cloud, zero upload."/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-glow:rgba(212,175,55,.32);--neon:#00ff9d;--ink:#f0ece4;--muted:rgba(240,236,228,.4);--border:rgba(212,175,55,.16);--border-hot:rgba(212,175,55,.5);--danger:#ff6b6b;--dur:.2s;--ease:cubic-bezier(.2,.7,.2,1)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100dvh;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");opacity:.025;pointer-events:none}
+body::after{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,transparent 35%,rgba(5,5,5,.92) 100%)}
+.scan{position:fixed;inset:0;z-index:2;pointer-events:none;background:repeating-linear-gradient(transparent 0 2px,rgba(212,175,55,.012) 2px 4px)}
+.wrap{position:relative;z-index:10;max-width:640px;margin:0 auto;padding:clamp(20px,5vw,56px) clamp(14px,4vw,28px);display:flex;flex-direction:column;gap:clamp(14px,2.6vh,24px);min-height:100dvh}
+.statusbar{display:flex;justify-content:space-between;align-items:center;font-size:clamp(7px,1.1vw,10px);letter-spacing:2px;color:var(--muted);text-transform:uppercase;border:1px solid var(--border);padding:8px 14px}
+.statusbar .live{display:flex;align-items:center;gap:6px;color:var(--neon)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+.hero{text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+.glyph{font-size:clamp(44px,11vw,88px);filter:drop-shadow(0 0 24px var(--gold-glow));animation:breathe 4s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.cmd{font-family:'Orbitron';font-weight:900;font-size:clamp(20px,5.5vw,46px);letter-spacing:clamp(1px,.4vw,4px);color:var(--gold);text-shadow:0 0 28px var(--gold-glow);line-height:1}
+.cmd .dim{color:var(--muted)}.cmd .cur{display:inline-block;width:.5ch;background:var(--gold);animation:blink 1s step-end infinite;margin-left:2px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.sub{font-size:clamp(9px,1.8vw,13px);letter-spacing:2px;color:var(--ink);text-transform:uppercase}
+.sub em{font-style:normal;color:var(--gold)}
+.pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.pill{font-size:clamp(6px,1vw,9px);letter-spacing:1.5px;padding:3px 10px;border-radius:999px;border:1px solid var(--border);color:var(--muted);text-transform:uppercase}
+.pill.hot{border-color:rgba(212,175,55,.4);color:var(--gold)}
+.panel{border:1px solid var(--border-hot);background:rgba(5,5,5,.7);box-shadow:0 0 40px rgba(212,175,55,.08);padding:16px;display:flex;flex-direction:column;gap:12px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;font-size:clamp(7px,1.1vw,10px);letter-spacing:2px;color:var(--gold);text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:8px}
+.panel-head .tag{color:var(--neon);border:1px solid rgba(0,255,157,.25);padding:2px 8px;border-radius:999px;font-size:8px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all var(--dur) var(--ease);border:1px solid var(--border);background:transparent;color:var(--ink);text-transform:uppercase}
+.btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(212,175,55,.06)}
+.btn.primary{background:var(--gold);color:var(--void);border-color:var(--gold)}
+.btn.primary:hover{box-shadow:0 0 20px var(--gold-glow);color:var(--void)}
+.btn.danger{border-color:rgba(255,107,107,.3);color:var(--danger)}
+.btn.danger:hover{border-color:var(--danger);background:rgba(255,107,107,.06)}
+.btn:disabled{opacity:.3;pointer-events:none}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn-row .btn{flex:1;min-width:120px}
+input[type=text],input[type=password],textarea{width:100%;background:rgba(0,0,0,.4);border:1px solid var(--border);padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink);outline:none;transition:border-color var(--dur)}
+input:focus,textarea:focus{border-color:var(--gold)}
+input::placeholder,textarea::placeholder{color:var(--muted)}
+label{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;display:block}
+.field{display:flex;flex-direction:column;gap:4px}
+.entry-list{display:flex;flex-direction:column;gap:6px}
+.entry-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);background:rgba(0,0,0,.3);transition:border-color var(--dur)}
+.entry-item:hover{border-color:var(--border-hot)}
+.entry-key{flex:1;font-size:11px;font-weight:700;color:var(--gold);word-break:break-all}
+.entry-val{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.entry-val.revealed{color:var(--neon)}
+.entry-actions{display:flex;gap:4px}
+.icon-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:12px;transition:all var(--dur)}
+.icon-btn:hover{border-color:var(--gold);color:var(--gold)}
+.icon-btn.danger:hover{border-color:var(--danger);color:var(--danger)}
+.empty{text-align:center;padding:24px;color:var(--muted);font-size:11px;letter-spacing:1px}
+.qr-display{display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px}
+.qr-display img,.qr-display canvas{border:1px solid var(--border);padding:8px;background:#fff}
+.qr-payload{font-size:9px;color:var(--muted);word-break:break-all;max-height:80px;overflow-y:auto;text-align:center}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--gold);color:var(--void);font-weight:700;font-size:10px;letter-spacing:1px;padding:10px 20px;z-index:200;transition:transform .3s ease;text-transform:uppercase;pointer-events:none}
+.toast.on{transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--danger);color:#fff}
+.hash{text-align:center;font-family:'Orbitron';font-weight:700;font-size:clamp(9px,1.6vw,13px);background:linear-gradient(90deg,var(--gold),var(--neon),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
+.divider{display:flex;align-items:center;gap:12px;margin:8px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.divider span{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+.hidden{display:none!important}
+#camera-video{width:100%;max-width:320px;border:1px solid var(--border);display:block}
+.camera-controls{display:flex;gap:8px;justify-content:center;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="scan"></div>
+<div class="wrap">
+
+  <div class="statusbar">
+    <span>æ:// VÆULT</span>
+    <span id="vault-status">NO VAULT</span>
+    <span class="live"><span class="dot"></span><span id="lock-state">LOCKED</span></span>
+  </div>
+
+  <div class="hero">
+    <div class="glyph">æ</div>
+    <div class="cmd">VÆULT <span class="dim">VAULT</span><span class="cur"></span></div>
+    <div class="sub">password-secured · <em>zero cloud</em> · air-gap ready</div>
+    <div class="pills">
+      <span class="pill hot">#opensourceware</span>
+      <span class="pill">scrypt → aes-256-gcm</span>
+      <span class="pill">local-only</span>
+    </div>
+  </div>
+
+  <!-- ═══ CREATE / UNLOCK ═══ -->
+  <div id="auth-panel" class="panel">
+    <div class="panel-head"><span id="auth-title">CREATE VAULT</span><span class="tag">SETUP</span></div>
+    <div class="field">
+      <label>Passphrase</label>
+      <input type="password" id="passphrase" placeholder="Enter a strong passphrase (min 8 chars)" autocomplete="off"/>
+    </div>
+    <div class="field" id="confirm-field">
+      <label>Confirm Passphrase</label>
+      <input type="password" id="passphrase-confirm" placeholder="Repeat passphrase" autocomplete="off"/>
+    </div>
+    <div class="btn-row">
+      <button class="btn primary" id="btn-create">Create Vault</button>
+      <button class="btn" id="btn-import">Import Vault File</button>
+    </div>
+    <input type="file" id="import-file" accept=".json,.væult" class="hidden"/>
+    <div class="divider"><span>or</span></div>
+    <div class="field">
+      <label>Unlock Existing Vault</label>
+      <input type="file" id="unlock-file" accept=".json,.væult"/>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="btn-unlock">Unlock</button>
+    </div>
+  </div>
+
+  <!-- ═══ VAULT MANAGER ═══ -->
+  <div id="manager-panel" class="hidden">
+    <div class="panel">
+      <div class="panel-head"><span>SECRETS</span><span class="tag" id="entry-count">0 entries</span></div>
+      <div class="entry-list" id="entry-list"></div>
+      <div class="empty" id="empty-state">No secrets yet. Add your first below.</div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><span>ADD SECRET</span><span class="tag">ENCRYPT</span></div>
+      <div class="field">
+        <label>Key Name</label>
+        <input type="text" id="new-key" placeholder="e.g. VPS_SIGN_KEY, DIGITAL_OCEAN, BSKY_AGENT_VPS"/>
+      </div>
+      <div class="field">
+        <label>Secret Value</label>
+        <textarea id="new-value" rows="2" placeholder="Paste or type the secret value"></textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn primary" id="btn-add">Add Secret</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><span>AIR-GAP QR</span><span class="tag">SEALED</span></div>
+      <div class="field">
+        <label>Select Entry to Export as QR</label>
+        <input type="text" id="qr-key" placeholder="Type key name or select from list" list="key-suggestions"/>
+        <datalist id="key-suggestions"></datalist>
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="btn-qr-generate">Generate QR</button>
+        <button class="btn" id="btn-qr-scan">Scan QR to Import</button>
+      </div>
+      <div id="qr-result" class="qr-display hidden">
+        <div id="qr-canvas-container"></div>
+        <div class="qr-payload" id="qr-payload"></div>
+        <button class="btn" id="btn-qr-download">Download QR PNG</button>
+      </div>
+      <div id="qr-scan-area" class="hidden">
+        <video id="camera-video" autoplay playsinline></video>
+        <div class="camera-controls">
+          <button class="btn" id="btn-camera-start">Start Camera</button>
+          <button class="btn" id="btn-camera-stop">Stop</button>
+        </div>
+        <div class="qr-payload" id="scan-result"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><span>EXPORT / LOCK</span><span class="tag">FILE</span></div>
+      <div class="btn-row">
+        <button class="btn" id="btn-export">Download Vault</button>
+        <button class="btn danger" id="btn-lock">Lock Vault</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hash">#hermiphicationisinevitable</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════════
+// væult web — sovereign secret vault (client-side, zero cloud)
+// Crypto: PBKDF2 (600k iterations) → AES-256-GCM
+// Format: compatible with væult.py (v2 = PBKDF2, v1 = scrypt)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const PBKDF2_ITERATIONS = 600000;
+const KEY_LEN = 32;
+const NONCE_LEN = 12;
+const TAG_LEN = 16;
+
+let vaultDoc = null;      // the decrypted vault document
+let vaultKey = null;      // CryptoKey (non-extractable)
+let vaultSalt = null;     // Uint8Array
+let isUnlocked = false;
+
+// ── helpers ───────────────────────────────────────────────────────────────────
+
+function b64e(buf) {
+  return btoa(String.fromCharCode(...new Uint8Array(buf)));
+}
+function b64d(s) {
+  return Uint8Array.from(atob(s), c => c.charCodeAt(0));
+}
+function randomBytes(n) {
+  const b = new Uint8Array(n);
+  crypto.getRandomValues(b);
+  return b;
+}
+function aad(name) {
+  return new TextEncoder().encode('vault-entry:' + name);
+}
+
+// ── crypto ────────────────────────────────────────────────────────────────────
+
+async function deriveKeyPBKDF2(passphrase, salt, iterations) {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw', enc.encode(passphrase), 'PBKDF2', false, ['deriveKey']
+  );
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations, hash: 'SHA-256' },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+async function seal(key, name, value) {
+  const nonce = randomBytes(NONCE_LEN);
+  const enc = new TextEncoder();
+  const ct = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv: nonce, additionalData: aad(name) },
+    key,
+    enc.encode(value)
+  );
+  return { n: b64e(nonce), ct: b64e(ct) };
+}
+
+async function openEntry(key, name, blob) {
+  const nonce = b64d(blob.n);
+  const ct = b64d(blob.ct);
+  const plain = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv: nonce, additionalData: aad(name) },
+    key,
+    ct
+  );
+  return new TextDecoder().decode(plain);
+}
+
+// ── vault operations ──────────────────────────────────────────────────────────
+
+async function createVault(passphrase) {
+  const salt = randomBytes(32);
+  const key = await deriveKeyPBKDF2(passphrase, salt, PBKDF2_ITERATIONS);
+  const checkBlob = await seal(key, '__check__', 'ok');
+  const doc = {
+    v: 2,
+    kdf: 'pbkdf2',
+    iterations: PBKDF2_ITERATIONS,
+    salt: b64e(salt),
+    created: new Date().toISOString(),
+    entries: {},
+    check: checkBlob
+  };
+  return { doc, key, salt };
+}
+
+async function unlockVault(doc, passphrase) {
+  const salt = b64d(doc.salt);
+  let key;
+  if (doc.kdf === 'pbkdf2') {
+    key = await deriveKeyPBKDF2(passphrase, salt, doc.iterations || PBKDF2_ITERATIONS);
+  } else {
+    throw new Error('Unsupported KDF: ' + doc.kdf + ' (use Python væult.py for scrypt vaults)');
+  }
+  // verify passphrase
+  if (doc.check) {
+    try {
+      await openEntry(key, '__check__', doc.check);
+    } catch {
+      throw new Error('Wrong passphrase');
+    }
+  }
+  return { key, salt };
+}
+
+async function addEntry(name, value) {
+  if (!isUnlocked || !vaultKey) throw new Error('Vault is locked');
+  vaultDoc.entries[name] = await seal(vaultKey, name, value);
+  vaultDoc.updated = new Date().toISOString();
+}
+
+async function removeEntry(name) {
+  if (!isUnlocked || !vaultKey) throw new Error('Vault is locked');
+  delete vaultDoc.entries[name];
+  vaultDoc.updated = new Date().toISOString();
+}
+
+async function revealEntry(name) {
+  if (!isUnlocked || !vaultKey) throw new Error('Vault is locked');
+  const blob = vaultDoc.entries[name];
+  if (!blob) throw new Error('No entry: ' + name);
+  return openEntry(vaultKey, name, blob);
+}
+
+// ── QR payload ────────────────────────────────────────────────────────────────
+
+function qrPayload(name, blob) {
+  return 'VAEULT1:' + JSON.stringify({ name, blob });
+}
+
+// ── UI ────────────────────────────────────────────────────────────────────────
+
+const $ = id => document.getElementById(id);
+const toast = (msg, isErr) => {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast on' + (isErr ? ' err' : '');
+  setTimeout(() => t.classList.remove('on'), 2500);
+};
+
+function updateStatus() {
+  const status = $('vault-status');
+  const lock = $('lock-state');
+  if (isUnlocked) {
+    status.textContent = 'VAULT ACTIVE';
+    lock.textContent = 'UNLOCKED';
+    lock.style.color = 'var(--neon)';
+  } else {
+    status.textContent = 'NO VAULT';
+    lock.textContent = 'LOCKED';
+    lock.style.color = 'var(--muted)';
+  }
+}
+
+function showManager() {
+  $('auth-panel').classList.add('hidden');
+  $('manager-panel').classList.remove('hidden');
+  updateStatus();
+  renderEntries();
+}
+
+function showAuth() {
+  $('auth-panel').classList.remove('hidden');
+  $('manager-panel').classList.add('hidden');
+  updateStatus();
+}
+
+function renderEntries() {
+  const list = $('entry-list');
+  const empty = $('empty-state');
+  const keys = Object.keys(vaultDoc.entries).sort();
+  $('entry-count').textContent = keys.length + ' entries';
+  list.innerHTML = '';
+  if (keys.length === 0) {
+    empty.classList.remove('hidden');
+  } else {
+    empty.classList.add('hidden');
+    keys.forEach(name => {
+      const item = document.createElement('div');
+      item.className = 'entry-item';
+      item.innerHTML = `
+        <span class="entry-key">${escHtml(name)}</span>
+        <span class="entry-val" id="val-${escHtml(name)}">************</span>
+        <div class="entry-actions">
+          <button class="icon-btn" data-action="reveal" data-key="${escHtml(name)}" title="Reveal">👁</button>
+          <button class="icon-btn" data-action="qr" data-key="${escHtml(name)}" title="QR">📱</button>
+          <button class="icon-btn danger" data-action="delete" data-key="${escHtml(name)}" title="Delete">✕</button>
+        </div>`;
+      list.appendChild(item);
+    });
+  }
+  // update datalist
+  $('key-suggestions').innerHTML = keys.map(k => `<option value="${escHtml(k)}">`).join('');
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── event handlers ────────────────────────────────────────────────────────────
+
+$('btn-create').addEventListener('click', async () => {
+  const p1 = $('passphrase').value;
+  const p2 = $('passphrase-confirm').value;
+  if (p1.length < 8) return toast('Passphrase must be at least 8 chars', true);
+  if (p1 !== p2) return toast('Passphrases do not match', true);
+  try {
+    const { doc, key, salt } = await createVault(p1);
+    vaultDoc = doc;
+    vaultKey = key;
+    vaultSalt = salt;
+    isUnlocked = true;
+    // clear passphrase fields
+    $('passphrase').value = '';
+    $('passphrase-confirm').value = '';
+    showManager();
+    toast('Vault created');
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  }
+});
+
+$('btn-import').addEventListener('click', () => {
+  $('import-file').click();
+});
+
+$('import-file').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const doc = JSON.parse(text);
+    if (!doc.salt || !doc.entries) throw new Error('Invalid vault file');
+    vaultDoc = doc;
+    // switch to unlock mode
+    $('auth-title').textContent = 'UNLOCK VAULT';
+    $('confirm-field').classList.add('hidden');
+    $('btn-create').classList.add('hidden');
+    $('btn-unlock').classList.remove('hidden');
+    $('unlock-file').classList.add('hidden');
+    toast('Vault file loaded — enter passphrase to unlock');
+  } catch (err) {
+    toast('Import failed: ' + err.message, true);
+  }
+  e.target.value = '';
+});
+
+$('btn-unlock').addEventListener('click', async () => {
+  const p = $('passphrase').value;
+  if (!p) return toast('Enter passphrase', true);
+  try {
+    const { key, salt } = await unlockVault(vaultDoc, p);
+    vaultKey = key;
+    vaultSalt = salt;
+    isUnlocked = true;
+    $('passphrase').value = '';
+    showManager();
+    toast('Vault unlocked');
+  } catch (e) {
+    toast('Unlock failed: ' + e.message, true);
+  }
+});
+
+$('btn-add').addEventListener('click', async () => {
+  const key = $('new-key').value.trim();
+  const val = $('new-value').value;
+  if (!key) return toast('Key name required', true);
+  if (!val) return toast('Secret value required', true);
+  if (vaultDoc.entries[key]) return toast('Key already exists', true);
+  try {
+    await addEntry(key, val);
+    $('new-key').value = '';
+    $('new-value').value = '';
+    renderEntries();
+    toast('Secret added');
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  }
+});
+
+$('entry-list').addEventListener('click', async (e) => {
+  const btn = e.target.closest('.icon-btn');
+  if (!btn) return;
+  const action = btn.dataset.action;
+  const key = btn.dataset.key;
+  try {
+    if (action === 'reveal') {
+      const val = await revealEntry(key);
+      const el = $('val-' + key);
+      if (el.classList.contains('revealed')) {
+        el.textContent = '************';
+        el.classList.remove('revealed');
+      } else {
+        el.textContent = val;
+        el.classList.add('revealed');
+      }
+    } else if (action === 'qr') {
+      $('qr-key').value = key;
+      $('qr-result').classList.remove('hidden');
+      await generateQR(key);
+    } else if (action === 'delete') {
+      if (confirm(`Delete "${key}"?`)) {
+        await removeEntry(key);
+        renderEntries();
+        toast('Deleted');
+      }
+    }
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  }
+});
+
+$('btn-export').addEventListener('click', () => {
+  if (!vaultDoc) return;
+  const blob = new Blob([JSON.stringify(vaultDoc, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'vault.væult';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Vault downloaded');
+});
+
+$('btn-lock').addEventListener('click', () => {
+  vaultDoc = null;
+  vaultKey = null;
+  vaultSalt = null;
+  isUnlocked = false;
+  // reset auth panel
+  $('auth-title').textContent = 'CREATE VAULT';
+  $('confirm-field').classList.remove('hidden');
+  $('btn-create').classList.remove('hidden');
+  $('btn-unlock').classList.add('hidden');
+  $('unlock-file').classList.remove('hidden');
+  showAuth();
+  toast('Vault locked');
+});
+
+// ── QR ────────────────────────────────────────────────────────────────────────
+
+async function generateQR(name) {
+  const blob = vaultDoc.entries[name];
+  if (!blob) return toast('No entry: ' + name, true);
+  const payload = qrPayload(name, blob);
+  const container = $('qr-canvas-container');
+  container.innerHTML = '';
+  await QRCode.toCanvas(container, payload, { width: 200, margin: 1 });
+  $('qr-payload').textContent = payload;
+  $('qr-result').classList.remove('hidden');
+}
+
+$('btn-qr-generate').addEventListener('click', async () => {
+  const name = $('qr-key').value.trim();
+  if (!name) return toast('Enter a key name', true);
+  try {
+    await generateQR(name);
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  }
+});
+
+$('btn-qr-download').addEventListener('click', () => {
+  const canvas = $('qr-canvas-container').querySelector('canvas');
+  if (!canvas) return;
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL('image/png');
+  a.download = 'vaeult-qr.png';
+  a.click();
+});
+
+// QR scanning
+let scanStream = null;
+let scanInterval = null;
+
+$('btn-qr-scan').addEventListener('click', () => {
+  $('qr-scan-area').classList.toggle('hidden');
+  if (!$('qr-scan-area').classList.contains('hidden')) {
+    $('btn-camera-start').click();
+  }
+});
+
+$('btn-camera-start').addEventListener('click', async () => {
+  try {
+    scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+    const video = $('camera-video');
+    video.srcObject = scanStream;
+    await video.play();
+    scanInterval = setInterval(scanFrame, 500);
+  } catch (e) {
+    toast('Camera error: ' + e.message, true);
+  }
+});
+
+$('btn-camera-stop').addEventListener('click', () => {
+  if (scanInterval) clearInterval(scanInterval);
+  if (scanStream) {
+    scanStream.getTracks().forEach(t => t.stop());
+    scanStream = null;
+  }
+});
+
+function scanFrame() {
+  const video = $('camera-video');
+  if (!video.videoWidth) return;
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0);
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const code = jsQR(imageData.data, imageData.width, imageData.height);
+  if (code && code.data && code.data.startsWith('VAEULT1:')) {
+    clearInterval(scanInterval);
+    if (scanStream) {
+      scanStream.getTracks().forEach(t => t.stop());
+      scanStream = null;
+    }
+    importQRPayload(code.data);
+  }
+}
+
+async function importQRPayload(payload) {
+  try {
+    const data = JSON.parse(payload.slice(8)); // remove 'VAEULT1:'
+    const { name, blob } = data;
+    if (!isUnlocked) {
+      toast('Unlock vault first', true);
+      return;
+    }
+    // verify it opens under current key
+    try {
+      await openEntry(vaultKey, name, blob);
+    } catch {
+      toast('QR does not open under this vault (different passphrase?)', true);
+      return;
+    }
+    vaultDoc.entries[name] = blob;
+    vaultDoc.updated = new Date().toISOString();
+    renderEntries();
+    $('scan-result').textContent = `Imported: ${name}`;
+    toast('QR imported: ' + name);
+  } catch (e) {
+    toast('QR import failed: ' + e.message, true);
+  }
+}
+
+// ── init ──────────────────────────────────────────────────────────────────────
+
+updateStatus();
+</script>
+</body>
+</html>
