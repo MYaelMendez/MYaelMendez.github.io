@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>æ:// Video Corpus — GPU-Native Pipeline</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #050505;
+    color: #D4AF37;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+  }
+  .subtitle {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 2rem;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    max-width: 900px;
+    width: 100%;
+  }
+  .card {
+    background: #0a0a0a;
+    border: 1px solid #D4AF37;
+    border-radius: 4px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+  }
+  .card:hover {
+    border-color: #ffd700;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+    transform: translateY(-2px);
+  }
+  .card h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .card .meta {
+    font-size: 0.75rem;
+    color: #888;
+    margin-bottom: 1rem;
+  }
+  .card video {
+    width: 100%;
+    border-radius: 2px;
+    background: #000;
+  }
+  .card .download {
+    display: inline-block;
+    margin-top: 0.75rem;
+    padding: 0.4rem 0.8rem;
+    background: #D4AF37;
+    color: #050505;
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: bold;
+    border-radius: 2px;
+  }
+  .card .download:hover {
+    background: #ffd700;
+  }
+  .pipeline {
+    margin-top: 2rem;
+    padding: 1rem;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: #888;
+    max-width: 900px;
+    width: 100%;
+  }
+  .pipeline code {
+    color: #D4AF37;
+  }
+  .badge {
+    display: inline-block;
+    padding: 0.15rem 0.4rem;
+    background: #1a1a1a;
+    border: 1px solid #D4AF37;
+    border-radius: 2px;
+    font-size: 0.65rem;
+    margin-right: 0.25rem;
+  }
+</style>
+</head>
+<body>
+  <h1>æ:// Video Corpus</h1>
+  <p class="subtitle">GPU-Native Pipeline — CuPy + libx264 — Zero Cloud</p>
+
+  <div class="grid">
+    <div class="card">
+      <h2>demo-9x16.mp4</h2>
+      <p class="meta">
+        <span class="badge">CuPy</span>
+        <span class="badge">RTX 3050</span>
+        <span class="badge">720×1280</span>
+        <span class="badge">30fps</span>
+        <span class="badge">15s</span>
+        <span class="badge">21.2 MB</span>
+      </p>
+      <video controls preload="metadata">
+        <source src="demo-9x16.mp4" type="video/mp4">
+      </video>
+      <a href="demo-9x16.mp4" class="download" download>⬇ DOWNLOAD</a>
+    </div>
+
+    <div class="card">
+      <h2>aertx-demo.mp4</h2>
+      <p class="meta">
+        <span class="badge">CDP</span>
+        <span class="badge">Three.js</span>
+        <span class="badge">80k particles</span>
+        <span class="badge">720×1280</span>
+        <span class="badge">30fps</span>
+        <span class="badge">15s</span>
+        <span class="badge">38.8 MB</span>
+      </p>
+      <video controls preload="metadata">
+        <source src="aertx-demo.mp4" type="video/mp4">
+      </video>
+      <a href="aertx-demo.mp4" class="download" download>⬇ DOWNLOAD</a>
+    </div>
+  </div>
+
+  <div class="pipeline">
+    <strong>Pipeline:</strong>
+    <code>CuPy (RTX 3050) → 450 frames GPU → libx264 encode → MP4</code><br>
+    <strong>Alternative:</strong>
+    <code>Three.js → Chrome CDP capture → libx264 encode → MP4</code><br>
+    <strong>NVENC:</strong>
+    <code>❌ Bloqueado (driver 592.27 → requiere 610+)</code>
+  </div>
+</body>
+</html>
