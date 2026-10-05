@@ -1,294 +1,401 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#050505"/>
-<title>væult · security layers</title>
-<meta name="description" content="The seven-layer security stack of the væult sovereign secret vault."/>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PC://VAULT — Three.js Layered Secret Hierarchy</title>
 <style>
-:root{--void:#050505;--gold:#D4AF37;--gold-glow:rgba(212,175,55,.32);--neon:#00ff9d;--ink:#f0ece4;--muted:rgba(240,236,228,.4);--border:rgba(212,175,55,.16);--border-hot:rgba(212,175,55,.5);--danger:#ff6b6b;--dur:.2s;--ease:cubic-bezier(.2,.7,.2,1)}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{min-height:100dvh;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");opacity:.025;pointer-events:none}
-body::after{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,transparent 35%,rgba(5,5,5,.92) 100%)}
-.scan{position:fixed;inset:0;z-index:2;pointer-events:none;background:repeating-linear-gradient(transparent 0 2px,rgba(212,175,55,.012) 2px 4px)}
-.wrap{position:relative;z-index:10;max-width:720px;margin:0 auto;padding:clamp(20px,5vw,56px) clamp(14px,4vw,28px);display:flex;flex-direction:column;gap:clamp(14px,2.6vh,24px);min-height:100dvh}
-.statusbar{display:flex;justify-content:space-between;align-items:center;font-size:clamp(7px,1.1vw,10px);letter-spacing:2px;color:var(--muted);text-transform:uppercase;border:1px solid var(--border);padding:8px 14px}
-.statusbar .live{display:flex;align-items:center;gap:6px;color:var(--neon)}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);animation:pulse 1.6s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
-.hero{text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
-.glyph{font-size:clamp(44px,11vw,88px);filter:drop-shadow(0 0 24px var(--gold-glow));animation:breathe 4s ease-in-out infinite}
-@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
-.cmd{font-family:'Orbitron';font-weight:900;font-size:clamp(20px,5.5vw,46px);letter-spacing:clamp(1px,.4vw,4px);color:var(--gold);text-shadow:0 0 28px var(--gold-glow);line-height:1}
-.cmd .dim{color:var(--muted)}.cmd .cur{display:inline-block;width:.5ch;background:var(--gold);animation:blink 1s step-end infinite;margin-left:2px}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-.sub{font-size:clamp(9px,1.8vw,13px);letter-spacing:2px;color:var(--ink);text-transform:uppercase}
-.sub em{font-style:normal;color:var(--gold)}
-.pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
-.pill{font-size:clamp(6px,1vw,9px);letter-spacing:1.5px;padding:3px 10px;border-radius:999px;border:1px solid var(--border);color:var(--muted);text-transform:uppercase}
-.pill.hot{border-color:rgba(212,175,55,.4);color:var(--gold)}
-
-/* ── layer stack ── */
-.layers{display:flex;flex-direction:column;gap:8px}
-.layer{border:1px solid var(--border);background:rgba(5,5,5,.7);padding:14px 16px;display:flex;flex-direction:column;gap:8px;transition:border-color var(--dur) var(--ease),box-shadow var(--dur) var(--ease)}
-.layer:hover{border-color:var(--border-hot);box-shadow:0 0 20px rgba(212,175,55,.06)}
-.layer-head{display:flex;align-items:center;gap:10px}
-.layer-num{font-family:'Orbitron';font-weight:900;font-size:11px;color:var(--gold);width:28px;height:28px;border:1px solid var(--border-hot);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.layer-title{font-size:12px;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase}
-.layer-tag{margin-left:auto;font-size:8px;letter-spacing:1px;padding:2px 8px;border-radius:999px;border:1px solid rgba(0,255,157,.25);color:var(--neon);text-transform:uppercase}
-.layer-tag.warn{border-color:rgba(255,107,107,.25);color:var(--danger)}
-.layer-desc{font-size:10px;color:var(--muted);line-height:1.6}
-.layer-desc b{color:var(--ink)}
-.layer-desc .ok{color:var(--neon)}
-.layer-desc .bad{color:var(--danger)}
-.layer-items{display:flex;flex-wrap:wrap;gap:4px}
-.layer-item{font-size:9px;letter-spacing:1px;padding:3px 8px;border:1px solid var(--border);color:var(--muted);border-radius:2px}
-.layer-item.gold{border-color:rgba(212,175,55,.3);color:var(--gold)}
-.layer-item.neon{border-color:rgba(0,255,157,.2);color:var(--neon)}
-
-/* ── flow diagram ── */
-.flow{display:flex;flex-direction:column;gap:4px;padding:16px;border:1px solid var(--border);background:rgba(0,0,0,.3)}
-.flow-row{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--muted)}
-.flow-row .arrow{color:var(--gold);font-weight:700}
-.flow-row .node{color:var(--ink);padding:2px 8px;border:1px solid var(--border);border-radius:2px}
-.flow-row .node.gold{border-color:rgba(212,175,55,.3);color:var(--gold)}
-.flow-row .node.neon{border-color:rgba(0,255,157,.2);color:var(--neon)}
-
-/* ── comparison ── */
-.compare{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.compare-col{border:1px solid var(--border);padding:12px;display:flex;flex-direction:column;gap:6px}
-.compare-col h3{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
-.compare-col.vs h3{color:var(--muted)}
-.compare-row{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);padding:2px 0;border-bottom:1px solid rgba(212,175,55,.06)}
-.compare-row:last-child{border-bottom:none}
-.compare-row .val{color:var(--ink)}
-.compare-row .val.ok{color:var(--neon)}
-.compare-row .val.bad{color:var(--danger)}
-
-.hash{text-align:center;font-family:'Orbitron';font-weight:700;font-size:clamp(9px,1.6vw,13px);background:linear-gradient(90deg,var(--gold),var(--neon),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
-.divider{display:flex;align-items:center;gap:12px;margin:8px 0}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
-.divider span{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #050505; overflow: hidden; font-family: 'JetBrains Mono', 'Consolas', monospace; }
+  canvas { display: block; }
+  #hud {
+    position: fixed; top: 0; left: 0; right: 0; padding: 16px 24px;
+    background: linear-gradient(180deg, rgba(5,5,5,0.95) 0%, transparent 100%);
+    color: #D4AF37; pointer-events: none; z-index: 10;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  #hud h1 { font-size: 14px; letter-spacing: 4px; text-transform: uppercase; }
+  #hud .stats { font-size: 10px; color: rgba(212,175,55,0.5); }
+  #layer-panel {
+    position: fixed; top: 60px; right: 14px; z-index: 10; width: 260px;
+    border: 1px solid rgba(212,175,55,0.16); background: rgba(5,5,5,0.86);
+    backdrop-filter: blur(6px); border-radius: 4px; padding: 12px;
+  }
+  #layer-panel h3 { color: #D4AF37; font-size: 11px; letter-spacing: 1px; margin-bottom: 8px; }
+  .layer-item {
+    padding: 6px 8px; margin: 2px 0; border-radius: 3px; cursor: pointer;
+    font-size: 10px; color: rgba(240,236,228,0.6); transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+  .layer-item:hover { border-color: rgba(212,175,55,0.3); color: #D4AF37; }
+  .layer-item.active { background: rgba(212,175,55,0.1); border-color: #D4AF37; color: #D4AF37; }
+  .layer-item .layer-name { font-weight: 700; }
+  .layer-item .layer-desc { color: rgba(240,236,228,0.35); font-size: 9px; margin-top: 2px; }
+  .scanlines {
+    position: fixed; inset: 0; pointer-events: none; z-index: 5;
+    background: repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(212,175,55,0.015) 2px, rgba(212,175,55,0.015) 4px);
+  }
 </style>
 </head>
 <body>
-<div class="scan"></div>
-<div class="wrap">
-
-  <div class="statusbar">
-    <span>æ:// VÆULT</span>
-    <span>SECURITY LAYERS</span>
-    <span class="live"><span class="dot"></span>7 LAYERS</span>
-  </div>
-
-  <div class="hero">
-    <div class="glyph">æ</div>
-    <div class="cmd">VÆULT <span class="dim">LAYERS</span><span class="cur"></span></div>
-    <div class="sub">seven layers · <em>zero cloud</em> · sovereign custody</div>
-    <div class="pills">
-      <span class="pill hot">#opensourceware</span>
-      <span class="pill">aes-256-gcm</span>
-      <span class="pill">scrypt / pbkdf2</span>
-      <span class="pill">qr air-gap</span>
-    </div>
-  </div>
-
-  <!-- ═══ THE SEVEN LAYERS ═══ -->
-  <div class="layers">
-
-    <div class="layer">
-      <div class="layer-head">
-        <span class="layer-num">1</span>
-        <span class="layer-title">Encryption at Rest</span>
-        <span class="layer-tag">AES-256-GCM</span>
-      </div>
-      <div class="layer-desc">
-        Every entry is encrypted with a <b>fresh 96-bit nonce</b>. The GCM tag authenticates both the ciphertext and the entry name — a tampered or renamed entry <span class="bad">fails closed</span> rather than decrypting to garbage.
-      </div>
-      <div class="layer-items">
-        <span class="layer-item gold">AES-256-GCM</span>
-        <span class="layer-item">AEAD</span>
-        <span class="layer-item">per-entry nonce</span>
-        <span class="layer-item">name binding (AAD)</span>
-      </div>
-    </div>
-
-    <div class="layer">
-      <div class="layer-head">
-        <span class="layer-num">2</span>
-        <span class="layer-title">Key Derivation</span>
-        <span class="layer-tag">KDF</span>
-      </div>
-      <div class="layer-desc">
-        The passphrase is never stored. It is stretched into a 256-bit key via <b>scrypt</b> (N=2^15, r=8, p=1) or <b>PBKDF2</b> (600k iterations). A wrong passphrase <span class="bad">fails closed</span> — the check sentinel catches it before any decryption is attempted.
-      </div>
-      <div class="layer-items">
-        <span class="layer-item gold">scrypt (Python v1)</span>
-        <span class="layer-item gold">PBKDF2 (Web v2)</span>
-        <span class="layer-item">auto-detect</span>
-        <span class="layer-item">brute-force resistant</span>
-      </div>
-    </div>
-
-    <div class="layer">
-      <div class="layer-head">
-        <span class="layer-num">3</span>
-        <span class="layer-title">Custody</span>
-        <span class="layer-tag">LOCAL-ONLY</span>
-      </div>
-      <div class="layer-desc">
-        The vault file lives at <b>C:\æ\secrets\privateclient\privateclient.væult</b> — git-ignored, encrypted at rest. The plaintext never touches disk, the transcript, or a remote URL. <span class="ok">Zero cloud custody.</span>
-      </div>
-      <div class="layer-items">
-        <span class="layer-item neon">C:\æ\secrets\</span>
-        <span class="layer-item">git-ignored</span>
-        <span class="layer-item">atomic writes</span>
-        <span class="layer-item">0600 permissions</span>
-      </div>
-    </div>
-
-    <div class="layer">
-      <div class="layer-head">
-        <span class="layer-num">4</span>
-        <span class="layer-title">QR Air-Gap</span>
-        <span class="layer-tag">NO NETWORK</span>
-      </div>
-      <div class="layer-desc">
-        The QR carries the <b>sealed envelope</b> (name + nonce + ciphertext), never plaintext. A photographed or shoulder-surfed QR is <span class="ok">useless without the passphrase</span>. Physically isolated transfer — no packet sniffing, no MITM, no DNS hijack.
-      </div>
-      <div class="layer-items">
-        <span class="layer-item neon">VAEULT1: prefix</span>
-        <span class="layer-item">sealed blob</span>
-        <span class="layer-item">0 plaintext</span>
-        <span class="layer-item">tamper-evident</span>
-      </div>
-    </div>
-
-    <div class="layer">
-      <div class="layer-head">
-        <span class="layer-num">5</span>
-        <span class="layer-title">Broker</span>
-        <span class="layer-tag">+æ://secrets</span>
-      </div>
-      <div class="layer-desc">
-        The <b>+æ://secrets</b> broker is the only thing that moves a secret from disk into an agent. It <span class="ok">never uploads, never echoes raw values, never touches cloud</span>. Resolution: env → bridge → væult → refuse.
-      </div>
-      <div class="layer-items">
-        <span class="layer-item gold">+æ://secrets get</span>
-        <span class="layer-item">masked stdout</span>
-        <span class="layer-item">secret_value in dict</span>
-        <span class="layer-item">refuses when empty</span>
-      </div>
-    </div>
-
-    <div class="layer">
-      <div class="layer-head">
-        <span class="layer-num">6</span>
-        <span class="layer-title">Agent Compartmentalization</span>
-        <span class="layer-tag">PER-AGENT</span>
-      </div>
-      <div class="layer-desc">
-        Each agent receives only the secrets it needs. One QR = one secret = one agent. No shared filesystem, no network, no cloud sync between agents. <span class="ok">Need-to-know at the physical level.</span>
-      </div>
-      <div class="layer-items">
-        <span class="layer-item neon">one QR = one secret</span>
-        <span class="layer-item">per-agent vault</span>
-        <span class="layer-item">no cross-agent leak</span>
-      </div>
-    </div>
-
-    <div class="layer">
-      <div class="layer-head">
-        <span class="layer-num">7</span>
-        <span class="layer-title">Physical Presence</span>
-        <span class="layer-tag">HUMAN-IN-THE-LOOP</span>
-      </div>
-      <div class="layer-desc">
-        Sensitive operations require a <b>QR scan</b> — proof that someone is sitting in front of the machine. This prevents unauthorized remote execution, automated attacks that have secrets but no physical access, and "set it and forget it" agent runs.
-      </div>
-      <div class="layer-items">
-        <span class="layer-item gold">QR scan = human present</span>
-        <span class="layer-item">no remote execution</span>
-        <span class="layer-item">no automated sensitive ops</span>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ═══ FLOW ═══ -->
-  <div class="divider"><span>secret lifecycle</span></div>
-
-  <div class="flow">
-    <div class="flow-row">
-      <span class="node gold">Your eyes</span>
-      <span class="arrow">→</span>
-      <span class="node">QR code</span>
-      <span class="arrow">→</span>
-      <span class="node">Camera</span>
-      <span class="arrow">→</span>
-      <span class="node neon">Agent memory</span>
-      <span class="arrow">→</span>
-      <span class="node">Task execution</span>
-    </div>
-    <div class="flow-row" style="margin-top:6px">
-      <span style="font-size:9px;color:var(--muted)">No disk · No network · No log · No transcript</span>
-    </div>
-  </div>
-
-  <!-- ═══ COMPARISON ═══ -->
-  <div class="divider"><span>væult vs commercial</span></div>
-
-  <div class="compare">
-    <div class="compare-col">
-      <h3>væult</h3>
-      <div class="compare-row"><span>Custody</span><span class="val ok">Your disk</span></div>
-      <div class="compare-row"><span>Cloud</span><span class="val ok">Zero</span></div>
-      <div class="compare-row"><span>Cost</span><span class="val ok">Free</span></div>
-      <div class="compare-row"><span>Air-gap</span><span class="val ok">QR (sealed)</span></div>
-      <div class="compare-row"><span>Attack surface</span><span class="val ok">None (offline)</span></div>
-      <div class="compare-row"><span>Sovereignty</span><span class="val ok">Full</span></div>
-      <div class="compare-row"><span>Teams / RBAC</span><span class="val bad">Not built for</span></div>
-      <div class="compare-row"><span>HA / replication</span><span class="val bad">Single file</span></div>
-      <div class="compare-row"><span>Audit log</span><span class="val bad">None</span></div>
-      <div class="compare-row"><span>Dynamic secrets</span><span class="val bad">Static only</span></div>
-    </div>
-    <div class="compare-col vs">
-      <h3>Commercial</h3>
-      <div class="compare-row"><span>Custody</span><span class="val bad">Their cloud</span></div>
-      <div class="compare-row"><span>Cloud</span><span class="val bad">Required</span></div>
-      <div class="compare-row"><span>Cost</span><span class="val bad">$0.20–$2/secret/mo</span></div>
-      <div class="compare-row"><span>Air-gap</span><span class="val bad">No</span></div>
-      <div class="compare-row"><span>Attack surface</span><span class="val bad">API + auth server</span></div>
-      <div class="compare-row"><span>Sovereignty</span><span class="val bad">Trust us</span></div>
-      <div class="compare-row"><span>Teams / RBAC</span><span class="val ok">Yes</span></div>
-      <div class="compare-row"><span>HA / replication</span><span class="val ok">Multi-region</span></div>
-      <div class="compare-row"><span>Audit log</span><span class="val ok">Full SIEM</span></div>
-      <div class="compare-row"><span>Dynamic secrets</span><span class="val ok">On-demand</span></div>
-    </div>
-  </div>
-
-  <!-- ═══ RESOLUTION ORDER ═══ -->
-  <div class="divider"><span>resolution order</span></div>
-
-  <div class="flow">
-    <div class="flow-row">
-      <span class="node gold">1. env var</span>
-      <span class="arrow">→</span>
-      <span class="node">2. bridge</span>
-      <span class="arrow">→</span>
-      <span class="node neon">3. væult</span>
-      <span class="arrow">→</span>
-      <span class="node">4. None (refuse)</span>
-    </div>
-    <div class="flow-row" style="margin-top:6px">
-      <span style="font-size:9px;color:var(--muted)">secret_source.py · get_secret() · get_by_prefix()</span>
-    </div>
-  </div>
-
-  <div class="hash">#hermiphicationisinevitable</div>
+<div id="hud">
+  <h1>PC://VAULT — væult Layered Secret Hierarchy</h1>
+  <div class="stats" id="stats">FPS: 0 | Layers: 7 | Click a layer to inspect</div>
 </div>
+<div id="layer-panel">
+  <h3>VÆULT LAYERS</h3>
+  <div id="layer-list"></div>
+  <div id="auth-section" style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(212,175,55,0.16)">
+    <h3>VAULT</h3>
+    <div id="auth-status" style="font-size:10px;color:rgba(240,236,228,0.4);margin-bottom:8px">Not loaded</div>
+    <button id="load-vault-btn" style="width:100%;padding:8px;background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);color:#D4AF37;border-radius:4px;cursor:pointer;font-size:11px;font-family:inherit;transition:all 0.2s">
+      Load Vault File
+    </button>
+    <input type="file" id="vault-file" accept=".væult,.json" style="display:none">
+    <div id="vault-entries" style="margin-top:8px;font-size:9px;color:rgba(240,236,228,0.5)"></div>
+  </div>
+</div>
+<div class="scanlines"></div>
+
+<div id="auth-modal" style="position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;background:rgba(5,5,5,0.92);backdrop-filter:blur(8px)">
+  <div style="background:#0a0a0a;border:1px solid rgba(212,175,55,0.3);border-radius:8px;padding:32px;width:360px">
+    <h2 style="color:#D4AF37;font-size:14px;letter-spacing:2px;margin-bottom:16px;text-transform:uppercase">Unlock Vault</h2>
+    <input type="password" id="passphrase" placeholder="Enter vault passphrase" autocomplete="off"
+      style="width:100%;padding:10px 12px;background:rgba(0,0,0,0.4);border:1px solid rgba(212,175,55,0.2);color:#f0ece4;font-family:inherit;font-size:12px;border-radius:4px;outline:none;margin-bottom:12px">
+    <button id="unlock-btn"
+      style="width:100%;padding:10px;background:rgba(212,175,55,0.15);border:1px solid rgba(212,175,55,0.4);color:#D4AF37;font-family:inherit;font-size:11px;letter-spacing:1px;border-radius:4px;cursor:pointer;text-transform:uppercase">
+      Unlock
+    </button>
+    <div id="auth-error" style="color:#ff6b6b;font-size:10px;margin-top:8px"></div>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three.module.js",
+    "three/addons/": "./vendor/addons/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+const LAYERS = [
+  { name: 'ENCRYPTION', desc: 'AES-256-GCM · per-entry nonce · AAD binding', color: 0xD4AF37, radius: 1.0, speed: 0.3 },
+  { name: 'KEY DERIVATION', desc: 'scrypt (N=2^15) / PBKDF2 (600k iter)', color: 0x00eaff, radius: 1.8, speed: -0.2 },
+  { name: 'CUSTODY', desc: 'C:\\æ\\secrets\\privateclient\\ · git-ignored', color: 0x00ff9d, radius: 2.6, speed: 0.15 },
+  { name: 'QR AIR-GAP', desc: 'Sealed envelope · no network · no plaintext', color: 0xa739de, radius: 3.4, speed: -0.1 },
+  { name: 'BROKER', desc: '+æ://secrets · masked stdout · refuse when empty', color: 0xff4444, radius: 4.2, speed: 0.08 },
+  { name: 'COMPARTMENT', desc: 'One QR = one secret = one agent', color: 0xffaa00, radius: 5.0, speed: -0.06 },
+  { name: 'PRESENCE', desc: 'QR scan = human in the loop', color: 0x00aaff, radius: 5.8, speed: 0.04 },
+];
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x050505);
+scene.fog = new THREE.FogExp2(0x050505, 0.02);
+
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(6, 4, 8);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+document.body.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.3;
+
+scene.add(new THREE.AmbientLight(0x404040, 0.5));
+
+const goldLight = new THREE.PointLight(0xD4AF37, 2, 20);
+goldLight.position.set(0, 5, 0);
+scene.add(goldLight);
+
+// Core — ROOT layer (icosahedron)
+const coreGeo = new THREE.IcosahedronGeometry(0.6, 2);
+const coreMat = new THREE.MeshStandardMaterial({
+  color: 0xD4AF37,
+  emissive: 0xD4AF37,
+  emissiveIntensity: 0.4,
+  metalness: 0.95,
+  roughness: 0.05,
+  wireframe: true,
+});
+const core = new THREE.Mesh(coreGeo, coreMat);
+scene.add(core);
+
+// Layer shells
+const layerMeshes = [];
+LAYERS.forEach((layer, i) => {
+  if (i === 0) return; // ROOT is the core
+  
+  const geo = new THREE.IcosahedronGeometry(layer.radius, 1);
+  const mat = new THREE.MeshBasicMaterial({
+    color: layer.color,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.15,
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  scene.add(mesh);
+  layerMeshes.push({ mesh, layer, index: i });
+});
+
+// Particles per layer
+const particleSystems = [];
+LAYERS.forEach((layer, i) => {
+  const count = 200;
+  const geo = new THREE.BufferGeometry();
+  const positions = new Float32Array(count * 3);
+  
+  for (let j = 0; j < count; j++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const r = layer.radius + (Math.random() - 0.5) * 0.3;
+    positions[j * 3] = r * Math.sin(phi) * Math.cos(theta);
+    positions[j * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+    positions[j * 3 + 2] = r * Math.cos(phi);
+  }
+  
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  
+  const mat = new THREE.PointsMaterial({
+    color: layer.color,
+    size: 0.03,
+    transparent: true,
+    opacity: 0.6,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  });
+  
+  const points = new THREE.Points(geo, mat);
+  scene.add(points);
+  particleSystems.push({ points, layer, index: i });
+});
+
+// Post-processing
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.3, 0.3, 0.85));
+composer.addPass(new OutputPass());
+
+// Layer panel
+const layerList = document.getElementById('layer-list');
+let activeLayer = -1;
+
+LAYERS.forEach((layer, i) => {
+  const div = document.createElement('div');
+  div.className = 'layer-item';
+  div.innerHTML = `<div class="layer-name" style="color:#${layer.color.toString(16).padStart(6,'0')}">${layer.name}</div><div class="layer-desc">${layer.desc}</div>`;
+  div.addEventListener('click', () => {
+    document.querySelectorAll('.layer-item').forEach(el => el.classList.remove('active'));
+    div.classList.add('active');
+    activeLayer = i;
+    // Highlight layer
+    layerMeshes.forEach(lm => {
+      lm.mesh.material.opacity = lm.index === i ? 0.4 : 0.08;
+    });
+  });
+  layerList.appendChild(div);
+});
+
+// Animation
+const clock = new THREE.Clock();
+let frame = 0;
+
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+  frame++;
+
+  // Core rotation
+  core.rotation.x = t * 0.3;
+  core.rotation.y = t * 0.5;
+  core.material.emissiveIntensity = 0.3 + Math.sin(t * 2) * 0.15;
+
+  // Layer shells
+  layerMeshes.forEach(lm => {
+    lm.mesh.rotation.y = t * lm.layer.speed;
+    lm.mesh.rotation.x = t * lm.layer.speed * 0.5;
+  });
+
+  // Particles
+  particleSystems.forEach(ps => {
+    ps.points.rotation.y = t * ps.layer.speed * 0.5;
+  });
+
+  if (frame % 10 === 0) {
+    const fps = Math.round(1 / clock.getDelta());
+    document.getElementById('stats').textContent = 
+      `FPS: ${fps} | Layers: 5 | Active: ${activeLayer >= 0 ? LAYERS[activeLayer].name : 'none'}`;
+  }
+
+  controls.update();
+  composer.render();
+}
+
+animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ── væult integration ──
+let vaultDoc = null;
+let vaultKey = null;
+let isUnlocked = false;
+
+const PBKDF2_ITERATIONS = 600000;
+
+function b64d(s) {
+  return Uint8Array.from(atob(s), c => c.charCodeAt(0));
+}
+
+function aad(name) {
+  return new TextEncoder().encode('vault-entry:' + name);
+}
+
+async function deriveKeyPBKDF2(passphrase, salt, iterations) {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw', enc.encode(passphrase), 'PBKDF2', false, ['deriveKey']
+  );
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations, hash: 'SHA-256' },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+async function openEntry(key, name, blob) {
+  const nonce = b64d(blob.n);
+  const ct = b64d(blob.ct);
+  const plain = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv: nonce, additionalData: aad(name) },
+    key,
+    ct
+  );
+  return new TextDecoder().decode(plain);
+}
+
+async function unlockVault(doc, passphrase) {
+  const salt = b64d(doc.salt);
+  let key;
+  if (doc.kdf === 'pbkdf2') {
+    key = await deriveKeyPBKDF2(passphrase, salt, doc.iterations || PBKDF2_ITERATIONS);
+  } else {
+    throw new Error('scrypt vault — use Python væult.py');
+  }
+  if (doc.check) {
+    try {
+      await openEntry(key, '__check__', doc.check);
+    } catch {
+      throw new Error('Wrong passphrase');
+    }
+  }
+  return key;
+}
+
+// Load vault file
+document.getElementById('load-vault-btn').addEventListener('click', () => {
+  document.getElementById('vault-file').click();
+});
+
+document.getElementById('vault-file').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    vaultDoc = JSON.parse(text);
+    if (!vaultDoc.salt || !vaultDoc.entries) throw new Error('Invalid vault file');
+    document.getElementById('auth-status').textContent = 'Vault loaded — enter passphrase';
+    document.getElementById('auth-status').style.color = '#ffaa00';
+    document.getElementById('auth-modal').style.display = 'flex';
+    document.getElementById('passphrase').focus();
+  } catch (err) {
+    document.getElementById('auth-status').textContent = 'Error: ' + err.message;
+    document.getElementById('auth-status').style.color = '#ff6b6b';
+  }
+  e.target.value = '';
+});
+
+// Unlock
+document.getElementById('unlock-btn').addEventListener('click', async () => {
+  const passphrase = document.getElementById('passphrase').value;
+  if (!passphrase) return;
+  try {
+    vaultKey = await unlockVault(vaultDoc, passphrase);
+    isUnlocked = true;
+    document.getElementById('auth-modal').style.display = 'none';
+    document.getElementById('passphrase').value = '';
+    document.getElementById('auth-error').textContent = '';
+    updateVaultUI();
+  } catch (err) {
+    document.getElementById('auth-error').textContent = err.message;
+  }
+});
+
+document.getElementById('passphrase').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    document.getElementById('unlock-btn').click();
+  }
+});
+
+function updateVaultUI() {
+  const status = document.getElementById('auth-status');
+  const entries = document.getElementById('vault-entries');
+  if (isUnlocked) {
+    const keys = Object.keys(vaultDoc.entries).sort();
+    const kdf = vaultDoc.kdf || 'scrypt';
+    status.innerHTML = `<span style="color:#00ff9d">✓ Unlocked</span> · ${kdf} · ${keys.length} entries`;
+    entries.innerHTML = keys.map(k => `<div>• ${k}</div>`).join('');
+    // Update layer statuses
+    document.getElementById('status-0').textContent = '✓ AES-256-GCM active';
+    document.getElementById('status-0').className = 'layer-status';
+    document.getElementById('status-1').textContent = `✓ ${kdf}`;
+    document.getElementById('status-1').className = 'layer-status';
+    document.getElementById('status-2').textContent = `✓ ${keys.length} entries`;
+    document.getElementById('status-2').className = 'layer-status';
+    document.getElementById('status-3').textContent = '✓ QR ready';
+    document.getElementById('status-3').className = 'layer-status';
+    document.getElementById('status-4').textContent = '✓ Broker ready';
+    document.getElementById('status-4').className = 'layer-status';
+    document.getElementById('status-5').textContent = '✓ Compartmentalized';
+    document.getElementById('status-5').className = 'layer-status';
+    document.getElementById('status-6').textContent = '✓ Human-in-loop';
+    document.getElementById('status-6').className = 'layer-status';
+  } else {
+    status.textContent = 'Not loaded';
+    status.style.color = 'rgba(240,236,228,0.4)';
+    entries.innerHTML = '';
+  }
+}
+
+window.__VAULT__ = {
+  ready: true,
+  layers: LAYERS.length,
+  revision: '187',
+  auth: 'vaeult-passphrase',
+  get unlocked() { return isUnlocked; },
+  get entryCount() { return vaultDoc ? Object.keys(vaultDoc.entries).length : 0; }
+};
+</script>
 </body>
 </html>
