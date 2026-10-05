@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505"/>
+<title>væult · security layers</title>
+<meta name="description" content="The seven-layer security stack of the væult sovereign secret vault."/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-glow:rgba(212,175,55,.32);--neon:#00ff9d;--ink:#f0ece4;--muted:rgba(240,236,228,.4);--border:rgba(212,175,55,.16);--border-hot:rgba(212,175,55,.5);--danger:#ff6b6b;--dur:.2s;--ease:cubic-bezier(.2,.7,.2,1)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100dvh;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");opacity:.025;pointer-events:none}
+body::after{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,transparent 35%,rgba(5,5,5,.92) 100%)}
+.scan{position:fixed;inset:0;z-index:2;pointer-events:none;background:repeating-linear-gradient(transparent 0 2px,rgba(212,175,55,.012) 2px 4px)}
+.wrap{position:relative;z-index:10;max-width:720px;margin:0 auto;padding:clamp(20px,5vw,56px) clamp(14px,4vw,28px);display:flex;flex-direction:column;gap:clamp(14px,2.6vh,24px);min-height:100dvh}
+.statusbar{display:flex;justify-content:space-between;align-items:center;font-size:clamp(7px,1.1vw,10px);letter-spacing:2px;color:var(--muted);text-transform:uppercase;border:1px solid var(--border);padding:8px 14px}
+.statusbar .live{display:flex;align-items:center;gap:6px;color:var(--neon)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+.hero{text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+.glyph{font-size:clamp(44px,11vw,88px);filter:drop-shadow(0 0 24px var(--gold-glow));animation:breathe 4s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.cmd{font-family:'Orbitron';font-weight:900;font-size:clamp(20px,5.5vw,46px);letter-spacing:clamp(1px,.4vw,4px);color:var(--gold);text-shadow:0 0 28px var(--gold-glow);line-height:1}
+.cmd .dim{color:var(--muted)}.cmd .cur{display:inline-block;width:.5ch;background:var(--gold);animation:blink 1s step-end infinite;margin-left:2px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.sub{font-size:clamp(9px,1.8vw,13px);letter-spacing:2px;color:var(--ink);text-transform:uppercase}
+.sub em{font-style:normal;color:var(--gold)}
+.pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.pill{font-size:clamp(6px,1vw,9px);letter-spacing:1.5px;padding:3px 10px;border-radius:999px;border:1px solid var(--border);color:var(--muted);text-transform:uppercase}
+.pill.hot{border-color:rgba(212,175,55,.4);color:var(--gold)}
+
+/* ── layer stack ── */
+.layers{display:flex;flex-direction:column;gap:8px}
+.layer{border:1px solid var(--border);background:rgba(5,5,5,.7);padding:14px 16px;display:flex;flex-direction:column;gap:8px;transition:border-color var(--dur) var(--ease),box-shadow var(--dur) var(--ease)}
+.layer:hover{border-color:var(--border-hot);box-shadow:0 0 20px rgba(212,175,55,.06)}
+.layer-head{display:flex;align-items:center;gap:10px}
+.layer-num{font-family:'Orbitron';font-weight:900;font-size:11px;color:var(--gold);width:28px;height:28px;border:1px solid var(--border-hot);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.layer-title{font-size:12px;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase}
+.layer-tag{margin-left:auto;font-size:8px;letter-spacing:1px;padding:2px 8px;border-radius:999px;border:1px solid rgba(0,255,157,.25);color:var(--neon);text-transform:uppercase}
+.layer-tag.warn{border-color:rgba(255,107,107,.25);color:var(--danger)}
+.layer-desc{font-size:10px;color:var(--muted);line-height:1.6}
+.layer-desc b{color:var(--ink)}
+.layer-desc .ok{color:var(--neon)}
+.layer-desc .bad{color:var(--danger)}
+.layer-items{display:flex;flex-wrap:wrap;gap:4px}
+.layer-item{font-size:9px;letter-spacing:1px;padding:3px 8px;border:1px solid var(--border);color:var(--muted);border-radius:2px}
+.layer-item.gold{border-color:rgba(212,175,55,.3);color:var(--gold)}
+.layer-item.neon{border-color:rgba(0,255,157,.2);color:var(--neon)}
+
+/* ── flow diagram ── */
+.flow{display:flex;flex-direction:column;gap:4px;padding:16px;border:1px solid var(--border);background:rgba(0,0,0,.3)}
+.flow-row{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--muted)}
+.flow-row .arrow{color:var(--gold);font-weight:700}
+.flow-row .node{color:var(--ink);padding:2px 8px;border:1px solid var(--border);border-radius:2px}
+.flow-row .node.gold{border-color:rgba(212,175,55,.3);color:var(--gold)}
+.flow-row .node.neon{border-color:rgba(0,255,157,.2);color:var(--neon)}
+
+/* ── comparison ── */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.compare-col{border:1px solid var(--border);padding:12px;display:flex;flex-direction:column;gap:6px}
+.compare-col h3{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.compare-col.vs h3{color:var(--muted)}
+.compare-row{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);padding:2px 0;border-bottom:1px solid rgba(212,175,55,.06)}
+.compare-row:last-child{border-bottom:none}
+.compare-row .val{color:var(--ink)}
+.compare-row .val.ok{color:var(--neon)}
+.compare-row .val.bad{color:var(--danger)}
+
+.hash{text-align:center;font-family:'Orbitron';font-weight:700;font-size:clamp(9px,1.6vw,13px);background:linear-gradient(90deg,var(--gold),var(--neon),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
+.divider{display:flex;align-items:center;gap:12px;margin:8px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.divider span{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+</style>
+</head>
+<body>
+<div class="scan"></div>
+<div class="wrap">
+
+  <div class="statusbar">
+    <span>æ:// VÆULT</span>
+    <span>SECURITY LAYERS</span>
+    <span class="live"><span class="dot"></span>7 LAYERS</span>
+  </div>
+
+  <div class="hero">
+    <div class="glyph">æ</div>
+    <div class="cmd">VÆULT <span class="dim">LAYERS</span><span class="cur"></span></div>
+    <div class="sub">seven layers · <em>zero cloud</em> · sovereign custody</div>
+    <div class="pills">
+      <span class="pill hot">#opensourceware</span>
+      <span class="pill">aes-256-gcm</span>
+      <span class="pill">scrypt / pbkdf2</span>
+      <span class="pill">qr air-gap</span>
+    </div>
+  </div>
+
+  <!-- ═══ THE SEVEN LAYERS ═══ -->
+  <div class="layers">
+
+    <div class="layer">
+      <div class="layer-head">
+        <span class="layer-num">1</span>
+        <span class="layer-title">Encryption at Rest</span>
+        <span class="layer-tag">AES-256-GCM</span>
+      </div>
+      <div class="layer-desc">
+        Every entry is encrypted with a <b>fresh 96-bit nonce</b>. The GCM tag authenticates both the ciphertext and the entry name — a tampered or renamed entry <span class="bad">fails closed</span> rather than decrypting to garbage.
+      </div>
+      <div class="layer-items">
+        <span class="layer-item gold">AES-256-GCM</span>
+        <span class="layer-item">AEAD</span>
+        <span class="layer-item">per-entry nonce</span>
+        <span class="layer-item">name binding (AAD)</span>
+      </div>
+    </div>
+
+    <div class="layer">
+      <div class="layer-head">
+        <span class="layer-num">2</span>
+        <span class="layer-title">Key Derivation</span>
+        <span class="layer-tag">KDF</span>
+      </div>
+      <div class="layer-desc">
+        The passphrase is never stored. It is stretched into a 256-bit key via <b>scrypt</b> (N=2^15, r=8, p=1) or <b>PBKDF2</b> (600k iterations). A wrong passphrase <span class="bad">fails closed</span> — the check sentinel catches it before any decryption is attempted.
+      </div>
+      <div class="layer-items">
+        <span class="layer-item gold">scrypt (Python v1)</span>
+        <span class="layer-item gold">PBKDF2 (Web v2)</span>
+        <span class="layer-item">auto-detect</span>
+        <span class="layer-item">brute-force resistant</span>
+      </div>
+    </div>
+
+    <div class="layer">
+      <div class="layer-head">
+        <span class="layer-num">3</span>
+        <span class="layer-title">Custody</span>
+        <span class="layer-tag">LOCAL-ONLY</span>
+      </div>
+      <div class="layer-desc">
+        The vault file lives at <b>C:\æ\secrets\privateclient\privateclient.væult</b> — git-ignored, encrypted at rest. The plaintext never touches disk, the transcript, or a remote URL. <span class="ok">Zero cloud custody.</span>
+      </div>
+      <div class="layer-items">
+        <span class="layer-item neon">C:\æ\secrets\</span>
+        <span class="layer-item">git-ignored</span>
+        <span class="layer-item">atomic writes</span>
+        <span class="layer-item">0600 permissions</span>
+      </div>
+    </div>
+
+    <div class="layer">
+      <div class="layer-head">
+        <span class="layer-num">4</span>
+        <span class="layer-title">QR Air-Gap</span>
+        <span class="layer-tag">NO NETWORK</span>
+      </div>
+      <div class="layer-desc">
+        The QR carries the <b>sealed envelope</b> (name + nonce + ciphertext), never plaintext. A photographed or shoulder-surfed QR is <span class="ok">useless without the passphrase</span>. Physically isolated transfer — no packet sniffing, no MITM, no DNS hijack.
+      </div>
+      <div class="layer-items">
+        <span class="layer-item neon">VAEULT1: prefix</span>
+        <span class="layer-item">sealed blob</span>
+        <span class="layer-item">0 plaintext</span>
+        <span class="layer-item">tamper-evident</span>
+      </div>
+    </div>
+
+    <div class="layer">
+      <div class="layer-head">
+        <span class="layer-num">5</span>
+        <span class="layer-title">Broker</span>
+        <span class="layer-tag">+æ://secrets</span>
+      </div>
+      <div class="layer-desc">
+        The <b>+æ://secrets</b> broker is the only thing that moves a secret from disk into an agent. It <span class="ok">never uploads, never echoes raw values, never touches cloud</span>. Resolution: env → bridge → væult → refuse.
+      </div>
+      <div class="layer-items">
+        <span class="layer-item gold">+æ://secrets get</span>
+        <span class="layer-item">masked stdout</span>
+        <span class="layer-item">secret_value in dict</span>
+        <span class="layer-item">refuses when empty</span>
+      </div>
+    </div>
+
+    <div class="layer">
+      <div class="layer-head">
+        <span class="layer-num">6</span>
+        <span class="layer-title">Agent Compartmentalization</span>
+        <span class="layer-tag">PER-AGENT</span>
+      </div>
+      <div class="layer-desc">
+        Each agent receives only the secrets it needs. One QR = one secret = one agent. No shared filesystem, no network, no cloud sync between agents. <span class="ok">Need-to-know at the physical level.</span>
+      </div>
+      <div class="layer-items">
+        <span class="layer-item neon">one QR = one secret</span>
+        <span class="layer-item">per-agent vault</span>
+        <span class="layer-item">no cross-agent leak</span>
+      </div>
+    </div>
+
+    <div class="layer">
+      <div class="layer-head">
+        <span class="layer-num">7</span>
+        <span class="layer-title">Physical Presence</span>
+        <span class="layer-tag">HUMAN-IN-THE-LOOP</span>
+      </div>
+      <div class="layer-desc">
+        Sensitive operations require a <b>QR scan</b> — proof that someone is sitting in front of the machine. This prevents unauthorized remote execution, automated attacks that have secrets but no physical access, and "set it and forget it" agent runs.
+      </div>
+      <div class="layer-items">
+        <span class="layer-item gold">QR scan = human present</span>
+        <span class="layer-item">no remote execution</span>
+        <span class="layer-item">no automated sensitive ops</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ FLOW ═══ -->
+  <div class="divider"><span>secret lifecycle</span></div>
+
+  <div class="flow">
+    <div class="flow-row">
+      <span class="node gold">Your eyes</span>
+      <span class="arrow">→</span>
+      <span class="node">QR code</span>
+      <span class="arrow">→</span>
+      <span class="node">Camera</span>
+      <span class="arrow">→</span>
+      <span class="node neon">Agent memory</span>
+      <span class="arrow">→</span>
+      <span class="node">Task execution</span>
+    </div>
+    <div class="flow-row" style="margin-top:6px">
+      <span style="font-size:9px;color:var(--muted)">No disk · No network · No log · No transcript</span>
+    </div>
+  </div>
+
+  <!-- ═══ COMPARISON ═══ -->
+  <div class="divider"><span>væult vs commercial</span></div>
+
+  <div class="compare">
+    <div class="compare-col">
+      <h3>væult</h3>
+      <div class="compare-row"><span>Custody</span><span class="val ok">Your disk</span></div>
+      <div class="compare-row"><span>Cloud</span><span class="val ok">Zero</span></div>
+      <div class="compare-row"><span>Cost</span><span class="val ok">Free</span></div>
+      <div class="compare-row"><span>Air-gap</span><span class="val ok">QR (sealed)</span></div>
+      <div class="compare-row"><span>Attack surface</span><span class="val ok">None (offline)</span></div>
+      <div class="compare-row"><span>Sovereignty</span><span class="val ok">Full</span></div>
+      <div class="compare-row"><span>Teams / RBAC</span><span class="val bad">Not built for</span></div>
+      <div class="compare-row"><span>HA / replication</span><span class="val bad">Single file</span></div>
+      <div class="compare-row"><span>Audit log</span><span class="val bad">None</span></div>
+      <div class="compare-row"><span>Dynamic secrets</span><span class="val bad">Static only</span></div>
+    </div>
+    <div class="compare-col vs">
+      <h3>Commercial</h3>
+      <div class="compare-row"><span>Custody</span><span class="val bad">Their cloud</span></div>
+      <div class="compare-row"><span>Cloud</span><span class="val bad">Required</span></div>
+      <div class="compare-row"><span>Cost</span><span class="val bad">$0.20–$2/secret/mo</span></div>
+      <div class="compare-row"><span>Air-gap</span><span class="val bad">No</span></div>
+      <div class="compare-row"><span>Attack surface</span><span class="val bad">API + auth server</span></div>
+      <div class="compare-row"><span>Sovereignty</span><span class="val bad">Trust us</span></div>
+      <div class="compare-row"><span>Teams / RBAC</span><span class="val ok">Yes</span></div>
+      <div class="compare-row"><span>HA / replication</span><span class="val ok">Multi-region</span></div>
+      <div class="compare-row"><span>Audit log</span><span class="val ok">Full SIEM</span></div>
+      <div class="compare-row"><span>Dynamic secrets</span><span class="val ok">On-demand</span></div>
+    </div>
+  </div>
+
+  <!-- ═══ RESOLUTION ORDER ═══ -->
+  <div class="divider"><span>resolution order</span></div>
+
+  <div class="flow">
+    <div class="flow-row">
+      <span class="node gold">1. env var</span>
+      <span class="arrow">→</span>
+      <span class="node">2. bridge</span>
+      <span class="arrow">→</span>
+      <span class="node neon">3. væult</span>
+      <span class="arrow">→</span>
+      <span class="node">4. None (refuse)</span>
+    </div>
+    <div class="flow-row" style="margin-top:6px">
+      <span style="font-size:9px;color:var(--muted)">secret_source.py · get_secret() · get_by_prefix()</span>
+    </div>
+  </div>
+
+  <div class="hash">#hermiphicationisinevitable</div>
+</div>
+</body>
+</html>
