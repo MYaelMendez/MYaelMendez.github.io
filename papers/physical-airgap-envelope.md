@@ -107,7 +107,7 @@ The envelope is transport-independent. We implement three:
 
 **Email.** The message body carries the envelope as text, and optionally the same envelope is attached as a QR PNG. A receiver imports from either. The `.eml` can be decoded offline with no credentials, which lets an operator verify a message before wiring IMAP.
 
-**SMS.** The 160-character GSM-7 limit forces segmentation. An envelope longer than one segment is split into `ae:1:<type>:chunk:<i>/<n>:<part>` parts. The chunk marker is itself a valid envelope prefix, so the receiver parses uniformly. `reassemble()` sorts by index and concatenates, refusing on an incomplete set.
+**SMS.** The 160-character GSM-7 limit forces segmentation. An envelope longer than one segment is split into `ae:1:<type>:chunk:<msgid>:<i>/<n>:<part>` parts, where `<msgid>` is a per-message random tag. The chunk marker is itself a valid envelope prefix, so the receiver parses uniformly. `reassemble()` groups by `msgid`, sorts by index, and refuses on an incomplete set **or on a set containing more than one message id**.
 
 **QR.** The canonical physical transport: render the envelope to a PNG, print it, scan it. The QR carries the same bytes as the network transports, so a secret can cross from a network context to an air-gapped one without re-encoding.
 
@@ -181,7 +181,33 @@ pyzbar re-interprets the two UTF-8 bytes of `æ` as two halfwidth-katakana chara
 
 We characterize this as a *silent failure class*: the encoder is correct, the payload is correct, the QR renders, and the receiving application rejects valid traffic. The fix is to make the magic ASCII (`ae:`) and to accept the rune form on decode for backward compatibility. We report this because the general lesson — **test through the real decoder, not an in-memory shim** — is cheap to state and expensive to learn.
 
-### 5.4 Email plaintext audit
+### 5.4 A deterministic gate for the failure class
+
+The failure above reached a draft because nothing supervised the artifact. We therefore specify a **produce-and-verify gate** for QR, mirroring the produce-or-refuse contract used elsewhere in the stack: a QR is not accepted until it has been decoded back.
+
+```
+SPEC → RENDER → SUPERVISE → (PASS: receipt) | (FAIL: refuse)
+```
+
+The gate runs nine deterministic checks (OpenCV + pyzbar + statistics, no ML), of which two are load-bearing:
+
+1. **`charset`** — the envelope must be pure ASCII. This refuses the rune class *before* rendering.
+2. **`cross_decoder`** — **cv2 and pyzbar must both** decode the artifact. This refuses it *after*, and is the check that actually catches the mechanism.
+
+The mechanism is worth stating precisely: **cv2 decodes the rune envelope correctly; pyzbar mangles it.** A single-decoder check therefore passes the very artifact that fails in the field. We verified this as a controlled experiment — identical payload, two magics:
+
+**Table 5: The gate on the silent failure class (identical payload).**
+
+| Envelope magic | Verdict | cv2 | pyzbar |
+|---|---|---|---|
+| `æ:1:route:…` (rune) | **REFUSED** — `charset`, `cross_decoder: 1/2` | decodes | mangles |
+| `ae:1:route:…` (ASCII) | **PASS** | decodes | decodes |
+
+Requiring agreement between two independent decoders is what converts a silent failure into a refusal. A single decoder is not a test; it is a coin flip that happens to have landed heads. On PASS the gate emits a receipt carrying both the envelope and image digests and a hash chain over intent, operation, result, state, and evidence.
+
+The read path mirrors this: a receiver can require both decoders before accepting a card, rejecting any artifact whose magic one decoder mangles.
+
+### 5.5 Email plaintext audit
 
 We construct a real `EmailMessage` with the envelope in the body and the QR PNG attached, serialize it to `.eml` bytes, and search for the plaintext value:
 
@@ -196,7 +222,7 @@ We construct a real `EmailMessage` with the envelope in the body and the QR PNG 
 
 Both the body path and the QR-attachment path recover the same value. Neither contains the plaintext. (The 147-byte envelope here carries a real sealed value; the 86-byte `secret` row in Table 1 uses a synthetic sample blob of the same shape, so the two are not directly comparable in size.)
 
-### 5.5 Failure behavior
+### 5.6 Failure behavior
 
 The system fails closed on every malformed input we tested:
 
@@ -231,7 +257,7 @@ A cloud secret manager provides capabilities this design does not: role-based ac
 
 **No forward secrecy.** A compromised passphrase decrypts every envelope ever sent, because the same derived key protects all of them. Rotating the passphrase requires re-sealing entries. We do not implement rotation.
 
-**Segmentation assumes in-order delivery per message.** Our `reassemble()` sorts by chunk index, so out-of-order *arrival* is handled, but chunks from two different messages interleaved into one input would be merged. The current implementation mitigates this by grouping per message at the transport layer; the codec itself does not carry a message identifier.
+**Segmentation assumes in-order delivery per message.** Our `reassemble()` groups by message id and sorts by chunk index, so out-of-order *arrival* is handled and a set mixing two messages is **refused** rather than spliced. This closes a silent-corruption path we found during development: before the message id was added, two multi-segment messages with the same chunk count interleaved into a single input produced a spliced envelope that still passed `is_envelope()` and decoded without error — a wrong-but-valid result. Legacy markers without a message id remain index-only and cannot be grouped, so a mixed legacy set is refusable only on count.
 
 **No formal verification.** We test empirically and report the results; we do not provide a proof of the envelope's soundness or a mechanized analysis of the protocol.
 
@@ -296,6 +322,12 @@ python -c "import qr_sms, qr_envelope as qe; e=qe.encode('secret',{'name':'K','b
 
 # 4. no plaintext in a mailed envelope
 qr_mail.py decode message.eml    # inspect: the payload must be a blob
+
+# 5. the gate refuses the silent failure class (the §5.4 result)
+python qr_supervision.py selftest
+#   [2] rune magic ('æ:1:secret:...') — must be REFUSED
+#       reason: charset: non-ASCII 'æ' at 0; cross_decoder: 1/2 decoders: cv2
+#   [4] all envelope types through the gate -> all types: True
 ```
 
 ## Appendix B: The eight types, by example
