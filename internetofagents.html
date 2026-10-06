@@ -95,6 +95,7 @@ body.render-mode #mesh { z-index: 9999; opacity: 1; }
 </style>
 </head>
 <body>
+<canvas id="neural-bg" data-neural-mesh data-node-count="80" data-speed="0.1" style="position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none"></canvas>
 <canvas id="mesh" style="position:fixed;inset:0;z-index:999;pointer-events:none"></canvas><div class="scan"></div><div class="vig"></div>
 
 <div class="wrap" style="z-index:10">
@@ -457,6 +458,9 @@ scanBtn.addEventListener('click', ()=>{
   const t = document.getElementById('toast');
   setTimeout(()=>{t.textContent='✓ agent accepted · pc://mesh/teknium/local registered';}, 800);
 });
+</script>
+<script type="module">
+import { NeuralMesh } from './assets/neural-mesh.js';
 </script>
 </body>
 </html>
