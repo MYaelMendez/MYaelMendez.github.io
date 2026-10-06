@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>æ:// Monaco Editor</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #050505; overflow: hidden; font-family: 'JetBrains Mono', 'Consolas', monospace; }
+  #container { width: 100vw; height: 100vh; }
+  #hud {
+    position: fixed; top: 0; left: 0; right: 0; padding: 12px 20px;
+    background: linear-gradient(180deg, rgba(5,5,5,0.95) 0%, transparent 100%);
+    color: #D4AF37; pointer-events: none; z-index: 10;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11px; letter-spacing: 2px;
+  }
+  #hud .title { font-weight: 700; }
+  #hud .lang { color: rgba(212,175,55,0.5); }
+  .scanlines {
+    position: fixed; inset: 0; pointer-events: none; z-index: 5;
+    background: repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(212,175,55,0.015) 2px, rgba(212,175,55,0.015) 4px);
+  }
+
+  #codemode-panel {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 220px;
+    background: rgba(5,5,5,0.97); border-top: 1px solid rgba(212,175,55,0.3);
+    z-index: 20; display: flex; flex-direction: column;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  #codemode-panel .panel-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 16px; border-bottom: 1px solid rgba(212,175,55,0.15);
+    font-size: 10px; letter-spacing: 2px; color: #D4AF37; text-transform: uppercase;
+  }
+  #codemode-panel .panel-head .tag {
+    color: #00ff9d; border: 1px solid rgba(0,255,157,0.25);
+    padding: 2px 8px; border-radius: 3px; font-size: 8px;
+  }
+  #codemode-panel .output {
+    flex: 1; overflow-y: auto; padding: 10px 16px;
+    font-size: 11px; line-height: 1.6; color: #f0ece4;
+    white-space: pre-wrap; word-break: break-all;
+  }
+  #codemode-panel .output .prompt { color: #D4AF37; }
+  #codemode-panel .output .result { color: #00ff9d; }
+  #codemode-panel .output .error { color: #ff4d5f; }
+  #codemode-panel .output .receipt { color: #00eaff; font-size: 10px; }
+  #codemode-panel .output .dim { color: rgba(240,236,228,0.4); }
+  .exec-btn {
+    background: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.4);
+    color: #D4AF37; padding: 3px 12px; border-radius: 3px; cursor: pointer;
+    font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 1px;
+    text-transform: uppercase; transition: all 0.15s;
+  }
+  .exec-btn:hover { background: rgba(212,175,55,0.3); }
+  .exec-btn.running { background: rgba(0,255,157,0.2); border-color: rgba(0,255,157,0.5); color: #00ff9d; }
+  .keybind { color: rgba(240,236,228,0.3); font-size: 9px; margin-left: 8px; }
+</style>
+</head>
+<body>
+<div id="hud">
+  <span class="title">æ:// Monaco Editor</span>
+  <span class="lang" id="lang-label">TypeScript</span>
+</div>
+<div class="scanlines"></div>
+<div id="container" style="height: calc(100vh - 220px)"></div>
+<div id="codemode-panel">
+  <div class="panel-head">
+    <span>CODE MODE SANDBOX <span class="keybind">Ctrl+Enter to execute</span></span>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span class="tag" id="exec-status">READY</span>
+      <button class="exec-btn" id="exec-btn" onclick="executeCodeMode()">EXECUTE</button>
+    </div>
+  </div>
+  <div class="output" id="codemode-output"><span class="dim">// ae://code_mode - write code against the ae DSL, execute in sandbox
+// Bindings: ae.mesh.* ae.keeper.* ae.video.* ae.rtx.* ae.social.* ae.storage.*
+// Press Ctrl+Enter or click EXECUTE</span></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.min.js"></script>
+<script>
+require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } });
+
+require(['vs/editor/editor.main'], function() {
+  // Gold-on-void theme
+  monaco.editor.defineTheme('ae-void', {
+    base: 'vs-dark',
+    inherit: true,
+    rules: [
+      { token: 'comment', foreground: '6a6a6a', fontStyle: 'italic' },
+      { token: 'keyword', foreground: 'D4AF37', fontStyle: 'bold' },
+      { token: 'string', foreground: '00ff9d' },
+      { token: 'number', foreground: '00eaff' },
+      { token: 'type', foreground: 'a739de' },
+      { token: 'identifier', foreground: 'f0ece4' },
+      { token: 'delimiter', foreground: 'D4AF37' },
+      { token: 'tag', foreground: 'D4AF37' },
+      { token: 'attribute.name', foreground: '00eaff' },
+      { token: 'attribute.value', foreground: '00ff9d' },
+    ],
+    colors: {
+      'editor.background': '#050505',
+      'editor.foreground': '#f0ece4',
+      'editor.lineHighlightBackground': '#0a0a0a',
+      'editorCursor.foreground': '#D4AF37',
+      'editor.selectionBackground': '#D4AF3733',
+      'editor.inactiveSelectionBackground': '#D4AF3711',
+      'editorLineNumber.foreground': '#3a3a3a',
+      'editorLineNumber.activeForeground': '#D4AF37',
+      'editorIndentGuide.background': '#1a1a1a',
+      'editorIndentGuide.activeBackground': '#D4AF37',
+      'editorWidget.background': '#0a0a0a',
+      'editorWidget.border': '#D4AF3733',
+      'editorSuggestWidget.background': '#0a0a0a',
+      'editorSuggestWidget.border': '#D4AF3733',
+      'editorSuggestWidget.selectedBackground': '#D4AF3722',
+      'editorHoverWidget.background': '#0a0a0a',
+      'editorHoverWidget.border': '#D4AF3733',
+      'minimap.background': '#050505',
+      'scrollbarSlider.background': '#D4AF3722',
+      'scrollbarSlider.hoverBackground': '#D4AF3744',
+      'scrollbarSlider.activeBackground': '#D4AF3766',
+    }
+  });
+
+  const sampleCode = `// æ:// Monaco Editor — gold-on-void
+// The language is compute.
+
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+interface AetherScene {
+  scene: THREE.Scene;
+  camera: THREE.PerspectiveCamera;
+  renderer: THREE.WebGLRenderer;
+  controls: OrbitControls;
+}
+
+class AetherEngine {
+  private _scene: THREE.Scene;
+  private _camera: THREE.PerspectiveCamera;
+  private _renderer: THREE.WebGLRenderer;
+  private _controls: OrbitControls;
+
+  constructor(container: HTMLElement) {
+    this._scene = new THREE.Scene();
+    this._scene.background = new THREE.Color(0x050505);
+
+    this._camera = new THREE.PerspectiveCamera(
+      60, container.clientWidth / container.clientHeight, 0.1, 1000
+    );
+    this._camera.position.set(0, 3, 8);
+
+    this._renderer = new THREE.WebGLRenderer({ antialias: true });
+    this._renderer.setSize(container.clientWidth, container.clientHeight);
+    this._renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this._renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    container.appendChild(this._renderer.domElement);
+
+    this._controls = new OrbitControls(this._camera, this._renderer.domElement);
+    this._controls.enableDamping = true;
+    this._controls.dampingFactor = 0.05;
+    this._controls.autoRotate = true;
+    this._controls.autoRotateSpeed = 0.3;
+
+    // Gold light
+    const goldLight = new THREE.PointLight(0xD4AF37, 3, 30);
+    goldLight.position.set(0, 5, 5);
+    this._scene.add(goldLight);
+
+    // Torus knot
+    const torusKnot = new THREE.Mesh(
+      new THREE.TorusKnotGeometry(1.2, 0.35, 200, 32),
+      new THREE.MeshStandardMaterial({
+        color: 0xD4AF37,
+        emissive: 0xD4AF37,
+        emissiveIntensity: 0.3,
+        metalness: 0.95,
+        roughness: 0.05,
+      })
+    );
+    this._scene.add(torusKnot);
+
+    // Animate
+    const clock = new THREE.Clock();
+    const animate = () => {
+      requestAnimationFrame(animate);
+      const t = clock.getElapsedTime();
+      torusKnot.rotation.x = t * 0.2;
+      torusKnot.rotation.y = t * 0.3;
+      this._controls.update();
+      this._renderer.render(this._scene, this._camera);
+    };
+    animate();
+
+    // Resize
+    window.addEventListener('resize', () => {
+      this._camera.aspect = container.clientWidth / container.clientHeight;
+      this._camera.updateProjectionMatrix();
+      this._renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+  }
+
+  get scene(): THREE.Scene { return this._scene; }
+  get camera(): THREE.PerspectiveCamera { return this._camera; }
+  get renderer(): THREE.WebGLRenderer { return this._renderer; }
+}
+
+// Initialize
+const container = document.getElementById('container');
+const engine = new AetherEngine(container);
+
+// TSL shader — gold-on-void fragment
+const vaultTSL = `
+  uniform float uTime;
+  varying vec3 vNormal;
+  void main() {
+    float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 2.0);
+    vec3 gold = vec3(0.83, 0.68, 0.22);
+    gl_FragColor = vec4(gold * fresnel, 0.8);
+  }
+`;
+
+// æ:// — attention is all you need
+export { AetherEngine, AetherScene };
+`;
+
+  const editor = monaco.editor.create(document.getElementById('container'), {
+    value: sampleCode,
+    language: 'typescript',
+    theme: 'ae-void',
+    fontSize: 13,
+    fontFamily: "'JetBrains Mono', 'Consolas', monospace",
+    fontLigatures: true,
+    minimap: { enabled: true, renderCharacters: false },
+    scrollBeyondLastLine: false,
+    smoothScrolling: true,
+    cursorBlinking: 'smooth',
+    cursorSmoothCaretAnimation: 'on',
+    renderLineHighlight: 'all',
+    renderWhitespace: 'selection',
+    bracketPairColorization: { enabled: true },
+    guides: { bracketPairs: true, indentation: true },
+    padding: { top: 12, bottom: 12 },
+    automaticLayout: true,
+    tabSize: 2,
+    wordWrap: 'on',
+    wrappingStrategy: 'advanced',
+    fixedOverflowWidgets: true,
+    suggest: { showWords: true },
+    quickSuggestions: { other: true, comments: true, strings: true },
+    parameterHints: { enabled: true },
+    hover: { enabled: true, delay: 100 },
+    folding: true,
+    foldingHighlight: true,
+    showFoldingControls: 'mouseover',
+    matchBrackets: 'always',
+    autoClosingBrackets: 'always',
+    autoClosingQuotes: 'always',
+    autoSurround: 'languageDefined',
+    autoIndent: 'full',
+    formatOnPaste: true,
+    formatOnType: true,
+  });
+
+  // Language switcher
+  const languages = [
+    { id: 'typescript', label: 'TypeScript', ext: '.ts' },
+    { id: 'javascript', label: 'JavaScript', ext: '.js' },
+    { id: 'python', label: 'Python', ext: '.py' },
+    { id: 'rust', label: 'Rust', ext: '.rs' },
+    { id: 'json', label: 'JSON', ext: '.json' },
+    { id: 'html', label: 'HTML', ext: '.html' },
+    { id: 'css', label: 'CSS', ext: '.css' },
+    { id: 'markdown', label: 'Markdown', ext: '.md' },
+  ];
+
+  let langIndex = 0;
+  document.getElementById('lang-label').textContent = languages[langIndex].label;
+
+  // Keyboard shortcut: Ctrl+Shift+L to switch language
+  editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyL, () => {
+    langIndex = (langIndex + 1) % languages.length;
+    const lang = languages[langIndex];
+    monaco.editor.setModelLanguage(editor.getModel(), lang.id);
+    document.getElementById('lang-label').textContent = lang.label;
+  });
+
+  // Status bar
+  editor.onDidChangeCursorPosition((e) => {
+    const pos = e.position;
+    document.getElementById('lang-label').textContent = 
+      `${languages[langIndex].label} · Ln ${pos.lineNumber}, Col ${pos.column}`;
+  });
+
+
+  // ── Code Mode Engine ──
+  const codeModeOutput = document.getElementById('codemode-output');
+  const execStatus = document.getElementById('exec-status');
+  const execBtn = document.getElementById('exec-btn');
+
+  function appendOutput(html) {
+    codeModeOutput.innerHTML += html;
+    codeModeOutput.scrollTop = codeModeOutput.scrollHeight;
+  }
+
+  const ae = {
+    mesh: {
+      bots: () => [
+        { id: 'hermes-agent', status: 'ok', tier: 0 },
+        { id: 'vps_node', status: 'ok', tier: 1 },
+        { id: 'teknium', status: 'ok', tier: 2 },
+        { id: 'keeper', status: 'ok', tier: 3 },
+      ],
+      read: (id) => ({ id, status: 'ok', lastSeen: new Date().toISOString() }),
+      write: (id, k, v) => ({ ok: true, bot: id, key: k, effect: 'DURABLE' }),
+    },
+    keeper: {
+      audit: (t) => ({ verdict: 'ok', evidence: [{ check: t, verdict: 'ok', evidence: 'local probe' }] }),
+      reconcile: (a, b) => ({ match: a === b ? 100 : 0, diff: a === b ? [] : [a + ' != ' + b] }),
+      ledger: (e) => {
+        if (!e.evidence) throw new Error("ledger requires evidence");
+        return Array.from({length:16}, () => Math.floor(Math.random()*16).toString(16)).join('');
+      },
+      handoff: (to, task) => ({ ok: true, to, task }),
+      publish: (facts) => ({ published: 1, sig: Array.from({length:16}, () => Math.floor(Math.random()*16).toString(16)).join('') }),
+      remember: (fact) => ae.keeper.ledger({ kind: 'fact', text: fact, evidence: 'user-provided' }),
+      recall: () => ({ matches: [] }),
+    },
+    video: {
+      status: () => ({ node: true, render: true, encoder: 'nvenc', vidao: true }),
+      verify: (path) => ({ pass: true, luminance: 86.75, contrast: 73.33, motion: 0.63, black_frames: 0, receipt: 'local-preview' }),
+      receipt: (path, intent, prev) => ({
+        receipt: Array.from({length:64}, () => Math.floor(Math.random()*16).toString(16)).join(''),
+        video_sha256: Array.from({length:64}, () => Math.floor(Math.random()*16).toString(16)).join(''),
+        previous: prev || 'genesis', intent,
+      }),
+    },
+    rtx: {
+      probe: () => ({ gpu: 'NVIDIA GeForce RTX 3050 6GB', temp: 53, util: 0, mem_used: 1024, mem_total: 6144 }),
+      compute: (op) => ({ ok: true, op, result: 'executed' }),
+    },
+    social: {
+      post: (v) => {
+        if (!v.evidence) throw new Error("social.post requires evidence");
+        return { ok: true, sig: Array.from({length:16}, () => Math.floor(Math.random()*16).toString(16)).join('') };
+      },
+      read: () => [],
+      follow: (s) => ({ ok: true, subject: s }),
+    },
+    storage: {
+      read: (p) => '(sandbox: ' + p + ')',
+      write: (p, c) => ({ ok: true, path: p, bytes: c.length }),
+      list: () => [],
+    },
+  };
+
+  window.executeCodeMode = async function() {
+    const code = editor.getValue();
+    const start = Date.now();
+    execStatus.textContent = 'RUNNING';
+    execStatus.style.color = '#00ff9d';
+    execBtn.classList.add('running');
+    appendOutput('<span class="prompt">\u25b6 execute</span>\n');
+
+    try {
+      const fn = new Function('ae', 'json', 'Math', 'Date', 'console',
+        'return (async () => {' + code + '})()');
+      const result = await fn(ae, JSON, Math, Date, {
+        log: (...args) => appendOutput('<span class="result">' + args.map(String).join(' ').replace(/</g, '&lt;') + '</span>\n'),
+      });
+      const elapsed = Date.now() - start;
+      if (result !== undefined) {
+        appendOutput('<span class="receipt">return: ' + JSON.stringify(result, null, 2).replace(/</g, '&lt;') + '</span>\n');
+      }
+      appendOutput('<span class="dim">--- done in ' + elapsed + 'ms ---</span>\n\n');
+      execStatus.textContent = 'OK ' + elapsed + 'ms';
+      execStatus.style.color = '#00ff9d';
+    } catch (e) {
+      appendOutput('<span class="error">ERROR: ' + String(e.message || e).replace(/</g, '&lt;') + '</span>\n\n');
+      execStatus.textContent = 'ERROR';
+      execStatus.style.color = '#ff4d5f';
+    }
+    execBtn.classList.remove('running');
+  };
+
+  editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+    executeCodeMode();
+  });
+
+  // ── ae DSL Autocomplete ──
+  const aeCompletions = [
+    { label: 'ae.mesh.bots', kind: monaco.languages.CompletionItemKind.Function, insertText: 'ae.mesh.bots()', detail: 'List active mesh bots' },
+    { label: 'ae.mesh.read', kind: monaco.languages.CompletionItemKind.Function, insertText: 'ae.mesh.read(${1:botId})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Read bot state' },
+    { label: 'ae.mesh.write', kind: monaco.languages.CompletionItemKind.Function, insertText: 'ae.mesh.write(${1:botId}, ${2:key}, ${3:value})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Write bot state (DURABLE)' },
+    { label: 'ae.keeper.audit', kind: monaco.languages.CompletionItemKind.Function, insertText: 'ae.keeper.audit(${1:target})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Scan resource for issues' },
+    { label: 'ae.keeper.ledger', kind: monaco.languages.CompletionItemKind.Function, insertText: 'ae.keeper.ledger({kind: ${1:fact}, text: ${2:desc}, evidence: ${3:proof}})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Append-only receipt (evidence required)' },
+    { label: 'ae.keeper.publish', kind: monaco.languages.CompletionItemKind.Function, insertText: 'ae.keeper.publish(${1:facts})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Publish to receipts network (EXTERNAL)' },
+    { label: 'ae.keeper.remember', kind: monaco.languages.CompletionItemKind.Function, insertText: 'ae.keeper.remember(${1:fact})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Store a fact' },
+    { label: 'ae.keeper.recall', kind: monaco.languages.CompletionItemKind.Function, insertText: 'ae.keeper.recall(${1:query})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Retrieve facts' },
+    { label: 'ae.video.status', kind: monaco.languages.CompletionItemKind.Function, insertText: 'ae.video.status()', detail: 'Toolchain status' },
+    { label: 'ae.video.verify', kind: monaco.languages.CompletionItemKind.Function, insertText: 'ae.video.verify(${1:path})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'SupervisorVideo gate' },
+    { label: 'ae.video.receipt', kind: monaco.languages.CompletionItemKind.Function, insertText: 'ae.video.receipt(${1:path}, ${2:intent}, ${3:prev})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Compute receipt chain entry' },
+    { label: 'ae.rtx.probe', kind: monaco.languages.CompletionItemKind.Function, insertText: 'ae.rtx.probe()', detail: 'GPU telemetry' },
+    { label: 'ae.rtx.compute', kind: monaco.languages.CompletionItemKind.Function, insertText: 'ae.rtx.compute(${1:op})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'GPU operation' },
+    { label: 'ae.social.post', kind: monaco.languages.CompletionItemKind.Function, insertText: 'ae.social.post({text: ${1:desc}, kind: ${2:fact}, evidence: ${3:proof}, agent: ${4:name}, principal: ${5:did}})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Publish (evidence required)' },
+    { label: 'ae.storage.read', kind: monaco.languages.CompletionItemKind.Function, insertText: 'ae.storage.read(${1:path})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Read storage' },
+    { label: 'ae.storage.write', kind: monaco.languages.CompletionItemKind.Function, insertText: 'ae.storage.write(${1:path}, ${2:content})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Write storage' },
+  ];
+
+  monaco.languages.registerCompletionItemProvider('typescript', {
+    triggerCharacters: ['.'],
+    provideCompletionItems: (model, position) => {
+      const word = model.getWordUntilPosition(position);
+      const range = new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn);
+      return { suggestions: aeCompletions.map(c => ({ ...c, range })) };
+    },
+  });
+
+  monaco.languages.registerCompletionItemProvider('python', {
+    triggerCharacters: ['.'],
+    provideCompletionItems: (model, position) => {
+      const word = model.getWordUntilPosition(position);
+      const range = new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn);
+      return { suggestions: aeCompletions.map(c => ({
+        ...c,
+        label: c.label.replace(/ae\./g, '\u00e6.'),
+        insertText: c.insertText.replace(/ae\./g, '\u00e6.'),
+        range,
+      })) };
+    },
+  });
+
+  window.editor = editor;
+  window.__MONACO__ = { ready: true, theme: 'ae-void', languages: languages.length, codeMode: true };
+});
+</script>
+</body>
+</html>

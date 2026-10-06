@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PC://VAULT — Three.js WebGPU Layered Secret Hierarchy</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #050505; overflow: hidden; font-family: 'JetBrains Mono', 'Consolas', monospace; }
+  canvas { display: block; }
+  #hud {
+    position: fixed; top: 0; left: 0; right: 0; padding: 16px 24px;
+    background: linear-gradient(180deg, rgba(5,5,5,0.95) 0%, transparent 100%);
+    color: #D4AF37; pointer-events: none; z-index: 10;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  #hud h1 { font-size: 14px; letter-spacing: 4px; text-transform: uppercase; }
+  #hud .stats { font-size: 10px; color: rgba(212,175,55,0.5); }
+  #layer-panel {
+    position: fixed; top: 60px; right: 14px; z-index: 10; width: 260px;
+    border: 1px solid rgba(212,175,55,0.16); background: rgba(5,5,5,0.86);
+    backdrop-filter: blur(6px); border-radius: 4px; padding: 12px;
+  }
+  #layer-panel h3 { color: #D4AF37; font-size: 11px; letter-spacing: 1px; margin-bottom: 8px; }
+  .layer-item {
+    padding: 6px 8px; margin: 2px 0; border-radius: 3px; cursor: pointer;
+    font-size: 10px; color: rgba(240,236,228,0.6); transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+  .layer-item:hover { border-color: rgba(212,175,55,0.3); color: #D4AF37; }
+  .layer-item.active { background: rgba(212,175,55,0.1); border-color: #D4AF37; color: #D4AF37; }
+  .layer-item .layer-name { font-weight: 700; }
+  .layer-item .layer-desc { color: rgba(240,236,228,0.35); font-size: 9px; margin-top: 2px; }
+  .scanlines {
+    position: fixed; inset: 0; pointer-events: none; z-index: 5;
+    background: repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(212,175,55,0.015) 2px, rgba(212,175,55,0.015) 4px);
+  }
+  #webgpu-badge {
+    position: fixed; bottom: 14px; left: 14px; z-index: 10;
+    font-size: 9px; letter-spacing: 2px; color: #00ff9d;
+    border: 1px solid rgba(0,255,157,0.3); padding: 4px 10px; border-radius: 3px;
+    background: rgba(5,5,5,0.8);
+  }
+</style>
+</head>
+<body>
+<div id="hud">
+  <h1>PC://VAULT — WebGPU Layered Secret Hierarchy</h1>
+  <div class="stats" id="stats">WebGPU · FPS: 0 | Layers: 7 | Click a layer to inspect</div>
+</div>
+<div id="layer-panel">
+  <h3>VÆULT LAYERS</h3>
+  <div id="layer-list"></div>
+  <div id="auth-section" style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(212,175,55,0.16)">
+    <h3>VAULT</h3>
+    <div id="auth-status" style="font-size:10px;color:rgba(240,236,228,0.4);margin-bottom:8px">Not loaded</div>
+    <button id="load-vault-btn" style="width:100%;padding:8px;background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);color:#D4AF37;border-radius:4px;cursor:pointer;font-size:11px;font-family:inherit;transition:all 0.2s">
+      Load Vault File
+    </button>
+    <input type="file" id="vault-file" accept=".vaeult,.json" style="display:none">
+    <div id="vault-entries" style="margin-top:8px;font-size:9px;color:rgba(240,236,228,0.5)"></div>
+  </div>
+</div>
+<div class="scanlines"></div>
+<div id="webgpu-badge">WEBGPU · TSL · RAPIER</div>
+
+<div id="auth-modal" style="position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;background:rgba(5,5,5,0.92);backdrop-filter:blur(8px)">
+  <div style="background:#0a0a0a;border:1px solid rgba(212,175,55,0.3);border-radius:8px;padding:32px;width:360px">
+    <h2 style="color:#D4AF37;font-size:14px;letter-spacing:2px;margin-bottom:16px;text-transform:uppercase">Unlock Vault</h2>
+    <input type="password" id="passphrase" placeholder="Enter vault passphrase" autocomplete="off"
+      style="width:100%;padding:10px 12px;background:rgba(0,0,0,0.4);border:1px solid rgba(212,175,55,0.2);color:#f0ece4;font-family:inherit;font-size:12px;border-radius:4px;outline:none;margin-bottom:12px">
+    <button id="unlock-btn"
+      style="width:100%;padding:10px;background:rgba(212,175,55,0.15);border:1px solid rgba(212,175,55,0.4);color:#D4AF37;font-family:inherit;font-size:11px;letter-spacing:1px;border-radius:4px;cursor:pointer;text-transform:uppercase">
+      Unlock
+    </button>
+    <div id="auth-error" style="color:#ff6b6b;font-size:10px;margin-top:8px"></div>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.webgpu.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+const webgpuAvailable = !!navigator.gpu;
+document.getElementById('webgpu-badge').textContent = webgpuAvailable ? 'WEBGPU OK · TSL · RAPIER' : 'FALLBACK WebGL · TSL · RAPIER';
+
+const LAYERS = [
+  { name: 'ENCRYPTION', desc: 'AES-256-GCM · per-entry nonce · AAD binding', color: 0xD4AF37, radius: 1.0, speed: 0.3 },
+  { name: 'KEY DERIVATION', desc: 'scrypt (N=2^15) / PBKDF2 (600k iter)', color: 0x00eaff, radius: 1.8, speed: -0.2 },
+  { name: 'CUSTODY', desc: 'C:/secrets/privateclient/ · git-ignored', color: 0x00ff9d, radius: 2.6, speed: 0.15 },
+  { name: 'QR AIR-GAP', desc: 'Sealed envelope · no network · no plaintext', color: 0xa739de, radius: 3.4, speed: -0.1 },
+  { name: 'BROKER', desc: '+ae://secrets · masked stdout · refuse when empty', color: 0xff4444, radius: 4.2, speed: 0.08 },
+  { name: 'COMPARTMENT', desc: 'One QR = one secret = one agent', color: 0xffaa00, radius: 5.0, speed: -0.06 },
+  { name: 'PRESENCE', desc: 'QR scan = human in the loop', color: 0x00aaff, radius: 5.8, speed: 0.04 },
+];
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x050505);
+scene.fog = new THREE.FogExp2(0x050505, 0.02);
+
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(6, 4, 8);
+
+let renderer;
+if (webgpuAvailable) {
+  try {
+    renderer = new THREE.WebGPURenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    await renderer.init();
+  } catch (e) {
+    console.warn('WebGPU failed, fallback WebGL', e);
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+} else {
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+document.body.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.3;
+
+scene.add(new THREE.AmbientLight(0x404040, 0.5));
+const goldLight = new THREE.PointLight(0xD4AF37, 2, 20);
+goldLight.position.set(0, 5, 0);
+scene.add(goldLight);
+
+const vaultShader = new THREE.ShaderMaterial({
+  uniforms: {
+    uTime: { value: 0 },
+    uColor: { value: new THREE.Color(0xD4AF37) },
+    uOpacity: { value: 0.15 },
+  },
+  vertexShader: `
+    varying vec3 vNormal;
+    varying vec3 vPosition;
+    void main() {
+      vNormal = normalize(normalMatrix * normal);
+      vPosition = position;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    uniform float uTime;
+    uniform vec3 uColor;
+    uniform float uOpacity;
+    varying vec3 vNormal;
+    varying vec3 vPosition;
+    void main() {
+      float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 2.0);
+      float scanline = sin(vPosition.y * 80.0 + uTime * 2.0) * 0.05 + 0.95;
+      vec3 color = uColor * (0.6 + fresnel * 0.4) * scanline;
+      gl_FragColor = vec4(color, uOpacity * (0.6 + fresnel * 0.4));
+    }
+  `,
+  transparent: true,
+  side: THREE.DoubleSide,
+});
+
+const coreGeo = new THREE.IcosahedronGeometry(0.6, 2);
+const coreMat = new THREE.MeshStandardMaterial({
+  color: 0xD4AF37, emissive: 0xD4AF37, emissiveIntensity: 0.4,
+  metalness: 0.95, roughness: 0.05, wireframe: true,
+});
+const core = new THREE.Mesh(coreGeo, coreMat);
+scene.add(core);
+
+const layerMeshes = [];
+LAYERS.forEach((layer, i) => {
+  if (i === 0) return;
+  const geo = new THREE.IcosahedronGeometry(layer.radius, 1);
+  const mat = vaultShader.clone();
+  mat.uniforms.uColor.value.setHex(layer.color);
+  const mesh = new THREE.Mesh(geo, mat);
+  scene.add(mesh);
+  layerMeshes.push({ mesh, layer, index: i });
+});
+
+const particleSystems = [];
+LAYERS.forEach((layer) => {
+  const count = 200;
+  const geo = new THREE.BufferGeometry();
+  const positions = new Float32Array(count * 3);
+  for (let j = 0; j < count; j++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const r = layer.radius + (Math.random() - 0.5) * 0.3;
+    positions[j * 3] = r * Math.sin(phi) * Math.cos(theta);
+    positions[j * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+    positions[j * 3 + 2] = r * Math.cos(phi);
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const mat = new THREE.PointsMaterial({
+    color: layer.color, size: 0.03, transparent: true, opacity: 0.6,
+    blending: THREE.AdditiveBlending, depthWrite: false,
+  });
+  const points = new THREE.Points(geo, mat);
+  scene.add(points);
+  particleSystems.push({ points, layer });
+});
+
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.3, 0.3, 0.85));
+composer.addPass(new OutputPass());
+
+const layerList = document.getElementById('layer-list');
+let activeLayer = -1;
+LAYERS.forEach((layer, i) => {
+  const div = document.createElement('div');
+  div.className = 'layer-item';
+  div.innerHTML = '<div class="layer-name" style="color:#' + layer.color.toString(16).padStart(6,'0') + '">' + layer.name + '</div><div class="layer-desc">' + layer.desc + '</div>';
+  div.addEventListener('click', () => {
+    document.querySelectorAll('.layer-item').forEach(el => el.classList.remove('active'));
+    div.classList.add('active');
+    activeLayer = i;
+    layerMeshes.forEach(lm => {
+      lm.mesh.material.opacity = lm.index === i ? 0.4 : 0.08;
+    });
+  });
+  layerList.appendChild(div);
+});
+
+const clock = new THREE.Clock();
+let frame = 0;
+
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+  frame++;
+
+  core.rotation.x = t * 0.3;
+  core.rotation.y = t * 0.5;
+  core.material.emissiveIntensity = 0.3 + Math.sin(t * 2) * 0.15;
+
+  layerMeshes.forEach(lm => {
+    lm.mesh.rotation.y = t * lm.layer.speed;
+    lm.mesh.rotation.x = t * lm.layer.speed * 0.5;
+  });
+
+  particleSystems.forEach(ps => {
+    ps.points.rotation.y = t * ps.layer.speed * 0.5;
+  });
+
+  if (frame % 10 === 0) {
+    const fps = Math.round(1 / clock.getDelta());
+    document.getElementById('stats').textContent =
+      'WebGPU · FPS: ' + fps + ' | Layers: 7 | Active: ' + (activeLayer >= 0 ? LAYERS[activeLayer].name : 'none');
+  }
+
+  controls.update();
+  composer.render();
+}
+animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+});
+
+let vaultDoc = null;
+let vaultKey = null;
+let isUnlocked = false;
+const PBKDF2_ITERATIONS = 600000;
+function b64d(s) { return Uint8Array.from(atob(s), c => c.charCodeAt(0)); }
+function aad(name) { return new TextEncoder().encode('vault-entry:' + name); }
+async function deriveKeyPBKDF2(passphrase, salt, iterations) {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(passphrase), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations, hash: 'SHA-256' }, keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+async function openEntry(key, name, blob) {
+  const nonce = b64d(blob.n); const ct = b64d(blob.ct);
+  return new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: nonce, additionalData: aad(name) }, key, ct));
+}
+async function unlockVault(doc, passphrase) {
+  const salt = b64d(doc.salt);
+  let key;
+  if (doc.kdf === 'pbkdf2') { key = await deriveKeyPBKDF2(passphrase, salt, doc.iterations || PBKDF2_ITERATIONS); }
+  else { throw new Error('scrypt vault — use Python vault.py'); }
+  if (doc.check) { try { await openEntry(key, '__check__', doc.check); } catch { throw new Error('Wrong passphrase'); } }
+  return key;
+}
+document.getElementById('load-vault-btn').addEventListener('click', () => document.getElementById('vault-file').click());
+document.getElementById('vault-file').addEventListener('change', async (e) => {
+  const file = e.target.files[0]; if (!file) return;
+  try {
+    const text = await file.text(); vaultDoc = JSON.parse(text);
+    if (!vaultDoc.salt || !vaultDoc.entries) throw new Error('Invalid vault file');
+    document.getElementById('auth-status').textContent = 'Vault loaded — enter passphrase';
+    document.getElementById('auth-status').style.color = '#ffaa00';
+    document.getElementById('auth-modal').style.display = 'flex';
+    document.getElementById('passphrase').focus();
+  } catch (err) { document.getElementById('auth-status').textContent = 'Error: ' + err.message; document.getElementById('auth-status').style.color = '#ff6b6b'; }
+  e.target.value = '';
+});
+document.getElementById('unlock-btn').addEventListener('click', async () => {
+  const passphrase = document.getElementById('passphrase').value; if (!passphrase) return;
+  try { vaultKey = await unlockVault(vaultDoc, passphrase); isUnlocked = true; document.getElementById('auth-modal').style.display = 'none'; document.getElementById('passphrase').value = ''; document.getElementById('auth-error').textContent = ''; updateVaultUI(); } catch (err) { document.getElementById('auth-error').textContent = err.message; }
+});
+document.getElementById('passphrase').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('unlock-btn').click(); });
+function updateVaultUI() {
+  const status = document.getElementById('auth-status'); const entries = document.getElementById('vault-entries');
+  if (isUnlocked) {
+    const keys = Object.keys(vaultDoc.entries).sort(); const kdf = vaultDoc.kdf || 'scrypt';
+    status.innerHTML = '<span style="color:#00ff9d">OK Unlocked</span> · ' + kdf + ' · ' + keys.length + ' entries';
+    entries.innerHTML = keys.map(k => '<div>· ' + k + '</div>').join('');
+  } else { status.textContent = 'Not loaded'; status.style.color = 'rgba(240,236,228,0.4)'; entries.innerHTML = ''; }
+}
+window.__VAULT__ = { ready: true, layers: LAYERS.length, revision: '188', auth: 'vaeult-passphrase', get unlocked() { return isUnlocked; }, get entryCount() { return vaultDoc ? Object.keys(vaultDoc.entries).length : 0; } };
+</script>
+</body>
+</html>
