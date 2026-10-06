@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920,height=1080">
+<title>Frame 5 — resolve — 6.0 s</title>
+<style>*{margin:0;padding:0}body{background:#050505;overflow:hidden}canvas{display:block}</style>
+</head>
+<body>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+<script type="module">
+import*as THREE from'three';import{OrbitControls}from'three/addons/controls/OrbitControls.js';import{EffectComposer}from'three/addons/postprocessing/EffectComposer.js';import{RenderPass}from'three/addons/postprocessing/RenderPass.js';import{UnrealBloomPass}from'three/addons/postprocessing/UnrealBloomPass.js';import{OutputPass}from'three/addons/postprocessing/OutputPass.js';
+var scene=new THREE.Scene();scene.background=new THREE.Color('#050505');
+var camera=new THREE.PerspectiveCamera(75,1920/1080,0.1,100);
+camera.position.set(10.4,5,10);
+var renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(1920,1080);renderer.toneMapping=THREE.ACESFilmicToneMapping;document.body.appendChild(renderer.domElement);
+scene.add(new THREE.AmbientLight(0x404040,0.5));
+var pl=new THREE.PointLight('#00eaff',2,20);pl.position.set(0,5,0);scene.add(pl);
+
+  var geo0 = new THREE.TorusGeometry(1,0.4,16,100);
+  var mat0 = new THREE.MeshStandardMaterial({color:'#D4AF37',metalness:0.95,roughness:0.05,emissive:'#D4AF37',emissiveIntensity:0.2});
+  var mesh0 = new THREE.Mesh(geo0, mat0);
+  scene.add(mesh0);
+
+var render;
+
+  var render = function(){composer.render();};
+  var composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  composer.addPass(new UnrealBloomPass(new THREE.Vector2(1920,1080), 0.8, 0.4, 0.85));
+  composer.addPass(new OutputPass());
+var controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;
+function animate(){requestAnimationFrame(animate);controls.update();render();}
+animate();
+</script>
+</body>
+</html>
