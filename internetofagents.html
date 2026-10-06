@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>Internet of Agents · #internetofagents</title>
+<meta name="description" content="Internet of Agents — the sovereign mesh of agentic engineering. Each agent carries human provenance (X-verified owner), local sovereignty (no cloud), and human-controlled execution. The human IS the loop.">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#050505;
+  --gold:#D4AF37;
+  --gold-glow:rgba(212,175,55,.35);
+  --neon:#00ff9d;
+  --ink:#f0ece4;
+  --muted:rgba(240,236,228,.45);
+  --border:rgba(212,175,55,.16);
+  --border-hot:rgba(212,175,55,.5);
+  --card:rgba(5,5,5,.78);
+  --scan:rgba(212,175,55,.012);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100dvh;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
+canvas#mesh{position:fixed;inset:0;z-index:0}
+.scan{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(transparent 0 2px,rgba(212,175,55,.012) 2px 4px)}
+.vig{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 35%,rgba(5,5,5,.94) 100%)}
+.wrap{position:relative;z-index:10;max-width:820px;margin:0 auto;padding:clamp(16px,5vw,64px) clamp(14px,3vw,28px)}
+.statusbar{display:flex;justify-content:space-between;align-items:center;font-size:clamp(6px,1vw,9px);letter-spacing:2px;color:var(--muted);text-transform:uppercase;border:1px solid var(--border);padding:8px 14px}
+.statusbar .live{display:flex;align-items:center;gap:6px;color:var(--neon)}
+.statusbar .node{flex:1;text-align:center;color:var(--gold);font-size:9px;letter-spacing:1px}
+.statusbar .node .nm{font-weight:700}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes scan{0%{clip:rect(0,9999px,0,9999px)}50%{clip:rect(0,9999px,9999px,0)}100%{clip:rect(0,9999px,0,9999px)}}
+.glyph{font-size:clamp(44px,10vw,80px);filter:drop-shadow(0 0 24px var(--gold-glow));animation:breathe 4s ease-in-out infinite}
+.cmd{font-family:'Orbitron';font-weight:900;font-size:clamp(20px,5vw,40px);letter-spacing:clamp(1px,.4vw,3px);color:var(--gold);text-shadow:0 0 28px var(--gold-glow);line-height:1}
+.cmd .dim{color:var(--muted)}.cmd .cur{display:inline-block;width:.5ch;background:var(--gold);animation:blink 1s step-end infinite;margin-left:2px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.sub{font-size:clamp(8px,1.6vw,13px);letter-spacing:2px;color:var(--ink);text-transform:uppercase}
+.sub em{font-style:normal;color:var(--gold)}
+.pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.pill{font-size:clamp(6px,1vw,9px);letter-spacing:1.5px;padding:3px 10px;border-radius:999px;border:1px solid var(--border);color:var(--muted);text-transform:uppercase;background:rgba(5,5,5,.6)}
+.pill.hot{border-color:rgba(212,175,55,.4);color:var(--gold);background:rgba(212,175,55,.06)}
+.fleet{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px}
+.node-card{border:1px solid var(--border);background:var(--card);padding:14px;border-radius:6px;transition:all .2s;position:relative;overflow:hidden}
+.node-card:hover{border-color:rgba(212,175,55,.4);box-shadow:0 0 20px rgba(212,175,55,.06)}
+.node-card .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.node-card .name{font-family:'Orbitron';font-weight:900;color:var(--gold);font-size:12px;letter-spacing:1.5px}
+.node-card .prov{font-size:7px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+.node-card .provenance{color:var(--muted);font-size:8px;line-height:1.4}
+.node-card .prov b{color:var(--gold)}
+.node-card .addr{font-size:7px;letter-spacing:1px;color:var(--dim)}
+.node-card .bottom{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.node-card .status{display:flex;align-items:center;gap:4px;font-size:8px;letter-spacing:1px;color:var(--neon)}
+.node-card .status .dot{width:5px;height:5px;border-radius:50%;background:var(--neon);animation:pulse 1.6s infinite}
+.node-card .status .lbl{color:var(--muted)}
+.node-card .control{font-size:8px;letter-spacing:1px;color:var(--gold);border:1px solid var(--border-hot);padding:4px 10px;border-radius:3px;cursor:pointer;text-transform:uppercase;font-family:'Orbitron';transition:all .15s}
+.node-card .control:hover{border-color:rgba(212,175,55,.7);color:var(--gold);background:rgba(212,175,55,.06)}
+.node-card .exec-icon{font-size:10px;animation:spin 8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.synth{width:100%;height:2px;background:linear-gradient(90deg,var(--gold),var(--neon),var(--gold));margin-top:6px;overflow:hidden}
+.synth-inner{width:100%;height:100%;border-radius:50%}
+.synth .ring{position:absolute;width:100%;height:100%;border-radius:50%;border:1px solid var(--border);animation:scan 3s linear infinite}
+.panel{border:1px solid var(--border);background:var(--card);padding:14px;border-radius:6px;margin-top:12px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid var(--border);font-size:clamp(7px,1.1vw,10px);letter-spacing:2px;color:var(--gold);text-transform:uppercase}
+.panel-head .tag{color:var(--neon);border:1px solid rgba(0,255,157,.25);padding:2px 8px;border-radius:999px;font-size:8px}
+.cmd-row{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;transition:background .15s}
+.cmd-row:hover{background:rgba(212,175,55,.04)}
+.cmd-prompt{font-family:'Orbitron';font-weight:900;color:var(--gold);font-size:11px;letter-spacing:1.5px}
+.cmd-text{flex:1;color:var(--ink);font-size:10px;line-height:1.5}
+.cmd-text .b{color:var(--gold)}
+.copy{font-size:7px;letter-spacing:1px;color:var(--muted);border:1px solid var(--border);padding:5px 10px;border-radius:4px;text-transform:uppercase;transition:all .15s;flex-shrink:0}
+.copy:hover{border-color:rgba(212,175,55,.4);color:var(--gold)}
+.stack{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.stat{border:1px solid var(--border);padding:10px;text-align:center;background:rgba(5,5,5,.5)}
+.stat .v{font-family:'Orbitron';font-weight:900;color:var(--gold);font-size:18px;line-height:1}
+.stat .l{font-size:7px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+.foot{display:flex;flex-wrap:wrap;gap:4px 16px;justify-content:center;font-size:clamp(7px,1.1vw,10px);letter-spacing:1px}
+.foot a{color:var(--muted);text-decoration:none;transition:color .15s}
+.foot a:hover{color:var(--gold)}
+.hash{text-align:center;font-family:'Orbitron';font-weight:700;font-size:clamp(8px,1.4vw,13px);background:linear-gradient(90deg,var(--gold),var(--neon),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px;margin-top:12px}
+.mono{font-family:'JetBrains Mono',monospace}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--gold);color:#000;font-weight:700;font-size:11px;letter-spacing:1px;padding:10px 20px;border-radius:6px;z-index:100;transition:transform .3s;text-transform:uppercase}
+.receipt{border:1px solid var(--border);background:rgba(5,5,5,.5);padding:12px;margin-top:8px;max-height:120px;overflow-y:auto;word-break:break-all;font-size:8px;font-family:'JetBrains Mono',monospace;white-space:pre-wrap}
+.receipt .h{font-family:'Orbitron';color:var(--neon);font-size:8px}
+@media (max-width:480px){.glyph{font-size:clamp(32px,8vw,56px)}.cmd{font-size:clamp(16px,4vw,28px)}}
+</style>
+</head>
+<body>
+<canvas id="mesh"></canvas><div class="scan"></div><div class="vig"></div>
+
+<div class="wrap">
+  <div class="statusbar">
+    <span><span class="nm">#internetofagents</span> <span class="node">CORE · victus.local</span></span>
+    <span>
+      <span class="live"><span class="dot"></span>FLEET · 7 AGENTS</span>
+      <span class="node" id="busy" style="text-align:center;color:var(--dim);font-size:9px">IDLE</span>
+    </span>
+  </div>
+
+  <div class="hero">
+    <div class="glyph">#</div>
+    <div class="cmd">&gt;_æ<span class="dim">:</span>IAC<span class="dim">#internetofagents</span><span class="cur">&nbsp;</span></div>
+    <div class="sub">THE <em>HUMAN LOOP</em> — <em>sovereign agents, human provenance, local compute, evidence receipts</em></div>
+    <div class="pills">
+      <span class="pill hot">#internetofagents</span>
+      <span class="pill">FLEET CONTROL</span>
+      <span class="pill">HUMAN LOOP</span>
+      <span class="pill">X-PROVENANCE</span>
+      <span class="pill">LOCAL SOVEREIGNTY</span>
+      <span class="pill">EVIDENCE RECEIPTS</span>
+      <span class="pill">A2A COORDINATION</span>
+    </div>
+  </div>
+
+  <div class="fleet" id="fleet"></div>
+
+  <div class="panel">
+    <div class="panel-head"><span>HUMAN LOOP · CONTROL</span><span class="tag">SOvereign EXECUTION</span></div>
+    <div class="cmd-row" id="deployRow">
+      <div class="cmd-prompt">&gt;_æ:</div>
+      <div class="cmd-text"><span class="b">deploy</span> &lt;agent&gt; &lt;command&gt; <span class="b">--sovereign</span> &mdash; human intent, agent execution, evidence receipt. <span style="color:var(--muted)">Public reachability ≠ execution authority.</span></div>
+      <button class="copy" id="copyDeploy">COPY</button>
+    </div>
+    <div class="cmd-row">
+      <div class="cmd-prompt">&gt;_æ:</div>
+      <div class="cmd-text"><span class="b">steer</span> &lt;agent&gt; &mdash; human retains <span class="b">inspection · steering · approval · revocation · reintegration</span>. Agent proposes; human steers.</div>
+      <button class="copy" id="copySteer">COPY</button>
+    </div>
+    <div class="cmd-row">
+      <div class="cmd-prompt">&gt;_æ:</div>
+      <div class="cmd-text"><span class="b">forge</span> &lt;agent&gt; <span class="b">--owner</span> &lt;X-verified&gt; <span class="b">--local</span> <span class="b">--provenance</span> <span class="b">&mdash;</span> agent origin is verifiable, not anonymous.</div>
+      <button class="copy" id="copyForge">COPY</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>EXECUTION <span class="tag">GENERATE</span></span></div>
+    <div class="cmd-row" id="execRow">
+      <div class="cmd-prompt">&gt;_æ:</div>
+      <div class="cmd-text"><span class="b">a2a:invoke</span> <span class="b">rtx3050://matmul</span> <span class="b">&mdash;</span> conductor (Victus/teknium) → broker → reverse tunnel → Victus leaf → gpu-mcp → RTX 3050. <span class="b">Compute, not custody.</span></div>
+      <button class="copy" id="copyA2A">COPY</button>
+    </div>
+    <div class="cmd-row">
+      <div class="cmd-prompt">&gt;_æ:</div>
+      <div class="cmd-text"><span class="b">forge</span> <span class="b">--title</span> <span class="b">@yaelmendez #internetofagents</span> <span class="b">--source</span> <span class="b">@yaelmendez #zeitgeist</span> <span class="b">&mdash;</span> human intent, agent execution, evidence receipt.</div>
+      <button class="copy" id="copyForge2">COPY</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>EVIDENCE <span class="tag">RECEIPTS</span></span></div>
+    <div style="font-size:9px;color:var(--muted);line-height:1.5">
+      Every operational receipt is <b style="color:var(--gold)">SHA-256</b>. No secrets, tokens, passkeys, or credentials in the payload.<br/>
+      <code>H(PreviousReceipt ∥ Intent ∥ Preconditions ∥ Operations ∥ Result ∥ ResultingState ∥ Evidence)</code>
+    </div>
+    <div class="receipt mono" id="receiptBox">No evidence yet — deploy an agent first.</div>
+  </div>
+
+  <div class="stack" id="stats"></div>
+
+  <div class="foot">
+    <a href="./agentic.html">#startabusiness</a>
+    <a href="https://github.com/MYaelMendez/hermes">hermes</a>
+    <a href="https://github.com/MYaelMendez/gpu-mcp">gpu-mcp</a>
+    <a href="https://github.com/MYaelMendez/vidaeo">vidaeo</a>
+    <a href="https://github.com/MYaelMendez/llm-store">llm.store</a>
+  </div>
+  <div class="hash">#internetofagents · #INTERNETofAGENTS · #hermiphicationisinevitable</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Fleet state ───
+const FLEET = [
+  {id:'victus', host:'192.168.1.72', role:'reference node · RTX 3050 6GB', status:'online', hue:0},
+  {id:'teknium', host:'local · direct', role:'conductor · MCP broker', status:'online', hue:1},
+  {id:'webbot', host:'browser · 127.0.0.1', role:'WebMCP · commerce agent', status:'online', hue:2},
+  {id:'caia', host:'local · private', role:'private client · vault', status:'online', hue:3},
+  {id:'tee', host:'local · IDE', role:'VSCODER · C2 surface', status:'online', hue:4},
+  {id:'vela', host:'local · render', role:'render · æRTXrender', status:'online', hue:5},
+  {id:'ceres', host:'local · video', role:'video · SupervisorVideo', status:'online', hue:6}
+];
+
+const COLORS = ['#D4AF37','#00ff9d','#8367ff','#ff7a18','#00eaff','#ff4d5f','#c8a24a'];
+
+// ─── Fleet render ───
+const fleetEl = document.getElementById('fleet');
+FLEET.forEach((f, i) => {
+  const card = document.createElement('div');
+  card.className = 'node-card';
+  card.innerHTML = `
+    <div class="top">
+      <div class="name">${f.id}</div>
+      <div class="prov" style="color:${COLORS[i]}">#${f.id}</div>
+    </div>
+    <div class="provenance">
+      <b>owner:</b> @yaelmendez <span class="dim">(X-verified · human)</span> · <b>mesh:</b> pc://mesh/${f.id}/local · <b>via:</b> <span id="way_${i}">wifi</span>
+    </div>
+    <div class="addr mono">pc://mesh/${f.id}/local</div>
+    <div class="bottom">
+      <div class="status"><span class="dot"></span><span class="lbl">${f.status}</span></div>
+      <button class="control" id="steer_${i}">› STEER</button>
+    </div>
+    <div class="synth"><div class="ring" style="animation-delay:${i*0.3}s"></div></div>
+  `;
+  card.querySelector(`#steer_${i}`).addEventListener('click', ()=>{
+    showToast(`› STEER ${f.id} · human retains inspection, steering, approval, revocation, reintegration`);
+  });
+  fleetEl.appendChild(card);
+});
+
+// ─── Stats ───
+const statsEl = document.getElementById('stats');
+const statsData = [
+  {v:'7', l:'agents in fleet'},
+  {v:'X', l:'owner provenance (human-verified)'},
+  {v:'0', l:'cloud secrets · local custody'},
+  {v:'1', l:'authority · the human'},
+  {v:'MCP/1517', l:'context protocol handshake'},
+  {v:'A2A', l:'agent-to-agent communication'},
+];
+statsData.forEach(s=>{
+  const d = document.createElement('div');
+  d.className = 'stat';
+  d.innerHTML = `<div class="v">${s.v}</div><div class="l">${s.l}</div>`;
+  statsEl.appendChild(d);
+});
+
+// ─── Receipt box ───
+const receiptBox = document.getElementById('receiptBox');
+const RECEIPTS = [
+  {h:'AUTH·0001', t:'authenticate @yaelmendez via X-verified provenance', p:'AUTHORIZE', r:'PASS'},
+  {h:'EXEC·0002', t:'deploy æRTXrender harness on Victus', p:'EXECUTE', r:'PASS'},
+  {h:'OBS·0003', t:'observe mesh state · 7 nodes online', p:'WITNESS', r:'PASS'},
+  {h:'VER·0004', t:'verify sovereign sovereignty · 0 cloud secrets', p:'VERIFY', r:'PASS'},
+  {h:'REAL·0005', t:'realize #internetofagents · human loop intact', p:'REALIZE', r:'PASS'}
+];
+
+// ─── Copy helpers ───
+function copyText(text){
+  navigator.clipboard.writeText(text).then(()=>{
+    const t = document.getElementById('toast');
+    t.textContent = '✓ copied';
+    t.style.transform = 'translateX(-50%) translateY(0)';
+    setTimeout(()=>{t.style.transform='translateX(-50%) translateY(80px)';}, 1800);
+  }).catch(()=>{Aether.toast('copy failed');});
+}
+
+document.getElementById('copyDeploy').addEventListener('click', ()=>copyText('deploy æRTXrender --sovereign --owner @yaelmendez'));
+document.getElementById('copySteer').addEventListener('click', ()=>copyText('steer æRTXrender --approve --steering human-loop'));
+document.getElementById('copyForge').addEventListener('click', ()=>copyText('forge agent --owner @yaelmendez --local --provenance X-verified'));
+document.getElementById('copyA2A').addEventListener('click', ()=>copyText('a2a:invoke rtx3050://matmul --sovereign'));
+
+// ─── Shared toast ───
+window.Aether = window.Aether || {};
+window.Aether.toast = (msg)=>{
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(()=>{t.style.transform='translateX(-50%) translateY(80px)';}, 2000);
+};
+
+// ─── Render receipt chain (animated) ───
+let rxIdx = 0;
+function renderReceipt(){
+  if(!receiptBox) return;
+  const r = RECEIPTS[rxIdx % RECEIPTS.length];
+  receiptBox.innerHTML = `<div class="h">${r.h} · ${r.p}</div>${r.t}<br><span class="mono" style="color:var(--neon)">√ ${r.r}</span>`;
+  rxIdx++;
+}
+setInterval(renderReceipt, 4000);
+
+// ─── Scan simulation ───
+const scanBtn = document.createElement('button');
+scanBtn.style.cssText = 'position:fixed;bottom:20px;left:20px;z-index:100;background:var(--gold);color:#000;font-family:Orbitron;font-weight:700;font-size:11px;padding:10px 18px;border-radius:6px;letter-spacing:1px;cursor:pointer;border:none';
+scanBtn.textContent = 'SCAN · scan agent QR';
+document.body.appendChild(scanBtn);
+scanBtn.addEventListener('click', ()=>{
+  showToast('› scanning agent QR · ae://peer?host=teknium&mesh=pc://mesh/teknium/local&token=ephemeral&via=wifi');
+  const t = document.getElementById('toast');
+  setTimeout(()=>{t.textContent='✓ agent accepted · pc://mesh/teknium/local registered';}, 800);
+});
+</script>
+</body>
+</html>
