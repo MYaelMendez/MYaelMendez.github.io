@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOVÆREIGN PRIVATE CLIENT — Command Prompt</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#D4AF37;--gold-bright:#FFD700;--void:#050505;--green:#00FF9D;--cyan:#00EAFF;--red:#FF3B3B;--ink:rgba(255,255,255,.95);--dim:rgba(255,255,255,.4);--border:rgba(212,175,55,.2);--border-hot:rgba(212,175,55,.5);--card:rgba(255,255,255,.04)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(212,175,55,.08) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(0,234,255,.05) 0%,transparent 50%);pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent 0px,transparent 2px,rgba(0,0,0,.15) 3px,transparent 4px);pointer-events:none;z-index:9999}
+.wrap{max-width:1200px;margin:0 auto;padding:24px;position:relative;z-index:1}
+
+.header{text-align:center;padding:32px 0 24px;position:relative}
+.header h1{font-family:'Orbitron',sans-serif;font-size:clamp(24px,5vw,42px);font-weight:900;letter-spacing:4px;text-transform:uppercase;background:linear-gradient(135deg,#fff 0%,var(--gold-bright) 30%,var(--gold) 60%,#8B6914 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 30px rgba(212,175,55,.3))}
+.header .sub{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;color:var(--dim);margin-top:8px;text-transform:uppercase}
+.header .sub b{color:var(--gold)}
+.header .glyph{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:48px;opacity:.6}
+
+/* Command Prompt */
+.prompt-wrap{margin:24px 0;border:2px solid var(--border-hot);border-radius:8px;background:rgba(5,5,5,.95);overflow:hidden;position:relative}
+.prompt-wrap::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(212,175,55,.03) 0%,transparent 100%);pointer-events:none}
+.prompt-bar{display:flex;align-items:stretch;border-bottom:2px solid var(--border)}
+.prompt-icon{padding:18px 16px;background:rgba(212,175,55,.1);color:var(--gold);font-family:'Orbitron',sans-serif;font-size:16px;display:flex;align-items:center;border-right:2px solid var(--border)}
+.prompt-input{flex:1;background:transparent;border:none;outline:none;color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:16px;padding:18px 16px;letter-spacing:.5px;caret-color:var(--gold)}
+.prompt-input::placeholder{color:var(--dim);font-size:14px}
+.prompt-btn{background:var(--gold);color:var(--void);border:none;font-family:'Orbitron',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;padding:18px 28px;cursor:pointer;text-transform:uppercase;transition:all .15s}
+.prompt-btn:hover{background:var(--gold-bright);transform:scale(1.02)}
+.prompt-btn:active{transform:scale(.98)}
+.prompt-out{min-height:60px;max-height:300px;overflow-y:auto;padding:16px;font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.prompt-out::-webkit-scrollbar{width:4px}
+.prompt-out::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
+
+/* Quick Commands */
+.quick{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.quick-tag{background:rgba(212,175,55,.08);border:1px solid var(--border);border-radius:4px;padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.5px}
+.quick-tag:hover{border-color:var(--gold);background:rgba(212,175,55,.15);transform:translateY(-1px)}
+.quick-tag .glyph{color:var(--gold);margin-right:6px}
+
+/* Panels */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:4px;margin:16px 0;overflow:hidden}
+.panel-head{padding:16px 24px;border-bottom:1px solid var(--border);font-family:'Orbitron',sans-serif;font-size:13px;letter-spacing:2px;display:flex;align-items:center;justify-content:space-between}
+.panel-head .tag{background:rgba(212,175,55,.2);padding:4px 12px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold)}
+.panel-body{padding:24px}
+
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:768px){.grid-3,.grid-4{grid-template-columns:1fr}}
+
+.card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:4px;padding:20px;transition:all .2s;cursor:default}
+.card:hover{border-color:var(--border-hot);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.card .name{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:1px;color:var(--gold);margin-bottom:8px}
+.card .meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);line-height:1.5}
+.card .row{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+.badge{background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.3);padding:3px 8px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:.5px}
+.badge.green{border-color:rgba(0,255,157,.3);color:var(--green);background:rgba(0,255,157,.1)}
+.badge.cyan{border-color:rgba(0,234,255,.3);color:var(--cyan);background:rgba(0,234,255,.1)}
+
+/* Status */
+.status-bar{display:flex;gap:16px;flex-wrap:wrap;margin:16px 0;font-family:'JetBrains Mono',monospace;font-size:11px}
+.status-item{display:flex;align-items:center;gap:6px}
+.status-dot{width:6px;height:6px;border-radius:50%;animation:pulse 2s infinite}
+.status-dot.green{background:var(--green);box-shadow:0 0 8px rgba(0,255,157,.5)}
+.status-dot.gold{background:var(--gold);box-shadow:0 0 8px rgba(212,175,55,.5)}
+.status-dot.cyan{background:var(--cyan);box-shadow:0 0 8px rgba(0,234,255,.5)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* Log */
+.logshell{font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.6;white-space:pre-wrap;color:var(--dim);background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:16px}
+
+/* Receipt chain */
+.chain{display:flex;align-items:center;gap:4px;margin:8px 0;flex-wrap:wrap}
+.chain-link{width:24px;height:4px;background:var(--gold);border-radius:2px;opacity:.6}
+.chain-link.active{opacity:1;box-shadow:0 0 8px rgba(212,175,55,.5)}
+
+.footer{text-align:center;padding:32px 0 16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);border-top:1px solid var(--border);margin-top:32px}
+.footer .brand{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:2px;color:var(--gold);opacity:.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <h1>SOVÆREIGN</h1>
+    <div class="sub">PRIVATE CLIENT · COMMAND PROMPT · <b>HUMAN://ROOT</b></div>
+    <div class="glyph">☺</div>
+  </div>
+
+  <!-- ═══ COMMAND PROMPT ═══ -->
+  <div class="prompt-wrap">
+    <div class="prompt-bar">
+      <div class="prompt-icon">&gt;_æ:</div>
+      <input class="prompt-input" id="cmd" placeholder="command your mesh... e.g. 'render a circuit', 'verify media', 'start a business', 'check receipts'" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')runCmd()">
+      <button class="prompt-btn" onclick="runCmd()">EXECUTE</button>
+    </div>
+    <div class="prompt-out" id="out"><span style="opacity:.4">// Sovæ reign Command Prompt — your intent becomes executable code
+// Agentic Electronic Engineering · #opensourceware · Private Client
+// Every action produces a receipt. Evidence ≠ Authority.</span></div>
+  </div>
+
+  <div class="quick">
+    <div class="quick-tag" onclick="quickCmd('render a circuit')"><span class="glyph">⚡</span>circuit</div>
+    <div class="quick-tag" onclick="quickCmd('verify media trust')"><span class="glyph">◈</span>verify</div>
+    <div class="quick-tag" onclick="quickCmd('start a business')"><span class="glyph">∞</span>business</div>
+    <div class="quick-tag" onclick="quickCmd('check receipts chain')"><span class="glyph">⊞</span>receipts</div>
+    <div class="quick-tag" onclick="quickCmd('scan QR badges')"><span class="glyph">⊕</span>QR</div>
+    <div class="quick-tag" onclick="quickCmd('eda toolchain status')"><span class="glyph">⚙</span>EDA</div>
+    <div class="quick-tag" onclick="quickCmd('show canon')"><span class="glyph">☰</span>canon</div>
+    <div class="quick-tag" onclick="quickCmd('gpu telemetry')"><span class="glyph">▣</span>GPU</div>
+  </div>
+
+  <!-- ═══ STATUS BAR ═══ -->
+  <div class="status-bar">
+    <div class="status-item"><div class="status-dot green"></div><span>EDA: iverilog 14 · yosys 0.69 · nextpnr 0.11</span></div>
+    <div class="status-item"><div class="status-dot gold"></div><span>P&amp;R: 22 cells · 392.77 MHz</span></div>
+    <div class="status-item"><div class="status-dot cyan"></div><span>Glocal Vision: 32 artifacts · 21 QR badges</span></div>
+    <div class="status-item"><div class="status-dot green"></div><span>Canon: 3 principles · verified</span></div>
+  </div>
+
+  <!-- ═══ CANON ═══ -->
+  <div class="panel">
+    <div class="panel-head"><span>◈ CANON · 3 PRINCIPLES</span><span class="tag">EVIDENCE ≠ AUTHORITY</span></div>
+    <div class="panel-body">
+      <div class="grid-3">
+        <div class="card" style="border-color:rgba(212,175,55,.3)">
+          <div class="name">CODÆ MODE</div>
+          <div class="meta">Edge × Scale — composición con receipts (profundidad) + fleet waves (amplitud).</div>
+          <div class="row"><span class="badge">video</span><span class="badge">opensourceware</span><span class="badge">hardware</span></div>
+        </div>
+        <div class="card" style="border-color:rgba(0,255,157,.3)">
+          <div class="name">EVIDENCE ≠ AUTHORITY</div>
+          <div class="meta">En el código: evidence_bus.py · actuator.py · qr_api.py. La supervision informa, el humano decide.</div>
+          <div class="row"><span class="badge green">9 invariantes</span><span class="badge green">hash chain</span></div>
+        </div>
+        <div class="card" style="border-color:rgba(0,234,255,.3)">
+          <div class="name">QR = THE CHIP</div>
+          <div class="meta">Scannable · verifiable · hash-chained. silicon ∩ information.</div>
+          <div class="row"><span class="badge cyan">21 badges</span><span class="badge cyan">GLOCAL_VISION_QR_V1</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ AGENTIC ELECTRONIC ENGINEERING ═══ -->
+  <div class="panel">
+    <div class="panel-head"><span>◈ AGENTIC ELECTRONIC ENGINEERING</span><span class="tag">SPEC→RTL→SIM→SYNTH→P&amp;R</span></div>
+    <div class="panel-body">
+      <div class="chain">
+        <div class="chain-link active"></div><div class="chain-link active"></div><div class="chain-link active"></div><div class="chain-link active"></div><div class="chain-link active"></div><div class="chain-link"></div><div class="chain-link"></div><div class="chain-link"></div>
+      </div>
+      <div class="grid-4">
+        <div class="card"><div class="name">SPEC</div><div class="meta">rule → cifras con semilla → constructores → contrato</div><div class="row"><span class="badge">done</span></div></div>
+        <div class="card"><div class="name">RTL</div><div class="meta">unitary vectors → reference_model → edge coverage</div><div class="row"><span class="badge">22 cells</span></div></div>
+        <div class="card"><div class="name">SIM</div><div class="meta">canonical + edge + adversarial vectors</div><div class="row"><span class="badge">iverilog 14</span></div></div>
+        <div class="card"><div class="name">SYNTH+P&amp;R</div><div class="meta">yosys 0.69 → nextpnr 0.11 → 392.77 MHz</div><div class="row"><span class="badge">cc 8.6</span></div></div>
+      </div>
+      <div class="logshell" style="margin-top:12px">
+[EDA] iverilog 14 · yosys 0.69 · nextpnr 0.11 · gtkwave 3.3
+[SYNTH] 22 cells: DFF(1) LUT2(10) LUT3(2) LUT4(8) SB_IO(1)
+[P&R] 392.77 MHz (picorv32 control) · route verified
+[GDS→FAB] pending · icepack → bitstream · TEST infrastructure exists
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ OPEN SOURCE WARE ═══ -->
+  <div class="panel">
+    <div class="panel-head"><span>◈ #OPENSOURCEWARE #250</span><span class="tag">EVERY REPO IS A BUSINESS</span></div>
+    <div class="panel-body">
+      <div class="grid-3">
+        <div class="card">
+          <div class="name">THE THESIS</div>
+          <div class="meta">#OCW democratized knowledge. #OSW democratizes agency. Every repo = a new business with DAOLLC pathway, NAICS classification, and receipt chain.</div>
+          <div class="row"><span class="badge">OCW → OSW</span></div>
+        </div>
+        <div class="card">
+          <div class="name">THE PATTERN</div>
+          <div class="meta">business-as-code: viewport = the repo, formation = DAOLLC via Doola, care = receipts + QR + glocal vision trust layer.</div>
+          <div class="row"><span class="badge">DAOLLC</span><span class="badge">NAICS</span></div>
+        </div>
+        <div class="card">
+          <div class="name">THE STACK</div>
+          <div class="meta">æ.store (namespace) · llm.store · cli.llc · daollc.ai — the syntax stack for sovereign businesses.</div>
+          <div class="row"><span class="badge">12 domains</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PRIVATE CLIENT ═══ -->
+  <div class="panel">
+    <div class="panel-head"><span>◈ PRIVATE CLIENT</span><span class="tag">SECRETS · CUSTODY · QR AIR-GAP</span></div>
+    <div class="panel-body">
+      <div class="grid-4">
+        <div class="card"><div class="name">VÆULT</div><div class="meta">7-layer password vault · AES-256-GCM · scrypt</div><div class="row"><a href="./privateclient/vault.html" style="color:var(--gold);text-decoration:none">vault →</a></div></div>
+        <div class="card"><div class="name">SECRETS</div><div class="meta">Local-first custody · Victus holds keys · never cloud</div><div class="row"><a href="./privateclient/glocal-secrets-blueprint.html" style="color:var(--gold);text-decoration:none">blueprint →</a></div></div>
+        <div class="card"><div class="name">COMPUTE</div><div class="meta">RTX 3050 · CUDA 13.3 · llama.cpp GPU · 6144 MiB</div><div class="row"><a href="./privateclient/compute.html" style="color:var(--gold);text-decoration:none">compute →</a></div></div>
+        <div class="card"><div class="name">TERMINAL</div><div class="meta">Sovereign shell · PC:// authority · 9 invariants</div><div class="row"><a href="./privateclient/terminal.html" style="color:var(--gold);text-decoration:none">terminal →</a></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ GLOCAL VISION ═══ -->
+  <div class="panel">
+    <div class="panel-head"><span>◈ GLOCÆL VISION</span><span class="tag">MEDIA TRUST LAYER</span></div>
+    <div class="panel-body">
+      <div class="logshell">
+[SCAN] 32 artifacts · 30 videos · 2 images · SupervisorVideo gate
+[VERDICT] PASS=***  WARN=30  FAIL=0  INFO=2
+[CHAIN] 32 links · final receipt f07e1d5f77904e07
+[QR] 21 badges · GLOCAL_VISION_QR_V1 · silicon ∩ information
+[CRON] daily 8am · continuity enabled · local delivery
+[EVIDENCE BUS] PC://EVIDENCE_BUS_V1 · hash-chained · genesis anchored
+      </div>
+      <div class="row" style="margin-top:12px;display:flex;gap:8px">
+        <a href="./glocal-vision/glocal-vision-report.json" class="badge">report →</a>
+        <a href="./glocal-vision/glocal-vision-receipts.jsonl" class="badge">receipts →</a>
+        <a href="./glocal-vision/qr-badges/" class="badge">QR badges →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CANON RECEIPT CHAIN ═══ -->
+  <div class="panel">
+    <div class="panel-head"><span>◈ RECEIPT CHAIN</span><span class="tag">HASH-CHAINED</span></div>
+    <div class="panel-body">
+      <div class="chain" style="margin-bottom:12px">
+        <div class="chain-link active"></div><div class="chain-link active"></div><div class="chain-link active"></div><div class="chain-link active"></div><div class="chain-link active"></div><div class="chain-link active"></div><div class="chain-link active"></div><div class="chain-link active"></div><div class="chain-link active"></div><div class="chain-link active"></div><div class="chain-link active"></div><div class="chain-link active"></div>
+        <div class="chain-link"></div><div class="chain-link"></div><div class="chain-link"></div><div class="chain-link"></div><div class="chain-link"></div><div class="chain-link"></div><div class="chain-link"></div><div class="chain-link"></div>
+      </div>
+      <div class="logshell">
+GENESIS   528973f23af870bc10ff6792181bba81
+LINK 01   aertx-demo.mp4        → PASS  lum=125.46  receipt=1e6e19b8
+LINK 02   internetofagents.mp4  → PASS  lum=125.46  receipt=af8f33c0
+LINK 03   internetofagents-v2   → WARN  lum=86.75   receipt=84c858d5
+...
+LINK 32   main.mp4              → WARN  lum=20.53   receipt=87eb849f
+FINAL     f07e1d5f77904e07265e7bc44f83833b
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="brand">SOVÆREIGN PRIVATE CLIENT · COMMAND PROMPT</div>
+    <div style="margin-top:8px">C:\æ\ · <a href="./" style="color:var(--gold);text-decoration:none">← home</a> · <a href="./internetofagents.html" style="color:var(--gold);text-decoration:none">#internetofagents</a> · <a href="./internetofagents-v2.html" style="color:var(--gold);text-decoration:none">v2 mesh</a></div>
+    <div style="margin-top:8px;opacity:.3">evidence ≠ authority · QR = the chip · codæ mode = edge × scale</div>
+  </div>
+
+</div>
+
+<script>
+const cmd = document.getElementById('cmd');
+const out = document.getElementById('out');
+
+const responses = {
+  'render a circuit': () => `[AEE] Agentic Electronic Engineering
+  SPEC → RTL → SIM → SYNTH → P&R → GDS → FAB → TEST
+  Toolchain: iverilog 14 · yosys 0.69 · nextpnr 0.11
+  Last result: counter = 22 cells, 392.77 MHz (picorv32 control)
+  Next: icepack → bitstream → FPGA test
+  Receipt: 2ef85109f888f1d4`,
+
+  'verify media trust': () => `[GLOCAL VISION] Media Trust Layer
+  Scanner: glocal_vision.py · 32 artifacts scanned
+  Verdicts: PASS=***  WARN=30  FAIL=0  INFO=2
+  Chain: 32 links · final f07e1d5f77904e07
+  QR badges: 21 generated · GLOCAL_VISION_QR_V1
+  Cron: daily 8am · continuity enabled
+  Report: ./glocal-vision/glocal-vision-report.json`,
+
+  'start a business': () => `[#OPENSOURCEWARE #250] Every repo is a business
+  Viewport: the repo itself (business-as-code)
+  Formation: DAOLLC via Doola (link in every repo)
+  Classification: NAICS (responds to issues)
+  Care: receipts + QR + glocal vision trust layer
+  Stack: æ.store · llm.store · cli.llc · daollc.ai
+  CTA: https://app.doola.com/daollc`,
+
+  'check receipts chain': () => `[RECEIPT CHAIN] Hash-chained evidence
+  Genesis: 528973f23af870bc
+  Links: 32 (glocal vision) + 45 (code mode) + 82 (supervisionvidaeo)
+  Final: f07e1d5f77904e07
+  Evidence Bus: PC://EVIDENCE_BUS_V1
+  Principle: Evidence informs, never becomes authority`,
+
+  'scan QR badges': () => `[QR = THE CHIP] silicon ∩ information
+  21 verification badges generated
+  Schema: GLOCAL_VISION_QR_V1
+  Payload: name + sha256 + verdict + lum/con/mov + receipt + timestamp
+  Verify: scan QR → decode → verify hash → verify chain → TRUSTED
+  Location: ./glocal-vision/qr-badges/`,
+
+  'eda toolchain status': () => `[EDA TOOLCHAIN] Agentic Electronic Engineering
+  iverilog   14 (stable)     — Verilog simulation ✓
+  yosys      0.69 (0.52+)    — RTL synthesis ✓
+  nextpnr    0.11 (0.6)      — Place & Route ✓
+  gtkwave    3.3 (3.3.123)   — waveform viewing ✓
+  OSS CAD Suite: C:/Users/yaelm/AppData/Local/hermes/tools/oss-cad-suite/
+  Status: SPEC→RTL→SIM→SYNTH→P&R verified · GDS pending`,
+
+  'show canon': () => `[CANON] 3 Principles
+  1. CODÆ MODE = edge × scale
+     composition + receipts (depth) × fleet waves (amplitude)
+     proven in: video · opensourceware · hardware
+  2. EVIDENCE ≠ AUTHORITY
+     lives in: evidence_bus.py · actuator.py · qr_api.py
+     supervision informs · human decides
+  3. QR = THE CHIP
+     scannable · verifiable · hash-chained
+     silicon ∩ information`,
+
+  'gpu telemetry': () => `[GPU] NVIDIA GeForce RTX 3050 6GB
+  CUDA: 13.3 · cc 8.6 · 6144 MiB
+  Compute: llama.cpp GPU · CuPy cuda13x · NVENC
+  NVENC: driver 592.27 = API 13.0 → ffmpeg 7.1 ✓
+  Telemetry: gpu-mcp (ae://glocal-agent)`,
+};
+
+function runCmd() {
+  const q = cmd.value.trim().toLowerCase();
+  if (!q) return;
+
+  out.innerHTML = `<span style="color:var(--gold)">&gt;_æ:</span> ${q}\n\n`;
+  cmd.value = '';
+
+  const fn = responses[q];
+  if (fn) {
+    out.innerHTML += fn();
+  } else {
+    out.innerHTML += `[INTENT] ${q}\n\n// Codæ Mode: generating code against ae.* bindings...\n// The engine compiles your intent into executable composition.\n// Every action produces a receipt.\n//\n// Available commands:\n` +
+      Object.keys(responses).map(k => `//   › ${k}`).join('\n');
+  }
+
+  out.scrollTop = out.scrollHeight;
+}
+
+function quickCmd(q) {
+  cmd.value = q;
+  runCmd();
+}
+</script>
+</body>
+</html>
