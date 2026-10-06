@@ -184,8 +184,14 @@ def board() -> list[dict]:
 
 # ── cards ─────────────────────────────────────────────────────────────────────
 
-def mint_card(verb: str, task_id: str | None, out: str | None = None) -> dict:
-    """Create a QR card for a verb (+ optional task id)."""
+def mint_card(verb: str, task_id: str | None, out: str | None = None,
+              supervised: bool = True) -> dict:
+    """Create a QR card for a verb (+ optional task id).
+
+    SUPERVISED BY DEFAULT. The card is rendered, then decoded back through two
+    real decoders before it is accepted. If supervision refuses, the card is
+    not handed back — a card that does not scan is worse than no card.
+    """
     import qr_envelope as qe
     if verb not in VERBS:
         return {"ok": False, "error": f"unknown verb '{verb}'"}
@@ -194,26 +200,42 @@ def mint_card(verb: str, task_id: str | None, out: str | None = None) -> dict:
                "verb": verb}
     if task_id:
         payload["task_id"] = task_id
-    envelope = qe.encode("route", payload)
 
+    dest = pathlib.Path(out) if out else (
+        AGENTS / ".." / "secrets" / "qr" / f"card-{verb}-{task_id or 'board'}.png")
+    dest = pathlib.Path(os.path.abspath(str(dest)))
+
+    if supervised:
+        try:
+            import qr_supervision as qs
+            receipt = qs.produce("route", payload, out_path=dest)
+            return {"ok": True, "verb": verb, "task_id": task_id,
+                    "envelope": receipt.envelope, "path": str(dest),
+                    "supervised": True, "chain": receipt.chain,
+                    "report": receipt.report}
+        except ImportError:
+            pass  # fall through to unsupervised
+        except Exception as e:
+            # qr_supervision.QRRefused, or anything else — refuse the card
+            reason = getattr(e, "reason", str(e))
+            return {"ok": False, "verb": verb, "task_id": task_id,
+                    "error": f"supervision refused: {reason}", "supervised": True}
+
+    envelope = qe.encode("route", payload)
     try:
         import qrcode
     except ImportError:
         return {"ok": False, "error": "qrcode not installed"}
-
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_M, border=3)
     qr.add_data(envelope)
     qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white")
-    dest = pathlib.Path(out) if out else (AGENTS / ".." / "secrets" / "qr" / f"card-{verb}-{task_id or 'board'}.png")
-    dest = pathlib.Path(os.path.abspath(str(dest)))
     dest.parent.mkdir(parents=True, exist_ok=True)
-    img.save(dest)
+    qr.make_image(fill_color="black", back_color="white").save(dest)
     return {"ok": True, "verb": verb, "task_id": task_id, "envelope": envelope,
-            "path": str(dest), "version": qr.version}
+            "path": str(dest), "version": qr.version, "supervised": False}
 
 
-def read_card(image, upscale: float = 1.5) -> list[dict]:
+def read_card(image, upscale: float = 1.5, require_both: bool = False) -> list[dict]:
     """Decode every æ:// route card in an image (numpy array or path).
 
     UPSCALING MATTERS. cv2.QRCodeDetector.detectAndDecodeMulti misses cards on
@@ -223,7 +245,13 @@ def read_card(image, upscale: float = 1.5) -> list[dict]:
     We therefore upscale by default (1.5x) before detection. Measured, not
     guessed — see the note in the module docstring.
 
-    Pass upscale=1.0 to disable when the frame is already high-resolution.
+    REQUIRE_BOTH enforces cross-decoder agreement at read time: a card is only
+    accepted if cv2 AND pyzbar both return it. This is the read-side mirror of
+    qr_supervision's cross_decoder check, and it is what rejects a card whose
+    magic a single decoder mangles (the rune failure class). Off by default
+    because pyzbar is slower; turn it on for a trusted board.
+
+    Pass upscale=1.0 to disable upscaling when the frame is already high-res.
     """
     import cv2
     import numpy as np
@@ -242,12 +270,30 @@ def read_card(image, upscale: float = 1.5) -> list[dict]:
 
     detector = cv2.QRCodeDetector()
     ok, decoded, points, _ = detector.detectAndDecodeMulti(img)
+    cv2_hits = {d for d in (decoded or []) if d}
+
+    zbar_hits: set = set()
+    if require_both:
+        try:
+            from pyzbar.pyzbar import decode as zbar
+            from PIL import Image as PILImage
+            rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            for r in zbar(PILImage.fromarray(rgb)):
+                try:
+                    zbar_hits.add(r.data.decode("utf-8"))
+                except UnicodeDecodeError:
+                    pass
+        except ImportError:
+            zbar_hits = cv2_hits  # no pyzbar available; cannot enforce
+
     cards = []
     if not ok or decoded is None:
         return cards
     for i, text in enumerate(decoded):
         if not text or not qe.is_envelope(text):
             continue
+        if require_both and text not in zbar_hits:
+            continue  # one decoder mangled it — reject the card
         try:
             kind, payload = qe.decode(text)
         except ValueError:
