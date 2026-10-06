@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>æ:// capability mesh · global compute potential</title>
+<meta name="description" content="208 skills × 3 compute nodes. Every capability mapped to the hardware that can run it.">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-glow:rgba(212,175,55,.32);--neon:#00ff9d;--cyan:#00ccff;--ink:#f0ece4;--muted:rgba(240,236,228,.4);--border:rgba(212,175,55,.16);--border-hot:rgba(212,175,55,.5)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow:hidden}
+canvas{display:block;position:fixed;inset:0;z-index:1}
+.scan{position:fixed;inset:0;z-index:2;pointer-events:none;background:repeating-linear-gradient(transparent 0 2px,rgba(212,175,55,.012) 2px 4px)}
+.vig{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 35%,rgba(5,5,5,.92) 100%)}
+.hud{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;justify-content:space-between;align-items:center;padding:14px 20px;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;pointer-events:none;background:linear-gradient(180deg,rgba(5,5,5,.95),transparent)}
+.hud .live{display:flex;align-items:center;gap:6px;color:var(--neon)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* ── left: nodes + tiers ── */
+.side{position:fixed;top:56px;left:16px;z-index:10;width:290px;max-height:calc(100vh - 160px);overflow-y:auto;scrollbar-width:thin}
+.side::-webkit-scrollbar{width:3px}.side::-webkit-scrollbar-thumb{background:var(--border-hot)}
+.card{border:1px solid var(--border);background:rgba(5,5,5,.86);backdrop-filter:blur(8px);padding:12px;margin-bottom:10px}
+.card h3{font-family:'Orbitron';font-size:10px;letter-spacing:2px;color:var(--gold);margin-bottom:10px;text-transform:uppercase}
+.node{display:flex;align-items:center;gap:10px;padding:8px;border-left:2px solid var(--border);margin-bottom:6px;cursor:pointer;transition:all .15s}
+.node:hover,.node.active{border-left-color:var(--gold);background:rgba(212,175,55,.05)}
+.node .nd-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.node .nd-dot.local{background:var(--neon);box-shadow:0 0 8px var(--neon)}
+.node .nd-dot.remote{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.node .nd-dot.cloud{background:var(--gold);box-shadow:0 0 8px var(--gold)}
+.node .nd-info{flex:1;min-width:0}
+.node .nd-name{font-size:10px;font-weight:700;color:var(--ink)}
+.node .nd-role{font-size:8px;color:var(--muted);letter-spacing:1px}
+.node .nd-stat{font-size:8px;color:var(--neon);text-align:right}
+
+/* vram bar */
+.vram{margin-top:8px}
+.vram .bar{height:4px;background:rgba(212,175,55,.15);position:relative;overflow:hidden}
+.vram .fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--neon));transition:width .6s}
+.vram .lbl{display:flex;justify-content:space-between;font-size:8px;color:var(--muted);margin-top:3px}
+
+.tier{display:flex;align-items:center;gap:8px;padding:6px 8px;font-size:10px;color:var(--muted);cursor:pointer;border-left:2px solid transparent;transition:all .15s}
+.tier:hover,.tier.active{border-left-color:var(--gold);color:var(--gold);background:rgba(212,175,55,.05)}
+.tier .t-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.tier .t-n{flex:1}
+.tier .t-count{font-size:9px;color:var(--muted)}
+
+/* ── right: detail ── */
+.detail{position:fixed;top:56px;right:16px;z-index:10;width:300px;border:1px solid var(--border);background:rgba(5,5,5,.9);backdrop-filter:blur(8px);padding:16px;display:none;max-height:calc(100vh - 160px);overflow-y:auto}
+.detail.on{display:block}
+.detail .d-title{font-family:'Orbitron';font-size:12px;color:var(--gold);letter-spacing:1px;margin-bottom:2px}
+.detail .d-cat{font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:10px;text-transform:uppercase}
+.detail .d-desc{font-size:10px;color:var(--ink);line-height:1.6;margin-bottom:12px}
+.detail .d-meta{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.detail .m{font-size:8px;padding:2px 7px;border:1px solid var(--border);color:var(--muted);border-radius:2px}
+.detail .m.hot{border-color:rgba(0,255,157,.3);color:var(--neon)}
+.detail .d-tier{padding:8px;border:1px solid var(--border);font-size:9px;margin-bottom:10px;letter-spacing:1px}
+.detail .d-close{position:absolute;top:12px;right:14px;cursor:pointer;color:var(--muted);font-size:12px}
+.detail .d-close:hover{color:var(--gold)}
+
+/* ── bottom: search ── */
+.search{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:20;width:min(600px,calc(100vw - 40px));border:1px solid var(--border-hot);background:rgba(5,5,5,.94);backdrop-filter:blur(12px);box-shadow:0 0 40px rgba(212,175,55,.12);display:flex;align-items:center;gap:10px;padding:12px 16px}
+.search .g{font-family:'Orbitron';font-weight:900;color:var(--gold);font-size:14px;flex-shrink:0}
+.search input{flex:1;background:transparent;border:none;outline:none;color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12px;caret-color:var(--gold)}
+.search input::placeholder{color:var(--muted)}
+.suggest{position:fixed;bottom:72px;left:50%;transform:translateX(-50%);z-index:19;width:min(600px,calc(100vw - 40px));border:1px solid var(--border);background:rgba(5,5,5,.96);backdrop-filter:blur(12px);max-height:220px;overflow-y:auto;display:none}
+.suggest.on{display:block}
+.suggest .row{display:flex;align-items:center;gap:10px;padding:8px 16px;font-size:10px;color:var(--muted);cursor:pointer;border-bottom:1px solid rgba(212,175,55,.05)}
+.suggest .row:hover,.suggest .row.sel{background:rgba(212,175,55,.08);color:var(--gold)}
+.suggest .row .tier-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.suggest .row .nm{flex:1}
+.suggest .row .ct{font-size:8px;opacity:.5}
+
+.stats{position:fixed;bottom:20px;left:20px;z-index:10;font-size:9px;color:var(--muted);letter-spacing:1px;pointer-events:none}
+.stats .ok{color:var(--neon)}
+.brand{position:fixed;bottom:20px;right:20px;z-index:10;font-family:'Orbitron';font-weight:700;font-size:11px;letter-spacing:2px;background:linear-gradient(90deg,var(--gold),var(--neon),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;pointer-events:none}
+@media(max-width:900px){.side{display:none}.detail{width:calc(100vw - 32px)}}
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+<div class="scan"></div>
+<div class="vig"></div>
+
+<div class="hud">
+  <span>æ:// CAPABILITY MESH</span>
+  <span>GLOBAL COMPUTE POTENTIAL</span>
+  <span class="live"><span class="dot"></span><span id="hud-count">— skills · — nodes</span></span>
+</div>
+
+<div class="side">
+  <div class="card">
+    <h3>◈ COMPUTE NODES</h3>
+    <div id="nodes"></div>
+  </div>
+  <div class="card">
+    <h3>◈ COMPUTE TIERS</h3>
+    <div id="tiers"></div>
+  </div>
+  <div class="card">
+    <h3>◈ SCHEMES → NODE</h3>
+    <div id="schemes"></div>
+  </div>
+</div>
+
+<div class="detail" id="detail">
+  <span class="d-close" id="d-close">✕</span>
+  <div class="d-title" id="d-title">—</div>
+  <div class="d-cat" id="d-cat">—</div>
+  <div class="d-tier" id="d-tier">—</div>
+  <div class="d-desc" id="d-desc">—</div>
+  <div class="d-meta" id="d-meta"></div>
+</div>
+
+<div class="suggest" id="suggest"></div>
+<div class="search">
+  <span class="g">æ://</span>
+  <input id="q" type="text" placeholder="search 208 capabilities — cuda · llama · vault · mesh · lora" autocomplete="off" spellcheck="false"/>
+  <span style="font-size:9px;color:var(--muted)">↑↓ ⏎</span>
+</div>
+
+<div class="stats" id="stats"><span class="ok">◉</span> loading…</div>
+<div class="brand">#OSW</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CAPABILITY DATA — fetched from the generated mesh, with a live GPU probe.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+let DATA = null;
+
+async function loadData() {
+  // Try the local generated file first, then the deployed one.
+  const sources = ['/skill-guide/capability-mesh.json', './capability-mesh.json'];
+  for (const s of sources) {
+    try {
+      const r = await fetch(s, { cache: 'no-store' });
+      if (r.ok) return await r.json();
+    } catch (e) { /* try next */ }
+  }
+  // Fallback: a minimal inline dataset so the surface never renders empty.
+  return {
+    skills: [],
+    tiers: { gpu: {label:'GPU',color:'#00ff9d'}, local: {label:'LOCAL',color:'#D4AF37'}, cpu: {label:'CPU',color:'#00ccff'} },
+    nodes: [{id:'victus',name:'Victus',role:'RTX leaf',gpu:'RTX 3050 6GB',vram_total:6144,vram_used:761,cc:'8.6',status:'local'}],
+    schemes: [],
+  };
+}
+
+const $ = id => document.getElementById(id);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// THREE.JS SCENE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x050505);
+scene.fog = new THREE.FogExp2(0x050505, 0.014);
+
+const camera = new THREE.PerspectiveCamera(58, innerWidth / innerHeight, 0.1, 300);
+camera.position.set(0, 12, 40);
+
+const renderer = new THREE.WebGLRenderer({ canvas: $('scene'), antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.25;
+controls.minDistance = 10;
+controls.maxDistance = 90;
+
+scene.add(new THREE.AmbientLight(0x404040, 0.55));
+const gold = new THREE.PointLight(0xD4AF37, 3, 90);
+gold.position.set(0, 18, 0);
+scene.add(gold);
+
+// ── the three nodes as large glowing spheres ──
+const nodeMeshes = [];
+const NODE_COLORS = { local: 0x00ff9d, remote: 0x00ccff, cloud: 0xD4AF37 };
+const NODE_POS = {
+  victus: new THREE.Vector3(0, 0, 0),
+  droplet: new THREE.Vector3(-16, 2, -6),
+  cloud: new THREE.Vector3(16, -2, 6),
+};
+
+// skill clusters orbit their node
+const skillMeshes = [];
+let ringGroups = {};
+
+function buildScene(data) {
+  // ── nodes ──
+  data.nodes.forEach(n => {
+    const pos = NODE_POS[n.id] || new THREE.Vector3(0, 0, 0);
+    const col = NODE_COLORS[n.status] || 0xD4AF37;
+    const size = n.id === 'victus' ? 2.2 : 1.4;
+
+    // core sphere
+    const core = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(size, 2),
+      new THREE.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: 0.7, metalness: 0.9, roughness: 0.15, wireframe: true })
+    );
+    core.position.copy(pos);
+    core.userData = { node: n, baseY: pos.y };
+    scene.add(core);
+    nodeMeshes.push(core);
+
+    // inner glow
+    const glow = new THREE.Mesh(
+      new THREE.SphereGeometry(size * 0.6, 16, 16),
+      new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.12 })
+    );
+    glow.position.copy(pos);
+    scene.add(glow);
+
+    // halo ring
+    const halo = new THREE.Mesh(
+      new THREE.RingGeometry(size * 1.4, size * 1.5, 48),
+      new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.2, side: THREE.DoubleSide })
+    );
+    halo.position.copy(pos);
+    scene.add(halo);
+    core.userData.halo = halo;
+  });
+
+  // ── skills as points, clustered by tier around their node ──
+  const byTier = {};
+  data.skills.forEach(s => { (byTier[s.tier] = byTier[s.tier] || []).push(s); });
+
+  Object.keys(byTier).forEach(tier => {
+    const list = byTier[tier];
+    const col = new THREE.Color(data.tiers[tier]?.color || '#D4AF37').getHex();
+    const nodeId = data.tiers[tier]?.node || 'victus';
+    const center = NODE_POS[nodeId] || new THREE.Vector3();
+
+    // shell radius per tier
+    const R = tier === 'gpu' ? 9 : tier === 'local' ? 6 : 13;
+
+    list.forEach((s, i) => {
+      // fibonacci sphere distribution
+      const phi = Math.acos(1 - 2 * (i + 0.5) / list.length);
+      const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+      const x = center.x + R * Math.sin(phi) * Math.cos(theta);
+      const y = center.y + R * Math.cos(phi) * 0.8;
+      const z = center.z + R * Math.sin(phi) * Math.sin(theta);
+
+      const size = 0.16 + Math.min(0.34, (s.lines || 100) / 900);
+      const m = new THREE.Mesh(
+        new THREE.OctahedronGeometry(size, 0),
+        new THREE.MeshStandardMaterial({
+          color: col, emissive: col, emissiveIntensity: 0.5, metalness: 0.7, roughness: 0.3,
+          transparent: true, opacity: 0.9,
+        })
+      );
+      m.position.set(x, y, z);
+      m.userData = { skill: s, baseY: y, phase: i * 0.4, tier, center };
+      scene.add(m);
+      skillMeshes.push(m);
+    });
+
+    // wireframe shell for the tier
+    const shell = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(R, 1),
+      new THREE.MeshBasicMaterial({ color: col, wireframe: true, transparent: true, opacity: 0.05 })
+    );
+    shell.position.copy(center);
+    scene.add(shell);
+    ringGroups[tier] = shell;
+  });
+
+  // ── edges: node-to-node ──
+  const nodeIds = data.nodes.map(n => n.id);
+  const edgePos = [];
+  for (let i = 0; i < nodeIds.length; i++) {
+    for (let j = i + 1; j < nodeIds.length; j++) {
+      const a = NODE_POS[nodeIds[i]], b = NODE_POS[nodeIds[j]];
+      if (a && b) { edgePos.push(a.x, a.y, a.z, b.x, b.y, b.z); }
+    }
+  }
+  const eg = new THREE.BufferGeometry();
+  eg.setAttribute('position', new THREE.Float32BufferAttribute(edgePos, 3));
+  scene.add(new THREE.LineSegments(eg, new THREE.LineBasicMaterial({ color: 0xD4AF37, transparent: true, opacity: 0.18 })));
+
+  // ── particle field ──
+  const N = 900;
+  const pp = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) {
+    const r = 22 + Math.random() * 34;
+    const th = Math.random() * Math.PI * 2;
+    const ph = Math.acos(2 * Math.random() - 1);
+    pp[i*3] = r * Math.sin(ph) * Math.cos(th);
+    pp[i*3+1] = r * Math.cos(ph) * 0.5;
+    pp[i*3+2] = r * Math.sin(ph) * Math.sin(th);
+  }
+  const pg = new THREE.BufferGeometry();
+  pg.setAttribute('position', new THREE.BufferAttribute(pp, 3));
+  scene.add(new THREE.Points(pg, new THREE.PointsMaterial({ color: 0xD4AF37, size: 0.08, transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false })));
+}
+
+// postprocessing
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.5, 0.4, 0.84));
+composer.addPass(new OutputPass());
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// UI
+// ═══════════════════════════════════════════════════════════════════════════════
+
+let focusIdx = -1;
+let flyTarget = null;
+let tierFilter = null;
+
+function focusSkill(idx) {
+  if (idx < 0 || idx >= skillMeshes.length) return;
+  focusIdx = idx;
+  const m = skillMeshes[idx];
+  const s = m.userData.skill;
+
+  skillMeshes.forEach((sm, i) => {
+    sm.material.emissiveIntensity = i === idx ? 1.8 : 0.5;
+    sm.scale.setScalar(i === idx ? 2.2 : 1);
+  });
+
+  const dir = m.position.clone().sub(m.userData.center).normalize();
+  const camPos = m.position.clone().add(dir.multiplyScalar(7)).add(new THREE.Vector3(0, 3, 0));
+  flyTarget = { pos: camPos, look: m.position.clone() };
+  controls.autoRotate = false;
+
+  showDetail(s);
+}
+
+function showDetail(s) {
+  $('d-title').textContent = s.name;
+  $('d-cat').textContent = s.cat;
+  const tier = DATA.tiers[s.tier] || {};
+  $('d-tier').innerHTML = `TIER: <span style="color:${tier.color}">${tier.label}</span> · NODE: ${tier.node === 'victus' ? 'Victus (RTX)' : tier.node}`;
+  $('d-tier').style.borderColor = tier.color + '55';
+  $('d-desc').textContent = s.desc || '(no description)';
+  $('d-meta').innerHTML = [
+    `<span class="m">${s.lines} lines</span>`,
+    `<span class="m">${(s.chars/1000).toFixed(1)}k chars</span>`,
+    s.scripts ? `<span class="m hot">${s.scripts} scripts</span>` : '',
+    s.refs ? `<span class="m">${s.refs} refs</span>` : '',
+  ].join('');
+  $('detail').classList.add('on');
+}
+
+function renderSide(data) {
+  // nodes
+  $('nodes').innerHTML = data.nodes.map(n => {
+    const vramPct = n.vram_total ? (n.vram_used / n.vram_total * 100) : 0;
+    const stat = n.gpu ? `${n.vram_used}/${n.vram_total} MiB` : (n.status === 'remote' ? 'reachable' : 'oauth');
+    return `<div class="node" data-nid="${n.id}">
+      <span class="nd-dot ${n.status}"></span>
+      <span class="nd-info">
+        <span class="nd-name">${n.name}</span>
+        <span class="nd-role">${n.role}${n.gpu ? ' · ' + n.gpu : ''}${n.cc ? ' · cc ' + n.cc : ''}</span>
+      </span>
+      <span class="nd-stat">${stat}</span>
+    </div>`;
+  }).join('') + (data.nodes[0]?.vram_total ? `
+    <div class="vram">
+      <div class="bar"><div class="fill" style="width:${(data.nodes[0].vram_used/data.nodes[0].vram_total*100).toFixed(1)}%"></div></div>
+      <div class="lbl"><span>VRAM ${data.nodes[0].vram_used} MiB</span><span>${data.nodes[0].vram_total} MiB</span></div>
+    </div>` : '');
+
+  // tiers
+  const counts = {};
+  data.skills.forEach(s => { counts[s.tier] = (counts[s.tier] || 0) + 1; });
+  $('tiers').innerHTML = Object.entries(data.tiers).map(([k, t]) =>
+    `<div class="tier" data-tier="${k}">
+      <span class="t-dot" style="background:${t.color};box-shadow:0 0 6px ${t.color}"></span>
+      <span class="t-n">${t.label}<br><span style="font-size:8px;color:var(--muted)">${t.desc}</span></span>
+      <span class="t-count">${counts[k] || 0}</span>
+    </div>`
+  ).join('');
+
+  // schemes
+  $('schemes').innerHTML = data.schemes.map(s =>
+    `<div class="node" style="border-left-color:${(data.tiers[s.tier]||{}).color||'#D4AF37'}55">
+      <span class="nd-info">
+        <span class="nd-name" style="color:${(data.tiers[s.tier]||{}).color||'#D4AF37'}">${s.scheme}</span>
+        <span class="nd-role">${s.desc}</span>
+      </span>
+    </div>`
+  ).join('');
+
+  // tier filter click
+  document.querySelectorAll('.tier').forEach(el => {
+    el.addEventListener('click', () => {
+      const t = el.dataset.tier;
+      tierFilter = (tierFilter === t) ? null : t;
+      document.querySelectorAll('.tier').forEach(x => x.classList.toggle('active', x.dataset.tier === tierFilter));
+      applyTierFilter();
+    });
+  });
+
+  $('hud-count').textContent = `${data.skills.length} skills · ${data.nodes.length} nodes`;
+  $('stats').innerHTML = `<span class="ok">◉</span> ${data.skills.length} skills · ${data.nodes.length} nodes · ${data.schemes.length} schemes`;
+}
+
+function applyTierFilter() {
+  skillMeshes.forEach(m => {
+    const on = !tierFilter || m.userData.tier === tierFilter;
+    m.visible = on;
+  });
+  Object.keys(ringGroups).forEach(t => {
+    ringGroups[t].visible = !tierFilter || t === tierFilter;
+  });
+}
+
+// ── search ──
+const input = $('q');
+const suggest = $('suggest');
+let selIdx = 0, filtered = [];
+
+function filterSkills(q) {
+  const s = q.toLowerCase().trim();
+  const base = tierFilter ? DATA.skills.filter(x => x.tier === tierFilter) : DATA.skills;
+  if (!s) return base.slice(0, 12);
+  return base.filter(x =>
+    x.name.toLowerCase().includes(s) ||
+    x.cat.toLowerCase().includes(s) ||
+    (x.desc || '').toLowerCase().includes(s)
+  ).slice(0, 14);
+}
+
+function renderSuggest(list) {
+  filtered = list; selIdx = 0;
+  if (!list.length) { suggest.classList.remove('on'); return; }
+  suggest.innerHTML = list.map((s, i) => {
+    const t = DATA.tiers[s.tier] || {};
+    return `<div class="row${i===0?' sel':''}" data-name="${s.name}">
+      <span class="tier-dot" style="background:${t.color};box-shadow:0 0 5px ${t.color}"></span>
+      <span class="nm">${s.name}</span>
+      <span class="ct">${s.cat}</span>
+    </div>`;
+  }).join('');
+  suggest.classList.add('on');
+  suggest.querySelectorAll('.row').forEach(el => {
+    el.addEventListener('click', () => { focusByName(el.dataset.name); input.value=''; suggest.classList.remove('on'); });
+  });
+}
+
+function focusByName(name) {
+  const i = skillMeshes.findIndex(m => m.userData.skill.name === name);
+  if (i >= 0) focusSkill(i);
+}
+
+function moveSel(d) {
+  if (!filtered.length) return;
+  selIdx = (selIdx + d + filtered.length) % filtered.length;
+  suggest.querySelectorAll('.row').forEach((el,i)=>el.classList.toggle('sel', i===selIdx));
+}
+
+input.addEventListener('input', () => renderSuggest(filterSkills(input.value)));
+input.addEventListener('focus', () => renderSuggest(filterSkills(input.value)));
+input.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown') { e.preventDefault(); moveSel(1); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); moveSel(-1); }
+  else if (e.key === 'Enter') { e.preventDefault(); if (filtered[selIdx]) { focusByName(filtered[selIdx].name); input.value=''; suggest.classList.remove('on'); } }
+  else if (e.key === 'Escape') { input.value=''; suggest.classList.remove('on'); }
+});
+document.addEventListener('click', e => { if (!e.target.closest('.search') && !e.target.closest('.suggest')) suggest.classList.remove('on'); });
+document.addEventListener('keydown', e => { if (e.key === '/' && document.activeElement !== input) { e.preventDefault(); input.focus(); } });
+$('d-close').addEventListener('click', () => { $('detail').classList.remove('on'); focusIdx=-1; });
+
+// raycast
+const ray = new THREE.Raycaster();
+const ptr = new THREE.Vector2();
+renderer.domElement.addEventListener('click', e => {
+  ptr.x = (e.clientX/innerWidth)*2-1; ptr.y = -(e.clientY/innerHeight)*2+1;
+  ray.setFromCamera(ptr, camera);
+  const hits = ray.intersectObjects(skillMeshes.filter(m=>m.visible));
+  if (hits.length) focusSkill(skillMeshes.indexOf(hits[0].object));
+});
+renderer.domElement.addEventListener('mousemove', e => {
+  ptr.x = (e.clientX/innerWidth)*2-1; ptr.y = -(e.clientY/innerHeight)*2+1;
+  ray.setFromCamera(ptr, camera);
+  renderer.domElement.style.cursor = ray.intersectObjects(skillMeshes.filter(m=>m.visible)).length ? 'pointer' : 'grab';
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ANIMATE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+
+  nodeMeshes.forEach((n, i) => {
+    n.rotation.x = t * 0.2 + i;
+    n.rotation.y = t * 0.3 + i;
+    n.material.emissiveIntensity = 0.6 + Math.sin(t*1.5 + i)*0.2;
+    if (n.userData.halo) { n.userData.halo.lookAt(camera.position); n.userData.halo.rotation.z = t*0.3; }
+  });
+
+  skillMeshes.forEach((m, i) => {
+    if (!m.visible) return;
+    m.rotation.x = t*0.6 + i;
+    m.rotation.y = t*0.7 + i;
+    m.position.y = m.userData.baseY + Math.sin(t*1.3 + m.userData.phase)*0.35;
+  });
+
+  Object.values(ringGroups).forEach(g => { g.rotation.y = t*0.05; });
+
+  if (flyTarget) {
+    camera.position.lerp(flyTarget.pos, 0.06);
+    controls.target.lerp(flyTarget.look, 0.08);
+    if (camera.position.distanceTo(flyTarget.pos) < 0.2) flyTarget = null;
+  }
+  controls.update();
+  composer.render();
+}
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight);
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════════════════════════════
+
+DATA = await loadData();
+buildScene(DATA);
+renderSide(DATA);
+animate();
+
+window.__CAPABILITY_MESH__ = {
+  ready: true,
+  skills: DATA.skills.length,
+  nodes: DATA.nodes.length,
+  tiers: DATA.tiers,
+  find: q => filterSkills(q).map(s => s.name),
+  focus: name => focusByName(name),
+  filterTier: t => { tierFilter = t; applyTierFilter(); },
+  data: DATA,
+};
+console.log(`æ:// capability mesh — ${DATA.skills.length} skills · ${DATA.nodes.length} nodes`);
+</script>
+</body>
+</html>
