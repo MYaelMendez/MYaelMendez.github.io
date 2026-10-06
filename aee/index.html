@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Æ · Agentic Electronic Engineering</title>
+<meta name="theme-color" content="#f4edd9">
+<meta name="color-scheme" content="light dark">
+<style>
+:root{
+  --paper:#f4edd9;
+  --paper2:#ebe1c7;
+  --ink:#1a2b50;
+  --ink2:#40547c;
+  --panel:rgba(26,43,80,.055);
+  --line:rgba(26,43,80,.32);
+  --line-hot:rgba(26,43,80,.72);
+  --serif:"Didot","Playfair Display","Times New Roman",Georgia,serif;
+  --sans:"Avenir Next","Futura","Helvetica Neue",Arial,sans-serif;
+  --mono:"SFMono-Regular","JetBrains Mono","Courier New",monospace;
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --radius:18px;
+  --speed:260ms;
+}
+body.cyber{
+  --paper:#05080f;
+  --paper2:#071322;
+  --ink:#a7e5ff;
+  --ink2:#70aecd;
+  --panel:rgba(0,200,255,.055);
+  --line:rgba(0,200,255,.24);
+  --line-hot:rgba(0,230,255,.72);
+  color-scheme:dark;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:#05070a}
+body{
+  min-height:100dvh;
+  background:radial-gradient(circle at 50% 0%,#17202d 0,#090d13 42%,#040609 100%);
+  color:var(--ink);
+  font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;
+  -webkit-text-size-adjust:100%;
+}
+.page{
+  max-width:760px;
+  margin:0 auto;
+  padding:24px 18px calc(28px + var(--safe-b));
+}
+.plate{
+  position:relative;
+  background:linear-gradient(rgba(255,255,255,.08),transparent 20%),var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:0 28px 90px rgba(0,0,0,.34);
+  padding:28px 22px 22px;
+  overflow:hidden;
+  transition:background var(--speed),color var(--speed),border-color var(--speed);
+}
+.plate::after{
+  content:"";
+  position:absolute;inset:0;pointer-events:none;opacity:.32;z-index:2;
+  background-image:radial-gradient(rgba(26,43,80,.18) .5px,transparent .5px);
+  background-size:4px 4px;
+  mix-blend-mode:multiply;
+}
+body.cyber .plate::after{
+  opacity:.14;mix-blend-mode:screen;
+  background-image:radial-gradient(rgba(0,220,255,.25) .5px,transparent .5px);
+}
+.mode{
+  position:absolute;top:12px;right:12px;z-index:3;
+  border:1px solid var(--line);border-radius:999px;
+  background:color-mix(in srgb,var(--paper) 86%,transparent);
+  backdrop-filter:blur(10px);
+  color:var(--ink);
+  font:700 7px/1 var(--sans);letter-spacing:.14em;
+  padding:8px 11px;cursor:pointer;
+}
+header{text-align:center;position:relative;z-index:1}
+.ae{
+  font:700 clamp(56px,16vw,96px)/1 var(--serif);
+  letter-spacing:.02em;
+}
+.ae .lig{color:var(--line-hot)}
+.name{
+  margin-top:6px;
+  font:800 clamp(13px,3.4vw,18px)/1.25 var(--sans);
+  letter-spacing:.22em;
+}
+.ns{
+  margin-top:4px;
+  font:700 clamp(7px,1.8vw,9px)/1.4 var(--sans);
+  letter-spacing:.32em;
+  color:var(--ink2);
+}
+.tagline{
+  margin-top:12px;
+  font:italic 500 clamp(13px,3vw,15px)/1.5 var(--serif);
+  color:var(--ink);
+  opacity:.9;
+}
+.rule{height:1px;margin:18px 6px 20px;background:var(--line)}
+section{position:relative;z-index:1}
+h2{
+  font:700 9px/1.3 var(--mono);
+  letter-spacing:.22em;
+  color:var(--ink2);
+  margin:22px 4px 10px;
+}
+.layers{display:grid;gap:8px}
+.layer{
+  display:grid;
+  grid-template-columns:86px minmax(0,1fr);
+  gap:12px;
+  align-items:center;
+  border:1px solid var(--line);
+  border-radius:11px;
+  background:var(--panel);
+  padding:10px 13px;
+}
+.layer .k{
+  font:800 clamp(9px,2.2vw,11px)/1.3 var(--mono);
+  letter-spacing:.06em;
+}
+.layer .v{min-width:0}
+.layer .what{
+  font:700 clamp(9px,2.2vw,11px)/1.35 var(--sans);
+  letter-spacing:.04em;
+}
+.layer .art{
+  margin-top:2px;
+  font:600 clamp(8px,1.9vw,9.5px)/1.4 var(--mono);
+  color:var(--ink2);
+}
+.pipeline{
+  font:600 clamp(9px,2.4vw,12px)/2 var(--mono);
+  letter-spacing:.04em;
+  border:1px solid var(--line);
+  border-radius:11px;
+  background:var(--panel);
+  padding:14px 10px;
+  text-align:center;
+  white-space:nowrap;
+  overflow-x:auto;
+}
+.pipeline b{color:var(--line-hot)}
+.law{
+  border:1.4px solid var(--line-hot);
+  border-radius:13px;
+  padding:16px 14px;
+  text-align:center;
+}
+.law .l1{
+  font:italic 700 clamp(13px,3.2vw,16px)/1.45 var(--serif);
+}
+.law .l2{
+  margin-top:8px;
+  font:600 clamp(8px,1.9vw,9.5px)/1.5 var(--mono);
+  color:var(--ink2);
+  letter-spacing:.06em;
+}
+.notation{
+  border:1px solid var(--line);
+  border-radius:11px;
+  background:var(--panel);
+  padding:14px;
+  font:600 clamp(11px,3vw,14px)/1.7 var(--mono);
+  text-align:center;
+}
+.notation .base{font-weight:800}
+.notation .sup{color:var(--line-hot)}
+.notation .sub{opacity:.85}
+.anatomy{
+  margin-top:10px;
+  font:600 clamp(8px,1.9vw,9.5px)/1.7 var(--mono);
+  color:var(--ink2);
+  text-align:left;
+  white-space:pre;
+  overflow-x:auto;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font:600 clamp(9px,2.2vw,11px)/1.5 var(--mono);
+}
+td{
+  border-bottom:1px solid var(--line);
+  padding:8px 4px;
+  vertical-align:top;
+}
+td:first-child{font-weight:800;white-space:nowrap;padding-right:12px}
+td:last-child{color:var(--ink2)}
+tr:last-child td{border-bottom:0}
+footer{
+  margin-top:26px;
+  text-align:center;
+  position:relative;z-index:1;
+}
+footer .many{
+  font:italic 700 clamp(13px,3vw,15px)/1.4 var(--serif);
+}
+footer .sub-law{
+  margin-top:6px;
+  font:600 clamp(7.5px,1.8vw,9px)/1.6 var(--sans);
+  letter-spacing:.14em;
+  color:var(--ink2);
+}
+footer .root{
+  margin-top:10px;
+  font:700 clamp(7px,1.7vw,8.5px)/1.6 var(--mono);
+  letter-spacing:.08em;
+  color:var(--ink2);
+  opacity:.8;
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.001ms!important}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <main class="plate">
+    <button class="mode" id="mode">INSTRUMENT · CYBER</button>
+
+    <header>
+      <div class="ae"><span class="lig">æ</span></div>
+      <div class="name">AGENTIC ELECTRONIC ENGINEERING</div>
+      <div class="ns">æææ:// — THE INTERNET OF AGENTS</div>
+      <div class="tagline">
+        Agents compute. Humans authorize.
+      </div>
+      <div class="rule"></div>
+    </header>
+
+    <section>
+      <h2>THE DISCIPLINE</h2>
+      <p style="font:500 clamp(11px,2.7vw,13px)/1.65 var(--sans);color:var(--ink);padding:0 4px">
+        Electrical engineering built circuits that behave deterministically.
+        Agentic Electronic Engineering builds <b>electronic surfaces whose
+        behavior is proposed by bounded agents and authorized by humans</b>.
+        The plate, the Æ notation, bæsic, and the Virtual PI500 are one
+        discipline: engineering carried out by bounded cognition, under
+        constitutional constraint, across electronic surfaces.
+      </p>
+    </section>
+
+    <section>
+      <h2>LAYERS</h2>
+      <div class="layers">
+        <div class="layer"><span class="k">EXPRESS</span><span class="v"><span class="what">How intent is written</span><span class="art">Æ notation · æᶜₘ₁ⱼ₃ᵥ₂</span></span></div>
+        <div class="layer"><span class="k">INTERPRET</span><span class="v"><span class="what">How intent is parsed</span><span class="art">/code/ — The Æ Code · AHTML</span></span></div>
+        <div class="layer"><span class="k">COMPUTE</span><span class="v"><span class="what">How work is done</span><span class="art">bounded agents · llm.store · agenticware</span></span></div>
+        <div class="layer"><span class="k">CONSTITUTE</span><span class="v"><span class="what">How work is permitted</span><span class="art">æææ:// plate · WebMCP boundary</span></span></div>
+        <div class="layer"><span class="k">AUTHORIZE</span><span class="v"><span class="what">Who decides</span><span class="art">AUTHORITY://HUMAN — always</span></span></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>NOTATION</h2>
+      <div class="notation">
+        <span class="base">æ</span><span class="sup">ᶜ</span><span class="sub">ₘ₁ⱼ₃ᵥ₂</span>
+        <div class="anatomy">æᶜₘ₁ⱼ₃ᵥ₂
+│ │ └──── context:// model=1 · job=3 · version=2
+│ └────── action:// c
+└──────── operator:// æ
+
+BASE = operator · SUPERSCRIPT = action · SUBSCRIPT = context</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>PIPELINE</h2>
+      <div class="pipeline">
+        HUMAN://INTENT → <b>Æ://SOURCE</b> → AST://PARSED<br>
+        → AHTML://DECLARED → PLAN://PROPOSED<br>
+        → <b>🫵 AUTHORITY://HUMAN</b> → EXECUTE<br>
+        → 🧿 WITNESS → ↺ REINTEGRATE
+      </div>
+    </section>
+
+    <section>
+      <h2>SURFACES</h2>
+      <table>
+        <tr><td>æ.store</td><td>memory — store as verb</td></tr>
+        <tr><td>llm.store</td><td>execution · command &amp; control</td></tr>
+        <tr><td>bæsic</td><td>the BASIC of the LLM era</td></tr>
+        <tr><td>Virtual PI500</td><td>keyboard computer · the C64 of this era</td></tr>
+        <tr><td>soværeign.com</td><td>sovereignty · resources · permissions</td></tr>
+        <tr><td>æææ.com</td><td>runtime · root namespace</td></tr>
+        <tr><td>æl.net · æl.app · yæl.com</td><td>agentic language · mobile · logic</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>THE LAW</h2>
+      <div class="law">
+        <div class="l1">
+          Notation may express.<br>
+          Parsers may interpret.<br>
+          Agents may compute.<br>
+          Only the principal authorizes.
+        </div>
+        <div class="l2">
+          CONTEXT MAY PROPAGATE · AUTHORITY DOES NOT<br>
+          Σ ∫ ∂ lim — SEMANTICS SUSPENDED UNTIL THE COMPILER DEFINES THEM
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="many">Many agents. One principal.</div>
+      <div class="sub-law">
+        COGNITION MAY MULTIPLY · AUTHORITY REMAINS HUMAN<br>
+        ENGINEERING REMAINS IN REVERENCE FOR LIFE
+      </div>
+      <div class="root">
+        AEE://IDENTITY · æææ://ROOT · /code/ = LANGUAGE · /openai/plate.html = CONSTITUTION
+      </div>
+    </footer>
+  </main>
+</div>
+
+<script>
+(function(){
+  var btn=document.getElementById("mode");
+  btn.addEventListener("click",function(){
+    var cyber=document.body.classList.toggle("cyber");
+    btn.textContent=cyber?"IDENTITY · VELLUM":"INSTRUMENT · CYBER";
+  });
+})();
+</script>
+</body>
+</html>
