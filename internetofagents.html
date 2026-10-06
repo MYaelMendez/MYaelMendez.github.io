@@ -85,12 +85,186 @@ canvas#mesh{position:fixed;inset:0;z-index:0}
 .receipt{border:1px solid var(--border);background:rgba(5,5,5,.5);padding:12px;margin-top:8px;max-height:120px;overflow-y:auto;word-break:break-all;font-size:8px;font-family:'JetBrains Mono',monospace;white-space:pre-wrap}
 .receipt .h{font-family:'Orbitron';color:var(--neon);font-size:8px}
 @media (max-width:480px){.glyph{font-size:clamp(32px,8vw,56px)}.cmd{font-size:clamp(16px,4vw,28px)}}
+
+/* Render mode - hide dashboard, show only bright canvas */
+body.render-mode .wrap { display: none !important; }
+body.render-mode .scan { opacity: 0.02; }
+body.render-mode .vig { display: none; }
+body.render-mode #mesh { z-index: 9999; opacity: 1; }
+
 </style>
 </head>
 <body>
-<canvas id="mesh"></canvas><div class="scan"></div><div class="vig"></div>
+<canvas id="mesh" style="position:fixed;inset:0;z-index:999;pointer-events:none"></canvas><div class="scan"></div><div class="vig"></div>
 
-<div class="wrap">
+<div class="wrap" style="z-index:10">
+
+<script>
+// ── Animated mesh background (2D canvas, deterministic) ──
+(function() {
+  const canvas = document.getElementById('mesh');
+  const ctx = canvas.getContext('2d');
+  let width, height, animId;
+
+  const COLORS = [
+    [0xD4, 0xAF, 0x37], // gold
+    [0x00, 0xFF, 0x9D], // neon green
+    [0x83, 0x67, 0xFF], // purple
+    [0xFF, 0x7A, 0x18], // orange
+    [0x00, 0xEA, 0xFF], // cyan
+    [0xFF, 0x4D, 0x5F], // red
+    [0xC8, 0xA2, 0x4A]  // bronze
+  ];
+
+  function resize() {
+    width = canvas.parentElement.clientWidth || 1280;
+    height = canvas.parentElement.clientHeight || 720;
+    canvas.width = width;
+    canvas.height = height;
+  }
+
+  function drawMesh(t) {
+    ctx.clearRect(0, 0, width, height);
+
+    // Bright gold-on-void background - much brighter
+    const grad = ctx.createRadialGradient(width*0.5, height*0.5, 0, width*0.5, height*0.5, width*0.8);
+    grad.addColorStop(0, 'rgba(255,240,200,0.7)');
+    grad.addColorStop(0.4, 'rgba(255,230,180,0.4)');
+    grad.addColorStop(0.8, 'rgba(212,175,55,0.2)');
+    grad.addColorStop(1, 'rgba(20,20,20,0.4)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, width, height);
+
+    // Grid - brighter
+    ctx.strokeStyle = 'rgba(212,175,55,0.25)';
+    ctx.lineWidth = 1.5;
+    for (let x = 0; x < width; x += 40) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+    }
+    for (let y = 0; y < height; y += 40) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
+
+    // Nodes (7 agents)
+    const agents = [
+      {id:'victus', x:0.3, y:0.4, color:0xD4AF37},
+      {id:'teknium', x:0.15, y:0.25, color:0x00FF9D},
+      {id:'webbot', x:0.45, y:0.2, color:0x8367FF},
+      {id:'caia', x:0.1, y:0.7, color:0xFF7A18},
+      {id:'tee', x:0.6, y:0.15, color:0x00EAFF},
+      {id:'vela', x:0.5, y:0.6, color:0xFF4D5F},
+      {id:'ceres', x:0.75, y:0.65, color:0xC8A24A}
+    ];
+
+    // Draw connecting lines - bright
+    for (let i = 0; i < agents.length; i++) {
+      for (let j = i + 1; j < agents.length; j++) {
+        const a = agents[i], b = agents[j];
+        const dx = a.x - b.x, dy = a.y - b.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        const alpha = Math.max(0.3, 0.7 - dist * 0.15);
+        ctx.strokeStyle = `rgba(${a[0]},${a[1]},${a[2]},${alpha})`;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(a.x*width, a.y*height);
+        ctx.lineTo(b.x*width, b.y*height);
+        ctx.stroke();
+      }
+    }
+
+    // Draw nodes
+    for (let i = 0; i < agents.length; i++) {
+      const a = agents[i];
+      const pulse = 0.95 + 0.3 * Math.sin(t * 4 + i * 2);
+      const r = 24 * pulse;
+      const cx = a.x * width, cy = a.y * height;
+
+      // Outer glow ring - bright
+      ctx.strokeStyle = `rgba(${a[0]},${a[1]},${a[2]},0.95)`;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Inner glow - bright
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      grad.addColorStop(0, 'rgba(255,255,255,0.8)');
+      grad.addColorStop(0.3, `rgba(${a[0]},${a[1]},${a[2]},1.0)`);
+      grad.addColorStop(0.6, `rgba(${a[0]},${a[1]},${a[2]},0.8)`);
+      grad.addColorStop(0.8, `rgba(${a[0]},${a[1]},${a[2]},0.5)`);
+      grad.addColorStop(1, `rgba(${a[0]},${a[1]},${a[2]},0.2)`);
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Core
+      ctx.fillStyle = 'rgba(5,5,5,0.5)';
+      ctx.beginPath();
+      ctx.arc(cx, cy, r * 0.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Label - very bright
+      ctx.fillStyle = 'rgba(255,255,255,1.0)';
+      ctx.font = '12px JetBrains Mono, monospace';
+      ctx.fillText(a.id, cx - 12, cy + 8);
+    }
+
+    // Animated particles - bright
+    for (let p = 0; p < 50; p++) {
+      const px = (Math.sin(t * 0.8 + p * 1.7) * 0.5 + 0.5) * width;
+      const py = (Math.cos(t * 0.6 + p * 2.3) * 0.5 + 0.5) * height;
+      const size = 3 + 3 * Math.sin(t * 2 + p);
+      ctx.fillStyle = `rgba(212,175,55,0.6)`;
+      ctx.beginPath();
+      ctx.arc(px, py, size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function animate(timestamp) {
+    const t = (timestamp || 0) / 1000;
+    drawMesh(t);
+    animId = requestAnimationFrame(animate);
+  }
+
+  function init() {
+    resize();
+    // Wait for DOM ready
+    if (document.readyState === 'complete') {
+      animate(0);
+    } else {
+      window.addEventListener('load', () => animate(0));
+    }
+    window.addEventListener('resize', resize);
+  }
+
+  // Expose for render.mjs
+  window.__renderFrame = (i, total) => {
+    const t = i / Math.max(1, total - 1);
+    drawMesh(t);
+    return true;
+  };
+
+  // Start
+  if (document.readyState === 'complete') {
+    animate(0);
+  } else {
+    window.addEventListener('load', () => {
+      animate(0);
+    });
+  }
+  window.addEventListener('resize', resize);
+})();
+</script>
+
+
   <div class="statusbar">
     <span><span class="nm">#internetofagents</span> <span class="node">CORE · victus.local</span></span>
     <span>
