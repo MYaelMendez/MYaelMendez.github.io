@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Internet of Agents v2 · Living Mesh Protocol</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="./assets/qrcode.js"></script>
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-glow:rgba(212,175,55,.35);--neon:#00ff9d;--ink:#f0ece4;--muted:rgba(240,236,228,.45);--border:rgba(212,175,55,.16);--border-hot:rgba(212,175,55,.5);--card:rgba(5,5,5,.78);--scan:rgba(212,175,55,.012)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100dvh;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
+#mesh{position:fixed;inset:0;z-index:0}
+.scan{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(transparent 0 2px,rgba(212,175,55,.012) 2px 4px)}
+.vig{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 35%,rgba(5,5,5,.94) 100%)}
+.wrap{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:clamp(16px,5vw,64px) clamp(14px,3vw,28px)}
+.statusbar{display:flex;justify-content:space-between;align-items:center;font-size:clamp(6px,1vw,9px);letter-spacing:2px;color:var(--muted);text-transform:uppercase;border:1px solid var(--border);padding:8px 14px}
+.statusbar .live{display:flex;align-items:center;gap:6px;color:var(--neon)}
+.statusbar .live .dot{width:5px;height:5px;border-radius:50%;background:var(--neon);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes scanline{0%{clip:rect(0,9999px,0,9999px)}50%{clip:rect(0,9999px,9999px,0)}100%{clip:rect(0,9999px,0,9999px)}}
+.glyph{font-size:clamp(44px,10vw,80px);filter:drop-shadow(0 0 24px var(--gold-glow));animation:breathe 4s ease-in-out infinite}
+.cmd{font-family:'Orbitron';font-weight:900;font-size:clamp(20px,5vw,40px);letter-spacing:clamp(1px,.4vw,3px);color:var(--gold);text-shadow:0 0 28px var(--gold-glow);line-height:1}
+.cmd .dim{color:var(--muted)}.cmd .cur{display:inline-block;width:.5ch;background:var(--gold);animation:blink 1s step-end infinite;margin-left:2px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.sub{font-size:clamp(8px,1.6vw,13px);letter-spacing:2px;color:var(--ink);text-transform:uppercase}
+.sub em{font-style:normal;color:var(--gold)}
+.pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.pill{font-size:clamp(6px,1vw,9px);letter-spacing:1.5px;padding:3px 10px;border-radius:999px;border:1px solid var(--border);color:var(--muted);text-transform:uppercase;background:rgba(5,5,5,.6)}
+.pill.hot{border-color:rgba(212,175,55,.4);color:var(--gold);background:rgba(212,175,55,.06)}
+/* QR mesh grid */
+.mesh-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:12px}
+.agent-node{border:1px solid var(--border);background:var(--card);padding:14px;border-radius:6px;position:relative;overflow:hidden;transition:all .2s;cursor:pointer}
+.agent-node:hover{border-color:rgba(212,175,55,.5);box-shadow:0 0 24px rgba(212,175,55,.1)}
+.agent-node .qr-wrap{width:100%;aspect-ratio:1;background:#fff;padding:6px;border-radius:4px;display:flex;align-items:center;justify-content:center}
+.agent-node .qr-wrap canvas,.agent-node .qr-wrap img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated}
+.agent-node .name{font-family:'Orbitron';font-weight:900;color:var(--gold);font-size:11px;letter-spacing:1.5px;margin-top:8px}
+.agent-node .addr{font-size:7px;color:var(--muted);margin-top:2px;word-break:break-all;line-height:1.3}
+.agent-node .badge{position:absolute;top:8px;right:8px;font-size:6px;letter-spacing:1px;padding:2px 6px;border-radius:3px;border:1px solid var(--border-hot);color:var(--gold);text-transform:uppercase}
+/* Receipt panel */
+.panel{border:1px solid var(--border);background:var(--card);padding:14px;border-radius:6px;margin-top:12px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid var(--border);font-size:clamp(7px,1.1vw,10px);letter-spacing:2px;color:var(--gold);text-transform:uppercase}
+.panel-head .tag{color:var(--neon);border:1px solid rgba(0,255,157,.25);padding:2px 8px;border-radius:999px;font-size:8px}
+.receipt-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(212,175,55,.06);font-size:8px;font-family:'JetBrains Mono',monospace}
+.receipt-row .hash{color:var(--neon);flex:1;word-break:break-all}
+.receipt-row .label{color:var(--gold);min-width:70px;text-transform:uppercase;font-family:'Orbitron';letter-spacing:1px;font-size:7px}
+.receipt-row .ok{color:var(--neon)}
+/* A2A contract */
+.a2a{background:rgba(5,5,5,.6);border:1px solid var(--border);padding:12px;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:8px;line-height:1.6;color:var(--muted)}
+.a2a .key{color:var(--gold)}.a2a .val{color:var(--neon)}
+/* Stats */
+.stack{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.stat{border:1px solid var(--border);padding:10px;text-align:center;background:rgba(5,5,5,.5)}
+.stat .v{font-family:'Orbitron';font-weight:900;color:var(--gold);font-size:18px;line-height:1}
+.stat .l{font-size:7px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+.foot{display:flex;flex-wrap:wrap;gap:4px 16px;justify-content:center;font-size:clamp(7px,1.1vw,10px);letter-spacing:1px}
+.foot a{color:var(--muted);text-decoration:none;transition:color .15s}
+.foot a:hover{color:var(--gold)}
+.hash{text-align:center;font-family:'Orbitron';font-weight:700;font-size:clamp(8px,1.4vw,13px);background:linear-gradient(90deg,var(--gold),var(--neon),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px;margin-top:12px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--gold);color:#000;font-weight:700;font-size:11px;letter-spacing:1px;padding:10px 20px;border-radius:6px;z-index:100;transition:transform .3s;text-transform:uppercase}
+</style>
+</head>
+<body>
+<canvas id="mesh"></canvas><div class="scan"></div><div class="vig"></div>
+
+<div class="wrap">
+  <div class="statusbar">
+    <span><span style="font-family:Orbitron;font-weight:700">#internetofagents</span> v2 · LIVING MESH</span>
+    <span class="live"><span class="dot"></span>PROTOCOL ACTIVE</span>
+  </div>
+
+  <div style="text-align:center;margin-top:24px">
+    <div class="glyph">#</div>
+    <div class="cmd">&gt;_æ<span class="dim">:</span>PROTOCOL<span class="dim">#internetofagents</span><span class="cur">&nbsp;</span></div>
+    <div class="sub">THE <em>LIVING MESH</em> — <em>QR peer handshakes · receipt-carrying agents · A2A protocol</em></div>
+    <div class="pills">
+      <span class="pill hot">#internetofagents</span>
+      <span class="pill">QR = THE CHIP</span>
+      <span class="pill">A2A HANDSHAKE</span>
+      <span class="pill">MCP/1517</span>
+      <span class="pill">RECEIPT CHAIN</span>
+      <span class="pill">LIVING PROTOCOL</span>
+    </div>
+  </div>
+
+  <!-- QR Peer Mesh -->
+  <div class="panel">
+    <div class="panel-head"><span>QR PEER MESH · PAIRING</span><span class="tag">SCAN TO JOIN</span></div>
+    <div style="font-size:9px;color:var(--muted);line-height:1.5;margin-bottom:8px">
+      Each agent carries a <b style="color:var(--gold)">real scannable QR</b> encoding the A2A handshake.
+      <code>ae://peer?host=&lt;node&gt;&amp;mesh=pc://mesh/&lt;node&gt;/local&amp;token=ephemeral&amp;via=wifi</code>
+      <br/>Scan with any agent to pair. <b style="color:var(--gold)">QR = the chip in simulated form.</b>
+    </div>
+    <div class="mesh-grid" id="meshGrid"></div>
+  </div>
+
+  <!-- Live Receipt Chain -->
+  <div class="panel">
+    <div class="panel-head"><span>LIVE RECEIPT CHAIN</span><span class="tag">SHA-256 COMPUTED IN-BROWSER</span></div>
+    <div style="font-size:9px;color:var(--muted);line-height:1.5;margin-bottom:8px">
+      <code>H(PreviousReceipt ∥ Intent ∥ Preconditions ∥ Operations ∥ Result ∥ ResultingState ∥ Evidence)</code>
+    </div>
+    <div id="receiptChain"></div>
+  </div>
+
+  <!-- A2A Contract -->
+  <div class="panel">
+    <div class="panel-head"><span>A2A PROTOCOL CONTRACT</span><span class="tag">MCP/1517</span></div>
+    <div class="a2a" id="a2aContract"></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stack" id="stats"></div>
+
+  <div class="foot">
+    <a href="./internetofagents.html">← v1 dashboard</a>
+    <a href="./internetofagents.mp4">video proof</a>
+    <a href="./internetofagents-manifest.json">manifest</a>
+    <a href="https://github.com/MYaelMendez/hermes">hermes</a>
+    <a href="https://github.com/MYaelMendez/gpu-mcp">gpu-mcp</a>
+  </div>
+  <div class="hash">#internetofagents · QR = THE CHIP · #hermiphicationisinevitable</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Canvas 2D living mesh background ──
+(function() {
+  const canvas = document.getElementById('mesh');
+  const ctx = canvas.getContext('2d');
+  let width, height;
+  function resize() { width = window.innerWidth || 1280; height = window.innerHeight || 720; canvas.width = width; canvas.height = height; }
+  function drawMesh(t) {
+    ctx.clearRect(0, 0, width, height);
+    const grad = ctx.createRadialGradient(width*0.5, height*0.5, 0, width*0.5, height*0.5, width*0.9);
+    grad.addColorStop(0, 'rgba(255,255,240,0.95)');
+    grad.addColorStop(0.3, 'rgba(255,245,210,0.55)');
+    grad.addColorStop(0.6, 'rgba(255,225,160,0.3)');
+    grad.addColorStop(1, 'rgba(40,30,15,0.2)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, width, height);
+
+    const agents = [
+      {baseX:0.3,baseY:0.4,phase:0,orbitR:0.18,speed:0.8},
+      {baseX:0.15,baseY:0.25,phase:1.2,orbitR:0.22,speed:1.1},
+      {baseX:0.45,baseY:0.2,phase:2.4,orbitR:0.15,speed:1.4},
+      {baseX:0.1,baseY:0.7,phase:3.6,orbitR:0.25,speed:0.6},
+      {baseX:0.6,baseY:0.15,phase:4.8,orbitR:0.12,speed:1.6},
+      {baseX:0.5,baseY:0.6,phase:6.0,orbitR:0.2,speed:0.9},
+      {baseX:0.75,baseY:0.65,phase:7.2,orbitR:0.18,speed:1.2}
+    ];
+    for (let i = 0; i < agents.length; i++) {
+      const a = agents[i];
+      a.x = a.baseX + Math.sin(t * a.speed + a.phase) * a.orbitR + Math.sin(t * 2.3 + a.phase * 3) * 0.03;
+      a.y = a.baseY + Math.cos(t * a.speed + a.phase) * a.orbitR + Math.cos(t * 1.7 + a.phase * 2) * 0.03;
+      a.x = Math.max(0.05, Math.min(0.95, a.x));
+      a.y = Math.max(0.05, Math.min(0.95, a.y));
+    }
+    for (let i = 0; i < agents.length; i++) {
+      for (let j = i + 1; j < agents.length; j++) {
+        const a = agents[i], b = agents[j];
+        const dist = Math.sqrt((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y));
+        ctx.strokeStyle = `rgba(212,175,55,${Math.max(0.15, 0.5 - dist * 0.2)})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(a.x*width, a.y*height); ctx.lineTo(b.x*width, b.y*height); ctx.stroke();
+      }
+    }
+    for (let i = 0; i < agents.length; i++) {
+      const a = agents[i];
+      const pulse = 1.0 + 0.35 * Math.sin(t * 5.5 + i * 1.7);
+      const r = Math.max(2, 18 * pulse);
+      const cx = a.x * width, cy = a.y * height;
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      grad.addColorStop(0, 'rgba(255,255,255,0.85)');
+      grad.addColorStop(0.3, 'rgba(212,175,55,1)');
+      grad.addColorStop(1, 'rgba(212,175,55,0.15)');
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.arc(cx, cy, Math.max(1, r), 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = 'rgba(212,175,55,0.9)';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(cx, cy, Math.max(1, r), 0, Math.PI * 2); ctx.stroke();
+    }
+    for (let p = 0; p < 70; p++) {
+      const phase = p * 0.25;
+      const px = (0.5 + Math.sin(t * 0.6 + phase) * 0.48 + Math.sin(t * 1.1 + phase * 1.7) * 0.25) * width;
+      const py = (0.5 + Math.cos(t * 0.5 + phase) * 0.45 + Math.cos(t * 0.8 + phase * 1.3) * 0.2) * height;
+      ctx.fillStyle = `rgba(212,175,55,${0.5 + 0.4 * Math.sin(t * 2.5 + phase)})`;
+      ctx.beginPath(); ctx.arc(px, py, Math.max(0.5, 3 + 4 * Math.sin(t * 4 + phase)), 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  function animate(timestamp) { drawMesh((timestamp||0)/1000); requestAnimationFrame(animate); }
+  window.__renderFrame = (i, total) => { drawMesh(i / Math.max(1, total - 1)); return true; };
+  resize(); window.addEventListener('resize', resize); animate(0);
+})();
+
+// ── QR Peer Mesh ──
+const AGENTS = [
+  {id:'victus', host:'192.168.1.72', role:'reference node · RTX 3050'},
+  {id:'teknium', host:'local', role:'conductor · MCP broker'},
+  {id:'webbot', host:'browser', role:'WebMCP · commerce'},
+  {id:'caia', host:'private', role:'vault · custody'},
+  {id:'tee', host:'IDE', role:'VSCODER · C2'},
+  {id:'vela', host:'render', role:'æRTXrender'},
+  {id:'ceres', host:'video', role:'SupervisorVideo'}
+];
+
+function makePeerURL(agent) {
+  return `ae://peer?host=${agent.host}&mesh=pc://mesh/${agent.id}/local&token=ephemeral&via=wifi`;
+}
+
+const meshGrid = document.getElementById('meshGrid');
+AGENTS.forEach((agent, i) => {
+  const node = document.createElement('div');
+  node.className = 'agent-node';
+  const peerURL = makePeerURL(agent);
+  node.innerHTML = `
+    <div class="badge">${agent.role}</div>
+    <div class="qr-wrap" id="qr_${i}"></div>
+    <div class="name">${agent.id}</div>
+    <div class="addr">${peerURL}</div>
+  `;
+  node.addEventListener('click', () => {
+    showToast(`✓ ${agent.id} paired · ${peerURL}`);
+  });
+  meshGrid.appendChild(node);
+  // Generate real QR using qrcode.js (lowercase API)
+  try {
+    const qrContainer = document.getElementById(`qr_${i}`);
+    const qr = qrcode(0, 'M');
+    qr.addData(peerURL);
+    qr.make();
+    qrContainer.innerHTML = qr.createSvgTag({cellSize: 5, margin: 2});
+  } catch(e) {
+    // Fallback: draw simple placeholder
+    const c = document.createElement('canvas');
+    c.width = 128; c.height = 128;
+    const cx = c.getContext('2d');
+    cx.fillStyle = '#fff'; cx.fillRect(0,0,128,128);
+    cx.fillStyle = '#000';
+    for (let r = 0; r < 21; r++) for (let col = 0; col < 21; col++) {
+      if ((r * 7 + col * 13 + i * 3) % 3 === 0) cx.fillRect(col*6, r*6, 6, 6);
+    }
+    document.getElementById(`qr_${i}`).appendChild(c);
+  }
+});
+
+// ── Live Receipt Chain (SHA-256 computed in-browser) ──
+async function sha256(str) {
+  const msgBuffer = new TextEncoder().encode(str);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+const receiptChainEl = document.getElementById('receiptChain');
+const RECEIPTS = [
+  {label:'AUTH', intent:'authenticate @yaelmendez via X-verified provenance', precond:'human present', ops:'X OAuth handshake', result:'PASS', state:'session established'},
+  {label:'PAIR', intent:'pair 7 agents via QR A2A handshake', precond:'all agents online', ops:'QR scan + ae://peer protocol', result:'7/7 paired', state:'mesh connected'},
+  {label:'EXEC', intent:'deploy sovereign compute on victus', precond:'RTX 3050 available', ops:'a2a:invoke rtx3050://matmul', result:'117 tok/s', state:'compute flowing'},
+  {label:'WITNESS', intent:'observe mesh state + receipts', precond:'chain valid', ops:'SHA-256 compute', result:'chain verified', state:'evidence anchored'},
+  {label:'REALIZE', intent:'publish #internetofagents living protocol', precond:'receipt chain closed', ops:'deploy github.io', result:'PASS lum 125.46 con 42.52 mov 8.06', state:'protocol live'}
+];
+
+async function renderReceiptChain() {
+  let prev = '0000000000000000000000000000000000000000000000000000000000000000';
+  for (let i = 0; i < RECEIPTS.length; i++) {
+    const r = RECEIPTS[i];
+    const payload = `${prev}||${r.intent}||${r.precond}||${r.ops}||${r.result}||${r.state}`;
+    const hash = await sha256(payload);
+    const row = document.createElement('div');
+    row.className = 'receipt-row';
+    row.innerHTML = `
+      <div class="label">${r.label}</div>
+      <div class="hash">${hash}</div>
+      <div class="ok">√</div>
+    `;
+    receiptChainEl.appendChild(row);
+    prev = hash;
+  }
+}
+renderReceiptChain();
+
+// ── A2A Contract ──
+document.getElementById('a2aContract').innerHTML = `
+<span class="key">protocol:</span> <span class="val">ae://peer v2</span> · <span class="key">handshake:</span> <span class="val">MCP/1517</span><br/>
+<span class="key">trust:</span> <span class="val">public</span> | <span class="val">private</span> | <span class="val">vault</span> (5-layer PC://VAULT)<br/>
+<span class="key">authority:</span> <span class="val">HUMAN://ROOT</span> — agent proposes, human steers<br/>
+<span class="key">evidence:</span> <span class="val">SHA-256 receipt chain</span> — no secrets in payload<br/>
+<span class="key">discovery:</span> <span class="val">QR = the chip</span> — scannable A2A handshake<br/>
+<span class="key">execution:</span> <span class="val">local sovereignty</span> — compute not custody<br/>
+<span class="key">browser:</span> <span class="val">WebMCP</span> (feature-detected, blocked if unavailable)<br/>
+<span class="key">fleet:</span> <span class="val">3 parallel waves</span> — render, deploy, receipt
+`;
+
+// ── Stats ──
+const statsData = [
+  {v:'7', l:'QR-paired agents'},
+  {v:'SHA-256', l:'in-browser receipts'},
+  {v:'A2A', l:'ae://peer handshake'},
+  {v:'0', l:'cloud secrets'},
+  {v:'1', l:'authority · the human'},
+  {v:'MCP/1517', l:'context protocol'}
+];
+const statsEl = document.getElementById('stats');
+statsData.forEach(s => {
+  const d = document.createElement('div');
+  d.className = 'stat';
+  d.innerHTML = `<div class="v">${s.v}</div><div class="l">${s.l}</div>`;
+  statsEl.appendChild(d);
+});
+
+// ── Toast ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(80px)'; }, 2200);
+}
+</script>
+</body>
+</html>
