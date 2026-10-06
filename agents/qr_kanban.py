@@ -20,6 +20,12 @@ Why supervision (Roboflow) and not raw cv2: supervision gives us
 We still decode QR with cv2.QRCodeDetector because supervision does not
 ship a QR reader; supervision supervises the detection + annotation layer.
 
+The substrate is itself open sourceware: DENSO WAVE does not exercise its
+patents against standard QR ("Everyone can use the QR Code freely as long as
+following the standards for QR Codes in JIS or ISO"), and the symbology is
+ISO/IEC 18004. We stay conformant and layer our envelope on top — so no layer
+of this pipeline carries a royalty. See QR_OPENSOURCEWARE.md.
+
 Usage:
     python qr_kanban.py card <VERB> <TASK_ID> [--out PATH]   mint a QR card
     python qr_kanban.py watch [--camera N] [--once]          run the supervisor
