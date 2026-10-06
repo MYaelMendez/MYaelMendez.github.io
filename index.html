@@ -404,7 +404,15 @@ async function executeOmnibox() {
   const input = document.getElementById('omnibox-input');
   const intent = input.value.trim();
   if (!intent) return;
-  const code = matchJourney(intent);
+
+  // Try LLM first, fall back to templates
+  let code = null;
+  if (mlcReady && mlcEngine) {
+    appendOmnibox('<span style="color:var(--cyan);font-size:10px">generating code with Llama 3.2...</span>\n');
+    code = await generateCodeWithLLM(intent);
+    if (code) appendOmnibox('<span style="opacity:.4">LLM generated ' + code.split('\n').length + ' lines of code</span>\n');
+  }
+  if (!code) code = matchJourney(intent);
   const start = Date.now();
 
   omniboxBtn.classList.add('running');
@@ -439,6 +447,99 @@ document.getElementById('omnibox-input').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') executeOmnibox();
 });
 
+
+// ══════════════════════════════════════════════════════
+// WEBLLM — local LLM on WebGPU (llama.cpp-compatible)
+// ══════════════════════════════════════════════════════
+let mlcEngine = null;
+let mlcReady = false;
+let mlcLoading = false;
+
+const AE_DSL_PROMPT = `You are a code generator for the ae DSL. Generate ONLY executable JavaScript code (no markdown, no explanation) that uses these bindings:
+
+ae.mesh.bots() -> [{id, status, tier, role}]
+ae.keeper.audit(target) -> {verdict, evidence}
+ae.keeper.ledger({kind, text, evidence}) -> Promise<string> (SHA-256 hash)
+ae.keeper.recall() -> {matches}
+ae.video.status() -> {node, render, encoder, supervision}
+ae.video.verify(path) -> {pass, luminance, contrast, motion}
+ae.rtx.probe() -> {gpu, temp, util, mem_used, mem_total}
+ae.social.post({text, kind, evidence, agent, principal}) -> {ok, sig}
+ae.storage.read(path) / ae.storage.write(path, content)
+
+Rules:
+- Use await for async calls (ledger, etc.)
+- Use console.log() to output results
+- Always include evidence in ledger calls
+- End with a return statement containing the key results
+- Keep code concise (max 15 lines)
+- No imports, no external dependencies`;
+
+async function loadWebLLM() {
+  if (mlcReady || mlcLoading) return;
+  if (!navigator.gpu) {
+    console.log('[webllm] WebGPU not available — using templates');
+    return;
+  }
+  mlcLoading = true;
+  try {
+    appendOmnibox('<span style="color:var(--cyan);font-size:10px">loading WebLLM engine (Llama 3.2 1B)...</span>\n');
+
+    const { CreateMLCEngine } = await import('https://esm.run/@mlc-ai/web-llm');
+    mlcEngine = await CreateMLCEngine('Llama-3.2-1B-Instruct-q4f16_1-MLC', {
+      initProgressCallback: (progress) => {
+        const pct = Math.round((progress.progress || 0) * 100);
+        const badge = document.getElementById('llm-badge');
+        if (badge) badge.textContent = 'LLM: ' + pct + '%';
+      },
+    });
+
+    mlcReady = true;
+    mlcLoading = false;
+    const badge = document.getElementById('llm-badge');
+    if (badge) { badge.textContent = 'LLM: Llama 3.2'; badge.style.borderColor = 'rgba(0,255,157,.25)'; badge.style.color = 'var(--neon)'; }
+    appendOmnibox('<span style="color:var(--neon);font-size:10px">WebLLM ready — Llama 3.2 1B on WebGPU</span>\n');
+  } catch (e) {
+    mlcLoading = false;
+    const badge = document.getElementById('llm-badge');
+    if (badge) { badge.textContent = 'LLM: templates'; badge.style.borderColor = 'rgba(255,77,95,.25)'; badge.style.color = 'var(--danger)'; }
+    appendOmnibox('<span style="color:var(--danger);font-size:10px">WebLLM failed: ' + String(e.message||e).slice(0,80) + ' — using templates</span>\n');
+  }
+}
+
+async function generateCodeWithLLM(intent) {
+  if (!mlcReady || !mlcEngine) return null;
+  try {
+    const reply = await mlcEngine.chat.completions.create({
+      messages: [
+        { role: 'system', content: AE_DSL_PROMPT },
+        { role: 'user', content: intent },
+      ],
+      max_tokens: 300,
+      temperature: 0.3,
+    });
+    let code = reply.choices[0].message.content.trim();
+    // Strip markdown fences if present
+    code = code.replace(/^[`]{3}[a-z]*\n?/gm, '').replace(/[`]{3}$/gm, '').trim();
+    return code;
+  } catch (e) {
+    console.log('[webllm] generation failed:', e.message);
+    return null;
+  }
+}
+
+// Load WebLLM on first interaction (lazy)
+let webllmLoaded = false;
+document.addEventListener('DOMContentLoaded', () => {
+  // Auto-detect and show status immediately
+  const badge = document.getElementById('llm-badge');
+  if (navigator.gpu) {
+    if (badge) badge.textContent = 'LLM: click to load';
+    if (badge) badge.style.cursor = 'pointer';
+    if (badge) badge.addEventListener('click', loadWebLLM);
+  }
+});
+
 // Engine detection
 (function() {
   const webgpu = !!navigator.gpu;
@@ -454,6 +555,10 @@ document.getElementById('omnibox-input').addEventListener('keydown', (e) => {
   r.style.borderColor = 'rgba(0,255,157,.25)'; r.style.color = 'var(--neon)'; r.textContent = 'RECEIPTS ✓';
 })();
 
+</script>
+<script src="https://esm.run/@mlc-ai/web-llm" type="module">
+  import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+  window.webllm = webllm;
 </script>
 </body>
 </html>
