@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>æ:// command map · navigable surface graph</title>
+<meta name="description" content="The command map as interface. Type a command, the 3D scene responds. Every surface, every scheme, navigable in three dimensions.">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-glow:rgba(212,175,55,.32);--neon:#00ff9d;--ink:#f0ece4;--muted:rgba(240,236,228,.4);--border:rgba(212,175,55,.16);--border-hot:rgba(212,175,55,.5)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow:hidden}
+canvas{display:block;position:fixed;inset:0;z-index:1}
+.scan{position:fixed;inset:0;z-index:2;pointer-events:none;background:repeating-linear-gradient(transparent 0 2px,rgba(212,175,55,.012) 2px 4px)}
+.vig{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 35%,rgba(5,5,5,.92) 100%)}
+
+/* ── HUD ── */
+.hud{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;justify-content:space-between;align-items:center;padding:14px 20px;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;pointer-events:none;background:linear-gradient(180deg,rgba(5,5,5,.95),transparent)}
+.hud .live{display:flex;align-items:center;gap:6px;color:var(--neon)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* ── COMMAND MAP PANEL (left) ── */
+.map-panel{position:fixed;top:56px;left:16px;z-index:10;width:300px;max-height:calc(100vh - 180px);overflow-y:auto;border:1px solid var(--border);background:rgba(5,5,5,.86);backdrop-filter:blur(8px);padding:12px;scrollbar-width:thin}
+.map-panel::-webkit-scrollbar{width:3px}.map-panel::-webkit-scrollbar-thumb{background:var(--border-hot)}
+.map-panel h3{font-family:'Orbitron';font-size:10px;letter-spacing:2px;color:var(--gold);margin-bottom:10px;text-transform:uppercase}
+.cat{font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:12px 0 4px;padding-bottom:3px;border-bottom:1px solid var(--border)}
+.cmd{display:flex;align-items:center;gap:8px;padding:6px 8px;font-size:10px;color:var(--muted);cursor:pointer;border-left:2px solid transparent;transition:all .15s}
+.cmd:hover,.cmd.active{color:var(--gold);border-left-color:var(--gold);background:rgba(212,175,55,.06)}
+.cmd .ico{font-size:11px;width:14px;text-align:center}
+.cmd .label{flex:1}
+.cmd .route{font-size:8px;color:var(--muted);opacity:.6}
+
+/* ── COMMAND INPUT (bottom) ── */
+.prompt{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:20;width:min(680px,calc(100vw - 40px));border:1px solid var(--border-hot);background:rgba(5,5,5,.94);backdrop-filter:blur(12px);box-shadow:0 0 40px rgba(212,175,55,.12);display:flex;align-items:center;gap:10px;padding:14px 18px}
+.prompt .glyph{font-family:'Orbitron';font-weight:900;color:var(--gold);font-size:15px;flex-shrink:0}
+.prompt input{flex:1;background:transparent;border:none;outline:none;color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:13px;caret-color:var(--gold)}
+.prompt input::placeholder{color:var(--muted)}
+.prompt .hint{font-size:9px;color:var(--muted);letter-spacing:1px;flex-shrink:0}
+.suggest{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);z-index:19;width:min(680px,calc(100vw - 40px));border:1px solid var(--border);border-bottom:none;background:rgba(5,5,5,.96);backdrop-filter:blur(12px);max-height:240px;overflow-y:auto;display:none}
+.suggest.on{display:block}
+.suggest .row{display:flex;align-items:center;gap:10px;padding:9px 18px;font-size:11px;color:var(--muted);cursor:pointer;border-bottom:1px solid rgba(212,175,55,.05)}
+.suggest .row:hover,.suggest .row.sel{background:rgba(212,175,55,.08);color:var(--gold)}
+.suggest .row .ico{width:16px;text-align:center}
+.suggest .row .lbl{flex:1}
+.suggest .row .rt{font-size:9px;opacity:.5}
+
+/* ── DETAIL PANEL (right) ── */
+.detail{position:fixed;top:56px;right:16px;z-index:10;width:280px;border:1px solid var(--border);background:rgba(5,5,5,.86);backdrop-filter:blur(8px);padding:16px;display:none}
+.detail.on{display:block}
+.detail .d-title{font-family:'Orbitron';font-size:13px;color:var(--gold);letter-spacing:1px;margin-bottom:4px;text-transform:uppercase}
+.detail .d-route{font-size:9px;color:var(--neon);margin-bottom:12px;word-break:break-all}
+.detail .d-desc{font-size:10px;color:var(--muted);line-height:1.6;margin-bottom:12px}
+.detail .d-caps{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px}
+.detail .cap{font-size:8px;letter-spacing:1px;padding:2px 7px;border:1px solid var(--border);color:var(--muted);border-radius:2px}
+.detail .cap.hot{border-color:rgba(212,175,55,.3);color:var(--gold)}
+.detail .d-open{display:block;width:100%;padding:9px;text-align:center;font-size:10px;letter-spacing:1px;color:var(--gold);border:1px solid var(--border-hot);text-decoration:none;text-transform:uppercase;transition:all .15s}
+.detail .d-open:hover{background:rgba(212,175,55,.1)}
+.detail .d-close{position:absolute;top:10px;right:12px;cursor:pointer;color:var(--muted);font-size:12px}
+.detail .d-close:hover{color:var(--gold)}
+
+/* ── STATS ── */
+.stats{position:fixed;bottom:20px;left:20px;z-index:10;font-size:9px;color:var(--muted);letter-spacing:1px;pointer-events:none}
+.stats .ok{color:var(--neon)}
+.brand{position:fixed;bottom:20px;right:20px;z-index:10;font-family:'Orbitron';font-weight:700;font-size:11px;letter-spacing:2px;background:linear-gradient(90deg,var(--gold),var(--neon),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;pointer-events:none}
+
+@media(max-width:820px){.map-panel{display:none}.detail{width:calc(100vw - 32px)}}
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+<div class="scan"></div>
+<div class="vig"></div>
+
+<div class="hud">
+  <span>æ:// COMMAND MAP</span>
+  <span>NAVIGABLE SURFACE GRAPH</span>
+  <span class="live"><span class="dot"></span>7 SCHEMES · 34 ROUTES</span>
+</div>
+
+<!-- ═══ COMMAND MAP ═══ -->
+<div class="map-panel" id="map-panel">
+  <h3>◈ COMMAND MAP</h3>
+  <div id="map-body"></div>
+</div>
+
+<!-- ═══ DETAIL ═══ -->
+<div class="detail" id="detail">
+  <span class="d-close" id="d-close">✕</span>
+  <div class="d-title" id="d-title">—</div>
+  <div class="d-route" id="d-route">—</div>
+  <div class="d-desc" id="d-desc">—</div>
+  <div class="d-caps" id="d-caps"></div>
+  <a class="d-open" id="d-open" href="#">OPEN SURFACE →</a>
+</div>
+
+<!-- ═══ COMMAND PROMPT ═══ -->
+<div class="suggest" id="suggest"></div>
+<div class="prompt">
+  <span class="glyph">æ://</span>
+  <input id="cmd" type="text" placeholder="type a command — væult:// status · æ:// vault · mesh · cuda" autocomplete="off" spellcheck="false"/>
+  <span class="hint">↑↓ · ⏎</span>
+</div>
+
+<div class="stats" id="stats"><span class="ok">◉</span> 0 nodes · 0 edges</div>
+<div class="brand">#OSW</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// THE COMMAND MAP — the source of truth. Every node is a command or a surface.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const MAP = [
+  // ── scheme: væult (the vault, the custody layer) ──
+  { cat: 'væult://', ico: '🔐', label: 'status',  route: 'væult:// status',   desc: 'Vault state, path, entry count. No passphrase needed.', caps: ['read', 'safe'], color: 0xD4AF37, url: null },
+  { cat: 'væult://', ico: '📋', label: 'list',    route: 'væult:// list',     desc: 'All vault entries, masked. Requires unlock.', caps: ['read', 'masked'], color: 0xD4AF37, url: null },
+  { cat: 'væult://', ico: '🔑', label: 'get',     route: 'væult:// get <KEY>', desc: 'Resolve one secret. Masked stdout + secret_value for the agent.', caps: ['read', 'inject'], color: 0xD4AF37, url: null },
+  { cat: 'væult://', ico: '➕', label: 'new',     route: 'væult://new <KEY> <VAL>', desc: 'Add a secret. AES-256-GCM, fresh nonce.', caps: ['write', 'encrypt'], color: 0x00ff9d, url: null },
+  { cat: 'væult://', ico: '📱', label: 'qr-export', route: 'væult://qr-export <KEY>', desc: 'Sealed QR — the envelope, never plaintext.', caps: ['air-gap', 'sealed'], color: 0xa739de, url: null },
+  { cat: 'væult://', ico: '📷', label: 'qr-import', route: 'væult://qr-import <IMG>', desc: 'Scan a sealed QR. Verifies under the passphrase before storing.', caps: ['air-gap', 'verify'], color: 0xa739de, url: null },
+  { cat: 'væult://', ico: '✉️', label: 'email-import', route: 'væult://email-import', desc: 'Check inbox for [væult] emails. Encrypt + store.', caps: ['ingest', 'network'], color: 0x00ccff, url: null },
+  { cat: 'væult://', ico: '🔓', label: 'unlock',  route: 'væult:// unlock',   desc: 'Unlock with VAEULT_PASSPHRASE env var.', caps: ['auth'], color: 0xff4444, url: null },
+  { cat: 'væult://', ico: '📁', label: 'path',    route: 'væult:// path',     desc: 'Where the vault lives on disk.', caps: ['read'], color: 0xD4AF37, url: null },
+
+  // ── surface: privateclient (the secret stack) ──
+  { cat: 'PRIVATECLIENT', ico: '🔐', label: 'vault web', route: '/privateclient/vault.html', desc: 'Password-secured vault. Create, manage, QR air-gap.', caps: ['vault', 'web'], color: 0xD4AF37, url: '/privateclient/vault.html' },
+  { cat: 'PRIVATECLIENT', ico: '📊', label: 'vault layers', route: '/privateclient/vault-layers.html', desc: '3D visualization of the 7 security layers.', caps: ['3d', 'webgpu'], color: 0x00ff9d, url: '/privateclient/vault-layers.html' },
+  { cat: 'PRIVATECLIENT', ico: '⌨️', label: 'terminal', route: '/privateclient/terminal.html', desc: 'Command prompt. æ.store.', caps: ['terminal'], color: 0xD4AF37, url: '/privateclient/terminal.html' },
+  { cat: 'PRIVATECLIENT', ico: '🖥️', label: 'compute', route: '/privateclient/compute.html', desc: 'Sovereign compute surface.', caps: ['compute'], color: 0x00ff9d, url: '/privateclient/compute.html' },
+  { cat: 'PRIVATECLIENT', ico: '🌐', label: 'omnibox', route: '/privateclient/omnibox.html', desc: 'Command Line Internet Gateway.', caps: ['gateway'], color: 0x00ccff, url: '/privateclient/omnibox.html' },
+  { cat: 'PRIVATECLIENT', ico: '🔗', label: 'secret bridge', route: '/privateclient/secret-source-bridge.html', desc: 'Browser UI. Push to local.', caps: ['bridge'], color: 0xffaa00, url: '/privateclient/secret-source-bridge.html' },
+  { cat: 'PRIVATECLIENT', ico: '📋', label: 'blueprint', route: '/privateclient/glocal-secrets-blueprint.html', desc: 'surface github.io · custody Victus · broker +æ://', caps: ['docs'], color: 0x8892b0, url: '/privateclient/glocal-secrets-blueprint.html' },
+
+  // ── scheme: æ:// (the stack) ──
+  { cat: 'æ://', ico: '🕸️', label: 'mesh', route: '/mesh-agenti.html', desc: 'Pair two sovereign nodes via QR.', caps: ['mesh', 'qr'], color: 0x00ff9d, url: '/mesh-agenti.html' },
+  { cat: 'æ://', ico: '🚀', label: 'fleet', route: '/fleet.html', desc: 'MoD×MoA×MoM device mixture bootstrap.', caps: ['fleet'], color: 0x00ccff, url: '/fleet.html' },
+  { cat: 'æ://', ico: '🎬', label: 'cuda-vlc', route: '/cuda-vlc.html', desc: 'CUDA→NVENC→VLC live stream.', caps: ['cuda', 'nvenc'], color: 0xff4444, url: '/cuda-vlc.html' },
+  { cat: 'æ://', ico: '🧠', label: 'gpu preview', route: '/gpu-preview.html', desc: 'Agentic CUDA GUI. WebGPU brain + hands.', caps: ['webgpu', 'cuda'], color: 0x00ff9d, url: '/gpu-preview.html' },
+  { cat: 'æ://', ico: '📚', label: 'skill guide', route: '/skill-guide/', desc: '206 skills · catalog + topology graph.', caps: ['skills'], color: 0xD4AF37, url: '/skill-guide/' },
+  { cat: 'æ://', ico: '💼', label: '#startabusiness', route: '/agentic.html', desc: 'Sovereign bootstrap + Stripe + DAOLLC.', caps: ['business'], color: 0xffaa00, url: '/agentic.html' },
+  { cat: 'æ://', ico: '📐', label: 'cuda blueprint', route: '/cuda-blueprint.html', desc: '#startabusiness #250 #opensourceware', caps: ['blueprint'], color: 0x8892b0, url: '/cuda-blueprint.html' },
+  { cat: 'æ://', ico: '🗄️', label: 'sovereign state', route: '/sovereign-state.html', desc: 'Memory + ledger + #250 mission spine.', caps: ['state'], color: 0x00ccff, url: '/sovereign-state.html' },
+  { cat: 'æ://', ico: '🔬', label: 'demo', route: '/demo.html', desc: 'Local HTML + VS Code primitive link.', caps: ['demo'], color: 0x8892b0, url: '/demo.html' },
+  { cat: 'æ://', ico: '🗺️', label: 'integration', route: '/integration.html', desc: 'Full github.io surface index.', caps: ['index'], color: 0xD4AF37, url: '/integration.html' },
+  { cat: 'æ://', ico: '📜', label: 'manifest', route: '/surface-manifest.json', desc: 'Machine-readable surface index for agents.', caps: ['json', 'agent'], color: 0x00ff9d, url: '/surface-manifest.json' },
+
+  // ── scheme: +æ:// (the brokers) ──
+  { cat: '+æ://', ico: '🔑', label: 'secrets', route: '+æ://secrets list', desc: 'The GLOCAL secrets broker. Masked stdout.', caps: ['broker'], color: 0xff4444, url: null },
+  { cat: '+æ://', ico: '🖥️', label: 'cuda-vlc', route: '+æ://cuda-vlc', desc: 'CUDA→VLC broker route.', caps: ['broker', 'cuda'], color: 0xff4444, url: null },
+  { cat: '+æ://', ico: '🌐', label: 'vps', route: '+æ://vps', desc: 'Backbone node (droplet) status.', caps: ['broker', 'vps'], color: 0xff4444, url: null },
+  { cat: '+æ://', ico: '⚡', label: 'victus', route: '+æ://victus', desc: 'This sovereign compute node.', caps: ['broker', 'node'], color: 0xff4444, url: null },
+  { cat: '+æ://', ico: '🔲', label: 'qrcode', route: '+æ://qrcode', desc: 'QR key infrastructure.', caps: ['broker', 'qr'], color: 0xff4444, url: null },
+  { cat: '+æ://', ico: '🕸️', label: 'mesh', route: '+æ://mesh', desc: 'Sovereign host list + liveness.', caps: ['broker', 'mesh'], color: 0xff4444, url: null },
+
+  // ── scheme: pc:// (the leaf compute) ──
+  { cat: 'pc://', ico: '🎯', label: 'inference', route: 'pc://inference run', desc: 'RTX 3050 GGUF inference. -ngl 99.', caps: ['gpu', 'llm'], color: 0x00ff9d, url: null },
+  { cat: 'pc://', ico: '🧮', label: 'matmul', route: 'pc://matmul', desc: 'GPU matrix multiply.', caps: ['gpu', 'cuda'], color: 0x00ff9d, url: null },
+  { cat: 'pc://', ico: '🔭', label: 'probe', route: 'pc://probe', desc: 'GPU probe. cc 8.6 · 6144 MiB.', caps: ['gpu'], color: 0x00ff9d, url: null },
+
+  // ── scheme: vscode:// (the editor) ──
+  { cat: 'vscode://', ico: '💻', label: 'open', route: 'vscode://open', desc: 'Open the sovereign editor.', caps: ['editor'], color: 0x00ccff, url: null },
+
+  // ── scheme: NVIDIA:// (the compute surface) ──
+  { cat: 'NVIDIA://', ico: '🟢', label: 'c2', route: 'NVIDIA://c2', desc: 'GeForce C2 surface.', caps: ['gpu'], color: 0x00ff9d, url: null },
+];
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// THREE.JS SCENE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x050505);
+scene.fog = new THREE.FogExp2(0x050505, 0.018);
+
+const camera = new THREE.PerspectiveCamera(58, innerWidth / innerHeight, 0.1, 200);
+camera.position.set(0, 6, 26);
+
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('scene'), antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.35;
+controls.minDistance = 8;
+controls.maxDistance = 60;
+
+scene.add(new THREE.AmbientLight(0x404040, 0.6));
+const gold = new THREE.PointLight(0xD4AF37, 3, 60);
+gold.position.set(0, 12, 0);
+scene.add(gold);
+const neonLight = new THREE.PointLight(0x00ff9d, 1.5, 50);
+neonLight.position.set(0, -10, 8);
+scene.add(neonLight);
+
+// ── core: the æ glyph as a wireframe icosahedron ──
+const coreGeo = new THREE.IcosahedronGeometry(1.6, 2);
+const coreMat = new THREE.MeshStandardMaterial({ color: 0xD4AF37, emissive: 0xD4AF37, emissiveIntensity: 0.5, metalness: 0.95, roughness: 0.08, wireframe: true });
+const core = new THREE.Mesh(coreGeo, coreMat);
+scene.add(core);
+
+// inner solid core
+const innerMat = new THREE.MeshStandardMaterial({ color: 0xD4AF37, emissive: 0xD4AF37, emissiveIntensity: 0.25, metalness: 1, roughness: 0.2, transparent: true, opacity: 0.25 });
+scene.add(new THREE.Mesh(new THREE.IcosahedronGeometry(0.9, 1), innerMat));
+
+// ── nodes: one per map entry, arranged on a sphere by category ──
+const CATS = [...new Set(MAP.map(m => m.cat))];
+const nodes = [];
+const nodeGeo = new THREE.OctahedronGeometry(0.42, 0);
+const catAngle = {};
+CATS.forEach((c, i) => { catAngle[c] = (i / CATS.length) * Math.PI * 2; });
+
+MAP.forEach((m, idx) => {
+  const catIdx = CATS.indexOf(m.cat);
+  const catCount = MAP.filter(x => x.cat === m.cat).length;
+  const withinCat = MAP.filter(x => x.cat === m.cat).indexOf(m);
+
+  // spherical layout: each category gets a meridian band
+  const phi = (withinCat / Math.max(1, catCount - 1 || 1)) * Math.PI - Math.PI / 2;
+  const theta = catAngle[m.cat] + (withinCat / Math.max(1, catCount)) * 0.6;
+  const R = 9 + (catIdx % 2) * 2.2;
+
+  const x = R * Math.cos(phi) * Math.cos(theta);
+  const y = R * Math.sin(phi) * 0.75;
+  const z = R * Math.cos(phi) * Math.sin(theta);
+
+  const mat = new THREE.MeshStandardMaterial({ color: m.color, emissive: m.color, emissiveIntensity: 0.6, metalness: 0.8, roughness: 0.25 });
+  const mesh = new THREE.Mesh(nodeGeo, mat);
+  mesh.position.set(x, y, z);
+  mesh.userData = { map: m, idx, baseY: y, phase: idx * 0.7 };
+  scene.add(mesh);
+
+  // glow ring
+  const ring = new THREE.Mesh(
+    new THREE.RingGeometry(0.55, 0.62, 24),
+    new THREE.MeshBasicMaterial({ color: m.color, transparent: true, opacity: 0.18, side: THREE.DoubleSide })
+  );
+  ring.position.copy(mesh.position);
+  ring.userData = { node: mesh };
+  scene.add(ring);
+  mesh.userData.ring = ring;
+
+  nodes.push(mesh);
+});
+
+// ── edges: connect nodes within the same category (the map's structure) ──
+const edgePositions = [];
+CATS.forEach(cat => {
+  const group = nodes.filter(n => n.userData.map.cat === cat);
+  for (let i = 0; i < group.length - 1; i++) {
+    edgePositions.push(group[i].position.x, group[i].position.y, group[i].position.z);
+    edgePositions.push(group[i + 1].position.x, group[i + 1].position.y, group[i + 1].position.z);
+  }
+});
+// connect each category's first node to the core
+CATS.forEach(cat => {
+  const first = nodes.find(n => n.userData.map.cat === cat);
+  if (first) {
+    edgePositions.push(0, 0, 0);
+    edgePositions.push(first.position.x, first.position.y, first.position.z);
+  }
+});
+const edgeGeo = new THREE.BufferGeometry();
+edgeGeo.setAttribute('position', new THREE.Float32BufferAttribute(edgePositions, 3));
+const edgeMat = new THREE.LineBasicMaterial({ color: 0xD4AF37, transparent: true, opacity: 0.13 });
+scene.add(new THREE.LineSegments(edgeGeo, edgeMat));
+
+// ── particle field ──
+const pCount = 1400;
+const pPos = new Float32Array(pCount * 3);
+for (let i = 0; i < pCount; i++) {
+  const r = 16 + Math.random() * 22;
+  const th = Math.random() * Math.PI * 2;
+  const ph = Math.acos(2 * Math.random() - 1);
+  pPos[i * 3] = r * Math.sin(ph) * Math.cos(th);
+  pPos[i * 3 + 1] = r * Math.cos(ph) * 0.6;
+  pPos[i * 3 + 2] = r * Math.sin(ph) * Math.sin(th);
+}
+const pGeo = new THREE.BufferGeometry();
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0xD4AF37, size: 0.06, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false }));
+scene.add(particles);
+
+// ── postprocessing ──
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.55, 0.4, 0.82));
+composer.addPass(new OutputPass());
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// NAVIGATION STATE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+let focusIdx = -1;         // currently focused node index
+let flyTarget = null;      // camera fly-to target
+const clock = new THREE.Clock();
+
+function focusNode(idx) {
+  if (idx < 0 || idx >= nodes.length) return;
+  focusIdx = idx;
+  const n = nodes[idx];
+  const m = n.userData.map;
+
+  // highlight
+  nodes.forEach((nn, i) => {
+    const on = i === idx;
+    nn.material.emissiveIntensity = on ? 1.6 : 0.6;
+    nn.scale.setScalar(on ? 1.5 : 1);
+    if (nn.userData.ring) nn.userData.ring.material.opacity = on ? 0.5 : 0.18;
+  });
+
+  // camera fly-to: position offset from the node, looking at it
+  const dir = n.position.clone().normalize();
+  const camPos = n.position.clone().add(dir.multiplyScalar(6)).add(new THREE.Vector3(0, 2.5, 0));
+  flyTarget = { pos: camPos, look: n.position.clone() };
+  controls.autoRotate = false;
+
+  showDetail(m);
+  markMapActive(m);
+}
+
+function clearFocus() {
+  focusIdx = -1;
+  nodes.forEach(nn => {
+    nn.material.emissiveIntensity = 0.6;
+    nn.scale.setScalar(1);
+    if (nn.userData.ring) nn.userData.ring.material.opacity = 0.18;
+  });
+  flyTarget = { pos: new THREE.Vector3(0, 6, 26), look: new THREE.Vector3(0, 0, 0) };
+  controls.autoRotate = true;
+  hideDetail();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// UI
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const $ = id => document.getElementById(id);
+
+// ── build the map panel ──
+function buildMap() {
+  const body = $('map-body');
+  let html = '';
+  CATS.forEach(cat => {
+    html += `<div class="cat">${cat}</div>`;
+    MAP.filter(m => m.cat === cat).forEach(m => {
+      const idx = MAP.indexOf(m);
+      html += `<div class="cmd" data-idx="${idx}"><span class="ico">${m.ico}</span><span class="label">${m.label}</span><span class="route">${m.url ? '↗' : '>'}</span></div>`;
+    });
+  });
+  body.innerHTML = html;
+  body.querySelectorAll('.cmd').forEach(el => {
+    el.addEventListener('click', () => focusNode(+el.dataset.idx));
+  });
+}
+
+function markMapActive(m) {
+  document.querySelectorAll('.cmd').forEach(el => {
+    el.classList.toggle('active', MAP[+el.dataset.idx] === m);
+  });
+}
+
+function showDetail(m) {
+  $('d-title').textContent = m.label;
+  $('d-route').textContent = m.route;
+  $('d-desc').textContent = m.desc;
+  $('d-caps').innerHTML = m.caps.map((c, i) => `<span class="cap${i === 0 ? ' hot' : ''}">${c}</span>`).join('');
+  const open = $('d-open');
+  if (m.url) {
+    open.href = m.url;
+    open.textContent = 'OPEN SURFACE →';
+    open.style.opacity = '1';
+    open.style.pointerEvents = 'auto';
+  } else {
+    open.href = '#';
+    open.textContent = 'RUN IN CONDUCTOR →';
+    open.style.opacity = '.6';
+    open.style.pointerEvents = 'none';
+  }
+  $('detail').classList.add('on');
+}
+
+function hideDetail() {
+  $('detail').classList.remove('on');
+}
+
+// ── command input ──
+const input = $('cmd');
+const suggest = $('suggest');
+let selIdx = 0;
+let filtered = [];
+
+function filterCommands(q) {
+  const s = q.toLowerCase().trim();
+  if (!s) return MAP.slice(0, 10);
+  return MAP.filter(m =>
+    m.label.toLowerCase().includes(s) ||
+    m.route.toLowerCase().includes(s) ||
+    m.cat.toLowerCase().includes(s) ||
+    m.desc.toLowerCase().includes(s) ||
+    m.caps.some(c => c.includes(s))
+  ).slice(0, 12);
+}
+
+function renderSuggest(list) {
+  filtered = list;
+  selIdx = 0;
+  if (!list.length) { suggest.classList.remove('on'); return; }
+  suggest.innerHTML = list.map((m, i) =>
+    `<div class="row${i === 0 ? ' sel' : ''}" data-idx="${MAP.indexOf(m)}"><span class="ico">${m.ico}</span><span class="lbl">${m.label}</span><span class="rt">${m.cat}</span></div>`
+  ).join('');
+  suggest.classList.add('on');
+  suggest.querySelectorAll('.row').forEach(el => {
+    el.addEventListener('click', () => { focusNode(+el.dataset.idx); input.value = ''; suggest.classList.remove('on'); });
+  });
+}
+
+function moveSel(d) {
+  if (!filtered.length) return;
+  selIdx = (selIdx + d + filtered.length) % filtered.length;
+  suggest.querySelectorAll('.row').forEach((el, i) => el.classList.toggle('sel', i === selIdx));
+}
+
+function runCommand(q) {
+  const s = q.trim();
+  if (!s) return;
+  // exact-ish match: find a node whose label or route matches
+  const hit = MAP.find(m => m.label.toLowerCase() === s.toLowerCase()) ||
+              MAP.find(m => m.route.toLowerCase().includes(s.toLowerCase())) ||
+              MAP.find(m => s.toLowerCase().includes(m.label.toLowerCase()));
+  if (hit) {
+    focusNode(MAP.indexOf(hit));
+  } else {
+    // try filtering — focus the first result
+    const list = filterCommands(s);
+    if (list.length) focusNode(MAP.indexOf(list[0]));
+  }
+  input.value = '';
+  suggest.classList.remove('on');
+}
+
+input.addEventListener('input', () => renderSuggest(filterCommands(input.value)));
+input.addEventListener('focus', () => renderSuggest(filterCommands(input.value)));
+input.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown') { e.preventDefault(); moveSel(1); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); moveSel(-1); }
+  else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (filtered[selIdx]) { focusNode(MAP.indexOf(filtered[selIdx])); input.value = ''; suggest.classList.remove('on'); }
+    else runCommand(input.value);
+  } else if (e.key === 'Escape') { input.value = ''; suggest.classList.remove('on'); clearFocus(); }
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('.prompt') && !e.target.closest('.suggest')) suggest.classList.remove('on');
+});
+$('d-close').addEventListener('click', clearFocus);
+
+// global shortcut: / focuses the prompt
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement !== input) { e.preventDefault(); input.focus(); }
+});
+
+// ── raycast click on nodes ──
+const ray = new THREE.Raycaster();
+const ptr = new THREE.Vector2();
+renderer.domElement.addEventListener('click', e => {
+  ptr.x = (e.clientX / innerWidth) * 2 - 1;
+  ptr.y = -(e.clientY / innerHeight) * 2 + 1;
+  ray.setFromCamera(ptr, camera);
+  const hits = ray.intersectObjects(nodes);
+  if (hits.length) focusNode(hits[0].object.userData.idx);
+});
+renderer.domElement.addEventListener('mousemove', e => {
+  ptr.x = (e.clientX / innerWidth) * 2 - 1;
+  ptr.y = -(e.clientY / innerHeight) * 2 + 1;
+  ray.setFromCamera(ptr, camera);
+  const hits = ray.intersectObjects(nodes);
+  renderer.domElement.style.cursor = hits.length ? 'pointer' : 'grab';
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ANIMATE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+
+  // core
+  core.rotation.x = t * 0.18;
+  core.rotation.y = t * 0.28;
+  core.material.emissiveIntensity = 0.4 + Math.sin(t * 1.6) * 0.18;
+
+  // nodes bob + spin
+  nodes.forEach((n, i) => {
+    n.rotation.x = t * 0.4 + i;
+    n.rotation.y = t * 0.5 + i;
+    n.position.y = n.userData.baseY + Math.sin(t * 1.1 + n.userData.phase) * 0.5;
+    if (n.userData.ring) {
+      n.userData.ring.position.copy(n.position);
+      n.userData.ring.lookAt(camera.position);
+    }
+  });
+
+  particles.rotation.y = t * 0.02;
+
+  // camera fly-to
+  if (flyTarget) {
+    camera.position.lerp(flyTarget.pos, 0.06);
+    controls.target.lerp(flyTarget.look, 0.08);
+    if (camera.position.distanceTo(flyTarget.pos) < 0.15) flyTarget = null;
+  }
+
+  controls.update();
+  composer.render();
+
+  // stats
+  if (Math.floor(t * 2) % 2 === 0) {
+    $('stats').innerHTML = `<span class="ok">◉</span> ${nodes.length} nodes · ${edgePositions.length / 6} edges · ${focusIdx >= 0 ? MAP[focusIdx].label : 'free orbit'}`;
+  }
+}
+animate();
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  composer.setSize(innerWidth, innerHeight);
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════════════════════════════
+
+buildMap();
+$('stats').innerHTML = `<span class="ok">◉</span> ${nodes.length} nodes · ${edgePositions.length / 6} edges`;
+
+// expose for agents
+window.__COMMAND_MAP__ = {
+  ready: true,
+  nodes: MAP.length,
+  categories: CATS,
+  focus: idx => focusNode(idx),
+  run: cmd => runCommand(cmd),
+  find: q => filterCommands(q),
+  map: MAP,
+};
+console.log(`æ:// command map — ${MAP.length} nodes, ${CATS.length} schemes`);
+</script>
+</body>
+</html>
