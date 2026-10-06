@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080">
+<title>glocal-funding</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;overflow:hidden;background:#050505;color:#D4AF37;font-family:'JetBrains Mono','Consolas',monospace}
+  #root{position:relative;width:100%;height:100%}
+  .scanlines{position:absolute;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.20) 3px,rgba(0,0,0,.20) 4px)}
+  .header{position:absolute;top:0;left:0;right:0;height:60px;display:flex;align-items:center;padding:0 40px;border-bottom:1px solid rgba(212,175,55,.3);z-index:10}
+  .header h1{font-size:24px;font-weight:600;letter-spacing:2px}
+  .header .tag{position:absolute;right:40px;font-size:14px;opacity:.5}
+  .funding{position:absolute;top:80px;left:40px;right:40px;bottom:80px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .panel{background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.15);padding:24px}
+  .panel h2{font-size:16px;font-weight:600;margin-bottom:16px;opacity:.7;letter-spacing:1px}
+  .row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(212,175,55,.08);font-size:13px}
+  .row .label{opacity:.7}.row .value{opacity:.9}
+  .bar{height:8px;background:rgba(212,175,55,.1);border-radius:4px;margin-top:6px;overflow:hidden}
+  .bar-fill{height:100%;background:linear-gradient(90deg,#D4AF37,#00eaff);border-radius:4px;transition:width .5s}
+  .summary{position:absolute;bottom:80px;left:40px;right:40px;height:80px;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.15);padding:20px 24px;display:flex;align-items:center;justify-content:space-between}
+  .summary .item{text-align:center}
+  .summary .num{font-size:28px;font-weight:700}
+  .summary .lbl{font-size:11px;opacity:.5}
+  .telemetry{position:absolute;bottom:0;left:0;right:0;height:40px;display:flex;align-items:center;padding:0 40px;border-top:1px solid rgba(212,175,55,.15);font-size:11px;opacity:.4;gap:30px}
+  .telemetry .dot{width:6px;height:6px;border-radius:50%;background:#00eaa0;display:inline-block;margin-right:6px;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .progress-bar{position:absolute;top:0;left:0;height:3px;background:linear-gradient(90deg,#D4AF37,#00eaff);z-index:20}
+</style>
+</head>
+<body>
+<div id="root">
+  <div class="progress-bar" id="progress" style="width:0%"></div>
+  <div class="header">
+    <h1>glocal-funding</h1>
+    <span class="tag">local funding · sovereign capital</span>
+  </div>
+  <div class="funding">
+    <div class="panel">
+      <h2>▸ FUNDS</h2>
+      <div class="row"><span class="label">local custody</span><span class="value">$133.65</span></div>
+      <div class="row"><span class="label">droplet balance</span><span class="value">$0.00</span></div>
+      <div class="row"><span class="label">revenue (Doola)</span><span class="value">$133.65</span></div>
+      <div class="bar"><div class="bar-fill" style="width:100%"></div></div>
+    </div>
+    <div class="panel">
+      <h2>▸ ALLOCATION</h2>
+      <div class="row"><span class="label">compute</span><span class="value">$42.00</span></div>
+      <div class="row"><span class="label">domains</span><span class="value">$18.00</span></div>
+      <div class="row"><span class="label">storage</span><span class="value">$8.50</span></div>
+      <div class="row"><span class="label">reserve</span><span class="value">$65.15</span></div>
+      <div class="bar"><div class="bar-fill" style="width:65%"></div></div>
+    </div>
+  </div>
+  <div class="summary">
+    <div class="item"><div class="lbl">REVENUE</div><div class="num">$133.65</div></div>
+    <div class="item"><div class="lbl">RESERVE</div><div class="num">$65.15</div></div>
+    <div class="item"><div class="lbl">BURN</div><div class="num">$68.50</div></div>
+    <div class="item"><div class="lbl">STATUS</div><div class="num" style="color:#00eaa0">CAPITALIZED</div></div>
+  </div>
+  <div class="telemetry">
+    <span><span class="dot"></span>sovereign</span>
+    <span id="count"></span>
+    <span id="receipt"></span>
+    <span style="margin-left:auto" id="clock"></span>
+  </div>
+  <div class="scanlines"></div>
+</div>
+<script>
+(function(){
+  var total = 4;
+  var done = 0;
+  function tick(){done=Math.min(done+1,total);document.getElementById('progress').style.width=(done/total*100)+'%';if(done<total) requestAnimationFrame(tick)}
+  requestAnimationFrame(tick);
+  var ts = Math.floor(Date.now()/1000);
+  var payload = JSON.stringify({action:'glocal-funding',ts:ts,amount:133.65});
+  var hash = Array.prototype.reduce.call(payload,function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+  document.getElementById('receipt').textContent = 'sha256:'+(hash>>>0).toString(16).padStart(8,'0');
+  document.getElementById('count').textContent = '4 items';
+  document.getElementById('clock').textContent = new Date().toISOString();
+})();
+</script>
+</body>
+</html>

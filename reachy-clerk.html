@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080">
+<title>reachy-clerk</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;overflow:hidden;background:#050505;color:#D4AF37;font-family:'JetBrains Mono','Consolas',monospace}
+  #root{position:relative;width:100%;height:100%}
+  .scanlines{position:absolute;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.20) 3px,rgba(0,0,0,.20) 4px)}
+  .header{position:absolute;top:0;left:0;right:0;height:60px;display:flex;align-items:center;padding:0 40px;border-bottom:1px solid rgba(212,175,55,.3);z-index:10}
+  .header h1{font-size:24px;font-weight:600;letter-spacing:2px}
+  .header .tag{position:absolute;right:40px;font-size:14px;opacity:.5}
+  .clerk-grid{position:absolute;top:80px;left:40px;right:40px;bottom:80px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+  .clerk-panel{background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.15);padding:24px;display:flex;flex-direction:column}
+  .clerk-panel h2{font-size:16px;font-weight:600;margin-bottom:16px;opacity:.7;letter-spacing:1px}
+  .charge{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(212,175,55,.08);font-size:13px}
+  .charge .amount{color:#00eaa0}
+  .charge .method{opacity:.5;font-size:11px}
+  .charge .status{font-size:11px;padding:2px 6px;border-radius:2px}
+  .succeeded{background:rgba(0,234,160,.15);color:#00eaa0}
+  .pending{background:rgba(212,175,55,.15);color:#D4AF37}
+  .failed{background:rgba(255,80,80,.15);color:#ff5050}
+  .summary{position:absolute;bottom:80px;left:40px;right:40px;height:80px;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.15);padding:20px 24px;display:flex;align-items:center;justify-content:space-between}
+  .summary .total{font-size:32px;font-weight:700}
+  .summary .label{font-size:12px;opacity:.5}
+  .summary .receipt{font-size:11px;opacity:.4;text-align:right}
+  .telemetry{position:absolute;bottom:0;left:0;right:0;height:40px;display:flex;align-items:center;padding:0 40px;border-top:1px solid rgba(212,175,55,.15);font-size:11px;opacity:.4;gap:30px}
+  .telemetry .dot{width:6px;height:6px;border-radius:50%;background:#00eaa0;display:inline-block;margin-right:6px;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .progress-bar{position:absolute;top:0;left:0;height:3px;background:linear-gradient(90deg,#D4AF37,#00eaff);z-index:20;transition:width .3s}
+</style>
+</head>
+<body>
+<div id="root">
+  <div class="progress-bar" id="progress" style="width:0%"></div>
+  <div class="header">
+    <h1>reachy-clerk</h1>
+    <span class="tag">stripe clerk · agentic DAO</span>
+  </div>
+  <div class="clerk-grid">
+    <div class="clerk-panel">
+      <h2>▸ CHARGES</h2>
+      <div id="charges"></div>
+    </div>
+    <div class="clerk-panel">
+      <h2>▸ PAYMENTS</h2>
+      <div id="payments"></div>
+    </div>
+    <div class="clerk-panel">
+      <h2>▸ REFUNDS</h2>
+      <div id="refunds"></div>
+    </div>
+  </div>
+  <div class="summary">
+    <div><div class="label">TOTAL PROCESSED</div><div class="total" id="total">$0.00</div></div>
+    <div><div class="label">SUCCESS RATE</div><div class="total" id="rate">0%</div></div>
+    <div class="receipt" id="receipt"></div>
+  </div>
+  <div class="telemetry">
+    <span><span class="dot"></span>sovereign</span>
+    <span id="count"></span>
+    <span style="margin-left:auto" id="clock"></span>
+  </div>
+  <div class="scanlines"></div>
+</div>
+<script>
+(function(){
+  var charges = [
+    {amount:"$12.00",method:"card",status:"succeeded"},
+    {amount:"$4.99",method:"bank",status:"succeeded"},
+    {amount:"$29.00",method:"card",status:"pending"},
+    {amount:"$7.50",method:"paypal",status:"succeeded"},
+    {amount:"$150.00",method:"bank",status:"failed"},
+    {amount:"$3.99",method:"card",status:"succeeded"},
+  ];
+  var payments = charges.filter(function(c){return c.status!=="failed"});
+  var refunds = [
+    {amount:"$12.00",method:"card",status:"succeeded"},
+    {amount:"$7.50",method:"paypal",status:"pending"},
+  ];
+
+  function cls(s){return s}
+  function row(c){return '<div class="charge"><span class="amount">'+c.amount+'</span><span class="method">'+c.method+'</span><span class="status '+cls(c.status)+'">'+c.status+'</span></div>'}
+
+  document.getElementById('charges').innerHTML = charges.map(row).join('');
+  document.getElementById('payments').innerHTML = payments.map(row).join('');
+  document.getElementById('refunds').innerHTML = refunds.map(row).join('');
+
+  var total = charges.reduce(function(s,c){return s+parseFloat(c.amount.replace(/[$,]/g,''))},0);
+  var ok = charges.filter(function(c){return c.status==='succeeded'}).length;
+  document.getElementById('total').textContent = '$'+total.toFixed(2);
+  document.getElementById('rate').textContent = Math.round(ok/charges.length*100)+'%';
+  document.getElementById('count').textContent = charges.length+' charges';
+
+  var p = document.getElementById('progress');
+  var done = 0;
+  function tick(){done=Math.min(done+1,charges.length);p.style.width=(done/charges.length*100)+'%';if(done<charges.length) requestAnimationFrame(tick)}
+  requestAnimationFrame(tick);
+
+  var ts = Math.floor(Date.now()/1000);
+  var payload = JSON.stringify({action:'reachy-clerk',ts:ts,total:total,count:charges.length});
+  var hash = Array.prototype.reduce.call(payload,function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+  document.getElementById('receipt').textContent = 'sha256:'+(hash>>>0).toString(16).padStart(8,'0');
+  document.getElementById('clock').textContent = new Date().toISOString();
+})();
+</script>
+</body>
+</html>

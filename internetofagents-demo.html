@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080">
+<title>internetofagents-demo</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;overflow:hidden;background:#050505;color:#D4AF37;font-family:'JetBrains Mono','Consolas',monospace}
+  #root{position:relative;width:100%;height:100%}
+  .scanlines{position:absolute;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.20) 3px,rgba(0,0,0,.20) 4px)}
+  .header{position:absolute;top:0;left:0;right:0;height:60px;display:flex;align-items:center;padding:0 40px;border-bottom:1px solid rgba(212,175,55,.3);z-index:10}
+  .header h1{font-size:24px;font-weight:600;letter-spacing:2px}
+  .header .tag{position:absolute;right:40px;font-size:14px;opacity:.5}
+  .mesh{position:absolute;top:80px;left:40px;right:40px;bottom:80px;display:grid;grid-template-columns:repeat(6,1fr);gap:16px;align-content:start}
+  .node{background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.15);padding:16px;text-align:center;transition:border-color .3s}
+  .node:hover{border-color:rgba(0,234,255,.5)}
+  .node .name{font-size:11px;opacity:.7;margin-bottom:4px;letter-spacing:1px}
+  .node .status{font-size:20px;font-weight:700}
+  .node .lat{font-size:10px;opacity:.4;margin-top:4px}
+  .alive{color:#00eaa0}
+  .synced{color:#00aaff}
+  .pending{color:#D4AF37}
+  .offline{color:#ff5050}
+  .center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+  .center .glyph{font-size:48px;opacity:.6}
+  .center .label{font-size:14px;opacity:.5;margin-top:8px}
+  .telemetry{position:absolute;bottom:0;left:0;right:0;height:40px;display:flex;align-items:center;padding:0 40px;border-top:1px solid rgba(212,175,55,.15);font-size:11px;opacity:.4;gap:30px}
+  .telemetry .dot{width:6px;height:6px;border-radius:50%;background:#00eaa0;display:inline-block;margin-right:6px;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .progress-bar{position:absolute;top:0;left:0;height:3px;background:linear-gradient(90deg,#D4AF37,#00eaff);z-index:20}
+</style>
+</head>
+<body>
+<div id="root">
+  <div class="progress-bar" id="progress" style="width:0%"></div>
+  <div class="header">
+    <h1>internetofagents-demo</h1>
+    <span class="tag">#INTERNETofAGENTS · 6 nodes · neuromitosis</span>
+  </div>
+  <div class="center">
+    <div class="glyph">🛸</div>
+    <div class="label">agentic mesh · sovereign</div>
+  </div>
+  <div class="mesh" id="mesh"></div>
+  <div class="telemetry">
+    <span><span class="dot"></span>sovereign</span>
+    <span id="count"></span>
+    <span id="receipt"></span>
+    <span style="margin-left:auto" id="clock"></span>
+  </div>
+  <div class="scanlines"></div>
+</div>
+<script>
+(function(){
+  var nodes = [
+    {name:"victus",status:"alive",lat:"12ms"},
+    {name:"teknium",status:"alive",lat:"8ms"},
+    {name:"droplet",status:"synced",lat:"45ms"},
+    {name:"gpu-leaf",status:"alive",lat:"3ms"},
+    {name:"pds",status:"pending",lat:"—"},
+    {name:"secrets",status:"synced",lat:"2ms"},
+  ];
+  var mesh = document.getElementById('mesh');
+  mesh.innerHTML = nodes.map(function(n){
+    return '<div class="node"><div class="name">'+n.name+'</div><div class="status '+n.status+'">'+n.status+'</div><div class="lat">'+n.lat+'</div></div>';
+  }).join('');
+
+  var total = nodes.length;
+  var done = 0;
+  function tick(){done=Math.min(done+1,total);document.getElementById('progress').style.width=(done/total*100)+'%';if(done<total) requestAnimationFrame(tick)}
+  requestAnimationFrame(tick);
+
+  var ts = Math.floor(Date.now()/1000);
+  var payload = JSON.stringify({action:'internetofagents-demo',ts:ts,nodes:total});
+  var hash = Array.prototype.reduce.call(payload,function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+  document.getElementById('receipt').textContent = 'sha256:'+(hash>>>0).toString(16).padStart(8,'0');
+  document.getElementById('count').textContent = total+' nodes';
+  document.getElementById('clock').textContent = new Date().toISOString();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080">
+<title>agentic-mail</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;overflow:hidden;background:#050505;color:#D4AF37;font-family:'JetBrains Mono','Consolas',monospace}
+  #root{position:relative;width:100%;height:100%}
+  .scanlines{position:absolute;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.20) 3px,rgba(0,0,0,.20) 4px)}
+  .header{position:absolute;top:0;left:0;right:0;height:60px;display:flex;align-items:center;padding:0 40px;border-bottom:1px solid rgba(212,175,55,.3);z-index:10}
+  .header h1{font-size:24px;font-weight:600;letter-spacing:2px}
+  .header .tag{position:absolute;right:40px;font-size:14px;opacity:.5}
+  .mail-grid{position:absolute;top:80px;left:40px;right:40px;bottom:80px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .mail-panel{background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.15);padding:24px;overflow:hidden;display:flex;flex-direction:column}
+  .mail-panel h2{font-size:16px;font-weight:600;margin-bottom:16px;opacity:.7;letter-spacing:1px}
+  .mail-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid rgba(212,175,55,.08);font-size:13px;gap:12px}
+  .mail-row .from{width:180px;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mail-row .subject{flex:1;opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mail-row .date{width:100px;text-align:right;opacity:.4;font-size:11px}
+  .mail-row .status{width:60px;text-align:center;font-size:11px;padding:2px 6px;border-radius:2px}
+  .status-sent{background:rgba(0,234,160,.15);color:#00eaa0}
+  .status-received{background:rgba(0,170,255,.15);color:#00aaff}
+  .status-draft{background:rgba(212,175,55,.15);color:#D4AF37}
+  .status-failed{background:rgba(255,80,80,.15);color:#ff5050}
+  .compose-area{margin-top:auto;padding-top:12px;border-top:1px solid rgba(212,175,55,.1)}
+  .compose-area input{background:transparent;border:1px solid rgba(212,175,55,.2);color:#D4AF37;padding:6px 10px;font-family:inherit;font-size:12px;width:100%;outline:none}
+  .compose-area input:focus{border-color:rgba(212,175,55,.5)}
+  .telemetry{position:absolute;bottom:0;left:0;right:0;height:40px;display:flex;align-items:center;padding:0 40px;border-top:1px solid rgba(212,175,55,.15);font-size:11px;opacity:.4;gap:30px}
+  .telemetry .dot{width:6px;height:6px;border-radius:50%;background:#00eaa0;display:inline-block;margin-right:6px;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .progress-bar{position:absolute;top:0;left:0;height:3px;background:linear-gradient(90deg,#D4AF37,#00eaff);z-index:20;transition:width .3s}
+</style>
+</head>
+<body>
+<div id="root">
+  <div class="progress-bar" id="progress" style="width:0%"></div>
+  <div class="header">
+    <h1>agentic-mail</h1>
+    <span class="tag">supervisionvidaeo:// · gate: PASS</span>
+  </div>
+  <div class="mail-grid">
+    <div class="mail-panel">
+      <h2>▸ OUTBOX</h2>
+      <div id="outbox"></div>
+      <div class="compose-area"><input type="text" value="draft: point agents at me and start a biz" readonly></div>
+    </div>
+    <div class="mail-panel">
+      <h2>▸ INBOX</h2>
+      <div id="inbox"></div>
+    </div>
+  </div>
+  <div class="telemetry">
+    <span><span class="dot"></span>sovereign</span>
+    <span id="count"></span>
+    <span id="receipt"></span>
+    <span style="margin-left:auto" id="clock"></span>
+  </div>
+  <div class="scanlines"></div>
+</div>
+<script>
+(function(){
+  var messages = [
+    {from:"@yaelmendez",subject:"#INTERNETofAGENTS fleet briefing",date:"2m",status:"sent"},
+    {from:"+æ://secrets",subject:"vlc password rotated",date:"5m",status:"received"},
+    {from:"teknium@mesh",subject:"RTX 3050 compute ready",date:"12m",status:"sent"},
+    {from:"reachy@dao",subject:"Stripe clerk deployment",date:"18m",status:"draft"},
+    {from:"video-ae",subject:"draw-video.mp4 gate PASS",date:"24m",status:"sent"},
+    {from:"supervisionvidaeo",subject:"receipt faedda25… queued",date:"31m",status:"received"},
+    {from:"glocal-agent",subject:"mesh peer handshake",date:"45m",status:"sent"},
+    {from:"bot-vision",subject:"QR peer scan complete",date:"1h",status:"failed"},
+  ];
+
+  var outbox = document.getElementById('outbox');
+  var inbox = document.getElementById('inbox');
+  var sent = messages.filter(function(m){return m.status==='sent'});
+  var received = messages.filter(function(m){return m.status==='received'});
+  var draft = messages.filter(function(m){return m.status==='draft'});
+  var failed = messages.filter(function(m){return m.status==='failed'});
+
+  function cls(s){return 'status-'+s}
+  function row(m){return '<div class="mail-row"><span class="from">'+m.from+'</span><span class="subject">'+m.subject+'</span><span class="date">'+m.date+'</span><span class="status '+cls(m.status)+'">'+m.status+'</span></div>'}
+
+  outbox.innerHTML = draft.map(row).join('') + sent.map(row).join('');
+  inbox.innerHTML = received.map(row).join('') + failed.map(row).join('');
+
+  var total = messages.length;
+  var done = 0;
+  function tick(){
+    done = Math.min(done+1,total);
+    var p = document.getElementById('progress');
+    p.style.width = ((done/total)*100)+'%';
+    document.getElementById('count').textContent = done+'/'+total+' messages';
+    if(done<total) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  var ts = Math.floor(Date.now()/1000);
+  var payload = JSON.stringify({action:'agentic-mail',ts:ts,count:total});
+  var hash = Array.prototype.reduce.call(payload,function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+  document.getElementById('receipt').textContent = 'sha256:'+(hash>>>0).toString(16).padStart(8,'0');
+  document.getElementById('clock').textContent = new Date().toISOString();
+})();
+</script>
+</body>
+</html>

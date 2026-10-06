@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080">
+<title>measurement-index</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;overflow:hidden;background:#050505;color:#D4AF37;font-family:'JetBrains Mono','Consolas',monospace}
+  #root{position:relative;width:100%;height:100%}
+  .scanlines{position:absolute;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.20) 3px,rgba(0,0,0,.20) 4px)}
+  .header{position:absolute;top:0;left:0;right:0;height:60px;display:flex;align-items:center;padding:0 40px;border-bottom:1px solid rgba(212,175,55,.3);z-index:10}
+  .header h1{font-size:24px;font-weight:600;letter-spacing:2px}
+  .header .tag{position:absolute;right:40px;font-size:14px;opacity:.5}
+  .table{position:absolute;top:80px;left:40px;right:40px;bottom:80px;overflow:hidden}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 12px;border-bottom:1px solid rgba(212,175,55,.3);opacity:.6;letter-spacing:1px;font-size:11px}
+  td{padding:10px 12px;border-bottom:1px solid rgba(212,175,55,.08);opacity:.8}
+  tr:hover td{opacity:1}
+  .val{text-align:right;font-variant-numeric:tabular-nums}
+  .ok{color:#00eaa0}.warn{color:#D4AF37}.bad{color:#ff5050}
+  .summary{position:absolute;bottom:80px;left:40px;right:40px;height:80px;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.15);padding:20px 24px;display:flex;align-items:center;justify-content:space-between}
+  .summary .item{text-align:center}
+  .summary .num{font-size:28px;font-weight:700}
+  .summary .lbl{font-size:11px;opacity:.5}
+  .telemetry{position:absolute;bottom:0;left:0;right:0;height:40px;display:flex;align-items:center;padding:0 40px;border-top:1px solid rgba(212,175,55,.15);font-size:11px;opacity:.4;gap:30px}
+  .telemetry .dot{width:6px;height:6px;border-radius:50%;background:#00eaa0;display:inline-block;margin-right:6px;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .progress-bar{position:absolute;top:0;left:0;height:3px;background:linear-gradient(90deg,#D4AF37,#00eaff);z-index:20}
+</style>
+</head>
+<body>
+<div id="root">
+  <div class="progress-bar" id="progress" style="width:0%"></div>
+  <div class="header">
+    <h1>measurement-index</h1>
+    <span class="tag">observation · index · sovereign</span>
+  </div>
+  <div class="table">
+    <table>
+      <thead><tr><th>metric</th><th>value</th><th>threshold</th><th>status</th><th>ts</th></tr></thead>
+      <tbody id="body"></tbody>
+    </table>
+  </div>
+  <div class="summary">
+    <div class="item"><div class="lbl">OBSERVATIONS</div><div class="num" id="obs">0</div></div>
+    <div class="item"><div class="lbl">PASS</div><div class="num" id="pass" style="color:#00eaa0">0</div></div>
+    <div class="item"><div class="lbl">FAIL</div><div class="num" id="fail" style="color:#ff5050">0</div></div>
+    <div class="item"><div class="lbl">RECEIPT</div><div class="num" id="receipt" style="font-size:16px"></div></div>
+  </div>
+  <div class="telemetry">
+    <span><span class="dot"></span>sovereign</span>
+    <span id="clock"></span>
+  </div>
+  <div class="scanlines"></div>
+</div>
+<script>
+(function(){
+  var metrics=[
+    {name:"luminancia_media",value:47.3,threshold:20,status:"ok"},
+    {name:"contraste_medio",value:48.71,threshold:8,status:"ok"},
+    {name:"movimiento_medio",value:10.633,threshold:0.5,status:"ok"},
+    {name:"frames_negros",value:0,threshold:5,status:"ok"},
+    {name:"gpu_temp",value:62,threshold:83,status:"ok"},
+    {name:"vram_used",value:42,threshold:90,status:"ok"},
+    {name:"hash_rate",value:117,threshold:100,status:"warn"},
+    {name:"latency_ms",value:496,threshold:500,status:"ok"},
+    {name:"packet_loss",value:0.01,threshold:1,status:"ok"},
+    {name:"bandwidth",value:840,threshold:1000,status:"ok"},
+  ];
+  var pass=0,fail=0;
+  var body=document.getElementById('body');
+  body.innerHTML=metrics.map(function(m){
+    var s=m.value<=m.threshold?'ok':'bad';
+    if(s==='ok')pass++;else fail++;
+    return '<tr><td>'+m.name+'</td><td class="val">'+m.value+'</td><td class="val">'+m.threshold+'</td><td class="'+s+'">'+s+'</td><td class="val">now</td></tr>';
+  }).join('');
+  document.getElementById('obs').textContent=metrics.length;
+  document.getElementById('pass').textContent=pass;
+  document.getElementById('fail').textContent=fail;
+
+  var total=metrics.length;var done=0;
+  function tick(){done=Math.min(done+1,total);document.getElementById('progress').style.width=(done/total*100)+'%';if(done<total) requestAnimationFrame(tick)}
+  requestAnimationFrame(tick);
+  var ts=Math.floor(Date.now()/1000);
+  var payload=JSON.stringify({action:'measurement-index',ts:ts,pass:pass,fail:fail});
+  var hash=Array.prototype.reduce.call(payload,function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+  document.getElementById('receipt').textContent=(hash>>>0).toString(16).padStart(8,'0');
+  document.getElementById('clock').textContent=new Date().toISOString();
+})();
+</script>
+</body>
+</html>
