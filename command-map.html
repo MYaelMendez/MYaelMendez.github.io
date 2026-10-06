@@ -66,6 +66,31 @@ canvas{display:block;position:fixed;inset:0;z-index:1}
 .brand{position:fixed;bottom:20px;right:20px;z-index:10;font-family:'Orbitron';font-weight:700;font-size:11px;letter-spacing:2px;background:linear-gradient(90deg,var(--gold),var(--neon),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;pointer-events:none}
 
 @media(max-width:820px){.map-panel{display:none}.detail{width:calc(100vw - 32px)}}
+
+/* ── JOURNEY UI ── */
+.journey-btn{position:fixed;top:56px;left:16px;z-index:12;display:flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid var(--border-hot);background:rgba(5,5,5,.9);backdrop-filter:blur(8px);cursor:pointer;font-size:10px;letter-spacing:1px;color:var(--gold);text-transform:uppercase;transition:all .15s}
+.journey-btn:hover{background:rgba(212,175,55,.1)}
+.journey-picker{position:fixed;top:96px;left:16px;z-index:13;width:320px;border:1px solid var(--border-hot);background:rgba(5,5,5,.96);backdrop-filter:blur(12px);padding:8px;display:none;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+.journey-picker.on{display:block}
+.j-item{padding:10px 12px;cursor:pointer;border-left:2px solid transparent;transition:all .15s;display:flex;flex-direction:column;gap:2px}
+.j-item:hover{background:rgba(212,175,55,.08);border-left-color:var(--gold)}
+.j-item-name{font-size:11px;font-weight:700;letter-spacing:.5px}
+.j-item-tag{font-size:9px;color:var(--muted)}
+.journey-bar{position:fixed;top:100px;left:50%;transform:translateX(-50%);z-index:14;width:min(560px,calc(100vw - 40px));border:1px solid var(--border-hot);background:rgba(5,5,5,.94);backdrop-filter:blur(12px);padding:12px 16px;display:none;box-shadow:0 0 40px rgba(212,175,55,.12)}
+.journey-bar.on{display:block}
+.j-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.j-name{font-family:'Orbitron';font-size:11px;font-weight:900;letter-spacing:1px;text-transform:uppercase;flex:1}
+.j-tag{font-size:9px;color:var(--muted);letter-spacing:1px}
+.j-close{cursor:pointer;color:var(--muted);font-size:12px}
+.j-close:hover{color:var(--gold)}
+.j-dots{display:flex;gap:6px;margin-bottom:6px}
+.jdot{width:24px;height:3px;background:rgba(212,175,55,.2);cursor:pointer;transition:all .2s}
+.jdot.done{background:rgba(212,175,55,.5)}
+.jdot.on{background:var(--gold);box-shadow:0 0 8px var(--gold)}
+.j-step{font-size:9px;color:var(--muted);letter-spacing:1px;text-align:right}
+.narration{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);z-index:18;width:min(680px,calc(100vw - 40px));border-left:2px solid var(--gold);background:rgba(5,5,5,.94);backdrop-filter:blur(12px);padding:12px 16px;font-size:11px;line-height:1.6;color:var(--ink);display:none;opacity:0;transition:opacity .3s}
+.narration.on{display:block;opacity:1}
+.narration .n-ico{color:var(--gold);margin-right:8px}
 </style>
 </head>
 <body>
@@ -78,6 +103,12 @@ canvas{display:block;position:fixed;inset:0;z-index:1}
   <span>NAVIGABLE SURFACE GRAPH</span>
   <span class="live"><span class="dot"></span>7 SCHEMES · 34 ROUTES</span>
 </div>
+
+<!-- ═══ JOURNEYS ═══ -->
+<div class="journey-btn" id="journey-btn">◈ JOURNEYS</div>
+<div class="journey-picker" id="journey-picker"></div>
+<div class="journey-bar" id="journey-bar"></div>
+<div class="narration" id="narration"></div>
 
 <!-- ═══ COMMAND MAP ═══ -->
 <div class="map-panel" id="map-panel">
@@ -180,6 +211,200 @@ const MAP = [
   // ── scheme: NVIDIA:// (the compute surface) ──
   { cat: 'NVIDIA://', ico: '🟢', label: 'c2', route: 'NVIDIA://c2', desc: 'GeForce C2 surface.', caps: ['gpu'], color: 0x00ff9d, url: null },
 ];
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// USER JOURNEYS — curated paths with intent. Each is a sequence of node labels
+// plus narration. The map is the territory; a journey is a story through it.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const JOURNEYS = [
+  {
+    id: 'first-secret',
+    name: 'Store Your First Secret',
+    tagline: 'The sovereign onboarding',
+    color: 0xD4AF37,
+    steps: [
+      { node: 'status',  say: 'Start here. The vault exists but is locked — no passphrase in this shell yet.' },
+      { node: 'unlock',  say: 'Unlock it. Your passphrase never leaves the environment — never typed into the map.' },
+      { node: 'new',     say: 'Add a secret. AES-256-GCM, fresh nonce, name-bound. The value is never echoed.' },
+      { node: 'list',    say: 'Confirm it landed. You see the key name and a mask — never the value.' },
+      { node: 'get',     say: 'Resolve it. Masked stdout for you, the raw value carried only for the agent.' },
+      { node: 'qr-export', say: 'Now air-gap it. The QR carries the sealed envelope — useless without your passphrase.' },
+    ],
+  },
+  {
+    id: 'air-gap',
+    name: 'Move a Secret Without a Network',
+    tagline: 'Physical transfer, zero cloud',
+    color: 0xa739de,
+    steps: [
+      { node: 'qr-export', say: 'On the source machine: seal one entry as a QR. No plaintext, no network.' },
+      { node: 'qr-import', say: 'On the target machine: scan it. The import verifies the blob under THAT vault\'s key first.' },
+      { node: 'vault layers', say: 'See the 7 layers the QR sits inside — encryption, KDF, custody, air-gap, broker, compartment, presence.' },
+      { node: 'blueprint', say: 'The full model: surface on github.io, custody on Victus, broker in +æ://.' },
+    ],
+  },
+  {
+    id: 'agent-hands',
+    name: 'Give an Agent Hands',
+    tagline: 'From secret to GPU',
+    color: 0x00ff9d,
+    steps: [
+      { node: 'get',          say: 'The agent needs a credential. It calls the broker — never sees a file.' },
+      { node: 'secrets',      say: '+æ://secrets is the broker. Masked stdout, raw value in the result dict only.' },
+      { node: 'inference',    say: 'Now it has the key AND the compute. RTX 3050, GGUF, -ngl 99.' },
+      { node: 'matmul',       say: 'Or raw GPU. Matrix multiply on the same leaf.' },
+      { node: 'gpu preview',  say: 'See the hands. WebGPU brain + CUDA body in one surface.' },
+    ],
+  },
+  {
+    id: 'sovereign-bootstrap',
+    name: 'Bootstrap a Sovereign Business',
+    tagline: '#startabusiness → entity → rails',
+    color: 0xffaa00,
+    steps: [
+      { node: '#startabusiness', say: 'One command. The agentic entrepreneurship entry point.' },
+      { node: 'blueprint',       say: 'The repo-scaffolding blueprint — a 10-file scaffold.' },
+      { node: 'sovereign state', say: 'Memory + ledger + the #250 mission spine. Your state persists.' },
+      { node: 'cuda blueprint',  say: 'The technical blueprint behind the business.' },
+      { node: 'terminal',        say: 'The private client terminal — where you run it.' },
+    ],
+  },
+  {
+    id: 'mesh-join',
+    name: 'Join the Mesh',
+    tagline: 'Two nodes, one sovereign fabric',
+    color: 0x00ccff,
+    steps: [
+      { node: 'mesh', cat: 'æ://',  say: 'Pair two sovereign nodes via QR over wifi/LAN. No broker, no cloud.' },
+      { node: 'mesh', cat: '+æ://', say: '+æ://mesh lists every host and its liveness.' },
+      { node: 'victus',  say: 'This node. The RTX 3050 leaf.' },
+      { node: 'vps',     say: 'The backbone node. Status, reachability.' },
+      { node: 'fleet',   say: 'Now scale it: MoD×MoA×MoM device mixture bootstrap.' },
+    ],
+  },
+  {
+    id: 'full-tour',
+    name: 'The Full Map',
+    tagline: 'Every scheme, end to end',
+    color: 0x8892b0,
+    steps: [
+      { node: 'vault web',    say: 'The secret layer — væult, the foundation.' },
+      { node: 'terminal',     say: 'The private client terminal.' },
+      { node: 'mesh',         say: 'The mesh — how nodes find each other.' },
+      { node: 'inference',    say: 'The compute — RTX 3050 leaf.' },
+      { node: 'secrets',      say: 'The broker — +æ://secrets.' },
+      { node: 'integration',  say: 'The index — every surface in one page.' },
+      { node: 'manifest',     say: 'The machine API — what agents read.' },
+      { node: 'skill guide',  say: 'The knowledge — 206 skills.' },
+    ],
+  },
+];
+
+let activeJourney = null;
+let journeyStep = 0;
+let journeyTimer = null;
+
+function findNodeByLabel(label, cat) {
+  // category-qualified: "+æ:// mesh" resolves to the broker node, not the surface
+  if (cat) {
+    const inCat = MAP.find(m => m.cat === cat && m.label.toLowerCase() === label.toLowerCase());
+    if (inCat) return MAP.indexOf(inCat);
+  }
+  const exact = MAP.find(m => m.label.toLowerCase() === label.toLowerCase());
+  if (exact) return MAP.indexOf(exact);
+  const loose = MAP.find(m => m.label.toLowerCase().includes(label.toLowerCase()));
+  return loose ? MAP.indexOf(loose) : -1;
+}
+
+function startJourney(id) {
+  const j = JOURNEYS.find(x => x.id === id);
+  if (!j) return;
+  activeJourney = j;
+  journeyStep = 0;
+  if (journeyTimer) clearInterval(journeyTimer);
+  renderJourney();
+  gotoJourneyStep(0);
+  journeyTimer = setInterval(() => {
+    if (journeyStep < j.steps.length - 1) gotoJourneyStep(journeyStep + 1);
+    else stopJourney();
+  }, 7000);
+}
+
+function gotoJourneyStep(i) {
+  if (!activeJourney) return;
+  journeyStep = Math.max(0, Math.min(i, activeJourney.steps.length - 1));
+  const step = activeJourney.steps[journeyStep];
+  const idx = findNodeByLabel(step.node, step.cat);
+  if (idx >= 0) focusNode(idx, { fromJourney: true });
+  renderJourney();
+  showNarration(step.say, activeJourney);
+}
+
+function stopJourney() {
+  if (journeyTimer) clearInterval(journeyTimer);
+  journeyTimer = null;
+  activeJourney = null;
+  renderJourney();
+  hideNarration();
+}
+
+function renderJourney() {
+  const el = $('journey-bar');
+  if (!el) return;
+  if (!activeJourney) {
+    el.innerHTML = '';
+    el.classList.remove('on');
+    return;
+  }
+  el.classList.add('on');
+  const dots = activeJourney.steps.map((_, i) =>
+    `<span class="jdot${i === journeyStep ? ' on' : ''}${i < journeyStep ? ' done' : ''}" data-step="${i}"></span>`
+  ).join('');
+  el.innerHTML = `
+    <div class="j-head">
+      <span class="j-name" style="color:#${activeJourney.color.toString(16).padStart(6, '0')}">${activeJourney.name}</span>
+      <span class="j-tag">${activeJourney.tagline}</span>
+      <span class="j-close" id="j-close">✕</span>
+    </div>
+    <div class="j-dots">${dots}</div>
+    <div class="j-step">${journeyStep + 1} / ${activeJourney.steps.length}</div>
+  `;
+  el.querySelectorAll('.jdot').forEach(d => {
+    d.addEventListener('click', () => gotoJourneyStep(+d.dataset.step));
+  });
+  const close = el.querySelector('#j-close');
+  if (close) close.addEventListener('click', stopJourney);
+}
+
+function showNarration(text, journey) {
+  const el = $('narration');
+  if (!el) return;
+  el.innerHTML = `<span class="n-ico">◈</span> ${text}`;
+  el.classList.add('on');
+}
+
+function hideNarration() {
+  const el = $('narration');
+  if (el) el.classList.remove('on');
+}
+
+function buildJourneyPicker() {
+  const el = $('journey-picker');
+  if (!el) return;
+  el.innerHTML = JOURNEYS.map(j =>
+    `<div class="j-item" data-jid="${j.id}">
+      <span class="j-item-name" style="color:#${j.color.toString(16).padStart(6, '0')}">${j.name}</span>
+      <span class="j-item-tag">${j.tagline}</span>
+    </div>`
+  ).join('');
+  el.querySelectorAll('.j-item').forEach(item => {
+    item.addEventListener('click', () => {
+      $('journey-picker').classList.remove('on');
+      startJourney(item.dataset.jid);
+    });
+  });
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // THREE.JS SCENE
@@ -316,11 +541,12 @@ let focusIdx = -1;         // currently focused node index
 let flyTarget = null;      // camera fly-to target
 const clock = new THREE.Clock();
 
-function focusNode(idx) {
+function focusNode(idx, opts) {
   if (idx < 0 || idx >= nodes.length) return;
   focusIdx = idx;
   const n = nodes[idx];
   const m = n.userData.map;
+  const fromJourney = opts && opts.fromJourney;
 
   // highlight
   nodes.forEach((nn, i) => {
@@ -554,19 +780,46 @@ addEventListener('resize', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 buildMap();
+buildJourneyPicker();
 $('stats').innerHTML = `<span class="ok">◉</span> ${nodes.length} nodes · ${edgePositions.length / 6} edges`;
+
+// journey button
+$('journey-btn').addEventListener('click', e => {
+  e.stopPropagation();
+  $('journey-picker').classList.toggle('on');
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('.journey-picker') && !e.target.closest('.journey-btn')) {
+    $('journey-picker').classList.remove('on');
+  }
+});
+
+// keyboard: j opens journeys, space advances
+document.addEventListener('keydown', e => {
+  if (document.activeElement === input) return;
+  if (e.key === 'j') { $('journey-picker').classList.toggle('on'); }
+  if (e.key === ' ' && activeJourney) {
+    e.preventDefault();
+    if (journeyStep < activeJourney.steps.length - 1) gotoJourneyStep(journeyStep + 1);
+    else stopJourney();
+  }
+});
 
 // expose for agents
 window.__COMMAND_MAP__ = {
   ready: true,
   nodes: MAP.length,
   categories: CATS,
+  journeys: JOURNEYS.map(j => ({ id: j.id, name: j.name, steps: j.steps.length })),
   focus: idx => focusNode(idx),
   run: cmd => runCommand(cmd),
   find: q => filterCommands(q),
+  startJourney: id => startJourney(id),
+  nextStep: () => gotoJourneyStep(journeyStep + 1),
+  stopJourney: () => stopJourney(),
   map: MAP,
 };
-console.log(`æ:// command map — ${MAP.length} nodes, ${CATS.length} schemes`);
+console.log(`æ:// command map — ${MAP.length} nodes, ${CATS.length} schemes, ${JOURNEYS.length} journeys`);
 </script>
 </body>
 </html>
