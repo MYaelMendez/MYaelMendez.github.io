@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080">
+<title>draw</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1920px; height:1080px; overflow:hidden; background:#0c1826; }
+  #root { position:relative; width:100%; height:100%; }
+  #stage { position:absolute; inset:0; }
+  #stage canvas { width:100%; height:100%; display:block; }
+  .scanlines { position:absolute; inset:0; pointer-events:none; z-index:50;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.20) 3px, rgba(0,0,0,0.20) 4px); }
+</style>
+</head>
+<body>
+<!-- draw-video.html — deterministic DRAWING in video.
+     Shapes arrive as ?shapes=<json>&title=...&text=... (the producer injects them).
+     Every shape is a stroke that is DRAWN progressively: at progress p the canvas
+     reveals the first p fraction of the stroke path — the gesture of drawing, not
+     a fade-in. No CDN, no framework: pure Canvas 2D, driven by __renderFrame(i,total).
+
+     Primitives: line | rect | circle | arrow | polyline | polygon | text
+     This is the æ:// sovereign drawing surface — the tldraw lesson reduced to a
+     JSON shape model + a stroke engine, with zero runtime dependency. -->
+<div id="root" data-width="1920" data-height="1080" data-composition-id="draw-video">
+  <div id="stage"><canvas id="c" width="1920" height="1080"></canvas></div>
+  <div class="scanlines"></div>
+</div>
+<script>
+(function(){
+  var P = new URLSearchParams(location.search);
+  var TITLE = P.get('title') || '\u00e6://draw';
+  var TEXT  = P.get('text') || 'drawing in video';
+  var LINES = TEXT.split('|').map(function(s){return s.trim();}).filter(Boolean);
+  if (!LINES.length) LINES = ['drawing in video'];
+
+  var SHAPES = [];
+  try { SHAPES = JSON.parse(P.get('shapes') || '[]'); } catch (e) { SHAPES = []; }
+  if (!Array.isArray(SHAPES) || !SHAPES.length) {
+    SHAPES = [
+      { t:'polyline', pts:[[200,780],[420,540],[640,700],[860,460]], w:7, c:'#D4AF37' },
+      { t:'rect',     x:1000, y:440, w:340, h:260, r:16, lw:7, c:'#D4AF37' },
+      { t:'circle',   cx:1560, cy:570, r:120, lw:7, c:'#00eaff' },
+      { t:'arrow',    x1:200, y1:900, x2:1700, y2:900, w:6, c:'#D4AF37' },
+      { t:'text',     x:960, y:250, s:64, c:'#ffd98a', tx:'draw://' }
+    ];
+  }
+
+  var canv = document.getElementById('c');
+  var ctx  = canv.getContext('2d');
+  var W = 1920, H = 1080, GOLD = '#D4AF37';
+
+  function hexA(h,a){ h=h.replace('#',''); return 'rgba('+parseInt(h.substr(0,2),16)+','+parseInt(h.substr(2,2),16)+','+parseInt(h.substr(4,2),16)+','+a+')'; }
+
+  // ── geometry: every shape becomes a stroke PATH (array of [x,y]) ──────────
+  function pathOf(s) {
+    var pts = [], i, n, t;
+    if (s.t === 'line' || s.t === 'arrow') {
+      return [[s.x1,s.y1],[s.x2,s.y2]];
+    }
+    if (s.t === 'polyline' || s.t === 'polygon') {
+      pts = (s.pts||[]).map(function(p){return [p[0],p[1]];});
+      if (s.t === 'polygon' && pts.length) pts.push(pts[0].slice());
+      return pts;
+    }
+    if (s.t === 'rect') {
+      var x=s.x, y=s.y, w=s.w, h=s.h, r=Math.min(s.r||0, w/2, h/2);
+      pts.push([x+r,y]); pts.push([x+w-r,y]);
+      for (i=0;i<=8;i++){ t=-Math.PI/2 + (i/8)*(Math.PI/2); pts.push([x+w-r + r*Math.cos(t), y+r + r*Math.sin(t)]); }
+      pts.push([x+w,y+h-r]);
+      for (i=0;i<=8;i++){ t=0 + (i/8)*(Math.PI/2); pts.push([x+w-r + r*Math.cos(t), y+h-r + r*Math.sin(t)]); }
+      pts.push([x+r,y+h]);
+      for (i=0;i<=8;i++){ t=Math.PI/2 + (i/8)*(Math.PI/2); pts.push([x+r + r*Math.cos(t), y+h-r + r*Math.sin(t)]); }
+      pts.push([x,y+r]);
+      for (i=0;i<=8;i++){ t=Math.PI + (i/8)*(Math.PI/2); pts.push([x+r + r*Math.cos(t), y+r + r*Math.sin(t)]); }
+      pts.push([x+r,y]);
+      return pts;
+    }
+    if (s.t === 'circle') {
+      n = 72;
+      for (i=0;i<=n;i++){ t=-Math.PI/2 + (i/n)*Math.PI*2; pts.push([s.cx + s.r*Math.cos(t), s.cy + s.r*Math.sin(t)]); }
+      return pts;
+    }
+    return pts;
+  }
+
+  // Draw the first `frac` of a stroke path (the drawing gesture).
+  function strokePath(pts, frac, s, alpha) {
+    if (pts.length < 2) return;
+    // cumulative length
+    var seg = [], total = 0, i;
+    for (i=1;i<pts.length;i++){
+      var d = Math.hypot(pts[i][0]-pts[i-1][0], pts[i][1]-pts[i-1][1]);
+      seg.push(d); total += d;
+    }
+    var want = total * frac;
+    ctx.strokeStyle = hexA(s.c || GOLD, alpha);
+    ctx.lineWidth = s.w || s.lw || 6;
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.shadowColor = hexA(s.c || GOLD, 0.55*alpha);
+    ctx.shadowBlur = 18;
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    var acc = 0;
+    for (i=1;i<pts.length;i++){
+      if (acc + seg[i-1] <= want) { ctx.lineTo(pts[i][0], pts[i][1]); acc += seg[i-1]; }
+      else {
+        var rem = want - acc, t = seg[i-1] ? rem/seg[i-1] : 0;
+        ctx.lineTo(pts[i-1][0] + (pts[i][0]-pts[i-1][0])*t, pts[i-1][1] + (pts[i][1]-pts[i-1][1])*t);
+        break;
+      }
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // pen tip: a bright dot at the drawing head
+    if (frac > 0 && frac < 1) {
+      var head = null; acc = 0;
+      for (i=1;i<pts.length;i++){
+        if (acc + seg[i-1] >= want) { var rr = want-acc, tt = seg[i-1]?rr/seg[i-1]:0;
+          head = [pts[i-1][0] + (pts[i][0]-pts[i-1][0])*tt, pts[i-1][1] + (pts[i][1]-pts[i-1][1])*tt]; break; }
+        acc += seg[i-1];
+      }
+      if (head) {
+        ctx.fillStyle = hexA('#ffffff', 0.9*alpha);
+        ctx.beginPath(); ctx.arc(head[0], head[1], (s.w||s.lw||6)*0.9, 0, Math.PI*2); ctx.fill();
+      }
+    }
+    // arrowhead when the stroke completes
+    if (s.t === 'arrow' && frac >= 1) {
+      var ang = Math.atan2(s.y2-s.y1, s.x2-s.x1), hs = 14 + (s.w||6)*3;
+      ctx.fillStyle = hexA(s.c || GOLD, alpha);
+      ctx.beginPath();
+      ctx.moveTo(s.x2, s.y2);
+      ctx.lineTo(s.x2 - hs*Math.cos(ang-Math.PI/7), s.y2 - hs*Math.sin(ang-Math.PI/7));
+      ctx.lineTo(s.x2 - hs*Math.cos(ang+Math.PI/7), s.y2 - hs*Math.sin(ang+Math.PI/7));
+      ctx.closePath(); ctx.fill();
+    }
+  }
+
+  function drawText(s, frac, alpha) {
+    var shown = (s.tx||'').slice(0, Math.round((s.tx||'').length*frac));
+    ctx.font = "700 " + (s.s||56) + "px 'JetBrains Mono','Consolas',monospace";
+    ctx.fillStyle = hexA(s.c || '#ffd98a', alpha);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(212,175,55,0.8)'; ctx.shadowBlur = 22;
+    ctx.fillText(shown, s.x||W/2, s.y||H/2);
+    ctx.shadowBlur = 0;
+  }
+
+  function render(p) {
+    p = Math.max(0, Math.min(1, p));
+
+    var g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#0e1c2c'); g.addColorStop(0.5,'#0c1826'); g.addColorStop(1,'#060d16');
+    ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+
+    var aura = ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,900);
+    aura.addColorStop(0, hexA(GOLD,0.09)); aura.addColorStop(1, hexA(GOLD,0));
+    ctx.fillStyle = aura; ctx.fillRect(0,0,W,H);
+
+    // drifting particles — keeps the frame in motion
+    for (var i=0;i<150;i++){
+      var x = (i*137.508 + p*60) % W, y = (i*97.31 + p*40) % H;
+      var tw = 0.5 + 0.5*Math.sin(p*Math.PI*2 + i);
+      ctx.fillStyle = hexA(GOLD, 0.16*tw);
+      ctx.beginPath(); ctx.arc(x,y,1.5,0,Math.PI*2); ctx.fill();
+    }
+
+    // title
+    ctx.font = "600 30px 'JetBrains Mono','Consolas',monospace";
+    ctx.fillStyle = hexA(GOLD, 0.5); ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+    ctx.fillText(TITLE, W/2, 90);
+
+    // draw the shapes, one stroke at a time, in order
+    var t0 = 0.05, t1 = 0.90, span = (t1-t0)/Math.max(1,SHAPES.length);
+    var drawn = 0;
+    for (var si=0; si<SHAPES.length; si++){
+      var s = SHAPES[si];
+      var lp = (p - (t0 + si*span)) / span;
+      lp = Math.max(0, Math.min(1, lp));
+      if (lp <= 0) continue;
+      drawn++;
+      if (s.t === 'text') drawText(s, lp, 0.95);
+      else strokePath(pathOf(s), lp, s, 0.92);
+    }
+
+    // progress bar + telemetry
+    ctx.fillStyle = hexA('#00eaff', 0.5); ctx.fillRect(0, H-6, W*p, 4);
+    ctx.font = "400 20px 'JetBrains Mono','Consolas',monospace";
+    ctx.fillStyle = hexA(GOLD,0.45); ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+    ctx.fillText('strokes ' + drawn + '/' + SHAPES.length, 60, H-52);
+    ctx.textAlign='right';
+    ctx.fillText('supervisionvidaeo:// \u00b7 draw://', W-60, H-52);
+
+    // reveal the caption lines near the end
+    if (LINES.length){
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.font = "600 34px 'JetBrains Mono','Consolas',monospace";
+      for (var li=0; li<LINES.length; li++){
+        var lp2 = Math.max(0, Math.min(1, (p-0.86)/0.14));
+        ctx.fillStyle = hexA('#ffd98a', 0.85*lp2);
+        ctx.fillText(LINES[li], W/2, 940 + li*46);
+      }
+      ctx.textBaseline='alphabetic';
+    }
+
+    // scanline sweep
+    var sy = ((p*1.4)%1)*H;
+    var sg = ctx.createLinearGradient(0,sy-80,0,sy+80);
+    sg.addColorStop(0,'rgba(0,234,255,0)');
+    sg.addColorStop(0.5,'rgba(0,234,255,0.045)');
+    sg.addColorStop(1,'rgba(0,234,255,0)');
+    ctx.fillStyle = sg; ctx.fillRect(0,sy-80,W,160);
+  }
+
+  window.__renderFrame = function(i,total){ render(i/Math.max(1,total-1)); };
+  window.__draw = { shapes: SHAPES, title: TITLE, lines: LINES };
+  render(0);
+})();
+</script>
+</body>
+</html>
