@@ -300,8 +300,31 @@ def cmd_qr(path: pathlib.Path, args: list[str]) -> None:
     dest = pathlib.Path(out) if out else path.with_suffix(".qr." + name + ".png")
     dest.parent.mkdir(parents=True, exist_ok=True)
     img.save(dest)
+
+    # GATE (optional): prove the artifact decodes back through two real
+    # decoders. Activated only when qr_supervision is importable, so this file
+    # stays standalone for OSW distribution. A sealed QR that does not scan is
+    # an unrecoverable secret.
+    gated = None
+    try:
+        import sys as _s
+        for _cand in (pathlib.Path(__file__).resolve().parent,
+                      pathlib.Path(__file__).resolve().parent.parent / "agents"):
+            if (_cand / "qr_supervision.py").exists():
+                _s.path.insert(0, str(_cand))
+                break
+        import qr_supervision as _qs
+        _rep = _qs.supervise_raw(str(dest), payload)
+        if not _rep.passed:
+            sys.exit(f"væult: QR failed supervision — {_rep.reason()}")
+        gated = True
+    except ImportError:
+        gated = False
+
     print(f"væult: sealed QR for '{name}' -> {dest}")
     print(f"  version v{qr.version} · {len(payload)} bytes · SEALED (no plaintext)")
+    if gated:
+        print("  supervised: decodes back through cv2 + pyzbar")
 
 
 def cmd_qr_show(path: pathlib.Path, args: list[str]) -> None:

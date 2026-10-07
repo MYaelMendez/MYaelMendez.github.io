@@ -85,6 +85,12 @@ def derive_key(passphrase: str, salt: bytes, n: int = KDF_N,
                           n=n, r=r, p=p, dklen=KEY_LEN, maxmem=128 * 1024 * 1024)
 
 
+def derive_key_pbkdf2(passphrase: str, salt: bytes, iterations: int = 600000) -> bytes:
+    """PBKDF2-HMAC-SHA256 — matches the web vault (v2) format."""
+    return hashlib.pbkdf2_hmac("sha256", passphrase.encode("utf-8"),
+                               salt, iterations, dklen=KEY_LEN)
+
+
 def _aad(name: str) -> bytes:
     """Bind the entry name into the AEAD so a renamed entry fails to open."""
     return b"vault-entry:" + name.encode("utf-8")
@@ -122,10 +128,14 @@ def save_raw(path: pathlib.Path, doc: dict) -> None:
 
 def unlock(doc: dict, passphrase: str | None = None) -> bytes:
     salt = _b64d(doc["salt"])
-    n, r, p = doc.get("n", KDF_N), doc.get("r", KDF_R), doc.get("p", KDF_P)
     if passphrase is None:
         passphrase = os.environ.get("VAEULT_PASSPHRASE") or getpass.getpass("væult passphrase: ")
-    key = derive_key(passphrase, salt, n, r, p)
+    kdf = doc.get("kdf", "scrypt")
+    if kdf == "pbkdf2":
+        key = derive_key_pbkdf2(passphrase, salt, doc.get("iterations", 600000))
+    else:
+        n, r, p = doc.get("n", KDF_N), doc.get("r", KDF_R), doc.get("p", KDF_P)
+        key = derive_key(passphrase, salt, n, r, p)
     # cheap sentinel check so a wrong passphrase says so, not "decrypt failed"
     chk = doc.get("check")
     if chk:
@@ -290,8 +300,31 @@ def cmd_qr(path: pathlib.Path, args: list[str]) -> None:
     dest = pathlib.Path(out) if out else path.with_suffix(".qr." + name + ".png")
     dest.parent.mkdir(parents=True, exist_ok=True)
     img.save(dest)
+
+    # GATE (optional): prove the artifact decodes back through two real
+    # decoders. Activated only when qr_supervision is importable, so this file
+    # stays standalone for OSW distribution. A sealed QR that does not scan is
+    # an unrecoverable secret.
+    gated = None
+    try:
+        import sys as _s
+        for _cand in (pathlib.Path(__file__).resolve().parent,
+                      pathlib.Path(__file__).resolve().parent.parent / "agents"):
+            if (_cand / "qr_supervision.py").exists():
+                _s.path.insert(0, str(_cand))
+                break
+        import qr_supervision as _qs
+        _rep = _qs.supervise_raw(str(dest), payload)
+        if not _rep.passed:
+            sys.exit(f"væult: QR failed supervision — {_rep.reason()}")
+        gated = True
+    except ImportError:
+        gated = False
+
     print(f"væult: sealed QR for '{name}' -> {dest}")
     print(f"  version v{qr.version} · {len(payload)} bytes · SEALED (no plaintext)")
+    if gated:
+        print("  supervised: decodes back through cv2 + pyzbar")
 
 
 def cmd_qr_show(path: pathlib.Path, args: list[str]) -> None:

@@ -326,6 +326,112 @@ def supervise(image_path, expect_kind: str | None = None,
     return report
 
 
+# ── the shared gate for callers that already hold an envelope ─────────────────
+
+def supervise_raw(image_path, expect_text: str) -> QRReport:
+    """Verify a PNG decodes back to `expect_text` through BOTH decoders.
+
+    For producers whose payload is NOT an `ae://` envelope (a raw key JSON, a
+    contract blob). Same load-bearing check as `supervise` — roundtrip +
+    cross_decoder — without the envelope/charset requirements.
+
+    Prefer a real envelope (`key`, `contract`) and `produce()` where you can;
+    this exists so an existing raw renderer can still be gated today.
+    """
+    import cv2
+    import numpy as np
+
+    checks: list[Check] = []
+    path = pathlib.Path(image_path)
+    img = cv2.imread(str(path))
+    report = QRReport(passed=False)
+
+    if img is None:
+        checks.append(Check("loadable", False, f"cannot read {path}"))
+        report.checks = checks
+        return report
+    checks.append(Check("loadable", True, f"{img.shape[1]}x{img.shape[0]}"))
+    report.image_sha256 = hashlib.sha256(path.read_bytes()).hexdigest()
+    report.envelope_bytes = len(expect_text)
+    report.envelope_sha256 = hashlib.sha256(expect_text.encode("utf-8")).hexdigest()
+
+    cv2_hits = _decode_with_cv2(img)
+    zbar_hits = _decode_with_pyzbar(img)
+    report.decoders_ok = [n for n, h in (("cv2", cv2_hits), ("pyzbar", zbar_hits))
+                          if expect_text in h]
+
+    checks.append(Check("roundtrip", bool(report.decoders_ok),
+                        "decodes back exactly" if report.decoders_ok
+                        else "did NOT decode back to the payload"))
+    checks.append(Check("cross_decoder", len(report.decoders_ok) >= MIN_DECODERS,
+                        f"{len(report.decoders_ok)}/{MIN_DECODERS} decoders: "
+                        f"{', '.join(report.decoders_ok) or 'none'}"))
+
+    det = cv2.QRCodeDetector()
+    ok_d, _, pts, _ = det.detectAndDecodeMulti(img)
+    if pts is not None and len(pts):
+        ratio, cdetail = _contrast(img, pts[0])
+        checks.append(Check("contrast", ratio >= MIN_CONTRAST, cdetail, measured=round(ratio, 3)))
+        qz_ok, qz_detail = _quiet_zone_ok(img, pts[0])
+        checks.append(Check("quiet_zone", qz_ok, qz_detail))
+    else:
+        checks.append(Check("contrast", False, "no quad detected"))
+        checks.append(Check("quiet_zone", False, "no quad detected"))
+
+    report.checks = checks
+    report.passed = all(c.ok for c in checks)
+    return report
+
+
+def render_verified(envelope: str, out_path=None, *, kind: str | None = None,
+                    payload: dict | None = None) -> bytes:
+    """Render an envelope AND prove it decodes back. THE entry point producers use.
+
+    This is the shared gate for callers that already hold a FINISHED envelope
+    (qr_mail, contract_qr, qr_key_manager, væult) rather than a (kind, payload)
+    pair. It renders, supervises through two real decoders, and returns the PNG
+    bytes **only on PASS**. On refusal it raises `QRRefused`.
+
+    Use this instead of `qrcode.QRCode(...).make_image(...)` directly. A QR that
+    has not been decoded back is not a QR — it is a picture of one.
+
+    When `out_path` is given the file is written; the PNG bytes are returned
+    either way so a caller can attach them (e.g. qr_mail).
+    """
+    import os as _os
+    import tempfile
+    import qrcode
+
+    tmp = None
+    try:
+        if out_path is None:
+            fd, tmp = tempfile.mkstemp(suffix=".png", prefix="qrgate-")
+            _os.close(fd)
+            out_path = tmp
+        dest = str(out_path)
+
+        qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_M, border=4)
+        qr.add_data(envelope)
+        qr.make(fit=True)
+        if qr.version > 40:
+            raise ValueError(f"needs v{qr.version} > v40 cap")
+        qr.make_image(fill_color="black", back_color="white").save(dest)
+
+        report = supervise(dest, expect_kind=kind, expect_payload=payload,
+                           envelope=envelope)
+        if not report.passed:
+            raise QRRefused(report.reason(), report)
+
+        with open(dest, "rb") as fh:
+            return fh.read()
+    finally:
+        if tmp is not None:
+            try:
+                _os.unlink(tmp)
+            except OSError:
+                pass
+
+
 # ── the producer ──────────────────────────────────────────────────────────────
 
 def _render(envelope: str, out_path: pathlib.Path, box_size: int = 10,
