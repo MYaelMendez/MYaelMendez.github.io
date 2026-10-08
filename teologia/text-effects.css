@@ -1,0 +1,70 @@
+/* ═══════════════════════════════════════════════════════════════
+   text-effects.css — teologia.ai enhanced text
+   DETERMINISTIC: static styling only. ALL motion is frame-driven
+   from window.__renderFrame via text-effects.js (CSS @keyframes do
+   NOT advance in the frame-by-frame capture harness).
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Gold gradient fill (background-clip: text) ── */
+.te-gold {
+  background-image: linear-gradient(180deg,
+    #fff8dc 0%, #f0d878 30%, #d4af37 62%, #b8960f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ── Gold gradient + moving shine sweep (frame-driven via --te-shimmer) ── */
+.te-shimmer {
+  background-image:
+    linear-gradient(105deg,
+      rgba(255,255,255,0) 42%,
+      rgba(255,255,255,0.9) 50%,
+      rgba(255,255,255,0) 58%),
+    linear-gradient(180deg, #fff8dc 0%, #f0d878 30%, #d4af37 62%, #b8960f 100%);
+  background-size: 260% 100%, 100% 100%;
+  background-position: var(--te-shimmer, 130%) 0, 0 0;
+  background-repeat: no-repeat, no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ── Multi-layer gold glow (works on gradient text via drop-shadow) ── */
+.te-glow {
+  filter:
+    drop-shadow(0 0 5px rgba(240,216,120,0.95))
+    drop-shadow(0 0 15px rgba(212,175,55,0.65))
+    drop-shadow(0 0 32px rgba(212,175,55,0.35))
+    drop-shadow(0 3px 5px rgba(0,0,0,0.95));
+}
+
+/* ── Soft dark legibility plate behind text over busy 3D ── */
+.te-plate {
+  background: radial-gradient(ellipse 84% 72% at 50% 50%,
+    rgba(0,0,0,0.74) 0%, rgba(0,0,0,0.52) 55%, rgba(0,0,0,0) 100%);
+  border-radius: 28px;
+  padding: 22px 26px;
+}
+
+/* ── Emphasis (hot white-gold highlight inside a gradient line) ── */
+.te-hl { -webkit-text-fill-color: #fff8dc; color: #fff8dc; font-weight: 600; font-style: normal; }
+
+/* ── Frame-driven reveal base states (JS animates inline each frame) ── */
+.te-line {
+  opacity: 0;
+  transform: translateY(30px);
+  filter: blur(9px);
+  will-change: transform, opacity, filter;
+}
+.te-gap { height: 16px; }
+
+/* initial states for the header stack */
+.te-glyph   { opacity: 0; transform: scale(0.5); will-change: transform, opacity; }
+.te-title   { opacity: 0; will-change: opacity, letter-spacing; }
+.te-tagline { opacity: 0; will-change: opacity; }
+.te-orn     { opacity: 0; transform: scaleX(0); will-change: transform, opacity; }
+.te-ref     { opacity: 0; will-change: opacity; }
+.te-badge   { opacity: 0; will-change: opacity; }

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>teologia.ai — Salmo 23</title>
+<link rel="stylesheet" href="text-effects.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    width:720px; height:1280px;
+    background:#0e160c; overflow:hidden;
+    font-family:'Cormorant Garamond',serif; color:#d4af37;
+  }
+  #gl { position:absolute; top:0; left:0; width:720px; height:1280px; }
+  .frame {
+    position:absolute; top:40px; left:40px; right:40px; bottom:40px;
+    border:2px solid rgba(212,175,55,0.28); pointer-events:none; z-index:5;
+  }
+  .frame::before {
+    content:''; position:absolute; top:8px; left:8px; right:8px; bottom:8px;
+    border:1px solid rgba(212,175,55,0.13);
+  }
+  .content {
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; z-index:6; padding:0 64px; pointer-events:none;
+  }
+  .glyph {
+    font-family:'Cinzel',serif; font-size:76px; font-weight:900;
+    color:#f0d878; line-height:1; margin-bottom:22px;
+  }
+  .title {
+    font-family:'Cinzel',serif; font-size:50px; font-weight:900;
+    margin-bottom:14px;
+  }
+  .tagline {
+    font-family:'Cinzel',serif; font-size:14px; letter-spacing:6px;
+    color:rgba(240,216,120,0.85); margin-bottom:40px;
+  }
+  .orn {
+    width:260px; height:2px; margin:0 auto 40px; transform-origin:center;
+    background:linear-gradient(90deg,transparent,rgba(240,216,120,0.8),transparent);
+  }
+  .verse {
+    font-family:'Cormorant Garamond',serif; font-size:27px; line-height:1.6;
+    color:#f2e3a8; font-style:italic; margin-bottom:40px;
+  }
+  .verse .te-line { display:block; }
+  .verse .hl { color:#ffe89a; font-weight:600; font-style:normal; }
+  .ref {
+    font-family:'Cinzel',serif; font-size:14px; letter-spacing:4px;
+    color:rgba(240,216,120,0.75);
+  }
+  .badge {
+    position:absolute; bottom:66px; left:0; width:100%; text-align:center;
+    font-family:'Cinzel',serif; font-size:11px; letter-spacing:3px;
+    color:rgba(240,216,120,0.6); z-index:7;
+  }
+</style>
+</head>
+<body>
+  <canvas id="gl"></canvas>
+  <div class="frame"></div>
+  <div class="content">
+    <div class="glyph te-glyph">✝</div>
+    <div class="title te-title te-shimmer te-glow">SALMO 23</div>
+    <div class="tagline te-tagline">JEHOVÁ ES MI PASTOR</div>
+    <div class="orn te-orn"></div>
+    <div class="verse te-plate">
+      <div class="te-line"><span class="hl">Jehová es mi pastor;</span> nada me faltará.</div>
+      <div class="te-gap"></div>
+      <div class="te-line">En lugares de <span class="hl">delicados pastos</span></div>
+      <div class="te-line">me hará descansar;</div>
+      <div class="te-gap"></div>
+      <div class="te-line">Junto a <span class="hl">aguas de reposo</span></div>
+      <div class="te-line">me pastoreará.</div>
+    </div>
+    <div class="ref te-ref">SALMO 23:1-3 · BIBLIA DEL OSO 1569</div>
+  </div>
+  <div class="badge te-badge">æ://TEOLOGIA · THREE.JS · SALMO 23 · VERIFICABLE</div>
+
+<script src="../vendor/three.global.js"></script>
+<script src="text-effects.js"></script>
+<script>
+  // ── Three.js r147 — Salmo 23: "Jehová es mi pastor" ──
+  const W = 720, H = 1280;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0e160c);
+  scene.fog = new THREE.FogExp2(0x0e160c, 0.006);
+
+  const camera = new THREE.PerspectiveCamera(50, W / H, 0.1, 100);
+  camera.position.set(0, 3, 22);
+
+  const renderer = new THREE.WebGLRenderer({
+    canvas: document.getElementById('gl'),
+    antialias: true, alpha: false
+  });
+  renderer.setSize(W, H, false);
+  renderer.setPixelRatio(1);
+
+  // ── Lights — warm gold + green pasture fill ──
+  scene.add(new THREE.AmbientLight(0xd4af37, 1.0));
+  const key = new THREE.PointLight(0xf0d878, 2.4, 120);
+  key.position.set(6, 12, 16);
+  scene.add(key);
+  const fill = new THREE.PointLight(0x66cc66, 1.0, 100);
+  fill.position.set(-12, -4, 10);
+  scene.add(fill);
+
+  // ── Shepherd's staff — golden crook, central ──
+  const staffMat = new THREE.MeshStandardMaterial({
+    color: 0xd4af37, emissive: 0x6a5518, metalness: 0.9, roughness: 0.25
+  });
+  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 9, 16), staffMat);
+  shaft.position.y = -0.5;
+  const crookCurve = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(0, 4.0, 0),
+    new THREE.Vector3(0, 5.4, 0),
+    new THREE.Vector3(0.9, 6.0, 0),
+    new THREE.Vector3(1.7, 5.6, 0),
+    new THREE.Vector3(1.9, 4.6, 0),
+    new THREE.Vector3(1.3, 4.1, 0)
+  ]);
+  const crook = new THREE.Mesh(new THREE.TubeGeometry(crookCurve, 40, 0.12, 8, false), staffMat);
+  const staff = new THREE.Group();
+  staff.add(shaft); staff.add(crook);
+  staff.position.x = 5.4;   // off the text column — no occlusion
+  scene.add(staff);
+
+  // ── Rolling green hills — displaced plane ──
+  const hillGeo = new THREE.PlaneGeometry(46, 46, 72, 72);
+  const hp = hillGeo.attributes.position;
+  for (let i = 0; i < hp.count; i++) {
+    const x = hp.getX(i), y = hp.getY(i);
+    const h = Math.sin(x * 0.28) * Math.cos(y * 0.28) * 1.6
+            + Math.sin(x * 0.13 + 1) * Math.cos(y * 0.18) * 2.2;
+    hp.setZ(i, h);
+  }
+  hillGeo.computeVertexNormals();
+  const hills = new THREE.Mesh(hillGeo, new THREE.MeshStandardMaterial({
+    color: 0x3a7a3a, roughness: 0.95, metalness: 0.0, flatShading: true
+  }));
+  hills.rotation.x = -Math.PI / 2.15;
+  hills.position.y = -7;
+  scene.add(hills);
+
+  // ── Still waters — reflective plane ──
+  const waterMat = new THREE.MeshStandardMaterial({
+    color: 0x2a5a7a, roughness: 0.08, metalness: 0.85,
+    transparent: true, opacity: 0.75
+  });
+  const water = new THREE.Mesh(new THREE.PlaneGeometry(46, 22), waterMat);
+  water.rotation.x = -Math.PI / 2;
+  water.position.set(0, -6.4, 6);
+  scene.add(water);
+
+  // ── Winding path — golden curve through the valley ──
+  const pathCurve = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(0, -6.2, 16),
+    new THREE.Vector3(-2.5, -6.2, 10),
+    new THREE.Vector3(1.5, -6.2, 4),
+    new THREE.Vector3(-1.5, -6.2, -2),
+    new THREE.Vector3(0, -6.2, -8)
+  ]);
+  const pathMat = new THREE.MeshBasicMaterial({ color: 0xd4af37, transparent: true, opacity: 0.5 });
+  const path = new THREE.Mesh(new THREE.TubeGeometry(pathCurve, 80, 0.18, 8, false), pathMat);
+  scene.add(path);
+
+  // ── Sheep flock — warm golden-white particles ──
+  const FP = 220;
+  const fPos = new Float32Array(FP * 3);
+  const flock = [];
+  for (let i = 0; i < FP; i++) {
+    const r0 = 3 + Math.random() * 7;
+    const th = Math.random() * Math.PI * 2;
+    fPos[i*3]   = r0 * Math.cos(th);
+    fPos[i*3+1] = -5.6 + Math.random() * 1.4;
+    fPos[i*3+2] = r0 * Math.sin(th);
+    flock.push({ x: fPos[i*3], z: fPos[i*3+2], ph: Math.random() * Math.PI * 2 });
+  }
+  const fGeo = new THREE.BufferGeometry();
+  fGeo.setAttribute('position', new THREE.BufferAttribute(fPos, 3));
+  const sheep = new THREE.Points(fGeo, new THREE.PointsMaterial({
+    color: 0xf0e0b0, size: 0.24, transparent: true, opacity: 0.9,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  }));
+  scene.add(sheep);
+
+  // ── Stars — night sky ──
+  const SP = 500;
+  const sPos = new Float32Array(SP * 3);
+  for (let i = 0; i < SP; i++) {
+    const r = 16 + Math.random() * 22;
+    const th = Math.random() * Math.PI * 2;
+    const ph = Math.acos(2 * Math.random() - 1);
+    sPos[i*3]   = r * Math.sin(ph) * Math.cos(th);
+    sPos[i*3+1] = Math.abs(r * Math.sin(ph) * Math.sin(th)) * 0.5 + 6;
+    sPos[i*3+2] = r * Math.cos(ph);
+  }
+  const sGeo = new THREE.BufferGeometry();
+  sGeo.setAttribute('position', new THREE.BufferAttribute(sPos, 3));
+  const stars = new THREE.Points(sGeo, new THREE.PointsMaterial({
+    color: 0xf0d878, size: 0.13, transparent: true, opacity: 0.85,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  }));
+  scene.add(stars);
+
+  // ── Deterministic frame hook ──
+  window.__renderFrame = function(i, total) {
+    // Staff slow sway
+    staff.rotation.y = i * 0.008;
+    staff.position.y = Math.sin(i * 0.03) * 0.25;
+
+    // Hills gentle undulation
+    hills.rotation.z = Math.sin(i * 0.01) * 0.02;
+
+    // Water shimmer
+    waterMat.roughness = 0.06 + 0.05 * Math.sin(i * 0.05);
+    water.position.y = -6.4 + Math.sin(i * 0.02) * 0.12;
+
+    // Path pulse
+    pathMat.opacity = 0.4 + 0.15 * Math.sin(i * 0.04);
+
+    // Sheep wander
+    const fp = fGeo.attributes.position.array;
+    for (let j = 0; j < FP; j++) {
+      fp[j*3]   = flock[j].x + Math.sin(i * 0.03 + flock[j].ph) * 0.9;
+      fp[j*3+2] = flock[j].z + Math.cos(i * 0.025 + flock[j].ph) * 0.9;
+    }
+    fGeo.attributes.position.needsUpdate = true;
+
+    // Stars twinkle
+    stars.rotation.y = i * 0.001;
+    stars.material.opacity = 0.65 + 0.2 * Math.sin(i * 0.03);
+
+    // Camera gentle sway
+    camera.position.x = Math.sin(i * 0.01) * 0.6;
+    camera.position.z = 22 + Math.sin(i * 0.015) * 1.0;
+    camera.lookAt(0, 0, 0);
+
+    // Text reveal — frame-driven (CSS keyframes don't advance here)
+    if (window.TE) TE.render(i, total);
+
+    renderer.render(scene, camera);
+  };
+
+  window.__renderFrame(0, 300);
+</script>
+
+<!-- æ:// QR Verification Badge -->
+<div id="æ-qr-badge" style="
+  position:fixed;bottom:16px;right:16px;z-index:99999;
+  width:56px;height:56px;border:1px solid #D4AF37;border-radius:8px;
+  background:#050505;padding:4px;cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s;
+" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 20px rgba(212,175,55,0.4)'"
+   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'"
+   onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')"
+   title="æ:// Verify this surface">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/teologia/salmo-23.html&color=D4AF37&bgcolor=050505" 
+       alt="QR Verify" style="width:100%;height:100%;display:block;">
+</div>
+</body>
+</html>

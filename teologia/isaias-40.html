@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>teologia.ai — Isaías 40</title>
+<link rel="stylesheet" href="text-effects.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:720px; height:1280px; background:#1a1408; overflow:hidden;
+    font-family:'Cormorant Garamond',serif; color:#d4af37; }
+  #gl { position:absolute; top:0; left:0; width:720px; height:1280px; }
+  .frame { position:absolute; top:40px; left:40px; right:40px; bottom:40px;
+    border:2px solid rgba(212,175,55,0.28); pointer-events:none; z-index:5; }
+  .frame::before { content:''; position:absolute; top:8px; left:8px; right:8px; bottom:8px;
+    border:1px solid rgba(212,175,55,0.13); }
+  .content { position:absolute; top:0; left:0; width:100%; height:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; z-index:6; padding:0 60px; pointer-events:none; }
+  .glyph { font-family:'Cinzel',serif; font-size:70px; font-weight:900;
+    color:#f0d878; line-height:1; margin-bottom:20px; }
+  .title { font-family:'Cinzel',serif; font-size:44px; font-weight:900; margin-bottom:14px; }
+  .tagline { font-family:'Cinzel',serif; font-size:13px; letter-spacing:6px;
+    color:rgba(240,216,120,0.85); margin-bottom:38px; }
+  .orn { width:260px; height:2px; margin:0 auto 38px; transform-origin:center;
+    background:linear-gradient(90deg,transparent,rgba(240,216,120,0.8),transparent); }
+  .verse { font-family:'Cormorant Garamond',serif; font-size:25px; line-height:1.6;
+    color:#f2e3a8; font-style:italic; margin-bottom:38px; }
+  .verse .te-line { display:block; }
+  .verse .hl { color:#ffe89a; font-weight:600; font-style:normal; }
+  .ref { font-family:'Cinzel',serif; font-size:13px; letter-spacing:4px;
+    color:rgba(240,216,120,0.75); }
+  .badge { position:absolute; bottom:66px; left:0; width:100%; text-align:center;
+    font-family:'Cinzel',serif; font-size:11px; letter-spacing:3px;
+    color:rgba(240,216,120,0.6); z-index:7; }
+</style>
+</head>
+<body>
+  <canvas id="gl"></canvas>
+  <div class="frame"></div>
+  <div class="content">
+    <div class="glyph te-glyph">✝</div>
+    <div class="title te-title te-shimmer te-glow">ISAÍAS 40</div>
+    <div class="tagline te-tagline">VOLARÁN COMO LAS ÁGUILAS</div>
+    <div class="orn te-orn"></div>
+    <div class="verse te-plate">
+      <div class="te-line">Mas los que <span class="hl">esperan a Jehová</span></div>
+      <div class="te-line">tendrán nuevas fuerzas;</div>
+      <div class="te-gap"></div>
+      <div class="te-line">levantarán <span class="hl">alas como las águilas</span>;</div>
+      <div class="te-line">correrán, y no se cansarán;</div>
+      <div class="te-line">caminarán, y no se fatigarán.</div>
+    </div>
+    <div class="ref te-ref">ISAÍAS 40:31 · BIBLIA DEL OSO 1569</div>
+  </div>
+  <div class="badge te-badge">æ://TEOLOGIA · THREE.JS · ISAÍAS 40 · VERIFICABLE</div>
+
+<script src="../vendor/three.global.js"></script>
+<script src="text-effects.js"></script>
+<script>
+  // ── Three.js r147 — Isaías 40:31 "volarán como las águilas" ──
+  const W = 720, H = 1280;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x1a1408);
+  scene.fog = new THREE.FogExp2(0x1a1408, 0.004);
+
+  const camera = new THREE.PerspectiveCamera(50, W / H, 0.1, 100);
+  camera.position.set(0, 1, 22);
+
+  const renderer = new THREE.WebGLRenderer({
+    canvas: document.getElementById('gl'), antialias: true, alpha: false
+  });
+  renderer.setSize(W, H, false);
+  renderer.setPixelRatio(1);
+
+  scene.add(new THREE.AmbientLight(0xd4af37, 2.1));
+  const key = new THREE.PointLight(0xffe08a, 3.8, 150);
+  key.position.set(6, 11, 16); scene.add(key);
+  const fill = new THREE.PointLight(0xd4af37, 1.6, 110);
+  fill.position.set(-12, -4, 12); scene.add(fill);
+
+  // ── Dawn glow — the rising light at the horizon ──
+  const sun = new THREE.Mesh(new THREE.SphereGeometry(1.6, 20, 20),
+    new THREE.MeshBasicMaterial({ color: 0xffe89a }));
+  sun.position.set(8.5, 4.0, -16);
+  scene.add(sun);
+  const sunGlow = new THREE.Mesh(new THREE.SphereGeometry(5.0, 20, 20),
+    new THREE.MeshBasicMaterial({ color: 0xffd060, transparent: true, opacity: 0.11,
+      blending: THREE.AdditiveBlending, depthWrite: false }));
+  sunGlow.position.copy(sun.position);
+  scene.add(sunGlow);
+
+  // ── The eagle — golden soaring silhouette (ShapeGeometry, faces camera) ──
+  const eagleShape = new THREE.Shape();
+  const eright = [
+    [0,2.4],[0.5,2.05],[0.85,1.7],
+    [1.8,1.9],[2.8,1.8],[3.8,1.65],[4.6,1.35],[5.0,1.15],
+    [4.5,0.75],[3.4,0.62],[2.2,0.55],[1.3,0.45],
+    [1.0,0.0],[0.85,-0.7],[1.15,-0.95],[0.95,-2.6],[0,-1.7]
+  ];
+  eagleShape.moveTo(eright[0][0], eright[0][1]);
+  for (let k = 1; k < eright.length; k++) eagleShape.lineTo(eright[k][0], eright[k][1]);
+  for (let k = eright.length - 2; k >= 1; k--) eagleShape.lineTo(-eright[k][0], eright[k][1]);
+  eagleShape.closePath();
+  const eagleGeo = new THREE.ShapeGeometry(eagleShape);
+  const eagleMat = new THREE.MeshStandardMaterial({
+    color: 0xd4af37, emissive: 0x8a6a18, metalness: 0.6, roughness: 0.35,
+    side: THREE.DoubleSide, flatShading: true
+  });
+  const eagle = new THREE.Mesh(eagleGeo, eagleMat);
+  eagle.position.set(-2.0, 7.4, -2);
+  eagle.rotation.z = -0.12;
+  eagle.scale.setScalar(1.15);
+  scene.add(eagle);
+
+  const eagle2 = new THREE.Mesh(eagleGeo, eagleMat);
+  eagle2.position.set(6.8, 9.0, -10);
+  eagle2.scale.setScalar(0.45);
+  eagle2.rotation.z = 0.1;
+  scene.add(eagle2);
+
+  // ── Mountain peaks at the bottom ──
+  const peakMat = new THREE.MeshStandardMaterial({
+    color: 0x6a5518, emissive: 0x2a2010, roughness: 0.95, metalness: 0.05, flatShading: true
+  });
+  const peaks = new THREE.Group();
+  const peakDefs = [[-9, -11, -6, 7, 9], [0, -12, -8, 6, 11], [9, -11.5, -5, 5.5, 8]];
+  peakDefs.forEach(([x, y, z, r, h]) => {
+    const p = new THREE.Mesh(new THREE.ConeGeometry(r, h, 5), peakMat);
+    p.position.set(x, y, z);
+    peaks.add(p);
+  });
+  scene.add(peaks);
+
+  // ── Rising wind / feather particles ──
+  const FP = 420;
+  const fPos = new Float32Array(FP * 3);
+  const flock = [];
+  for (let i = 0; i < FP; i++) {
+    const r0 = 2 + Math.random() * 11;
+    const th = Math.random() * Math.PI * 2;
+    fPos[i*3]   = r0 * Math.cos(th);
+    fPos[i*3+1] = -9 + Math.random() * 20;
+    fPos[i*3+2] = r0 * Math.sin(th);
+    flock.push({ x: fPos[i*3], y: fPos[i*3+1], z: fPos[i*3+2],
+                 ph: Math.random() * Math.PI * 2, sp: 0.5 + Math.random() * 1.1 });
+  }
+  const fGeo = new THREE.BufferGeometry();
+  fGeo.setAttribute('position', new THREE.BufferAttribute(fPos, 3));
+  const wind = new THREE.Points(fGeo, new THREE.PointsMaterial({
+    color: 0xf0d878, size: 0.2, transparent: true, opacity: 0.85,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  }));
+  scene.add(wind);
+
+  // ── Stars ──
+  const ST = 460;
+  const stPos = new Float32Array(ST * 3);
+  for (let i = 0; i < ST; i++) {
+    const r = 16 + Math.random() * 22, th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
+    stPos[i*3]   = r * Math.sin(ph) * Math.cos(th);
+    stPos[i*3+1] = Math.abs(r * Math.sin(ph) * Math.sin(th)) * 0.55 + 6;
+    stPos[i*3+2] = r * Math.cos(ph);
+  }
+  const stGeo = new THREE.BufferGeometry();
+  stGeo.setAttribute('position', new THREE.BufferAttribute(stPos, 3));
+  const stars = new THREE.Points(stGeo, new THREE.PointsMaterial({
+    color: 0xf0d878, size: 0.13, transparent: true, opacity: 0.85,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  }));
+  scene.add(stars);
+
+  // ── Deterministic frame hook ──
+  window.__renderFrame = function(i, total) {
+    // Eagles soar — glide bob + gentle roll + wing flex
+    eagle.position.y = 7.4 + Math.sin(i * 0.03) * 0.5;
+    eagle.rotation.z = -0.12 + Math.sin(i * 0.02) * 0.06;
+    eagle.scale.x = 1.15 * (1 + Math.sin(i * 0.06) * 0.05);
+    eagle2.position.y = 9.0 + Math.sin(i * 0.025 + 1) * 0.4;
+    eagle2.rotation.z = 0.1 + Math.sin(i * 0.02 + 0.7) * 0.05;
+
+    // Dawn glow pulse
+    sunGlow.scale.setScalar(1 + Math.sin(i * 0.04) * 0.08);
+    sun.scale.setScalar(1 + Math.sin(i * 0.06) * 0.04);
+
+    // Peaks subtle sway
+    peaks.rotation.y = Math.sin(i * 0.008) * 0.04;
+
+    // Wind ascends
+    const fp = fGeo.attributes.position.array;
+    for (let j = 0; j < FP; j++) {
+      let y = flock[j].y + ((i * flock[j].sp * 0.05) % 20);
+      if (y > 11) y -= 20;
+      fp[j*3]   = flock[j].x + Math.sin(i * 0.03 + flock[j].ph) * 0.5;
+      fp[j*3+1] = y;
+      fp[j*3+2] = flock[j].z + Math.cos(i * 0.025 + flock[j].ph) * 0.5;
+    }
+    fGeo.attributes.position.needsUpdate = true;
+
+    stars.rotation.y = i * 0.001;
+    stars.material.opacity = 0.65 + 0.2 * Math.sin(i * 0.03);
+
+    camera.position.x = Math.sin(i * 0.011) * 0.5;
+    camera.position.z = 22 + Math.sin(i * 0.016) * 0.9;
+    camera.lookAt(0, 0.5, 0);
+
+    if (window.TE) TE.render(i, total);
+    renderer.render(scene, camera);
+  };
+
+  window.__renderFrame(0, 300);
+</script>
+
+<!-- æ:// QR Verification Badge -->
+<div id="æ-qr-badge" style="
+  position:fixed;bottom:16px;right:16px;z-index:99999;
+  width:56px;height:56px;border:1px solid #D4AF37;border-radius:8px;
+  background:#050505;padding:4px;cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s;
+" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 20px rgba(212,175,55,0.4)'"
+   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'"
+   onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')"
+   title="æ:// Verify this surface">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/teologia/isaias-40.html&color=D4AF37&bgcolor=050505" 
+       alt="QR Verify" style="width:100%;height:100%;display:block;">
+</div>
+</body>
+</html>

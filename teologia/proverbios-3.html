@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>teologia.ai — Proverbios 3:5-6</title>
+<link rel="stylesheet" href="text-effects.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    width:720px; height:1280px;
+    background:#0a0806; overflow:hidden;
+    font-family:'Cormorant Garamond',serif; color:#d4af37;
+  }
+  #gl { position:absolute; top:0; left:0; width:720px; height:1280px; }
+  .frame {
+    position:absolute; top:40px; left:40px; right:40px; bottom:40px;
+    border:2px solid rgba(212,175,55,0.28); pointer-events:none; z-index:5;
+  }
+  .frame::before {
+    content:''; position:absolute; top:8px; left:8px; right:8px; bottom:8px;
+    border:1px solid rgba(212,175,55,0.13);
+  }
+  .content {
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; z-index:6; padding:0 64px; pointer-events:none;
+  }
+  .glyph {
+    font-family:'Cinzel',serif; font-size:72px; font-weight:900;
+    color:#f0d878; line-height:1; margin-bottom:22px;
+  }
+  .title {
+    font-family:'Cinzel',serif; font-size:46px; font-weight:900;
+    margin-bottom:14px;
+  }
+  .tagline {
+    font-family:'Cinzel',serif; font-size:14px; letter-spacing:6px;
+    color:rgba(240,216,120,0.85); margin-bottom:40px;
+  }
+  .orn {
+    width:260px; height:2px; margin:0 auto 40px; transform-origin:center;
+    background:linear-gradient(90deg,transparent,rgba(240,216,120,0.8),transparent);
+  }
+  .verse {
+    font-family:'Cormorant Garamond',serif; font-size:27px; line-height:1.6;
+    color:#f2e3a8; font-style:italic; margin-bottom:40px;
+  }
+  .verse .te-line { display:block; }
+  .verse .hl { color:#ffe89a; font-weight:600; font-style:normal; }
+  .ref {
+    font-family:'Cinzel',serif; font-size:14px; letter-spacing:4px;
+    color:rgba(240,216,120,0.75);
+  }
+  .badge {
+    position:absolute; bottom:66px; left:0; width:100%; text-align:center;
+    font-family:'Cinzel',serif; font-size:11px; letter-spacing:3px;
+    color:rgba(240,216,120,0.6); z-index:7;
+  }
+</style>
+</head>
+<body>
+  <canvas id="gl"></canvas>
+  <div class="frame"></div>
+  <div class="content">
+    <div class="glyph te-glyph">✝</div>
+    <div class="title te-title te-shimmer te-glow">PROVERBIOS 3</div>
+    <div class="tagline te-tagline">CONFÍA EN JEHOVÁ</div>
+    <div class="orn te-orn"></div>
+    <div class="verse te-plate">
+      <div class="te-line"><span class="hl">Confía en Jehová</span> de todo tu corazón,</div>
+      <div class="te-line">y no te apoyes en tu propia prudencia.</div>
+      <div class="te-gap"></div>
+      <div class="te-line">Reconócelo en <span class="hl">todos tus caminos</span>,</div>
+      <div class="te-line">y él enderezará tus veredas.</div>
+    </div>
+    <div class="ref te-ref">PROVERBIOS 3:5-6 · BIBLIA DEL OSO 1569</div>
+  </div>
+  <div class="badge te-badge">æ://TEOLOGIA · THREE.JS · PROVERBIOS 3 · VERIFICABLE</div>
+
+<script src="../vendor/three.global.js"></script>
+<script src="text-effects.js"></script>
+<script>
+  // ── Three.js r147 — Proverbios 3: "Confía en Jehová de todo tu corazón" ──
+  const W = 720, H = 1280;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x14100a);
+  scene.fog = new THREE.FogExp2(0x14100a, 0.0045);
+
+  const camera = new THREE.PerspectiveCamera(50, W / H, 0.1, 100);
+  camera.position.set(0, 0, 22);
+
+  const renderer = new THREE.WebGLRenderer({
+    canvas: document.getElementById('gl'),
+    antialias: true, alpha: false
+  });
+  renderer.setSize(W, H, false);
+  renderer.setPixelRatio(1);
+
+  // ── Lights — warm gold key + soft amber fill ──
+  scene.add(new THREE.AmbientLight(0xd4af37, 1.9));
+  const key = new THREE.PointLight(0xffe08a, 3.6, 140);
+  key.position.set(5, 9, 18);
+  scene.add(key);
+  const fill = new THREE.PointLight(0xd4af37, 1.6, 100);
+  fill.position.set(-11, -6, 10);
+  scene.add(fill);
+
+  // ── The heart — glowing gold icosahedron core, off-center ──
+  const heartMat = new THREE.MeshStandardMaterial({
+    color: 0xd4af37, emissive: 0xa07c22, metalness: 0.85, roughness: 0.2,
+    flatShading: true
+  });
+  const heart = new THREE.Mesh(new THREE.IcosahedronGeometry(2.1, 1), heartMat);
+  heart.position.set(9.4, -5.2, -5);
+  scene.add(heart);
+
+  // Inner glow shell
+  const glowMat = new THREE.MeshBasicMaterial({
+    color: 0xffe89a, transparent: true, opacity: 0.16,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  });
+  const glow = new THREE.Mesh(new THREE.IcosahedronGeometry(2.8, 1), glowMat);
+  glow.position.copy(heart.position);
+  scene.add(glow);
+
+  // ── The straight path — "él enderezará tus veredas" ──
+  const pathPts = [];
+  for (let k = 0; k <= 40; k++) {
+    const x = -18 + k * 0.9;
+    const z = -1 + Math.sin(k * 0.15) * 0.5;
+    pathPts.push(new THREE.Vector3(x, -8.8, z));
+  }
+  const pathCurve = new THREE.CatmullRomCurve3(pathPts);
+  const pathMat = new THREE.MeshBasicMaterial({ color: 0xd4af37, transparent: true, opacity: 0.5 });
+  const path = new THREE.Mesh(new THREE.TubeGeometry(pathCurve, 90, 0.16, 8, false), pathMat);
+  scene.add(path);
+
+  // Path edge lights — guiding lanterns along the road
+  const LP = 14;
+  const lampGeo = new THREE.SphereGeometry(0.14, 8, 8);
+  const lampMat = new THREE.MeshBasicMaterial({ color: 0xffe89a });
+  const lamps = new THREE.Group();
+  for (let k = 0; k < LP; k++) {
+    const t = k / (LP - 1);
+    const pt = pathCurve.getPoint(t);
+    const lamp = new THREE.Mesh(lampGeo, lampMat);
+    lamp.position.copy(pt); lamp.position.y += 0.5;
+    lamps.add(lamp);
+  }
+  scene.add(lamps);
+
+  // ── Trust particles — ascending sparks of faith ──
+  const FP = 420;
+  const fPos = new Float32Array(FP * 3);
+  const flock = [];
+  for (let i = 0; i < FP; i++) {
+    const r0 = 2 + Math.random() * 9;
+    const th = Math.random() * Math.PI * 2;
+    fPos[i*3]   = r0 * Math.cos(th);
+    fPos[i*3+1] = -8 + Math.random() * 16;
+    fPos[i*3+2] = r0 * Math.sin(th);
+    flock.push({ x: fPos[i*3], y: fPos[i*3+1], z: fPos[i*3+2],
+                 ph: Math.random() * Math.PI * 2, sp: 0.4 + Math.random() * 0.9 });
+  }
+  const fGeo = new THREE.BufferGeometry();
+  fGeo.setAttribute('position', new THREE.BufferAttribute(fPos, 3));
+  const sparks = new THREE.Points(fGeo, new THREE.PointsMaterial({
+    color: 0xf0d878, size: 0.22, transparent: true, opacity: 0.9,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  }));
+  scene.add(sparks);
+
+  // ── Stars — night sky ──
+  const SP = 480;
+  const sPos = new Float32Array(SP * 3);
+  for (let i = 0; i < SP; i++) {
+    const r = 16 + Math.random() * 22;
+    const th = Math.random() * Math.PI * 2;
+    const ph = Math.acos(2 * Math.random() - 1);
+    sPos[i*3]   = r * Math.sin(ph) * Math.cos(th);
+    sPos[i*3+1] = Math.abs(r * Math.sin(ph) * Math.sin(th)) * 0.55 + 5;
+    sPos[i*3+2] = r * Math.cos(ph);
+  }
+  const sGeo = new THREE.BufferGeometry();
+  sGeo.setAttribute('position', new THREE.BufferAttribute(sPos, 3));
+  const stars = new THREE.Points(sGeo, new THREE.PointsMaterial({
+    color: 0xf0d878, size: 0.13, transparent: true, opacity: 0.85,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  }));
+  scene.add(stars);
+
+  // ── Deterministic frame hook ──
+  window.__renderFrame = function(i, total) {
+    // Heart slow pulse — the beating center of trust
+    const pulse = 1 + Math.sin(i * 0.09) * 0.07;
+    heart.scale.set(pulse, pulse, pulse);
+    heart.rotation.y = i * 0.01;
+    heart.rotation.x = Math.sin(i * 0.02) * 0.15;
+    glow.scale.setScalar(1 + Math.sin(i * 0.06) * 0.06);
+
+    // Path shimmers as it straightens
+    pathMat.opacity = 0.42 + 0.16 * Math.sin(i * 0.045);
+
+    // Lanterns glow in sequence along the road
+    for (let k = 0; k < LP; k++) {
+      const s = 0.7 + 0.5 * Math.sin(i * 0.08 - k * 0.5);
+      lamps.children[k].scale.setScalar(s);
+    }
+
+    // Sparks ascend
+    const fp = fGeo.attributes.position.array;
+    for (let j = 0; j < FP; j++) {
+      let y = flock[j].y + ((i * flock[j].sp * 0.04) % 16);
+      if (y > 8) y -= 16;
+      fp[j*3]   = flock[j].x + Math.sin(i * 0.03 + flock[j].ph) * 0.5;
+      fp[j*3+1] = y;
+      fp[j*3+2] = flock[j].z + Math.cos(i * 0.025 + flock[j].ph) * 0.5;
+    }
+    fGeo.attributes.position.needsUpdate = true;
+
+    // Stars twinkle
+    stars.rotation.y = i * 0.001;
+    stars.material.opacity = 0.65 + 0.2 * Math.sin(i * 0.03);
+
+    // Camera gentle sway
+    camera.position.x = Math.sin(i * 0.011) * 0.6;
+    camera.position.z = 22 + Math.sin(i * 0.016) * 1.0;
+    camera.lookAt(0, 0, 0);
+
+    // Text reveal — frame-driven (CSS keyframes don't advance here)
+    if (window.TE) TE.render(i, total);
+
+    renderer.render(scene, camera);
+  };
+
+  window.__renderFrame(0, 300);
+</script>
+
+<!-- æ:// QR Verification Badge -->
+<div id="æ-qr-badge" style="
+  position:fixed;bottom:16px;right:16px;z-index:99999;
+  width:56px;height:56px;border:1px solid #D4AF37;border-radius:8px;
+  background:#050505;padding:4px;cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s;
+" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 20px rgba(212,175,55,0.4)'"
+   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'"
+   onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')"
+   title="æ:// Verify this surface">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/teologia/proverbios-3.html&color=D4AF37&bgcolor=050505" 
+       alt="QR Verify" style="width:100%;height:100%;display:block;">
+</div>
+</body>
+</html>

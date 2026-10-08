@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>teologia.ai — demo (three.js)</title>
+<link rel="stylesheet" href="text-effects.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 720px; height: 1280px;
+    background: #141410; overflow: hidden;
+    font-family: 'Cormorant Garamond', serif; color: #d4af37;
+  }
+  #gl { position: absolute; top: 0; left: 0; width: 720px; height: 1280px; }
+  .frame {
+    position: absolute; top: 40px; left: 40px; right: 40px; bottom: 40px;
+    border: 2px solid rgba(212,175,55,0.3); pointer-events: none; z-index: 5;
+  }
+  .frame::before {
+    content: ''; position: absolute; top: 8px; left: 8px; right: 8px; bottom: 8px;
+    border: 1px solid rgba(212,175,55,0.15);
+  }
+  .content {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; z-index: 6; padding: 0 70px; pointer-events: none;
+  }
+  .glyph {
+    font-family: 'Cinzel', serif; font-size: 88px; font-weight: 900;
+    color: #f0d878; text-shadow: 0 0 44px rgba(212,175,55,0.7), 0 0 8px rgba(240,216,120,0.9);
+    line-height: 1; margin-bottom: 20px;
+  }
+  .title {
+    font-family: 'Cinzel', serif; font-size: 52px; font-weight:900;
+    letter-spacing: 10px; margin-bottom: 12px;
+  }
+  .tagline {
+    font-family: 'Cinzel', serif; font-size: 16px; letter-spacing: 6px;
+    color: rgba(240,216,120,0.85); margin-bottom: 46px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+  }
+  .orn {
+    width: 260px; height: 2px; margin: 0 auto 46px;
+    background: linear-gradient(90deg, transparent, rgba(240,216,120,0.8), transparent);
+  }
+  .verse {
+    font-family: 'Cormorant Garamond', serif; font-size: 30px; line-height: 1.7;
+    color: #f2e3a8; font-style: italic; margin-bottom: 46px;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.95);
+  }
+  .verse .hl { color: #f0d878; font-weight: 600; font-style: normal; }
+  .ref {
+    font-family: 'Cinzel', serif; font-size: 15px; letter-spacing: 4px;
+    color: rgba(240,216,120,0.75); text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+  }
+  .badge {
+    position: absolute; bottom: 68px; left: 0; width: 100%; text-align: center;
+    font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 3px;
+    color: rgba(240,216,120,0.6); z-index: 7; text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+  }
+</style>
+</head>
+<body>
+  <canvas id="gl"></canvas>
+  <div class="frame"></div>
+  <div class="content">
+    <div class="glyph te-glyph">✝</div>
+    <div class="title te-title te-shimmer te-glow">TEOLOGIA</div>
+    <div class="tagline te-tagline">OPEN SOURCE SINCE 1517</div>
+    <div class="orn te-orn"></div>
+    <div class="verse te-plate">
+      <div class="te-line"><span class="hl">La palabra</span> era Dios,</div>
+      <div class="te-line">y la palabra <span class="hl">se hizo carne</span>.</div>
+    </div>
+    <div class="ref te-ref">JUAN 1 · BIBLIA DEL OSO 1569</div>
+  </div>
+  <div class="badge te-badge">æ://TEOLOGIA · THREE.JS · VERIFICABLE · LOCAL</div>
+
+<script src="../vendor/three.global.js"></script>
+<script src="text-effects.js"></script>
+<script>
+  // ── Three.js r147 UMD — WebGLRenderer, gold-on-void, deterministic ──
+  const W = 720, H = 1280;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x141410);
+  scene.fog = new THREE.FogExp2(0x141410, 0.006);
+
+  const camera = new THREE.PerspectiveCamera(50, W / H, 0.1, 100);
+  camera.position.set(0, 0, 22);
+
+  const renderer = new THREE.WebGLRenderer({
+    canvas: document.getElementById('gl'),
+    antialias: true,
+    alpha: false
+  });
+  renderer.setSize(W, H, false);
+  renderer.setPixelRatio(1);
+
+  // ── Lights ──
+  scene.add(new THREE.AmbientLight(0xd4af37, 0.9));
+  const key = new THREE.PointLight(0xf0d878, 2.2, 100);
+  key.position.set(10, 14, 16);
+  scene.add(key);
+  const rim = new THREE.PointLight(0xd4af37, 1.4, 100);
+  rim.position.set(-14, -8, 10);
+  scene.add(rim);
+
+  // ── Central torus knot — golden wireframe (the "word made flesh") ──
+  const knotGeo = new THREE.TorusKnotGeometry(4.2, 1.15, 180, 24, 2, 3);
+  const knotMat = new THREE.MeshStandardMaterial({
+    color: 0xd4af37,
+    emissive: 0x6a5518,
+    metalness: 0.95,
+    roughness: 0.25,
+    wireframe: true
+  });
+  const knot = new THREE.Mesh(knotGeo, knotMat);
+  scene.add(knot);
+
+  // ── Outer icosahedron shell — faint gold cage ──
+  const shellGeo = new THREE.IcosahedronGeometry(8.4, 1);
+  const shellMat = new THREE.MeshBasicMaterial({
+    color: 0xd4af37, wireframe: true, transparent: true, opacity: 0.28
+  });
+  const shell = new THREE.Mesh(shellGeo, shellMat);
+  scene.add(shell);
+
+  // ── Particle halo — golden points ──
+  const P = 900;
+  const pos = new Float32Array(P * 3);
+  for (let i = 0; i < P; i++) {
+    const r = 9 + Math.random() * 16;
+    const th = Math.random() * Math.PI * 2;
+    const ph = Math.acos(2 * Math.random() - 1);
+    pos[i*3]   = r * Math.sin(ph) * Math.cos(th);
+    pos[i*3+1] = r * Math.sin(ph) * Math.sin(th);
+    pos[i*3+2] = r * Math.cos(ph);
+  }
+  const pGeo = new THREE.BufferGeometry();
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const pMat = new THREE.PointsMaterial({
+    color: 0xf0d878, size: 0.16, transparent: true, opacity: 0.9,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  });
+  const halo = new THREE.Points(pGeo, pMat);
+  scene.add(halo);
+
+  // ── Deterministic frame hook (same contract as the video scenes) ──
+  window.__renderFrame = function(i, total) {
+    const t = i / Math.max(1, total - 1);
+
+    knot.rotation.x = 0.4 + i * 0.012;
+    knot.rotation.y = i * 0.02;
+    knot.rotation.z = i * 0.006;
+    const kp = 1 + 0.05 * Math.sin(i * 0.06);
+    knot.scale.setScalar(kp);
+
+    shell.rotation.y = -i * 0.008;
+    shell.rotation.x = i * 0.004;
+
+    halo.rotation.y = i * 0.003;
+    halo.rotation.z = i * 0.0016;
+
+    camera.position.z = 22 + Math.sin(i * 0.02) * 1.6;
+
+    // Text reveal — frame-driven (CSS keyframes don't advance here)
+    if (window.TE) TE.render(i, total);
+
+    renderer.render(scene, camera);
+  };
+
+  // Initial paint
+  window.__renderFrame(0, 300);
+</script>
+
+<!-- æ:// QR Verification Badge -->
+<div id="æ-qr-badge" style="
+  position:fixed;bottom:16px;right:16px;z-index:99999;
+  width:56px;height:56px;border:1px solid #D4AF37;border-radius:8px;
+  background:#050505;padding:4px;cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s;
+" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 20px rgba(212,175,55,0.4)'"
+   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'"
+   onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')"
+   title="æ:// Verify this surface">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/teologia/demo-teologia.html&color=D4AF37&bgcolor=050505" 
+       alt="QR Verify" style="width:100%;height:100%;display:block;">
+</div>
+</body>
+</html>

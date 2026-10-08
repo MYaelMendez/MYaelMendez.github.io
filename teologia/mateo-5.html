@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>teologia.ai — Mateo 5</title>
+<link rel="stylesheet" href="text-effects.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:720px; height:1280px; background:#14100a; overflow:hidden;
+    font-family:'Cormorant Garamond',serif; color:#d4af37; }
+  #gl { position:absolute; top:0; left:0; width:720px; height:1280px; }
+  .frame { position:absolute; top:40px; left:40px; right:40px; bottom:40px;
+    border:2px solid rgba(212,175,55,0.28); pointer-events:none; z-index:5; }
+  .frame::before { content:''; position:absolute; top:8px; left:8px; right:8px; bottom:8px;
+    border:1px solid rgba(212,175,55,0.13); }
+  .content { position:absolute; top:0; left:0; width:100%; height:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; z-index:6; padding:0 60px; pointer-events:none; }
+  .glyph { font-family:'Cinzel',serif; font-size:70px; font-weight:900;
+    color:#f0d878; line-height:1; margin-bottom:20px; }
+  .title { font-family:'Cinzel',serif; font-size:44px; font-weight:900; margin-bottom:14px; }
+  .tagline { font-family:'Cinzel',serif; font-size:13px; letter-spacing:6px;
+    color:rgba(240,216,120,0.85); margin-bottom:38px; }
+  .orn { width:260px; height:2px; margin:0 auto 38px; transform-origin:center;
+    background:linear-gradient(90deg,transparent,rgba(240,216,120,0.8),transparent); }
+  .verse { font-family:'Cormorant Garamond',serif; font-size:25px; line-height:1.6;
+    color:#f2e3a8; font-style:italic; margin-bottom:38px; }
+  .verse .te-line { display:block; }
+  .verse .hl { color:#ffe89a; font-weight:600; font-style:normal; }
+  .ref { font-family:'Cinzel',serif; font-size:13px; letter-spacing:4px;
+    color:rgba(240,216,120,0.75); }
+  .badge { position:absolute; bottom:66px; left:0; width:100%; text-align:center;
+    font-family:'Cinzel',serif; font-size:11px; letter-spacing:3px;
+    color:rgba(240,216,120,0.6); z-index:7; }
+</style>
+</head>
+<body>
+  <canvas id="gl"></canvas>
+  <div class="frame"></div>
+  <div class="content">
+    <div class="glyph te-glyph">✝</div>
+    <div class="title te-title te-shimmer te-glow">MATEO 5</div>
+    <div class="tagline te-tagline">EL SERMÓN DEL MONTE</div>
+    <div class="orn te-orn"></div>
+    <div class="verse te-plate">
+      <div class="te-line"><span class="hl">Bienaventurados</span> los pobres en espíritu:</div>
+      <div class="te-line">porque de ellos es el reino de los cielos.</div>
+      <div class="te-gap"></div>
+      <div class="te-line">Bienaventurados los que tienen</div>
+      <div class="te-line"><span class="hl">hambre y sed de justicia</span>:</div>
+      <div class="te-line">porque ellos serán saciados.</div>
+    </div>
+    <div class="ref te-ref">MATEO 5:3,6 · BIBLIA DEL OSO 1569</div>
+  </div>
+  <div class="badge te-badge">æ://TEOLOGIA · THREE.JS · MATEO 5 · VERIFICABLE</div>
+
+<script src="../vendor/three.global.js"></script>
+<script src="text-effects.js"></script>
+<script>
+  // ── Three.js r147 — Mateo 5: El Sermón del Monte ──
+  const W = 720, H = 1280;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x14100a);
+  scene.fog = new THREE.FogExp2(0x14100a, 0.004);
+
+  const camera = new THREE.PerspectiveCamera(50, W / H, 0.1, 100);
+  camera.position.set(0, 1, 22);
+
+  const renderer = new THREE.WebGLRenderer({
+    canvas: document.getElementById('gl'), antialias: true, alpha: false
+  });
+  renderer.setSize(W, H, false);
+  renderer.setPixelRatio(1);
+
+  scene.add(new THREE.AmbientLight(0xd4af37, 2.0));
+  const key = new THREE.PointLight(0xffe08a, 3.8, 140);
+  key.position.set(0, 12, 16); scene.add(key);
+  const fill = new THREE.PointLight(0xd4af37, 1.6, 100);
+  fill.position.set(-10, -8, 12); scene.add(fill);
+
+  // ── The mount — low cone at bottom, off the text column ──
+  const mountMat = new THREE.MeshStandardMaterial({
+    color: 0x4a3a12, emissive: 0x1a1408, roughness: 0.95, metalness: 0.1, flatShading: true
+  });
+  const mount = new THREE.Mesh(new THREE.ConeGeometry(8, 8, 6), mountMat);
+  mount.position.set(-5, -12, -3);
+  scene.add(mount);
+
+  // ── The teaching light atop the mount ──
+  const topLight = new THREE.Mesh(new THREE.SphereGeometry(0.7, 16, 16),
+    new THREE.MeshBasicMaterial({ color: 0xffe89a }));
+  topLight.position.set(-5, -6.6, -3);
+  scene.add(topLight);
+  const topGlow = new THREE.Mesh(new THREE.SphereGeometry(2.4, 16, 16),
+    new THREE.MeshBasicMaterial({ color: 0xffe89a, transparent: true, opacity: 0.09,
+      blending: THREE.AdditiveBlending, depthWrite: false }));
+  topGlow.position.copy(topLight.position);
+  scene.add(topGlow);
+
+  // ── Radiating light rays from the teaching light ──
+  const RAYS = 12;
+  const rays = new THREE.Group();
+  for (let k = 0; k < RAYS; k++) {
+    const ang = (k / RAYS) * Math.PI * 2;
+    const beam = new THREE.Mesh(new THREE.PlaneGeometry(0.16, 13),
+      new THREE.MeshBasicMaterial({ color: 0xf0d878, transparent: true, opacity: 0.09,
+        blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+    beam.position.copy(topLight.position);
+    beam.rotation.z = ang;
+    beam.position.x += Math.cos(ang) * 2.8;
+    beam.position.y += Math.sin(ang) * 2.8;
+    rays.add(beam);
+  }
+  scene.add(rays);
+
+  // ── The multitude — sea of small lights below ──
+  const MP = 500;
+  const mPos = new Float32Array(MP * 3);
+  const crowd = [];
+  for (let i = 0; i < MP; i++) {
+    const r0 = 2 + Math.random() * 13;
+    const th = Math.random() * Math.PI * 2;
+    mPos[i*3]   = r0 * Math.cos(th);
+    mPos[i*3+1] = -9.5 + Math.random() * 2.5;
+    mPos[i*3+2] = r0 * Math.sin(th) * 0.6;
+    crowd.push({ x: mPos[i*3], y: mPos[i*3+1], ph: Math.random() * Math.PI * 2 });
+  }
+  const mGeo = new THREE.BufferGeometry();
+  mGeo.setAttribute('position', new THREE.BufferAttribute(mPos, 3));
+  const multitude = new THREE.Points(mGeo, new THREE.PointsMaterial({
+    color: 0xf0e0b0, size: 0.22, transparent: true, opacity: 0.9,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  }));
+  scene.add(multitude);
+
+  // ── Ascending blessing sparks ──
+  const SP = 380;
+  const sPos = new Float32Array(SP * 3);
+  const sparks = [];
+  for (let i = 0; i < SP; i++) {
+    const r0 = 1 + Math.random() * 12;
+    const th = Math.random() * Math.PI * 2;
+    sPos[i*3]   = r0 * Math.cos(th);
+    sPos[i*3+1] = -9 + Math.random() * 20;
+    sPos[i*3+2] = r0 * Math.sin(th);
+    sparks.push({ x: sPos[i*3], y: sPos[i*3+1], z: sPos[i*3+2],
+                  ph: Math.random() * Math.PI * 2, sp: 0.4 + Math.random() * 1.0 });
+  }
+  const spGeo = new THREE.BufferGeometry();
+  spGeo.setAttribute('position', new THREE.BufferAttribute(sPos, 3));
+  const bless = new THREE.Points(spGeo, new THREE.PointsMaterial({
+    color: 0xf0d878, size: 0.2, transparent: true, opacity: 0.85,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  }));
+  scene.add(bless);
+
+  // ── Stars ──
+  const ST = 460;
+  const stPos = new Float32Array(ST * 3);
+  for (let i = 0; i < ST; i++) {
+    const r = 16 + Math.random() * 22, th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
+    stPos[i*3]   = r * Math.sin(ph) * Math.cos(th);
+    stPos[i*3+1] = Math.abs(r * Math.sin(ph) * Math.sin(th)) * 0.55 + 5;
+    stPos[i*3+2] = r * Math.cos(ph);
+  }
+  const stGeo = new THREE.BufferGeometry();
+  stGeo.setAttribute('position', new THREE.BufferAttribute(stPos, 3));
+  const stars = new THREE.Points(stGeo, new THREE.PointsMaterial({
+    color: 0xf0d878, size: 0.13, transparent: true, opacity: 0.85,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  }));
+  scene.add(stars);
+
+  // ── Deterministic frame hook ──
+  window.__renderFrame = function(i, total) {
+    const pulse = 1 + Math.sin(i * 0.08) * 0.12;
+    topGlow.scale.setScalar(pulse);
+    topLight.scale.setScalar(1 + Math.sin(i * 0.1) * 0.06);
+    rays.rotation.z = i * 0.004;
+    rays.children.forEach((b, k) => {
+      b.material.opacity = 0.05 + 0.08 * (0.5 + 0.5 * Math.sin(i * 0.05 + k));
+    });
+    mount.rotation.y = Math.sin(i * 0.01) * 0.05;
+
+    const mp = mGeo.attributes.position.array;
+    for (let j = 0; j < MP; j++) {
+      mp[j*3]   = crowd[j].x + Math.sin(i * 0.03 + crowd[j].ph) * 0.3;
+      mp[j*3+1] = crowd[j].y + Math.sin(i * 0.05 + crowd[j].ph) * 0.15;
+    }
+    mGeo.attributes.position.needsUpdate = true;
+
+    const bp = spGeo.attributes.position.array;
+    for (let j = 0; j < SP; j++) {
+      let y = sparks[j].y + ((i * sparks[j].sp * 0.045) % 20);
+      if (y > 11) y -= 20;
+      bp[j*3]   = sparks[j].x + Math.sin(i * 0.03 + sparks[j].ph) * 0.4;
+      bp[j*3+1] = y;
+      bp[j*3+2] = sparks[j].z + Math.cos(i * 0.025 + sparks[j].ph) * 0.4;
+    }
+    spGeo.attributes.position.needsUpdate = true;
+
+    stars.rotation.y = i * 0.001;
+    stars.material.opacity = 0.65 + 0.2 * Math.sin(i * 0.03);
+
+    camera.position.x = Math.sin(i * 0.011) * 0.5;
+    camera.position.z = 22 + Math.sin(i * 0.016) * 0.9;
+    camera.lookAt(0, 0, 0);
+
+    if (window.TE) TE.render(i, total);
+    renderer.render(scene, camera);
+  };
+
+  window.__renderFrame(0, 300);
+</script>
+
+<!-- æ:// QR Verification Badge -->
+<div id="æ-qr-badge" style="
+  position:fixed;bottom:16px;right:16px;z-index:99999;
+  width:56px;height:56px;border:1px solid #D4AF37;border-radius:8px;
+  background:#050505;padding:4px;cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s;
+" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 20px rgba(212,175,55,0.4)'"
+   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'"
+   onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')"
+   title="æ:// Verify this surface">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/teologia/mateo-5.html&color=D4AF37&bgcolor=050505" 
+       alt="QR Verify" style="width:100%;height:100%;display:block;">
+</div>
+</body>
+</html>

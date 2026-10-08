@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>teologia.ai — Apocalipsis 21</title>
+<link rel="stylesheet" href="text-effects.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    width:720px; height:1280px;
+    background:#0b1020; overflow:hidden;
+    font-family:'Cormorant Garamond',serif; color:#d4af37;
+  }
+  #gl { position:absolute; top:0; left:0; width:720px; height:1280px; }
+  .frame {
+    position:absolute; top:40px; left:40px; right:40px; bottom:40px;
+    border:2px solid rgba(212,175,55,0.3); pointer-events:none; z-index:5;
+  }
+  .frame::before {
+    content:''; position:absolute; top:8px; left:8px; right:8px; bottom:8px;
+    border:1px solid rgba(212,175,55,0.13);
+  }
+  .content {
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; z-index:6; padding:0 70px; pointer-events:none;
+  }
+  .glyph {
+    font-family:'Cinzel',serif; font-size:70px; font-weight:900;
+    color:#f0d878; text-shadow:0 0 50px rgba(212,175,55,0.8), 0 0 12px rgba(240,216,120,1);
+    line-height:1; margin-bottom:20px;
+  }
+  .title {
+    font-family:'Cinzel',serif; font-size:42px; font-weight:900;
+    letter-spacing:10px; margin-bottom:12px;
+  }
+  .tagline {
+    font-family:'Cinzel',serif; font-size:14px; letter-spacing:5px;
+    color:rgba(240,216,120,0.8); margin-bottom:42px;
+    text-shadow:0 1px 3px rgba(0,0,0,0.9);
+  }
+  .orn {
+    width:240px; height:2px; margin:0 auto 42px;
+    background:linear-gradient(90deg,transparent,rgba(240,216,120,0.7),transparent);
+  }
+  .verse {
+    font-family:'Cormorant Garamond',serif; font-size:26px; line-height:1.75;
+    color:#f2e3a8; font-style:italic; margin-bottom:42px;
+    text-shadow:0 2px 6px rgba(0,0,0,0.95);
+  }
+  .verse .hl { color:#f0d878; font-weight:600; font-style:normal; }
+  .ref {
+    font-family:'Cinzel',serif; font-size:14px; letter-spacing:4px;
+    color:rgba(240,216,120,0.7); text-shadow:0 1px 3px rgba(0,0,0,0.9);
+  }
+  .badge {
+    position:absolute; bottom:68px; left:0; width:100%; text-align:center;
+    font-family:'Cinzel',serif; font-size:11px; letter-spacing:3px;
+    color:rgba(240,216,120,0.55); z-index:7; text-shadow:0 1px 3px rgba(0,0,0,0.9);
+  }
+</style>
+</head>
+<body>
+  <canvas id="gl"></canvas>
+  <div class="frame"></div>
+  <div class="content">
+    <div class="glyph te-glyph">✧</div>
+    <div class="title te-title te-shimmer te-glow">APOCALIPSIS 21</div>
+    <div class="tagline te-tagline">LA NUEVA JERUSALÉN</div>
+    <div class="orn te-orn"></div>
+    <div class="verse te-plate">
+      <div class="te-line">Y yo Juan vi la <span class="hl">santa ciudad</span>,</div>
+      <div class="te-line">la nueva Jerusalén, que descendía</div>
+      <div class="te-line">del cielo, de Dios, dispuesta como</div>
+      <div class="te-line">una <span class="hl">esposa</span> ataviada para su marido.</div>
+    </div>
+    <div class="ref te-ref">APOCALIPSIS 21:2 · BIBLIA DEL OSO 1569</div>
+  </div>
+  <div class="badge te-badge">æ://TEOLOGIA · THREE.JS · APOCALIPSIS 21 · VERIFICABLE</div>
+
+<script src="../vendor/three.global.js"></script>
+<script src="text-effects.js"></script>
+<script>
+  // ── Three.js r147 — Apocalipsis 21: "La nueva Jerusalén" ──
+  const W = 720, H = 1280;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0b1020);
+  scene.fog = new THREE.FogExp2(0x0b1020, 0.0035);
+
+  const camera = new THREE.PerspectiveCamera(52, W / H, 0.1, 200);
+  camera.position.set(0, 3, 26);
+
+  const renderer = new THREE.WebGLRenderer({
+    canvas: document.getElementById('gl'),
+    antialias: true, alpha: false
+  });
+  renderer.setSize(W, H, false);
+  renderer.setPixelRatio(1);
+
+  // ── Lights ──
+  scene.add(new THREE.AmbientLight(0xf0d878, 1.0));
+  const key = new THREE.PointLight(0xf0d878, 2.6, 140);
+  key.position.set(8, 16, 14);
+  scene.add(key);
+  const rim = new THREE.PointLight(0x88aaff, 1.2, 120);
+  rim.position.set(-14, -6, -8);
+  scene.add(rim);
+
+  // ── The Holy City — a golden cube (12,000 stadia, Rev 21:16) ──
+  const CITY = 8;
+  const cityGeo = new THREE.BoxGeometry(CITY, CITY, CITY);
+  // Glowing edges — the city's walls of jasper
+  const cityEdges = new THREE.LineSegments(
+    new THREE.EdgesGeometry(cityGeo),
+    new THREE.LineBasicMaterial({ color: 0xf0d878, transparent: true, opacity: 0.85 })
+  );
+  scene.add(cityEdges);
+  // Translucent gold body — "pure gold, like clear glass" (21:18)
+  const cityBody = new THREE.Mesh(cityGeo, new THREE.MeshStandardMaterial({
+    color: 0xd4af37, emissive: 0x6a5518, metalness: 0.95, roughness: 0.15,
+    transparent: true, opacity: 0.22
+  }));
+  scene.add(cityBody);
+  // Inner glow shell
+  const innerGlow = new THREE.Mesh(
+    new THREE.BoxGeometry(CITY*0.98, CITY*0.98, CITY*0.98),
+    new THREE.MeshBasicMaterial({
+      color: 0xf0d878, transparent: true, opacity: 0.10,
+      side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false
+    })
+  );
+  scene.add(innerGlow);
+
+  // ── Twelve foundations / gates — pearls around the base ──
+  const GATES = 12;
+  const gatePoints = [];
+  const gateGeo = new THREE.SphereGeometry(0.22, 16, 16);
+  const gateMat = new THREE.MeshBasicMaterial({ color: 0xfff0c8 });
+  const gateGroup = new THREE.Group();
+  for (let i = 0; i < GATES; i++) {
+    const a = (i / GATES) * Math.PI * 2;
+    const r = CITY / 2 + 0.6;
+    const gate = new THREE.Mesh(gateGeo, gateMat);
+    gate.position.set(r * Math.cos(a), -CITY/2, r * Math.sin(a));
+    gateGroup.add(gate);
+    gatePoints.push({ mesh: gate, a, r, ph: i * 0.5 });
+  }
+  scene.add(gateGroup);
+
+  // ── Street of gold — a luminous plane beneath the city (21:21) ──
+  const streetMat = new THREE.MeshStandardMaterial({
+    color: 0xd4af37, emissive: 0x5a4410, metalness: 0.9, roughness: 0.25,
+    transparent: true, opacity: 0.5
+  });
+  const street = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), streetMat);
+  street.rotation.x = -Math.PI / 2;
+  street.position.y = -CITY/2 - 0.1;
+  scene.add(street);
+
+  // ── River of life — winding golden-blue ribbon (21:1) ──
+  const riverCurve = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(-14, -CITY/2, 14),
+    new THREE.Vector3(-6, -CITY/2, 8),
+    new THREE.Vector3(0, -CITY/2, 2),
+    new THREE.Vector3(6, -CITY/2, -4),
+    new THREE.Vector3(14, -CITY/2, -10)
+  ]);
+  const riverMat = new THREE.MeshBasicMaterial({ color: 0x88bbff, transparent: true, opacity: 0.6 });
+  const river = new THREE.Mesh(new THREE.TubeGeometry(riverCurve, 80, 0.25, 8, false), riverMat);
+  scene.add(river);
+
+  // ── Heavenly host — golden particles filling the sky ──
+  const HP = 900;
+  const hPos = new Float32Array(HP * 3);
+  for (let i = 0; i < HP; i++) {
+    const r = 14 + Math.random() * 26;
+    const th = Math.random() * Math.PI * 2;
+    const ph = Math.acos(2 * Math.random() - 1);
+    hPos[i*3]   = r * Math.sin(ph) * Math.cos(th);
+    hPos[i*3+1] = Math.abs(r * Math.sin(ph) * Math.sin(th)) * 0.6 + 2;
+    hPos[i*3+2] = r * Math.cos(ph);
+  }
+  const hGeo = new THREE.BufferGeometry();
+  hGeo.setAttribute('position', new THREE.BufferAttribute(hPos, 3));
+  const heavens = new THREE.Points(hGeo, new THREE.PointsMaterial({
+    color: 0xf0d878, size: 0.16, transparent: true, opacity: 0.85,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  }));
+  scene.add(heavens);
+
+  // ── Light of the Lamb — central radiant core (21:23) ──
+  const lamb = new THREE.Mesh(
+    new THREE.SphereGeometry(0.9, 32, 32),
+    new THREE.MeshBasicMaterial({ color: 0xffffff })
+  );
+  scene.add(lamb);
+  const lambGlow = new THREE.Mesh(
+    new THREE.SphereGeometry(1.6, 32, 32),
+    new THREE.MeshBasicMaterial({
+      color: 0xf0d878, transparent: true, opacity: 0.25,
+      blending: THREE.AdditiveBlending, depthWrite: false
+    })
+  );
+  scene.add(lambGlow);
+
+  // ── Deterministic frame hook ──
+  window.__renderFrame = function(i, total) {
+    const t = i / Math.max(1, total - 1);
+
+    // City descends slowly from heaven + rotates
+    cityEdges.rotation.y = i * 0.006;
+    cityEdges.rotation.x = i * 0.002;
+    cityBody.rotation.y = i * 0.006;
+    cityBody.rotation.x = i * 0.002;
+    innerGlow.rotation.y = i * 0.006;
+    innerGlow.rotation.x = i * 0.002;
+
+    const descend = Math.sin(i * 0.02) * 0.6;
+    cityEdges.position.y = descend;
+    cityBody.position.y = descend;
+    innerGlow.position.y = descend;
+    const cs = 1 + 0.02 * Math.sin(i * 0.04);
+    cityEdges.scale.setScalar(cs);
+    cityBody.scale.setScalar(cs);
+
+    // Body shimmer
+    cityBody.material.opacity = 0.18 + 0.10 * Math.sin(i * 0.035);
+
+    // Gates pulse + orbit
+    gateGroup.rotation.y = i * 0.004;
+    for (const g of gatePoints) {
+      const pulse = 1 + 0.25 * Math.sin(i * 0.06 + g.ph);
+      g.mesh.scale.setScalar(pulse);
+    }
+
+    // Street glow
+    streetMat.opacity = 0.4 + 0.15 * Math.sin(i * 0.03);
+    street.rotation.z = i * 0.001;
+
+    // River shimmer
+    riverMat.opacity = 0.5 + 0.2 * Math.sin(i * 0.05);
+
+    // Heavenly host swirl
+    heavens.rotation.y = i * 0.003;
+    heavens.rotation.z = i * 0.0012;
+
+    // Lamb light pulse
+    const lp = 1 + 0.12 * Math.sin(i * 0.07);
+    lamb.scale.setScalar(lp);
+    lambGlow.scale.setScalar(lp * 1.15);
+    lambGlow.material.opacity = 0.2 + 0.12 * Math.sin(i * 0.06);
+
+    // Camera slow orbit around the descending city
+    const az = i * 0.008;
+    camera.position.x = Math.sin(az) * 6;
+    camera.position.z = 26 + Math.cos(az) * 2;
+    camera.position.y = 3 + Math.sin(i * 0.015) * 1.4;
+    camera.lookAt(0, descend, 0);
+
+    // Text reveal — frame-driven (CSS keyframes don't advance here)
+    if (window.TE) TE.render(i, total);
+
+    renderer.render(scene, camera);
+  };
+
+  window.__renderFrame(0, 300);
+</script>
+
+<!-- æ:// QR Verification Badge -->
+<div id="æ-qr-badge" style="
+  position:fixed;bottom:16px;right:16px;z-index:99999;
+  width:56px;height:56px;border:1px solid #D4AF37;border-radius:8px;
+  background:#050505;padding:4px;cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s;
+" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 20px rgba(212,175,55,0.4)'"
+   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'"
+   onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')"
+   title="æ:// Verify this surface">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/teologia/apocalipsis-21.html&color=D4AF37&bgcolor=050505" 
+       alt="QR Verify" style="width:100%;height:100%;display:block;">
+</div>
+</body>
+</html>
