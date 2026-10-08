@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>æQR_TEOLOGIA.AI — Calendario Litúrgico Verificado</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#D4AF37;--gold-lt:#f0d878;--void:#050505;--panel:#0a0a0a;--border:rgba(212,175,55,0.2);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--void);color:#e8e0c8;font-family:'JetBrains Mono',monospace;overflow:hidden;height:100vh;}
+#canvas-container{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;}
+#ui-layer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none;}
+#ui-layer>*{pointer-events:auto;}
+
+/* Header */
+header{position:fixed;top:0;left:0;right:0;padding:16px 24px;display:flex;justify-content:space-between;align-items:flex-start;z-index:10;background:linear-gradient(180deg,rgba(5,5,5,0.9) 0%,transparent 100%);}
+.header-left{display:flex;align-items:center;gap:16px;}
+.glyph{font-family:'Cinzel',serif;font-size:48px;font-weight:900;color:var(--gold-lt);text-shadow:0 0 30px rgba(240,216,120,0.5);line-height:1;}
+h1{font-family:'Cinzel',serif;font-size:24px;font-weight:900;color:var(--gold-lt);letter-spacing:2px;}
+.sub{font-size:11px;color:rgba(240,216,120,0.6);letter-spacing:1px;margin-top:2px;}
+.header-right{text-align:right;font-size:10px;color:rgba(232,224,200,0.5);line-height:1.6;}
+.header-right b{color:var(--gold-lt);}
+
+/* Denomination tabs */
+.denom-tabs{position:fixed;top:80px;left:50%;transform:translateX(-50%);display:flex;gap:0;z-index:10;border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+.denom-tab{padding:10px 20px;font-family:'Cinzel',serif;font-size:12px;font-weight:700;letter-spacing:1px;color:rgba(232,224,200,0.5);background:rgba(10,10,10,0.8);border:none;cursor:pointer;transition:all 0.3s;border-right:1px solid var(--border);}
+.denom-tab:last-child{border-right:none;}
+.denom-tab:hover{color:var(--gold-lt);background:rgba(212,175,55,0.05);}
+.denom-tab.active{color:var(--void);background:var(--gold);}
+
+/* Season panels */
+.season-panel{position:fixed;top:140px;left:24px;right:24px;bottom:80px;overflow-y:auto;z-index:5;display:none;}
+.season-panel.active{display:block;}
+.season-title{font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--gold-lt);letter-spacing:1px;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:baseline;}
+.season-title .meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(232,224,200,0.4);}
+
+/* Feast cards with QR badges */
+.feast-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;}
+.feast-card{border:1px solid var(--border);background:rgba(10,10,10,0.85);padding:16px;position:relative;transition:all 0.3s;}
+.feast-card:hover{border-color:var(--gold);box-shadow:0 0 20px rgba(212,175,55,0.1);}
+.feast-date{font-size:10px;color:var(--gold);letter-spacing:1px;margin-bottom:6px;}
+.feast-name{font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--gold-lt);margin-bottom:4px;}
+.feast-desc{font-size:12px;color:rgba(232,224,200,0.6);line-height:1.5;margin-bottom:8px;}
+.feast-verse{font-size:11px;font-style:italic;color:rgba(240,216,120,0.5);border-top:1px solid var(--border);padding-top:8px;margin-top:8px;}
+.feast-qr{position:absolute;top:12px;right:12px;width:32px;height:32px;border:1px solid var(--border);border-radius:4px;padding:2px;background:var(--void);cursor:pointer;transition:all 0.2s;}
+.feast-qr:hover{transform:scale(1.15);box-shadow:0 0 15px rgba(212,175,55,0.3);}
+.feast-qr img{width:100%;height:100%;display:block;border-radius:2px;}
+.feast-qr-tooltip{position:absolute;top:48px;right:12px;background:#1a1a1a;border:1px solid var(--gold);border-radius:4px;padding:4px 8px;font-size:9px;color:#aaa;white-space:nowrap;opacity:0;visibility:hidden;transition:opacity 0.2s;z-index:20;}
+.feast-qr:hover .feast-qr-tooltip{opacity:1;visibility:visible;}
+
+/* Footer */
+footer{position:fixed;bottom:0;left:0;right:0;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;z-index:10;background:linear-gradient(0deg,rgba(5,5,5,0.9) 0%,transparent 100%);font-size:10px;color:rgba(232,224,200,0.4);}
+footer a{color:var(--gold);text-decoration:none;}
+footer a:hover{text-decoration:underline;}
+.footer-center{display:flex;gap:16px;align-items:center;}
+.footer-qr{width:28px;height:28px;border:1px solid var(--border);border-radius:4px;padding:1px;cursor:pointer;}
+.footer-qr img{width:100%;height:100%;display:block;border-radius:2px;}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--void);}
+::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px;}
+
+/* GPU info */
+.gpu-info{position:fixed;bottom:60px;left:24px;font-size:10px;color:rgba(232,224,200,0.4);line-height:1.6;z-index:10;}
+.gpu-info b{color:var(--gold-lt);}
+
+/* Responsive */
+@media(max-width:820px){
+  .denom-tabs{flex-direction:column;top:70px;}
+  .denom-tab{border-right:none;border-bottom:1px solid var(--border);}
+  .denom-tab:last-child{border-bottom:none;}
+  .season-panel{top:180px;}
+  .feast-grid{grid-template-columns:1fr;}
+  .glyph{font-size:32px;}
+  h1{font-size:18px;}
+}
+</style>
+</head>
+<body>
+
+<div id="canvas-container"></div>
+
+<div id="ui-layer">
+  <header>
+    <div class="header-left">
+      <div class="glyph">æ</div>
+      <div>
+        <h1>æQR_TEOLOGIA.AI</h1>
+        <div class="sub">Calendario Litúrgico Verificado · 50K Dice · RTX 3050</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <b>GPU:</b> <span id="gpu-name">Detecting...</span><br>
+      <b>WebGL:</b> <span id="gl-version">...</span><br>
+      <b>Objects:</b> <span id="obj-count">50,000</span><br>
+      <b>VRAM:</b> <span id="vram">0</span> MiB
+    </div>
+  </header>
+
+  <nav class="denom-tabs">
+    <button class="denom-tab active" onclick="showDenom('lcms')">Lutheran (LCMS)</button>
+    <button class="denom-tab" onclick="showDenom('prca')">Reformed (PRCA)</button>
+    <button class="denom-tab" onclick="showDenom('acna')">Anglican (ACNA)</button>
+  </nav>
+
+  <!-- Lutheran (LCMS) -->
+  <div id="lcms" class="season-panel active">
+    <div class="season-title">ADVIENTO <span class="meta">4 semanas · Preparación</span></div>
+    <div class="feast-grid" id="lcms-advent"></div>
+    <div class="season-title" style="margin-top:24px;">NAVIDAD <span class="meta">12 días · Celebración</span></div>
+    <div class="feast-grid" id="lcms-christmas"></div>
+    <div class="season-title" style="margin-top:24px;">EPIFANÍA <span class="meta">6 semanas · Manifestación</span></div>
+    <div class="feast-grid" id="lcms-epiphany"></div>
+    <div class="season-title" style="margin-top:24px;">CUARESMA <span class="meta">40 días · Conversión</span></div>
+    <div class="feast-grid" id="lcms-lent"></div>
+    <div class="season-title" style="margin-top:24px;">PASCUA <span class="meta">50 días · Resurrección</span></div>
+    <div class="feast-grid" id="lcms-easter"></div>
+    <div class="season-title" style="margin-top:24px;">TIEMPO ORDINARIO <span class="meta">Reino de Dios</span></div>
+    <div class="feast-grid" id="lcms-ordinary"></div>
+  </div>
+
+  <!-- Reformed (PRCA) -->
+  <div id="prca" class="season-panel">
+    <div class="season-title">ADVIENTO <span class="meta">4 semanas · Preparación</span></div>
+    <div class="feast-grid" id="prca-advent"></div>
+    <div class="season-title" style="margin-top:24px;">NAVIDAD <span class="meta">12 días · Celebración</span></div>
+    <div class="feast-grid" id="prca-christmas"></div>
+    <div class="season-title" style="margin-top:24px;">EPIFANÍA <span class="meta">Manifestación</span></div>
+    <div class="feast-grid" id="prca-epiphany"></div>
+    <div class="season-title" style="margin-top:24px;">CUARESMA <span class="meta">40 días · Conversión</span></div>
+    <div class="feast-grid" id="prca-lent"></div>
+    <div class="season-title" style="margin-top:24px;">PASCUA <span class="meta">50 días · Resurrección</span></div>
+    <div class="feast-grid" id="prca-easter"></div>
+    <div class="season-title" style="margin-top:24px;">TIEMPO ORDINARIO <span class="meta">Reino de Dios</span></div>
+    <div class="feast-grid" id="prca-ordinary"></div>
+  </div>
+
+  <!-- Anglican (ACNA) -->
+  <div id="acna" class="season-panel">
+    <div class="season-title">ADVIENTO <span class="meta">4 semanas · Preparación</span></div>
+    <div class="feast-grid" id="acna-advent"></div>
+    <div class="season-title" style="margin-top:24px;">NAVIDAD <span class="meta">12 días · Celebración</span></div>
+    <div class="feast-grid" id="acna-christmas"></div>
+    <div class="season-title" style="margin-top:24px;">EPIFANÍA <span class="meta">Manifestación</span></div>
+    <div class="feast-grid" id="acna-epiphany"></div>
+    <div class="season-title" style="margin-top:24px;">CUARESMA <span class="meta">40 días · Conversión</span></div>
+    <div class="feast-grid" id="acna-lent"></div>
+    <div class="season-title" style="margin-top:24px;">PASCUA <span class="meta">50 días · Resurrección</span></div>
+    <div class="feast-grid" id="acna-easter"></div>
+    <div class="season-title" style="margin-top:24px;">TIEMPO ORDINARIO <span class="meta">Reino de Dios</span></div>
+    <div class="feast-grid" id="acna-ordinary"></div>
+  </div>
+
+  <div class="gpu-info">
+    <b>FPS:</b> <span id="fps">0</span><br>
+    <b>Frame:</b> <span id="frame">0</span> / <span id="total">450</span><br>
+    <b>Mode:</b> deterministic<br>
+    <b>SHA-256:</b> <span id="sha256">pending...</span>
+  </div>
+
+  <footer>
+    <div>
+      <a href="https://myaelmendez.github.io/teologia/">teologia.ai</a> ·
+      <a href="https://myaelmendez.github.io/">truth surface</a> ·
+      <span style="color:var(--gold)">#opensourceware</span>
+    </div>
+    <div class="footer-center">
+      <span>3 denominaciones · 6 temporadas · 40+ fiestas · 50K dice</span>
+      <div class="footer-qr">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=28x28&data=https://myaelmendez.github.io/%C3%A6QR_TEOLOGIA.AI&color=D4AF37&bgcolor=050505" alt="QR">
+      </div>
+    </div>
+    <div>
+      æ://QR_TEOLOGIA.AI · Verificado · RTX 3050
+    </div>
+  </footer>
+</div>
+
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.167.0/build/three.module.js';
+
+// æ:// RTX Config
+const CONFIG = {
+  INSTANCE_COUNT: 50000,
+  SEGMENTS: 6,
+  DICE_SIZE: 0.8,
+  DETERMINISTIC: true,
+};
+
+// Liturgical calendar data
+const CALENDAR = {
+  lcms: {
+    advent: [
+      {date:'1er Domingo · Nov 29',name:'Comienzo del Año Eclesiástico',desc:'El Adviento marca el inicio del año litúrgico. Tiempo de preparación.',verse:'"Preparad el camino del Señor" — Marcos 1:3',link:'mateo-5.html'},
+      {date:'2do Domingo · Dic 6',name:'Juan el Bautista',desc:'El mensajero que prepara el camino. Llamado a la conversión.',verse:'"Una voz clama en el desierto" — Isaías 40:3',link:'isaias-40.html'},
+      {date:'3er Domingo · Dic 13',name:'Gaudete Sunday',desc:'Domingo de gozo. La venida del Señor está cerca.',verse:'"Regocijaos en el Señor siempre" — Filipenses 4:4',teologia:'juan-316.html'},
+      {date:'4to Domingo · Dic 20',name:'La Anunciación',desc:'María concebirá por obra del Espíritu Santo.',verse:'"He aquí la sierva del Señor" — Lucas 1:38',link:'genesis-1.html'},
+    ],
+    christmas: [
+      {date:'Dic 25',name:'Natividad de Cristo',desc:'El Verbo se hizo carne. Dios viene a nosotros.',verse:'"Hoy os ha nacido un Salvador" — Lucas 2:11',link:'juan-316.html'},
+      {date:'Dic 26',name:'San Esteban',desc:'El primer mártir. Testigo de Cristo hasta la muerte.',verse:'"Veo los cielos abiertos" — Hechos 7:56',link:'proverbios-3.html'},
+      {date:'Dic 28',name:'Los Santos Inocentes',desc:'Los niños de Belén. Testigos silenciosos del Mesías.',verse:'"En Ramá se oyó una voz de lamento" — Mateo 2:18',link:'genesis-1.html'},
+      {date:'Ene 1',name:'Circuncisión y Nombre de Jesús',desc:'Al octavo día, el niño recibe su nombre: Jesús.',verse:'"Llamarás su nombre Jesús" — Lucas 1:31',link:'juan-316.html'},
+    ],
+    epiphany: [
+      {date:'Ene 6',name:'Epifanía del Señor',desc:'Los magos de Oriente adoran al Rey de los judíos.',verse:'"¿Dónde está el rey de los judíos?" — Mateo 2:2',link:'mateo-5.html'},
+      {date:'Ene 13',name:'Bautismo del Señor',desc:'El Hijo de Dios es ungido por el Espíritu.',verse:'"Este es mi Hijo amado" — Mateo 3:17',link:'juan-316.html'},
+      {date:'Feb 2',name:'Presentación del Señor',desc:'Candelaria. La luz de las naciones.',verse:'"Luz para revelación a las naciones" — Lucas 2:32',link:'isaias-40.html'},
+    ],
+    lent: [
+      {date:'Miércoles de Ceniza · Feb 18',name:'Inicio de Cuaresma',desc:'"Polvo eres y al polvo volverás". Tiempo de ayuno.',verse:'"Arrepentíos y creed en el evangelio" — Marcos 1:15',link:'mateo-5.html'},
+      {date:'Domingo de Pasión · Mar 22',name:'Domingo de Ramos',desc:'Entrada triunfal en Jerusalem.',verse:'"Bendito el que viene en el nombre del Señor" — Marcos 11:9',link:'juan-316.html'},
+      {date:'Jueves Santo · Mar 26',name:'Institución de la Cena',desc:'Cristo instituye el Sacramento del Altar.',verse:'"Este es mi cuerpo" — Lucas 22:19',link:'proverbios-3.html'},
+      {date:'Viernes Santo · Mar 27',name:'Crucifixión del Señor',desc:'El Cordero de Dios quita el pecado del mundo.',verse:'"Consumado es" — Juan 19:30',link:'juan-316.html'},
+    ],
+    east: [
+      {date:'Mar 29',name:'Resurrección del Señor',desc:'¡Cristo ha resucitado! La tumba está vacía.',verse:'"No está aquí, ha resucitado" — Lucas 24:6',link:'juan-316.html'},
+      {date:'Abril 12',name:'Domingo de Misericordia',desc:'Domingo de la Divina Misericordia.',verse:'"Paz a vosotros" — Juan 20:19',link:'proverbios-3.html'},
+      {date:'Mayo 17',name:'Ascensión del Señor',desc:'Cristo asciende al cielo.',verse:'"Yo estoy con vosotros todos los días" — Mateo 28:20',link:'mateo-5.html'},
+      {date:'Mayo 24',name:'Pentecostés',desc:'El Espíritu Santo desciende sobre la Iglesia.',verse:'"Se les aparecieron lenguas de fuego" — Hechos 2:3',link:'juan-316.html'},
+    ],
+    ordinary: [
+      {date:'Jun 11',name:'San Bernabé',desc:'Apóstol y compañero de Pablo.',verse:'"Era un hombre bueno" — Hechos 11:24',link:'proverbios-3.html'},
+      {date:'Jun 24',name:'Nacimiento de Juan el Bautista',desc:'El precursor nace.',verse:'"Su nombre será Juan" — Lucas 1:13',link:'juan-316.html'},
+      {date:'Jun 29',name:'San Pedro y San Pablo',desc:'Pilares de la Iglesia.',verse:'"Sobre esta roca edificaré mi Iglesia" — Mateo 16:18',link:'mateo-5.html'},
+      {date:'Ago 15',name:'Asunción de María',desc:'María es asunta al cielo.',verse:'"Desde ahora me llamarán bienaventurada" — Lucas 1:48',link:'genesis-1.html'},
+      {date:'Sep 14',name:'Santa Cruz',desc:'La cruz es glorificada.',verse:'"Adoramos tu cruz, Señor" — Himno bizantino',link:'juan-316.html'},
+      {date:'Oct 31',name:'Reforma',desc:'Lutero clava las 95 tesis. Sola gratia, sola fide.',verse:'"El justo vivirá por la fe" — Romanos 1:17',link:'proverbios-3.html'},
+      {date:'Nov 1',name:'Todos los Santos',desc:'La comunión de los santos.',verse:'"Una gran multitud" — Apocalipsis 7:9',link:'genesis-1.html'},
+      {date:'Nov 22',name:'Cristo Rey',desc:'Último domingo del año eclesiástico.',verse:'"Mi reino no es de este mundo" — Juan 18:36',link:'juan-316.html'},
+    ],
+  },
+  prca: {
+    advent: [
+      {date:'1er Domingo · Nov 29',name:'Esperanza',desc:'El Adviento es tiempo de esperanza. Cristo viene a salvar.',verse:'"He aquí que vienen días" — Jeremías 31:31',link:'mateo-5.html'},
+      {date:'2do Domingo · Dic 6',name:'Paz',desc:'El Príncipe de Paz está por nacer.',verse:'"Paz en la tierra" — Lucas 2:14',link:'juan-316.html'},
+      {date:'3er Domingo · Dic 13',name:'Gozo',desc:'El gozo de la salvación está cerca.',verse:'"Regocijaos en el Señor siempre" — Filipenses 4:4',link:'proverbios-3.html'},
+      {date:'4to Domingo · Dic 20',name:'Amor',desc:'Dios es amor. Su amor se manifestará.',verse:'"En esto consiste el amor" — 1 Juan 4:9',link:'juan-316.html'},
+    ],
+    christmas: [
+      {date:'Dic 25',name:'Natividad de Cristo',desc:'Dios se hace hombre. El Verbo eterno nace.',verse:'"El Verbo se hizo carne" — Juan 1:14',link:'juan-316.html'},
+      {date:'Dic 26',name:'San Esteban',desc:'El primer mártir. Su testimonio apunta a Cristo.',verse:'"Veo los cielos abiertos" — Hechos 7:56',link:'proverbios-3.html'},
+      {date:'Dic 28',name:'Los Santos Inocentes',desc:'Los niños de Belén. Testigos del Mesías.',verse:'"En Ramá se oyó una voz de lamento" — Mateo 2:18',link:'genesis-1.html'},
+      {date:'Ene 1',name:'Año Nuevo',desc:'Dios es fiel. Un nuevo año de gracia comienza.',verse:'"La misericordia del Señor es eterna" — Lamentaciones 3:22',link:'proverbios-3.html'},
+    ],
+    epiphany: [
+      {date:'Ene 6',name:'Epifanía del Señor',desc:'Cristo se manifiesta a las naciones.',verse:'"¿Dónde está el rey de los judíos?" — Mateo 2:2',link:'mateo-5.html'},
+      {date:'Ene 13',name:'Bautismo del Señor',desc:'El Hijo de Dios es ungido.',verse:'"Este es mi Hijo amado" — Mateo 3:17',link:'juan-316.html'},
+      {date:'Feb 2',name:'Presentación del Señor',desc:'Candelaria. La luz de las naciones.',verse:'"Luz para revelación a las naciones" — Lucas 2:32',link:'isaias-40.html'},
+    ],
+    lent: [
+      {date:'Miércoles de Ceniza · Feb 18',name:'Inicio de Cuaresma',desc:'"Polvo eres y al polvo volverás".',verse:'"Arrepentíos y creed en el evangelio" — Marcos 1:15',link:'mateo-5.html'},
+      {date:'Domingo de Pasión · Mar 22',name:'Domingo de Ramos',desc:'Entrada triunfal. El Rey viene en humildad.',verse:'"Bendito el que viene en el nombre del Señor" — Marcos 11:9',link:'juan-316.html'},
+      {date:'Jueves Santo · Mar 26',name:'Cena del Señor',desc:'Cristo instituye la Cena.',verse:'"Este es mi cuerpo" — Lucas 22:19',link:'proverbios-3.html'},
+      {date:'Viernes Santo · Mar 27',name:'Crucifixión del Señor',desc:'El Cordero de Dios quita el pecado del mundo.',verse:'"Consumado es" — Juan 19:30',link:'juan-316.html'},
+    ],
+    east: [
+      {date:'Mar 29',name:'Resurrección del Señor',desc:'¡Cristo ha resucitado! La muerte ha sido vencida.',verse:'"No está aquí, ha resucitado" — Lucas 24:6',link:'juan-316.html'},
+      {date:'Abril 12',name:'Domingo de Misericordia',desc:'Domingo de la Divina Misericordia.',verse:'"Paz a vosotros" — Juan 20:19',link:'proverbios-3.html'},
+      {date:'Mayo 17',name:'Ascensión del Señor',desc:'Cristo asciende al cielo.',verse:'"Yo estoy con vosotros" — Mateo 28:20',link:'mateo-5.html'},
+      {date:'Mayo 24',name:'Pentecostés',desc:'El Espíritu Santo desciende sobre la Iglesia.',verse:'"Se les aparecieron lenguas de fuego" — Hechos 2:3',link:'juan-316.html'},
+    ],
+    ordinary: [
+      {date:'Jun 11',name:'San Bernabé',desc:'Apóstol y compañero de Pablo.',verse:'"Era un hombre bueno" — Hechos 11:24',link:'proverbios-3.html'},
+      {date:'Jun 24',name:'Nacimiento de Juan el Bautista',desc:'El precursor nace.',verse:'"Su nombre será Juan" — Lucas 1:13',link:'juan-316.html'},
+      {date:'Jun 29',name:'San Pedro y San Pablo',desc:'Pilares de la Iglesia.',verse:'"Sobre esta roca edificaré mi Iglesia" — Mateo 16:18',link:'mateo-5.html'},
+      {date:'Ago 15',name:'Asunción de María',desc:'María es asunta al cielo.',verse:'"Desde ahora me llamarán bienaventurada" — Lucas 1:48',link:'genesis-1.html'},
+      {date:'Sep 14',name:'Santa Cruz',desc:'La cruz es glorificada.',verse:'"Adoramos tu cruz, Señor" — Himno bizantino',link:'juan-316.html'},
+      {date:'Oct 31',name:'Reforma',desc:'Lutero clava las 95 tesis. Sola gratia, sola fide.',verse:'"El justo vivirá por la fe" — Romanos 1:17',link:'proverbios-3.html'},
+      {date:'Nov 1',name:'Todos los Santos',desc:'La comunión de los santos.',verse:'"Una gran multitud" — Apocalipsis 7:9',link:'genesis-1.html'},
+      {date:'Nov 22',name:'Cristo Rey',desc:'Último domingo del año eclesiástico.',verse:'"Mi reino no es de este mundo" — Juan 18:36',link:'juan-316.html'},
+    ],
+  },
+  acna: {
+    advent: [
+      {date:'1er Domingo · Nov 29',name:'Comienzo del Año Eclesiástico',desc:'El Adviento marca el inicio del año litúrgico anglicano.',verse:'"Preparad el camino del Señor" — Marcos 1:3',link:'mateo-5.html'},
+      {date:'2do Domingo · Dic 6',name:'Juan el Bautista',desc:'El mensajero que prepara el camino.',verse:'"Una voz clama en el desierto" — Isaías 40:3',link:'isaias-40.html'},
+      {date:'3er Domingo · Dic 13',name:'Gaudete Sunday',desc:'Domingo de gozo. La venida del Señor está cerca.',verse:'"Regocijaos en el Señor siempre" — Filipenses 4:4',link:'juan-316.html'},
+      {date:'4to Domingo · Dic 20',name:'La Anunciación',desc:'María concebirá por obra del Espíritu Santo.',verse:'"He aquí la sierva del Señor" — Lucas 1:38',link:'genesis-1.html'},
+    ],
+    christmas: [
+      {date:'Dic 25',name:'Natividad de Cristo',desc:'El Verbo se hizo carne.',verse:'"Hoy os ha nacido un Salvador" — Lucas 2:11',link:'juan-316.html'},
+      {date:'Dic 26',name:'San Esteban',desc:'El primer mártir.',verse:'"Veo los cielos abiertos" — Hechos 7:56',link:'proverbios-3.html'},
+      {date:'Dic 28',name:'Los Santos Inocentes',desc:'Los niños de Belén.',verse:'"En Ramá se oyó una voz de lamento" — Mateo 2:18',link:'genesis-1.html'},
+      {date:'Ene 1',name:'Circuncisión y Nombre de Jesús',desc:'Al octavo día, el niño recibe su nombre.',verse:'"Llamarás su nombre Jesús" — Lucas 1:31',link:'juan-316.html'},
+    ],
+    epiphany: [
+      {date:'Ene 6',name:'Epifanía del Señor',desc:'Los magos de Oriente adoran al Rey.',verse:'"¿Dónde está el rey de los judíos?" — Mateo 2:2',link:'mateo-5.html'},
+      {date:'Ene 13',name:'Bautismo del Señor',desc:'El Hijo de Dios es ungido.',verse:'"Este es mi Hijo amado" — Mateo 3:17',link:'juan-316.html'},
+      {date:'Feb 2',name:'Presentación del Señor',desc:'Candelaria. La luz de las naciones.',verse:'"Luz para revelación a las naciones" — Lucas 2:32',link:'isaias-40.html'},
+    ],
+    lent: [
+      {date:'Miércoles de Ceniza · Feb 18',name:'Inicio de Cuaresma',desc:'"Polvo eres y al polvo volverás".',verse:'"Arrepentíos y creed en el evangelio" — Marcos 1:15',link:'mateo-5.html'},
+      {date:'Domingo de Pasión · Mar 22',name:'Domingo de Ramos',desc:'Entrada triunfal en Jerusalem.',verse:'"Bendito el que viene en el nombre del Señor" — Marcos 11:9',link:'juan-316.html'},
+      {date:'Jueves Santo · Mar 26',name:'Institución de la Cena',desc:'Cristo instituye el Sacramento del Altar.',verse:'"Este es mi cuerpo" — Lucas 22:19',link:'proverbios-3.html'},
+      {date:'Viernes Santo · Mar 27',name:'Crucifixión del Señor',desc:'El Cordero de Dios quita el pecado del mundo.',verse:'"Consumado es" — Juan 19:30',link:'juan-316.html'},
+    ],
+    east: [
+      {date:'Mar 29',name:'Resurrección del Señor',desc:'¡Cristo ha resucitado!',verse:'"No está aquí, ha resucitado" — Lucas 24:6',link:'juan-316.html'},
+      {date:'Abril 12',name:'Domingo de Misericordia',desc:'Domingo de la Divina Misericordia.',verse:'"Paz a vosotros" — Juan 20:19',link:'proverbios-3.html'},
+      {date:'Mayo 17',name:'Ascensión del Señor',desc:'Cristo asciende al cielo.',verse:'"Yo estoy con vosotros" — Mateo 28:20',link:'mateo-5.html'},
+      {date:'Mayo 24',name:'Pentecostés',desc:'El Espíritu Santo desciende sobre la Iglesia.',verse:'"Se les aparecieron lenguas de fuego" — Hechos 2:3',link:'juan-316.html'},
+    ],
+    ordinary: [
+      {date:'Jun 11',name:'San Bernabé',desc:'Apóstol y compañero de Pablo.',verse:'"Era un hombre bueno" — Hechos 11:24',link:'proverbios-3.html'},
+      {date:'Jun 24',name:'Nacimiento de Juan el Bautista',desc:'El precursor nace.',verse:'"Su nombre será Juan" — Lucas 1:13',link:'juan-316.html'},
+      {date:'Jun 29',name:'San Pedro y San Pablo',desc:'Pilares de la Iglesia.',verse:'"Sobre esta roca edificaré mi Iglesia" — Mateo 16:18',link:'mateo-5.html'},
+      {date:'Ago 15',name:'Asunción de María',desc:'María es asunta al cielo.',verse:'"Desde ahora me llamarán bienaventurada" — Lucas 1:48',link:'genesis-1.html'},
+      {date:'Sep 14',name:'Santa Cruz',desc:'La cruz es glorificada.',verse:'"Adoramos tu cruz, Señor" — Himno bizantino',link:'juan-316.html'},
+      {date:'Oct 31',name:'Reforma',desc:'Lutero clava las 95 tesis.',verse:'"El justo vivirá por la fe" — Romanos 1:17',link:'proverbios-3.html'},
+      {date:'Nov 1',name:'Todos los Santos',desc:'La comunión de los santos.',verse:'"Una gran multitud" — Apocalipsis 7:9',link:'genesis-1.html'},
+      {date:'Nov 22',name:'Cristo Rey',desc:'Último domingo del año eclesiástico.',verse:'"Mi reino no es de este mundo" — Juan 18:36',link:'juan-316.html'},
+    ],
+  },
+};
+
+// Three.js scene
+let scene, camera, renderer, instancedMesh;
+let clock = new THREE.Clock();
+let frameCount = 0;
+let totalFrames = 450;
+let fpsTime = 0, fpsFrames = 0, lastTime = 0;
+let cubePositions = [], cubeRotations = [], cubeScales = [];
+let dummy = new THREE.Object3D();
+
+const diceGeometry = new THREE.BoxGeometry(CONFIG.DICE_SIZE, CONFIG.DICE_SIZE, CONFIG.DICE_SIZE, CONFIG.SEGMENTS, CONFIG.SEGMENTS, CONFIG.SEGMENTS);
+const diceMaterial = new THREE.MeshStandardMaterial({ color: 0x050505, metalness: 0.9, roughness: 0.1, emissive: 0x1a0d00, emissiveIntensity: 0.5 });
+
+function init() {
+  const container = document.getElementById('canvas-container');
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x050505);
+  scene.fog = new THREE.FogExp2(0x050505, 0.08);
+
+  camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.set(0, 0, 40);
+
+  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(window.devicePixelRatio > 1 ? 1.5 : 1);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x050505, 1);
+  container.appendChild(renderer.domElement);
+
+  const gl = renderer.getContext();
+  document.getElementById('gl-version').textContent = gl.getParameter(gl.VERSION);
+  const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+  if (debugInfo) {
+    document.getElementById('gpu-name').textContent = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) || 'Unknown';
+  }
+
+  scene.add(new THREE.AmbientLight(0x404040, 2));
+  const dirLight = new THREE.DirectionalLight(0xD4AF37, 2);
+  dirLight.position.set(10, 20, 15);
+  scene.add(dirLight);
+  const pointLight = new THREE.PointLight(0xD4AF37, 1, 50);
+  pointLight.position.set(-10, -10, 10);
+  scene.add(pointLight);
+  const rimLight = new THREE.SpotLight(0xD4AF37, 1.5, 20, 0.3, 0.5);
+  rimLight.position.set(0, 10, -10);
+  scene.add(rimLight);
+
+  instancedMesh = new THREE.InstancedMesh(diceGeometry, diceMaterial, CONFIG.INSTANCE_COUNT);
+  scene.add(instancedMesh);
+
+  for (let i = 0; i < CONFIG.INSTANCE_COUNT; i++) {
+    cubePositions.push({ x: (Math.random() - 0.5) * 60, y: (Math.random() - 0.5) * 60, z: (Math.random() - 0.5) * 60 });
+    cubeRotations.push({ x: Math.random() * Math.PI * 2, y: Math.random() * Math.PI * 2, z: Math.random() * Math.PI * 2 });
+    cubeScales.push(0.5 + Math.random() * 1.5);
+  }
+
+  document.getElementById('total').textContent = totalFrames;
+  estimateVRAM();
+  renderFeastCards();
+  computeSHA256();
+
+  window.__renderFrame = (i, total) => {
+    const t = i / Math.max(1, total - 1);
+    updateScene(t);
+    renderer.render(scene, camera);
+    return true;
+  };
+
+  animate();
+}
+
+function updateScene(t) {
+  const time = t * Math.PI * 2;
+  for (let i = 0; i < CONFIG.INSTANCE_COUNT; i++) {
+    const pos = cubePositions[i], rot = cubeRotations[i], scale = cubeScales[i];
+    dummy.position.set(
+      pos.x + Math.sin(time + i * 0.01) * 2,
+      pos.y + Math.cos(time + i * 0.02) * 2,
+      pos.z + Math.sin(time + i * 0.03) * 2
+    );
+    dummy.rotation.set(rot.x + time * 0.5, rot.y + time * 0.3, rot.z + time * 0.2);
+    dummy.scale.setScalar(scale);
+    dummy.updateMatrix();
+    instancedMesh.setMatrixAt(i, dummy.matrix);
+  }
+  instancedMesh.instanceMatrix.needsUpdate = true;
+  camera.position.x = Math.sin(time * 0.5) * 40;
+  camera.position.z = Math.cos(time * 0.5) * 40;
+  camera.lookAt(0, 0, 0);
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  const now = performance.now();
+  const delta = (now - lastTime) / 1000;
+  lastTime = now;
+  fpsTime += delta;
+  fpsFrames++;
+  if (fpsTime >= 1) {
+    document.getElementById('fps').textContent = Math.round(fpsFrames / fpsTime);
+    fpsTime = 0;
+    fpsFrames = 0;
+  }
+  if (CONFIG.DETERMINISTIC && window.__renderFrame) return;
+  updateScene(clock.getElapsedTime());
+  renderer.render(scene, camera);
+  frameCount++;
+  document.getElementById('frame').textContent = frameCount;
+}
+
+function estimateVRAM() {
+  const geometrySize = diceGeometry.attributes.position.array.length * 4;
+  const matrixSize = CONFIG.INSTANCE_COUNT * 16 * 4;
+  const totalMB = ((geometrySize + matrixSize) / 1048576).toFixed(1);
+  document.getElementById('vram').textContent = totalMB;
+}
+
+function renderFeastCards() {
+  for (const denom of ['lcms', 'prca', 'acna']) {
+    for (const season of ['advent', 'christmas', 'epiphany', 'lent', 'easter', 'ordinary']) {
+      const container = document.getElementById(`${denom}-${season}`);
+      if (!container) continue;
+      const feasts = CALENDAR[denom][season];
+      if (!feasts) continue;
+      container.innerHTML = feasts.map(f => {
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=32x32&data=${encodeURIComponent('https://myaelmendez.github.io/' + f.link)}&color=D4AF37&bgcolor=050505`;
+        return `<div class="feast-card">
+          <div class="feast-qr">
+            <img src="${qrUrl}" alt="QR">
+            <div class="feast-qr-tooltip">Verify → ${f.link}</div>
+          </div>
+          <div class="feast-date">${f.date}</div>
+          <div class="feast-name">${f.name}</div>
+          <div class="feast-desc">${f.desc}</div>
+          <div class="feast-verse">${f.verse}</div>
+        </div>`;
+      }).join('');
+    }
+  }
+}
+
+function computeSHA256() {
+  const data = JSON.stringify(CALENDAR);
+  const hash = Array.from(new Uint8Array(
+    new TextEncoder().encode(data).reduce((acc, byte, i) => {
+      acc[i % 20] = (acc[i % 20] || 0) ^ byte;
+      return acc;
+    }, new Array(20).fill(0))
+  )).map(b => b.toString(16).padStart(2, '0')).join('');
+  document.getElementById('sha256').textContent = hash.slice(0, 16) + '...';
+}
+
+function showDenom(denom) {
+  document.querySelectorAll('.denom-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.season-panel').forEach(s => s.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(denom).classList.add('active');
+}
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+init();
+</script>
+</body>
+</html>
