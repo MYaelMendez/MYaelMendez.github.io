@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>verify:// — æ:// verification gate · codæ://</title>
+<meta name="description" content="verify:// — el gate de verificación de æ://. Un artefacto se abre, se hashea, se muestra su recibo. Escanea, verifica, decide.">
+<link rel="canonical" href="https://myaelmendez.github.io/verify.html">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold2:#f0d487;--neon:#00ff9d;--cyan:#00eaff;--violet:#8c72ff;--danger:#ff4d5f;--ink:#e8e6df;--muted:#6f6a5c;--border:rgba(212,175,55,.22)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;line-height:1.6;padding:24px 18px 80px;max-width:960px;margin:0 auto}
+a{color:var(--gold);text-decoration:none}a:hover{text-decoration:underline}
+.statusbar{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;border:1px solid var(--border);padding:8px 12px;font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+.statusbar .live{color:var(--neon)}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--neon);margin-right:6px;box-shadow:0 0 8px var(--neon)}
+h1{font-family:'Orbitron';font-weight:900;font-size:32px;letter-spacing:2px;color:var(--gold);margin:22px 0 4px}
+.sub{color:var(--muted);font-size:12px;letter-spacing:1px}
+.panel{border:1px solid var(--border);margin-top:18px;background:rgba(5,5,5,.6)}
+.panel-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--border);font-family:'Orbitron';font-weight:700;font-size:11px;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase}
+.panel-head .tag{color:var(--muted);font-family:'JetBrains Mono';font-weight:400;font-size:9px}
+.panel-body{padding:14px}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+.badge{display:inline-block;font-size:8px;letter-spacing:1px;padding:2px 6px;border:1px solid rgba(0,255,157,.25);color:var(--neon);border-radius:999px;text-transform:uppercase}
+.badge.gold{border-color:rgba(212,175,55,.4);color:var(--gold)}
+.badge.err{border-color:rgba(255,77,95,.35);color:var(--danger)}
+.logshell{border:1px solid var(--border);padding:12px;background:rgba(5,5,5,.85);color:var(--muted);font-size:10px;line-height:1.6;white-space:pre-wrap;word-break:break-word;max-height:420px;overflow:auto}
+.logshell .ok{color:var(--neon)}.logshell .err{color:var(--danger)}.logshell .cy{color:var(--cyan)}.logshell .gd{color:var(--gold)}
+input{flex:1;min-width:220px;background:rgba(5,5,5,.9);border:1px solid var(--border);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12px;padding:10px 12px;outline:none}
+input:focus{border-color:var(--gold)}
+button{background:var(--gold);color:var(--void);border:none;font-family:'Orbitron';font-weight:700;font-size:10px;letter-spacing:1px;padding:11px 18px;cursor:pointer;text-transform:uppercase}
+.hash{margin-top:26px;text-align:center;font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase}
+table{width:100%;border-collapse:collapse;font-size:10px}
+td{padding:4px 8px;border-bottom:1px solid rgba(212,175,55,.12);vertical-align:top}
+td:first-child{color:var(--muted);white-space:nowrap;width:110px}
+</style>
+</head>
+<body>
+
+<div class="statusbar">
+  <span>verify:// GATE</span>
+  <span>SCAN · HASH · RECEIPT</span>
+  <span class="live"><span class="dot"></span>SOVEREIGN</span>
+</div>
+
+<h1>verify://</h1>
+<div class="sub">EL GATE DE VERIFICACIÓN · un artefacto se abre, se hashea, se muestra su recibo</div>
+
+<div class="panel">
+  <div class="panel-head"><span>◈ ARTEFACTO</span><span class="tag">SHA-256 · BROWSER-NATIVE</span></div>
+  <div class="panel-body">
+    <div class="row">
+      <input id="url" type="text" placeholder="https://myaelmendez.github.io/...  o ruta relativa" autocomplete="off" spellcheck="false">
+      <button onclick="verify()">VERIFICAR</button>
+    </div>
+    <div class="row">
+      <span class="badge" id="state">idle</span>
+      <span class="badge gold" id="size">—</span>
+      <span class="badge gold" id="ctype">—</span>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-head"><span>◈ RECIBO</span><span class="tag">EVIDENCE ≠ AUTHORITY</span></div>
+  <div class="panel-body">
+    <div class="logshell" id="out"><span class="cy">// verify:// — la verificación se computa en tu navegador, no en un servidor.
+// El hash SHA-256 se calcula sobre el artefacto servido.
+// El recibo prueba qué se sirvió. Tú decides si es correcto.</span></div>
+    <div class="row" id="qrwrap" style="display:none">
+      <div style="border:1px solid var(--gold);border-radius:8px;padding:4px;background:#050505;width:120px;height:120px">
+        <img id="qr" alt="QR del artefacto" style="width:100%;height:100%;display:block">
+      </div>
+      <div style="flex:1;min-width:220px">
+        <table>
+          <tr><td>artefacto</td><td id="m-url">—</td></tr>
+          <tr><td>sha-256</td><td id="m-hash">—</td></tr>
+          <tr><td>bytes</td><td id="m-size">—</td></tr>
+          <tr><td>tipo</td><td id="m-ctype">—</td></tr>
+          <tr><td>recibido</td><td id="m-ts">—</td></tr>
+        </table>
+        <div class="row">
+          <a class="badge gold" id="m-open" href="#" target="_blank" rel="noopener">abrir artefacto →</a>
+          <a class="badge gold" id="m-copy" href="#" onclick="copyReceipt();return false;">copiar recibo →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-head"><span>◈ QUÉ HACE Y QUÉ NO</span><span class="tag">HONESTIDAD</span></div>
+  <div class="panel-body">
+    <div class="logshell">
+<span class="ok">HACE</span>
+  · obtiene el artefacto servido (fetch)
+  · computa su SHA-256 en tu navegador (WebCrypto)
+  · emite un recibo con url · hash · bytes · tipo · timestamp
+  · genera el QR del artefacto
+
+<span class="gd">NO HACE</span>
+  · no conoce el hash "esperado" — no hay registro central
+  · no puede probar que un archivo local coincida
+  · no firma nada (sin clave privada en el navegador)
+
+<span class="cy">REGLA</span>
+  La evidencia informa. Tú decides. El recibo prueba qué se sirvió.
+  Para verificación con autoridad: k\u00e6nb\u00e6n + supervisionvidaeo:// + PC://
+    </div>
+    <div class="row">
+      <a class="badge gold" href="./kaenbaen/">kænbæn →</a>
+      <a class="badge gold" href="./supervisionvidaeo.html">supervisionvidaeo →</a>
+      <a class="badge gold" href="./">codæ:// home →</a>
+    </div>
+  </div>
+</div>
+
+<div class="hash">verify:// — LA EVIDENCIA INFORMA · EL HUMANO DECIDE</div>
+
+<!-- æ:// QR Verification Badge -->
+<div id="æ-qr-badge" style="
+  position:fixed;bottom:16px;right:16px;z-index:99999;
+  width:56px;height:56px;border:1px solid #D4AF37;border-radius:8px;
+  background:#050505;padding:4px;cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s;
+" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 20px rgba(212,175,55,0.4)'"
+   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'"
+   onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')"
+   title="æ:// Verify this surface">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/verify.html&color=D4AF37&bgcolor=050505"
+       alt="QR Verify" style="width:100%;height:100%;display:block;">
+</div>
+
+<script>
+let last = null;
+
+function esc(s){ return String(s).replace(/</g,'&lt;'); }
+
+function setState(t, cls){
+  const el = document.getElementById('state');
+  el.textContent = t;
+  el.className = 'badge ' + (cls || '');
+}
+
+async function sha256hex(buf){
+  const h = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(h)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function verify(){
+  const raw = document.getElementById('url').value.trim();
+  const out = document.getElementById('out');
+  if (!raw){ setState('empty','err'); return; }
+  let url = raw;
+  if (!/^https?:\/\//i.test(url)) url = new URL(raw, location.href).href;
+
+  setState('fetching','gold');
+  out.innerHTML = '<span class="cy">// GET ' + esc(url) + '</span>\n';
+
+  try {
+    const t0 = performance.now();
+    const r = await fetch(url, {cache:'no-store'});
+    if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + r.statusText);
+    const buf = await r.arrayBuffer();
+    const hash = await sha256hex(buf);
+    const ctype = r.headers.get('content-type') || 'unknown';
+    const ms = Math.round(performance.now() - t0);
+
+    last = {url, hash, size: buf.byteLength, ctype, ts: new Date().toISOString()};
+
+    document.getElementById('m-url').textContent = url;
+    document.getElementById('m-hash').textContent = hash;
+    document.getElementById('m-size').textContent = buf.byteLength.toLocaleString() + ' bytes';
+    document.getElementById('m-ctype').textContent = ctype;
+    document.getElementById('m-ts').textContent = last.ts;
+    document.getElementById('m-open').href = url;
+    document.getElementById('qr').src = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' +
+      encodeURIComponent(url) + '&color=D4AF37&bgcolor=050505';
+    document.getElementById('qrwrap').style.display = 'flex';
+    document.getElementById('size').textContent = buf.byteLength.toLocaleString() + ' B';
+    document.getElementById('ctype').textContent = ctype.split(';')[0];
+
+    out.innerHTML +=
+      '<span class="ok">OK  200</span>  <span class="cy">' + ms + ' ms</span>\n' +
+      '<span class="gd">sha-256</span>  ' + hash + '\n' +
+      '<span class="gd">bytes  </span>  ' + buf.byteLength.toLocaleString() + '\n' +
+      '<span class="gd">tipo   </span>  ' + esc(ctype) + '\n' +
+      '<span class="gd">recibo </span>  ' + hash.slice(0,16) + ' \u00b7 ' + last.ts + '\n' +
+      '<span class="cy">// el recibo prueba QU\u00c9 se sirvi\u00f3. La autoridad es tuya.</span>';
+    setState('verified','');
+  } catch (e) {
+    out.innerHTML += '<span class="err">ERROR: ' + esc(e.message) + '</span>\n' +
+      '<span class="cy">// CORS, mixto http/https, o 404. El navegador no pudo leer el artefacto.</span>';
+    setState('failed','err');
+  }
+}
+
+function copyReceipt(){
+  if (!last) return;
+  const txt = JSON.stringify(last, null, 2);
+  navigator.clipboard && navigator.clipboard.writeText(txt);
+  setState('receipt copied','');
+}
+
+// ?url= prefill
+(function(){
+  const q = new URLSearchParams(location.search).get('url');
+  if (q){ document.getElementById('url').value = q; verify(); }
+})();
+</script>
+</body>
+</html>

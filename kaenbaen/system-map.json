@@ -1,0 +1,172 @@
+{
+  "system": "æ://",
+  "version": "2026-10-07",
+  "description": "Shared system memory — every agent reads this before acting",
+  "surfaces": {
+    "taskbar": {
+      "path": "C:/æ/ahk/ae-taskbar.ahk",
+      "status": "active",
+      "bindings": {
+        "PrintScreen": "region capture → save + clipboard + receipt",
+        "#PrintScreen": "full capture + receipt",
+        "+PrintScreen": "annotate capture + receipt"
+      }
+    },
+    "capture": {
+      "script": "C:/æ/ahk/capture-region.ps1",
+      "output_dir": "C:/æ/captures/",
+      "receipt_log": "C:/æ/logs/capture-receipts.jsonl",
+      "status": "operational",
+      "bugs_fixed": [
+        "UTF-8 BOM",
+        "$receipt/$Receipt collision",
+        "ANSI encoding",
+        "$Full.IsPresent",
+        "AHK v2 syntax"
+      ]
+    },
+    "fleet": {
+      "orchestrator": "C:/æ/agents/fleet_orchestrator.py",
+      "zeus": "C:/æ/agents/zeus_engine.py",
+      "supervision": "C:/æ/agents/hermes_supervision.py",
+      "cron_task": "ae-fleet-cron",
+      "cron_schedule": "every 4h (5AM, 9AM, 11AM, 1PM, 5PM, 9PM)",
+      "cron_script": "C:/æ/scripts/cron/fleet-cron.bat",
+      "cron_log": "C:/æ/logs/fleet-cron.log"
+    },
+    "verification": {
+      "tsc": "tsc --noEmit",
+      "python": "py_compile",
+      "node": "node --check",
+      "cdp": "Chrome DevTools Protocol",
+      "video": "SupervisorVideo (luminance>20, contrast>8, movement>0.5, black<5%)"
+    },
+    "aee": {
+      "status": "spec_rtl_sim_complete",
+      "targets": [
+        "aee/rtl",
+        "aee/synthesis",
+        "aee/layout"
+      ],
+      "verification": {
+        "rtl": "iverilog -o /dev/null",
+        "synthesis": "nextpnr-ice40 --json /dev/null",
+        "layout": "klayout -b -r check.drc"
+      },
+      "genesis_block": null,
+      "receipt_chain": [],
+      "mathematical_framework": {
+        "structures": [
+          "Hash Chain (Evidence Bus)",
+          "Graphs (Neural Mesh + QR + Fleet)",
+          "Linear Algebra (Three.js)",
+          "Statistics (SupervisorVideo)",
+          "Parallel Reduction (CUDA)",
+          "Language Theory (AEE pipeline)",
+          "Information Theory (QR codes)"
+        ],
+        "fundamental_equation": "trust = evidence / uncertainty",
+        "principles": [
+          "Codæ Mode = edge × scale",
+          "Evidence ≠ Authority",
+          "QR = the chip",
+          "Zeus = self-improvement"
+        ]
+      },
+      "artifacts": {
+        "spec": "C:/æ/aee/spec/SPEC-001-uart-tx.md",
+        "rtl": "C:/æ/aee/rtl/uart_tx.v",
+        "sim": "C:/æ/aee/sim/uart_tx_tb.v",
+        "receipt": "C:/æ/aee/receipts/SPEC-001-receipt.json"
+      },
+      "next_step": "Install OSS CAD Suite (iverilog, yosys, nextpnr-ice40) → run SIM → SYNTH → P&R"
+    },
+    "kænbæn": {
+      "path": "C:/æ/kænbæn/",
+      "files": [
+        "system-map.json",
+        "capability-contracts.json",
+        "verification-gates.json",
+        "genesis-chain.json"
+      ],
+      "description": "Shared system memory — every agent reads this before acting"
+    },
+    "github_pages": {
+      "url": "https://myaelmendez.github.io",
+      "status": "live",
+      "deployed_surfaces": [
+        "mesh-agenti.html",
+        "fleet.html",
+        "cuda-vlc.html",
+        "demo.html",
+        "sovereign-state.html",
+        "agentic.html",
+        "cuda-blueprint.html",
+        "gpu-preview.html",
+        "skill-guide/",
+        "privateclient/vault.html",
+        "privateclient/vault-layers.html",
+        "privateclient/secret-source-bridge.html",
+        "privateclient/glocal-secrets-blueprint.html",
+        "privateclient/terminal.html",
+        "privateclient/compute.html",
+        "privateclient/omnibox.html",
+        "privateclient/vaeult/vaeult.py",
+        "math/osw-zeus-aee.md",
+        "glocal-vision/glocal-vision-report.json",
+        "glocal-vision/glocal-vision-receipts.jsonl"
+      ],
+      "categories": [
+        "networking",
+        "orchestration",
+        "media",
+        "demo",
+        "state",
+        "business",
+        "blueprint",
+        "gpu",
+        "skills",
+        "secrets",
+        "privateclient"
+      ],
+      "agent_protocol": {
+        "authentication": "passphrase",
+        "access_levels": [
+          "read",
+          "write"
+        ],
+        "discovery": "/surface-manifest.json"
+      },
+      "tags": [
+        "#opensourceware",
+        "#hermiphicationisinevitable",
+        "#startabusiness",
+        "#daollc",
+        "#llmstore",
+        "#neuromitosis"
+      ]
+    }
+  },
+  "known_debts": [
+    "qrThree_JS.mp4 — WARN hook not detected in headless Chrome",
+    "30 WARN videos — parser in glocal_vision.py does not extract metrics",
+    "WebLLM — framework ready, model not loaded",
+    "HTTP :8124 — not running, Win+S does not open ae-search.html",
+    "Git state — index.lock, embedded repos, nul file",
+    "4 skills — [SKILL_PRUNED] need reload",
+    "aivitae.github.io — 404 (different domain, not our surface)",
+    "github-pages local clone — was on widget-deploy, now synced to gh-pages"
+  ],
+  "foundation": {
+    "language": "codæ",
+    "implementation": "mech",
+    "runtime": "æ://",
+    "stack": "codæ (.mec) → mech (Rust→WASM) → æ:// (runtime, surfaces, receipts)",
+    "established": "2026-10-08",
+    "tags": [
+      "codæ-v1.0.0",
+      "mech-bootstrap-complete",
+      "æ://-foundation-established"
+    ]
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "id": "orchard-p1-inline-syntax",
+  "status": "open",
+  "priority": "P1",
+  "source": "Operator-provided Orchard Control snapshot; compared with current local checkout",
+  "source_revision": "d2d3bc5387a6fc94640455746110f0064d352b21",
+  "snapshot_claims": {
+    "html_documents": 178,
+    "syntax_blockers": 3,
+    "known_broken_targets": 28,
+    "repair_tasks": 69,
+    "scope": "Historical comparison, not a fresh full audit"
+  },
+  "current_local_check": {
+    "html_documents": 181,
+    "inline_scripts_parsed": 243,
+    "syntax_blockers": 4,
+    "evidence": "C:/Users/yaelm/AppData/Local/hermes/cache/scratch/orchard-inline-check.json",
+    "method": "HTMLParser extraction and node --check; external scripts and non-JavaScript data scripts excluded",
+    "failures": [
+      {"path": "aipodcast_me/monaco-editor.html", "reason": "Unexpected identifier float"},
+      {"path": "aipodcast_me/storyboard.html", "reason": "More than one default clause in switch statement"},
+      {"path": "aipodcast_me/storyboard_animation.html", "reason": "Unexpected token { in keyframes"},
+      {"path": "sovereign-state.html", "reason": "Stray CanvasFocus token: missing ) after argument list"}
+    ]
+  },
+  "next_action": "Repair the four measured inline syntax blockers in the current checkout, rerun the complete inline-script parse, then execute affected pages in a browser before marking verified.",
+  "acceptance": [
+    "All eligible inline scripts parse with zero failures",
+    "Affected pages execute in a real browser without uncaught errors",
+    "Preserve source revision and verification evidence",
+    "Planning readiness remains separate from verified repair"
+  ],
+  "subsequent_priorities": [
+    "Obtain original 28-target list and recheck each exact URL; restore valid routes or explicitly label unavailable controls",
+    "Reconcile canonical resource registry, sitemap and æQR identities; avoid category-placeholder resolution",
+    "Check PR #3 status before considering integration; no automatic merge or publish",
+    "Run visual QA, camera QR round-trips, dependency closure and backend execution as separate gates"
+  ],
+  "not_checked": ["Fresh full HTTP audit", "28 historical targets", "PR #3", "Browser execution", "Visual QA", "Camera scan", "External dependency closure", "Backend execution"],
+  "authority": {"publish": false, "merge": false, "private_resources_public": false}
+}

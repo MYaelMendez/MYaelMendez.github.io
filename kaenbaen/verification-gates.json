@@ -1,0 +1,64 @@
+{
+  "system": "æ://",
+  "version": "2026-10-07",
+  "description": "What verifies each artifact — every gate must PASS before publish",
+  "gates": {
+    "python": {
+      "command": "py_compile",
+      "pass": "exit 0",
+      "fail": "SyntaxError"
+    },
+    "typescript": {
+      "command": "tsc --noEmit",
+      "pass": "0 errors",
+      "fail": "any error"
+    },
+    "javascript": {
+      "command": "node --check",
+      "pass": "exit 0",
+      "fail": "SyntaxError"
+    },
+    "json": {
+      "command": "json parse",
+      "pass": "valid JSON",
+      "fail": "JSONDecodeError"
+    },
+    "html_js": {
+      "command": "embedded JS check",
+      "pass": "no open tags, valid JS",
+      "fail": "unclosed tags or SyntaxError"
+    },
+    "video": {
+      "command": "SupervisorVideo",
+      "thresholds": {
+        "luminancia_media": "> 20",
+        "contraste_medio": "> 8",
+        "movimiento_medio": "> 0.5",
+        "frames_negros": "< 5%"
+      },
+      "pass": "all thresholds met",
+      "fail": "any threshold missed"
+    },
+    "capture": {
+      "command": "SHA256 + chain",
+      "pass": "hash computed, prev_hash matches",
+      "fail": "hash mismatch or missing prev"
+    },
+    "rtl": {
+      "command": "iverilog -o /dev/null",
+      "pass": "exit 0",
+      "fail": "compilation error"
+    },
+    "synthesis": {
+      "command": "nextpnr-ice40 --json /dev/null",
+      "pass": "exit 0",
+      "fail": "routing error"
+    },
+    "layout": {
+      "command": "klayout -b -r check.drc",
+      "pass": "0 DRC violations",
+      "fail": "any DRC violation"
+    }
+  },
+  "principle": "An artifact that has not been verified is not an artifact."
+}
