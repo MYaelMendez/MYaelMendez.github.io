@@ -181,5 +181,19 @@ addEventListener('resize',resize);resize();
 for(const p of pts){p[0]+=p[2];p[1]+=p[3];if(p[0]<0||p[0]>W)p[2]*=-1;if(p[1]<0||p[1]>H)p[3]*=-1;cx.beginPath();cx.arc(p[0],p[1],1.2,0,7);cx.fill();}
 for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const a=pts[i],b=pts[j];const d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(d<120){cx.globalAlpha=(120-d)/120*0.12;cx.beginPath();cx.moveTo(a[0],a[1]);cx.lineTo(b[0],b[1]);cx.stroke();}}cx.globalAlpha=1;requestAnimationFrame(loop);})();
 </script>
+
+<!-- æ:// QR Verification Badge -->
+<div id="æ-qr-badge" style="
+  position:fixed;bottom:16px;right:16px;z-index:99999;
+  width:56px;height:56px;border:1px solid #D4AF37;border-radius:8px;
+  background:#050505;padding:4px;cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s;
+" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 20px rgba(212,175,55,0.4)'"
+   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'"
+   onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')"
+   title="æ:// Verify this surface">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/cuda-blueprint.html&color=D4AF37&bgcolor=050505" 
+       alt="QR Verify" style="width:100%;height:100%;display:block;">
+</div>
 </body>
 </html>

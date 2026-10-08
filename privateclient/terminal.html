@@ -42,5 +42,19 @@ const CMDS={'#connect':[{t:'cmd',x:'>_æ|#connect'},{t:'r',k:'hermes conductor',
 const SUG=['#connect','#deploy','#formation','^cash','#serve','$OS250','#manifesto'];const BOOT=[{t:'sys',x:'æ:// private client session'},{t:'meta',x:'authenticated · mcp/1517 · '+new Date().toISOString().slice(0,10)},{t:'hr'},{t:'r',k:'runtime',v:'hermes conductor',c:'g'},{t:'r',k:'protocol',v:'mcp/1517'},{t:'r',k:'skill',v:'#startabusiness',c:'g'},{t:'r',k:'viewport',v:'9:16 · æ.store'},{t:'r',k:'namespace',v:'æ.store',c:'n'},{t:'hr'},{t:'meta',x:'7 commands available · type or tap'}];
 const $=id=>document.getElementById(id);const wait=ms=>new Promise(r=>setTimeout(r,ms));async function type(el,text,spd=48){el.textContent='';for(const ch of text){el.textContent+=ch;await wait(spd+Math.random()*20)}}function mkLine(d){const el=document.createElement('div');el.className='ln '+d.t;if(d.t==='sys'||d.t==='meta'||d.t==='cmd'){el.textContent=d.x}else if(d.t==='r'){const k=d.k?'<span class="k">'+d.k+'</span>':'';const c=d.c?' '+d.c:'';el.innerHTML='<span class="arr">→</span>'+k+'<span class="v'+c+'">'+d.v+'</span>'}return el}async function feed(lines,ms=65){const o=$('o');for(const d of lines){const el=mkLine(d);o.appendChild(el);requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('on')));o.scrollTop=o.scrollHeight;await wait(ms)}}function exec(raw){const cmd=raw.trim();if(!cmd)return;const key=cmd.toLowerCase();if(CMDS[key]){feed(CMDS[key]);const p=$('sg').querySelector('[data-c="'+key+'"]');if(p)p.classList.add('done')}else{feed([{t:'cmd',x:'>_æ|'+cmd},{t:'err',x:'  not recognized'},{t:'err',x:'  try: '+SUG.slice(0,4).join(' · ')}])}}$('ci').addEventListener('keydown',e=>{if(e.key==='Enter'){exec($('ci').value);$('ci').value=''}});function buildSug(){SUG.forEach(cmd=>{const b=document.createElement('button');b.className='pill';b.textContent=cmd;b.dataset.c=cmd.toLowerCase();b.addEventListener('click',()=>{exec(cmd);b.classList.add('done')});$('sg').appendChild(b)})}function tick(){$('clk').textContent=new Date().toTimeString().slice(0,8)}setInterval(tick,1000);tick();async function auth(){await wait(500);await type($('at'),'æ:// authenticating...',52);await wait(900);$('ag').classList.add('show');await wait(1100);$('auth').classList.add('out');await wait(700);$('auth').style.display='none';$('term').classList.remove('hidden');await wait(200);await feed(BOOT,55);await wait(250);buildSug()}auth();
 </script>
+
+<!-- æ:// QR Verification Badge -->
+<div id="æ-qr-badge" style="
+  position:fixed;bottom:16px;right:16px;z-index:99999;
+  width:56px;height:56px;border:1px solid #D4AF37;border-radius:8px;
+  background:#050505;padding:4px;cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s;
+" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 20px rgba(212,175,55,0.4)'"
+   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'"
+   onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')"
+   title="æ:// Verify this surface">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/privateclient/terminal.html&color=D4AF37&bgcolor=050505" 
+       alt="QR Verify" style="width:100%;height:100%;display:block;">
+</div>
 </body>
 </html>

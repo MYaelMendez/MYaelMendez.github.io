@@ -158,5 +158,19 @@ loop();
 function rebuild(){for(let i=0;i<N.length;i++)idx[N[i].id]=i;for(let i=0;i<nbr.length;i++)nbr[i].clear();E.forEach(e=>{nbr[e.a].add(e.b);nbr[e.b].add(e.a);});document.getElementById('skc').textContent=N.filter(n=>n.type==='skill').length;document.getElementById('pgc').textContent=N.filter(n=>n.type==='page').length;const counts={};N.forEach(n=>counts[n.g]=(counts[n.g]||0)+1);legend.innerHTML=G.groups.filter(g=>counts[g.key]).map(g=>`<div class="leg" data-g="${g.key}"><span class="sw" style="background:${g.col}"></span>${g.label}<span class="ct">${counts[g.key]}</span></div>`).join('');}
 
 </script>
+
+<!-- æ:// QR Verification Badge -->
+<div id="æ-qr-badge" style="
+  position:fixed;bottom:16px;right:16px;z-index:99999;
+  width:56px;height:56px;border:1px solid #D4AF37;border-radius:8px;
+  background:#050505;padding:4px;cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s;
+" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 20px rgba(212,175,55,0.4)'"
+   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'"
+   onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')"
+   title="æ:// Verify this surface">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/aipodcast_me/skill-graph.html&color=D4AF37&bgcolor=050505" 
+       alt="QR Verify" style="width:100%;height:100%;display:block;">
+</div>
 </body>
 </html>

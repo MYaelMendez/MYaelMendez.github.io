@@ -121,5 +121,19 @@ init();addEventListener('resize',init);const CD=100*DPR;
 function draw(now){ctx.fillStyle='rgba(5,5,5,.12)';ctx.fillRect(0,0,W,H);const t=now*.001;nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1});ctx.lineWidth=.4*DPR;for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y;if(Math.abs(dx)>CD||Math.abs(dy)>CD)continue;const d=Math.hypot(dx,dy);if(d<CD){ctx.strokeStyle=`rgba(212,175,55,${(1-d/CD)*.12})`;ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke()}}nodes.forEach(n=>{const p=.55+Math.sin(t*1.5+n.ph)*.45;ctx.fillStyle=`rgba(212,175,55,${.14+p*.24})`;ctx.beginPath();ctx.arc(n.x,n.y,n.r*p,0,6.28);ctx.fill()});requestAnimationFrame(draw)}
 requestAnimationFrame(draw);
 </script>
+
+<!-- æ:// QR Verification Badge -->
+<div id="æ-qr-badge" style="
+  position:fixed;bottom:16px;right:16px;z-index:99999;
+  width:56px;height:56px;border:1px solid #D4AF37;border-radius:8px;
+  background:#050505;padding:4px;cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s;
+" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 20px rgba(212,175,55,0.4)'"
+   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'"
+   onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')"
+   title="æ:// Verify this surface">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/final-video.html&color=D4AF37&bgcolor=050505" 
+       alt="QR Verify" style="width:100%;height:100%;display:block;">
+</div>
 </body>
 </html>
