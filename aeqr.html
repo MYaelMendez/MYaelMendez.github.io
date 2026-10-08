@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>æQR · resource addressing, verification & audit — æ://</title>
+<meta name="description" content="æQR — one discovery layer across many resources without making every resource public. A QR is an address, not permission. Produced-and-verified, decoded back through two real decoders. Part of Private Client AI.">
+<link rel="canonical" href="https://myaelmendez.github.io/aeqr.html">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="æ://">
+<meta property="og:url" content="https://myaelmendez.github.io/aeqr.html">
+<meta property="og:title" content="æQR — resource addressing, verification & audit">
+<meta property="og:description" content="One discovery layer across many resources, without making every resource public. A QR is an address, not permission.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@yaelmendez">
+<meta name="author" content="Yæl Méndez">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./assets/aether.css">
+<style>
+.glyph-sm{font-size:clamp(30px,7vw,54px)}
+.lede{color:var(--ink);font-size:clamp(10px,1.9vw,14px);line-height:1.7;max-width:720px;margin:0 auto;text-align:center}
+.lede b{color:var(--gold)}
+.grid-2{display:grid;gap:12px;grid-template-columns:repeat(2,1fr)}
+@media(max-width:760px){.grid-2{grid-template-columns:1fr}}
+.card{display:flex;flex-direction:column;gap:8px}
+.card .name{font-family:'Orbitron';font-weight:700;font-size:12px;letter-spacing:1px;color:var(--gold);text-transform:uppercase}
+.card .meta{font-size:11px;line-height:1.6;color:var(--muted)}
+.card .meta b{color:var(--ink)}
+.rule{border:1px solid var(--border-hot);padding:14px;background:rgba(212,175,55,.03);display:flex;gap:12px;align-items:flex-start}
+.rule .n{font-family:'Orbitron';font-weight:900;color:var(--gold);font-size:22px;line-height:1}
+.rule .t{font-size:11px;line-height:1.65;color:var(--muted)}
+.rule .t b{color:var(--ink)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;font-size:11px;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+.flow .s{border:1px solid var(--border);padding:6px 12px;border-radius:999px}
+.flow .s.hot{border-color:rgba(212,175,55,.4);color:var(--gold)}
+.flow .a{color:var(--gold);align-self:center}
+table.reg{width:100%;border-collapse:collapse;font-size:11px}
+table.reg th,table.reg td{border:1px solid var(--border);padding:7px 9px;text-align:left;color:var(--muted)}
+table.reg th{color:var(--gold);text-transform:uppercase;letter-spacing:1px;font-size:9px}
+table.reg td b{color:var(--ink)}
+.code{font-size:11px;line-height:1.7;color:var(--ink);background:#0b0b0b;border:1px solid var(--border);padding:12px;border-radius:4px;overflow-x:auto;white-space:pre}
+.code .c{color:var(--muted)}
+.code .g{color:var(--gold)}
+a.glink{color:var(--gold);text-decoration:none}
+a.glink:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<canvas id="neural-bg" data-neural-mesh data-node-count="80" data-speed="0.1" style="position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none"></canvas>
+<canvas id="mesh"></canvas><div class="scan"></div><div class="vig"></div>
+<div class="wrap">
+
+  <div class="statusbar">
+    <span>æ:// AEQR</span>
+    <span>PRIVATE CLIENT AI</span>
+    <span class="live"><span class="dot"></span>ADDRESS ≠ PERMISSION</span>
+  </div>
+
+  <div class="hero">
+    <div class="glyph glyph-sm">◈</div>
+    <div class="cmd">æQR</div>
+    <div class="sub">RESOURCE ADDRESSING · VERIFICATION · AUDIT</div>
+    <div class="sub" style="margin-top:6px;font-size:10px;opacity:.6">ONE DISCOVERY LAYER ACROSS MANY RESOURCES — WITHOUT MAKING EVERY RESOURCE PUBLIC</div>
+  </div>
+
+  <div class="pills">
+    <span class="pill hot">MIT · OPEN SOURCEWARE</span>
+    <span class="pill">269 RESOURCES · 8 CATEGORIES</span>
+    <span class="pill">30 TESTS PASS</span>
+    <span class="pill">2 REAL DECODERS</span>
+    <span class="pill">DEFAULT DENY</span>
+  </div>
+
+  <div class="lede">
+    A <b>QR</b> is an address into the constellation — not permission to access or execute.
+    Integrity is proven by <b>decoding the artifact back</b>. Authority stays with the human.
+  </div>
+
+  <div class="flow">
+    <span class="s hot">SCAN</span><span class="a">→</span>
+    <span class="s">RESOLVE</span><span class="a">→</span>
+    <span class="s">VERIFY</span><span class="a">→</span>
+    <span class="s">REQUEST AUTHORITY</span><span class="a">→</span>
+    <span class="s hot">ACT</span>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>◈ WHAT IT IS · WHAT IT IS NOT</span><span class="tag">EVIDENCE ≠ AUTHORITY</span></div>
+    <div class="grid-2">
+      <div class="card"><div class="name">It is</div><div class="meta">A registry of stable resource IDs → canonical routes + scope. A produce-and-verify gate with <b>two real decoders</b>. A deterministic audit → snapshot → compare → repair queue. An explicit, default-deny authority model.</div></div>
+      <div class="card"><div class="name">It is not</div><div class="meta">A permission system. A renderer that trusts its own bytes. A claim that a fix landed. An implicit grant from scanning. A category placeholder pretending to be resolution.</div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>◈ THE PIECES</span><span class="tag">ae/</span></div>
+    <table class="reg">
+      <tr><th>Module</th><th>Role</th></tr>
+      <tr><td><b>envelope.py</b></td><td>typed transport <b>ae:1:&lt;type&gt;:&lt;b64url(json)&gt;</b> — 8 types</td></tr>
+      <tr><td><b>supervision.py</b></td><td>SPEC → RENDER → SUPERVISE → (receipt | refuse); 9 measurable checks; cv2 <b>AND</b> pyzbar must agree</td></tr>
+      <tr><td><b>registry.py</b></td><td>stable IDs → canonical routes + scope (public / local / private / hybrid)</td></tr>
+      <tr><td><b>orchard.py</b></td><td>audit → snapshot → compare → repair queue; planning ≠ verification</td></tr>
+      <tr><td><b>authority.py</b></td><td>scanning never grants execution; gated actions require a capability</td></tr>
+      <tr><td><b>cli.py</b></td><td>one command surface</td></tr>
+    </table>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>◈ THE TWO LOAD-BEARING RULES</span><span class="tag">CANON</span></div>
+    <div class="grid-2">
+      <div class="rule"><div class="n">1</div><div class="t"><b>A QR that has not been decoded back is not a QR — it is a picture of one.</b> The gate decodes through two independent decoders. The rune magic <b>æ:</b> encodes fine and fails on scan; a single-decoder check passes exactly the artifact that fails in the field. Transport magic is ASCII (<b>ae:</b>); the æ identity lives in the payload.</div></div>
+      <div class="rule"><div class="n">2</div><div class="t"><b>Scanning never grants execution.</b> <b>resolve</b>, <b>read</b>, and <b>verify</b> are open. <b>publish</b>, <b>execute</b>, and <b>merge</b> require an explicit, scoped capability. Planning a repair ("ready") is not proving it ("verified").</div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>◈ USE</span><span class="tag">CLI</span></div>
+    <div class="code"><span class="c"># the registry — 269 resources, 8 categories</span>
+aeqr registry --category threejs_scenes
+aeqr resolve html-surfaces-teologia-index
+
+<span class="c"># produce a QR only if it decodes back through two real decoders</span>
+python -m ae.supervision produce secret '{"name":"K"}' --out k.png
+python -m ae.supervision selftest        <span class="c"># proves it REFUSES the rune class</span>
+
+<span class="c"># audit a tree of HTML for inline-script syntax failures</span>
+aeqr orchard audit C:/æ/github-pages
+aeqr orchard queue C:/æ/github-pages     <span class="c"># findings → ordered repair tasks</span>
+
+<span class="c"># authority is default-deny for effectful actions</span>
+aeqr authority publish --id teologia-index   <span class="g"># denied</span>
+aeqr authority read --id teologia-index      <span class="g"># allowed</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>◈ REGISTRY · SCOPE MODEL</span><span class="tag">269 / 8</span></div>
+    <table class="reg">
+      <tr><th>Category</th><th>Scope</th><th>Route resolves to</th></tr>
+      <tr><td><b>html_surfaces</b> (183)</td><td>public</td><td>https://myaelmendez.github.io/…</td></tr>
+      <tr><td><b>threejs_scenes</b> (8)</td><td>public</td><td>https://myaelmendez.github.io/teologia/…</td></tr>
+      <tr><td><b>videos</b> (24)</td><td>public</td><td>https://myaelmendez.github.io/…</td></tr>
+      <tr><td><b>python_agents</b> (31)</td><td>local</td><td>ae://local/…</td></tr>
+      <tr><td><b>configs</b> (6) · <b>logs</b> (3)</td><td>local</td><td>ae://local/…</td></tr>
+      <tr><td><b>widget</b> (9)</td><td>hybrid</td><td>https://myaelmendez.github.io/widget/…</td></tr>
+      <tr><td><b>kanban</b> (5)</td><td>local</td><td>ae://local/…</td></tr>
+    </table>
+    <div class="meta" style="font-size:10px;color:var(--muted)">A registry entry is an <b style="color:var(--ink)">address and a scope</b>, never a grant. Public scope ⇒ HTTPS route. Local scope ⇒ <b style="color:var(--ink)">ae://local/</b> scheme. Verified is <b style="color:var(--ink)">false</b> until a real check proves the route resolves.</div>
+  </div>
+
+  <div class="panel" style="border-color:rgba(212,175,55,.3)">
+    <div class="panel-head"><span>◈ SOURCE OF TRUTH</span><span class="tag">REPO</span></div>
+    <div class="grid-2">
+      <div class="card"><div class="name">Repository</div><div class="meta"><a class="glink" href="https://github.com/MYaelMendez/aeqr">github.com/MYaelMendez/aeqr</a> — MIT, open sourceware. Source, contracts, and tests.</div></div>
+      <div class="card"><div class="name">This surface</div><div class="meta">Published artifacts and evidence. github.io is the <b>surface</b> — not the runtime or the custody layer. Private execution and secrets stay local.</div></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>æ:// AEQR · PART OF PRIVATE CLIENT AI</span>
+    <span>#opensourceware · MIT</span>
+  </div>
+
+</div>
+<script src="./assets/neural-mesh.js"></script>
+</body>
+</html>
