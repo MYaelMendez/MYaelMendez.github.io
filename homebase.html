@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>æ:// HOMEBASE · full system · codæ://</title>
+<meta name="description" content="Three.js visualization of the complete æ:// HOMEBASE system — all agents, kænbæn shared memory, mesh topology, surfaces, and data flow within desktop sessions.">
+<link rel="canonical" href="https://myaelmendez.github.io/homebase.html">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold2:#f0d487;--neon:#00ff9d;--cyan:#00eaff;--violet:#8c72ff;--danger:#ff4d5f;--ink:#e8e6df;--muted:#6f6a5c;--border:rgba(212,175,55,.22)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',ui-monospace,monospace;overflow:hidden}
+#stage{position:fixed;inset:0;z-index:0}
+.scan{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:.12;background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.5) 2px 4px)}
+.vig{position:fixed;inset:0;z-index:3;pointer-events:none;background:radial-gradient(circle at 50% 45%,transparent 30%,rgba(5,5,5,.55) 70%,rgba(5,5,5,.96) 100%)}
+#hud{position:fixed;inset:0;z-index:10;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:max(12px,env(safe-area-inset-top)) 14px calc(28px+env(safe-area-inset-bottom))}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.panel{pointer-events:auto;border:1px solid var(--border);background:rgba(8,8,7,.85);padding:10px 14px;font-size:9px;letter-spacing:.14em;min-width:200px}
+.panel .label{font-size:8px;color:var(--muted);letter-spacing:.2em;margin-bottom:4px;text-transform:uppercase}
+.panel .value{font-family:'Orbitron';font-weight:900;font-size:20px;color:var(--gold)}
+.panel .sub{font-size:8px;color:var(--muted);margin-top:4px;line-height:1.6}
+.panel .row{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.badge{display:inline-block;font-size:7px;letter-spacing:1px;padding:2px 6px;border:1px solid rgba(0,255,157,.25);color:var(--neon);border-radius:999px;text-transform:uppercase}
+.badge.gold{border-color:rgba(212,175,55,.4);color:var(--gold)}
+.badge.cyan{border-color:rgba(0,234,255,.3);color:var(--cyan)}
+.badge.violet{border-color:rgba(140,114,255,.3);color:var(--violet)}
+.controls{display:flex;gap:8px;flex-wrap:wrap;pointer-events:auto}
+.btn{border:1px solid var(--border);background:rgba(8,8,7,.8);color:var(--gold);font:700 9px 'JetBrains Mono';letter-spacing:.14em;padding:9px 13px;cursor:pointer;text-transform:uppercase}
+.btn:hover{background:rgba(212,175,55,.1)}
+.btn:active{background:var(--gold);color:#050505}
+.btn.act{border-color:var(--neon);color:var(--neon)}
+#tooltip{position:fixed;z-index:100;pointer-events:none;border:1px solid var(--gold);background:rgba(8,8,7,.92);padding:10px 14px;font-size:9px;line-height:1.7;color:var(--ink);display:none;max-width:300px}
+#tooltip .t-name{font-family:'Orbitron';font-size:12px;font-weight:900;color:var(--gold)}
+#tooltip .t-status{font-size:8px;margin-top:4px}
+#tooltip .t-detail{font-size:8px;color:var(--muted);margin-top:6px;line-height:1.6}
+#tooltip .t-links{font-size:8px;margin-top:6px}
+#tooltip .t-links a{color:var(--cyan);text-decoration:none}
+#tooltip .t-links a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<div id="stage"></div>
+<div class="vig"></div>
+<div class="scan"></div>
+
+<div id="hud">
+  <div class="top">
+    <div class="panel">
+      <div class="label">æ:// HOMEBASE · full system</div>
+      <div class="value" id="sys-status">ONLINE</div>
+      <div class="sub" id="sys-uptime">codæ → mech → æ://</div>
+      <div class="row">
+        <span class="badge gold" id="bd-agents">4 agents</span>
+        <span class="badge" id="bd-surfaces">7 surfaces</span>
+        <span class="badge cyan" id="bd-gates">10 gates</span>
+      </div>
+    </div>
+    <div class="panel" style="text-align:right">
+      <div class="label">kænbæn · shared memory</div>
+      <div class="value" id="knb-status">ACTIVE</div>
+      <div class="sub" id="knb-detail">system-map · contracts · gates · chain</div>
+      <div class="row" style="justify-content:flex-end">
+        <span class="badge gold" id="knb-receipts">2 receipts</span>
+        <span class="badge" id="knb-debts">6 debts</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <div class="controls">
+      <button class="btn act" id="bRotate">ROTATE</button>
+      <button class="btn" id="bFlow">DATA FLOW</button>
+      <button class="btn" id="bLabels">LABELS</button>
+      <button class="btn" id="bReset">RESET</button>
+    </div>
+    <div class="panel" style="text-align:right">
+      <div class="label">mesh topology</div>
+      <div class="value" id="mesh-status">5 nodes</div>
+      <div class="sub" id="mesh-detail">conductor · droplet · vps · keeper · kænbæn</div>
+    </div>
+  </div>
+</div>
+
+<div id="tooltip">
+  <div class="t-name" id="tt-name"></div>
+  <div class="t-status" id="tt-status"></div>
+  <div class="t-detail" id="tt-detail"></div>
+  <div class="t-links" id="tt-links"></div>
+</div>
+
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ── system definition ─────────────────────────────────────
+const AGENTS = [
+  { id: 'zeus', name: 'zeus_engine', color: 0x00eaff, ring: 6, height: 3, speed: 0.35,
+    can: ['scan codebases', 'batch type repair', 'GPU-verify receipts'],
+    cannot: ['fix logic bugs', 'design new features', 'override human decisions'] },
+  { id: 'hermes', name: 'hermes_supervision', color: 0x8c72ff, ring: 8, height: 5, speed: 0.55,
+    can: ['verify Python', 'verify JSON', 'verify HTML/JS', 'gate artifacts'],
+    cannot: ['modify artifacts', 'bypass verification', 'issue receipts without evidence'] },
+  { id: 'conductor', name: 'conductor', color: 0xff4d5f, ring: 5, height: 2, speed: 0.25,
+    can: ['route æ:// schemes', 'dispatch to agents', 'manage MCP surface'],
+    cannot: ['modify core', 'bypass kænbæn', 'act without receipt'] },
+  { id: 'fleet', name: 'fleet_orchestrator', color: 0x00ff9d, ring: 10, height: 1, speed: 0.15,
+    can: ['audit', 'self-improve', 'cron', 'batch repair'],
+    cannot: ['modify hardware', 'access secrets', 'bypass supervision gates'] }
+];
+
+const SURFACES = [
+  { id: 'github', name: 'github.io', color: 0xD4AF37, ring: 14, height: 0, speed: 0.08,
+    desc: 'truth surface · 185 pages · 100% QR badged' },
+  { id: 'taskbar', name: 'taskbar', color: 0x00eaff, ring: 12, height: 1, speed: 0.12,
+    desc: 'Windows shell · PrintScreen → capture' },
+  { id: 'capture', name: 'capture', color: 0x00ff9d, ring: 11, height: 2, speed: 0.10,
+    desc: 'PowerShell + AutoHotkey · 3 bindings' },
+  { id: 'aee', name: 'aee', color: 0x8c72ff, ring: 13, height: 3, speed: 0.06,
+    desc: 'silicon · SPEC → RTL → SIM → SYNTH → P&R' },
+  { id: 'knb', name: 'kænbæn', color: 0xD4AF37, ring: 0, height: 0, speed: 0, fixed: true,
+    desc: 'shared memory · 4 JSON + genesis chain' }
+];
+
+const EDGES = [
+  ['zeus', 'knb'], ['hermes', 'knb'], ['conductor', 'knb'], ['fleet', 'knb'],
+  ['zeus', 'github'], ['hermes', 'github'], ['conductor', 'github'],
+  ['fleet', 'github'], ['fleet', 'taskbar'], ['fleet', 'capture'],
+  ['conductor', 'aee'], ['zeus', 'aee']
+];
+
+// ── three.js scene ────────────────────────────────────────
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 200);
+camera.position.set(0, 8, 22);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+document.getElementById('stage').appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minDistance = 8;
+controls.maxDistance = 60;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.3;
+
+// lighting
+scene.add(new THREE.AmbientLight(0x404040, 0.6));
+const goldLight = new THREE.PointLight(0xD4AF37, 3, 30);
+goldLight.position.set(-4, 5, 6);
+scene.add(goldLight);
+const cyanLight = new THREE.PointLight(0x00eaff, 1, 15);
+cyanLight.position.set(6, -2, -4);
+scene.add(cyanLight);
+
+// ── create nodes ──────────────────────────────────────────
+const nodeMeshes = new Map();
+const nodeGroups = new Map();
+
+AGENTS.concat(SURFACES).forEach(n => {
+  const group = new THREE.Group();
+  scene.add(group);
+  nodeGroups.set(n.id, group);
+
+  // orbit ring
+  if (!n.fixed) {
+    const ringGeo = new THREE.RingGeometry(n.ring * 0.9, n.ring * 1.02, 64);
+    const ringMat = new THREE.MeshBasicMaterial({ color: n.color, transparent: true, opacity: 0.15, side: THREE.DoubleSide });
+    const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+    ringMesh.rotation.x = Math.PI / 2;
+    ringMesh.position.y = n.height + 0.5;
+    group.add(ringMesh);
+  }
+
+  // core sphere
+  const geo = new THREE.IcosahedronGeometry(n.fixed ? 0.6 : 0.4, 2);
+  const mat = new THREE.MeshStandardMaterial({
+    color: n.color, emissive: n.color, emissiveIntensity: 0.4,
+    metalness: 0.8, roughness: 0.2
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.y = n.height;
+  group.add(mesh);
+  nodeMeshes.set(n.id, mesh);
+
+  // glow ring
+  const glowGeo = new THREE.TorusGeometry(n.fixed ? 0.8 : 0.55, 0.03, 8, 32);
+  const glowMat = new THREE.MeshBasicMaterial({ color: n.color, transparent: true, opacity: 0.3 });
+  const glow = new THREE.Mesh(glowGeo, glowMat);
+  glow.position.y = n.height;
+  group.add(glow);
+});
+
+// ── create edges ──────────────────────────────────────────
+const edgeLines = [];
+EDGES.forEach(([a, b]) => {
+  const na = AGENTS.concat(SURFACES).find(n => n.id === a);
+  const nb = AGENTS.concat(SURFACES).find(n => n.id === b);
+  const geo = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(na.ring, na.height, 0),
+    new THREE.Vector3(nb.ring * 0.5, nb.height, 0)
+  ]);
+  const mat = new THREE.LineBasicMaterial({ color: 0xD4AF37, transparent: true, opacity: 0.2 });
+  const line = new THREE.Line(geo, mat);
+  scene.add(line);
+  edgeLines.push({ line, a, b });
+});
+
+// ── data flow particles ───────────────────────────────────
+const flowParticles = [];
+const flowGroup = new THREE.Group();
+scene.add(flowGroup);
+
+EDGES.forEach(([a, b]) => {
+  const na = AGENTS.concat(SURFACES).find(n => n.id === a);
+  const nb = AGENTS.concat(SURFACES).find(n => n.id === b);
+  for (let i = 0; i < 3; i++) {
+    const geo = new THREE.SphereGeometry(0.05, 8, 8);
+    const mat = new THREE.MeshBasicMaterial({ color: na.color, transparent: true, opacity: 0.8 });
+    const particle = new THREE.Mesh(geo, mat);
+    particle.userData = { from: na, to: nb, t: i / 3, speed: 0.005 + Math.random() * 0.005 };
+    flowGroup.add(particle);
+    flowParticles.push(particle);
+  }
+});
+
+// ── UI update ─────────────────────────────────────────────
+function updateUI() {
+  const up = AGENTS.length;
+  document.getElementById('bd-agents').textContent = up + ' agents';
+  document.getElementById('bd-surfaces').textContent = SURFACES.length + ' surfaces';
+  document.getElementById('bd-gates').textContent = '10 gates';
+  document.getElementById('knb-receipts').textContent = '2 receipts';
+  document.getElementById('knb-debts').textContent = '6 debts';
+  document.getElementById('mesh-status').textContent = (AGENTS.length + SURFACES.length) + ' nodes';
+  document.getElementById('mesh-detail').textContent = AGENTS.map(a => a.id).join(' · ') + ' · ' + SURFACES.filter(s => !s.fixed).map(s => s.id).join(' · ');
+}
+
+// ── tooltip ───────────────────────────────────────────────
+const tooltip = document.getElementById('tooltip');
+renderer.domElement.addEventListener('mousemove', e => {
+  const rect = renderer.domElement.getBoundingClientRect();
+  const mouse = new THREE.Vector2(
+    ((e.clientX - rect.left) / rect.width) * 2 - 1,
+    -((e.clientY - rect.top) / rect.height) * 2 + 1
+  );
+  const ray = new THREE.Raycaster();
+  ray.setFromCamera(mouse, camera);
+  const meshes = [...nodeMeshes.values()];
+  const hits = ray.intersectObjects(meshes);
+  if (hits.length > 0) {
+    const hit = hits[0].object;
+    const node = AGENTS.concat(SURFACES).find(n => nodeMeshes.get(n.id) === hit);
+    if (node) {
+      document.getElementById('tt-name').textContent = node.name;
+      document.getElementById('tt-status').textContent = node.fixed ? '● core' : '● active';
+      document.getElementById('tt-status').style.color = 'var(--neon)';
+      let detail = node.desc || '';
+      if (node.can) detail += '\ncan: ' + node.can.join(', ');
+      if (node.cannot) detail += '\ncannot: ' + node.cannot.join(', ');
+      document.getElementById('tt-detail').textContent = detail;
+      let links = '';
+      if (node.id === 'knb') links = '<a href="./kaenbaen/">open kænbæn →</a>';
+      if (node.id === 'github') links = '<a href="https://myaelmendez.github.io">open github.io →</a>';
+      document.getElementById('tt-links').innerHTML = links;
+      tooltip.style.display = 'block';
+      tooltip.style.left = (e.clientX + 14) + 'px';
+      tooltip.style.top = (e.clientY + 14) + 'px';
+    }
+  } else {
+    tooltip.style.display = 'none';
+  }
+});
+
+// ── controls ──────────────────────────────────────────────
+let autoRotate = true;
+let showFlow = true;
+let showLabels = true;
+
+document.getElementById('bRotate').onclick = () => {
+  autoRotate = !autoRotate;
+  document.getElementById('bRotate').classList.toggle('act', autoRotate);
+};
+document.getElementById('bFlow').onclick = () => {
+  showFlow = !showFlow;
+  document.getElementById('bFlow').classList.toggle('act', showFlow);
+  flowGroup.visible = showFlow;
+};
+document.getElementById('bLabels').onclick = () => {
+  showLabels = !showLabels;
+  document.getElementById('bLabels').classList.toggle('act', showLabels);
+};
+document.getElementById('bReset').onclick = () => {
+  camera.position.set(0, 8, 22);
+  controls.reset();
+};
+
+// ── animation loop ────────────────────────────────────────
+let frames = 0, lastFps = performance.now();
+function animate() {
+  requestAnimationFrame(animate);
+  frames++;
+  const now = performance.now();
+  if (now - lastFps > 1000) {
+    lastFps = now;
+  }
+  const t = now * 0.001;
+
+  // pulse nodes
+  AGENTS.concat(SURFACES).forEach(n => {
+    const group = nodeGroups.get(n.id);
+    const mesh = nodeMeshes.get(n.id);
+    if (!group || !mesh) return;
+    if (n.fixed) {
+      mesh.material.emissiveIntensity = 0.4 + Math.sin(t * 3) * 0.3;
+      mesh.scale.setScalar(1 + Math.sin(t * 2) * 0.05);
+    } else {
+      group.rotation.y += n.speed * 0.002;
+      const bob = Math.sin(t * 0.8 + n.speed) * 0.15;
+      mesh.position.y = n.height + bob;
+      mesh.material.emissiveIntensity = 0.3 + Math.sin(t * 2 + n.speed) * 0.2;
+    }
+  });
+
+  // data flow particles
+  if (showFlow) {
+    flowParticles.forEach(p => {
+      p.userData.t += p.userData.speed;
+      if (p.userData.t > 1) p.userData.t = 0;
+      const from = p.userData.from;
+      const to = p.userData.to;
+      const x = from.ring + (to.ring * 0.5 - from.ring) * p.userData.t;
+      const y = from.height + (to.height - from.height) * p.userData.t;
+      const z = Math.sin(p.userData.t * Math.PI) * 2;
+      p.position.set(x, y, z);
+      p.material.opacity = 0.8 * (1 - Math.abs(p.userData.t - 0.5) * 2);
+    });
+  }
+
+  if (autoRotate) controls.update();
+  renderer.render(scene, camera);
+}
+
+// ── resize ────────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+// ── init ──────────────────────────────────────────────────
+updateUI();
+animate();
+
+console.info(
+  '%cæ:// HOMEBASE%c full system animation',
+  'color:#D4AF37;background:#050505;padding:5px 10px;font-weight:bold',
+  'color:#00ff9d;font-family:monospace'
+);
+</script>
+
+<!-- æ:// QR Verification Badge -->
+<div id="æ-qr-badge" style="
+  position:fixed;bottom:16px;right:16px;z-index:99999;
+  width:56px;height:56px;border:1px solid #D4AF37;border-radius:8px;
+  background:#050505;padding:4px;cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s;
+" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 20px rgba(212,175,55,0.4)'"
+   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'"
+   onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')"
+   title="æ:// Verify this surface">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/homebase.html&color=D4AF37&bgcolor=050505"
+       alt="QR Verify" style="width:100%;height:100%;display:block;">
+</div>
+
+</body>
+</html>
