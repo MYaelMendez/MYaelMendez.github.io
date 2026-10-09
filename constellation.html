@@ -13,7 +13,7 @@
     "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
   }
 }
-</style>
+</script>
 <style>
 :root {
   --void: #050505; --gold: #D4AF37; --gold2: #f0d487;
@@ -103,7 +103,7 @@ html, body { width: 100%; height: 100%; overflow: hidden;
   <div class="top">
     <div class="panel">
       <div class="label">æ:/constellation · mesh</div>
-      <div class="value" id="node-count">4</div>
+      <div class="value" id="node-count">5</div>
       <div class="sub" id="node-status">probing…</div>
     </div>
     <div class="readout">
@@ -135,12 +135,30 @@ html, body { width: 100%; height: 100%; overflow: hidden;
         <div class="status up" id="st-keeper">probing</div>
         <div class="metric" id="mt-keeper">—</div>
       </div>
+      <div class="node-card" data-node="kaenbaen" onclick="loadKaenbaen()">
+        <div class="name">kænbæn</div>
+        <div class="status up" id="st-kaenbaen">memory</div>
+        <div class="metric" id="mt-kaenbaen">shared</div>
+      </div>
     </div>
     <div class="ctrls">
       <button class="btn act" id="bProbe">PROBE</button>
       <button class="btn" id="bAuto">AUTO</button>
+      <button class="btn" id="bKaenbaen">KÆNBÆN</button>
       <button class="btn" id="bHome">æ:// HOME</button>
     </div>
+  </div>
+</div>
+
+<!-- kænbæn panel -->
+<div id="kaenbaen-panel" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:50; width:min(90vw, 700px); max-height:80vh; overflow:auto; border:1px solid var(--gold); background:rgba(8,8,7,.95); padding:16px; font-size:10px; line-height:1.6;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid var(--line); padding-bottom:8px;">
+    <span style="font-family:var(--display); font-weight:900; font-size:14px; color:var(--gold); letter-spacing:2px;">kænbæn · shared memory</span>
+    <button class="btn" onclick="document.getElementById('kaenbaen-panel').style.display='none'">CLOSE</button>
+  </div>
+  <div id="kaenbaen-content">loading…</div>
+  <div style="margin-top:12px; border-top:1px solid var(--line); padding-top:8px;">
+    <a href="./kaenbaen/" style="color:var(--gold); font-size:10px;">open kænbæn surface →</a>
   </div>
 </div>
 
@@ -171,7 +189,9 @@ const NODES = [
   { id: "teknium", label: "teknium", tier: 2, color: 0x00ff9d,
     desc: "Compute · RTX 3050 · 6144 MiB", pos: [3, 0, 2] },
   { id: "keeper", label: "keeper", tier: 3, color: 0x8c72ff,
-    desc: "Custodian · audit + ledger", pos: [0, -3, 0] }
+    desc: "Custodian · audit + ledger", pos: [0, -3, 0] },
+  { id: "kaenbaen", label: "kænbæn", tier: 4, color: 0xf0d487,
+    desc: "Shared memory · system-map + contracts + gates + chain", pos: [0, 0, 0] }
 ];
 
 const EDGES = [
@@ -180,7 +200,11 @@ const EDGES = [
   ["hermes-agent", "keeper"],
   ["vps_node", "teknium"],
   ["vps_node", "keeper"],
-  ["teknium", "keeper"]
+  ["teknium", "keeper"],
+  ["hermes-agent", "kaenbaen"],
+  ["vps_node", "kaenbaen"],
+  ["teknium", "kaenbaen"],
+  ["keeper", "kaenbaen"]
 ];
 
 // ── Three.js scene ───────────────────────────────────────
@@ -301,11 +325,14 @@ async function probeAll() {
     probeData["keeper"] = { status: "up", latency: Math.round(latency * 0.8), detail: {} };
   } catch (e) {
     NODES.forEach(n => {
+      if (n.id === "kaenbaen") return; // kænbæn is local, not probed
       if (probeData[n.id].status !== "down") {
         probeData[n.id] = { status: "degraded", latency: null, detail: { error: String(e).slice(0, 60) } };
       }
     });
   }
+  // kænbæn is always available (local data)
+  probeData["kaenbaen"] = { status: "up", latency: 0, detail: { local: true } };
   updateUI();
 }
 
@@ -316,6 +343,13 @@ function updateUI() {
   $("node-status").textContent = up === NODES.length ? "all nodes reachable" : `${NODES.length - up} unreachable`;
 
   NODES.forEach(n => {
+    if (n.id === "kaenbaen") {
+      const st = $("st-kaenbaen");
+      const mt = $("mt-kaenbaen");
+      if (st) { st.textContent = "memory"; st.className = "status up"; }
+      if (mt) { mt.innerHTML = "<b>shared</b>"; }
+      return;
+    }
     const d = probeData[n.id];
     const st = $(`st-${n.id.replace(/-/g, "")}`);
     const mt = $(`mt-${n.id.replace(/-/g, "")}`);
@@ -328,7 +362,7 @@ function updateUI() {
       const parts = [];
       if (detail.temperature) parts.push(`${detail.temperature}°C`);
       if (detail.utilization) parts.push(`util ${detail.utilization}%`);
-      if (d.latency != null) parts.push(`${d.latency}ms`);
+      if (d.latency != null && d.latency > 0) parts.push(`${d.latency}ms`);
       mt.innerHTML = parts.length ? `<b>${parts.join(" · ")}</b>` : "—";
     }
   });
@@ -444,6 +478,64 @@ window.addEventListener("resize", () => {
 probeAll();
 startProbe();
 animate();
+
+// ── kænbæn integration ────────────────────────────────────
+async function loadKaenbaen() {
+  const content = document.getElementById('kaenbaen-content');
+  const panel = document.getElementById('kaenbaen-panel');
+  panel.style.display = 'block';
+  content.innerHTML = '<span style="color:var(--muted)">fetching kænbæn data…</span>';
+  
+  try {
+    const [sysMap, contracts, gates, chain] = await Promise.all([
+      fetch('./kaenbaen/system-map.json').then(r => r.json()),
+      fetch('./kaenbaen/capability-contracts.json').then(r => r.json()),
+      fetch('./kaenbaen/verification-gates.json').then(r => r.json()),
+      fetch('./kaenbaen/genesis-chain.json').then(r => r.json())
+    ]);
+    
+    const surfaces = Object.keys(sysMap.surfaces || {}).length;
+    const debts = (sysMap.debts || []).length;
+    const agents = Object.entries(contracts.agents || {});
+    const gateCount = Object.keys(gates.gates || {}).length;
+    const receipts = chain.receipts || [];
+    const lastReceipt = receipts[receipts.length - 1];
+    
+    let html = '';
+    html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">';
+    html += '<div><div style="color:var(--gold); font-weight:700; margin-bottom:4px;">SYSTEM MAP</div>';
+    html += `<div style="color:var(--muted);">${surfaces} surfaces · ${debts} debts</div>`;
+    if (sysMap.foundation) html += `<div style="color:var(--muted); font-size:9px; margin-top:4px;">${sysMap.foundation.stack || ''}</div>`;
+    html += '</div>';
+    html += '<div><div style="color:var(--gold); font-weight:700; margin-bottom:4px;">VERIFICATION GATES</div>';
+    html += `<div style="color:var(--muted);">${gateCount} gates</div>`;
+    html += `<div style="color:var(--muted); font-size:9px; margin-top:4px;">${Object.keys(gates.gates || {}).join(' · ')}</div>`;
+    html += '</div></div>';
+    
+    html += '<div style="margin-top:12px;"><div style="color:var(--gold); font-weight:700; margin-bottom:4px;">CAPABILITY CONTRACTS</div>';
+    agents.forEach(([name, a]) => {
+      html += `<div style="margin-top:6px;"><span style="color:var(--neon);">${name}</span>`;
+      if (a.can) html += ` <span style="color:var(--muted);">can: ${a.can.slice(0,3).join(', ')}</span>`;
+      if (a.cannot) html += ` <span style="color:var(--danger);">cannot: ${a.cannot.slice(0,2).join(', ')}</span>`;
+      html += '</div>';
+    });
+    html += '</div>';
+    
+    html += '<div style="margin-top:12px;"><div style="color:var(--gold); font-weight:700; margin-bottom:4px;">GENESIS CHAIN</div>';
+    if (lastReceipt) {
+      html += `<div style="color:var(--muted);">last: ${lastReceipt.type || 'receipt'} · ${lastReceipt.timestamp || ''}</div>`;
+      html += `<div style="color:var(--muted); font-size:9px;">sha256: ${lastReceipt.sha256 || '—'}</div>`;
+    }
+    html += `<div style="color:var(--muted); font-size:9px; margin-top:4px;">${receipts.length} receipts · chain: ${chain.genesis?.receipt || 'genesis'}</div>`;
+    html += '</div>';
+    
+    content.innerHTML = html;
+  } catch (e) {
+    content.innerHTML = `<span style="color:var(--danger);">ERROR: ${e.message}</span>`;
+  }
+}
+
+document.getElementById('bKaenbaen').onclick = loadKaenbaen;
 
 console.info(
   "%cæ:/constellation%c mesh topology visualizer",
