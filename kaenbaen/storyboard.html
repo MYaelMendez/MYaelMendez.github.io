@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=1920,height=1080">
 <meta name="theme-color" content="#050505">
 <title>æ://kænbæn/æqrstoryboard · codæ://</title>
-<meta name="description" content="Storyboard renderer with kænbæn shared memory and æQR per-frame verification. Each frame is a scannable receipt.">
+<meta name="description" content="Storyboard renderer with kænbæn shared memory and æQR per-frame verification">
 <link rel="canonical" href="https://myaelmendez.github.io/kaenbaen/storyboard.html">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -21,7 +21,7 @@ body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',ui-mon
 .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
 .panel{pointer-events:auto;border:1px solid var(--border);background:rgba(8,8,7,.85);padding:10px 14px;font-size:9px;letter-spacing:.14em;min-width:180px}
-.panel .label{font-size:8px;color:var(--muted);letter-spacing:.2em;margin-bottom:4px}
+.panel .label{font-size:8px;color:var(--muted);letter-spacing:.2em;margin-bottom:4px;text-transform:uppercase}
 .panel .value{font-family:'Orbitron';font-weight:900;font-size:18px;color:var(--gold)}
 .panel .sub{font-size:8px;color:var(--muted);margin-top:4px;line-height:1.6}
 .knb-panel{pointer-events:auto;border:1px solid var(--gold);background:rgba(8,8,7,.9);padding:10px 14px;font-size:9px;letter-spacing:.1em;max-width:280px;max-height:40vh;overflow:auto}
@@ -32,7 +32,7 @@ body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',ui-mon
 .knb-panel .logshell{margin-top:8px;border:1px solid var(--border);padding:8px;background:rgba(5,5,5,.85);color:var(--muted);font-size:8px;line-height:1.5;white-space:pre-wrap;word-break:break-word;max-height:120px;overflow:auto}
 .knb-panel .logshell .ok{color:var(--neon)}.knb-panel .logshell .err{color:var(--danger)}.knb-panel .logshell .cy{color:var(--cyan)}
 .controls{display:flex;gap:8px;flex-wrap:wrap;pointer-events:auto}
-.btn{border:1px solid var(--border);background:rgba(8,8,7,.8);color:var(--gold);font:700 9px 'JetBrains Mono';letter-spacing:.14em;padding:9px 13px;cursor:pointer}
+.btn{border:1px solid var(--border);background:rgba(8,8,7,.8);color:var(--gold);font:700 9px 'JetBrains Mono';letter-spacing:.14em;padding:9px 13px;cursor:pointer;text-transform:uppercase}
 .btn:hover{background:rgba(212,175,55,.1)}
 .btn:active{background:var(--gold);color:#050505}
 .btn.act{border-color:var(--neon);color:var(--neon)}
@@ -55,15 +55,12 @@ body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',ui-mon
 </style>
 </head>
 <body>
-
 <div class="statusbar">
   <span>æ://kænbæn/æqrstoryboard</span>
   <span>STORYBOARD × KÆNBÆN × ÆQR</span>
   <span class="live"><span class="dot"></span>SOBERANO</span>
 </div>
-
 <div id="stage"></div>
-
 <div id="hud">
   <div class="top">
     <div class="panel">
@@ -81,14 +78,13 @@ body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',ui-mon
       <div class="logshell" id="knb-log">// loading kænbæn …</div>
     </div>
   </div>
-
   <div class="bottom">
     <div class="controls">
-      <button class="btn act" id="bPrev">◀ PREV</button>
-      <button class="btn act" id="bNext">NEXT ▶</button>
-      <button class="btn" id="bPlay">▶ PLAY</button>
-      <button class="btn" id="bQR">ÆQR</button>
-      <button class="btn" id="bKnb">KÆNBÆN</button>
+      <button class="btn act" id="b-prev">◀ PREV</button>
+      <button class="btn act" id="b-next">NEXT ▶</button>
+      <button class="btn" id="b-play">▶ PLAY</button>
+      <button class="btn" id="b-qr">ÆQR</button>
+      <button class="btn" id="b-knb">KÆNBÆN</button>
     </div>
     <div class="panel" style="text-align:right">
       <div class="label">frame</div>
@@ -97,256 +93,60 @@ body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',ui-mon
     </div>
   </div>
 </div>
-
 <div class="frame-grid" id="frame-grid"></div>
-
 <div class="qr-overlay" id="qr-overlay">
   <img id="qr-img" alt="æQR frame receipt">
   <div class="qr-label">æQR · frame receipt</div>
   <div class="qr-hash" id="qr-hash"></div>
 </div>
-
 <div id="tooltip">
   <div class="t-name" id="tt-name"></div>
   <div class="t-status" id="tt-status"></div>
   <div class="t-detail" id="tt-detail"></div>
 </div>
-
-<script type="importmap">
-{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}
-</script>
-<script type="module">
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
-// ── storyboard spec ─────────────────────────────────────────
-const SPEC = {
-  prompt: "void dodecahedron no effects",
-  prompt_hash: "154da89e579f",
-  mood: "void",
-  camera: { fov: 55, pos: [6, 4, 8] },
-  objects: [{ type: "dodecahedron", color: "#D4AF37", metalness: 0.95, roughness: 0.05, args: [1, 0] }],
-  effects: [],
-  particles: false,
-  background: "#050505",
-  duration: 6.0,
-  fps: 30,
-  colors: { primary: "#888888", secondary: "#050505", accent: "#D4AF37" }
-};
-
-const FRAMES = [
-  { frame: 1, mood: "opening", time: 0.0, camera: { fov: 55, pos: [6.0, 4, 8] }, objects: [{ type: "dodecahedron", color: "#D4AF37", metalness: 0.95, roughness: 0.05, args: [1, 0] }] },
-  { frame: 2, mood: "build", time: 1.5, camera: { fov: 55, pos: [8.45, 5, 11] }, objects: [{ type: "dodecahedron", color: "#D4AF37", metalness: 0.95, roughness: 0.05, args: [1, 0] }] },
-  { frame: 3, mood: "peak", time: 3.0, camera: { fov: 55, pos: [6.9, 7, 8] }, objects: [{ type: "dodecahedron", color: "#D4AF37", metalness: 0.95, roughness: 0.05, args: [1, 0] }] },
-  { frame: 4, mood: "fall", time: 4.5, camera: { fov: 55, pos: [5.35, 3, 5] }, objects: [{ type: "dodecahedron", color: "#D4AF37", metalness: 0.95, roughness: 0.05, args: [1, 0] }] },
-  { frame: 5, mood: "resolve", time: 6.0, camera: { fov: 55, pos: [7.8, 4, 8] }, objects: [{ type: "dodecahedron", color: "#D4AF37", metalness: 0.95, roughness: 0.05, args: [1, 0] }] }
+<script src="https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/controls/OrbitControls.js"></script>
+<script>
+const SPEC={prompt:"void dodecahedron no effects",prompt_hash:"154da89e579f",mood:"void",camera:{fov:55,pos:[6,4,8]},objects:[{type:"dodecahedron",color:"#D4AF37",metalness:0.95,roughness:0.05,args:[1,0]}],effects:[],particles:false,background:"#050505",duration:6.0,fps:30,colors:{primary:"#888888",secondary:"#050505",accent:"#D4AF37"}};
+const FRAMES=[
+  {frame:1,mood:"opening",time:0.0,camera:{fov:55,pos:[6.0,4,8]},objects:[{type:"dodecahedron",color:"#D4AF37",metalness:0.95,roughness:0.05,args:[1,0]}]},
+  {frame:2,mood:"build",time:1.5,camera:{fov:55,pos:[8.45,5,11]},objects:[{type:"dodecahedron",color:"#D4AF37",metalness:0.95,roughness:0.05,args:[1,0]}]},
+  {frame:3,mood:"peak",time:3.0,camera:{fov:55,pos:[6.9,7,8]},objects:[{type:"dodecahedron",color:"#D4AF37",metalness:0.95,roughness:0.05,args:[1,0]}]},
+  {frame:4,mood:"fall",time:4.5,camera:{fov:55,pos:[5.35,3,5]},objects:[{type:"dodecahedron",color:"#D4AF37",metalness:0.95,roughness:0.05,args:[1,0]}]},
+  {frame:5,mood:"resolve",time:6.0,camera:{fov:55,pos:[7.8,4,8]},objects:[{type:"dodecahedron",color:"#D4AF37",metalness:0.95,roughness:0.05,args:[1,0]}]}
 ];
-
-// ── three.js scene ─────────────────────────────────────────
-const scene = new THREE.Scene();
-scene.background = new THREE.Color('#050505');
-const camera = new THREE.PerspectiveCamera(55, innerWidth/innerHeight, 0.1, 100);
-camera.position.set(6, 4, 8);
-camera.lookAt(0, 0, 0);
-
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.2;
-document.getElementById('stage').appendChild(renderer.domElement);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.05;
-controls.autoRotate = true;
-controls.autoRotateSpeed = 0.3;
-
-scene.add(new THREE.AmbientLight(0x404040, 0.5));
-const goldLight = new THREE.PointLight(0xD4AF37, 2, 20);
-goldLight.position.set(0, 5, 5);
-scene.add(goldLight);
-const cyanLight = new THREE.PointLight(0x00eaff, 1, 15);
-cyanLight.position.set(-5, -3, 0);
-scene.add(cyanLight);
-
-// ── geometry ───────────────────────────────────────────────
-const geo = new THREE.DodecahedronGeometry(1, 0);
-const mat = new THREE.MeshStandardMaterial({ color: 0xD4AF37, metalness: 0.95, roughness: 0.05, emissive: 0xD4AF37, emissiveIntensity: 0.2 });
-const mesh = new THREE.Mesh(geo, mat);
-scene.add(mesh);
-
-// glow ring
-const ringGeo = new THREE.TorusGeometry(1.5, 0.02, 8, 32);
-const ringMat = new THREE.MeshBasicMaterial({ color: 0xD4AF37, transparent: true, opacity: 0.3 });
-const ring = new THREE.Mesh(ringGeo, ringMat);
-ring.rotation.x = Math.PI / 2;
-scene.add(ring);
-
-// ── frame state ────────────────────────────────────────────
-let curFrame = 0;
-let playing = false;
-let playInterval = null;
-
-function setFrame(idx) {
-  curFrame = Math.max(0, Math.min(FRAMES.length - 1, idx));
-  const f = FRAMES[curFrame];
-  camera.position.set(...f.camera.pos);
-  camera.fov = f.camera.fov || 55;
-  camera.updateProjectionMatrix();
-  controls.update();
-  document.getElementById('cur-frame').textContent = f.frame;
-  document.getElementById('cur-time').textContent = f.time.toFixed(1) + 's · ' + f.mood;
-  document.querySelectorAll('.frame-thumb').forEach((el, i) => el.classList.toggle('active', i === curFrame));
-}
-
-// ── frame thumbnails ───────────────────────────────────────
-const grid = document.getElementById('frame-grid');
-FRAMES.forEach((f, i) => {
-  const thumb = document.createElement('div');
-  thumb.className = 'frame-thumb' + (i === 0 ? ' active' : '');
-  thumb.innerHTML = '<div class="frame-num">' + f.frame + '</div><div class="frame-time">' + f.time.toFixed(1) + 's</div>';
-  thumb.onclick = () => { setFrame(i); stopPlay(); };
-  grid.appendChild(thumb);
-});
-
-// ── controls ───────────────────────────────────────────────
-document.getElementById('bPrev').onclick = () => { setFrame(curFrame - 1); stopPlay(); };
-document.getElementById('bNext').onclick = () => { setFrame(curFrame + 1); stopPlay(); };
-document.getElementById('bPlay').onclick = () => { playing ? stopPlay() : startPlay(); };
-document.getElementById('bQR').onclick = toggleQR;
-document.getElementById('bKnb').onclick = toggleKnbPanel;
-
-function startPlay() {
-  playing = true;
-  document.getElementById('bPlay').textContent = '⏸ PAUSE';
-  playInterval = setInterval(() => setFrame((curFrame + 1) % FRAMES.length), 1500);
-}
-function stopPlay() {
-  playing = false;
-  document.getElementById('bPlay').textContent = '▶ PLAY';
-  if (playInterval) clearInterval(playInterval);
-}
-
-// ── æQR overlay ────────────────────────────────────────────
-function toggleQR() {
-  const overlay = document.getElementById('qr-overlay');
-  const f = FRAMES[curFrame];
-  const hash = 'ae://frame/' + SPEC.prompt_hash + '/' + f.frame;
-  document.getElementById('qr-img').src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent('https://myaelmendez.github.io/kaenbaen/storyboard.html?frame=' + f.frame) + '&color=D4AF37&bgcolor=050505';
-  document.getElementById('qr-hash').textContent = hash;
-  overlay.classList.toggle('show');
-}
-
-// ── kænbæn panel ───────────────────────────────────────────
-let knbVisible = true;
-function toggleKnbPanel() {
-  knbVisible = !knbVisible;
-  document.getElementById('knb-panel').style.display = knbVisible ? 'block' : 'none';
-  document.getElementById('bKnb').classList.toggle('act', knbVisible);
-}
-
-async function loadKaenbaen() {
-  const log = document.getElementById('knb-log');
-  log.innerHTML = '<span class="cy">// loading kænbæn …</span>';
-  try {
-    const [sysMap, contracts, gates, chain] = await Promise.all([
-      fetch('./system-map.json').then(r => r.json()),
-      fetch('./capability-contracts.json').then(r => r.json()),
-      fetch('./verification-gates.json').then(r => r.json()),
-      fetch('./genesis-chain.json').then(r => r.json())
-    ]);
-    const surfaces = Object.keys(sysMap.surfaces || {}).length;
-    const gateCount = Object.keys(gates.gates || {}).length;
-    const receipts = chain.receipts || [];
-    document.getElementById('knb-surfaces').textContent = surfaces + ' surfaces';
-    document.getElementById('knb-gates').textContent = gateCount + ' gates';
-    document.getElementById('knb-receipts').textContent = receipts.length + ' receipts';
-    const last = receipts[receipts.length - 1];
-    log.innerHTML = '<span class="ok">// kænbæn — shared memory</span>\n' +
-      'surfaces: ' + surfaces + ' · gates: ' + gateCount + ' · receipts: ' + receipts.length + '\n' +
-      (last ? '<span class="gd">last: ' + (last.type || 'receipt') + ' · ' + (last.timestamp || '') + '</span>' : '') + '\n' +
-      '<span class="cy">// every agent reads kænbæn before acting</span>';
-  } catch (e) {
-    log.innerHTML = '<span class="err">ERROR: ' + e.message + '</span>';
-  }
-}
-
-// ── tooltip ────────────────────────────────────────────────
-const tooltip = document.getElementById('tooltip');
-renderer.domElement.addEventListener('mousemove', e => {
-  const rect = renderer.domElement.getBoundingClientRect();
-  const mouse = new THREE.Vector2(
-    ((e.clientX - rect.left) / rect.width) * 2 - 1,
-    -((e.clientY - rect.top) / rect.height) * 2 + 1
-  );
-  const ray = new THREE.Raycaster();
-  ray.setFromCamera(mouse, camera);
-  const hits = ray.intersectObjects([mesh]);
-  if (hits.length > 0) {
-    const f = FRAMES[curFrame];
-    document.getElementById('tt-name').textContent = 'dodecahedron · frame ' + f.frame;
-    document.getElementById('tt-status').textContent = '● ' + f.mood;
-    document.getElementById('tt-status').style.color = 'var(--neon)';
-    document.getElementById('tt-detail').textContent = 'color: #D4AF37 · metalness: 0.95 · time: ' + f.time + 's\nprompt: ' + SPEC.prompt;
-    tooltip.style.display = 'block';
-    tooltip.style.left = (e.clientX + 14) + 'px';
-    tooltip.style.top = (e.clientY + 14) + 'px';
-  } else {
-    tooltip.style.display = 'none';
-  }
-});
-
-// ── animation loop ─────────────────────────────────────────
-let frames = 0, lastFps = performance.now();
-function animate() {
-  requestAnimationFrame(animate);
-  frames++;
-  const now = performance.now();
-  if (now - lastFps > 1000) {
-    lastFps = now;
-  }
-  const t = now / 1000;
-  mesh.rotation.y = t * 0.3;
-  mesh.rotation.x = t * 0.2;
-  ring.rotation.z += 0.005;
-  mesh.material.emissiveIntensity = 0.2 + Math.sin(t * 2) * 0.1;
-  controls.update();
-  renderer.render(scene, camera);
-}
-
-// ── resize ─────────────────────────────────────────────────
-window.addEventListener('resize', () => {
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
-});
-
-// ── init ───────────────────────────────────────────────────
-setFrame(0);
-loadKaenbaen();
-animate();
-
-console.info(
-  '%cæ://kænbæn/æqrstoryboard%c storyboard × kænbæn × æQR',
-  'color:#D4AF37;background:#050505;padding:5px 10px;font-weight:bold',
-  'color:#00ff9d;font-family:monospace'
-);
+const scene=new THREE.Scene();scene.background=new THREE.Color('#050505');
+const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,0.1,100);camera.position.set(6,4,8);camera.lookAt(0,0,0);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;document.getElementById('stage').appendChild(renderer.domElement);
+const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=0.05;controls.autoRotate=true;controls.autoRotateSpeed=0.3;
+scene.add(new THREE.AmbientLight(0x404040,0.5));const goldLight=new THREE.PointLight(0xD4AF37,2,20);goldLight.position.set(0,5,5);scene.add(goldLight);const cyanLight=new THREE.PointLight(0x00eaff,1,15);cyanLight.position.set(-5,-3,0);scene.add(cyanLight);
+const geo=new THREE.DodecahedronGeometry(1,0);const mat=new THREE.MeshStandardMaterial({color:0xD4AF37,metalness:0.95,roughness:0.05,emissive:0xD4AF37,emissiveIntensity:0.2});const mesh=new THREE.Mesh(geo,mat);scene.add(mesh);
+const ringGeo=new THREE.TorusGeometry(1.5,0.02,8,32);const ringMat=new THREE.MeshBasicMaterial({color:0xD4AF37,transparent:true,opacity:0.3});const ring=new THREE.Mesh(ringGeo,ringMat);ring.rotation.x=Math.PI/2;scene.add(ring);
+let curFrame=0,playing=false,playInterval=null;
+function setFrame(idx){curFrame=Math.max(0,Math.min(FRAMES.length-1,idx));const f=FRAMES[curFrame];camera.position.set(...f.camera.pos);camera.fov=f.camera.fov||55;camera.updateProjectionMatrix();controls.update();document.getElementById('cur-frame').textContent=f.frame;document.getElementById('cur-time').textContent=f.time.toFixed(1)+'s · '+f.mood;document.querySelectorAll('.frame-thumb').forEach((el,i)=>el.classList.toggle('active',i===curFrame))}
+const grid=document.getElementById('frame-grid');
+FRAMES.forEach((f,i)=>{const thumb=document.createElement('div');thumb.className='frame-thumb'+(i===0?' active':'');thumb.innerHTML='<div class="frame-num">'+f.frame+'</div><div class="frame-time">'+f.time.toFixed(1)+'s</div>';thumb.onclick=()=>{setFrame(i);stopPlay()};grid.appendChild(thumb)});
+document.getElementById('b-prev').onclick=()=>{setFrame(curFrame-1);stopPlay()};
+document.getElementById('b-next').onclick=()=>{setFrame(curFrame+1);stopPlay()};
+document.getElementById('b-play').onclick=()=>{playing?stopPlay():startPlay()};
+document.getElementById('b-qr').onclick=toggleQR;
+document.getElementById('b-knb').onclick=toggleKnbPanel;
+function startPlay(){playing=true;document.getElementById('b-play').textContent='⏸ PAUSE';playInterval=setInterval(()=>setFrame((curFrame+1)%FRAMES.length),1500)}
+function stopPlay(){playing=false;document.getElementById('b-play').textContent='▶ PLAY';if(playInterval)clearInterval(playInterval)}
+function toggleQR(){const overlay=document.getElementById('qr-overlay');const f=FRAMES[curFrame];const hash='ae://frame/'+SPEC.prompt_hash+'/'+f.frame;document.getElementById('qr-img').src='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+encodeURIComponent('https://myaelmendez.github.io/kaenbaen/storyboard.html?frame='+f.frame)+'&color=D4AF37&bgcolor=050505';document.getElementById('qr-hash').textContent=hash;overlay.classList.toggle('show')}
+let knbVisible=true;
+function toggleKnbPanel(){knbVisible=!knbVisible;document.getElementById('knb-panel').style.display=knbVisible?'block':'none';document.getElementById('b-knb').classList.toggle('act',knbVisible)}
+async function loadKaenbaen(){const log=document.getElementById('knb-log');log.innerHTML='<span class="cy">// loading kænbæn …</span>';try{const [sysMap,contracts,gates,chain]=await Promise.all([fetch('./system-map.json').then(r=>r.json()),fetch('./capability-contracts.json').then(r=>r.json()),fetch('./verification-gates.json').then(r=>r.json()),fetch('./genesis-chain.json').then(r=>r.json())]);const surfaces=Object.keys(sysMap.surfaces||{}).length;const gateCount=Object.keys(gates.gates||{}).length;const receipts=chain.receipts||[];document.getElementById('knb-surfaces').textContent=surfaces+' surfaces';document.getElementById('knb-gates').textContent=gateCount+' gates';document.getElementById('knb-receipts').textContent=receipts.length+' receipts';const last=receipts[receipts.length-1];log.innerHTML='<span class="ok">// kænbæn — shared memory</span>\n'+'surfaces: '+surfaces+' · gates: '+gateCount+' · receipts: '+receipts.length+'\n'+(last?'<span class="gd">last: '+(last.type||'receipt')+' · '+(last.timestamp||'')+'</span>':'')+'\n'+'<span class="cy">// every agent reads kænbæn before acting</span>'}catch(e){log.innerHTML='<span class="err">ERROR: '+e.message+'</span>'}}
+const tooltip=document.getElementById('tooltip');
+renderer.domElement.addEventListener('mousemove',e=>{const rect=renderer.domElement.getBoundingClientRect();const mouse=new THREE.Vector2(((e.clientX-rect.left)/rect.width)*2-1,-((e.clientY-rect.top)/rect.height)*2+1);const ray=new THREE.Raycaster();ray.setFromCamera(mouse,camera);const hits=ray.intersectObjects([mesh]);if(hits.length>0){const f=FRAMES[curFrame];document.getElementById('tt-name').textContent='dodecahedron · frame '+f.frame;document.getElementById('tt-status').textContent='● '+f.mood;document.getElementById('tt-status').style.color='var(--neon)';document.getElementById('tt-detail').textContent='color: #D4AF37 · metalness: 0.95 · time: '+f.time+'s\nprompt: '+SPEC.prompt;tooltip.style.display='block';tooltip.style.left=(e.clientX+14)+'px';tooltip.style.top=(e.clientY+14)+'px'}else{tooltip.style.display='none'}});
+let frames=0,lastFps=performance.now();
+function animate(){requestAnimationFrame(animate);frames++;const now=performance.now();if(now-lastFps>1000)lastFps=now;const t=now/1000;mesh.rotation.y=t*0.3;mesh.rotation.x=t*0.2;ring.rotation.z+=0.005;mesh.material.emissiveIntensity=0.2+Math.sin(t*2)*0.1;controls.update();renderer.render(scene,camera)}
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+setFrame(0);loadKaenbaen();animate();
+console.info('%cæ://kænbæn/æqrstoryboard%c storyboard × kænbæn × æQR','color:#D4AF37;background:#050505;padding:5px 10px;font-weight:bold','color:#00ff9d;font-family:monospace');
 </script>
-
-<!-- æ:// QR Verification Badge -->
-<div id="æ-qr-badge" style="
-  position:fixed;bottom:16px;right:16px;z-index:99999;
-  width:56px;height:56px;border:1px solid #D4AF37;border-radius:8px;
-  background:#050505;padding:4px;cursor:pointer;
-  transition:transform 0.2s,box-shadow 0.2s;
-" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 20px rgba(212,175,55,0.4)'"
-   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'"
-   onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')"
-   title="æ:// Verify this surface">
-  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/kaenbaen/storyboard.html&color=D4AF37&bgcolor=050505"
-       alt="QR Verify" style="width:100%;height:100%;display:block;">
+<div id="æ-qr-badge" style="position:fixed;bottom:16px;right:16px;z-index:99999;width:56px;height:56px;border:1px solid #D4AF37;border-radius:8px;background:#050505;padding:4px;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 20px rgba(212,175,55,0.4)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'" onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')" title="æ:// Verify this surface">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/kaenbaen/storyboard.html&color=D4AF37&bgcolor=050505" alt="QR Verify" style="width:100%;height:100%;display:block">
 </div>
-
 </body>
 </html>

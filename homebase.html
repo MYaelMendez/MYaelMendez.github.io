@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#050505">
-<title>æ:// HOMEBASE · full system · codæ://</title>
+<title>æ:// HOMEBASE — full system · codæ://</title>
 <meta name="description" content="Three.js visualization of the complete æ:// HOMEBASE system — all agents, kænbæn shared memory, mesh topology, surfaces, and data flow within desktop sessions.">
 <link rel="canonical" href="https://myaelmendez.github.io/homebase.html">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg">
@@ -43,11 +43,9 @@ body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',ui-mon
 </style>
 </head>
 <body>
-
 <div id="stage"></div>
 <div class="vig"></div>
 <div class="scan"></div>
-
 <div id="hud">
   <div class="top">
     <div class="panel">
@@ -55,8 +53,8 @@ body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',ui-mon
       <div class="value" id="sys-status">ONLINE</div>
       <div class="sub" id="sys-uptime">codæ → mech → æ://</div>
       <div class="row">
-        <span class="badge gold" id="bd-agents">4 agents</span>
-        <span class="badge" id="bd-surfaces">7 surfaces</span>
+        <span class="badge gold" id="bd-agents">5 agents</span>
+        <span class="badge" id="bd-surfaces">185 surfaces</span>
         <span class="badge cyan" id="bd-gates">10 gates</span>
       </div>
     </div>
@@ -70,7 +68,6 @@ body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',ui-mon
       </div>
     </div>
   </div>
-
   <div class="bottom">
     <div class="controls">
       <button class="btn act" id="bRotate">ROTATE</button>
@@ -81,26 +78,19 @@ body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',ui-mon
     <div class="panel" style="text-align:right">
       <div class="label">mesh topology</div>
       <div class="value" id="mesh-status">5 nodes</div>
-      <div class="sub" id="mesh-detail">conductor · droplet · vps · keeper · kænbæn</div>
+      <div class="sub" id="mesh-detail">zeus · hermes · conductor · fleet · kænbæn</div>
     </div>
   </div>
 </div>
-
 <div id="tooltip">
   <div class="t-name" id="tt-name"></div>
   <div class="t-status" id="tt-status"></div>
   <div class="t-detail" id="tt-detail"></div>
   <div class="t-links" id="tt-links"></div>
 </div>
-
-<script type="importmap">
-{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}
-</script>
-<script type="module">
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
-// ── system definition ─────────────────────────────────────
+<script src="https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/controls/OrbitControls.js"></script>
+<script>
 const AGENTS = [
   { id: 'zeus', name: 'zeus_engine', color: 0x00eaff, ring: 6, height: 3, speed: 0.35,
     can: ['scan codebases', 'batch type repair', 'GPU-verify receipts'],
@@ -115,7 +105,6 @@ const AGENTS = [
     can: ['audit', 'self-improve', 'cron', 'batch repair'],
     cannot: ['modify hardware', 'access secrets', 'bypass supervision gates'] }
 ];
-
 const SURFACES = [
   { id: 'github', name: 'github.io', color: 0xD4AF37, ring: 14, height: 0, speed: 0.08,
     desc: 'truth surface · 185 pages · 100% QR badged' },
@@ -128,26 +117,21 @@ const SURFACES = [
   { id: 'knb', name: 'kænbæn', color: 0xD4AF37, ring: 0, height: 0, speed: 0, fixed: true,
     desc: 'shared memory · 4 JSON + genesis chain' }
 ];
-
 const EDGES = [
   ['zeus', 'knb'], ['hermes', 'knb'], ['conductor', 'knb'], ['fleet', 'knb'],
   ['zeus', 'github'], ['hermes', 'github'], ['conductor', 'github'],
   ['fleet', 'github'], ['fleet', 'taskbar'], ['fleet', 'capture'],
   ['conductor', 'aee'], ['zeus', 'aee']
 ];
-
-// ── three.js scene ────────────────────────────────────────
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 200);
 camera.position.set(0, 8, 22);
-
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.setSize(innerWidth, innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.1;
 document.getElementById('stage').appendChild(renderer.domElement);
-
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
@@ -155,8 +139,6 @@ controls.minDistance = 8;
 controls.maxDistance = 60;
 controls.autoRotate = true;
 controls.autoRotateSpeed = 0.3;
-
-// lighting
 scene.add(new THREE.AmbientLight(0x404040, 0.6));
 const goldLight = new THREE.PointLight(0xD4AF37, 3, 30);
 goldLight.position.set(-4, 5, 6);
@@ -164,17 +146,12 @@ scene.add(goldLight);
 const cyanLight = new THREE.PointLight(0x00eaff, 1, 15);
 cyanLight.position.set(6, -2, -4);
 scene.add(cyanLight);
-
-// ── create nodes ──────────────────────────────────────────
 const nodeMeshes = new Map();
 const nodeGroups = new Map();
-
 AGENTS.concat(SURFACES).forEach(n => {
   const group = new THREE.Group();
   scene.add(group);
   nodeGroups.set(n.id, group);
-
-  // orbit ring
   if (!n.fixed) {
     const ringGeo = new THREE.RingGeometry(n.ring * 0.9, n.ring * 1.02, 64);
     const ringMat = new THREE.MeshBasicMaterial({ color: n.color, transparent: true, opacity: 0.15, side: THREE.DoubleSide });
@@ -183,46 +160,31 @@ AGENTS.concat(SURFACES).forEach(n => {
     ringMesh.position.y = n.height + 0.5;
     group.add(ringMesh);
   }
-
-  // core sphere
   const geo = new THREE.IcosahedronGeometry(n.fixed ? 0.6 : 0.4, 2);
-  const mat = new THREE.MeshStandardMaterial({
-    color: n.color, emissive: n.color, emissiveIntensity: 0.4,
-    metalness: 0.8, roughness: 0.2
-  });
+  const mat = new THREE.MeshStandardMaterial({ color: n.color, emissive: n.color, emissiveIntensity: 0.4, metalness: 0.8, roughness: 0.2 });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.position.y = n.height;
   group.add(mesh);
   nodeMeshes.set(n.id, mesh);
-
-  // glow ring
   const glowGeo = new THREE.TorusGeometry(n.fixed ? 0.8 : 0.55, 0.03, 8, 32);
   const glowMat = new THREE.MeshBasicMaterial({ color: n.color, transparent: true, opacity: 0.3 });
   const glow = new THREE.Mesh(glowGeo, glowMat);
   glow.position.y = n.height;
   group.add(glow);
 });
-
-// ── create edges ──────────────────────────────────────────
 const edgeLines = [];
 EDGES.forEach(([a, b]) => {
   const na = AGENTS.concat(SURFACES).find(n => n.id === a);
   const nb = AGENTS.concat(SURFACES).find(n => n.id === b);
-  const geo = new THREE.BufferGeometry().setFromPoints([
-    new THREE.Vector3(na.ring, na.height, 0),
-    new THREE.Vector3(nb.ring * 0.5, nb.height, 0)
-  ]);
+  const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(na.ring, na.height, 0), new THREE.Vector3(nb.ring * 0.5, nb.height, 0)]);
   const mat = new THREE.LineBasicMaterial({ color: 0xD4AF37, transparent: true, opacity: 0.2 });
   const line = new THREE.Line(geo, mat);
   scene.add(line);
   edgeLines.push({ line, a, b });
 });
-
-// ── data flow particles ───────────────────────────────────
 const flowParticles = [];
 const flowGroup = new THREE.Group();
 scene.add(flowGroup);
-
 EDGES.forEach(([a, b]) => {
   const na = AGENTS.concat(SURFACES).find(n => n.id === a);
   const nb = AGENTS.concat(SURFACES).find(n => n.id === b);
@@ -235,11 +197,8 @@ EDGES.forEach(([a, b]) => {
     flowParticles.push(particle);
   }
 });
-
-// ── UI update ─────────────────────────────────────────────
 function updateUI() {
-  const up = AGENTS.length;
-  document.getElementById('bd-agents').textContent = up + ' agents';
+  document.getElementById('bd-agents').textContent = AGENTS.length + ' agents';
   document.getElementById('bd-surfaces').textContent = SURFACES.length + ' surfaces';
   document.getElementById('bd-gates').textContent = '10 gates';
   document.getElementById('knb-receipts').textContent = '2 receipts';
@@ -247,15 +206,10 @@ function updateUI() {
   document.getElementById('mesh-status').textContent = (AGENTS.length + SURFACES.length) + ' nodes';
   document.getElementById('mesh-detail').textContent = AGENTS.map(a => a.id).join(' · ') + ' · ' + SURFACES.filter(s => !s.fixed).map(s => s.id).join(' · ');
 }
-
-// ── tooltip ───────────────────────────────────────────────
 const tooltip = document.getElementById('tooltip');
 renderer.domElement.addEventListener('mousemove', e => {
   const rect = renderer.domElement.getBoundingClientRect();
-  const mouse = new THREE.Vector2(
-    ((e.clientX - rect.left) / rect.width) * 2 - 1,
-    -((e.clientY - rect.top) / rect.height) * 2 + 1
-  );
+  const mouse = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
   const ray = new THREE.Raycaster();
   ray.setFromCamera(mouse, camera);
   const meshes = [...nodeMeshes.values()];
@@ -279,46 +233,17 @@ renderer.domElement.addEventListener('mousemove', e => {
       tooltip.style.left = (e.clientX + 14) + 'px';
       tooltip.style.top = (e.clientY + 14) + 'px';
     }
-  } else {
-    tooltip.style.display = 'none';
-  }
+  } else { tooltip.style.display = 'none'; }
 });
-
-// ── controls ──────────────────────────────────────────────
-let autoRotate = true;
-let showFlow = true;
-let showLabels = true;
-
-document.getElementById('bRotate').onclick = () => {
-  autoRotate = !autoRotate;
-  document.getElementById('bRotate').classList.toggle('act', autoRotate);
-};
-document.getElementById('bFlow').onclick = () => {
-  showFlow = !showFlow;
-  document.getElementById('bFlow').classList.toggle('act', showFlow);
-  flowGroup.visible = showFlow;
-};
-document.getElementById('bLabels').onclick = () => {
-  showLabels = !showLabels;
-  document.getElementById('bLabels').classList.toggle('act', showLabels);
-};
-document.getElementById('bReset').onclick = () => {
-  camera.position.set(0, 8, 22);
-  controls.reset();
-};
-
-// ── animation loop ────────────────────────────────────────
-let frames = 0, lastFps = performance.now();
+let autoRotate = true, showFlow = true, showLabels = true;
+document.getElementById('bRotate').onclick = () => { autoRotate = !autoRotate; document.getElementById('bRotate').classList.toggle('act', autoRotate); };
+document.getElementById('bFlow').onclick = () => { showFlow = !showFlow; document.getElementById('bFlow').classList.toggle('act', showFlow); flowGroup.visible = showFlow; };
+document.getElementById('bLabels').onclick = () => { showLabels = !showLabels; document.getElementById('bLabels').classList.toggle('act', showLabels); };
+document.getElementById('bReset').onclick = () => { camera.position.set(0, 8, 22); controls.reset(); };
 function animate() {
   requestAnimationFrame(animate);
-  frames++;
   const now = performance.now();
-  if (now - lastFps > 1000) {
-    lastFps = now;
-  }
   const t = now * 0.001;
-
-  // pulse nodes
   AGENTS.concat(SURFACES).forEach(n => {
     const group = nodeGroups.get(n.id);
     const mesh = nodeMeshes.get(n.id);
@@ -333,14 +258,11 @@ function animate() {
       mesh.material.emissiveIntensity = 0.3 + Math.sin(t * 2 + n.speed) * 0.2;
     }
   });
-
-  // data flow particles
   if (showFlow) {
     flowParticles.forEach(p => {
       p.userData.t += p.userData.speed;
       if (p.userData.t > 1) p.userData.t = 0;
-      const from = p.userData.from;
-      const to = p.userData.to;
+      const from = p.userData.from, to = p.userData.to;
       const x = from.ring + (to.ring * 0.5 - from.ring) * p.userData.t;
       const y = from.height + (to.height - from.height) * p.userData.t;
       const z = Math.sin(p.userData.t * Math.PI) * 2;
@@ -348,42 +270,16 @@ function animate() {
       p.material.opacity = 0.8 * (1 - Math.abs(p.userData.t - 0.5) * 2);
     });
   }
-
   if (autoRotate) controls.update();
   renderer.render(scene, camera);
 }
-
-// ── resize ────────────────────────────────────────────────
-window.addEventListener('resize', () => {
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
-});
-
-// ── init ──────────────────────────────────────────────────
+window.addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
 updateUI();
 animate();
-
-console.info(
-  '%cæ:// HOMEBASE%c full system animation',
-  'color:#D4AF37;background:#050505;padding:5px 10px;font-weight:bold',
-  'color:#00ff9d;font-family:monospace'
-);
+console.info('%cæ:// HOMEBASE%c full system animation', 'color:#D4AF37;background:#050505;padding:5px 10px;font-weight:bold', 'color:#00ff9d;font-family:monospace');
 </script>
-
-<!-- æ:// QR Verification Badge -->
-<div id="æ-qr-badge" style="
-  position:fixed;bottom:16px;right:16px;z-index:99999;
-  width:56px;height:56px;border:1px solid #D4AF37;border-radius:8px;
-  background:#050505;padding:4px;cursor:pointer;
-  transition:transform 0.2s,box-shadow 0.2s;
-" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 20px rgba(212,175,55,0.4)'"
-   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'"
-   onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')"
-   title="æ:// Verify this surface">
-  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/homebase.html&color=D4AF37&bgcolor=050505"
-       alt="QR Verify" style="width:100%;height:100%;display:block;">
+<div id="æ-qr-badge" style="position:fixed;bottom:16px;right:16px;z-index:99999;width:56px;height:56px;border:1px solid #D4AF37;border-radius:8px;background:#050505;padding:4px;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 20px rgba(212,175,55,0.4)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'" onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')" title="æ:// Verify this surface">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/homebase.html&color=D4AF37&bgcolor=050505" alt="QR Verify" style="width:100%;height:100%;display:block;">
 </div>
-
 </body>
 </html>

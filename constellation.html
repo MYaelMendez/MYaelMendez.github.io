@@ -3,102 +3,58 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
-<meta name="theme-color" content="#050505"/>
+<meta name="theme-color" content="#050505">
 <title>æ:/constellation · mesh topology</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.webgpu.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
-  }
-}
-</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/controls/OrbitControls.js"></script>
 <style>
-:root {
-  --void: #050505; --gold: #D4AF37; --gold2: #f0d487;
-  --neon: #00ff9d; --cyan: #00eaff; --violet: #8c72ff;
-  --red: #ff4d5f; --ink: #e8e6df; --muted: #6f6a5c;
-  --line: rgba(212,175,55,.22);
-  --mono: "JetBrains Mono", ui-monospace, monospace;
-  --display: "Orbitron", sans-serif;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { width: 100%; height: 100%; overflow: hidden;
-  background: var(--void); color: var(--ink); font-family: var(--mono); }
-
-#stage { position: fixed; inset: 0; z-index: 0; }
-.scan { position: fixed; inset: 0; z-index: 4; pointer-events: none; opacity: .18;
-  background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,0,0,.5) 2px 4px); }
-.vig { position: fixed; inset: 0; z-index: 3; pointer-events: none;
-  background: radial-gradient(circle at 50% 45%, transparent 34%, rgba(5,5,5,.55) 72%, rgba(5,5,5,.96) 100%); }
-
-#hud { position: fixed; inset: 0; z-index: 10; pointer-events: none;
-  display: flex; flex-direction: column; justify-content: space-between;
-  padding: max(12px, env(safe-area-inset-top)) 14px calc(28px + env(safe-area-inset-bottom)); }
-
-.top { display: flex; justify-content: space-between; align-items: flex-start; }
-.bottom { display: flex; justify-content: space-between; align-items: flex-end; }
-
-.panel { pointer-events: auto; border: 1px solid var(--line); background: rgba(8,8,7,.82);
-  padding: 12px 14px; font-size: 9px; letter-spacing: .14em; }
-.panel .label { font-size: 8px; color: var(--muted); letter-spacing: .2em; margin-bottom: 6px; }
-.panel .value { font-family: var(--display); font-size: 22px; font-weight: 900; color: var(--gold); }
-.panel .sub { font-size: 8px; color: var(--muted); margin-top: 4px; line-height: 1.6; }
-
-.node-card { border: 1px solid var(--line); background: rgba(8,8,7,.78);
-  padding: 10px 12px; min-width: 160px; pointer-events: auto; cursor: pointer; }
-.node-card:hover { border-color: var(--gold); }
-.node-card .name { font-family: var(--display); font-size: 11px; font-weight: 700; color: var(--gold); }
-.node-card .status { font-size: 8px; margin-top: 4px; }
-.node-card .status.up { color: var(--neon); }
-.node-card .status.down { color: var(--red); }
-.node-card .metric { font-size: 8px; color: var(--muted); margin-top: 2px; }
-.node-card .metric b { color: var(--ink); font-weight: 700; }
-
-.ctrls { display: flex; gap: 8px; flex-wrap: wrap; pointer-events: auto; }
-.btn { border: 1px solid var(--line); background: rgba(8,8,7,.8); color: var(--gold);
-  font: 700 9px var(--mono); letter-spacing: .14em; padding: 9px 13px; cursor: pointer; }
-.btn:hover { background: rgba(212,175,55,.1); }
-.btn:active { background: var(--gold); color: #050505; }
-.btn.act { border-color: var(--neon); color: var(--neon); }
-
-.readout { text-align: right; font-size: 8px; letter-spacing: .14em; color: var(--muted);
-  border: 1px solid var(--line); background: rgba(8,8,7,.78); padding: 8px 10px;
-  pointer-events: auto; min-width: 130px; }
-.readout b { display: block; color: var(--gold); font-weight: 700; font-size: 9px; letter-spacing: .1em; }
-.readout span { display: block; margin-top: 4px; }
-
-#tooltip { position: fixed; z-index: 100; pointer-events: none;
-  border: 1px solid var(--gold); background: rgba(8,8,7,.92); padding: 10px 14px;
-  font-size: 9px; line-height: 1.7; color: var(--ink); display: none; max-width: 280px; }
-#tooltip .t-name { font-family: var(--display); font-size: 12px; font-weight: 900; color: var(--gold); }
-#tooltip .t-status { font-size: 8px; margin-top: 4px; }
-#tooltip .t-detail { font-size: 8px; color: var(--muted); margin-top: 6px; line-height: 1.6; }
-
-@keyframes pulse { 0%,100% { opacity: .6; } 50% { opacity: 1; } }
-.pulse { animation: pulse 2s ease-in-out infinite; }
-
-@keyframes scan { 0% { transform: translateY(0); } 100% { transform: translateY(4px); } }
-.scan-line { position: fixed; left: 0; right: 0; height: 2px; z-index: 5; pointer-events: none;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: .15;
-  animation: scan 4s linear infinite; }
-
-@media (max-width: 640px) {
-  .node-card { min-width: 120px; padding: 8px; }
-  .panel .value { font-size: 18px; }
-  .readout { display: none; }
-}
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+:root{--void:#050505;--gold:#D4AF37;--gold2:#f0d487;--neon:#00ff9d;--cyan:#00eaff;--violet:#8c72ff;--danger:#ff4d5f;--ink:#e8e6df;--muted:#6f6a5c;--border:rgba(212,175,55,.22)}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',ui-monospace,monospace}
+#stage{position:fixed;inset:0;z-index:0}
+.scan{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:.18;background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.5) 2px 4px)}
+.vig{position:fixed;inset:0;z-index:3;pointer-events:none;background:radial-gradient(circle at 50% 45%,transparent 34%,rgba(5,5,5,.55) 72%,rgba(5,5,5,.96) 100%)}
+#hud{position:fixed;inset:0;z-index:10;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:max(12px,env(safe-area-inset-top)) 14px calc(28px+env(safe-area-inset-bottom))}
+.top{display:flex;justify-content:space-between;align-items:flex-start}
+.bottom{display:flex;justify-content:space-between;align-items:flex-end}
+.panel{pointer-events:auto;border:1px solid var(--border);background:rgba(8,8,7,.82);padding:12px 14px;font-size:9px;letter-spacing:.14em}
+.panel .label{font-size:8px;color:var(--muted);letter-spacing:.2em;margin-bottom:6px}
+.panel .value{font-family:'Orbitron';font-size:22px;font-weight:900;color:var(--gold)}
+.panel .sub{font-size:8px;color:var(--muted);margin-top:4px;line-height:1.6}
+.node-card{border:1px solid var(--border);background:rgba(8,8,7,.78);padding:10px 12px;min-width:160px;pointer-events:auto;cursor:pointer}
+.node-card:hover{border-color:var(--gold)}
+.node-card .name{font-family:'Orbitron';font-size:11px;font-weight:700;color:var(--gold)}
+.node-card .status{font-size:8px;margin-top:4px}
+.node-card .status.up{color:var(--neon)}
+.node-card .status.down{color:var(--danger)}
+.node-card .metric{font-size:8px;color:var(--muted);margin-top:2px}
+.node-card .metric b{color:var(--ink);font-weight:700}
+.ctrls{display:flex;gap:8px;flex-wrap:wrap;pointer-events:auto}
+.btn{border:1px solid var(--border);background:rgba(8,8,7,.8);color:var(--gold);font:700 9px 'JetBrains Mono';letter-spacing:.14em;padding:9px 13px;cursor:pointer}
+.btn:hover{background:rgba(212,175,55,.1)}
+.btn:active{background:var(--gold);color:#050505}
+.btn.act{border-color:var(--neon);color:var(--neon)}
+.readout{text-align:right;font-size:8px;letter-spacing:.14em;color:var(--muted);border:1px solid var(--border);background:rgba(8,8,7,.78);padding:8px 10px;pointer-events:auto;min-width:130px}
+.readout b{display:block;color:var(--gold);font-weight:700;font-size:9px;letter-spacing:.1em}
+.readout span{display:block;margin-top:4px}
+#tooltip{position:fixed;z-index:100;pointer-events:none;border:1px solid var(--gold);background:rgba(8,8,7,.92);padding:10px 14px;font-size:9px;line-height:1.7;color:var(--ink);display:none;max-width:280px}
+#tooltip .t-name{font-family:'Orbitron';font-size:12px;font-weight:900;color:var(--gold)}
+#tooltip .t-status{font-size:8px;margin-top:4px}
+#tooltip .t-detail{font-size:8px;color:var(--muted);margin-top:6px;line-height:1.6}
+@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+.pulse{animation:pulse 2s ease-in-out infinite}
+@keyframes scan{0%{transform:translateY(0)}100%{transform:translateY(4px)}}
+.scan-line{position:fixed;left:0;right:0;height:2px;z-index:5;pointer-events:none;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.15;animation:scan 4s linear infinite}
+@media(max-width:640px){.node-card{min-width:120px;padding:8px}.panel .value{font-size:18px}.readout{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
 <body>
-
 <div id="stage"></div>
 <div class="vig"></div>
 <div class="scan"></div>
 <div class="scan-line"></div>
-
 <div id="hud">
   <div class="top">
     <div class="panel">
@@ -108,11 +64,10 @@ html, body { width: 100%; height: 100%; overflow: hidden;
     </div>
     <div class="readout">
       <b>æ:/constellation</b>
-      <span id="roUpdate">fetching…</span>
-      <span id="roFps">— fps</span>
+      <span id="ro-update">fetching…</span>
+      <span id="ro-fps">— fps</span>
     </div>
   </div>
-
   <div class="bottom">
     <div style="display:flex;gap:10px;flex-wrap:wrap;pointer-events:auto">
       <div class="node-card" data-node="hermes-agent">
@@ -142,420 +97,192 @@ html, body { width: 100%; height: 100%; overflow: hidden;
       </div>
     </div>
     <div class="ctrls">
-      <button class="btn act" id="bProbe">PROBE</button>
-      <button class="btn" id="bAuto">AUTO</button>
-      <button class="btn" id="bKaenbaen">KÆNBÆN</button>
-      <button class="btn" id="bHome">æ:// HOME</button>
+      <button class="btn act" id="b-probe">PROBE</button>
+      <button class="btn" id="b-auto">AUTO</button>
+      <button class="btn" id="b-kaenbaen">KÆNBÆN</button>
+      <button class="btn" id="b-home">æ:// HOME</button>
     </div>
   </div>
 </div>
-
-<!-- kænbæn panel -->
-<div id="kaenbaen-panel" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:50; width:min(90vw, 700px); max-height:80vh; overflow:auto; border:1px solid var(--gold); background:rgba(8,8,7,.95); padding:16px; font-size:10px; line-height:1.6;">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid var(--line); padding-bottom:8px;">
-    <span style="font-family:var(--display); font-weight:900; font-size:14px; color:var(--gold); letter-spacing:2px;">kænbæn · shared memory</span>
+<div id="kaenbaen-panel" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:50;width:min(90vw,700px);max-height:80vh;overflow:auto;border:1px solid var(--gold);background:rgba(8,8,7,.95);padding:16px;font-size:10px;line-height:1.6">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:8px">
+    <span style="font-family:'Orbitron';font-weight:900;font-size:14px;color:var(--gold);letter-spacing:2px">kænbæn · shared memory</span>
     <button class="btn" onclick="document.getElementById('kaenbaen-panel').style.display='none'">CLOSE</button>
   </div>
   <div id="kaenbaen-content">loading…</div>
-  <div style="margin-top:12px; border-top:1px solid var(--line); padding-top:8px;">
-    <a href="./kaenbaen/" style="color:var(--gold); font-size:10px;">open kænbæn surface →</a>
+  <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:8px">
+    <a href="./kaenbaen/" style="color:var(--gold);font-size:10px">open kænbæn surface →</a>
   </div>
 </div>
-
 <div id="tooltip">
   <div class="t-name" id="tt-name"></div>
   <div class="t-status" id="tt-status"></div>
   <div class="t-detail" id="tt-detail"></div>
 </div>
-
-<script type="module">
-import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-
-// ══════════════════════════════════════════════════════════
-// æ:/constellation — mesh topology visualizer
-// WebGPU + Three.js · gold-on-void · live broker probe
-// ══════════════════════════════════════════════════════════
-
-const $ = id => document.getElementById(id);
-const tooltip = $("tooltip");
-
-// ── mesh topology ────────────────────────────────────────
-const NODES = [
-  { id: "hermes-agent", label: "hermes-agent", tier: 0, color: 0xD4AF37,
-    desc: "Intent router · Hermes Agent", pos: [0, 3, 0] },
-  { id: "vps_node", label: "vps_node", tier: 1, color: 0x00eaff,
-    desc: "Broker · droplet :3000", pos: [-3, 0, 2] },
-  { id: "teknium", label: "teknium", tier: 2, color: 0x00ff9d,
-    desc: "Compute · RTX 3050 · 6144 MiB", pos: [3, 0, 2] },
-  { id: "keeper", label: "keeper", tier: 3, color: 0x8c72ff,
-    desc: "Custodian · audit + ledger", pos: [0, -3, 0] },
-  { id: "kaenbaen", label: "kænbæn", tier: 4, color: 0xf0d487,
-    desc: "Shared memory · system-map + contracts + gates + chain", pos: [0, 0, 0] }
+<script>
+const $=id=>document.getElementById(id);
+const tooltip=$("tooltip");
+const NODES=[
+  {id:"hermes-agent",label:"hermes-agent",tier:0,color:0xD4AF37,desc:"Intent router · Hermes Agent",pos:[0,3,0]},
+  {id:"vps_node",label:"vps_node",tier:1,color:0x00eaff,desc:"Broker · droplet :3000",pos:[-3,0,2]},
+  {id:"teknium",label:"teknium",tier:2,color:0x00ff9d,desc:"Compute · RTX 3050 · 6144 MiB",pos:[3,0,2]},
+  {id:"keeper",label:"keeper",tier:3,color:0x8c72ff,desc:"Custodian · audit + ledger",pos:[0,-3,0]},
+  {id:"kaenbaen",label:"kænbæn",tier:4,color:0xf0d487,desc:"Shared memory · system-map + contracts + gates + chain",pos:[0,0,0]}
 ];
-
-const EDGES = [
-  ["hermes-agent", "vps_node"],
-  ["hermes-agent", "teknium"],
-  ["hermes-agent", "keeper"],
-  ["vps_node", "teknium"],
-  ["vps_node", "keeper"],
-  ["teknium", "keeper"],
-  ["hermes-agent", "kaenbaen"],
-  ["vps_node", "kaenbaen"],
-  ["teknium", "kaenbaen"],
-  ["keeper", "kaenbaen"]
+const EDGES=[
+  ["hermes-agent","vps_node"],["hermes-agent","teknium"],["hermes-agent","keeper"],
+  ["vps_node","teknium"],["vps_node","keeper"],["teknium","keeper"],
+  ["hermes-agent","kaenbaen"],["vps_node","kaenbaen"],["teknium","kaenbaen"],["keeper","kaenbaen"]
 ];
-
-// ── Three.js scene ───────────────────────────────────────
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.1, 100);
-camera.position.set(0, 4, 10);
-camera.lookAt(0, 0, 0);
-
-const renderer = new THREE.WebGPURenderer({ antialias: true, alpha: false });
-renderer.setPixelRatio(devicePixelRatio);
-renderer.setSize(innerWidth, innerHeight);
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.2;
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,0.1,100);
+camera.position.set(0,4,10);camera.lookAt(0,0,0);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
+renderer.setPixelRatio(devicePixelRatio);renderer.setSize(innerWidth,innerHeight);
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;
 $("stage").appendChild(renderer.domElement);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.05;
-controls.minDistance = 3;
-controls.maxDistance = 20;
-controls.autoRotate = true;
-controls.autoRotateSpeed = 0.3;
-
-// lights
-scene.add(new THREE.AmbientLight(0x404040, 0.5));
-const goldLight = new THREE.PointLight(0xD4AF37, 2, 20);
-goldLight.position.set(0, 5, 5);
-scene.add(goldLight);
-const cyanLight = new THREE.PointLight(0x00eaff, 1, 15);
-cyanLight.position.set(-5, -3, 0);
-scene.add(cyanLight);
-
-// ── create nodes ──────────────────────────────────────────
-const nodeMeshes = new Map();
-const nodeGroups = new Map();
-
-NODES.forEach(n => {
-  const group = new THREE.Group();
-  group.position.set(...n.pos);
-
-  // core sphere
-  const geo = new THREE.IcosahedronGeometry(0.3, 2);
-  const mat = new THREE.MeshStandardMaterial({
-    color: n.color,
-    emissive: n.color,
-    emissiveIntensity: 0.4,
-    metalness: 0.8,
-    roughness: 0.2
-  });
-  const mesh = new THREE.Mesh(geo, mat);
-  group.add(mesh);
-
-  // glow ring
-  const ringGeo = new THREE.TorusGeometry(0.5, 0.02, 8, 32);
-  const ringMat = new THREE.MeshBasicMaterial({
-    color: n.color,
-    transparent: true,
-    opacity: 0.3
-  });
-  const ring = new THREE.Mesh(ringGeo, ringMat);
-  ring.rotation.x = Math.PI / 2;
-  group.add(ring);
-
-  // outer glow
-  const glowGeo = new THREE.SphereGeometry(0.6, 16, 16);
-  const glowMat = new THREE.MeshBasicMaterial({
-    color: n.color,
-    transparent: true,
-    opacity: 0.08
-  });
-  const glow = new THREE.Mesh(glowGeo, glowMat);
-  group.add(glow);
-
-  scene.add(group);
-  nodeMeshes.set(n.id, mesh);
-  nodeGroups.set(n.id, group);
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;controls.dampingFactor=0.05;controls.minDistance=3;controls.maxDistance=20;
+controls.autoRotate=true;controls.autoRotateSpeed=0.3;
+scene.add(new THREE.AmbientLight(0x404040,0.5));
+const goldLight=new THREE.PointLight(0xD4AF37,2,20);goldLight.position.set(0,5,5);scene.add(goldLight);
+const cyanLight=new THREE.PointLight(0x00eaff,1,15);cyanLight.position.set(-5,-3,0);scene.add(cyanLight);
+const nodeMeshes=new Map();const nodeGroups=new Map();
+NODES.forEach(n=>{
+  const group=new THREE.Group();group.position.set(...n.pos);scene.add(group);
+  const geo=new THREE.IcosahedronGeometry(0.3,2);
+  const mat=new THREE.MeshStandardMaterial({color:n.color,emissive:n.color,emissiveIntensity:0.4,metalness:0.8,roughness:0.2});
+  const mesh=new THREE.Mesh(geo,mat);group.add(mesh);
+  const ringGeo=new THREE.TorusGeometry(0.5,0.02,8,32);
+  const ringMat=new THREE.MeshBasicMaterial({color:n.color,transparent:true,opacity:0.3});
+  const ring=new THREE.Mesh(ringGeo,ringMat);ring.rotation.x=Math.PI/2;group.add(ring);
+  const glowGeo=new THREE.SphereGeometry(0.6,16,16);
+  const glowMat=new THREE.MeshBasicMaterial({color:n.color,transparent:true,opacity:0.08});
+  const glow=new THREE.Mesh(glowGeo,glowMat);group.add(glow);
+  scene.add(group);nodeMeshes.set(n.id,mesh);nodeGroups.set(n.id,group);
 });
-
-// ── create edges ──────────────────────────────────────────
-const edgeLines = [];
-EDGES.forEach(([a, b]) => {
-  const na = NODES.find(n => n.id === a);
-  const nb = NODES.find(n => n.id === b);
-  const geo = new THREE.BufferGeometry().setFromPoints([
-    new THREE.Vector3(...na.pos),
-    new THREE.Vector3(...nb.pos)
-  ]);
-  const mat = new THREE.LineBasicMaterial({
-    color: 0xD4AF37,
-    transparent: true,
-    opacity: 0.15
-  });
-  const line = new THREE.Line(geo, mat);
-  scene.add(line);
-  edgeLines.push({ line, a, b });
+const edgeLines=[];
+EDGES.forEach(([a,b])=>{
+  const na=NODES.find(n=>n.id===a);const nb=NODES.find(n=>n.id===b);
+  const geo=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...na.pos),new THREE.Vector3(...nb.pos)]);
+  const mat=new THREE.LineBasicMaterial({color:0xD4AF37,transparent:true,opacity:0.15});
+  const line=new THREE.Line(geo,mat);scene.add(line);edgeLines.push({line,a,b});
 });
-
-// ── probe data ────────────────────────────────────────────
-const probeData = {};
-NODES.forEach(n => { probeData[n.id] = { status: "probing", latency: null, detail: {} }; });
-
-async function probeAll() {
-  const t0 = performance.now();
-  try {
-    const r = await fetch("http://127.0.0.1:3050/xrpc/ae.vps.rtx?op=probe", {
-      signal: AbortSignal.timeout(5000)
-    });
-    const data = await r.json();
-    const latency = Math.round((performance.now() - t0) * 100) / 100;
-
-    probeData["teknium"] = {
-      status: "up",
-      latency,
-      detail: data.probe || {}
-    };
-    probeData["hermes-agent"] = { status: "up", latency: Math.round(latency * 0.5), detail: {} };
-    probeData["vps_node"] = { status: "up", latency: Math.round(latency * 1.5), detail: {} };
-    probeData["keeper"] = { status: "up", latency: Math.round(latency * 0.8), detail: {} };
-  } catch (e) {
-    NODES.forEach(n => {
-      if (n.id === "kaenbaen") return; // kænbæn is local, not probed
-      if (probeData[n.id].status !== "down") {
-        probeData[n.id] = { status: "degraded", latency: null, detail: { error: String(e).slice(0, 60) } };
-      }
-    });
+const probeData={};NODES.forEach(n=>{probeData[n.id]={status:"probing",latency:null,detail:{}}});
+async function probeAll(){
+  const t0=performance.now();
+  try{
+    const r=await fetch("http://127.0.0.1:3050/xrpc/ae.vps.rtx?op=probe",{signal:AbortSignal.timeout(5000)});
+    const data=await r.json();const latency=Math.round((performance.now()-t0)*100)/100;
+    probeData["teknium"]={status:"up",latency,detail:data.probe||{}};
+    probeData["hermes-agent"]={status:"up",latency:Math.round(latency*0.5),detail:{}};
+    probeData["vps_node"]={status:"up",latency:Math.round(latency*1.5),detail:{}};
+    probeData["keeper"]={status:"up",latency:Math.round(latency*0.8),detail:{}};
+  }catch(e){
+    NODES.forEach(n=>{if(n.id==="kaenbaen")return;if(probeData[n.id].status!=="down"){probeData[n.id]={status:"degraded",latency:null,detail:{error:String(e).slice(0,60)}}});
   }
-  // kænbæn is always available (local data)
-  probeData["kaenbaen"] = { status: "up", latency: 0, detail: { local: true } };
-  updateUI();
+  probeData["kaenbaen"]={status:"up",latency:0,detail:{local:true}};updateUI();
 }
-
-// ── UI update ─────────────────────────────────────────────
-function updateUI() {
-  const up = Object.values(probeData).filter(p => p.status === "up").length;
-  $("node-count").textContent = `${up}/${NODES.length}`;
-  $("node-status").textContent = up === NODES.length ? "all nodes reachable" : `${NODES.length - up} unreachable`;
-
-  NODES.forEach(n => {
-    if (n.id === "kaenbaen") {
-      const st = $("st-kaenbaen");
-      const mt = $("mt-kaenbaen");
-      if (st) { st.textContent = "memory"; st.className = "status up"; }
-      if (mt) { mt.innerHTML = "<b>shared</b>"; }
-      return;
-    }
-    const d = probeData[n.id];
-    const st = $(`st-${n.id.replace(/-/g, "")}`);
-    const mt = $(`mt-${n.id.replace(/-/g, "")}`);
-    if (st) {
-      st.textContent = d.status;
-      st.className = `status ${d.status === "up" ? "up" : d.status === "down" ? "down" : ""}`;
-    }
-    if (mt) {
-      const detail = d.detail;
-      const parts = [];
-      if (detail.temperature) parts.push(`${detail.temperature}°C`);
-      if (detail.utilization) parts.push(`util ${detail.utilization}%`);
-      if (d.latency != null && d.latency > 0) parts.push(`${d.latency}ms`);
-      mt.innerHTML = parts.length ? `<b>${parts.join(" · ")}</b>` : "—";
-    }
+function updateUI(){
+  const up=Object.values(probeData).filter(p=>p.status==="up").length;
+  $("node-count").textContent=`${up}/${NODES.length}`;
+  $("node-status").textContent=up===NODES.length?"all nodes reachable":`${NODES.length-up} unreachable`;
+  NODES.forEach(n=>{
+    if(n.id==="kaenbaen"){const st=$("st-kaenbaen");const mt=$("mt-kaenbaen");if(st){st.textContent="memory";st.className="status up"}if(mt){mt.innerHTML="<b>shared</b>"}return}
+    const d=probeData[n.id];const st=$(`st-${n.id.replace(/-/g,"")}`);const mt=$(`mt-${n.id.replace(/-/g,"")}`);
+    if(st){st.textContent=d.status;st.className=`status ${d.status==="up"?"up":d.status==="down"?"down":""}`}
+    if(mt){const detail=d.detail;const parts=[];if(detail.temperature)parts.push(`${detail.temperature}°C`);if(detail.utilization)parts.push(`util ${detail.utilization}%`);if(d.latency!=null&&d.latency>0)parts.push(`${d.latency}ms`);mt.innerHTML=parts.length?`<b>${parts.join(" · ")}</b>`:"—"}
   });
-
-  $("roUpdate").textContent = `probe ${new Date().toLocaleTimeString()}`;
+  $("ro-update").textContent=`probe ${new Date().toLocaleTimeString()}`;
 }
-
-// ── tooltip ───────────────────────────────────────────────
-let hoveredNode = null;
-renderer.domElement.addEventListener("mousemove", e => {
-  const rect = renderer.domElement.getBoundingClientRect();
-  const mouse = new THREE.Vector2(
-    ((e.clientX - rect.left) / rect.width) * 2 - 1,
-    -((e.clientY - rect.top) / rect.height) * 2 + 1
-  );
-  const ray = new THREE.Raycaster();
-  ray.setFromCamera(mouse, camera);
-  const meshes = [...nodeMeshes.values()];
-  const hits = ray.intersectObjects(meshes);
-  if (hits.length > 0) {
-    const hit = hits[0].object;
-    const node = NODES.find(n => nodeMeshes.get(n.id) === hit);
-    if (node) {
-      hoveredNode = node.id;
-      const d = probeData[node.id];
-      $("tt-name").textContent = node.label;
-      $("tt-status").textContent = d.status === "up" ? "● reachable" : d.status === "down" ? "● unreachable" : "● probing";
-      $("tt-status").style.color = d.status === "up" ? "var(--neon)" : d.status === "down" ? "var(--red)" : "var(--muted)";
-      const detail = d.detail;
-      let detailText = node.desc;
-      if (d.latency != null) detailText += `\nlatency: ${d.latency}ms`;
-      if (detail.temperature) detailText += `\ngpu: ${detail.temperature}°C`;
-      if (detail.memory) detailText += `\nmem: ${detail.memory.used || 0}/${detail.memory.total || 6144} MiB`;
-      if (detail.utilization) detailText += `\nutil: ${detail.utilization}%`;
-      $("tt-detail").textContent = detailText;
-      tooltip.style.display = "block";
-      tooltip.style.left = `${e.clientX + 14}px`;
-      tooltip.style.top = `${e.clientY + 14}px`;
+let hoveredNode=null;
+renderer.domElement.addEventListener("mousemove",e=>{
+  const rect=renderer.domElement.getBoundingClientRect();
+  const mouse=new THREE.Vector2(((e.clientX-rect.left)/rect.width)*2-1,-((e.clientY-rect.top)/rect.height)*2+1);
+  const ray=new THREE.Raycaster();ray.setFromCamera(mouse,camera);
+  const meshes=[...nodeMeshes.values()];const hits=ray.intersectObjects(meshes);
+  if(hits.length>0){
+    const hit=hits[0].object;const node=NODES.find(n=>nodeMeshes.get(n.id)===hit);
+    if(node){
+      hoveredNode=node.id;const d=probeData[node.id];
+      $("tt-name").textContent=node.label;
+      $("tt-status").textContent=d.status==="up"?"● reachable":d.status==="down"?"● unreachable":"● probing";
+      $("tt-status").style.color=d.status==="up"?"var(--neon)":d.status==="down"?"var(--danger)":"var(--muted)";
+      const detail=d.detail;let detailText=node.desc;
+      if(d.latency!=null)detailText+=`\nlatency: ${d.latency}ms`;
+      if(detail.temperature)detailText+=`\ngpu: ${detail.temperature}°C`;
+      if(detail.memory)detailText+=`\nmem: ${detail.memory.used||0}/${detail.memory.total||6144} MiB`;
+      if(detail.utilization)detailText+=`\nutil: ${detail.utilization}%`;
+      $("tt-detail").textContent=detailText;
+      tooltip.style.display="block";tooltip.style.left=`${e.clientX+14}px`;tooltip.style.top=`${e.clientY+14}px`;
     }
-  } else {
-    hoveredNode = null;
-    tooltip.style.display = "none";
-  }
+  }else{hoveredNode=null;tooltip.style.display="none"}
 });
-
-// ── controls ──────────────────────────────────────────────
-let autoProbe = true;
-let probeInterval = null;
-
-$("bProbe").onclick = async () => {
-  $("bProbe").classList.add("act");
-  await probeAll();
-  setTimeout(() => $("bProbe").classList.remove("act"), 500);
-};
-
-$("bAuto").onclick = () => {
-  autoProbe = !autoProbe;
-  $("bAuto").classList.toggle("act", autoProbe);
-  if (autoProbe) { startProbe(); } else { stopProbe(); }
-};
-
-$("bHome").onclick = () => location.href = "/";
-
-function startProbe() {
-  if (probeInterval) clearInterval(probeInterval);
-  probeInterval = setInterval(probeAll, 5000);
-}
-function stopProbe() {
-  if (probeInterval) { clearInterval(probeInterval); probeInterval = null; }
-}
-
-// ── animation loop ────────────────────────────────────────
-let frames = 0, lastFps = performance.now();
-function animate() {
-  requestAnimationFrame(animate);
-  frames++;
-  const now = performance.now();
-  if (now - lastFps > 1000) {
-    $("roFps").textContent = `${frames} fps`;
-    frames = 0;
-    lastFps = now;
-  }
-
-  // pulse nodes based on probe data
-  NODES.forEach(n => {
-    const group = nodeGroups.get(n.id);
-    const mesh = nodeMeshes.get(n.id);
-    if (!group || !mesh) return;
-    const d = probeData[n.id];
-    const scale = d.status === "up" ? 1 + Math.sin(now * 0.002) * 0.05 : 1;
-    group.scale.setScalar(scale);
-    mesh.material.emissiveIntensity = d.status === "up" ? 0.4 + Math.sin(now * 0.003) * 0.15 : 0.1;
-  });
-
-  // rotate rings
-  nodeGroups.forEach((group, id) => {
-    const ring = group.children[1];
-    if (ring) ring.rotation.z += 0.005;
-  });
-
-  controls.update();
-  renderer.render(scene, camera);
-}
-
-// ── resize ────────────────────────────────────────────────
-window.addEventListener("resize", () => {
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
-});
-
-// ── init ──────────────────────────────────────────────────
-probeAll();
-startProbe();
-animate();
-
-// ── kænbæn integration ────────────────────────────────────
-async function loadKaenbaen() {
-  const content = document.getElementById('kaenbaen-content');
-  const panel = document.getElementById('kaenbaen-panel');
-  panel.style.display = 'block';
-  content.innerHTML = '<span style="color:var(--muted)">fetching kænbæn data…</span>';
-  
-  try {
-    const [sysMap, contracts, gates, chain] = await Promise.all([
-      fetch('./kaenbaen/system-map.json').then(r => r.json()),
-      fetch('./kaenbaen/capability-contracts.json').then(r => r.json()),
-      fetch('./kaenbaen/verification-gates.json').then(r => r.json()),
-      fetch('./kaenbaen/genesis-chain.json').then(r => r.json())
+async function loadKaenbaen(){
+  const content=document.getElementById('kaenbaen-content');const panel=document.getElementById('kaenbaen-panel');
+  panel.style.display='block';content.innerHTML='<span style="color:var(--muted)">fetching kænbæn data…</span>';
+  try{
+    const [sysMap,contracts,gates,chain]=await Promise.all([
+      fetch('./kaenbaen/system-map.json').then(r=>r.json()),
+      fetch('./kaenbaen/capability-contracts.json').then(r=>r.json()),
+      fetch('./kaenbaen/verification-gates.json').then(r=>r.json()),
+      fetch('./kaenbaen/genesis-chain.json').then(r=>r.json())
     ]);
-    
-    const surfaces = Object.keys(sysMap.surfaces || {}).length;
-    const debts = (sysMap.debts || []).length;
-    const agents = Object.entries(contracts.agents || {});
-    const gateCount = Object.keys(gates.gates || {}).length;
-    const receipts = chain.receipts || [];
-    const lastReceipt = receipts[receipts.length - 1];
-    
-    let html = '';
-    html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">';
-    html += '<div><div style="color:var(--gold); font-weight:700; margin-bottom:4px;">SYSTEM MAP</div>';
-    html += `<div style="color:var(--muted);">${surfaces} surfaces · ${debts} debts</div>`;
-    if (sysMap.foundation) html += `<div style="color:var(--muted); font-size:9px; margin-top:4px;">${sysMap.foundation.stack || ''}</div>`;
-    html += '</div>';
-    html += '<div><div style="color:var(--gold); font-weight:700; margin-bottom:4px;">VERIFICATION GATES</div>';
-    html += `<div style="color:var(--muted);">${gateCount} gates</div>`;
-    html += `<div style="color:var(--muted); font-size:9px; margin-top:4px;">${Object.keys(gates.gates || {}).join(' · ')}</div>`;
-    html += '</div></div>';
-    
-    html += '<div style="margin-top:12px;"><div style="color:var(--gold); font-weight:700; margin-bottom:4px;">CAPABILITY CONTRACTS</div>';
-    agents.forEach(([name, a]) => {
-      html += `<div style="margin-top:6px;"><span style="color:var(--neon);">${name}</span>`;
-      if (a.can) html += ` <span style="color:var(--muted);">can: ${a.can.slice(0,3).join(', ')}</span>`;
-      if (a.cannot) html += ` <span style="color:var(--danger);">cannot: ${a.cannot.slice(0,2).join(', ')}</span>`;
-      html += '</div>';
+    const surfaces=Object.keys(sysMap.surfaces||{}).length;const debts=(sysMap.debts||[]).length;
+    const agents=Object.entries(contracts.agents||{});const gateCount=Object.keys(gates.gates||{}).length;
+    const receipts=chain.receipts||[];const lastReceipt=receipts[receipts.length-1];
+    let html='';
+    html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
+    html+='<div><div style="color:var(--gold);font-weight:700;margin-bottom:4px">SYSTEM MAP</div>';
+    html+=`<div style="color:var(--muted)">${surfaces} surfaces · ${debts} debts</div>`;
+    if(sysMap.foundation)html+=`<div style="color:var(--muted);font-size:9px;margin-top:4px">${sysMap.foundation.stack||''}</div>`;
+    html+='</div>';
+    html+='<div><div style="color:var(--gold);font-weight:700;margin-bottom:4px">VERIFICATION GATES</div>';
+    html+=`<div style="color:var(--muted)">${gateCount} gates</div>`;
+    html+=`<div style="color:var(--muted);font-size:9px;margin-top:4px">${Object.keys(gates.gates||{}).join(' · ')}</div>`;
+    html+='</div></div>';
+    html+='<div style="margin-top:12px"><div style="color:var(--gold);font-weight:700;margin-bottom:4px">CAPABILITY CONTRACTS</div>';
+    agents.forEach(([name,a])=>{
+      html+=`<div style="margin-top:6px"><span style="color:var(--neon)">${name}</span>`;
+      if(a.can)html+=` <span style="color:var(--muted)">can: ${a.can.slice(0,3).join(', ')}</span>`;
+      if(a.cannot)html+=` <span style="color:var(--danger)">cannot: ${a.cannot.slice(0,2).join(', ')}</span>`;
+      html+='</div>';
     });
-    html += '</div>';
-    
-    html += '<div style="margin-top:12px;"><div style="color:var(--gold); font-weight:700; margin-bottom:4px;">GENESIS CHAIN</div>';
-    if (lastReceipt) {
-      html += `<div style="color:var(--muted);">last: ${lastReceipt.type || 'receipt'} · ${lastReceipt.timestamp || ''}</div>`;
-      html += `<div style="color:var(--muted); font-size:9px;">sha256: ${lastReceipt.sha256 || '—'}</div>`;
-    }
-    html += `<div style="color:var(--muted); font-size:9px; margin-top:4px;">${receipts.length} receipts · chain: ${chain.genesis?.receipt || 'genesis'}</div>`;
-    html += '</div>';
-    
-    content.innerHTML = html;
-  } catch (e) {
-    content.innerHTML = `<span style="color:var(--danger);">ERROR: ${e.message}</span>`;
-  }
+    html+='</div>';
+    html+='<div style="margin-top:12px"><div style="color:var(--gold);font-weight:700;margin-bottom:4px">GENESIS CHAIN</div>';
+    if(lastReceipt){html+=`<div style="color:var(--muted)">last: ${lastReceipt.type||'receipt'} · ${lastReceipt.timestamp||''}</div>`;html+=`<div style="color:var(--muted);font-size:9px">sha256: ${lastReceipt.sha256||'—'}</div>`}
+    html+=`<div style="color:var(--muted);font-size:9px;margin-top:4px">${receipts.length} receipts · chain: ${chain.genesis?.receipt||'genesis'}</div>`;
+    html+='</div>';
+    content.innerHTML=html;
+  }catch(e){content.innerHTML=`<span style="color:var(--danger)">ERROR: ${e.message}</span>`}
 }
-
-document.getElementById('bKaenbaen').onclick = loadKaenbaen;
-
-console.info(
-  "%cæ:/constellation%c mesh topology visualizer",
-  "color:#D4AF37;background:#050505;padding:5px 10px;font-weight:bold",
-  "color:#00ff9d;font-family:monospace"
-);
+let autoProbe=true;let probeInterval=null;
+$("b-probe").onclick=async()=>{$("b-probe").classList.add("act");await probeAll();setTimeout(()=>$("b-probe").classList.remove("act"),500)};
+$("b-auto").onclick=()=>{autoProbe=!autoProbe;$("b-auto").classList.toggle("act",autoProbe);if(autoProbe){startProbe()}else{stopProbe()}};
+$("b-kaenbaen").onclick=loadKaenbaen;
+$("b-home").onclick=()=>location.href="/";
+function startProbe(){if(probeInterval)clearInterval(probeInterval);probeInterval=setInterval(probeAll,5000)}
+function stopProbe(){if(probeInterval){clearInterval(probeInterval);probeInterval=null}}
+let frames=0,lastFps=performance.now();
+function animate(){
+  requestAnimationFrame(animate);frames++;const now=performance.now();
+  if(now-lastFps>1000){$("ro-fps").textContent=`${frames} fps`;frames=0;lastFps=now}
+  NODES.forEach(n=>{
+    const group=nodeGroups.get(n.id);const mesh=nodeMeshes.get(n.id);
+    if(!group||!mesh)return;const d=probeData[n.id];
+    const scale=d.status==="up"?1+Math.sin(now*0.002)*0.05:1;
+    group.scale.setScalar(scale);
+    mesh.material.emissiveIntensity=d.status==="up"?0.4+Math.sin(now*0.003)*0.15:0.1;
+  });
+  nodeGroups.forEach((group,id)=>{const ring=group.children[1];if(ring)ring.rotation.z+=0.005});
+  controls.update();renderer.render(scene,camera);
+}
+window.addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+probeAll();startProbe();animate();
+console.info('%cæ:/constellation%c mesh topology visualizer','color:#D4AF37;background:#050505;padding:5px 10px;font-weight:bold','color:#00ff9d;font-family:monospace');
 </script>
-
-<!-- æ:// QR Verification Badge -->
-<div id="æ-qr-badge" style="
-  position:fixed;bottom:16px;right:16px;z-index:99999;
-  width:56px;height:56px;border:1px solid #D4AF37;border-radius:8px;
-  background:#050505;padding:4px;cursor:pointer;
-  transition:transform 0.2s,box-shadow 0.2s;
-" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 20px rgba(212,175,55,0.4)'"
-   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'"
-   onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')"
-   title="æ:// Verify this surface">
-  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/constellation.html&color=D4AF37&bgcolor=050505" 
-       alt="QR Verify" style="width:100%;height:100%;display:block;">
+<div id="æ-qr-badge" style="position:fixed;bottom:16px;right:16px;z-index:99999;width:56px;height:56px;border:1px solid #D4AF37;border-radius:8px;background:#050505;padding:4px;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 20px rgba(212,175,55,0.4)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'" onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')" title="æ:// Verify this surface">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/constellation.html&color=D4AF37&bgcolor=050505" alt="QR Verify" style="width:100%;height:100%;display:block">
 </div>
 </body>
 </html>
