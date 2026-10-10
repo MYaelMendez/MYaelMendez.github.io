@@ -97,6 +97,11 @@ CHAIN = [
         "shape": "python",
     },
     {
+        "n": 9, "id": "teach", "module": "teach_check", "path": "C:/æ/agents/teach_check.py",
+        "role": "adoption", "answers": "is every agent actually taught to use this chain",
+        "verbs": ["check", "REQUIRED_TERMS"], "shape": "python",
+    },
+    {
         "n": 8, "id": "transport", "module": "qr_mail", "path": "C:/æ/agents/qr_mail.py",
         "role": "delivery", "answers": "how a sealed envelope reaches a person",
         "verbs": ["send_mail", "check_inbox", "decode_file", "render_qr_png", "seal_for_mail"],
