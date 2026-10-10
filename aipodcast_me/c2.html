@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>æ://C2 · Command & Control</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#050505;--gold:#D4AF37;--gold2:#f0d487;--emerald:#00ff9d;
+  --cyan:#00eaff;--violet:#8c72ff;--orange:#ff9a4d;--red:#ff4d5f;
+  --ink:#e8e6df;--muted:#6f6a5c;--line:rgba(212,175,55,.22);
+  --mono:"JetBrains Mono",ui-monospace,monospace;--display:"Orbitron",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;min-height:100%;background:var(--void);color:var(--ink);font-family:var(--mono)}
+body{padding:max(12px,env(safe-area-inset-top)) 12px calc(28px + env(safe-area-inset-bottom))}
+.scan{position:fixed;inset:0;z-index:9;pointer-events:none;opacity:.18;
+  background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.5) 2px 4px)}
+.vig{position:fixed;inset:0;z-index:8;pointer-events:none;
+  background:radial-gradient(circle at 50% 34%,transparent 34%,rgba(5,5,5,.55) 76%,rgba(5,5,5,.96) 100%)}
+.wrap{position:relative;z-index:10;width:min(100%,1080px);margin:0 auto}
+
+.bar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  font-size:9px;letter-spacing:.16em;color:var(--muted);
+  border:1px solid var(--line);border-top:2px solid var(--gold);
+  padding:9px 12px;background:rgba(5,5,5,.85)}
+.bar .live{color:var(--emerald);display:flex;align-items:center;gap:6px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--emerald);box-shadow:0 0 8px var(--emerald);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+.hero{text-align:center;padding:32px 0 24px}
+.glyph{font-size:clamp(48px,10vw,80px);color:var(--gold);text-shadow:0 0 30px rgba(212,175,55,.3);animation:breathe 4s ease-in-out infinite;line-height:1}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.cmd{font-family:var(--display);font-weight:900;letter-spacing:4px;font-size:clamp(16px,3.5vw,28px);color:var(--gold);margin-top:8px;text-shadow:0 0 14px rgba(212,175,55,.3)}
+.sub{color:var(--muted);font-size:clamp(11px,2vw,14px);margin-top:8px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:20px}
+.card{border:1px solid var(--line);background:rgba(5,5,5,.6);padding:16px;transition:border-color .2s}
+.card:hover{border-color:var(--gold)}
+.card h3{color:var(--gold);font-size:11px;letter-spacing:2px;margin-bottom:10px;text-transform:uppercase;font-family:var(--display)}
+.card .status{display:flex;align-items:center;gap:8px;font-size:11px;margin-bottom:8px}
+.card .status .dot{width:8px;height:8px}
+.card .status .dot.up{background:var(--emerald);box-shadow:0 0 6px var(--emerald)}
+.card .status .dot.down{background:var(--red);box-shadow:0 0 6px var(--red)}
+.card .status .dot.unknown{background:var(--muted)}
+.card .status span{color:var(--muted)}
+.card .val{color:var(--ink);font-size:13px;margin-bottom:6px}
+.card .val em{color:var(--emerald);font-style:normal}
+.card .val em.warn{color:var(--orange)}
+.card .val em.err{color:var(--red)}
+
+.btn{display:inline-block;width:100%;padding:10px 14px;margin-top:8px;
+  background:rgba(212,175,55,.08);border:1px solid var(--line);color:var(--gold);
+  font-family:var(--mono);font-size:11px;letter-spacing:1px;cursor:pointer;
+  transition:all .2s;text-align:center;text-transform:uppercase}
+.btn:hover{background:rgba(212,175,55,.15);border-color:var(--gold)}
+.btn:active{transform:scale(.98)}
+.btn.emerald{color:var(--emerald);border-color:rgba(0,255,157,.3)}
+.btn.emerald:hover{background:rgba(0,255,157,.1);border-color:var(--emerald)}
+.btn.cyan{color:var(--cyan);border-color:rgba(0,234,255,.3)}
+.btn.cyan:hover{background:rgba(0,234,255,.1);border-color:var(--cyan)}
+
+.section{margin-top:24px}
+.section h2{color:var(--gold);font-size:12px;letter-spacing:3px;margin-bottom:12px;text-transform:uppercase;font-family:var(--display);border-bottom:1px solid var(--line);padding-bottom:8px}
+
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.cmd-item{border:1px solid var(--line);background:rgba(5,5,5,.5);padding:12px;cursor:pointer;transition:all .2s}
+.cmd-item:hover{border-color:var(--gold);background:rgba(212,175,55,.05)}
+.cmd-item .cmd-name{color:var(--gold);font-size:11px;font-weight:700;margin-bottom:4px}
+.cmd-item .cmd-desc{color:var(--muted);font-size:10px}
+
+.log{margin-top:20px;border:1px solid var(--line);background:rgba(0,0,0,.5);padding:12px;max-height:200px;overflow-y:auto;font-size:10px;line-height:1.6}
+.log .t{color:var(--muted)}
+.log .ok{color:var(--emerald)}
+.log .err{color:var(--red)}
+.log .warn{color:var(--orange)}
+.log .info{color:var(--cyan)}
+
+.footer{text-align:center;padding:24px 0 12px;color:var(--muted);font-size:9px;letter-spacing:2px}
+
+@media(max-width:600px){
+  .grid{grid-template-columns:1fr}
+  .cmd-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="scan"></div>
+<div class="vig"></div>
+<div class="wrap">
+
+<div class="bar">
+  <div class="live"><div class="dot"></div> æ://C2 · COMMAND & CONTROL</div>
+  <div id="clock">--:--:--</div>
+</div>
+
+<div class="hero">
+  <div class="glyph">⚙️</div>
+  <div class="cmd">æ://C2</div>
+  <div class="sub">Tier 0 · GitHub Pages · Source of Truth</div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h3>Tier 1 · Laptop Victus</h3>
+    <div class="status"><div class="dot" id="dot-qr"></div><span>QR :3051</span></div>
+    <div class="status"><div class="dot" id="dot-cri"></div><span>CRI :3052</span></div>
+    <div class="val" id="val-t1">RTX 3050 · 6144 MiB · cc 8.6</div>
+    <button class="btn" onclick="probeLocal()">Probe Local</button>
+  </div>
+
+  <div class="card">
+    <h3>Tier 3 · Droplet</h3>
+    <div class="status"><div class="dot" id="dot-vps"></div><span>API :3000</span></div>
+    <div class="status"><div class="dot" id="dot-audit"></div><span>Audit</span></div>
+    <div class="val" id="val-t3">129.212.180.252 · Ubuntu 24.04</div>
+    <button class="btn" onclick="probeDroplet()">Probe Droplet</button>
+  </div>
+
+  <div class="card">
+    <h3>Tier 2 · Nous Cloud VPS</h3>
+    <div class="status"><div class="dot unknown" id="dot-nous"></div><span>Portal</span></div>
+    <div class="val" id="val-nous">Requires credentials</div>
+    <button class="btn cyan" onclick="window.open('https://portal.nousresearch.com','_blank')">Open Portal</button>
+  </div>
+
+  <div class="card">
+    <h3>Tier 0 · GitHub Pages</h3>
+    <div class="status"><div class="dot up" id="dot-gh"></div><span>myaelmendez.github.io</span></div>
+    <div class="val" id="val-gh">did:web anchor · ae.core · ae.social</div>
+    <button class="btn emerald" onclick="window.open('https://myaelmendez.github.io','_blank')">Open Pages</button>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Quick Commands</h2>
+  <div class="cmd-grid">
+    <div class="cmd-item" onclick="runCmd('cloud://status')">
+      <div class="cmd-name">cloud://status</div>
+      <div class="cmd-desc">Droplet health check</div>
+    </div>
+    <div class="cmd-item" onclick="runCmd('cloud://audit')">
+      <div class="cmd-name">cloud://audit</div>
+      <div class="cmd-desc">Ledger + posts count</div>
+    </div>
+    <div class="cmd-item" onclick="runCmd('keeper://audit')">
+      <div class="cmd-name">keeper://audit</div>
+      <div class="cmd-desc">Keeper custodian audit</div>
+    </div>
+    <div class="cmd-item" onclick="runCmd('vps://rtx?op=probe&n=512')">
+      <div class="cmd-name">vps://rtx probe</div>
+      <div class="cmd-desc">RTX 3050 GPU probe</div>
+    </div>
+    <div class="cmd-item" onclick="runCmd('vps://markets?s=AAPL')">
+      <div class="cmd-name">vps://markets</div>
+      <div class="cmd-desc">Market data proxy</div>
+    </div>
+    <div class="cmd-item" onclick="runCmd('monaco://llama-cpp-gpu')">
+      <div class="cmd-name">monaco://llama</div>
+      <div class="cmd-desc">llama.cpp GPU skill</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Fleet Waves Pipeline</h2>
+  <div class="cmd-grid">
+    <div class="cmd-item" onclick="runCmd('storyboard.py')">
+      <div class="cmd-name">1. Storyboard</div>
+      <div class="cmd-desc">Prompt → 5 key frames</div>
+    </div>
+    <div class="cmd-item" onclick="runCmd('codegen.py')">
+      <div class="cmd-name">2. Codegen</div>
+      <div class="cmd-desc">Spec → Three.js HTML</div>
+    </div>
+    <div class="cmd-item" onclick="runCmd('render.py')">
+      <div class="cmd-name">3. Render</div>
+      <div class="cmd-desc">Frames → MP4</div>
+    </div>
+    <div class="cmd-item" onclick="runCmd('digest.py')">
+      <div class="cmd-name">4. Digest</div>
+      <div class="cmd-desc">Score + next prompt</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Surfaces</h2>
+  <div class="cmd-grid">
+    <div class="cmd-item" onclick="window.open('https://myaelmendez.github.io/aipodcast_me/loop.html','_blank')">
+      <div class="cmd-name">loop.html</div>
+      <div class="cmd-desc">WebGPU · WebLLM · WebMCP</div>
+    </div>
+    <div class="cmd-item" onclick="window.open('https://myaelmendez.github.io/aipodcast_me/gateway.html','_blank')">
+      <div class="cmd-name">gateway.html</div>
+      <div class="cmd-desc">Droplet gateway</div>
+    </div>
+    <div class="cmd-item" onclick="window.open('https://myaelmendez.github.io/aipodcast_me/skill-graph.html','_blank')">
+      <div class="cmd-name">skill-graph.html</div>
+      <div class="cmd-desc">Skill topology nav</div>
+    </div>
+    <div class="cmd-item" onclick="window.open('https://myaelmendez.github.io/aipodcast_me/vscoder.html','_blank')">
+      <div class="cmd-name">vscoder.html</div>
+      <div class="cmd-desc">Agentic EE studio</div>
+    </div>
+    <div class="cmd-item" onclick="window.open('https://myaelmendez.github.io/aipodcast_me/qr_keys.html','_blank')">
+      <div class="cmd-name">qr_keys.html</div>
+      <div class="cmd-desc">QR key management</div>
+    </div>
+    <div class="cmd-item" onclick="window.open('https://myaelmendez.github.io/aipodcast_me/cri_surface.html','_blank')">
+      <div class="cmd-name">cri_surface.html</div>
+      <div class="cmd-desc">CRI index surface</div>
+    </div>
+  </div>
+</div>
+
+<div class="log" id="log">
+  <div class="t">[æ://C2] initialized · probing...</div>
+</div>
+
+<div class="footer">æ://C2 · COMMAND & CONTROL · GOLD ON VOID</div>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const log = (msg, cls='') => {
+  const el = $('log');
+  const t = new Date().toLocaleTimeString('en-GB');
+  el.innerHTML += `<div class="${cls}">[${t}] ${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+};
+
+// Clock
+setInterval(() => {
+  $('clock').textContent = new Date().toLocaleTimeString('en-GB');
+}, 1000);
+
+// Probe local services
+async function probeLocal() {
+  log('Probing local services...', 'info');
+  try {
+    const qr = await fetch('http://127.0.0.1:3051/').then(r => r.ok).catch(() => false);
+    $('dot-qr').className = 'dot ' + (qr ? 'up' : 'down');
+    log(`QR :3051 → ${qr ? 'UP' : 'DOWN'}`, qr ? 'ok' : 'err');
+  } catch(e) { $('dot-qr').className = 'dot down'; log('QR :3051 → DOWN', 'err'); }
+  try {
+    const cri = await fetch('http://127.0.0.1:3052/').then(r => r.ok).catch(() => false);
+    $('dot-cri').className = 'dot ' + (cri ? 'up' : 'down');
+    log(`CRI :3052 → ${cri ? 'UP' : 'DOWN'}`, cri ? 'ok' : 'err');
+  } catch(e) { $('dot-cri').className = 'dot down'; log('CRI :3052 → DOWN', 'err'); }
+}
+
+// Probe droplet
+async function probeDroplet() {
+  log('Probing droplet...', 'info');
+  try {
+    const r = await fetch('http://129.212.180.252:3000/xrpc/ae.vps.status').then(r => r.json());
+    $('dot-vps').className = 'dot up';
+    $('val-t3').innerHTML = `Ledger: <em>${r.records['ae.core#ledgerEvent'] || 0}</em> · Posts: <em>${r.records['ae.social#post'] || 0}</em> · ${r.compute}`;
+    log(`Droplet → UP · ledger ${r.records['ae.core#ledgerEvent'] || 0} · ${r.compute}`, 'ok');
+  } catch(e) { $('dot-vps').className = 'dot down'; log('Droplet → DOWN', 'err'); }
+  try {
+    const r = await fetch('http://129.212.180.252:3000/xrpc/ae.vps.audit').then(r => r.json());
+    $('dot-audit').className = 'dot up';
+    log(`Audit → ledger ${r.ledger} · posts ${r.posts}`, 'ok');
+  } catch(e) { $('dot-audit').className = 'dot down'; log('Audit → unavailable', 'warn'); }
+}
+
+// Run command
+async function runCmd(cmd) {
+  log(`→ ${cmd}`, 'info');
+  if (cmd.startsWith('cloud://')) {
+    try {
+      const r = await fetch('http://129.212.180.252:3000/xrpc/ae.vps.status').then(r => r.json());
+      log(`  ${JSON.stringify(r)}`, 'ok');
+    } catch(e) { log(`  error: ${e.message}`, 'err'); }
+  } else if (cmd.startsWith('vps://')) {
+    try {
+      const r = await fetch(`http://129.212.180.252:3000/xrpc/ae.vps.${cmd.split('?')[0].split('//')[1]}`).then(r => r.json());
+      log(`  ${JSON.stringify(r)}`, 'ok');
+    } catch(e) { log(`  error: ${e.message}`, 'err'); }
+  } else if (cmd.endsWith('.py')) {
+    log(`  Run locally: python ${cmd}`, 'warn');
+  } else {
+    log(`  Command registered: ${cmd}`, 'info');
+  }
+}
+
+// Auto-probe on load
+(async () => {
+  await probeLocal();
+  await probeDroplet();
+  log('Ready.', 'ok');
+})();
+</script>
+</body>
+</html>
