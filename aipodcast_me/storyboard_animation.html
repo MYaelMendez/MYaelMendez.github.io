@@ -9,7 +9,7 @@
 <body>
 <div id="info">Storyboard — neon — 5 frames</div>
 <div id="time">0.00s</div>
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}</script>
 <script type="module">
 import*as THREE from'three';import{OrbitControls}from'three/addons/controls/OrbitControls.js';import{EffectComposer}from'three/addons/postprocessing/EffectComposer.js';import{RenderPass}from'three/addons/postprocessing/RenderPass.js';import{UnrealBloomPass}from'three/addons/postprocessing/UnrealBloomPass.js';import{OutputPass}from'three/addons/postprocessing/OutputPass.js';
 var scene=new THREE.Scene();scene.background=new THREE.Color('#050505');
@@ -24,13 +24,13 @@ var pl=new THREE.PointLight('#00eaff',2,20);pl.position.set(0,5,0);scene.add(pl)
   var mesh0 = new THREE.Mesh(geo0, mat0);
   scene.add(mesh0);
 
-var keyframes=[{{time:0.0,pos:[8.0,5,10]}},
-    {{time:0.25,pos:[10.6,6,13]}},
-    {{time:0.5,pos:[9.2,8,10]}},
-    {{time:0.75,pos:[7.8,4,7]}},
-    {{time:1.0,pos:[10.4,5,10]}}];
+var keyframes=[{time:0.0,pos:[8.0,5,10]},
+    {time:0.25,pos:[10.6,6,13]},
+    {time:0.5,pos:[9.2,8,10]},
+    {time:0.75,pos:[7.8,4,7]},
+    {time:1.0,pos:[10.4,5,10]}];
 var currentFrame=0;
-function getCamPos(t){{if(keyframes.length<2)return keyframes[0].pos;for(var i=0;i<keyframes.length-1;i++){{if(t>=keyframes[i].time&&t<=keyframes[i+1].time){{var frac=(t-keyframes[i].time)/(keyframes[i+1].time-keyframes[i].time);return keyframes[i].pos.map(function(v,j){{return v+(keyframes[i+1].pos[j]-v)*frac;}});}}}}return keyframes[keyframes.length-1].pos;}}
+function getCamPos(t){if(keyframes.length<2)return keyframes[0].pos;for(var i=0;i<keyframes.length-1;i++){if(t>=keyframes[i].time&&t<=keyframes[i+1].time){var frac=(t-keyframes[i].time)/(keyframes[i+1].time-keyframes[i].time);return keyframes[i].pos.map(function(v,j){return v+(keyframes[i+1].pos[j]-v)*frac;});}}return keyframes[keyframes.length-1].pos;}
 
   var render = function(){composer.render();};
   var composer = new EffectComposer(renderer);
@@ -38,9 +38,9 @@ function getCamPos(t){{if(keyframes.length<2)return keyframes[0].pos;for(var i=0
   composer.addPass(new UnrealBloomPass(new THREE.Vector2(1920,1080), 0.8, 0.4, 0.85));
   composer.addPass(new OutputPass());
 var controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;
-function animate(){{requestAnimationFrame(animate);var t=performance.now()/1000;var dur=6.0;var normT=t%dur;var pos=getCamPos(normT);camera.position.set(pos[0],pos[1],pos[2]);camera.lookAt(0,0,0);
+function animate(){requestAnimationFrame(animate);var t=performance.now()/1000;var dur=6.0;var normT=t%dur;var pos=getCamPos(normT);camera.position.set(pos[0],pos[1],pos[2]);camera.lookAt(0,0,0);
   mesh0.rotation.y = t * 0.3;
-  mesh0.rotation.x = t * 0.2; controls.update();render();document.getElementById('time').textContent=normT.toFixed(2)+'s';}}
+  mesh0.rotation.x = t * 0.2; controls.update();render();document.getElementById('time').textContent=normT.toFixed(2)+'s';}
 animate();
 </script>
 
