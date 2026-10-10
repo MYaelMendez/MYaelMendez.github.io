@@ -1,0 +1,136 @@
+{
+  "system": "æ://",
+  "name": "væult",
+  "meaning": "the whole tool chain, under one name",
+  "flow": "custody → format → gate → authority → contract → dispatch → publish → delivery",
+  "generated": "2026-10-10T17:57:19Z",
+  "healthy": true,
+  "links_total": 9,
+  "links_ok": 9,
+  "links": [
+    {
+      "n": 1,
+      "id": "vault",
+      "role": "custody",
+      "answers": "where the secret lives",
+      "path": "C:/æ/væult/væult.py",
+      "verbs": [
+        "init",
+        "set",
+        "get",
+        "list",
+        "rm",
+        "export",
+        "verify",
+        "qr",
+        "qr-open"
+      ],
+      "status": "ok"
+    },
+    {
+      "n": 2,
+      "id": "envelope",
+      "role": "format",
+      "answers": "how anything crosses a boundary",
+      "path": "C:/æ/agents/qr_envelope.py",
+      "verbs": [
+        "TYPES",
+        "encode",
+        "decode",
+        "inspect",
+        "is_envelope"
+      ],
+      "status": "ok"
+    },
+    {
+      "n": 3,
+      "id": "supervision",
+      "role": "gate",
+      "answers": "is the artifact real, or a picture of one",
+      "path": "C:/æ/agents/qr_supervision.py",
+      "verbs": [
+        "produce",
+        "supervise",
+        "selftest",
+        "chain_prev",
+        "chain_append"
+      ],
+      "status": "ok"
+    },
+    {
+      "n": 4,
+      "id": "signing",
+      "role": "authority",
+      "answers": "who may act, and until when",
+      "path": "C:/æ/agents/card_signing.py",
+      "verbs": [
+        "keygen",
+        "sign_card",
+        "verify_card"
+      ],
+      "status": "ok"
+    },
+    {
+      "n": 5,
+      "id": "pledge",
+      "role": "contract",
+      "answers": "what an agent has promised",
+      "path": "C:/æ/agents/agent_pledge.py",
+      "verbs": [
+        "pledge_text",
+        "pledge_hash",
+        "commit",
+        "verify",
+        "roster",
+        "render_html"
+      ],
+      "status": "ok"
+    },
+    {
+      "n": 6,
+      "id": "kanban",
+      "role": "dispatch",
+      "answers": "how a physical card moves the board",
+      "path": "C:/æ/agents/qr_kanban.py",
+      "verbs": [
+        "mint_card",
+        "read_card",
+        "dispatch",
+        "require_pledge",
+        "VERBS"
+      ],
+      "status": "ok"
+    },
+    {
+      "n": 7,
+      "id": "push",
+      "role": "publish",
+      "answers": "how a fleet pushes without colliding",
+      "path": "C:/æ/agents/kanban_push.py",
+      "verbs": [
+        "cmd_push",
+        "cmd_status",
+        "cmd_rescue",
+        "KanbanLock",
+        "ensure_task"
+      ],
+      "status": "ok"
+    },
+    {
+      "n": 8,
+      "id": "transport",
+      "role": "delivery",
+      "answers": "how a sealed envelope reaches a person",
+      "path": "C:/æ/agents/qr_mail.py",
+      "verbs": [
+        "send_mail",
+        "check_inbox",
+        "decode_file",
+        "render_qr_png",
+        "seal_for_mail"
+      ],
+      "status": "ok"
+    }
+  ],
+  "entry": "væult:// <link> <action> [args]"
+}
