@@ -280,6 +280,9 @@ def manifest() -> dict:
             for l in CHAIN
         ],
         "entry": "væult:// <link> <action> [args]",
+        # ASCII alias: the rune path 404s on github.io (raw UTF-8 in URLs).
+        # Point at the path that actually resolves.
+        "self": "https://myaelmendez.github.io/vaeult-chain.json",
     }
 
 
