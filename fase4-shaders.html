@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080">
+<title>æ:// fase4-shaders — Shader Foundations</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;overflow:hidden;background:#050505;color:#D4AF37;font-family:'JetBrains Mono','Consolas',monospace}
+  #root{position:relative;width:100%;height:100%}
+  .scanlines{position:absolute;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.20) 3px,rgba(0,0,0,.20) 4px)}
+  #hud{position:absolute;top:0;left:0;right:0;padding:15px 40px;z-index:10}
+  #hud h1{font-size:20px;font-weight:700;letter-spacing:0.15em}
+  #stats{position:absolute;top:15px;right:40px;font-size:10px;text-align:right}
+  #stats div{margin:2px 0}
+</style>
+</head>
+<body>
+<div id="root" data-width="1920" data-height="1080">
+  <div id="hud">
+    <h1>æ:// fase4-shaders</h1>
+    <div id="stats"><div id="panel">Shader: vertex-displacement</div><div id="fps">FPS: --</div></div>
+  </div>
+  <canvas id="c" width="1920" height="1080"></canvas>
+  <div class="scanlines"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════════
+// æ:// fase4-shaders — Shader Foundations
+// Curriculum Week 4: ShaderMaterial, uniforms, vertex displacement,
+// fragment patterns, normal mapping, depth visualization
+// ═══════════════════════════════════════════════════════════════
+
+var W=1920, H=1080;
+var scene, camera, renderer, clock, frame=0;
+
+// ── Shader definitions (Day 1: ShaderMaterial vs RawShaderMaterial) ──
+
+var vertexDisplacementVert = `
+  varying vec2 vUv;
+  uniform float uTime;
+  uniform float uProgress;
+  uniform float uAmplitude;
+  uniform float uFrequency;
+  
+  void main() {
+    vUv = uv;
+    vec3 pos = position;
+    float wave = sin(pos.x * uFrequency + uTime) * cos(pos.z * uFrequency + uTime);
+    pos.y += wave * uAmplitude;
+    pos.x += sin(pos.z * uFrequency * 0.7 + uTime) * uAmplitude * 0.3;
+    
+    vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+    gl_Position = projectionMatrix * mvPosition;
+  }
+`;
+
+var vertexDisplacementFrag = `
+  varying vec2 vUv;
+  uniform vec3 uColor1;
+  uniform vec3 uColor2;
+  uniform float uProgress;
+  
+  void main() {
+    float t = sin(vUv.x * 10.0 + vUv.y * 5.0 + uProgress * 3.14159) * 0.5 + 0.5;
+    vec3 col = mix(uColor1, uColor2, t);
+    gl_FragColor = vec4(col, 1.0);
+  }
+`;
+
+var patternFrag = `
+  varying vec2 vUv;
+  uniform float uTime;
+  uniform vec3 uColor1;
+  uniform vec3 uColor2;
+  uniform float uProgress;
+  uniform int uPattern;
+  
+  vec2 rotate2d(vec2 p, float a) {
+    float s = sin(a);
+    float c = cos(a);
+    return mat2(c, -s, s, c) * p;
+  }
+  
+  float pattern(vec2 p) {
+    if (uPattern == 0) {
+      p = fract(p * 8.0);
+      return step(0.1, p.x) * step(0.1, p.y) * step(p.x, 0.9) * step(p.y, 0.9);
+    } else if (uPattern == 1) {
+      float r = length(p - 0.5);
+      return step(0.1, r) * step(r, 0.4);
+    } else if (uPattern == 2) {
+      return sin(p.x * 10.0 + p.y * 10.0 + uTime);
+    } else if (uPattern == 3) {
+      p = abs(p);
+      return 1.0 - step(0.5, p.x + p.y);
+    } else if (uPattern == 4) {
+      vec2 g = floor(fract(p) * 2.0);
+      return mod(g.x + g.y, 2.0);
+    } else if (uPattern == 5) {
+      vec2 i = floor(p * 6.0);
+      vec2 f = fract(p * 6.0);
+      return 1.0 - length(f - 0.5);
+    } else if (uPattern == 6) {
+      float w1 = sin(p.x * 15.0 + uTime);
+      float w2 = sin(p.y * 15.0 + uTime * 1.3);
+      return (w1 + w2) * 0.5;
+    } else {
+      float r = length(p - 0.5);
+      float a = atan(p.y - 0.5, p.x - 0.5);
+      return sin(r * 10.0 - a * 5.0 + uTime);
+    }
+  }
+  
+  void main() {
+    float p = pattern(vUv * 2.0 - 1.0);
+    vec3 col = mix(uColor1, uColor2, p * 0.5 + 0.5);
+    gl_FragColor = vec4(col, 1.0);
+  }
+`;
+
+var depthVert = `
+  varying float vDepth;
+  varying vec3 vWorldPos;
+  
+  void main() {
+    vWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
+    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+    gl_Position = projectionMatrix * mvPosition;
+    vDepth = gl_Position.z / gl_Position.w * 0.5 + 0.5;
+  }
+`;
+
+var depthFrag = `
+  varying float vDepth;
+  varying vec3 vWorldPos;
+  uniform vec3 uColor1;
+  uniform vec3 uColor2;
+  
+  void main() {
+    vec3 col = mix(uColor1, uColor2, vDepth);
+    gl_FragColor = vec4(col, 1.0);
+  }
+`;
+
+var normalVert = `
+  varying vec3 vNormal;
+  varying vec3 vWorldPos;
+  varying vec2 vUv;
+  
+  void main() {
+    vNormal = normalize(normalMatrix * normal);
+    vWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+var normalFrag = `
+  varying vec3 vNormal;
+  varying vec3 vWorldPos;
+  varying vec2 vUv;
+  uniform vec3 uColor1;
+  uniform vec3 uColor2;
+  uniform float uTime;
+  
+  void main() {
+    vec3 n = normalize(vNormal * 0.5 + 0.5);
+    vec3 viewDir = normalize(cameraPosition - vWorldPos);
+    float fresnel = pow(1.0 - dot(n, viewDir), 3.0);
+    
+    vec3 col = mix(uColor1, uColor2, n.z);
+    col += vec3(0.1, 0.05, 0.0) * fresnel;
+    gl_FragColor = vec4(col, 1.0);
+  }
+`;
+
+// ── HUD ──
+var hudCanvas = document.createElement('canvas');
+hudCanvas.width = W; hudCanvas.height = H;
+hudCanvas.style.position = 'absolute'; hudCanvas.style.top = '0'; hudCanvas.style.left = '0';
+hudCanvas.style.zIndex = '5';
+document.getElementById('root').appendChild(hudCanvas);
+var hudCtx = hudCanvas.getContext('2d');
+
+function drawHUD() {
+  hudCtx.clearRect(0, 0, W, H);
+  hudCtx.fillStyle = 'rgba(212, 175, 55, 0.8)';
+  hudCtx.font = '600 14px "JetBrains Mono",monospace';
+  hudCtx.textAlign = 'left'; hudCtx.textBaseline = 'alphabetic';
+  hudCtx.fillText('SEMANA 4: Shader Foundations', 40, 1030);
+  
+  hudCtx.fillStyle = 'rgba(212, 175, 55, 0.4)';
+  hudCtx.font = '400 10px "JetBrains Mono",monospace';
+  var techniques = ['1. ShaderMaterial vs RawShaderMaterial', '2. Uniforms & varyings', '3. Vertex displacement', '4. Fragment patterns', '5. Normal mapping', '6. Depth & stencil', '7. Repaso + deploy'];
+  for (var i = 0; i < techniques.length; i++) {
+    var active = (i === currentTechnique) ? 'rgba(0, 234, 255, 0.8)' : 'rgba(212, 175, 55, 0.3)';
+    hudCtx.fillStyle = active;
+    hudCtx.fillText((i+1) + '. ' + techniques[i], 40, 1050 + i * 14);
+  }
+  
+  hudCtx.fillStyle = 'rgba(212, 175, 55, 0.2)';
+  hudCtx.font = '400 9px "JetBrains Mono",monospace';
+  hudCtx.textAlign = 'right';
+  hudCtx.fillText('æQR: ' + qrHash.slice(0, 24) + '...', W - 40, H - 20);
+}
+
+// ── Scene ──
+var currentTechnique = 0;
+var currentMesh;
+var qrHash = '';
+var materials = [];
+
+function init() {
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0a0f1a);
+  scene.fog = new THREE.Fog(0x0a0f1a, 40, 100);
+  
+  camera = new THREE.PerspectiveCamera(50, W / H, 0.1, 200);
+  camera.position.set(0, 2, 10);
+  camera.lookAt(0, 0, 0);
+  
+  renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true, alpha: true });
+  renderer.setSize(W, H);
+  renderer.setPixelRatio(1);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 2.2;
+  
+  scene.add(new THREE.AmbientLight(0xffffff, 1.8));
+  var dirLight = new THREE.DirectionalLight(0xD4AF37, 2.5);
+  dirLight.position.set(10, 20, 15);
+  scene.add(dirLight);
+  var pointLight = new THREE.PointLight(0x00eaff, 1.5, 100);
+  pointLight.position.set(-10, -5, 10);
+  scene.add(pointLight);
+  
+  var gold = new THREE.Color(0xD4AF37);
+  var cyan = new THREE.Color(0x00eaff);
+  
+  materials[0] = new THREE.ShaderMaterial({
+    vertexShader: vertexDisplacementVert,
+    fragmentShader: vertexDisplacementFrag,
+    uniforms: {
+      uTime: { value: 0 },
+      uProgress: { value: 0 },
+      uAmplitude: { value: 0.5 },
+      uFrequency: { value: 2.0 },
+      uColor1: { value: gold },
+      uColor2: { value: cyan }
+    },
+    side: THREE.DoubleSide
+  });
+  
+  materials[1] = materials[0].clone();
+  materials[2] = materials[0].clone();
+  
+  materials[3] = new THREE.ShaderMaterial({
+    vertexShader: vertexDisplacementVert,
+    fragmentShader: patternFrag,
+    uniforms: {
+      uTime: { value: 0 },
+      uProgress: { value: 0 },
+      uColor1: { value: gold },
+      uColor2: { value: cyan },
+      uPattern: { value: 0 }
+    },
+    side: THREE.DoubleSide
+  });
+  
+  materials[4] = new THREE.ShaderMaterial({
+    vertexShader: normalVert,
+    fragmentShader: normalFrag,
+    uniforms: {
+      uColor1: { value: gold },
+      uColor2: { value: cyan },
+      uTime: { value: 0 }
+    },
+    side: THREE.DoubleSide
+  });
+  
+  materials[5] = new THREE.ShaderMaterial({
+    vertexShader: depthVert,
+    fragmentShader: depthFrag,
+    uniforms: {
+      uColor1: { value: gold },
+      uColor2: { value: cyan }
+    },
+    side: THREE.DoubleSide
+  });
+  
+  var geo = new THREE.PlaneGeometry(10, 10, 64, 64);
+  currentMesh = new THREE.Mesh(geo, materials[0]);
+  scene.add(currentMesh);
+  
+  var sceneData = JSON.stringify({
+    techniques: ['vertex-displacement', 'fragment-patterns', 'normal-map', 'depth-visual'],
+    palette: ['#D4AF37', '#00eaff', '#0a0f1a'],
+    resolution: '1920x1080',
+    fps: 30
+  });
+  qrHash = btoa(sceneData).substring(0, 32);
+  
+  document.getElementById('panel').textContent = 'Technique: ShaderMaterial';
+  
+  clock = new THREE.Clock();
+  animate();
+}
+
+var lastTime = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  frame++;
+  var t = clock.getElapsedTime();
+  
+  if (currentMesh && currentMesh.material.uniforms.uTime) {
+    currentMesh.material.uniforms.uTime.value = t;
+    currentMesh.material.uniforms.uProgress.value = (t % 10) / 10;
+  }
+  
+  if (frame % 120 === 0) {
+    currentTechnique = Math.floor(frame / 120) % 6;
+    document.getElementById('panel').textContent = 'Technique: ' + ['ShaderMaterial', 'Uniforms', 'Vertex Displacement', 'Fragment Patterns', 'Normal Mapping', 'Depth View'][currentTechnique];
+  }
+  
+  if (currentTechnique === 3 && currentMesh.material.uniforms.uPattern) {
+    currentMesh.material.uniforms.uPattern.value = Math.floor(frame / 60) % 8;
+  }
+  
+  var delta = t - lastTime;
+  lastTime = t;
+  if (delta > 0) {
+    document.getElementById('fps').textContent = 'FPS: ' + Math.round(1/delta);
+  }
+  
+  renderer.render(scene, camera);
+  drawHUD();
+}
+
+// ── Producer hook ──
+window.__renderFrame = function(i, total) {
+  if (!renderer) return;
+  var p = i / Math.max(1, total - 1);
+  
+  var techIdx = Math.floor(p * 6);
+  if (techIdx > 5) techIdx = 5;
+  currentTechnique = techIdx;
+  
+  if (currentMesh.material.uniforms.uTime) {
+    currentMesh.material.uniforms.uTime.value = p * 10;
+    currentMesh.material.uniforms.uProgress.value = p;
+  }
+  if (currentMesh.material.uniforms.uPattern) {
+    currentMesh.material.uniforms.uPattern.value = Math.floor(p * 8) % 8;
+  }
+  
+  camera.position.x = Math.sin(p * 3.14159) * 3;
+  camera.lookAt(0, 0, 0);
+  
+  renderer.render(scene, camera);
+};
+
+init();
+</script>
+</body>
+</html>
