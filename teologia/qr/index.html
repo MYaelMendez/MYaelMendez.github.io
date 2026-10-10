@@ -3,135 +3,1587 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>æ://teologia — QR Fleet</title>
+<title>æ:// QR Index — Ecosystem</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: #0a0a0a;
-    color: #d4af37;
-    font-family: 'Cormorant Garamond', serif;
-    min-height: 100vh;
-    padding: 40px 20px;
-  }
-  .container { max-width: 800px; margin: 0 auto; }
-  h1 {
-    font-family: 'Cinzel', serif;
-    font-size: 32px;
-    letter-spacing: 4px;
-    text-align: center;
-    margin-bottom: 8px;
-    color: #d4af37;
-  }
-  .subtitle {
-    text-align: center;
-    color: rgba(212,175,55,0.5);
-    font-size: 14px;
-    letter-spacing: 2px;
-    margin-bottom: 40px;
-  }
-  .qr-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 24px;
-  }
-  .qr-card {
-    background: rgba(212,175,55,0.03);
-    border: 1px solid rgba(212,175,55,0.15);
-    border-radius: 12px;
-    padding: 20px;
-    text-align: center;
-    transition: border-color 0.2s;
-  }
-  .qr-card:hover { border-color: rgba(212,175,55,0.4); }
-  .qr-card img {
-    width: 180px;
-    height: 180px;
-    margin-bottom: 16px;
-    filter: invert(78%) sepia(55%) saturate(500%) hue-rotate(3deg) brightness(1.05);
-  }
-  .qr-card h3 {
-    font-family: 'Cinzel', serif;
-    font-size: 14px;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
-    color: #d4af37;
-  }
-  .qr-card .url {
-    font-size: 11px;
-    color: rgba(212,175,55,0.4);
-    word-break: break-all;
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .qr-card .type {
-    display: inline-block;
-    margin-top: 8px;
-    padding: 2px 8px;
-    border: 1px solid rgba(212,175,55,0.2);
-    border-radius: 3px;
-    font-size: 9px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: rgba(212,175,55,0.6);
-  }
-  .footer {
-    text-align: center;
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 1px solid rgba(212,175,55,0.1);
-    color: rgba(212,175,55,0.3);
-    font-size: 11px;
-    letter-spacing: 2px;
-  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#0a0a0a;color:#d4af37;font-family:'Cormorant Garamond',serif;min-height:100vh;padding:40px 20px;}
+  .container{max-width:1400px;margin:0 auto;}
+  h1{font-family:'Cinzel',serif;font-size:36px;font-weight:900;letter-spacing:4px;text-align:center;margin-bottom:8px;color:#f0d878;}
+  .subtitle{text-align:center;color:rgba(240,216,120,0.5);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:2px;margin-bottom:40px;}
+  .cat{font-family:'Cinzel',serif;font-size:15px;letter-spacing:3px;color:#f0d878;margin:36px 0 16px;border-bottom:1px solid rgba(212,175,55,0.15);padding-bottom:8px;}
+  .qr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;}
+  .qr-card{background:rgba(212,175,55,0.03);border:1px solid rgba(212,175,55,0.15);border-radius:12px;padding:18px;text-align:center;transition:border-color 0.2s;}
+  .qr-card:hover{border-color:rgba(212,175,55,0.4);}
+  .qr-card img{width:150px;height:150px;margin-bottom:12px;filter:invert(78%) sepia(55%) saturate(500%) hue-rotate(3deg) brightness(1.05);}
+  .qr-card h3{font-family:'Cinzel',serif;font-size:12px;letter-spacing:1px;margin-bottom:8px;color:#d4af37;word-break:break-word;}
+  .qr-card .url{font-size:10px;color:rgba(212,175,55,0.4);word-break:break-all;font-family:'JetBrains Mono',monospace;}
+  .qr-card .type{display:inline-block;margin-top:8px;padding:2px 8px;border:1px solid rgba(212,175,55,0.2);border-radius:3px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:rgba(212,175,55,0.6);}
+  .footer{text-align:center;margin-top:48px;padding-top:20px;border-top:1px solid rgba(212,175,55,0.1);color:rgba(212,175,55,0.3);font-size:11px;letter-spacing:2px;}
 </style>
 </head>
 <body>
   <div class="container">
-    <h1>æ://TEOLOGIA</h1>
-    <p class="subtitle">QR FLEET · OPEN SOURCE SINCE 1517</p>
+    <h1>æ:// QR INDEX</h1>
+    <p class="subtitle">255 QR · 255 UNIQUE ADDRESSES · 255 ROUND-TRIP VERIFIED · OPEN SOURCE SINCE 1517</p>
+    <h2 class="cat">THREEJS SCENES · 8</h2>
     <div class="qr-grid">
       <div class="qr-card">
-        <img src="qr/biblia-del-oso-html.svg" alt="Biblia del Oso — Salmo 23 (HTML)">
-        <h3>Biblia del Oso — Salmo 23 (HTML)</h3>
-        <p class="url">https://myaelmendez.github.io/biblia-del-oso.html</p>
-        <span class="type">page</span>
+        <img src="qr/thr-teologia-apocalipsis-21-html.svg" alt="Scene: teologia/apocalipsis-21.html" loading="lazy">
+        <h3>Scene: teologia/apocalipsis-21.html</h3>
+        <p class="url">https://myaelmendez.github.io/teologia/apocalipsis-21.html</p>
+        <span class="type">scene</span>
       </div>
       <div class="qr-card">
-        <img src="qr/biblia-del-oso-mp4.svg" alt="Biblia del Oso — Salmo 23 (MP4)">
-        <h3>Biblia del Oso — Salmo 23 (MP4)</h3>
-        <p class="url">https://myaelmendez.github.io/biblia-del-oso.mp4</p>
+        <img src="qr/thr-teologia-demo-teologia-html.svg" alt="Scene: teologia/demo-teologia.html" loading="lazy">
+        <h3>Scene: teologia/demo-teologia.html</h3>
+        <p class="url">https://myaelmendez.github.io/teologia/demo-teologia.html</p>
+        <span class="type">scene</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/thr-teologia-genesis-1-html.svg" alt="Scene: teologia/genesis-1.html" loading="lazy">
+        <h3>Scene: teologia/genesis-1.html</h3>
+        <p class="url">https://myaelmendez.github.io/teologia/genesis-1.html</p>
+        <span class="type">scene</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/thr-teologia-isaias-40-html.svg" alt="Scene: teologia/isaias-40.html" loading="lazy">
+        <h3>Scene: teologia/isaias-40.html</h3>
+        <p class="url">https://myaelmendez.github.io/teologia/isaias-40.html</p>
+        <span class="type">scene</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/thr-teologia-juan-316-html.svg" alt="Scene: teologia/juan-316.html" loading="lazy">
+        <h3>Scene: teologia/juan-316.html</h3>
+        <p class="url">https://myaelmendez.github.io/teologia/juan-316.html</p>
+        <span class="type">scene</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/thr-teologia-mateo-5-html.svg" alt="Scene: teologia/mateo-5.html" loading="lazy">
+        <h3>Scene: teologia/mateo-5.html</h3>
+        <p class="url">https://myaelmendez.github.io/teologia/mateo-5.html</p>
+        <span class="type">scene</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/thr-teologia-proverbios-3-html.svg" alt="Scene: teologia/proverbios-3.html" loading="lazy">
+        <h3>Scene: teologia/proverbios-3.html</h3>
+        <p class="url">https://myaelmendez.github.io/teologia/proverbios-3.html</p>
+        <span class="type">scene</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/thr-teologia-salmo-23-html.svg" alt="Scene: teologia/salmo-23.html" loading="lazy">
+        <h3>Scene: teologia/salmo-23.html</h3>
+        <p class="url">https://myaelmendez.github.io/teologia/salmo-23.html</p>
+        <span class="type">scene</span>
+      </div>
+    </div>
+    <h2 class="cat">VIDEOS · 24</h2>
+    <div class="qr-grid">
+      <div class="qr-card">
+        <img src="qr/vid-aertx-demo-mp4.svg" alt="Video: aertx-demo.mp4" loading="lazy">
+        <h3>Video: aertx-demo.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/aertx-demo.mp4</p>
         <span class="type">video</span>
       </div>
       <div class="qr-card">
-        <img src="qr/hauge-teologia.svg" alt="Haugean Legacy · teologia.ai">
-        <h3>Haugean Legacy · teologia.ai</h3>
+        <img src="qr/vid-bot-vision-cyan-mp4.svg" alt="Video: bot-vision-cyan.mp4" loading="lazy">
+        <h3>Video: bot-vision-cyan.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/bot-vision-cyan.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-cuda-mcp2-mp4.svg" alt="Video: cuda-mcp2.mp4" loading="lazy">
+        <h3>Video: cuda-mcp2.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/cuda-mcp2.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-demo-9x16-mp4.svg" alt="Video: demo-9x16.mp4" loading="lazy">
+        <h3>Video: demo-9x16.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/demo-9x16.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-draw-video-mp4.svg" alt="Video: draw-video.mp4" loading="lazy">
+        <h3>Video: draw-video.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/draw-video.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-golden-ratio-mp4.svg" alt="Video: golden-ratio.mp4" loading="lazy">
+        <h3>Video: golden-ratio.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/golden-ratio.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-holomesh-mp4.svg" alt="Video: holomesh.mp4" loading="lazy">
+        <h3>Video: holomesh.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/holomesh.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-inside-compute-mp4.svg" alt="Video: inside-compute.mp4" loading="lazy">
+        <h3>Video: inside-compute.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/inside-compute.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-internetofagents-mp4.svg" alt="Video: internetofagents.mp4" loading="lazy">
+        <h3>Video: internetofagents.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/internetofagents.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-internetofagents-v2-mp4.svg" alt="Video: internetofagents-v2.mp4" loading="lazy">
+        <h3>Video: internetofagents-v2.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/internetofagents-v2.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-storyboards-mp4.svg" alt="Video: storyboards.mp4" loading="lazy">
+        <h3>Video: storyboards.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/storyboards.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-teologia-apocalipsis-21-mp4.svg" alt="Video: teologia/apocalipsis-21.mp4" loading="lazy">
+        <h3>Video: teologia/apocalipsis-21.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/teologia/apocalipsis-21.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-teologia-demo-teologia-mp4.svg" alt="Video: teologia/demo-teologia.mp4" loading="lazy">
+        <h3>Video: teologia/demo-teologia.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/teologia/demo-teologia.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-teologia-genesis-1-mp4.svg" alt="Video: teologia/genesis-1.mp4" loading="lazy">
+        <h3>Video: teologia/genesis-1.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/teologia/genesis-1.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-teologia-isaias-40-mp4.svg" alt="Video: teologia/isaias-40.mp4" loading="lazy">
+        <h3>Video: teologia/isaias-40.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/teologia/isaias-40.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-teologia-juan-316-mp4.svg" alt="Video: teologia/juan-316.mp4" loading="lazy">
+        <h3>Video: teologia/juan-316.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/teologia/juan-316.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-teologia-mateo-5-mp4.svg" alt="Video: teologia/mateo-5.mp4" loading="lazy">
+        <h3>Video: teologia/mateo-5.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/teologia/mateo-5.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-teologia-proverbios-3-mp4.svg" alt="Video: teologia/proverbios-3.mp4" loading="lazy">
+        <h3>Video: teologia/proverbios-3.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/teologia/proverbios-3.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-teologia-salmo-23-mp4.svg" alt="Video: teologia/salmo-23.mp4" loading="lazy">
+        <h3>Video: teologia/salmo-23.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/teologia/salmo-23.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-the-toolchain-mp4.svg" alt="Video: the-toolchain.mp4" loading="lazy">
+        <h3>Video: the-toolchain.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/the-toolchain.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-this-is-agentic-engineering-mp4.svg" alt="Video: this-is-agentic-engineering.mp4" loading="lazy">
+        <h3>Video: this-is-agentic-engineering.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/this-is-agentic-engineering.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-ufo-8s-mp4.svg" alt="Video: ufo-8s.mp4" loading="lazy">
+        <h3>Video: ufo-8s.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/ufo-8s.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-video-vision-mp4.svg" alt="Video: video-vision.mp4" loading="lazy">
+        <h3>Video: video-vision.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/video-vision.mp4</p>
+        <span class="type">video</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/vid-zeitgeist-mp4.svg" alt="Video: zeitgeist.mp4" loading="lazy">
+        <h3>Video: zeitgeist.mp4</h3>
+        <p class="url">https://myaelmendez.github.io/zeitgeist.mp4</p>
+        <span class="type">video</span>
+      </div>
+    </div>
+    <h2 class="cat">KANBAN · 5</h2>
+    <div class="qr-grid">
+      <div class="qr-card">
+        <img src="qr/kan-kænbæn-capability-contracts-json.svg" alt="Kænbæn: kænbæn/capability-contracts.json" loading="lazy">
+        <h3>Kænbæn: kænbæn/capability-contracts.json</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/kænbæn/capability-contracts.json</p>
+        <span class="type">kanban</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/kan-kænbæn-genesis-chain-json.svg" alt="Kænbæn: kænbæn/genesis-chain.json" loading="lazy">
+        <h3>Kænbæn: kænbæn/genesis-chain.json</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/kænbæn/genesis-chain.json</p>
+        <span class="type">kanban</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/kan-kænbæn-kænbæn-py.svg" alt="Kænbæn: kænbæn/kænbæn.py" loading="lazy">
+        <h3>Kænbæn: kænbæn/kænbæn.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/kænbæn/kænbæn.py</p>
+        <span class="type">kanban</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/kan-kænbæn-system-map-json.svg" alt="Kænbæn: kænbæn/system-map.json" loading="lazy">
+        <h3>Kænbæn: kænbæn/system-map.json</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/kænbæn/system-map.json</p>
+        <span class="type">kanban</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/kan-kænbæn-verification-gates-json.svg" alt="Kænbæn: kænbæn/verification-gates.json" loading="lazy">
+        <h3>Kænbæn: kænbæn/verification-gates.json</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/kænbæn/verification-gates.json</p>
+        <span class="type">kanban</span>
+      </div>
+    </div>
+    <h2 class="cat">WIDGET · 9</h2>
+    <div class="qr-grid">
+      <div class="qr-card">
+        <img src="qr/wid-widget-live-widget-mjs.svg" alt="Widget: widget/live_widget.mjs" loading="lazy">
+        <h3>Widget: widget/live_widget.mjs</h3>
+        <p class="url">ae://local/widget/live_widget.mjs</p>
+        <span class="type">widget</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/wid-widget-make-widget-qr-py.svg" alt="Widget: widget/make_widget_qr.py" loading="lazy">
+        <h3>Widget: widget/make_widget_qr.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/widget/make_widget_qr.py</p>
+        <span class="type">widget</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/wid-widget-manifest-json.svg" alt="Widget: widget/manifest.json" loading="lazy">
+        <h3>Widget: widget/manifest.json</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/widget/manifest.json</p>
+        <span class="type">widget</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/wid-widget-probe-mjs.svg" alt="Widget: widget/_probe.mjs" loading="lazy">
+        <h3>Widget: widget/_probe.mjs</h3>
+        <p class="url">ae://local/widget/_probe.mjs</p>
+        <span class="type">widget</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/wid-widget-probe-widget-mjs.svg" alt="Widget: widget/probe_widget.mjs" loading="lazy">
+        <h3>Widget: widget/probe_widget.mjs</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/widget/probe_widget.mjs</p>
+        <span class="type">widget</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/wid-widget-readme-md.svg" alt="Widget: widget/README.md" loading="lazy">
+        <h3>Widget: widget/README.md</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/widget/README.md</p>
+        <span class="type">widget</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/wid-widget-server-cjs.svg" alt="Widget: widget/_server.cjs" loading="lazy">
+        <h3>Widget: widget/_server.cjs</h3>
+        <p class="url">ae://local/widget/_server.cjs</p>
+        <span class="type">widget</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/wid-widget-shot-widget-mjs.svg" alt="Widget: widget/shot_widget.mjs" loading="lazy">
+        <h3>Widget: widget/shot_widget.mjs</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/widget/shot_widget.mjs</p>
+        <span class="type">widget</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/wid-widget-verify-widget-py.svg" alt="Widget: widget/verify_widget.py" loading="lazy">
+        <h3>Widget: widget/verify_widget.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/widget/verify_widget.py</p>
+        <span class="type">widget</span>
+      </div>
+    </div>
+    <h2 class="cat">PYTHON AGENTS · 30</h2>
+    <div class="qr-grid">
+      <div class="qr-card">
+        <img src="qr/pyt-agents-contract-qr-py.svg" alt="Agent: agents/contract_qr.py" loading="lazy">
+        <h3>Agent: agents/contract_qr.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/contract_qr.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-cri-engine-py.svg" alt="Agent: agents/cri_engine.py" loading="lazy">
+        <h3>Agent: agents/cri_engine.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/cri_engine.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-cri-server-py.svg" alt="Agent: agents/cri_server.py" loading="lazy">
+        <h3>Agent: agents/cri_server.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/cri_server.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-fleet-code-mode-audit-py.svg" alt="Agent: agents/fleet_code_mode_audit.py" loading="lazy">
+        <h3>Agent: agents/fleet_code_mode_audit.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/fleet_code_mode_audit.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-fleet-orchestrator-py.svg" alt="Agent: agents/fleet_orchestrator.py" loading="lazy">
+        <h3>Agent: agents/fleet_orchestrator.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/fleet_orchestrator.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-fleet-threes-audit-py.svg" alt="Agent: agents/fleet_threes_audit.py" loading="lazy">
+        <h3>Agent: agents/fleet_threes_audit.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/fleet_threes_audit.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-hermes-supervision-py.svg" alt="Agent: agents/hermes_supervision.py" loading="lazy">
+        <h3>Agent: agents/hermes_supervision.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/hermes_supervision.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-kanban-push-py.svg" alt="Agent: agents/kanban_push.py" loading="lazy">
+        <h3>Agent: agents/kanban_push.py</h3>
+        <p class="url">ae://local/agents/kanban_push.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-keeper-cron-py.svg" alt="Agent: agents/keeper_cron.py" loading="lazy">
+        <h3>Agent: agents/keeper_cron.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/keeper_cron.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-keeper-email-py.svg" alt="Agent: agents/keeper_email.py" loading="lazy">
+        <h3>Agent: agents/keeper_email.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/keeper_email.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-mail-agent-py.svg" alt="Agent: agents/mail_agent.py" loading="lazy">
+        <h3>Agent: agents/mail_agent.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/mail_agent.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-patch-vps-py.svg" alt="Agent: agents/patch_vps.py" loading="lazy">
+        <h3>Agent: agents/patch_vps.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/patch_vps.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-qr-envelope-py.svg" alt="Agent: agents/qr_envelope.py" loading="lazy">
+        <h3>Agent: agents/qr_envelope.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/qr_envelope.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-qr-gpu-cuda-v2-py.svg" alt="Agent: agents/qr_gpu_cuda_v2.py" loading="lazy">
+        <h3>Agent: agents/qr_gpu_cuda_v2.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/qr_gpu_cuda_v2.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-qr-indexed-audit-py.svg" alt="Agent: agents/qr_indexed_audit.py" loading="lazy">
+        <h3>Agent: agents/qr_indexed_audit.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/qr_indexed_audit.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-qr-kanban-py.svg" alt="Agent: agents/qr_kanban.py" loading="lazy">
+        <h3>Agent: agents/qr_kanban.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/qr_kanban.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-qr-key-manager-py.svg" alt="Agent: agents/qr_key_manager.py" loading="lazy">
+        <h3>Agent: agents/qr_key_manager.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/qr_key_manager.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-qr-mail-py.svg" alt="Agent: agents/qr_mail.py" loading="lazy">
+        <h3>Agent: agents/qr_mail.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/qr_mail.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-qr-server-py.svg" alt="Agent: agents/qr_server.py" loading="lazy">
+        <h3>Agent: agents/qr_server.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/qr_server.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-qr-sms-py.svg" alt="Agent: agents/qr_sms.py" loading="lazy">
+        <h3>Agent: agents/qr_sms.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/qr_sms.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-qr-supervision-py.svg" alt="Agent: agents/qr_supervision.py" loading="lazy">
+        <h3>Agent: agents/qr_supervision.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/qr_supervision.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-rtx-bridge-startup-py.svg" alt="Agent: agents/rtx_bridge_startup.py" loading="lazy">
+        <h3>Agent: agents/rtx_bridge_startup.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/rtx_bridge_startup.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-rtx-leaf-py.svg" alt="Agent: agents/rtx_leaf.py" loading="lazy">
+        <h3>Agent: agents/rtx_leaf.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/rtx_leaf.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-secret-source-py.svg" alt="Agent: agents/secret_source.py" loading="lazy">
+        <h3>Agent: agents/secret_source.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/secret_source.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-verify-3d-py.svg" alt="Agent: agents/verify_3d.py" loading="lazy">
+        <h3>Agent: agents/verify_3d.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/verify_3d.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-verify-3d-v2-py.svg" alt="Agent: agents/verify_3d_v2.py" loading="lazy">
+        <h3>Agent: agents/verify_3d_v2.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/verify_3d_v2.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-vps-node-py.svg" alt="Agent: agents/vps_node.py" loading="lazy">
+        <h3>Agent: agents/vps_node.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/vps_node.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-væult-email-py.svg" alt="Agent: agents/væult_email.py" loading="lazy">
+        <h3>Agent: agents/væult_email.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/væult_email.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-zeus-engine-py.svg" alt="Agent: agents/zeus_engine.py" loading="lazy">
+        <h3>Agent: agents/zeus_engine.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/zeus_engine.py</p>
+        <span class="type">agent</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/pyt-agents-æ-code-mode-py.svg" alt="Agent: agents/æ_code_mode.py" loading="lazy">
+        <h3>Agent: agents/æ_code_mode.py</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/agents/æ_code_mode.py</p>
+        <span class="type">agent</span>
+      </div>
+    </div>
+    <h2 class="cat">HTML SURFACES · 175</h2>
+    <div class="qr-grid">
+      <div class="qr-card">
+        <img src="qr/htm-404-html.svg" alt="404.html" loading="lazy">
+        <h3>404.html</h3>
+        <p class="url">https://myaelmendez.github.io/404.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-a2ui-interface-html.svg" alt="a2ui-interface.html" loading="lazy">
+        <h3>a2ui-interface.html</h3>
+        <p class="url">https://myaelmendez.github.io/a2ui-interface.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aaa-protocol-html.svg" alt="aaa-protocol.html" loading="lazy">
+        <h3>aaa-protocol.html</h3>
+        <p class="url">https://myaelmendez.github.io/aaa-protocol.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-ae-index-html.svg" alt="ae/index.html" loading="lazy">
+        <h3>ae/index.html</h3>
+        <p class="url">https://myaelmendez.github.io/ae/index.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-ae-store-digital-twin-html.svg" alt="ae-store-digital-twin.html" loading="lazy">
+        <h3>ae-store-digital-twin.html</h3>
+        <p class="url">https://myaelmendez.github.io/ae-store-digital-twin.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-ae-store-pico-os-html.svg" alt="ae-store-pico-os.html" loading="lazy">
+        <h3>ae-store-pico-os.html</h3>
+        <p class="url">https://myaelmendez.github.io/ae-store-pico-os.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-ae-store-semantic-key-html.svg" alt="ae-store-semantic-key.html" loading="lazy">
+        <h3>ae-store-semantic-key.html</h3>
+        <p class="url">https://myaelmendez.github.io/ae-store-semantic-key.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aea-index-html.svg" alt="aea-index.html" loading="lazy">
+        <h3>aea-index.html</h3>
+        <p class="url">https://myaelmendez.github.io/aea-index.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-ael-tv-net-station-creator-html.svg" alt="ael-tv-net-station-creator.html" loading="lazy">
+        <h3>ael-tv-net-station-creator.html</h3>
+        <p class="url">https://myaelmendez.github.io/ael-tv-net-station-creator.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aeos-916-html.svg" alt="aeos-916.html" loading="lazy">
+        <h3>aeos-916.html</h3>
+        <p class="url">https://myaelmendez.github.io/aeos-916.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-agentic-html.svg" alt="agentic.html" loading="lazy">
+        <h3>agentic.html</h3>
+        <p class="url">https://myaelmendez.github.io/agentic.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-agentic-mail-html.svg" alt="agentic-mail.html" loading="lazy">
+        <h3>agentic-mail.html</h3>
+        <p class="url">https://myaelmendez.github.io/agentic-mail.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aggregate-html.svg" alt="aggregate.html" loading="lazy">
+        <h3>aggregate.html</h3>
+        <p class="url">https://myaelmendez.github.io/aggregate.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-cri-surface-html.svg" alt="aipodcast_me/cri_surface.html" loading="lazy">
+        <h3>aipodcast_me/cri_surface.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/cri_surface.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-discover-html.svg" alt="aipodcast_me/discover.html" loading="lazy">
+        <h3>aipodcast_me/discover.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/discover.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-fleet-waves-html.svg" alt="aipodcast_me/fleet-waves.html" loading="lazy">
+        <h3>aipodcast_me/fleet-waves.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/fleet-waves.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-frame-01-opening-html.svg" alt="aipodcast_me/frame_01_opening.html" loading="lazy">
+        <h3>aipodcast_me/frame_01_opening.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/frame_01_opening.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-frame-02-build-html.svg" alt="aipodcast_me/frame_02_build.html" loading="lazy">
+        <h3>aipodcast_me/frame_02_build.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/frame_02_build.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-frame-03-peak-html.svg" alt="aipodcast_me/frame_03_peak.html" loading="lazy">
+        <h3>aipodcast_me/frame_03_peak.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/frame_03_peak.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-frame-04-fall-html.svg" alt="aipodcast_me/frame_04_fall.html" loading="lazy">
+        <h3>aipodcast_me/frame_04_fall.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/frame_04_fall.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-frame-05-resolve-html.svg" alt="aipodcast_me/frame_05_resolve.html" loading="lazy">
+        <h3>aipodcast_me/frame_05_resolve.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/frame_05_resolve.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-gateway-html.svg" alt="aipodcast_me/gateway.html" loading="lazy">
+        <h3>aipodcast_me/gateway.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/gateway.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-holomesh-html.svg" alt="aipodcast_me/holomesh.html" loading="lazy">
+        <h3>aipodcast_me/holomesh.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/holomesh.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-index-html.svg" alt="aipodcast_me/index.html" loading="lazy">
+        <h3>aipodcast_me/index.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/index.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-indices-html.svg" alt="aipodcast_me/indices.html" loading="lazy">
+        <h3>aipodcast_me/indices.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/indices.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-llamacpp-html.svg" alt="aipodcast_me/llamacpp.html" loading="lazy">
+        <h3>aipodcast_me/llamacpp.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/llamacpp.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-loop-html.svg" alt="aipodcast_me/loop.html" loading="lazy">
+        <h3>aipodcast_me/loop.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/loop.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-markets-html.svg" alt="aipodcast_me/markets.html" loading="lazy">
+        <h3>aipodcast_me/markets.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/markets.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-markets-radar-player-html.svg" alt="aipodcast_me/markets-radar-player.html" loading="lazy">
+        <h3>aipodcast_me/markets-radar-player.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/markets-radar-player.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-media-html.svg" alt="aipodcast_me/media.html" loading="lazy">
+        <h3>aipodcast_me/media.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/media.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-monaco-editor-html.svg" alt="aipodcast_me/monaco-editor.html" loading="lazy">
+        <h3>aipodcast_me/monaco-editor.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/monaco-editor.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-qr-keys-html.svg" alt="aipodcast_me/qr_keys.html" loading="lazy">
+        <h3>aipodcast_me/qr_keys.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/qr_keys.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-skill-graph-html.svg" alt="aipodcast_me/skill-graph.html" loading="lazy">
+        <h3>aipodcast_me/skill-graph.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/skill-graph.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-storyboard-animation-html.svg" alt="aipodcast_me/storyboard_animation.html" loading="lazy">
+        <h3>aipodcast_me/storyboard_animation.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/storyboard_animation.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-storyboard-html.svg" alt="aipodcast_me/storyboard.html" loading="lazy">
+        <h3>aipodcast_me/storyboard.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/storyboard.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-vault-layers-html.svg" alt="aipodcast_me/vault-layers.html" loading="lazy">
+        <h3>aipodcast_me/vault-layers.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/vault-layers.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-videolab-html.svg" alt="aipodcast_me/videolab.html" loading="lazy">
+        <h3>aipodcast_me/videolab.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/videolab.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-aipodcast-me-vscoder-html.svg" alt="aipodcast_me/vscoder.html" loading="lazy">
+        <h3>aipodcast_me/vscoder.html</h3>
+        <p class="url">https://myaelmendez.github.io/aipodcast_me/vscoder.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-any-ontology-compute-html.svg" alt="any-ontology-compute.html" loading="lazy">
+        <h3>any-ontology-compute.html</h3>
+        <p class="url">https://myaelmendez.github.io/any-ontology-compute.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-any-ontology-compute-v2-html.svg" alt="any-ontology-compute-v2.html" loading="lazy">
+        <h3>any-ontology-compute-v2.html</h3>
+        <p class="url">https://myaelmendez.github.io/any-ontology-compute-v2.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-any-ontology-master-html.svg" alt="any-ontology-master.html" loading="lazy">
+        <h3>any-ontology-master.html</h3>
+        <p class="url">https://myaelmendez.github.io/any-ontology-master.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-capability-mesh-html.svg" alt="capability-mesh.html" loading="lazy">
+        <h3>capability-mesh.html</h3>
+        <p class="url">https://myaelmendez.github.io/capability-mesh.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-cli-4d-prompt-descent-html.svg" alt="cli-4d-prompt-descent.html" loading="lazy">
+        <h3>cli-4d-prompt-descent.html</h3>
+        <p class="url">https://myaelmendez.github.io/cli-4d-prompt-descent.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-cli-llc-os-html.svg" alt="cli-llc-os.html" loading="lazy">
+        <h3>cli-llc-os.html</h3>
+        <p class="url">https://myaelmendez.github.io/cli-llc-os.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-codex-dual-bio-runtime-html.svg" alt="codex-dual-bio-runtime.html" loading="lazy">
+        <h3>codex-dual-bio-runtime.html</h3>
+        <p class="url">https://myaelmendez.github.io/codex-dual-bio-runtime.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-command-map-html.svg" alt="command-map.html" loading="lazy">
+        <h3>command-map.html</h3>
+        <p class="url">https://myaelmendez.github.io/command-map.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-command-prompt-html.svg" alt="command-prompt.html" loading="lazy">
+        <h3>command-prompt.html</h3>
+        <p class="url">https://myaelmendez.github.io/command-prompt.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-commandprompt-ai-html.svg" alt="commandprompt-ai.html" loading="lazy">
+        <h3>commandprompt-ai.html</h3>
+        <p class="url">https://myaelmendez.github.io/commandprompt-ai.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-constellation-html.svg" alt="constellation.html" loading="lazy">
+        <h3>constellation.html</h3>
+        <p class="url">https://myaelmendez.github.io/constellation.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-cri-index-html.svg" alt="cri-index.html" loading="lazy">
+        <h3>cri-index.html</h3>
+        <p class="url">https://myaelmendez.github.io/cri-index.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-cri-school-of-hermes-html.svg" alt="cri-school-of-hermes.html" loading="lazy">
+        <h3>cri-school-of-hermes.html</h3>
+        <p class="url">https://myaelmendez.github.io/cri-school-of-hermes.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-cri-teleprompter-html.svg" alt="cri-teleprompter.html" loading="lazy">
+        <h3>cri-teleprompter.html</h3>
+        <p class="url">https://myaelmendez.github.io/cri-teleprompter.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-cri-v01-html.svg" alt="cri-v01.html" loading="lazy">
+        <h3>cri-v01.html</h3>
+        <p class="url">https://myaelmendez.github.io/cri-v01.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-cuda-blueprint-html.svg" alt="cuda-blueprint.html" loading="lazy">
+        <h3>cuda-blueprint.html</h3>
+        <p class="url">https://myaelmendez.github.io/cuda-blueprint.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-cuda-ide-rtx-html.svg" alt="cuda_IDE_RTX.html" loading="lazy">
+        <h3>cuda_IDE_RTX.html</h3>
+        <p class="url">https://myaelmendez.github.io/cuda_IDE_RTX.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-cuda-vlc-html.svg" alt="cuda-vlc.html" loading="lazy">
+        <h3>cuda-vlc.html</h3>
+        <p class="url">https://myaelmendez.github.io/cuda-vlc.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-demo-html.svg" alt="demo.html" loading="lazy">
+        <h3>demo.html</h3>
+        <p class="url">https://myaelmendez.github.io/demo.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-domain-empire-html.svg" alt="domain-empire.html" loading="lazy">
+        <h3>domain-empire.html</h3>
+        <p class="url">https://myaelmendez.github.io/domain-empire.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-draw-agentic-html.svg" alt="draw-agentic.html" loading="lazy">
+        <h3>draw-agentic.html</h3>
+        <p class="url">https://myaelmendez.github.io/draw-agentic.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-draw-electronic-html.svg" alt="draw-electronic.html" loading="lazy">
+        <h3>draw-electronic.html</h3>
+        <p class="url">https://myaelmendez.github.io/draw-electronic.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-droplet-html.svg" alt="droplet.html" loading="lazy">
+        <h3>droplet.html</h3>
+        <p class="url">https://myaelmendez.github.io/droplet.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-factory-html.svg" alt="factory.html" loading="lazy">
+        <h3>factory.html</h3>
+        <p class="url">https://myaelmendez.github.io/factory.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-final-video-html.svg" alt="final-video.html" loading="lazy">
+        <h3>final-video.html</h3>
+        <p class="url">https://myaelmendez.github.io/final-video.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-fleet-html.svg" alt="fleet.html" loading="lazy">
+        <h3>fleet.html</h3>
+        <p class="url">https://myaelmendez.github.io/fleet.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-glocal-cuda-blueprint-html.svg" alt="glocal-cuda-blueprint.html" loading="lazy">
+        <h3>glocal-cuda-blueprint.html</h3>
+        <p class="url">https://myaelmendez.github.io/glocal-cuda-blueprint.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-glocal-cuda-mesh-html.svg" alt="glocal-cuda-mesh.html" loading="lazy">
+        <h3>glocal-cuda-mesh.html</h3>
+        <p class="url">https://myaelmendez.github.io/glocal-cuda-mesh.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-glocal-funding-html.svg" alt="glocal-funding.html" loading="lazy">
+        <h3>glocal-funding.html</h3>
+        <p class="url">https://myaelmendez.github.io/glocal-funding.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-glocal-mesh-html.svg" alt="glocal-mesh.html" loading="lazy">
+        <h3>glocal-mesh.html</h3>
+        <p class="url">https://myaelmendez.github.io/glocal-mesh.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-glocal-secrets-blueprint-html.svg" alt="glocal-secrets-blueprint.html" loading="lazy">
+        <h3>glocal-secrets-blueprint.html</h3>
+        <p class="url">https://myaelmendez.github.io/glocal-secrets-blueprint.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-googlemcp-interface-html.svg" alt="googlemcp-interface.html" loading="lazy">
+        <h3>googlemcp-interface.html</h3>
+        <p class="url">https://myaelmendez.github.io/googlemcp-interface.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-hauge-lali-916-html.svg" alt="hauge-lali-916.html" loading="lazy">
+        <h3>hauge-lali-916.html</h3>
+        <p class="url">https://myaelmendez.github.io/hauge-lali-916.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-hauge-teologia-html.svg" alt="hauge-teologia.html" loading="lazy">
+        <h3>hauge-teologia.html</h3>
         <p class="url">https://myaelmendez.github.io/hauge-teologia.html</p>
         <span class="type">page</span>
       </div>
       <div class="qr-card">
-        <img src="qr/teologia-index.svg" alt="æ://teologia — Hub Central">
-        <h3>æ://teologia — Hub Central</h3>
-        <p class="url">https://myaelmendez.github.io/teologia/</p>
-        <span class="type">hub</span>
+        <img src="qr/htm-hermes-native-demo-html.svg" alt="hermes-native-demo.html" loading="lazy">
+        <h3>hermes-native-demo.html</h3>
+        <p class="url">https://myaelmendez.github.io/hermes-native-demo.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-index-html.svg" alt="index.html" loading="lazy">
+        <h3>index.html</h3>
+        <p class="url">https://myaelmendez.github.io/index.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-integration-html.svg" alt="integration.html" loading="lazy">
+        <h3>integration.html</h3>
+        <p class="url">https://myaelmendez.github.io/integration.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-internetofagents-demo-html.svg" alt="internetofagents-demo.html" loading="lazy">
+        <h3>internetofagents-demo.html</h3>
+        <p class="url">https://myaelmendez.github.io/internetofagents-demo.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-internetofagents-html.svg" alt="internetofagents.html" loading="lazy">
+        <h3>internetofagents.html</h3>
+        <p class="url">https://myaelmendez.github.io/internetofagents.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-internetofagents-render-html.svg" alt="internetofagents-render.html" loading="lazy">
+        <h3>internetofagents-render.html</h3>
+        <p class="url">https://myaelmendez.github.io/internetofagents-render.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-internetofagents-v2-html.svg" alt="internetofagents-v2.html" loading="lazy">
+        <h3>internetofagents-v2.html</h3>
+        <p class="url">https://myaelmendez.github.io/internetofagents-v2.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-keeper-html.svg" alt="keeper.html" loading="lazy">
+        <h3>keeper.html</h3>
+        <p class="url">https://myaelmendez.github.io/keeper.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-llm-store-4d-atlas-html.svg" alt="llm-store-4d-atlas.html" loading="lazy">
+        <h3>llm-store-4d-atlas.html</h3>
+        <p class="url">https://myaelmendez.github.io/llm-store-4d-atlas.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-llm-store-dna-qr-916-html.svg" alt="llm-store-dna-qr-916.html" loading="lazy">
+        <h3>llm-store-dna-qr-916.html</h3>
+        <p class="url">https://myaelmendez.github.io/llm-store-dna-qr-916.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-llm-store-dna-qr-html.svg" alt="llm-store-dna-qr.html" loading="lazy">
+        <h3>llm-store-dna-qr.html</h3>
+        <p class="url">https://myaelmendez.github.io/llm-store-dna-qr.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-llm-store-html.svg" alt="llm-store.html" loading="lazy">
+        <h3>llm-store.html</h3>
+        <p class="url">https://myaelmendez.github.io/llm-store.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-llm-store-widget-html.svg" alt="llm-store-widget.html" loading="lazy">
+        <h3>llm-store-widget.html</h3>
+        <p class="url">https://myaelmendez.github.io/llm-store-widget.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mcpgpt-chat-html.svg" alt="mcpgpt-chat.html" loading="lazy">
+        <h3>mcpgpt-chat.html</h3>
+        <p class="url">https://myaelmendez.github.io/mcpgpt-chat.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-measurement-index-html.svg" alt="measurement-index.html" loading="lazy">
+        <h3>measurement-index.html</h3>
+        <p class="url">https://myaelmendez.github.io/measurement-index.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-3d-os-html.svg" alt="mech-3d-os.html" loading="lazy">
+        <h3>mech-3d-os.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-3d-os.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-3d-webgl-engine-html.svg" alt="mech-3d-webgl-engine.html" loading="lazy">
+        <h3>mech-3d-webgl-engine.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-3d-webgl-engine.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-4d-holomesh-html.svg" alt="mech-4d-holomesh.html" loading="lazy">
+        <h3>mech-4d-holomesh.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-4d-holomesh.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-4d-mobile-html.svg" alt="mech-4d-mobile.html" loading="lazy">
+        <h3>mech-4d-mobile.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-4d-mobile.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-agent-orchestrator-html.svg" alt="mech-agent-orchestrator.html" loading="lazy">
+        <h3>mech-agent-orchestrator.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-agent-orchestrator.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-ai-by-hand-lessons-html.svg" alt="mech-ai-by-hand-lessons.html" loading="lazy">
+        <h3>mech-ai-by-hand-lessons.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-ai-by-hand-lessons.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-app-example-html.svg" alt="mech-app-example.html" loading="lazy">
+        <h3>mech-app-example.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-app-example.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-compatibility-migrator-html.svg" alt="mech-compatibility-migrator.html" loading="lazy">
+        <h3>mech-compatibility-migrator.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-compatibility-migrator.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-deepcode-agentic-html.svg" alt="mech-deepcode-agentic.html" loading="lazy">
+        <h3>mech-deepcode-agentic.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-deepcode-agentic.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-education-hub-html.svg" alt="mech-education-hub.html" loading="lazy">
+        <h3>mech-education-hub.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-education-hub.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-educational-streaming-html.svg" alt="mech-educational-streaming.html" loading="lazy">
+        <h3>mech-educational-streaming.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-educational-streaming.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-integration-hub-html.svg" alt="mech-integration-hub.html" loading="lazy">
+        <h3>mech-integration-hub.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-integration-hub.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-latam-ocw-html.svg" alt="mech-latam-ocw.html" loading="lazy">
+        <h3>mech-latam-ocw.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-latam-ocw.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-map-native-html.svg" alt="mech-map-native.html" loading="lazy">
+        <h3>mech-map-native.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-map-native.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-mobile-educational-streaming-html.svg" alt="mech-mobile-educational-streaming.html" loading="lazy">
+        <h3>mech-mobile-educational-streaming.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-mobile-educational-streaming.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-mobile-matrix-controller-html.svg" alt="mech-mobile-matrix-controller.html" loading="lazy">
+        <h3>mech-mobile-matrix-controller.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-mobile-matrix-controller.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-mobile-qr-scanner-html.svg" alt="mech-mobile-qr-scanner.html" loading="lazy">
+        <h3>mech-mobile-qr-scanner.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-mobile-qr-scanner.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-model-combinator-html.svg" alt="mech-model-combinator.html" loading="lazy">
+        <h3>mech-model-combinator.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-model-combinator.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-notaebook-rust-education-html.svg" alt="mech-notaebook-rust-education.html" loading="lazy">
+        <h3>mech-notaebook-rust-education.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-notaebook-rust-education.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-ocw-student-dashboard-html.svg" alt="mech-ocw-student-dashboard.html" loading="lazy">
+        <h3>mech-ocw-student-dashboard.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-ocw-student-dashboard.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-os-html.svg" alt="mech-os.html" loading="lazy">
+        <h3>mech-os.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-os.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-os-vae-html.svg" alt="mech-os-vae.html" loading="lazy">
+        <h3>mech-os-vae.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-os-vae.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-spatial-os-dot-matrix-html.svg" alt="mech-spatial-os-dot-matrix.html" loading="lazy">
+        <h3>mech-spatial-os-dot-matrix.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-spatial-os-dot-matrix.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-spatial-os-html.svg" alt="mech-spatial-os.html" loading="lazy">
+        <h3>mech-spatial-os.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-spatial-os.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-terminal-browser-html.svg" alt="mech-terminal-browser.html" loading="lazy">
+        <h3>mech-terminal-browser.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-terminal-browser.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-territorial-documentation-html.svg" alt="mech-territorial-documentation.html" loading="lazy">
+        <h3>mech-territorial-documentation.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-territorial-documentation.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mech-territorial-programming-interface-html.svg" alt="mech-territorial-programming-interface.html" loading="lazy">
+        <h3>mech-territorial-programming-interface.html</h3>
+        <p class="url">https://myaelmendez.github.io/mech-territorial-programming-interface.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mechdown-html.svg" alt="mechdown.html" loading="lazy">
+        <h3>mechdown.html</h3>
+        <p class="url">https://myaelmendez.github.io/mechdown.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-mesh-agenti-html.svg" alt="mesh-agenti.html" loading="lazy">
+        <h3>mesh-agenti.html</h3>
+        <p class="url">https://myaelmendez.github.io/mesh-agenti.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-molt-earth-ultimate-fractal-html.svg" alt="molt-earth-ultimate-fractal.html" loading="lazy">
+        <h3>molt-earth-ultimate-fractal.html</h3>
+        <p class="url">https://myaelmendez.github.io/molt-earth-ultimate-fractal.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-motlbook-html.svg" alt="motlbook.html" loading="lazy">
+        <h3>motlbook.html</h3>
+        <p class="url">https://myaelmendez.github.io/motlbook.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-multimedia-test-html.svg" alt="multimedia-test.html" loading="lazy">
+        <h3>multimedia-test.html</h3>
+        <p class="url">https://myaelmendez.github.io/multimedia-test.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-nano-banana-rust-capsules-html.svg" alt="nano-banana-rust-capsules.html" loading="lazy">
+        <h3>nano-banana-rust-capsules.html</h3>
+        <p class="url">https://myaelmendez.github.io/nano-banana-rust-capsules.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-nano-lesson-node-latamocw-html.svg" alt="nano-lesson-node-latamocw.html" loading="lazy">
+        <h3>nano-lesson-node-latamocw.html</h3>
+        <p class="url">https://myaelmendez.github.io/nano-lesson-node-latamocw.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-neuro-ur-watch-html.svg" alt="neuro-ur-watch.html" loading="lazy">
+        <h3>neuro-ur-watch.html</h3>
+        <p class="url">https://myaelmendez.github.io/neuro-ur-watch.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-neuromitosis-html.svg" alt="neuromitosis.html" loading="lazy">
+        <h3>neuromitosis.html</h3>
+        <p class="url">https://myaelmendez.github.io/neuromitosis.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-neuromitosis-polar-star-cell-html.svg" alt="neuromitosis-polar-star-cell.html" loading="lazy">
+        <h3>neuromitosis-polar-star-cell.html</h3>
+        <p class="url">https://myaelmendez.github.io/neuromitosis-polar-star-cell.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-openai-index-html.svg" alt="openai/index.html" loading="lazy">
+        <h3>openai/index.html</h3>
+        <p class="url">https://myaelmendez.github.io/openai/index.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-parallel-sovereignty-html.svg" alt="parallel-sovereignty.html" loading="lazy">
+        <h3>parallel-sovereignty.html</h3>
+        <p class="url">https://myaelmendez.github.io/parallel-sovereignty.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-porter-html.svg" alt="porter.html" loading="lazy">
+        <h3>porter.html</h3>
+        <p class="url">https://myaelmendez.github.io/porter.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-private-client-html.svg" alt="private-client.html" loading="lazy">
+        <h3>private-client.html</h3>
+        <p class="url">https://myaelmendez.github.io/private-client.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-privateclient-compute-html.svg" alt="privateclient-compute.html" loading="lazy">
+        <h3>privateclient-compute.html</h3>
+        <p class="url">https://myaelmendez.github.io/privateclient-compute.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-privateclient-compute-html-2.svg" alt="privateclient/compute.html" loading="lazy">
+        <h3>privateclient/compute.html</h3>
+        <p class="url">https://myaelmendez.github.io/privateclient/compute.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-privateclient-glocal-secrets-blueprint-html.svg" alt="privateclient/glocal-secrets-blueprint.html" loading="lazy">
+        <h3>privateclient/glocal-secrets-blueprint.html</h3>
+        <p class="url">https://myaelmendez.github.io/privateclient/glocal-secrets-blueprint.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-privateclient-omnibox-html.svg" alt="privateclient-omnibox.html" loading="lazy">
+        <h3>privateclient-omnibox.html</h3>
+        <p class="url">https://myaelmendez.github.io/privateclient-omnibox.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-privateclient-omnibox-html-2.svg" alt="privateclient/omnibox.html" loading="lazy">
+        <h3>privateclient/omnibox.html</h3>
+        <p class="url">https://myaelmendez.github.io/privateclient/omnibox.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-privateclient-secret-source-bridge-html.svg" alt="privateclient/secret-source-bridge.html" loading="lazy">
+        <h3>privateclient/secret-source-bridge.html</h3>
+        <p class="url">https://myaelmendez.github.io/privateclient/secret-source-bridge.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-privateclient-terminal-html.svg" alt="privateclient/terminal.html" loading="lazy">
+        <h3>privateclient/terminal.html</h3>
+        <p class="url">https://myaelmendez.github.io/privateclient/terminal.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-privateclient-vaeult-index-html.svg" alt="privateclient/vaeult/index.html" loading="lazy">
+        <h3>privateclient/vaeult/index.html</h3>
+        <p class="url">https://myaelmendez.github.io/privateclient/vaeult/index.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-privateclient-vault-html.svg" alt="privateclient/vault.html" loading="lazy">
+        <h3>privateclient/vault.html</h3>
+        <p class="url">https://myaelmendez.github.io/privateclient/vault.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-privateclient-vault-layers-html.svg" alt="privateclient/vault-layers.html" loading="lazy">
+        <h3>privateclient/vault-layers.html</h3>
+        <p class="url">https://myaelmendez.github.io/privateclient/vault-layers.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-qr-as-skill-html.svg" alt="qr-as-skill.html" loading="lazy">
+        <h3>qr-as-skill.html</h3>
+        <p class="url">https://myaelmendez.github.io/qr-as-skill.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-qr-maxxing-chain-html.svg" alt="qr-maxxing-chain.html" loading="lazy">
+        <h3>qr-maxxing-chain.html</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/threejs-curriculum/qr-maxxing-chain.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-rails-html.svg" alt="rails.html" loading="lazy">
+        <h3>rails.html</h3>
+        <p class="url">https://myaelmendez.github.io/rails.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-reachy-clerk-html.svg" alt="reachy-clerk.html" loading="lazy">
+        <h3>reachy-clerk.html</h3>
+        <p class="url">https://myaelmendez.github.io/reachy-clerk.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-reachy-emulator-html.svg" alt="reachy-emulator.html" loading="lazy">
+        <h3>reachy-emulator.html</h3>
+        <p class="url">https://myaelmendez.github.io/reachy-emulator.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-reachy-face-html.svg" alt="reachy-face.html" loading="lazy">
+        <h3>reachy-face.html</h3>
+        <p class="url">https://myaelmendez.github.io/reachy-face.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-reachy-video-html.svg" alt="reachy-video.html" loading="lazy">
+        <h3>reachy-video.html</h3>
+        <p class="url">https://myaelmendez.github.io/reachy-video.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-redirect-html.svg" alt="redirect.html" loading="lazy">
+        <h3>redirect.html</h3>
+        <p class="url">https://myaelmendez.github.io/redirect.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-rust-territory-tables-html.svg" alt="rust-territory-tables.html" loading="lazy">
+        <h3>rust-territory-tables.html</h3>
+        <p class="url">https://myaelmendez.github.io/rust-territory-tables.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-rust-vocabulary-reference-html.svg" alt="rust-vocabulary-reference.html" loading="lazy">
+        <h3>rust-vocabulary-reference.html</h3>
+        <p class="url">https://myaelmendez.github.io/rust-vocabulary-reference.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-school-of-hermes-fleet-html.svg" alt="school-of-hermes-fleet.html" loading="lazy">
+        <h3>school-of-hermes-fleet.html</h3>
+        <p class="url">https://myaelmendez.github.io/school-of-hermes-fleet.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-secret-source-bridge-html.svg" alt="secret-source-bridge.html" loading="lazy">
+        <h3>secret-source-bridge.html</h3>
+        <p class="url">https://myaelmendez.github.io/secret-source-bridge.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-skill-guide-index-html.svg" alt="skill-guide/index.html" loading="lazy">
+        <h3>skill-guide/index.html</h3>
+        <p class="url">https://myaelmendez.github.io/skill-guide/index.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-skill-guide-skill-graph-html.svg" alt="skill-guide/skill-graph.html" loading="lazy">
+        <h3>skill-guide/skill-graph.html</h3>
+        <p class="url">https://myaelmendez.github.io/skill-guide/skill-graph.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-sovaereign-os-html.svg" alt="sovaereign-os.html" loading="lazy">
+        <h3>sovaereign-os.html</h3>
+        <p class="url">https://myaelmendez.github.io/sovaereign-os.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-sovereign-state-html.svg" alt="sovereign-state.html" loading="lazy">
+        <h3>sovereign-state.html</h3>
+        <p class="url">https://myaelmendez.github.io/sovereign-state.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-teologia-calendar-html.svg" alt="teologia-calendar.html" loading="lazy">
+        <h3>teologia-calendar.html</h3>
+        <p class="url">ae://local/teologia-calendar.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-teologia-index-html.svg" alt="teologia/index.html" loading="lazy">
+        <h3>teologia/index.html</h3>
+        <p class="url">https://myaelmendez.github.io/teologia/index.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-teologia-qr-index-html.svg" alt="teologia/qr/index.html" loading="lazy">
+        <h3>teologia/qr/index.html</h3>
+        <p class="url">https://myaelmendez.github.io/teologia/qr/index.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-the-mesh-html.svg" alt="the-mesh.html" loading="lazy">
+        <h3>the-mesh.html</h3>
+        <p class="url">https://myaelmendez.github.io/the-mesh.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-trinity-html.svg" alt="trinity.html" loading="lazy">
+        <h3>trinity.html</h3>
+        <p class="url">https://myaelmendez.github.io/trinity.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-trinity-runtime-html.svg" alt="trinity-runtime.html" loading="lazy">
+        <h3>trinity-runtime.html</h3>
+        <p class="url">https://myaelmendez.github.io/trinity-runtime.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-vaeult-index-html.svg" alt="vaeult/index.html" loading="lazy">
+        <h3>vaeult/index.html</h3>
+        <p class="url">https://myaelmendez.github.io/vaeult/index.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-vault-html.svg" alt="vault.html" loading="lazy">
+        <h3>vault.html</h3>
+        <p class="url">https://myaelmendez.github.io/vault.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-vault-layers-html.svg" alt="vault-layers.html" loading="lazy">
+        <h3>vault-layers.html</h3>
+        <p class="url">https://myaelmendez.github.io/vault-layers.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-video-corpus-html.svg" alt="video-corpus.html" loading="lazy">
+        <h3>video-corpus.html</h3>
+        <p class="url">https://myaelmendez.github.io/video-corpus.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-videolab-html.svg" alt="videolab.html" loading="lazy">
+        <h3>videolab.html</h3>
+        <p class="url">https://myaelmendez.github.io/videolab.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-videos-html.svg" alt="videos.html" loading="lazy">
+        <h3>videos.html</h3>
+        <p class="url">ae://local/videos.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-væult-index-html.svg" alt="væult/index.html" loading="lazy">
+        <h3>væult/index.html</h3>
+        <p class="url">https://myaelmendez.github.io/væult/index.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-webllm-html.svg" alt="webllm.html" loading="lazy">
+        <h3>webllm.html</h3>
+        <p class="url">https://myaelmendez.github.io/webllm.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-webmcp-html.svg" alt="webmcp.html" loading="lazy">
+        <h3>webmcp.html</h3>
+        <p class="url">https://myaelmendez.github.io/webmcp.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-widget-widget-html.svg" alt="widget/widget.html" loading="lazy">
+        <h3>widget/widget.html</h3>
+        <p class="url">https://github.com/MYaelMendez/SOVEREIGN/blob/master/widget/widget.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-yael-baesic-vae-html.svg" alt="yael-baesic-vae.html" loading="lazy">
+        <h3>yael-baesic-vae.html</h3>
+        <p class="url">https://myaelmendez.github.io/yael-baesic-vae.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-yael-route-engine-html.svg" alt="yael-route-engine.html" loading="lazy">
+        <h3>yael-route-engine.html</h3>
+        <p class="url">https://myaelmendez.github.io/yael-route-engine.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-yarn-weave-html.svg" alt="yarn-weave.html" loading="lazy">
+        <h3>yarn-weave.html</h3>
+        <p class="url">https://myaelmendez.github.io/yarn-weave.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-zeitgeist-4d-html.svg" alt="zeitgeist-4d.html" loading="lazy">
+        <h3>zeitgeist-4d.html</h3>
+        <p class="url">https://myaelmendez.github.io/zeitgeist-4d.html</p>
+        <span class="type">page</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/htm-æ-store-index-html.svg" alt="æ_store/index.html" loading="lazy">
+        <h3>æ_store/index.html</h3>
+        <p class="url">https://myaelmendez.github.io/æ_store/index.html</p>
+        <span class="type">page</span>
+      </div>
+    </div>
+    <h2 class="cat">CONFIGS · 1</h2>
+    <div class="qr-grid">
+      <div class="qr-card">
+        <img src="qr/con-c-æ-qr-inventory-json.svg" alt="Config: qr_inventory.json" loading="lazy">
+        <h3>Config: qr_inventory.json</h3>
+        <p class="url">ae://local/qr_inventory.json</p>
+        <span class="type">config</span>
+      </div>
+    </div>
+    <h2 class="cat">LOGS · 3</h2>
+    <div class="qr-grid">
+      <div class="qr-card">
+        <img src="qr/log-logs-diagnosis-servers-20261008-md.svg" alt="Log: logs/diagnosis-servers-20261008.md" loading="lazy">
+        <h3>Log: logs/diagnosis-servers-20261008.md</h3>
+        <p class="url">ae://local/logs/diagnosis-servers-20261008.md</p>
+        <span class="type">log</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/log-logs-environment-branch-decision-md.svg" alt="Log: logs/environment-branch-decision.md" loading="lazy">
+        <h3>Log: logs/environment-branch-decision.md</h3>
+        <p class="url">ae://local/logs/environment-branch-decision.md</p>
+        <span class="type">log</span>
+      </div>
+      <div class="qr-card">
+        <img src="qr/log-logs-ops-decision-2026-07-01-md.svg" alt="Log: logs/ops-decision-2026-07-01.md" loading="lazy">
+        <h3>Log: logs/ops-decision-2026-07-01.md</h3>
+        <p class="url">ae://local/logs/ops-decision-2026-07-01.md</p>
+        <span class="type">log</span>
       </div>
     </div>
     <div class="footer">
-      TEOLOGIA.AI · BIBLIA DEL OSO · CASIODORO DE REINA 1569
+      TEOLOGIA.AI · BIBLIA DEL OSO · CASIODORO DE REINA 1569<br>
+      æ://ECOSYSTEM · EVERY QR IS A UNIQUE, RESOLVABLE ADDRESS
     </div>
   </div>
-
-<!-- æ:// QR Verification Badge -->
-<div id="æ-qr-badge" style="
-  position:fixed;bottom:16px;right:16px;z-index:99999;
-  width:56px;height:56px;border:1px solid #D4AF37;border-radius:8px;
-  background:#050505;padding:4px;cursor:pointer;
-  transition:transform 0.2s,box-shadow 0.2s;
-" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 20px rgba(212,175,55,0.4)'"
-   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'"
-   onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')"
-   title="æ:// Verify this surface">
-  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/teologia/qr/index.html&color=D4AF37&bgcolor=050505" 
-       alt="QR Verify" style="width:100%;height:100%;display:block;">
-</div>
 </body>
 </html>
