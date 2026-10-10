@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>æ.store · Welcome</title>
+<meta http-equiv="refresh" content="5;url=https://myaelmendez.github.io/">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#050505;--gold:#D4AF37;--gold2:#f0d487;--emerald:#00ff9d;
+  --cyan:#00eaff;--violet:#8c72ff;--orange:#ff9a4d;--red:#ff4d5f;
+  --ink:#e8e6df;--muted:#6f6a5c;--line:rgba(212,175,55,.22);
+  --mono:"JetBrains Mono",ui-monospace,monospace;--display:"Orbitron",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;min-height:100vh;background:var(--void);color:var(--ink);font-family:var(--mono);overflow:hidden}
+.scan{position:fixed;inset:0;z-index:9;pointer-events:none;opacity:.18;
+  background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.5) 2px 4px)}
+.vig{position:fixed;inset:0;z-index:8;pointer-events:none;
+  background:radial-gradient(circle at 50% 40%,transparent 20%,rgba(5,5,5,.55) 70%,rgba(5,5,5,.96) 100%)}
+
+.container{position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;text-align:center}
+
+.glyph{font-size:clamp(64px,15vw,120px);color:var(--gold);text-shadow:0 0 40px rgba(212,175,55,.4);animation:breathe 3s ease-in-out infinite;line-height:1}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+
+.domain{font-family:var(--display);font-weight:900;letter-spacing:6px;font-size:clamp(24px,6vw,48px);color:var(--gold);margin-top:16px;text-shadow:0 0 20px rgba(212,175,55,.3)}
+
+.welcome{color:var(--muted);font-size:clamp(13px,2.5vw,18px);margin-top:12px;letter-spacing:2px}
+
+.countdown{margin-top:32px;font-family:var(--display);font-size:clamp(48px,10vw,80px);color:var(--emerald);text-shadow:0 0 20px rgba(0,255,157,.3)}
+
+.redirecting{color:var(--muted);font-size:11px;margin-top:8px;letter-spacing:1px}
+
+.target{margin-top:24px;color:var(--cyan);font-size:12px;letter-spacing:1px}
+.target a{color:var(--cyan);text-decoration:none;border-bottom:1px solid rgba(0,234,255,.3);padding-bottom:2px;transition:all .2s}
+.target a:hover{border-color:var(--cyan);text-shadow:0 0 10px rgba(0,234,255,.4)}
+
+.bar{position:fixed;bottom:0;left:0;right:0;height:3px;background:var(--line);z-index:11}
+.bar-fill{height:100%;background:var(--gold);width:0%;transition:width .1s linear;box-shadow:0 0 10px rgba(212,175,55,.5)}
+
+.manual{margin-top:20px;font-size:10px;color:var(--muted);letter-spacing:1px}
+.manual a{color:var(--gold);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:1px}
+.manual a:hover{border-color:var(--gold)}
+
+@media(max-width:600px){
+  .domain{letter-spacing:3px}
+  .countdown{font-size:48px}
+}
+</style>
+</head>
+<body>
+<div class="scan"></div>
+<div class="vig"></div>
+
+<div class="container">
+  <div class="glyph">⚙️</div>
+  <div class="domain">æ.store</div>
+  <div class="welcome">WELCOME · REDIRECTING TO æ://GITHUB.IO</div>
+  <div class="countdown" id="count">5</div>
+  <div class="redirecting">seconds</div>
+  <div class="target">Target: <a href="https://myaelmendez.github.io/">myaelmendez.github.io</a></div>
+  <div class="manual">Click the link if not redirected automatically</div>
+</div>
+
+<div class="bar"><div class="bar-fill" id="bar"></div></div>
+
+<!-- æ:// QR Verification Badge -->
+<div id="æ-qr-badge" style="
+  position:fixed;bottom:16px;right:16px;z-index:99999;
+  width:56px;height:56px;border:1px solid #D4AF37;border-radius:8px;
+  background:#050505;padding:4px;cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s;
+" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 20px rgba(212,175,55,0.4)'"
+   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'"
+   onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')"
+   title="æ:// Verify this surface">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/aipodcast_me/aestore.html&color=D4AF37&bgcolor=050505" 
+       alt="QR Verify" style="width:100%;height:100%;display:block;">
+</div>
+
+<script>
+let count = 5;
+const countEl = document.getElementById('count');
+const barEl = document.getElementById('bar');
+const target = 'https://myaelmendez.github.io/';
+
+const interval = setInterval(() => {
+  count--;
+  if (count <= 0) {
+    clearInterval(interval);
+    window.location.href = target;
+  } else {
+    countEl.textContent = count;
+    barEl.style.width = ((5 - count) / 5 * 100) + '%';
+  }
+}, 1000);
+
+barEl.style.width = '0%';
+</script>
+</body>
+</html>
