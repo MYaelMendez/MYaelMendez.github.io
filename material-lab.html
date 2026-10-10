@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080">
+<title>æ:// Material Lab — PBR Shader Matrix</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;overflow:hidden;background:#050505;color:#D4AF37;font-family:'JetBrains Mono','Consolas',monospace}
+  #root{position:relative;width:100%;height:100%}
+  .scanlines{position:absolute;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.20) 3px,rgba(0,0,0,.20) 4px)}
+  #hud{position:absolute;top:0;left:0;right:0;padding:20px 40px;z-index:10;pointer-events:none}
+  #hud h1{font-size:22px;font-weight:700;letter-spacing:0.15em;color:#D4AF37}
+  #hud p{font-size:11px;color:rgba(212,175,55,0.5);margin-top:4px}
+</style>
+</head>
+<body>
+<div id="root" data-width="1920" data-height="1080">
+  <div id="hud">
+    <h1>æ:// Material Lab</h1>
+    <p>PBR shader matrix · environment mapping · onBeforeCompile injection · deterministic render</p>
+  </div>
+  <canvas id="c" width="1920" height="1080"></canvas>
+  <div class="scanlines"></div>
+</div>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+// ═══════════════════════════════════════════════════════════════
+// æ:// Material Lab — PBR Shader Matrix
+// Semana 3: Materiales y Texturas (onBeforeCompile injection)
+// ═══════════════════════════════════════════════════════════════
+
+var W=1920, H=1080;
+var scene, camera, renderer, clock;
+var frame = 0;
+var materialGrid = [];
+var envMap;
+
+// ── Custom shader injection (onBeforeCompile) ───────────────────
+
+function injectGoldShader(material) {
+  material.onBeforeCompile = function(shader) {
+    shader.uniforms.uTime = { value: 0 };
+    shader.vertexShader = shader.vertexShader.replace(
+      '#include <common>',
+      '#include <common>\nvarying vec3 vWorldPos;'
+    );
+    shader.vertexShader = shader.vertexShader.replace(
+      '#include <worldpos_vertex>',
+      '#include <worldpos_vertex>\nvWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;'
+    );
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <common>',
+      '#include <common>\nvarying vec3 vWorldPos;\nuniform float uTime;'
+    );
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <emissivemap_fragment>',
+      '#include <emissivemap_fragment>\nfloat glow = sin(vWorldPos.x * 0.5 + uTime) * 0.5 + 0.5;\ntotalEmissiveRadiance += vec3(0.83, 0.69, 0.22) * glow * 0.3;'
+    );
+    material.userData.shader = shader;
+  };
+  material.needsUpdate = true;
+}
+
+// ── Environment map (procedural IBL) ───────────────────────────
+
+function createEnvMap() {
+  var size = 512;
+  var data = new Float32Array(size * size * 4);
+  for (var y = 0; y < size; y++) {
+    for (var x = 0; x < size; x++) {
+      var i = (y * size + x) * 4;
+      var u = x / size;
+      var v = y / size;
+      var theta = u * Math.PI * 2;
+      var phi = v * Math.PI;
+      var r = Math.sin(phi) * Math.cos(theta);
+      var g = Math.sin(phi) * Math.sin(theta);
+      var b = Math.cos(phi);
+      var intensity = 0.5 + 0.5 * Math.max(0, b);
+      data[i] = intensity * (0.5 + 0.5 * r);
+      data[i+1] = intensity * (0.5 + 0.5 * g);
+      data[i+2] = intensity * (0.8 + 0.2 * b);
+      data[i+3] = 1.0;
+    }
+  }
+  var tex = new THREE.DataTexture(data, size, size, THREE.RGBAFormat, THREE.FloatType);
+  tex.mapping = THREE.EquirectangularReflectionMapping;
+  tex.needsUpdate = true;
+  return tex;
+}
+
+// ── Material matrix ────────────────────────────────────────────
+
+function createMaterialGrid() {
+  var cols = 5;
+  var rows = 3;
+  var spacing = 6;
+  var startX = -(cols - 1) * spacing / 2;
+  var startY = (rows - 1) * spacing / 2;
+  
+  var gold = new THREE.Color(0xD4AF37);
+  var cyan = new THREE.Color(0x00eaff);
+  var violet = new THREE.Color(0xa050ff);
+  
+  for (var row = 0; row < rows; row++) {
+    for (var col = 0; col < cols; col++) {
+      var geo = new THREE.SphereGeometry(1.8, 32, 32);
+      
+      var metalness = col / (cols - 1);
+      var roughness = 1 - row / (rows - 1);
+      
+      var mat = new THREE.MeshStandardMaterial({
+        color: gold.clone().lerp(cyan, col / (cols - 1)),
+        metalness: metalness,
+        roughness: roughness,
+        envMap: envMap,
+        envMapIntensity: 1.5
+      });
+      
+      if (row === 1 && col === 2) {
+        injectGoldShader(mat);
+      }
+      
+      var mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(startX + col * spacing, startY - row * spacing, 0);
+      mesh.userData = { metalness: metalness, roughness: roughness, col: col, row: row };
+      scene.add(mesh);
+      materialGrid.push(mesh);
+    }
+  }
+}
+
+// ── Scene setup ────────────────────────────────────────────────
+
+function init() {
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0a0f1a);
+  scene.fog = new THREE.Fog(0x0a0f1a, 30, 80);
+  
+  camera = new THREE.PerspectiveCamera(50, W / H, 0.1, 1000);
+  camera.position.set(0, 0, 35);
+  camera.lookAt(0, 0, 0);
+  
+  renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true, alpha: true });
+  renderer.setSize(W, H);
+  renderer.setPixelRatio(1);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.5;
+  
+  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+  var dirLight = new THREE.DirectionalLight(0xD4AF37, 2);
+  dirLight.position.set(10, 20, 15);
+  scene.add(dirLight);
+  var pointLight = new THREE.PointLight(0x00eaff, 1, 50);
+  pointLight.position.set(-10, -10, 10);
+  scene.add(pointLight);
+  
+  envMap = createEnvMap();
+  createMaterialGrid();
+  
+  clock = new THREE.Clock();
+  animate();
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  frame++;
+  var t = clock.getElapsedTime();
+  
+  for (var i = 0; i < materialGrid.length; i++) {
+    var m = materialGrid[i];
+    m.rotation.x = t * 0.3 + m.userData.col * 0.5;
+    m.rotation.y = t * 0.5 + m.userData.row * 0.5;
+    var s = 1 + 0.05 * Math.sin(t * 2 + m.userData.col);
+    m.scale.set(s, s, s);
+  }
+  
+  camera.position.x = Math.sin(t * 0.1) * 3;
+  camera.lookAt(0, 0, 0);
+  
+  renderer.render(scene, camera);
+}
+
+// ── Deterministic render hook ──────────────────────────────────
+
+window.__renderFrame = function(i, total) {
+  if (!renderer) return;
+  var p = i / Math.max(1, total - 1);
+  var t = p * 10;
+  
+  for (var j = 0; j < materialGrid.length; j++) {
+    var m = materialGrid[j];
+    m.rotation.x = t * 0.3 + m.userData.col * 0.5;
+    m.rotation.y = t * 0.5 + m.userData.row * 0.5;
+    var s = 1 + 0.05 * Math.sin(t * 2 + m.userData.col);
+    m.scale.set(s, s, s);
+    if (m.material.userData.shader) {
+      m.material.userData.shader.uniforms.uTime.value = t;
+    }
+  }
+  
+  camera.position.x = Math.sin(t * 0.1) * 3;
+  camera.lookAt(0, 0, 0);
+  
+  renderer.render(scene, camera);
+};
+
+init();
+</script>
+</body>
+</html>

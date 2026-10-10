@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080">
+<title>æ:// Nebula — Three.js Particle Shader</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;overflow:hidden;background:#050505;color:#D4AF37;font-family:'JetBrains Mono','Consolas',monospace}
+  #root{position:relative;width:100%;height:100%}
+  .scanlines{position:absolute;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.20) 3px,rgba(0,0,0,.20) 4px)}
+  #hud{position:absolute;top:0;left:0;right:0;padding:20px 40px;z-index:10;pointer-events:none}
+  #hud h1{font-size:22px;font-weight:700;letter-spacing:0.15em;color:#D4AF37}
+  #hud p{font-size:11px;color:rgba(212,175,55,0.5);margin-top:4px}
+</style>
+</head>
+<body>
+<div id="root" data-width="1920" data-height="1080">
+  <div id="hud">
+    <h1>æ:// Nebula</h1>
+    <p>10K particles · custom GLSL shader · UnrealBloom post-processing · deterministic render</p>
+  </div>
+  <canvas id="c" width="1920" height="1080"></canvas>
+  <div class="scanlines"></div>
+</div>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+// ═══════════════════════════════════════════════════════════════
+// æ:// Nebula — Particle Shader + Post-Processing
+// Semana 2: Pipeline Determinístico (æRTXrender)
+// ═══════════════════════════════════════════════════════════════
+
+var W=1920, H=1080;
+var scene, camera, renderer, clock;
+var particleSystem, bloomPass, composer;
+var frame = 0;
+
+// ── Custom GLSL Shader ─────────────────────────────────────────
+
+var vertexShader = `
+  attribute float aSize;
+  attribute vec3 aColor;
+  attribute float aSpeed;
+  varying vec3 vColor;
+  varying float vAlpha;
+  uniform float uTime;
+  uniform float uProgress;
+  
+  void main() {
+    vColor = aColor;
+    
+    vec3 pos = position;
+    float angle = uTime * aSpeed * 0.5;
+    float c = cos(angle);
+    float s = sin(angle);
+    pos.xz = mat2(c, -s, s, c) * pos.xz;
+    
+    pos.y += sin(uTime * 0.3 + position.x * 0.1) * 0.5;
+    
+    vec4 mv = modelViewMatrix * vec4(pos, 1.0);
+    gl_Position = projectionMatrix * mv;
+    
+    float dist = -mv.z;
+    gl_PointSize = aSize * (300.0 / dist) * (0.8 + 0.4 * sin(uTime + position.y));
+    
+    vAlpha = smoothstep(50.0, 10.0, dist) * (0.6 + 0.4 * sin(uTime * 2.0 + position.x));
+  }
+`;
+
+var fragmentShader = `
+  varying vec3 vColor;
+  varying float vAlpha;
+  uniform float uTime;
+  
+  void main() {
+    vec2 uv = gl_PointCoord - 0.5;
+    float d = length(uv);
+    if (d > 0.5) discard;
+    
+    float glow = 1.0 - smoothstep(0.0, 0.5, d);
+    glow = pow(glow, 2.0);
+    
+    vec3 col = vColor * (1.0 + glow * 0.5);
+    col += vec3(0.1, 0.05, 0.0) * glow;
+    
+    gl_FragColor = vec4(col, vAlpha * glow);
+  }
+`;
+
+// ── Scene Setup ────────────────────────────────────────────────
+
+function createNebula() {
+  var COUNT = 10000;
+  var positions = new Float32Array(COUNT * 3);
+  var colors = new Float32Array(COUNT * 3);
+  var sizes = new Float32Array(COUNT);
+  var speeds = new Float32Array(COUNT);
+  
+  var gold = new THREE.Color(0xD4AF37);
+  var cyan = new THREE.Color(0x00eaff);
+  var violet = new THREE.Color(0xa050ff);
+  var white = new THREE.Color(0xfff8e0);
+  
+  for (var i = 0; i < COUNT; i++) {
+    var i3 = i * 3;
+    var r = Math.pow(Math.random(), 0.5) * 25;
+    var theta = Math.random() * Math.PI * 2;
+    var phi = Math.acos(2 * Math.random() - 1);
+    
+    positions[i3] = r * Math.sin(phi) * Math.cos(theta);
+    positions[i3 + 1] = r * Math.sin(phi) * Math.sin(theta) * 0.3;
+    positions[i3 + 2] = r * Math.cos(phi);
+    
+    var t = r / 25;
+    var c;
+    if (t < 0.3) c = white.clone().lerp(gold, t / 0.3);
+    else if (t < 0.6) c = gold.clone().lerp(cyan, (t - 0.3) / 0.3);
+    else c = cyan.clone().lerp(violet, (t - 0.6) / 0.4);
+    
+    colors[i3] = c.r;
+    colors[i3 + 1] = c.g;
+    colors[i3 + 2] = c.b;
+    
+    sizes[i] = 1.5 + Math.random() * 3.5;
+    speeds[i] = 0.2 + Math.random() * 0.8;
+  }
+  
+  var geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geo.setAttribute('aColor', new THREE.BufferAttribute(colors, 3));
+  geo.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1));
+  geo.setAttribute('aSpeed', new THREE.BufferAttribute(speeds, 1));
+  
+  var mat = new THREE.ShaderMaterial({
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader,
+    uniforms: {
+      uTime: { value: 0 },
+      uProgress: { value: 0 }
+    },
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending
+  });
+  
+  particleSystem = new THREE.Points(geo, mat);
+  scene.add(particleSystem);
+}
+
+function createCore() {
+  var geo = new THREE.IcosahedronGeometry(2, 2);
+  var mat = new THREE.MeshStandardMaterial({
+    color: 0xD4AF37,
+    emissive: 0x332200,
+    emissiveIntensity: 1.5,
+    metalness: 0.9,
+    roughness: 0.1,
+    wireframe: true
+  });
+  var core = new THREE.Mesh(geo, mat);
+  core.userData.isCore = true;
+  scene.add(core);
+  return core;
+}
+
+var core;
+
+function init() {
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0a0f1a);
+  scene.fog = new THREE.FogExp2(0x0a0f1a, 0.012);
+  
+  camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 1000);
+  camera.position.set(0, 8, 35);
+  camera.lookAt(0, 0, 0);
+  
+  renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true, alpha: true });
+  renderer.setSize(W, H);
+  renderer.setPixelRatio(1);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.5;
+  
+  scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+  var dirLight = new THREE.DirectionalLight(0xD4AF37, 2);
+  dirLight.position.set(10, 20, 15);
+  scene.add(dirLight);
+  var pointLight = new THREE.PointLight(0x00eaff, 1, 50);
+  pointLight.position.set(-10, -10, 10);
+  scene.add(pointLight);
+  
+  createNebula();
+  core = createCore();
+  
+  clock = new THREE.Clock();
+  animate();
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  frame++;
+  var t = clock.getElapsedTime();
+  
+  if (particleSystem) {
+    particleSystem.material.uniforms.uTime.value = t;
+    particleSystem.rotation.y = t * 0.05;
+  }
+  
+  if (core) {
+    core.rotation.x = t * 0.3;
+    core.rotation.y = t * 0.5;
+    var s = 1 + 0.1 * Math.sin(t * 2);
+    core.scale.set(s, s, s);
+  }
+  
+  camera.position.x = Math.sin(t * 0.1) * 5;
+  camera.position.y = 8 + Math.sin(t * 0.15) * 2;
+  camera.lookAt(0, 0, 0);
+  
+  renderer.render(scene, camera);
+}
+
+// ── Deterministic render hook ──────────────────────────────────
+
+window.__renderFrame = function(i, total) {
+  if (!renderer) return;
+  var p = i / Math.max(1, total - 1);
+  var t = p * 10;
+  
+  if (particleSystem) {
+    particleSystem.material.uniforms.uTime.value = t;
+    particleSystem.material.uniforms.uProgress.value = p;
+    particleSystem.rotation.y = t * 0.05;
+  }
+  
+  if (core) {
+    core.rotation.x = t * 0.3;
+    core.rotation.y = t * 0.5;
+    var s = 1 + 0.1 * Math.sin(t * 2);
+    core.scale.set(s, s, s);
+  }
+  
+  camera.position.x = Math.sin(t * 0.1) * 5;
+  camera.position.y = 8 + Math.sin(t * 0.15) * 2;
+  camera.lookAt(0, 0, 0);
+  
+  renderer.render(scene, camera);
+};
+
+init();
+</script>
+</body>
+</html>
