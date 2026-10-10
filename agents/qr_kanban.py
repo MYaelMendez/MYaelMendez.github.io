@@ -85,6 +85,7 @@ VERBS = {
     "inspect":  {"needs_id": True,  "desc": "show a task (no mutation)"},
     "list":     {"needs_id": False, "desc": "print the whole board"},
     "init":     {"needs_id": False, "desc": "create kanban.db if missing"},
+    "pledge":   {"needs_id": False, "desc": "commit to the agent pledge"},
 }
 
 
@@ -166,6 +167,18 @@ def dispatch(verb: str, task_id: str | None = None, dry: bool = False,
 
     if spec["needs_id"] and not task_id:
         return {"ok": False, "verb": verb, "error": f"verb '{verb}' needs a task id"}
+
+    # `pledge` is not a kanban subcommand — it is a commitment, handled here.
+    if verb == "pledge":
+        try:
+            import agent_pledge as ap
+            rec = ap.commit(task_id or os.environ.get("AGENT_ID", "hermes"))
+            return {"ok": True, "verb": "pledge", "pledged": True,
+                    "pledge_hash": rec["pledge_hash"], "signed_at": rec["signed_at"],
+                    "stdout": f"committed to the pledge {rec['pledge_hash'][:16]}\n"}
+        except Exception as e:
+            return {"ok": False, "verb": "pledge",
+                    "error": f"pledge failed: {type(e).__name__}: {e}"}
 
     rest = verb + (f" {task_id}" if task_id else "")
 
@@ -296,6 +309,25 @@ def mint_card(verb: str, task_id: str | None, out: str | None = None,
     return {"ok": True, "verb": verb, "task_id": task_id, "envelope": envelope,
             "path": str(dest), "version": qr.version, "supervised": False,
             "signed": bool(signed_info), "signature": signed_info}
+
+
+def require_pledge(agent_id: str | None = None) -> dict:
+    """Gate: refuse to work with an agent that has not committed to the pledge.
+
+    An unpledged agent is refused for that reason — not silently allowed. This
+    is the same ordering rule as the signature gate: authenticate, then act.
+    """
+    try:
+        import agent_pledge as ap
+    except ImportError:
+        return {"ok": False, "error": "agent_pledge not available — cannot check the pledge"}
+    who = agent_id or os.environ.get("AGENT_ID", "hermes")
+    v = ap.verify(who)
+    if not v["ok"]:
+        return {"ok": False, "agent": who, "status": v["status"], "refused": True,
+                "error": f"REFUSED: {who} — {v['reason']}"}
+    return {"ok": True, "agent": who, "status": v["status"],
+            "signed_at": v.get("signed_at")}
 
 
 def read_card(image, upscale: float = 1.5, require_both: bool = False) -> list[dict]:
