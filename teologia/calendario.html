@@ -326,13 +326,13 @@ let cubePositions = [], cubeRotations = [], cubeScales = [];
 let dummy = new THREE.Object3D();
 
 const diceGeometry = new THREE.BoxGeometry(CONFIG.DICE_SIZE, CONFIG.DICE_SIZE, CONFIG.DICE_SIZE, CONFIG.SEGMENTS, CONFIG.SEGMENTS, CONFIG.SEGMENTS);
-const diceMaterial = new THREE.MeshStandardMaterial({ color: 0x050505, metalness: 0.9, roughness: 0.1, emissive: 0x1a0d00, emissiveIntensity: 0.5 });
+const diceMaterial = new THREE.MeshStandardMaterial({ color: 0x2a3040, metalness: 0.8, roughness: 0.2, emissive: 0x2a1a00, emissiveIntensity: 1.2 });
 
 function init() {
   const container = document.getElementById('canvas-container');
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x050505);
-  scene.fog = new THREE.FogExp2(0x050505, 0.08);
+  scene.background = new THREE.Color(0x0a0f1a);
+  scene.fog = new THREE.Fog(0x0a0f1a, 18, 55);
 
   camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.set(0, 0, 40);
@@ -340,7 +340,9 @@ function init() {
   renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(window.devicePixelRatio > 1 ? 1.5 : 1);
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0x050505, 1);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.8;
+  renderer.setClearColor(0x101828, 1);
   container.appendChild(renderer.domElement);
 
   const gl = renderer.getContext();
@@ -350,7 +352,7 @@ function init() {
     document.getElementById('gpu-name').textContent = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) || 'Unknown';
   }
 
-  scene.add(new THREE.AmbientLight(0x404040, 2));
+  scene.add(new THREE.AmbientLight(0xffffff, 1.5));
   const dirLight = new THREE.DirectionalLight(0xD4AF37, 2);
   dirLight.position.set(10, 20, 15);
   scene.add(dirLight);
