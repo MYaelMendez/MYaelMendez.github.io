@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--neon:#00ffa3;--ink:#e6e6e6;--muted:#8b8b8b;}
+body{font-family:'JetBrains Mono',monospace;background:var(--void);color:var(--ink);margin:0;padding:32px;font-size:12px;line-height:1.4;}
+.scanlines{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.2) 2px 4px);}
+.qr-grid{display:grid;grid-template-columns:1fr 1.5fr;gap:24px;max-width:960px;margin:0 auto;position:relative;z-index:2;}
+.qr-card{background:#0a0a0a;border:1px solid var(--gold);border-radius:4px;padding:16px;text-align:center;}
+.qr-card img{max-width:160px;height:auto;margin:8px 0;}
+.qr-card h3{color:var(--gold);font-size:14px;margin:0 0 4px;}
+.qr-card .chain{color:var(--neon);font-family:'Courier New';font-size:11px;}
+.qr-card .gates{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px;}
+.gate{border:1px solid var(--gold);border-radius:3px;padding:4px 8px;text-align:center;}
+.gate .val{color:var(--neon);font-weight:bold;}
+.gate .lbl{color:var(--muted);font-size:10px;}
+.chain-line{position:relative;z-index:2;height:2px;background:linear-gradient(90,var(--gold),var(--neon));margin:16px 0;}
+.chain-link{text-align:center;color:var(--gold);font-size:14px;position:relative;z-index:2;}
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="qr-grid">
+  <div class="qr-card">
+    <h3>1. supervisionvidaeo://receipt</h3>
+    <p style="color:var(--muted);font-size:10px;">video-edit-3d-fleet · AEE cycle PASS</p>
+    <img src="video-edit-3d-fleet-qr.png" alt="QR: ae://receipt/5624ced4">
+    <div class="chain">chain: 5624ced4fccb0f6c</div>
+    <div class="gates">
+      <div class="gate"><div class="lbl">luminancia</div><div class="val">70.21</div></div>
+      <div class="gate"><div class="lbl">contraste</div><div class="val">26.24</div></div>
+      <div class="gate"><div class="lbl">movimiento</div><div class="val">5.858</div></div>
+      <div class="gate"><div class="lbl">frames_negros</div><div class="val">0</div></div>
+    </div>
+  </div>
+
+  <div class="qr-card">
+    <h3>2. supervisionvidaeo://contract</h3>
+    <p style="color:var(--muted);font-size:10px;">8 sections · full API + thresholds</p>
+    <img src="supervisionvidaeo_contract-qr.png" alt="QR: ae://contract/56f71964">
+    <div class="chain">chain: 56f71964dc3fc750</div>
+    <div class="gates">
+      <div class="gate"><div class="lbl">UMBRAL_NEGRO</div><div class="val">12</div></div>
+      <div class="gate"><div class="lbl">LUM_MIN</div><div class="val">20</div></div>
+      <div class="gate"><div class="lbl">CON_MIN</div><div class="val">8</div></div>
+      <div class="gate"><div class="lbl">MOV_MIN</div><div class="val">0.5</div></div>
+    </div>
+  </div>
+
+  <div class="qr-card">
+    <h3>3. vscode://contract</h3>
+    <p style="color:var(--muted);font-size:10px;">13 sections · 7 routes · 24 bindings</p>
+    <img src="vscode_scheme_contract-qr.png" alt="QR: ae://contract/a5e09d94">
+    <div class="chain">chain: a5e09d9428ee52d7</div>
+    <div class="gates">
+      <div class="gate"><div class="lbl">routes</div><div class="val">7</div></div>
+      <div class="gate"><div class="lbl">bindings</div><div class="val">24</div></div>
+      <div class="gate"><div class="lbl">ttl</div><div class="val">30m</div></div>
+      <div class="gate"><div class="lbl">payload</div><div class="val">64KB</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="chain-line"></div>
+<div class="chain-link">5624ced4 → 56f71964 → a5e09d94 ← hash chain</div>
+</body>
+</html>

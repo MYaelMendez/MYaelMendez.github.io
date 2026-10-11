@@ -1,0 +1,43 @@
+{
+  "identity": {
+    "id": "kaenbaen-widget",
+    "version": "1.0.0",
+    "publisher": "yaelmendez",
+    "name": "kænbæn",
+    "glyph": "æ",
+    "created": "2026-10-07T00:00:00Z"
+  },
+  "capability": {
+    "wasm": {
+      "module": "dist/widget_compute.wasm",
+      "hash": "sha256:00d5500a58f66441d0318181da9061f9d36538e0c86c296960be3fd158bb7f2f",
+      "bytes": 7982,
+      "exports": ["wave", "dot", "hash64", "answer"]
+    },
+    "inputs": [
+      { "name": "x", "type": "i32", "desc": "grid column" },
+      { "name": "y", "type": "i32", "desc": "grid row" },
+      { "name": "t", "type": "i32", "desc": "frame index" },
+      { "name": "seed", "type": "i32", "desc": "deterministic seed" }
+    ],
+    "outputs": [
+      { "name": "displacement", "type": "f32", "desc": "mesh Z offset in [-1,1]" }
+    ]
+  },
+  "interface": {
+    "scene": "widget.html",
+    "controls": ["orbit", "zoom", "auto-rotate"],
+    "viewport": "720x1280",
+    "aspect": "9:16",
+    "renderer": "webgl",
+    "three": "r147-umd",
+    "deterministic": true
+  },
+  "trust": {
+    "permissions": ["wasm:instantiate", "render:webgl", "fetch:localhost"],
+    "module_hash": "sha256:00d5500a58f66441d0318181da9061f9d36538e0c86c296960be3fd158bb7f2f",
+    "authority": "human",
+    "checked_independently_of": "qr",
+    "note": "The QR only addresses this manifest. Trust comes from re-hashing the module and comparing to trust.module_hash — the QR can be forged, copied or stale and it does not matter."
+  }
+}
