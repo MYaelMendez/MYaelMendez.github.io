@@ -61,6 +61,34 @@
 .quickbar a:hover{border-color:var(--gold);color:var(--gold);background:rgba(212,175,55,.06)}
 .quickbar a.primary{border-color:rgba(212,175,55,.4);color:var(--gold);font-weight:700}
 .panel-primary{border-color:rgba(212,175,55,.3);box-shadow:0 0 30px rgba(212,175,55,.06)}
+
+/* Domain ticker: directory links, not availability or authority claims. */
+.domain-ticker{border:1px solid var(--border-hot);background:#080808;min-width:0;width:100%;overflow:hidden}
+.domain-ticker-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid var(--border);color:var(--gold);font-size:10px;letter-spacing:1px}
+.domain-ticker-head button{min-height:44px;padding:6px 10px;font:inherit;letter-spacing:0;background:transparent;color:var(--ink);border:1px solid var(--border);border-radius:3px}
+.domain-ticker-window{overflow-x:auto;overflow-y:hidden}
+.domain-ticker-track{display:flex;width:max-content}
+.domain-ticker-list{display:flex;flex-shrink:0;list-style:none;margin:0;padding:0}
+.domain-ticker-list a{display:block;white-space:nowrap;padding:14px 16px;color:var(--ink);text-decoration:none;font-size:12px;line-height:1.5;min-height:46px}
+.domain-ticker-list li:nth-child(3n+1) a{color:#ffd873}
+.domain-ticker-list li:nth-child(3n+2) a{color:#7fd0ff}
+.domain-ticker-list li:nth-child(3n) a{color:#00ff9d}
+.domain-ticker-list a:hover{text-decoration:underline;background:rgba(212,175,55,.08)}
+.domain-ticker a:focus-visible,.domain-ticker button:focus-visible{outline:2px solid #fff;outline-offset:-3px}
+.domain-ticker-copy{display:none}
+.domain-ticker.is-moving .domain-ticker-copy{display:flex}
+.domain-ticker.is-moving .domain-ticker-window{overflow:hidden}
+.domain-ticker.is-moving .domain-ticker-track{animation:domain-ticker-scroll 100s linear infinite}
+.domain-ticker.is-moving:hover .domain-ticker-track{animation-play-state:paused}
+.domain-ticker:focus-within .domain-ticker-track{animation:none;transform:none}
+.domain-ticker:focus-within .domain-ticker-copy{display:none}
+.domain-ticker:focus-within .domain-ticker-window{overflow-x:auto}
+@keyframes domain-ticker-scroll{to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){
+ .domain-ticker.is-moving .domain-ticker-track{animation:none;transform:none}
+ .domain-ticker.is-moving .domain-ticker-copy{display:none}
+ .domain-ticker.is-moving .domain-ticker-window{overflow-x:auto}
+}
 </style>
 </head>
 <body>
@@ -72,6 +100,69 @@
 <span><strong style="display:block;color:#ffda83;font-size:17px">🛸 Launch Pico OS <span style="font-size:11px;color:#8be8ff">↗ PREVIEW</span></strong><small style="display:block;margin-top:5px;color:#d6e5ee;line-height:1.5">🎨 Agentic colored notes · 🟨 Max · 🟦 Fit · 🟩 Min · ♻️ Dock</small><small style="display:block;margin-top:3px;color:#9dc2d0">>_æææ://|||codæmodæ^æQR · HTML prototype</small></span><span style="font-size:28px;color:#ffda83" aria-hidden="true">→</span>
 </a>
 
+
+  <nav class="domain-ticker" id="domain-ticker" aria-label="Ecosystem domains (links open in a new tab)">
+    <div class="domain-ticker-head">
+      <a href="./domain-constellation.html" style="color:var(--gold);padding:10px 0;min-height:44px">codæ:// DOMAIN CONSTELLATION ↗</a>
+      <button type="button" id="domain-ticker-toggle" aria-pressed="false" aria-controls="domain-ticker-window" hidden>Pause ticker</button>
+    </div>
+    <div class="domain-ticker-window" id="domain-ticker-window">
+      <div class="domain-ticker-track">
+        <ul class="domain-ticker-list">
+        <li><a href="https://æææ.com/" target="_blank" rel="noopener noreferrer">æææ.com</a></li>
+        <li><a href="https://soværeign.com/" target="_blank" rel="noopener noreferrer">soværeign.com</a></li>
+        <li><a href="https://cli.llc/" target="_blank" rel="noopener noreferrer">cli.llc</a></li>
+        <li><a href="https://æ.store/" target="_blank" rel="noopener noreferrer">æ.store</a></li>
+        <li><a href="https://llm.store/" target="_blank" rel="noopener noreferrer">llm.store</a></li>
+        <li><a href="https://yæl.com/" target="_blank" rel="noopener noreferrer">yæl.com</a></li>
+        <li><a href="https://æ.me/" target="_blank" rel="noopener noreferrer">æ.me</a></li>
+        <li><a href="https://æl.app/" target="_blank" rel="noopener noreferrer">æl.app</a></li>
+        <li><a href="https://æl.net/" target="_blank" rel="noopener noreferrer">æl.net</a></li>
+        <li><a href="https://commandprompt.ai/" target="_blank" rel="noopener noreferrer">commandprompt.ai</a></li>
+        <li><a href="https://privateclient.ai/" target="_blank" rel="noopener noreferrer">privateclient.ai</a></li>
+        <li><a href="https://daollc.ai/" target="_blank" rel="noopener noreferrer">daollc.ai</a></li>
+        <li><a href="https://teologia.ai/" target="_blank" rel="noopener noreferrer">teologia.ai</a></li>
+        <li><a href="https://teologia.org/" target="_blank" rel="noopener noreferrer">teologia.org</a></li>
+        <li><a href="https://teología.org/" target="_blank" rel="noopener noreferrer">teología.org</a></li>
+        <li><a href="https://teologia.live/" target="_blank" rel="noopener noreferrer">teologia.live</a></li>
+        <li><a href="https://teologia.shop/" target="_blank" rel="noopener noreferrer">teologia.shop</a></li>
+        <li><a href="https://neuromitosis.com/" target="_blank" rel="noopener noreferrer">neuromitosis.com</a></li>
+        <li><a href="https://moltcontextprotocol.com/" target="_blank" rel="noopener noreferrer">moltcontextprotocol.com</a></li>
+        <li><a href="https://molt.photos/" target="_blank" rel="noopener noreferrer">molt.photos</a></li>
+        <li><a href="https://molt.earth/" target="_blank" rel="noopener noreferrer">molt.earth</a></li>
+        <li><a href="https://molt.school/" target="_blank" rel="noopener noreferrer">molt.school</a></li>
+        <li><a href="https://iaamano.com/" target="_blank" rel="noopener noreferrer">iaamano.com</a></li>
+        <li><a href="https://zacapa.ai/" target="_blank" rel="noopener noreferrer">zacapa.ai</a></li>
+        <li><a href="https://aipodcast.me/" target="_blank" rel="noopener noreferrer">aipodcast.me</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+<script>
+(() => {
+  const ticker = document.getElementById('domain-ticker');
+  const button = document.getElementById('domain-ticker-toggle');
+  const track = ticker.querySelector('.domain-ticker-track');
+  const duplicate = ticker.querySelector('.domain-ticker-list').cloneNode(true);
+  duplicate.classList.add('domain-ticker-copy');
+  duplicate.setAttribute('aria-hidden', 'true');
+  duplicate.setAttribute('inert', '');
+  duplicate.querySelectorAll('a').forEach(link => link.tabIndex = -1);
+  track.appendChild(duplicate);
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let paused = false;
+  function update() {
+    const moving = !paused && !motion.matches;
+    ticker.classList.toggle('is-moving', moving);
+    button.hidden = motion.matches;
+    button.setAttribute('aria-pressed', String(paused));
+    button.textContent = paused ? 'Resume ticker' : 'Pause ticker';
+  }
+  button.addEventListener('click', () => { paused = !paused; update(); });
+  motion.addEventListener('change', update);
+  update();
+})();
+</script>
 
   <div class="statusbar">
     <span>codæ:// HOME</span>
