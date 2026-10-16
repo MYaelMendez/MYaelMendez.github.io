@@ -148,3 +148,13 @@ Request: diagnose PR #15 mergeability, test the read-only inspector as far as av
 **Unperformed tests / blockers:** The available execution container could not resolve `raw.githubusercontent.com` (DNS error), so it could not retrieve and host the GitHub head for a local browser test. No browser automation of a branch preview, live HTTP response, QR scan, screen-reader/accessibility audit, responsive layout, JS runtime behavior, or OpenAI Site source/deployment test was performed. The inspector has not been published to the public GitHub Pages branch. The original OpenAI Site does not yet consume this manifest; read-only integration is prepared on GitHub but not end-to-end across both destinations.
 
 **Release gate:** keep PR #15 draft and unmerged until browser tests and source review. Next bounded step: run the branch preview in an HTTP(S) browser, test valid/invalid manifest cases, and connect the original Site to the same public descriptor using its existing editor. No new site, permissions, or private-session transfer.
+
+
+## 12. æSTATE v1 / æQR³ review prototype — 2026-10-16
+
+- Branch `feat/aestate-qr-resume-v1` created from `gh-pages` as a separate review-only workstream. Existing æQR widget at `mcp/aeqr/` was inspected and kept unchanged.
+- Added `aestate/schema.json`, `aestate/checkpoints/emoji-pr19.json`, `aestate/validate.py`, `aestate/index.html`, `aestate/README.md`, and read-only GitHub Action `.github/workflows/ae-state-validate.yml`.
+- The QR generator points to an HTTPS raw GitHub checkpoint address pinned to commit `9ca3b76be1d5bea52dd826b0e8552c74ff1f15bc`; it uses a third-party script at runtime, so QR generation, decoded scan result, public availability, accessibility and external script loading are not yet browser-verified.
+- Connector read-back checked the six source files, checkpoint/schema required keys, noninherited authority, and the pinned QR target. These are source checks, not workflow execution or browser tests.
+- Historical checkpoint describes PR #19 at previously observed head `f7cd5b0`, not a fresh current PR state. A new session must independently recheck PR and permissions.
+- No merge, deployment, private conversation export, provider credential transfer or ChatGPT session restoration has been performed. The state contract is a public reference, not identity or authority proof.
