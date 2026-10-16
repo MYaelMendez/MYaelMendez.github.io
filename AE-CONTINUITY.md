@@ -148,3 +148,12 @@ Request: diagnose PR #15 mergeability, test the read-only inspector as far as av
 **Unperformed tests / blockers:** The available execution container could not resolve `raw.githubusercontent.com` (DNS error), so it could not retrieve and host the GitHub head for a local browser test. No browser automation of a branch preview, live HTTP response, QR scan, screen-reader/accessibility audit, responsive layout, JS runtime behavior, or OpenAI Site source/deployment test was performed. The inspector has not been published to the public GitHub Pages branch. The original OpenAI Site does not yet consume this manifest; read-only integration is prepared on GitHub but not end-to-end across both destinations.
 
 **Release gate:** keep PR #15 draft and unmerged until browser tests and source review. Next bounded step: run the branch preview in an HTTP(S) browser, test valid/invalid manifest cases, and connect the original Site to the same public descriptor using its existing editor. No new site, permissions, or private-session transfer.
+
+
+## $💬 skill clone · OpenAI / æ path · 2026-10-16
+
+- Created review branch `feat/openai-ae-child-chat` from `gh-pages`; added `openai/æ/index.html` as a mobile-first GitHub source landing for the proposed `/openai/æ/` route.
+- Added an extracted, text-based clone of the validated `child-chat` Skill under `openai/æ/child-chat/`: `SKILL.md`, `agents/openai.yaml`, and `references/state-contract.md`. The canonical symbolic entry is `$💬^($æ^$cli.llc)` with right-associative exponential composition.
+- The landing links to the Skill source and nonsecret state contract; it preserves `/openai/` and links to the **existing** OpenAI-hosted æ Studio as a separate destination. No duplicate OpenAI Site created.
+- Source review/read-back required for final verification. Branch and source creation do not imply GitHub Pages deployment, custom-domain DNS routing, active ChatGPT Skill installation, automatic nested sessions, or GitHub Actions execution.
+- Preserve the invariant: **Context may propagate; authority does not.**
