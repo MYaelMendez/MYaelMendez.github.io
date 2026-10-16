@@ -172,3 +172,10 @@ Request: diagnose PR #15 mergeability, test the read-only inspector as far as av
 - Patched `openai/æ/index.html` on PR #21 to use nested accessible HTML/CSS superscripts `CHAT^(æ^CLI)` with fluid mobile sizing and an explicit right-associative accessibility label, avoiding reliance on MathJax/KaTeX or external runtime.
 - This fixes the GitHub-source representation only; it is **not** a patch to the native ChatGPT renderer or the existing OpenAI-hosted monosite.
 - Source read-back required; visual mobile browser and public deployment not verified.
+
+
+## Native^SVG power tower · 2026-10-16
+
+- Replaced the earlier CSS text superscript tower on `openai/æ/index.html` with responsive inline native SVG. The SVG includes title, description, viewBox, and a textual right-associative fallback `CHAT^(æ^CLI)`.
+- Purpose: avoid client-specific LaTeX parsing failures documented in the user's iPhone screenshot. This affects the GitHub-source landing, **not** the native ChatGPT renderer or existing OpenAI-hosted Site.
+- Source read-back verified SVG markup and accessibility labels. Browser rendering, Pages publication, and OpenAI Site update remain unverified.
