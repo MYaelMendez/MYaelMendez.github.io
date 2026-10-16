@@ -179,3 +179,11 @@ Request: diagnose PR #15 mergeability, test the read-only inspector as far as av
 - Replaced the earlier CSS text superscript tower on `openai/æ/index.html` with responsive inline native SVG. The SVG includes title, description, viewBox, and a textual right-associative fallback `CHAT^(æ^CLI)`.
 - Purpose: avoid client-specific LaTeX parsing failures documented in the user's iPhone screenshot. This affects the GitHub-source landing, **not** the native ChatGPT renderer or existing OpenAI-hosted Site.
 - Source read-back verified SVG markup and accessibility labels. Browser rendering, Pages publication, and OpenAI Site update remain unverified.
+
+
+## Codex × Dots integration · 2026-10-16
+
+- Added `openai/æ/CODEX-DOTS.md` to PR #21, defining a bounded Codex engineering handoff plus optional ongoing Dots stewardship without grants inherited from the page.
+- Linked the integration contract and setup paths from `openai/æ/index.html`. Codex or Dots connection, Dots eligibility, task execution, and authenticated sharing are **not verified** by the repository additions.
+- The supported first vertical slice is: human authorizes narrow Codex repo inspection → tested diff and receipt → human review → optional dot follow-up where eligible → æSTATE/æQR³ handoff after actual publication and scan tests.
+- This preserves the original OpenAI Site, ChatGPT conversation and GitHub workstreams; source read-back and a real browser test remain separate milestones.
