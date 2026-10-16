@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aeqr-vision-mcp"
+version = "0.1.0"
+description = "Local QR observations and XYZ reference over MCP; evidence is not authority"
+requires-python = ">=3.11"
+dependencies = ["mcp>=1.12,<2", "Pillow>=11,<13", "zxing-cpp>=2.2,<3"]
+
+[project.optional-dependencies]
+test = ["qrcode>=8,<9"]
+
+[project.scripts]
+aeqr-vision-mcp = "aeqr_vision_mcp.server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
