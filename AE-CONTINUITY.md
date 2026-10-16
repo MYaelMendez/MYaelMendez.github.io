@@ -164,3 +164,11 @@ Request: diagnose PR #15 mergeability, test the read-only inspector as far as av
 - Proposed explicit mode router `CHAT^chat|site|@GitHub.io`; `^` composes, `|` selects one surface. Do not interpret this as native ChatGPT mode switching or synchronized authentication.
 - Added `openai/æ/CHAT-MODES.md` and navigation links in `openai/æ/index.html` on PR #21. Chat remains a usable destination; Site points to original OpenAI monosite; @GitHub.io points to repository source, not an unverified Pages deployment.
 - Verification: GitHub source read-back pending for updated UI. No browser test, merge, GitHub Pages publication, site update, or cross-session sync performed.
+
+
+## Math power-tower rendering patch · 2026-10-16
+
+- User mobile screenshot showed raw LaTeX in a ChatGPT response. Native ChatGPT math rendering is not controlled by this repository.
+- Patched `openai/æ/index.html` on PR #21 to use nested accessible HTML/CSS superscripts `CHAT^(æ^CLI)` with fluid mobile sizing and an explicit right-associative accessibility label, avoiding reliance on MathJax/KaTeX or external runtime.
+- This fixes the GitHub-source representation only; it is **not** a patch to the native ChatGPT renderer or the existing OpenAI-hosted monosite.
+- Source read-back required; visual mobile browser and public deployment not verified.
