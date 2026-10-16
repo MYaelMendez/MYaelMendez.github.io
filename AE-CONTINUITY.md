@@ -148,3 +148,12 @@ Request: diagnose PR #15 mergeability, test the read-only inspector as far as av
 **Unperformed tests / blockers:** The available execution container could not resolve `raw.githubusercontent.com` (DNS error), so it could not retrieve and host the GitHub head for a local browser test. No browser automation of a branch preview, live HTTP response, QR scan, screen-reader/accessibility audit, responsive layout, JS runtime behavior, or OpenAI Site source/deployment test was performed. The inspector has not been published to the public GitHub Pages branch. The original OpenAI Site does not yet consume this manifest; read-only integration is prepared on GitHub but not end-to-end across both destinations.
 
 **Release gate:** keep PR #15 draft and unmerged until browser tests and source review. Next bounded step: run the branch preview in an HTTP(S) browser, test valid/invalid manifest cases, and connect the original Site to the same public descriptor using its existing editor. No new site, permissions, or private-session transfer.
+
+## 12. Emoji plugin public-site corrections — 2026-10-16
+
+- Review PR: https://github.com/MYaelMendez/MYaelMendez.github.io/pull/19, branch `feat/emoji-plugin-public-pages`. Draft publication work only; no approval, merge or deployment was authorized.
+- Corrected `emoji-plugins/privacy/index.html` to remove the assumption that GitHub Pages is the production host and explicitly mark infrastructure logging/retention unknown.
+- Chose `emoji-plugins/index.html` as the canonical directory source, deleted redundant `emoji-plugins/index/index.html`, and changed navigation references on the landing and notice pages to the canonical parent directory.
+- Added `emoji-plugins/RELEASE-VERIFICATION.md` with the unresolved Cloudflare deployment check, actual-host/data-handling investigation, legal review, browser access checks and llm.store overlay readiness gates.
+- GitHub connector successfully returned commit SHAs for edits/deletion and source read-backs. No browser-level deployment verification or Cloudflare provider-log inspection was completed. A failed Cloudflare Workers build is reported externally; source alone does not identify root cause or hosting provider.
+- Four source plugins and publication overlays in `MYaelMendez/llm.store` were not modified; preserve `draft_not_submitted`. Publisher identity, rights, countries, commerce and portal attestations require separate decisions.
