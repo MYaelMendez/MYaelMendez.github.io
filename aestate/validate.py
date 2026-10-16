@@ -14,7 +14,7 @@ def validate(state):
         raise ValueError("Unexpected or missing top-level fields")
     if state["schema"] != "ae.state.v1" or not re.fullmatch(r"[a-z0-9-]+", state["id"]):
         raise ValueError("Invalid schema or ID")
-    if not re.fullmatch(r"\\d{4}-\\d{2}-\\d{2}", state["created_on"]):
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", state["created_on"]):
         raise ValueError("Invalid date")
     if not isinstance(state["environment"], str) or not state["environment"].strip():
         raise ValueError("Empty environment")
