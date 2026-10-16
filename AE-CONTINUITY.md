@@ -195,3 +195,11 @@ Request: diagnose PR #15 mergeability, test the read-only inspector as far as av
 - Added `openai/æ/agentic-electronic/index.html` on the existing PR #21 review branch. It uses responsive native inline SVG, surface and nano-command selectors, a local intent composer, a plain-text copyable handoff, and explicit links to the current ChatGPT entrance, original OpenAI-hosted Site and source PR.
 - Linked this page from `openai/æ/index.html` without removing prior tools. The page is static; the composer **prepares** prompts locally, never executes third-party operations or transfers private conversation state.
 - No merge, deployment, new OpenAI Site, Codex task, Dots agent, public QR, or external service invocation was authorized or performed. Browser tests and published URL remain pending; source-readback evidence will be recorded separately.
+
+
+## 🫵OS startup scene · 2026-10-16
+
+- Added `openai/æ/start/index.html` to existing draft PR #21. The name-first onboarding scene says 'Change the 🫵 to your name to start', includes accessible right-associative native SVG, editable personal display name, three explanatory steps, human-governed capability selection explanation and copyable startup command.
+- Designed with restrained ChatGPT-inspired neutral styling while displaying an explicit **independent project** disclaimer. It does not claim OpenAI endorsement or embed OpenAI marks.
+- Linked `./start/` from `openai/æ/index.html`; preserves the existing hosted æ Studio link and the agentic-electronic Nano Composer.
+- Site source remains in the GitHub **draft** branch. No original OpenAI Site edit, GitHub merge, Pages deploy, ChatGPT account linking, plugin activation or QR runtime has occurred. GitHub source readback is required; browser/mobile experience is not verified.
