@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>æ://CINEMATIC · Sovereign Viewport 16:9</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#050505; --gold:#D4AF37; --gold-dim:#8a7022; --gold-bright:#f5d760;
+    --text:#e8e8e8; --muted:#555; --line:#1a1a1a; --g2:#111; --g3:#0a0a0a;
+    --cyan:#00e5ff; --neon:#39ff14; --violet:#bf5af2;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:var(--void);color:var(--text);font-family:'JetBrains Mono',monospace;overflow:hidden;height:100%;width:100%}
+
+  /* ── motion baseline ── */
+  @keyframes breathe{0%,100%{opacity:.85}50%{opacity:1}}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+  @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+  @keyframes colorShift{0%{color:var(--gold)}33%{color:var(--cyan)}66%{color:var(--neon)}100%{color:var(--gold)}}
+  @keyframes glow{0%,100%{box-shadow:0 0 8px var(--gold-dim)}50%{box-shadow:0 0 22px var(--gold)}}
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes lineFlow{0%{background-position:0% 0}100%{background-position:200% 0}}
+  @keyframes scanline{0%{top:-10%}100%{top:110%}}
+  @keyframes warp{0%{transform:translateX(0) scaleX(1)}50%{transform:translateX(-2%) scaleX(1.01)}100%{transform:translateX(0) scaleX(1)}}
+  @keyframes authorityPulse{
+    0%,100%{box-shadow:inset 0 0 0 1px var(--gold-dim)}
+    50%{box-shadow:inset 0 0 0 1px var(--gold), 0 0 30px rgba(212,175,55,.15)}
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  }
+
+  /* ── 16:9 cinematic frame ── */
+  #cinema{
+    position:fixed;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(ellipse at 50% 40%,#0d0d0d 0%,var(--void) 70%);
+  }
+  #frame{
+    position:relative;
+    width:min(96vw, 177.78vh);  /* 16:9 = width = height * 16/9 */
+    height:min(96vh, 56.25vw);  /* 9:16 inverse */
+    max-width:1920px;max-height:1080px;
+    background:var(--void);
+    border:1px solid var(--gold-dim);
+    border-radius:6px;
+    overflow:hidden;
+    box-shadow:0 0 80px rgba(212,175,55,.06), 0 0 0 1px rgba(212,175,55,.1);
+  }
+
+  /* letterbox bars (cinematic) */
+  #frame::before, #frame::after{
+    content:"";position:absolute;left:0;right:0;height:6.5%;z-index:50;pointer-events:none;
+    background:var(--void);
+  }
+  #frame::before{top:0}
+  #frame::after{bottom:0}
+
+  /* scanline overlay */
+  #frame .scanline{
+    position:absolute;left:0;right:0;height:8%;z-index:40;pointer-events:none;
+    background:linear-gradient(to bottom,transparent,rgba(212,175,55,.03),transparent);
+    animation:scanline 6s linear infinite;
+  }
+
+  /* ── spatial grid ── */
+  #spatial{
+    position:absolute;inset:0;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    grid-template-rows:repeat(3,1fr);
+    gap:1px;
+    background:var(--line);
+    opacity:.35;
+  }
+  #spatial .cell{
+    background:var(--void);
+    position:relative;
+    transition:background .4s, box-shadow .4s;
+  }
+  #spatial .cell.active{
+    background:#0a0a0a;
+    box-shadow:inset 0 0 40px rgba(212,175,55,.08);
+  }
+  #spatial .cell .coord{
+    position:absolute;top:6px;left:8px;font-size:9px;color:#333;letter-spacing:.15em;
+  }
+
+  /* ── authority rails ── */
+  .rail-vertical{
+    position:absolute;left:0;right:0;height:1px;z-index:20;
+    background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);
+    background-size:200% 100%;animation:lineFlow 4s linear infinite;
+  }
+  .rail-horizontal{
+    position:absolute;top:0;bottom:0;width:1px;z-index:20;
+    background:linear-gradient(to bottom,transparent,var(--gold-dim),transparent);
+    background-size:100% 200%;animation:lineFlow 5s linear infinite;
+  }
+
+  /* ── content zones ── */
+  #viewport{
+    position:absolute;inset:0;z-index:10;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:8% 6%;
+  }
+  .eyebrow{font-size:clamp(9px,1.1vw,13px);letter-spacing:.4em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:clamp(8px,1.2vh,16px);animation:colorShift 7s ease infinite}
+  .title{
+    font-family:'Orbitron',sans-serif;font-weight:900;
+    font-size:clamp(28px,5.5vw,80px);
+    line-height:.88;letter-spacing:-.03em;
+    color:var(--gold);text-shadow:0 0 60px rgba(212,175,55,.3);
+    animation:pulse 5s ease-in-out infinite;
+  }
+  .subtitle{font-size:clamp(10px,1.3vw,16px);color:#777;margin-top:clamp(8px,1.2vh,18px);max-width:680px;line-height:1.55;animation:breathe 6s ease-in-out infinite}
+
+  /* execution rail */
+  .rail{
+    display:flex;gap:clamp(6px,.8vw,14px);flex-wrap:wrap;justify-content:center;
+    margin:clamp(10px,1.6vh,24px) auto 0;max-width:90%;
+  }
+  .node{
+    padding:clamp(6px,.9vh,12px) clamp(10px,1.4vw,18px);
+    border:1px solid var(--gold-dim);border-radius:10px;background:var(--g3);
+    font-size:clamp(8px,1vw,13px);letter-spacing:.14em;text-transform:uppercase;color:#aaa;
+    transition:all .3s;cursor:pointer;
+  }
+  .node:hover,.node.active{border-color:var(--gold);color:var(--gold);box-shadow:0 0 18px rgba(212,175,55,.2)}
+  .arrow{color:#333;font-size:clamp(12px,1.6vw,22px);align-self:center}
+
+  /* evidence rail */
+  .evidence{
+    display:flex;gap:clamp(8px,1.2vw,18px);flex-wrap:wrap;justify-content:center;
+    margin:clamp(10px,1.6vh,22px) auto 0;max-width:92%;
+  }
+  .ev{
+    padding:clamp(8px,1.1vh,14px) clamp(10px,1.4vw,16px);
+    background:var(--g3);border:1px solid var(--line);border-radius:8px;
+    min-width:clamp(80px,12vw,140px);
+  }
+  .ev .k{font-size:clamp(7px,.85vw,10px);letter-spacing:.18em;text-transform:uppercase;color:#555;margin-bottom:3px}
+  .ev .v{font-size:clamp(14px,2vw,26px);font-weight:700;color:var(--gold)}
+
+  /* spatial telemetry */
+  #telemetry{
+    position:absolute;bottom:8%;left:50%;transform:translateX(-50%);z-index:15;
+    font-size:clamp(8px,.9vw,11px);color:#444;letter-spacing:.18em;text-transform:uppercase;
+  }
+
+  /* ticker bottom */
+  .ticker-wrap{position:absolute;bottom:0;left:0;right:0;z-index:30;height:5%;overflow:hidden;background:#060606;border-top:1px solid var(--gold-dim);display:flex;align-items:center}
+  .ticker{display:inline-block;white-space:nowrap;animation:ticker 24s linear infinite;font-size:clamp(7px,.85vw,10px)}
+  .ticker span{display:inline-block;padding:0 20px;color:var(--gold);letter-spacing:.15em;text-transform:uppercase}
+  .ticker span.sep{color:#333}
+
+  /* ── æQR badge ── */
+  #ae-qr-badge{
+    position:fixed;bottom:16px;right:16px;z-index:99999;
+    width:56px;height:56px;border:1px solid var(--gold);border-radius:8px;
+    background:var(--void);padding:4px;display:block;text-decoration:none;
+    transition:transform .25s,box-shadow .25s;
+  }
+  #ae-qr-badge:hover{transform:scale(1.1);box-shadow:0 0 22px var(--gold)}
+  #ae-qr-badge img{width:100%;height:100%;display:block;border-radius:4px}
+
+  /* authority band colors */
+  .band-æ0{color:#D4AF37}
+  .band-æ1{color:var(--cyan)}
+  .band-æ2{color:var(--neon)}
+  .band-æ3{color:var(--violet)}
+
+  footer{position:absolute;top:8%;right:3%;z-index:15;font-size:clamp(7px,.8vw,10px);color:#333;letter-spacing:.15em;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<div id="cinema">
+  <div id="frame" role="img" aria-label="æ sovereign viewport 16:9 cinematic">
+
+    <!-- spatial grid: 4×3 = 12 cells = spatial innovation -->
+    <div id="spatial" aria-hidden="true"></div>
+
+    <!-- authority rails -->
+    <div class="rail-vertical" style="top:33.33%" aria-hidden="true"></div>
+    <div class="rail-vertical" style="top:66.66%" aria-hidden="true"></div>
+    <div class="rail-horizontal" style="left:25%" aria-hidden="true"></div>
+    <div class="rail-horizontal" style="left:50%" aria-hidden="true"></div>
+    <div class="rail-horizontal" style="left:75%" aria-hidden="true"></div>
+
+    <!-- scanline (motion baseline) -->
+    <div class="scanline" aria-hidden="true"></div>
+
+    <!-- viewport content -->
+    <div id="viewport">
+      <div class="eyebrow">æ://SOVEREIGN VIEWPORT · 16:9 · CINEMATIC · FIXED</div>
+      <h1 class="title">SPACE<br>AS<br>AUTHORITY</h1>
+      <p class="subtitle">
+        This frame is not a container. It is a coordinate system.
+        Navigate with <strong>WASD</strong> or <strong>←→↑↓</strong>.
+        The <strong>æ</strong> axis is the fourth dimension you steer by hand.
+        Every cell has a zone. Every zone has a gate.
+      </p>
+
+      <!-- execution rail: baseline -->
+      <div class="rail" role="list" aria-label="execution rail">
+        <div class="node band-æ0" role="listitem">æ0 DISCOVER</div>
+        <span class="arrow" aria-hidden="true">→</span>
+        <div class="node band-æ1" role="listitem">æ1 AUTH</div>
+        <span class="arrow" aria-hidden="true">→</span>
+        <div class="node band-æ2" role="listitem">æ2 EXECUTE</div>
+        <span class="arrow" aria-hidden="true">→</span>
+        <div class="node band-æ3" role="listitem">æ3 WITNESS</div>
+      </div>
+
+      <!-- measured evidence: real numbers, not claims -->
+      <div class="evidence" aria-label="measured evidence">
+        <div class="ev"><div class="k">AEE Freq</div><div class="v">104.66 MHz</div></div>
+        <div class="ev"><div class="k">Llamacpp</div><div class="v">18.4 t/s</div></div>
+        <div class="ev"><div class="k">Luminancia</div><div class="v">39.1</div></div>
+        <div class="ev"><div class="k">RTX Leaf</div><div class="v">3050</div></div>
+        <div class="ev"><div class="k">Frames</div><div class="v">450</div></div>
+      </div>
+    </div>
+
+    <!-- spatial telemetry readout -->
+    <div id="telemetry" aria-live="polite">x:0 · y:0 · z:0 · æ:0</div>
+
+    <!-- ticker: motion = direction, not execution -->
+    <div class="ticker-wrap" role="marquee" aria-label="live telemetry ticker">
+      <div class="ticker">
+        <span>æ://CINEMATIC VIEWPORT</span><span class="sep">·</span>
+        <span>16:9 FIXED FRAME</span><span class="sep">·</span>
+        <span>SPATIAL AUTHORITY ONLINE</span><span class="sep">·</span>
+        <span>WASD → NAVIGATE</span><span class="sep">·</span>
+        <span>æ AXIS = 4TH DIMENSION</span><span class="sep">·</span>
+        <span>+MyaelMendez · PRINCIPAL</span><span class="sep">·</span>
+        <span>æ://CINEMATIC VIEWPORT</span><span class="sep">·</span>
+        <span>16:9 FIXED FRAME</span><span class="sep">·</span>
+        <span>SPATIAL AUTHORITY ONLINE</span><span class="sep">·</span>
+        <span>WASD → NAVIGATE</span><span class="sep">·</span>
+        <span>æ AXIS = 4TH DIMENSION</span><span class="sep">·</span>
+        <span>+MyaelMendez · PRINCIPAL</span><span class="sep">·</span>
+      </div>
+    </div>
+
+    <footer>æ://CINEMATIC · 16:9 · FIXED</footer>
+  </div>
+</div>
+
+<!-- æQR badge: verification-link pattern -->
+<a id="ae-qr-badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Fcinematic-space.html" target="_blank" rel="noopener" aria-label="Verify this surface">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=56x56&data=https%3A%2F%2Fmyaelmendez.github.io%2Fverify.html%3Furl%3Dhttps%253A%252F%252Fmyaelmendez.github.io%252Fcinematic-space.html&bgcolor=050505&color=D4AF37" alt="QR verify" width="56" height="56">
+</a>
+
+<script>
+(function(){
+  'use strict';
+
+  // ── 12-cell spatial grid ──
+  const spatial = document.getElementById('spatial');
+  const cells = [];
+  const COLS = 4, ROWS = 3;
+  const ZONES = [
+    {name:'PUBLIC',       band:'æ0', color:'#D4AF37'},
+    {name:'PUBLISHED',    band:'æ1', color:'#00e5ff'},
+    {name:'OPERATOR',     band:'æ2', color:'#39ff14'},
+    {name:'CUSTODY',      band:'æ3', color:'#bf5af2'},
+  ];
+
+  // authority thresholds per zone
+  const ZONE_THRESHOLD = [0, 3, 6, 9]; // minimum æ value to enter zone
+
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.x = c;
+      cell.dataset.y = r;
+      const idx = r * COLS + c;
+      const zone = ZONES[Math.min(Math.floor(idx / 3), 3)];
+      cell.dataset.zone = zone.name;
+      cell.dataset.band = zone.band;
+      cell.dataset.auth = ZONE_THRESHOLD[ZONES.indexOf(zone)];
+      const coord = document.createElement('div');
+      coord.className = 'coord';
+      coord.textContent = `x:${c}:y:${r}:z:${idx % 3}:${zone.band}`;
+      cell.appendChild(coord);
+      spatial.appendChild(cell);
+      cells.push(cell);
+    }
+  }
+
+  // ── cursor state ──
+  let cx = 0, cy = 0, cz = 0, ca = 0;
+  const telemetry = document.getElementById('telemetry');
+
+  function getCell(x, y) { return cells[y * COLS + x]; }
+
+  function updateCursor() {
+    cells.forEach(c => c.classList.remove('active'));
+    const cell = getCell(cx, cy);
+    if (cell) {
+      cell.classList.add('active');
+      const auth = parseInt(cell.dataset.auth);
+      if (ca < auth) {
+        // gate: cannot cross without authorization
+        cell.style.boxShadow = 'inset 0 0 0 2px #ff3333';
+        telemetry.textContent = `x:${cx} · y:${cy} · z:${cz} · æ:${ca} · ⚠ GATE: ${cell.dataset.band} requires æ${auth}`;
+        telemetry.style.color = '#ff3333';
+      } else {
+        cell.style.boxShadow = '';
+        telemetry.textContent = `x:${cx} · y:${cy} · z:${cz} · æ:${ca} · ${cell.dataset.zone}`;
+        telemetry.style.color = '';
+      }
+    }
+  }
+
+  function move(dx, dy) {
+    const nx = Math.max(0, Math.min(COLS - 1, cx + dx));
+    const ny = Math.max(0, Math.min(ROWS - 1, cy + dy));
+    if (nx !== cx || ny !== cy) {
+      cx = nx; cy = ny; cz = (cy * COLS + cx) % 3;
+      updateCursor();
+    }
+  }
+
+  // ── keyboard: WASD + arrows ──
+  document.addEventListener('keydown', (e) => {
+    const k = e.key.toLowerCase();
+    if (k === 'w' || k === 'arrowup')    { e.preventDefault(); move(0, -1); }
+    if (k === 's' || k === 'arrowdown')  { e.preventDefault(); move(0, 1); }
+    if (k === 'a' || k === 'arrowleft')  { e.preventDefault(); move(-1, 0); }
+    if (k === 'd' || k === 'arrowright') { e.preventDefault(); move(1, 0); }
+    // æ axis: Q/E
+    if (k === 'q') { ca = Math.max(0, ca - 1); updateCursor(); }
+    if (k === 'e') { ca = Math.min(9, ca + 1); updateCursor(); }
+  });
+
+  // ── touch: swipe ──
+  let tx = 0, ty = 0;
+  document.addEventListener('touchstart', (e) => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, {passive:true});
+  document.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - tx;
+    const dy = e.changedTouches[0].clientY - ty;
+    if (Math.abs(dx) > Math.abs(dy)) move(dx > 20 ? 1 : dx < -20 ? -1 : 0, 0);
+    else move(0, dy > 20 ? 1 : dy < -20 ? -1 : 0);
+  }, {passive:true});
+
+  // init
+  updateCursor();
+
+  // ── motion baseline: idle pulse on title even when no input ──
+  // (animation already on .title via CSS — this confirms alive state)
+  console.log('[cinematic] æ://VIEWPORT READY · 16:9 · 12 cells · WASD+QE');
+})();
+</script>
+</body>
+</html>
