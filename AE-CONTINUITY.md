@@ -148,3 +148,16 @@ Request: diagnose PR #15 mergeability, test the read-only inspector as far as av
 **Unperformed tests / blockers:** The available execution container could not resolve `raw.githubusercontent.com` (DNS error), so it could not retrieve and host the GitHub head for a local browser test. No browser automation of a branch preview, live HTTP response, QR scan, screen-reader/accessibility audit, responsive layout, JS runtime behavior, or OpenAI Site source/deployment test was performed. The inspector has not been published to the public GitHub Pages branch. The original OpenAI Site does not yet consume this manifest; read-only integration is prepared on GitHub but not end-to-end across both destinations.
 
 **Release gate:** keep PR #15 draft and unmerged until browser tests and source review. Next bounded step: run the branch preview in an HTTP(S) browser, test valid/invalid manifest cases, and connect the original Site to the same public descriptor using its existing editor. No new site, permissions, or private-session transfer.
+
+
+## 12. Emoji plugin pages checkpoint — 2026-10-16
+
+Request: address the engineering portions of the four blockers raised for PR #19 while keeping the PR unmerged and the plugins unsubmitted.
+
+- PR #19 was rechecked at head `96b11615476204e7258f470b1d3c9eddcd8c3627`: open, draft and unmerged. Its `Workers Builds: hermes` check failed. The check links to a Cloudflare dashboard build, but GitHub's job-log endpoint returned 404 and the dashboard hostname could not be resolved from this environment. No failure output or provider-side build configuration was available; the Workers build failure is **not diagnosed or repaired**.
+- The exact PR head contains no root `wrangler.toml`, `wrangler.jsonc`, `wrangler.json`, `package.json`, or `worker-configuration.d.ts`; searches found no Wrangler configuration. This does not establish the external Cloudflare project's build settings. No build configuration was guessed or added.
+- This changeset uses `/emoji-plugins/` as its sole landing page (`emoji-plugins/index.html`). Product, support, privacy and terms pages link back to that directory; it does not include `/emoji-plugins/index/`. These changes are prepared on the current task branch; PR #19's head has not been modified.
+- The privacy page says hosting and delivery are unverified and does not assert GitHub Pages logging as the serving infrastructure. Support arrangement and terms remain expressly draft pending publisher confirmation/legal review; no approval is implied.
+- Source change is limited to the static plugin documentation pages and this continuity record. No hosting configuration, external provider setting, publication overlay, Site project, or plugin package was changed.
+- **Checks:** source-level route and draft-status assertions passed for the eight pages on this branch. No browser test, external hosting verification, deployment, legal review, publisher attestation, merge, or submission was performed.
+- **Remaining blockers:** apply these page corrections to PR #19; obtain Cloudflare build logs/provider settings and repair the actual failure; verify the served host and its data practices before final privacy language; publisher must approve support and final terms, confirm identity, distribution countries, commerce status and redistribution rights.
