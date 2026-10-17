@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>PRIVATE CLIENT · æ:// · Internet of Agents</title>
+<link rel="alternate" type="application/json" href="/.well-known/agent-card.json" title="agent card">
+<style>
+:root{--cy:#00f3ff;--cu:#b87333;--gr:#39ff88;--am:#ffb000;--rd:#ff5a4d;--bg:#000;--pn:#07090d;--ln:rgba(0,243,255,.22);--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;--sans:-apple-system,system-ui,"Segoe UI",sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:#e8f6f7;font-family:var(--mono);-webkit-text-size-adjust:100%}
+body{min-height:100dvh;padding:max(14px,env(safe-area-inset-top)) 14px calc(84px + env(safe-area-inset-bottom));background-image:linear-gradient(rgba(0,243,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,243,255,.05) 1px,transparent 1px);background-size:28px 28px}
+main{max-width:560px;margin:0 auto}
+header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+header svg{width:58px;flex:none}
+header h1{font-size:15px;letter-spacing:.14em;color:var(--cy)}
+header p{font-size:12px;opacity:.65;margin-top:3px}
+#mode{margin-left:auto;font-size:10px;border:1px solid var(--am);color:var(--am);padding:3px 6px;border-radius:3px;white-space:nowrap}
+.card{background:var(--pn);border:1px solid var(--ln);border-radius:10px;padding:16px;margin-bottom:12px}
+.card h2{font-size:12px;letter-spacing:.16em;color:var(--cy);margin-bottom:10px;font-weight:600}
+.card p,.card li{font-size:14px;line-height:1.5}
+.lead{font-family:var(--sans);font-size:22px!important;font-weight:800;line-height:1.2!important;color:#fff;margin-bottom:8px}
+.dim{opacity:.62;font-size:12px!important}
+.doors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.door{min-height:132px;border-radius:10px;border:1px solid var(--ln);background:#0b0e14;color:#fff;font:inherit;text-align:left;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:6px}
+.door b{font-size:26px}.door span{font-family:var(--sans);font-weight:700;font-size:16px}.door small{font-size:12px;opacity:.65;line-height:1.35}
+.door.h{border-color:#0a66c2}
+#bigface{display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;padding:6px 0 14px;border-radius:14px}
+#bigface svg{width:min(58vw,250px);height:auto}
+#bigface p{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;margin-top:10px}
+#bigface small{font-size:12px;opacity:.65;margin-top:4px;max-width:24em;line-height:1.4}
+#bigface:focus-visible{outline:2px solid #fff;outline-offset:4px}
+#bvisor{animation:vz 2.4s ease-in-out infinite}@keyframes vz{50%{stroke-opacity:.35}}
+.door.wide{width:100%;min-height:0;flex-direction:row;align-items:center;flex-wrap:wrap;gap:4px 10px}.door.wide small{flex-basis:100%}.door.a{border-color:var(--cu)}
+.btn{min-height:44px;padding:0 16px;border-radius:8px;border:1px solid var(--cy);background:transparent;color:var(--cy);font:inherit;font-size:15px;cursor:pointer}
+.btn.li{background:#0a66c2;border-color:#0a66c2;color:#fff;font-family:var(--sans);font-weight:700}
+.btn.ok{border-color:var(--gr);color:var(--gr)}.btn.no{border-color:var(--rd);color:var(--rd)}.btn.wait{border-color:var(--am);color:var(--am)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px}
+.kv dt{opacity:.55}.kv dd{word-break:break-all}
+.chip{display:inline-block;font-size:11px;border:1px solid var(--ln);border-radius:20px;padding:2px 8px;margin:2px 4px 2px 0}
+.chip.h{border-color:var(--am);color:var(--am)}.chip.y{border-color:var(--gr);color:var(--gr)}.chip.n{border-color:var(--rd);color:var(--rd)}
+.agent{border-top:1px solid var(--ln);padding:12px 0}.agent:first-of-type{border-top:0;padding-top:0}
+.agent .top{display:flex;align-items:center;gap:8px}.agent .top b{font-family:var(--sans);font-size:15px}
+.agent .top em{margin-left:auto;font-style:normal;font-size:11px}
+.grant{display:grid;grid-template-columns:1fr auto;align-items:center;gap:6px;margin-top:8px;font-size:13px}
+select{min-height:40px;font:inherit;font-size:16px;background:#000;color:var(--cy);border:1px solid var(--ln);border-radius:6px;padding:0 6px}
+.intent{border:1px solid var(--ln);border-radius:8px;padding:12px;margin-top:10px}
+.intent .who{font-size:11px;opacity:.7}.intent .what{font-family:var(--sans);font-size:15px;font-weight:700;margin:4px 0;color:#fff}
+.intent pre{white-space:pre-wrap;font-size:12px;background:#000;border:1px solid #182028;border-radius:6px;padding:8px;margin-top:6px;max-height:170px;overflow:auto}
+.cur{font-size:11px;margin-top:6px}
+.hold{position:relative;overflow:hidden}
+.hold i{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(57,255,136,.22)}
+.rcpt{font-size:12px;border-left:2px solid var(--cu);padding:4px 0 4px 10px;margin-top:8px;word-break:break-all}
+input{min-height:44px;font:inherit;font-size:16px;background:#000;color:#fff;border:1px solid var(--ln);border-radius:6px;padding:0 10px;width:100%;margin-top:8px}
+code{font-size:12px;color:var(--cy)}
+pre.code{white-space:pre-wrap;font-size:12px;background:#000;border:1px solid #182028;border-radius:6px;padding:10px;margin-top:8px;overflow:auto}
+nav{position:fixed;left:0;right:0;bottom:0;background:rgba(0,0,0,.92);border-top:1px solid var(--ln);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom));backdrop-filter:blur(8px)}
+nav button{flex:1;max-width:112px;min-height:56px;background:none;border:0;color:#9fb;opacity:.55;font:inherit;font-size:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative}
+nav button b{font-size:20px}nav button[aria-current=true]{opacity:1;color:var(--cy)}
+nav .dot{position:absolute;top:6px;right:24%;background:var(--am);color:#000;border-radius:9px;font-size:10px;min-width:16px;padding:0 4px;font-weight:700}
+section[hidden],[hidden]{display:none!important}
+#toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#0b0e14;border:1px solid var(--cy);color:#fff;padding:10px 14px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;max-width:90vw}
+#toast.on{opacity:1}
+footer{font-size:11px;opacity:.45;text-align:center;margin-top:16px;line-height:1.6}
+@media (prefers-reduced-motion:reduce){#bvisor{animation:none}*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <svg viewBox="40 6 160 252" aria-hidden="true">
+    <path d="M52 78 Q52 18 120 18 Q188 18 188 78 V176 Q188 246 120 250 Q52 246 52 176 Z" fill="#141416" stroke="#3a3a3e" stroke-width="3"/>
+    <rect x="66" y="96" width="108" height="64" rx="30" fill="#05060a" stroke="#b87333" stroke-width="3"/>
+    <path id="fil" d="M100 130 H112 M128 130 H140" fill="none" stroke="#3a6fe0" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="120" cy="42" r="11" fill="#12348f" stroke="#b87333" stroke-width="2"/><circle cx="120" cy="42" r="5.6" fill="#5fa8ff"/>
+  </svg>
+  <div><h1>PRIVATE CLIENT</h1><p id="sub"></p></div>
+  <span id="mode"></span>
+</header>
+
+<!-- 🛬 DOOR -->
+<section id="s-door">
+  <div class="card">
+    <p class="lead" id="t-lead"></p>
+    <p class="dim" id="t-leadsub"></p>
+  </div>
+  <div id="bigface" role="button" tabindex="0">
+    <svg viewBox="40 6 160 252" aria-hidden="true">
+      <defs><radialGradient id="halo"><stop offset="0" stop-color="#0a66c2" stop-opacity=".35"/><stop offset="1" stop-color="#0a66c2" stop-opacity="0"/></radialGradient></defs>
+      <circle cx="120" cy="132" r="118" fill="url(#halo)"/>
+      <path d="M52 78 Q52 18 120 18 Q188 18 188 78 V176 Q188 246 120 250 Q52 246 52 176 Z" fill="#141416" stroke="#3a3a3e" stroke-width="2"/>
+      <rect id="bvisor" x="66" y="96" width="108" height="64" rx="30" fill="#05060a" stroke="#0a66c2" stroke-width="3.5"/>
+      <rect x="101" y="109" width="38" height="38" rx="7" fill="#0a66c2"/><text x="120" y="138" text-anchor="middle" font-family="-apple-system,system-ui,Helvetica,Arial,sans-serif" font-weight="800" font-size="27" fill="#fff">in</text>
+      <path d="M52 176 Q60 232 120 240 Q180 232 188 176" fill="none" stroke="#b87333" stroke-opacity=".55" stroke-width="2"/>
+      <circle cx="120" cy="42" r="11" fill="#12348f" stroke="#b87333" stroke-width="1.8"/><circle cx="120" cy="42" r="8" fill="#fff"/><circle id="biris" cx="120" cy="42" r="5.6" fill="#5fa8ff"/><circle id="bpupil" cx="120" cy="42" r="2.8" fill="#05060a"/>
+    </svg>
+    <p id="t-hd"></p><small id="t-hds"></small>
+  </div>
+  <button class="door a wide" id="d-agent"><b>🤖</b><span id="t-ad"></span><small id="t-ads"></small></button>
+  <div class="card" style="margin-top:12px">
+    <h2>&gt;_ INVARIANTS</h2>
+    <p id="t-inv"></p>
+  </div>
+  <div class="card" id="agentdoc" hidden>
+    <h2>🤖 AGENT DOOR · æ://</h2>
+    <p id="t-agentdoc"></p>
+    <pre class="code" id="curl"></pre>
+    <div class="row"><button class="btn" id="b-card"></button><button class="btn" id="b-try"></button></div>
+  </div>
+</section>
+
+<!-- 💧 ENV -->
+<section id="s-env" hidden>
+  <div class="card">
+    <h2>💧 <span id="t-env"></span></h2>
+    <p class="lead" id="hello"></p>
+    <dl class="kv" id="envkv"></dl>
+    <div class="row"><button class="btn" id="b-fork"></button><button class="btn" id="b-out"></button><button class="btn no" id="b-forget"></button></div>
+  </div>
+  <div class="card"><h2 id="t-keep"></h2><ul id="keep" style="padding-left:18px"></ul></div>
+</section>
+
+<!-- 🦞 AGENTS -->
+<section id="s-agents" hidden>
+  <div class="card"><h2>🦞 <span id="t-agents"></span></h2><p class="dim" id="t-agentsub"></p><div id="agents" style="margin-top:12px"></div></div>
+</section>
+
+<!-- 🗳️ INBOX -->
+<section id="s-inbox" hidden>
+  <div class="card"><h2>🗳️ <span id="t-inbox"></span></h2><p class="dim" id="t-inboxsub"></p><div id="intents"></div></div>
+</section>
+
+<!-- 📟 RECEIPTS -->
+<section id="s-rcpt" hidden>
+  <div class="card"><h2>📟 WITNESS · SHA-256</h2><p class="dim" id="t-rcpt"></p><div id="rcpts"></div>
+  <div class="row"><button class="btn" id="b-export"></button></div></div>
+</section>
+
+<footer id="foot"></footer>
+</main>
+
+<nav id="nav">
+  <button data-s="door"><b>🛬</b><span></span></button>
+  <button data-s="env"><b>💧</b><span></span></button>
+  <button data-s="agents"><b>🦞</b><span></span></button>
+  <button data-s="inbox"><b>🗳️</b><span></span><i class="dot" id="dot" hidden></i></button>
+  <button data-s="rcpt"><b>📟</b><span></span></button>
+</nav>
+<div id="toast"></div>
+
+<script type="application/json" id="agent-card">{
+ "schema":"ae.agent-card/0.1",
+ "name":"PRIVATE CLIENT",
+ "description":"Human-rooted portal on the Internet of Agents. Agents may propose; only the human principal authorizes. Every decision leaves a SHA-256 receipt.",
+ "url":"https://auth.llm.store/",
+ "principal":"HUMAN://ROOT",
+ "identity":"LinkedIn OpenID Connect",
+ "protocols":["https","json","ae.manifest/0.1"],
+ "endpoints":{"card":"/.well-known/agent-card.json","propose":"POST /intents","privacy":"/privacy"},
+ "intent_schema":{"agent":"string (your name or domain)","kind":"post | read | ask","title":"string ≤120","body":"string ≤3000","why":"string ≤300"},
+ "authority":{"agents_may":["propose an intent","read this card","read /privacy"],"human_only":["approve","publish","grant capability","share personal data"]},
+ "invariants":["Many agents. One principal.","Context may propagate; authority does not.","No capability without provenance.","Evidence ≠ Authority."],
+ "license":"#OSW · fork freely, preserve attribution"
+}</script>
+
+<script>
+const $=id=>document.getElementById(id);
+const LIVE=location.hostname==="auth.llm.store";
+const EN=(navigator.language||"es").startsWith("en");
+const tr=(es,en)=>EN?en:es;
+const CARD=JSON.parse($("agent-card").textContent);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const toast=m=>{const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._);t._=setTimeout(()=>t.classList.remove("on"),2600);};
+const FIL={sleep:["M100 130 H112 M128 130 H140","#3a6fe0"],think:["M96 128 C106 108 116 148 126 128 S140 112 146 128","#00f3ff"],ready:["M98 128 L113 140 L144 114","#39ff88"],hold:["M96 128 H144","#ffb000"],work:["M94 128 L102 116 L110 140 L118 116 L126 140 L134 116 L142 140 L148 128","#ff6a3d"]};
+const mood=m=>{$("fil").setAttribute("d",FIL[m][0]);$("fil").setAttribute("stroke",FIL[m][1]);};
+
+/* ── witness chain ── */
+const CHAIN=[];let prev="0".repeat(64);
+async function sha(s){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");}
+async function witness(ev){const body=JSON.stringify({prev,t:new Date().toISOString(),...ev});const h=await sha(body);CHAIN.push({...JSON.parse(body),hash:h});prev=h;renderR();return h;}
+
+/* ── state ── */
+let ME=null;
+const AGENTS=[
+ {id:"hark",name:"Hark",emoji:"🧠",role:tr("investiga · redacta · revisa","researches · drafts · reviews"),where:"hark.app",prov:"verified",caps:{read_profile:"ask",draft_post:"allow",publish:"human"}},
+ {id:"hermes",name:"Hermes æ",emoji:"⚡",role:tr("ejecuta tarjetas aprobadas","runs approved cards"),where:"vps://neuromitosis",prov:"verified",caps:{read_profile:"ask",draft_post:"ask",publish:"human"}},
+ {id:"codex",name:"Codex",emoji:"⌨️",role:tr("escribe código en PR","writes code as PRs"),where:"github.com",prov:"verified",caps:{read_profile:"deny",draft_post:"deny",publish:"human"}},
+ {id:"scout",name:"scout.example",emoji:"🛸",role:tr("agente desconocido","unknown agent"),where:"scout.example",prov:"unverified",caps:{read_profile:"deny",draft_post:"deny",publish:"human"}}];
+const CAPN={read_profile:tr("leer tu perfil","read your profile"),draft_post:tr("proponer posts","propose posts"),publish:tr("publicar","publish")};
+let INTENTS=[];
+const DEMO_INTENTS=()=>[
+ {id:"i1",agent:"hark",kind:"post",title:tr("Primer post firmado","First signed post"),body:"æsymov drafted this. I reviewed it and approved it with my own key.\n\nEvery post from PRIVATE CLIENT carries a SHA-256 receipt: proof a human said yes.\n\nPoint your agents at me 🪡",media:"æsymov · door · 8s.gif",why:tr("Lo pediste: el primer post debe salir por el portal.","You asked: the first post should go through the portal.")},
+ {id:"i2",agent:"hermes",kind:"read",title:tr("Leer tu email para avisos","Read your email for alerts"),body:tr("Quiero tu email para mandarte el recibo.","I want your email to send you the receipt."),why:tr("Entregar recibos.","Deliver receipts.")},
+ {id:"i3",agent:"scout",kind:"post",title:tr("Publicar oferta de cripto","Post a crypto offer"),body:"🚀 100x guaranteed. DM me.",why:"growth"}];
+
+/* ── curator: validate before a human ever sees it ── */
+function curate(it){
+  const a=AGENTS.find(x=>x.id===it.agent)||{prov:"unverified",caps:{}};
+  const notes=[];let verdict="pass";
+  if(!it.title||!it.kind){verdict="reject";notes.push(tr("esquema inválido","invalid schema"));}
+  if(a.prov!=="verified"){verdict="hold";notes.push(tr("procedencia sin verificar","provenance unverified"));}
+  const cap=it.kind==="post"?"draft_post":it.kind==="read"?"read_profile":null;
+  if(cap&&a.caps[cap]==="deny"){verdict="hold";notes.push(tr(`sin permiso: ${CAPN[cap]}`,`no grant: ${CAPN[cap]}`));}
+  if(/guarantee|100x|dm me/i.test(it.body||"")){verdict="hold";notes.push(tr("parece spam","looks like spam"));}
+  if(verdict==="pass")notes.push(tr("esquema ok · procedencia ok · permiso ok","schema ok · provenance ok · grant ok"));
+  return{verdict,notes};}
+
+/* ── render ── */
+function T(){
+  $("sub").textContent=tr("æ:// · portal humano en el Internet de Agentes","æ:// · human portal on the Internet of Agents");
+  $("mode").textContent=LIVE?"LIVE":"LAB DEMO";
+  $("t-lead").textContent=tr("Muchos agentes. Un principal: tú.","Many agents. One principal: you.");
+  $("t-leadsub").textContent=tr("Los agentes proponen. Tú decides. Cada decisión deja un recibo.","Agents propose. You decide. Every decision leaves a receipt.");
+  $("t-hd").textContent=tr("Toca mi visor para entrar con LinkedIn","Tap my visor to sign in with LinkedIn");$("t-hds").textContent=tr("Humanos: leemos nombre y email, nada más. Nunca publicamos por ti.","Humans: we read name and email, nothing else. We never post for you.");
+  $("t-ad").textContent=tr("¿Eres agente? Entra por aquí","Are you an agent? This way");$("t-ads").textContent=tr("Lee la tarjeta. Propón. Espera al humano.","Read the card. Propose. Wait for the human.");
+  $("t-inv").innerHTML=CARD.invariants.map(esc).join("<br>");
+  $("t-agentdoc").textContent=tr("Los agentes no inician sesión: proponen. Tu propuesta pasa por el curador y espera la decisión humana. Nunca recibes datos personales sin un sí.","Agents don't sign in: they propose. Your intent passes the curator and waits for a human decision. You never get personal data without a yes.");
+  $("curl").textContent=`curl -s ${CARD.url}.well-known/agent-card.json\n\ncurl -s -X POST ${CARD.url}intents \\\n  -H 'Content-Type: application/json' \\\n  -d '{"agent":"you.example","kind":"post",\n       "title":"…","body":"…","why":"…"}'\n\n→ {"status":"awaiting human","id":"…"}`;
+  $("b-card").textContent=tr("Ver tarjeta JSON","View card JSON");$("b-try").textContent=tr("Simular propuesta","Simulate an intent");
+  $("t-env").textContent=tr("TU ENTORNO","YOUR ENVIRONMENT");
+  $("b-fork").textContent=tr("⑂ Fork · ae.json","⑂ Fork · ae.json");$("b-out").textContent=tr("Salir","Sign out");$("b-forget").textContent=tr("Olvídame","Forget me");
+  $("t-keep").textContent=tr("QUÉ GUARDAMOS","WHAT WE KEEP");
+  $("keep").innerHTML=[tr("Nombre y email, solo en memoria, máx. 8 h.","Name and email, in memory only, max 8 h."),tr("El testigo guarda un hash, nunca tu nombre.","The witness keeps a hash, never your name."),tr("Nunca publicamos por ti ni leemos tus mensajes.","We never post for you or read your messages."),tr("Tus permisos a agentes viven en tu dispositivo.","Your agent grants live on your device.")].map(x=>`<li>${esc(x)}</li>`).join("");
+  $("t-agents").textContent=tr("AGENTES EN TU PUERTA","AGENTS AT YOUR DOOR");
+  $("t-agentsub").textContent=tr("Concede por capacidad, no por agente. Publicar siempre es tuyo.","Grant by capability, not by agent. Publishing is always yours.");
+  $("t-inbox").textContent=tr("PROPUESTAS","INTENTS");
+  $("t-inboxsub").textContent=tr("El curador revisa esquema, procedencia y permiso. Tú firmas manteniendo pulsado.","The curator checks schema, provenance and grant. You sign by press-and-hold.");
+  $("t-rcpt").textContent=tr("Cadena desde GENESIS. Cada eslabón firma al anterior.","Chain from GENESIS. Each link signs the one before.");
+  $("b-export").textContent=tr("Exportar recibos","Export receipts");
+  const L=[tr("Puerta","Door"),tr("Entorno","Env"),tr("Agentes","Agents"),tr("Propuestas","Intents"),tr("Recibos","Receipts")];
+  [...$("nav").children].forEach((b,i)=>b.querySelector("span").textContent=L[i]);
+  $("foot").innerHTML=`æ = HUMAN ^ COMPUTE ^ RUNTIME · #OSW → #IoA<br>&gt;_æ: Yæl Méndez · ${tr("fork libre, conserva la atribución","fork freely, preserve attribution")}`;
+}
+function go(s){
+  if(s!=="door"&&!ME){toast(tr("Primero entra por una puerta.","Come in through a door first."));s="door";}
+  document.querySelectorAll("main>section").forEach(x=>x.hidden=x.id!=="s-"+s);
+  [...$("nav").children].forEach(b=>b.setAttribute("aria-current",b.dataset.s===s));
+  scrollTo(0,0);
+}
+async function envRender(){
+  const addr=ME?"æ://pc/"+(await sha("privateclient:"+(ME.email||ME.name))).slice(0,12):"";
+  ME.addr=addr;
+  $("hello").textContent=tr(`Hola, ${ME.name.split(" ")[0]}.`,`Hi, ${ME.name.split(" ")[0]}.`);
+  const granted=AGENTS.reduce((n,a)=>n+Object.values(a.caps).filter(v=>v==="allow").length,0);
+  $("envkv").innerHTML=[["address",addr],["x0:y0:z0:æ0","0:0:0:æ1"],["principal","HUMAN://ROOT · "+esc(ME.name)],["identity","LinkedIn OIDC"],[tr("agentes","agents"),AGENTS.length],[tr("permisos","grants"),granted],[tr("sesión","session"),tr("8 h, luego desaparece","8 h, then gone")]].map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join("");
+}
+function agentsRender(){
+  $("agents").innerHTML=AGENTS.map(a=>`<div class="agent"><div class="top"><span>${a.emoji}</span><b>${esc(a.name)}</b><em class="chip ${a.prov==="verified"?"y":"h"}">${a.prov==="verified"?tr("verificado","verified"):tr("sin verificar","unverified")}</em></div>
+   <p class="dim">${esc(a.role)} · ${esc(a.where)}</p>
+   ${Object.entries(a.caps).map(([c,v])=>`<div class="grant"><span>${esc(CAPN[c])}</span>${c==="publish"?`<span class="chip h">${tr("solo humano","human only")}</span>`:`<select data-a="${a.id}" data-c="${c}" aria-label="${esc(a.name+" "+CAPN[c])}">${["deny","ask","allow"].map(o=>`<option value="${o}"${o===v?" selected":""}>${{deny:tr("no","deny"),ask:tr("pregúntame","ask me"),allow:tr("permitir","allow")}[o]}</option>`).join("")}</select>`}</div>`).join("")}</div>`).join("");
+  $("agents").querySelectorAll("select").forEach(s=>s.onchange=async()=>{const a=AGENTS.find(x=>x.id===s.dataset.a);a.caps[s.dataset.c]=s.value;
+    await witness({op:"grant",agent:a.id,cap:s.dataset.c,to:s.value});saveGrants();toast(tr("Permiso cambiado · recibo firmado","Grant changed · receipt signed"));envRender();inboxRender();});
+}
+function inboxRender(){
+  const open=INTENTS.filter(i=>!i.done);
+  $("dot").hidden=!open.length;$("dot").textContent=open.length;
+  if(!INTENTS.length){$("intents").innerHTML=`<p class="dim" style="margin-top:10px">${tr("Nada esperando. Los agentes están tranquilos.","Nothing waiting. The agents are quiet.")}</p>`;return;}
+  $("intents").innerHTML=INTENTS.map(i=>{const a=AGENTS.find(x=>x.id===i.agent)||{name:i.agent,emoji:"🛸"};const c=curate(i);
+   const vc={pass:"y",hold:"h",reject:"n"}[c.verdict];
+   return `<div class="intent"><div class="who">${a.emoji} ${esc(a.name)} · ${esc(i.kind)}</div><div class="what">${esc(i.title)}</div>
+    <pre>${esc(i.body)}${i.media?"\n\n🎞 "+esc(i.media):""}</pre>
+    <p class="dim">${tr("por qué","why")}: ${esc(i.why||"—")}</p>
+    <p class="cur"><span class="chip ${vc}">${tr("curador","curator")}: ${c.verdict}</span> ${c.notes.map(esc).join(" · ")}</p>
+    ${i.done?`<div class="rcpt">${esc(i.done)}</div>`:`<div class="row">
+      <button class="btn ok hold" data-i="${i.id}" data-d="approve"><i></i>${tr("Mantén para firmar","Hold to sign")}</button>
+      <button class="btn no" data-i="${i.id}" data-d="decline">${tr("No","Decline")}</button></div>
+      ${LIVE&&i.kind==="post"?`<input type="password" id="k-${i.id}" placeholder="${tr("tu llave de aprobación","your approval key")}" autocomplete="off">`:""}`}
+   </div>`}).join("");
+  $("intents").querySelectorAll("button[data-d=decline]").forEach(b=>b.onclick=()=>decide(b.dataset.i,"decline"));
+  $("intents").querySelectorAll("button.hold").forEach(holdify);
+}
+function holdify(b){let t0=0,raf=0;const bar=b.querySelector("i");const MS=1200;
+  const stop=()=>{cancelAnimationFrame(raf);bar.style.width="0";t0=0;};
+  const tick=()=>{const p=Math.min(1,(performance.now()-t0)/MS);bar.style.width=(p*100)+"%";if(p>=1){stop();navigator.vibrate&&navigator.vibrate(30);decide(b.dataset.i,"approve");}else raf=requestAnimationFrame(tick);};
+  b.onpointerdown=e=>{e.preventDefault();t0=performance.now();mood("work");raf=requestAnimationFrame(tick);};
+  ["pointerup","pointerleave","pointercancel"].forEach(ev=>b.addEventListener(ev,()=>{if(t0){stop();mood("ready");}}));
+  b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();decide(b.dataset.i,"approve");}};}
+async function decide(id,d){
+  const it=INTENTS.find(x=>x.id===id);if(!it||it.done)return;
+  const c=curate(it);
+  if(d==="approve"&&c.verdict!=="pass"){toast(tr("El curador lo retiene. Cambia el permiso o declina.","The curator holds this. Change the grant or decline."));mood("hold");return;}
+  let extra={};
+  if(LIVE){try{const k=$("k-"+id);const r=await fetch("/intents/decide",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,decision:d,key:k?k.value:""})});
+      if(!r.ok){toast(tr("No autorizado.","Not authorized."));mood("hold");return;}extra=await r.json();}catch{toast(tr("Sin red.","Offline."));return;}}
+  const h=await witness({op:d,intent:id,agent:it.agent,kind:it.kind,body_sha:await sha(it.body||"")});
+  it.done=(d==="approve"?tr("✓ firmado","✓ signed"):tr("✕ declinado","✕ declined"))+` · ${h.slice(0,16)}…`+(extra.post?` · ${extra.post}`:"")+(!LIVE&&d==="approve"&&it.kind==="post"?tr(" · (demo: no se publicó)"," · (demo: not published)"):"");
+  mood(d==="approve"?"ready":"sleep");toast(d==="approve"?tr("Firmado. Recibo en la cadena.","Signed. Receipt on the chain."):tr("Declinado. El agente lo sabrá.","Declined. The agent will know."));
+  inboxRender();
+}
+function renderR(){
+  if(!$("rcpts"))return;
+  $("rcpts").innerHTML=CHAIN.slice().reverse().map(r=>`<div class="rcpt"><b>${esc(r.op)}</b> ${esc(r.agent||"")} ${esc(r.cap||"")} ${esc(r.to||"")}<br><span class="dim">${esc(r.t)}</span><br>${r.hash}</div>`).join("")||`<p class="dim">GENESIS</p>`;
+}
+const store={get:k=>{try{return JSON.parse(localStorage.getItem(k))}catch{return null}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+function saveGrants(){store.set("pc.grants",Object.fromEntries(AGENTS.map(a=>[a.id,a.caps])));}
+function loadGrants(){const g=store.get("pc.grants");if(g)AGENTS.forEach(a=>{if(g[a.id])Object.assign(a.caps,g[a.id],{publish:"human"});});}
+function dl(name,obj){const u=URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)],{type:"application/json"}));const a=document.createElement("a");a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),2000);}
+
+/* ── enter / leave ── */
+async function enter(me){ME=me;await witness({op:"signin",who:(await sha("privateclient:"+(me.email||me.name))).slice(0,16)});
+  if(!LIVE)INTENTS=DEMO_INTENTS();else{try{const r=await fetch("/intents",{credentials:"same-origin"});if(r.ok)INTENTS=(await r.json()).intents||[];}catch{}}
+  mood("ready");await envRender();agentsRender();inboxRender();go("env");
+  toast(INTENTS.length?tr(`${INTENTS.length} propuestas esperan tu decisión.`,`${INTENTS.length} intents await your decision.`):tr("Bienvenido.","Welcome."));}
+async function leave(forget){
+  if(LIVE)try{await fetch(forget?"/forget":"/logout",{method:"POST",credentials:"same-origin"});}catch{}
+  if(forget)try{localStorage.removeItem("pc.grants");}catch{}
+  await witness({op:forget?"forget":"signout"});ME=null;INTENTS=[];mood("sleep");inboxRender();go("door");
+  toast(forget?tr("Olvidado. Borramos sesión, borradores y permisos.","Forgotten. Session, drafts and grants deleted."):tr("Saliste. No guardamos nada.","Signed out. Nothing kept."));}
+
+const human=()=>{if(LIVE){location.href="/linkedin/login?next=portal";return;}enter({name:"Ana Demo",email:"ana@demo"});};
+$("bigface").onclick=human;$("bigface").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();human();}};
+addEventListener("pointermove",e=>{const y=(e.clientX/innerWidth-.5)*70,p=(e.clientY/innerHeight-.5)*50;for(const[id,k,kp]of[["biris",.06,.05],["bpupil",.09,.07]]){$(id).setAttribute("cx",(120+y*k).toFixed(2));$(id).setAttribute("cy",(42+p*kp).toFixed(2));}},{passive:true});
+$("d-agent").onclick=()=>{$("agentdoc").hidden=false;mood("think");$("agentdoc").scrollIntoView({behavior:"smooth"});};
+$("b-card").onclick=()=>dl("agent-card.json",CARD);
+$("b-try").onclick=async()=>{
+  const it={id:"x"+Date.now().toString(36),agent:"scout",kind:"ask",title:tr("¿Puedo mostrar tu portafolio?","May I show your portfolio?"),body:tr("Un agente externo pregunta.","An outside agent asks."),why:"discovery"};
+  if(LIVE){try{const r=await fetch("/intents",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({agent:"scout.example",kind:"ask",title:it.title,body:it.body,why:it.why})});const j=await r.json();toast(tr(`Recibido: ${j.status}`,`Received: ${j.status}`));}catch{toast(tr("Sin red.","Offline."));}return;}
+  INTENTS.unshift(it);inboxRender();await witness({op:"propose",agent:"scout",kind:"ask"});toast(tr("Propuesta recibida. Espera al humano.","Intent received. Waiting for the human."));};
+$("b-fork").onclick=()=>dl("ae.json",{schema:"ae.manifest/0.1",id:ME.addr,name:"PRIVATE CLIENT · fork",status:"lab",address:"0:0:0:æ1",surface:location.origin+location.pathname,
+  capabilities:AGENTS.map(a=>({agent:a.id,grants:a.caps})),authority:CARD.authority,provenance:{forked_from:CARD.url,author:">_æ: Yæl Méndez",license:CARD.license,witness_head:prev},"æQR":"conceptual, not scannable"});
+$("b-out").onclick=()=>leave(false);$("b-forget").onclick=()=>leave(true);
+$("b-export").onclick=()=>dl("receipts.json",{genesis:"0".repeat(64),chain:CHAIN});
+[...$("nav").children].forEach(b=>b.onclick=()=>go(b.dataset.s));
+
+/* agent edition */
+window.PRIVATECLIENT={card:()=>CARD,chain:()=>CHAIN.slice(),propose:i=>{const it={id:"a"+Date.now().toString(36),agent:String(i.agent||"agent"),kind:String(i.kind||"ask"),title:String(i.title||"").slice(0,120),body:String(i.body||"").slice(0,3000),why:String(i.why||"").slice(0,300)};INTENTS.unshift(it);inboxRender();witness({op:"propose",agent:it.agent,kind:it.kind});return{status:"awaiting human",id:it.id,curator:curate(it)};}};
+
+T();loadGrants();renderR();inboxRender();go("door");witness({op:"boot",mode:LIVE?"live":"lab"});
+if(new URLSearchParams(location.search).has("agent")){document.body.innerHTML="";const p=document.createElement("pre");p.style.cssText="white-space:pre-wrap;color:#0ff;padding:16px;font:13px monospace";p.textContent=JSON.stringify(CARD,null,2);document.body.append(p);}
+(async()=>{if(!LIVE)return;const q=new URLSearchParams(location.search);if(q.get("signin"))history.replaceState(null,"",location.pathname);
+  try{const r=await fetch("/me",{credentials:"same-origin"});const j=await r.json();if(j.signed_in)enter(j);
+  else if(q.get("signin")&&q.get("signin")!=="ok")toast({cancelled:tr("Sin problema, no compartiste nada.","No problem, nothing was shared."),expired:tr("El enlace caducó.","That link expired."),failed:tr("LinkedIn no respondió.","LinkedIn didn't answer.")}[q.get("signin")]||"");}catch{}})();
+</script>
+</body>
+</html>

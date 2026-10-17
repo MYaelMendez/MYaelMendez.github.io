@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>mæchlang · LAB</title>
+<meta name="description" content="Autoridad æ escrita como máquinas de estado en Mech. LAB.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4efe3;--ink:#111;--y:#f2c230;--b:#2a5bd7;--g:#2e9e5b;--acc:var(--y)}
+[data-t=b]{--acc:var(--b)}[data-t=g]{--acc:var(--g)}
+[data-t=v]{--bg:#0b0b0c;--ink:#e9e3d0;--acc:#D4AF37}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 ui-monospace,"JetBrains Mono",Menlo,monospace}
+header{min-height:66vh;display:flex;flex-direction:column;justify-content:center;padding:6vh 6vw;border-bottom:2px solid var(--ink)}
+.lab{display:inline-block;border:2px solid var(--ink);padding:2px 8px;font-weight:700;margin-bottom:14px}
+h1{font:900 clamp(48px,13vw,120px)/.9 "Arial Narrow",Impact,sans-serif;text-transform:uppercase;margin:0}
+h1 span{background:var(--acc);padding:0 .1em}
+.tag{font-size:clamp(16px,4vw,22px);margin:16px 0 0}
+.stack{display:flex;gap:6px;margin:20px 0}.stack i{width:22px;height:22px;display:block;border:2px solid var(--ink);cursor:pointer}
+main{padding:4vh 6vw;max-width:880px}
+h2{font:800 26px/1.1 "Arial Narrow",Impact,sans-serif;text-transform:uppercase;border-left:10px solid var(--acc);padding-left:10px;margin-top:48px}
+pre{border:2px solid var(--ink);padding:14px;overflow:auto;font-size:14px;background:rgba(127,127,127,.06)}
+.sim{border:2px solid var(--ink);padding:16px}
+.states{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.st{flex:1;min-width:120px;border:2px solid var(--ink);padding:10px;text-align:center;opacity:.35}
+.st.on{opacity:1;background:var(--acc);color:#111}
+button,select{font:inherit;border:2px solid var(--ink);background:transparent;color:inherit;padding:6px 12px;cursor:pointer}
+label{display:block;margin:8px 0}
+#log{white-space:pre-wrap;font-size:13px;margin-top:10px}
+.nav{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}.nav a{border:2px solid var(--ink);padding:4px 10px;text-decoration:none;font-weight:700}
+.facebox{display:grid;grid-template-columns:1fr;gap:14px}@media(min-width:700px){.facebox{grid-template-columns:260px 1fr}}
+#fsvg{width:100%;max-width:260px;border:2px solid var(--ink);background:var(--bg)}
+#fmood{font:900 34px/1 "Arial Narrow",Impact,sans-serif;text-transform:uppercase;margin:8px 0}
+#fjson{font-size:12px;white-space:pre-wrap;word-break:break-all;border-top:2px dashed var(--ink);padding-top:8px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:6px 0}
+a{color:inherit}footer{padding:4vh 6vw;border-top:2px solid var(--ink);font-size:13px}
+
+/* ── 🛸 holomesh · void+gold+cyan · Picasso line · kinetic type (motion = state) ── */
+[data-t=u]{--bg:#05060a;--ink:#ece6d2;--acc:#D4AF37;--cy:#39e6ff}
+body{--cy:#39e6ff}
+[data-t=u] body,body[data-t=u]{background:
+ radial-gradient(1200px 600px at 80% -10%,rgba(57,230,255,.10),transparent 60%),
+ radial-gradient(900px 500px at -10% 40%,rgba(212,175,55,.10),transparent 60%),
+ linear-gradient(rgba(57,230,255,.06) 1px,transparent 1px) 0 0/28px 28px,
+ linear-gradient(90deg,rgba(57,230,255,.06) 1px,transparent 1px) 0 0/28px 28px,#05060a}
+body[data-t=u] h1,body[data-t=u] h2,body[data-t=u] #fmood{font-family:Orbitron,"Arial Narrow",Impact,sans-serif;letter-spacing:.02em}
+body[data-t=u] h1 span{background:none;color:var(--acc);text-shadow:0 0 18px rgba(212,175,55,.55),0 0 2px #fff}
+body[data-t=u] pre,body[data-t=u] .sim,body[data-t=u] .st,body[data-t=u] .nav a,body[data-t=u] button,body[data-t=u] select,body[data-t=u] #fsvg{border-color:rgba(212,175,55,.55)}
+body[data-t=u] pre{background:rgba(57,230,255,.04);box-shadow:inset 0 0 0 1px rgba(57,230,255,.12)}
+body[data-t=u] .st.on{background:linear-gradient(135deg,var(--acc),#f6e39a);color:#05060a;box-shadow:0 0 24px rgba(212,175,55,.55)}
+body[data-t=u] #fsvg{color:var(--acc);background:#05060a;filter:drop-shadow(0 0 10px rgba(212,175,55,.45))}
+body[data-t=u] a{color:var(--cy)}
+header{position:relative;overflow:hidden}
+#line{position:absolute;inset:auto 0 0 0;width:100%;height:46%;pointer-events:none;opacity:.9}
+#line path{fill:none;stroke:var(--acc);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:4200;stroke-dashoffset:4200;animation:draw 6s ease-out .4s forwards}
+#line .bp{stroke:var(--cy);stroke-width:1;opacity:.6;stroke-dasharray:4 6;animation:none}
+@keyframes draw{to{stroke-dashoffset:0}}
+.k{display:inline-block;opacity:0;transform:translateY(.4em) skewY(6deg);animation:kin .7s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes kin{to{opacity:1;transform:none}}
+.ufo{position:absolute;top:7vh;right:6vw;font-size:clamp(22px,5vw,36px);letter-spacing:.15em;animation:hover 4s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(57,230,255,.6))}
+@keyframes hover{50%{transform:translateY(-10px)}}
+.tags{margin-top:10px;font-weight:700;color:var(--cy)}
+.st.on{animation:pulse 1.6s ease-in-out infinite}@keyframes pulse{50%{filter:brightness(1.15)}}
+#fg path{stroke-dasharray:400;stroke-dashoffset:400;animation:draw .8s ease-out forwards}
+.stack i[data-t=u]{background:conic-gradient(#D4AF37,#39e6ff,#05060a,#D4AF37)!important}
+.stack i[data-t=r]{display:grid;place-items:center;font-size:13px;font-style:normal;line-height:1}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}#line path,#fg path{stroke-dashoffset:0}.k{opacity:1;transform:none}}
+</style></head>
+<body data-t="u">
+<header>
+ <div class="lab">LAB · SIMULACIÓN</div>
+ <div class="ufo" aria-hidden="true">🛸🛸🛸</div>
+ <h1 id="h1">m<span>æ</span>ch<br>lang</h1>
+ <p class="tag">&gt;_ La autoridad como máquina de estados.<br>Evidence ≠ Authority. Many agents. One principal.</p>
+ <p class="tags">#makesomethingagentswant 🏹 #ioa</p>
+ <div class="stack" aria-label="tema">
+  <i style="background:var(--y)" data-t="y" title="amarillo"></i><i style="background:var(--b)" data-t="b" title="azul"></i><i style="background:var(--g)" data-t="g" title="verde"></i><i style="background:#0b0b0c" data-t="v" title="void dorado"></i><i data-t="u" title="🛸 holomesh"></i><i data-t="r" title="♻️ rotar">♻</i>
+ </div>
+<svg id="line" viewBox="0 0 1200 300" preserveAspectRatio="none" aria-hidden="true">
+ <path class="bp" d="M0 250H1200M0 200H1200M300 0V300M900 0V300"/>
+ <path d="M-20 260C120 250 160 120 260 140S360 280 470 230 520 60 610 80 700 250 790 220 830 110 900 120 960 200 1010 190 1040 90 1100 100 1180 170 1230 150"/>
+</svg>
+</header>
+<main>
+<nav class="nav"><a href="#auth">#Authority</a><a href="#face">#Face · Asimov</a><a href="#fuentes">Fuentes</a></nav>
+<h2>Qué es</h2>
+<p>mæchlang escribe el eje de autoridad æ0–æ3 en <a href="https://mech-lang.org">Mech</a>, un lenguaje declarativo y reactivo donde los datos, sus relaciones y sus estados son el programa. Los agentes pueden avanzar contexto y evidencia; solo la persona principal concede æ2 y æ3.</p>
+<p>Mech es de Corey Montella, Apache-2.0, beta v0.3.5. mæchlang no está afiliado al proyecto Mech.</p>
+
+<h2 id="auth">#Authority · el código</h2>
+<pre>&lt;authority&gt; := :æ0 | :æ1 | :æ2 | :æ3
+
+agents := {"hark", "hermes", "codex"}
+principal := "yæl"
+
+#Authority(req&lt;u8&gt;) ⇒ &lt;u8&gt; :=
+  ├ :Context(req&lt;u8&gt;)
+  ├ :Evidence(req&lt;u8&gt;)
+  └ :Granted(level&lt;u8&gt;).
+
+#Authority(req&lt;u8&gt;) → :Context(req)
+  :Context(r)
+    ├ r &lt; 2u8 → :Granted(r)     -- æ0 public, æ1 published
+    └ r &gt; 1u8 → :Evidence(r)    -- æ2 operator, æ3 custody
+  :Evidence(r) → :Granted(r)     -- only after passkey + Witness receipt
+  :Granted(l) ⇒ l
+.
+
+#Authority(3u8)</pre>
+<p>Boceto sin ejecutar todavía en un runtime de Mech. Fuente: <a href="authority.mec">authority.mec</a>.</p>
+
+<h2>Simulador</h2>
+<div class="sim">
+ <label>Un agente pide: <select id="req"><option value="0">æ0 · public</option><option value="1">æ1 · published</option><option value="2">æ2 · operator</option><option value="3" selected>æ3 · custody</option></select></label>
+ <div class="states"><div class="st" id="s-ctx">:Context</div><div class="st" id="s-ev">:Evidence</div><div class="st" id="s-gr">:Granted</div></div>
+ <label><input type="checkbox" id="pk"> Passkey de la persona principal</label>
+ <label><input type="checkbox" id="wt"> Recibo Witness (SHA-256)</label>
+ <button id="step">→ paso</button> <button id="reset">↺</button>
+ <div id="log"></div>
+</div>
+<p><small>Simulación en JavaScript del boceto, no es el runtime de Mech.</small></p>
+
+<h2 id="face">#Face · Asimov</h2>
+<p>La cara del robot en mæchlæng. Lee lo que el Asimov reporta y elige un ánimo; nunca lo controla. Las reglas van de arriba abajo, así que la seguridad gana.</p>
+<pre>&lt;mood&gt; := :hold | :lost | :tired | :sleep | :think | :ready | :work
+
+#Face(md, ar, ft, ag, sc) → :Read(md, ar, ft, ag, sc)
+  :Read(md, ar, ft, ag, sc)
+    ├ ft → :Show(:hold)                 -- fault latched
+    ├ ag &gt; 0.5 → :Show(:lost)           -- no fresh state
+    ├ sc &lt; 20 → :Show(:tired)           -- battery low
+    ├ md ⩵ "DAMP" → :Show(:sleep)
+    ├ md ⩵ "STAND" &amp;&amp; ¬ar → :Show(:think)
+    ├ md ⩵ "STAND" &amp;&amp; ar → :Show(:ready)
+    └ md ⩵ "MOVE" → :Show(:work)
+  :Show(m) ⇒ m
+.</pre>
+<div class="sim facebox">
+ <div><svg id="fsvg" viewBox="0 0 200 200" aria-label="cara æ"><g id="fg" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"></g></svg><div id="fmood">—</div></div>
+ <div>
+  <div class="row">modo <select id="fmd"><option>DAMP</option><option selected>STAND</option><option>MOVE</option><option>FAULT_DAMP</option></select></div>
+  <label><input type="checkbox" id="far"> armed</label>
+  <label><input type="checkbox" id="fft"> faulted (alerta crítica)</label>
+  <label><input type="checkbox" id="fst"> sin estado fresco (&gt; 0.5 s)</label>
+  <div class="row">batería <input type="range" id="fsc" min="0" max="100" value="80"> <span id="fscv">80</span>%</div>
+  <div id="fjson"></div>
+ </div>
+</div>
+<p><small>Simulación en JavaScript de las mismas reglas que <a href="face.mec">face.mec</a> y del puente real <a href="https://github.com/LutheranInstitute/Robot/tree/ae-face/ae">ae/face.py</a> (rama ae-face).</small></p>
+
+<h2>Una regla de Mech</h2>
+<p>Mech no admite guiones bajos en identificadores: <code>agentic_environments</code> → <code>agentic-environments</code>. Sí admite emojis y Unicode: <code>:æ0</code>, <code>🤖</code>.</p>
+
+<h2 id="fuentes">Fuentes</h2>
+<p><a href="https://xn--l-3fa.net/mech-lang">æl.net/mech-lang</a> · <a href="https://docs.mech-lang.org/guides/mech-in-fifteen-minutes.html">Mech en 15 minutos</a> · <a href="https://try.mech-lang.org">try.mech-lang.org</a> · <a href="https://www.youtube.com/watch?v=-ypiPSaWJNk">Mech @ HYTRADBOI '22</a></p>
+</main>
+<footer>$æ · mæchlang · LAB · noindex · Human stays root. · Make something agents want. · #makesomethingagentswant 🏹 #ioa</footer>
+<script>
+const $=id=>document.getElementById(id);let st=null;
+const set=s=>{["ctx","ev","gr"].forEach(k=>$("s-"+k).classList.toggle("on",k===s));st=s};
+const log=t=>$("log").textContent+=t+"\n";
+$("step").onclick=()=>{const r=+$("req").value;
+ if(!st){set("ctx");log("#Authority("+r+"u8) → :Context("+r+")");return}
+ if(st==="ctx"){if(r<2){set("gr");log(":Context → :Granted(æ"+r+")  agentes pueden");}else{set("ev");log(":Context → :Evidence(æ"+r+")  requiere a la persona principal");}return}
+ if(st==="ev"){if($("pk").checked&&$("wt").checked){set("gr");log(":Evidence → :Granted(æ"+r+")  passkey + Witness ✓");}else log("✗ bloqueado: falta "+(!$("pk").checked?"passkey ":"")+(!$("wt").checked?"Witness":""));return}
+ log(":Granted ⇒ æ"+r)};
+$("reset").onclick=()=>{set(null);$("log").textContent=""};
+document.querySelectorAll(".stack i").forEach(i=>i.onclick=()=>{if(i.dataset.t==="r")return;document.body.dataset.t=i.dataset.t;try{localStorage.maechT=i.dataset.t}catch(e){}});
+try{if(localStorage.maechT)document.body.dataset.t=localStorage.maechT}catch(e){}
+
+
+(function(){const h=$("h1");let i=0;const walk=n=>{[...n.childNodes].forEach(c=>{if(c.nodeType===3){const f=document.createDocumentFragment();[...c.textContent].forEach(ch=>{const sp=document.createElement("span");sp.className="k";sp.textContent=ch;sp.style.animationDelay=(i++*70)+"ms";f.appendChild(sp)});c.replaceWith(f)}else if(c.nodeName!=="BR")walk(c)})};walk(h)})();
+let rot=null;const TH=["y","b","g","u"];
+document.querySelectorAll(".stack i").forEach(i=>i.addEventListener("click",()=>{clearInterval(rot);if(i.dataset.t==="r"){let k=0;document.body.dataset.t=TH[0];rot=setInterval(()=>{document.body.dataset.t=TH[++k%TH.length]},4000)}}));
+const F={hold:"M60 70l20 20M80 70l-20 20M120 70l20 20M140 70l-20 20|M60 140h80",lost:"M60 80h20M120 80h20|M70 140q30 -10 60 0",tired:"M58 82q12 8 24 0M118 82q12 8 24 0|M70 142h60",sleep:"M58 80q12 10 24 0M118 80q12 10 24 0|M85 140q15 6 30 0",think:"M70 72v18M130 72v18|M75 140h40",ready:"M70 70v22M130 70v22|M65 132q35 22 70 0",work:"M60 80q10 -14 20 0M120 80q10 -14 20 0|M60 128q40 34 80 0"};
+const MEANS={hold:"fault latched",lost:"no fresh state",tired:"battery low",sleep:"DAMP",think:"STAND, not armed",ready:"STAND, armed",work:"MOVE"};
+function fmood(md,ar,ft,stale,sc){if(ft||md==="FAULT_DAMP")return"hold";if(stale)return"lost";if(sc<20)return"tired";if(md==="DAMP")return"sleep";if(md==="STAND")return ar?"ready":"think";return"work"}
+function frender(){const md=$("fmd").value,ar=$("far").checked,ft=$("fft").checked,st=$("fst").checked,sc=+$("fsc").value;$("fscv").textContent=sc;
+ const m=fmood(md,ar,ft,st,sc);const [e,mo]=F[m].split("|");
+ $("fg").innerHTML='<path d="'+e+'"/><path d="'+mo+'"/><text x="100" y="40" text-anchor="middle" font-size="22" stroke="none" fill="currentColor" font-family="monospace">æ æ æ</text>';
+ $("fmood").textContent=":"+m;
+ $("fjson").textContent=JSON.stringify({schema:"ae.face/0.1",who:"asimov",authority:"æ1",mood:m,means:MEANS[m],mode:md,armed:ar,battery:sc,stale:st})}
+["fmd","far","fft","fst","fsc"].forEach(id=>$(id).addEventListener("input",frender));frender();
+</script>
+</body></html>

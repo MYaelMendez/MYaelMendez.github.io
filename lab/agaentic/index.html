@@ -1,0 +1,85 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>🫵OS · Agæntic · lab</title><meta name="theme-color" content="#07070a">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--g:#D4AF37;--v:#07070a;--i:#ece6d3;--m:#8a8270;--l:#2a2618}
+*{box-sizing:border-box}body{margin:0;background:var(--v);color:var(--i);font:15px/1.55 "JetBrains Mono",monospace;display:flex;justify-content:center}
+main{width:min(560px,100%);padding:26px 18px 70px}
+.lbl{color:var(--m);font-size:11px;letter-spacing:.18em;text-transform:uppercase}
+h1{font:700 30px/1.1 Orbitron,sans-serif;margin:8px 0 4px;color:var(--g)}
+h1 .me{color:var(--i)}
+.sub{margin:0 0 20px;opacity:.85}
+.card{border:1px solid var(--l);background:#0c0b08;border-radius:14px;padding:16px;margin:14px 0}
+.card.off{opacity:.35;pointer-events:none}
+.step{color:var(--g);font-weight:700;margin-bottom:8px}
+input,textarea{width:100%;font:16px "JetBrains Mono",monospace;color:var(--i);background:#000;border:1px solid #3a3320;border-radius:8px;padding:10px}
+input:focus,textarea:focus{outline:none;border-color:var(--g)}
+.caps{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cap{text-align:left;font:13px "JetBrains Mono",monospace;color:var(--i);background:#000;border:1px solid #3a3320;border-radius:10px;padding:10px;cursor:pointer}
+.cap b{display:block;font-size:20px}.cap.on{border-color:var(--g);background:#1a1608}
+pre{white-space:pre-wrap;background:#000;border:1px solid var(--l);border-radius:8px;padding:10px;font-size:13px;color:#d8cfae;margin:10px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.b{font:700 13px "JetBrains Mono",monospace;color:var(--v);background:var(--g);border:0;border-radius:8px;padding:10px 13px;cursor:pointer;text-decoration:none;display:inline-block}
+.o{background:transparent;color:var(--g);border:1px solid var(--g)}
+.small{font-size:12px;color:var(--m)}
+.ok{color:#7fd28f}
+footer{margin-top:26px;color:var(--g);font-size:13px}
+</style></head><body><main>
+<div class="lbl">&gt;_ æ://AGÆNTIC · lab · prueba de producto</div>
+<h1><span class="me" id="who">🫵</span>OS</h1>
+<p class="sub" id="sub">Cambia 🫵 por tu nombre para empezar.<br><span class="small">Change 🫵 to your name to start.</span></p>
+
+<div class="card" id="s1"><div class="step">1 · Pon tu nombre</div>
+<input id="name" placeholder="🫵 tu nombre" maxlength="40" autocomplete="given-name">
+<div class="small" style="margin-top:6px">Se guarda solo en este teléfono. Sin cuenta, sin contraseña.</div></div>
+
+<div class="card off" id="s2"><div class="step">2 · Elige una capacidad</div><div class="caps" id="caps"></div></div>
+
+<div class="card off" id="s3"><div class="step">3 · Hazlo con Hark Pro</div>
+<div class="small">Copia esta orden y pégala en Hark Pro. Hark propone; tú compruebas y decides.</div>
+<pre id="prompt"></pre>
+<div class="row"><button class="b" id="copy">Copiar orden</button><a class="b o" href="https://hark.com/download">Abrir / instalar Hark Pro</a></div>
+<div class="row" style="margin-top:6px"><a class="small" href="https://apps.apple.com/us/app/hark-pro/id6772362941">iPhone</a> · <a class="small" href="https://play.google.com/store/apps/details?id=com.hark.android">Android</a></div>
+<div style="margin-top:12px" class="small">¿Qué comprobaste o decidiste? (opcional, queda en tu teléfono)</div>
+<textarea id="note" rows="2" maxlength="280"></textarea>
+<div class="row"><button class="b" id="done">✓ Lo hice</button></div></div>
+
+<div class="card off" id="s4"><div class="step">4 · Tu punto de regreso ↺</div>
+<div class="small">Guarda este enlace. Al abrirlo vuelves a tu 🫵OS, en cualquier navegador. Lleva tu nombre y tu progreso, nunca contraseñas.</div>
+<pre id="ck"></pre>
+<div class="row"><button class="b" id="copylink">Copiar enlace de regreso</button><button class="b o" id="reset">Empezar de nuevo</button></div>
+<div id="back" class="ok" style="margin-top:8px"></div></div>
+
+<footer>Smaller than a widget. Composable like a command.<br>Many agents. One principal. · 🫵OS — Put your name on it.</footer>
+</main>
+<script>
+const C=[
+ {k:"saludo",i:"👋",n:"Presentarme",p:n=>`Hola Hark, soy ${n}. Es mi primera vez. Explícame en 3 frases sencillas qué puedes hacer por mí desde este teléfono.`},
+ {k:"recordatorio",i:"⏰",n:"Un recordatorio",p:n=>`Hark, soy ${n}. Recuérdame mañana a las 9 a. m. tomar agua y revisar mis mensajes. Pregúntame antes de crear nada.`},
+ {k:"traducir",i:"🌎",n:"Traducir",p:n=>`Hark, soy ${n}. Traduce al inglés este mensaje y dime si suena amable: "Gracias por la invitación, ahí estaré el martes."`},
+ {k:"resumen",i:"📄",n:"Resumir",p:n=>`Hark, soy ${n}. Te voy a pegar un texto largo. Resúmelo en 5 puntos y dime qué debo comprobar yo.`},
+ {k:"dia",i:"🗓️",n:"Ordenar mi día",p:n=>`Hark, soy ${n}. Ayúdame a ordenar mi día en 3 prioridades. Pregúntame primero qué tengo pendiente.`},
+ {k:"mensaje",i:"✍️",n:"Escribir un mensaje",p:n=>`Hark, soy ${n}. Ayúdame a escribir un mensaje corto para invitar a un amigo a aprender conmigo. Muéstrame el borrador; yo lo envío.`}];
+const $=id=>document.getElementById(id);let S={schema:"aestate/0.1",product:"agaentic",name:"",cap:null,done:false,note:"",at:null};
+function enc(o){return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function dec(s){s=s.replace(/-/g,'+').replace(/_/g,'/');return JSON.parse(decodeURIComponent(escape(atob(s))))}
+function save(){S.at=new Date().toISOString();localStorage.setItem('aestate',JSON.stringify(S));render()}
+function link(){return location.origin+location.pathname+'#s='+enc({n:S.name,c:S.cap,d:S.done,t:S.at})}
+function render(){const n=S.name.trim();$('who').textContent=n||'🫵';
+ $('sub').innerHTML=n?`Bienvenido/a a tu sistema, ${n.replace(/[<>&"]/g,'')}.<br><span class="small">Your system. Your name on it.</span>`:'Cambia 🫵 por tu nombre para empezar.<br><span class="small">Change 🫵 to your name to start.</span>';
+ $('s2').classList.toggle('off',!n);$('s3').classList.toggle('off',!(n&&S.cap));$('s4').classList.toggle('off',!S.done);
+ [...document.querySelectorAll('.cap')].forEach(b=>b.classList.toggle('on',b.dataset.k===S.cap));
+ const c=C.find(x=>x.k===S.cap);$('prompt').textContent=c?c.p(n||'🫵'):'';
+ if(S.done)$('ck').textContent=JSON.stringify({schema:S.schema,name:n,capability:S.cap,done:true,at:S.at,authority:"human · no se hereda"},null,2)+'\n\n'+link()}
+C.forEach(c=>{const b=document.createElement('button');b.className='cap';b.dataset.k=c.k;b.innerHTML=`<b>${c.i}</b>${c.n}`;b.onclick=()=>{S.cap=c.k;S.done=false;save()};$('caps').appendChild(b)});
+$('name').oninput=e=>{S.name=e.target.value;save()};
+$('note').oninput=e=>{S.note=e.target.value;localStorage.setItem('aestate',JSON.stringify(S))};
+$('copy').onclick=async()=>{try{await navigator.clipboard.writeText($('prompt').textContent);$('copy').textContent='Copiado ✓'}catch(e){}};
+$('done').onclick=()=>{S.done=true;save();$('s4').scrollIntoView({behavior:'smooth'})};
+$('copylink').onclick=async()=>{try{await navigator.clipboard.writeText(link());$('copylink').textContent='Enlace copiado ✓'}catch(e){}};
+$('reset').onclick=()=>{localStorage.removeItem('aestate');location.href=location.pathname};
+try{const h=location.hash.match(/s=([\w-]+)/);if(h){const o=dec(h[1]);S.name=o.n||'';S.cap=o.c||null;S.done=!!o.d;S.at=o.t||null;$('back').textContent=`↺ Bienvenido/a de vuelta, ${S.name}. Retomaste tu punto de regreso.`;history.replaceState(null,'',location.pathname);localStorage.setItem('aestate',JSON.stringify(S))}
+ else{const l=localStorage.getItem('aestate');if(l)S=Object.assign(S,JSON.parse(l))}}catch(e){}
+$('name').value=S.name;$('note').value=S.note||'';render();
+</script></body></html>

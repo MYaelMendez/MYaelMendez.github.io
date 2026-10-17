@@ -1,0 +1,51 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>🤖 æ · Asimov encarnado · LAB</title>
+<style>html,body{margin:0;height:100%;background:#05060a;color:#D4AF37;font:12px "JetBrains Mono",monospace;display:grid;place-items:center}
+svg{width:min(86vw,58vh);overflow:visible}.ink{fill:none;stroke:#D4AF37;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+#tag{position:fixed;bottom:10px;width:100%;text-align:center;opacity:.75;letter-spacing:.12em}#hud{position:fixed;top:10px;left:10px;opacity:.6;white-space:pre}</style></head><body>
+<div id="hud"></div>
+<svg viewBox="-20 -20 280 330"><defs><radialGradient id="g"><stop offset="0" stop-color="var(--c)" stop-opacity="var(--a)"/><stop offset="1" stop-color="var(--c)" stop-opacity="0"/></radialGradient></defs>
+<!-- cuello 2 DOF: yaw gira, pitch inclina -->
+<g id="neck"><path class="ink" d="M100 250 V290 M140 250 V290 M88 290 H152"/></g>
+<g id="head">
+ <circle cx="120" cy="130" r="150" fill="url(#g)"/>
+ <!-- casco: silueta aproximada de la cabeza Asimov 1 (no CAD) -->
+ <path class="ink" d="M40 70 Q40 20 120 20 Q200 20 200 70 V190 Q200 250 120 250 Q40 250 40 190 Z"/>
+ <path class="ink" d="M58 80 Q58 50 120 50 Q182 50 182 80 V180 Q182 225 120 225 Q58 225 58 180 Z" style="opacity:.5"/>
+ <!-- micrófonos (4) -->
+ <g class="ink" id="mics"><circle cx="46" cy="110" r="3"/><circle cx="46" cy="150" r="3"/><circle cx="194" cy="110" r="3"/><circle cx="194" cy="150" r="3"/></g>
+ <!-- cámara monocular: origen de la mirada -->
+ <circle class="ink" cx="120" cy="38" r="8"/><circle id="pupil" cx="120" cy="38" r="3" fill="#D4AF37"/>
+ <!-- 💡 foco: el filamento es la cara -->
+ <g id="bulb" transform="translate(70 62) scale(.5)">
+  <path class="ink" d="M70 200 C70 170 30 150 30 100 A70 70 0 1 1 170 100 C170 150 130 170 130 200 Z" style="stroke-width:5"/>
+  <path class="ink" d="M86 200 V180 M114 200 V180 M74 214 H126" style="stroke-width:5"/>
+  <path id="fil" class="ink" style="stroke-width:6" d=""/>
+ </g>
+</g></svg>
+<div id="tag">🤖 Asimov 1 · <span id="m"></span> · As above | so below · read-only æ1 · Human stays root</div>
+<script>
+// Encarnación: el cuerpo mueve la cara. neck_yaw/neck_pitch (rad) → giro/inclinación; audio (0–1) → boca; battery (%) → brillo; mood → filamento.
+const F={think:["#39e6ff","M86 180 L74 100 L100 118 L74 136 M106 138 L130 138 L114 180"],
+ready:["#7CFC9A","M86 180 L70 92 Q78 78 86 92 Q100 70 114 92 Q122 78 130 92 L114 180 M78 128 Q100 150 122 128"],
+work:["#D4AF37","M86 180 L70 95 L86 88 L114 88 L130 95 L114 180 M76 130 Q100 {M} 124 130"],
+sleep:["#4060ff","M86 180 L70 100 Q78 106 86 100 Q100 104 114 100 Q122 106 130 100 L114 180 M88 138 Q100 142 112 138"],
+tired:["#ffb347","M86 180 L70 98 Q78 92 86 98 Q100 96 114 98 Q122 92 130 98 L114 180 M82 142 Q100 132 118 142"],
+lost:["#888888","M86 180 L74 92 L66 100 M74 100 L66 92 M86 96 Q100 110 114 96 L126 92 L134 100 M126 100 L134 92 L114 180 M84 140 Q92 132 100 140 Q108 148 116 140"],
+hold:["#ff3355","M86 180 L66 90 L86 100 L100 88 L114 100 L134 90 L114 180 M78 140 L90 132 L100 142 L110 132 L122 140"]};
+const $=id=>document.getElementById(id),P=["hold","lost","tired","sleep","think","ready","work"];
+let S={mood:"think",neck_yaw:0,neck_pitch:0,audio:0,battery:100},demo=true;
+function draw(){const m=F[S.mood]?S.mood:"lost",[c,d]=F[m];
+ $("fil").setAttribute("d",d.replace("{M}",(140+S.audio*30).toFixed(0)));
+ const y=S.neck_yaw*57.3,p=S.neck_pitch*57.3;
+ $("head").setAttribute("transform",`translate(${(y*1.2).toFixed(1)} ${(p*1.2).toFixed(1)}) rotate(${(y*.25).toFixed(1)} 120 250)`);
+ $("pupil").setAttribute("cx",(120+y*.15).toFixed(1));$("pupil").setAttribute("cy",(38+p*.1).toFixed(1));
+ const r=document.documentElement.style;r.setProperty("--c",c);r.setProperty("--a",(.15+.5*Math.min(S.battery,100)/100).toFixed(2));
+ $("m").textContent=m;$("hud").textContent=`yaw ${y.toFixed(0)}° pitch ${p.toFixed(0)}°\naudio ${(S.audio*100|0)}%  bat ${S.battery|0}%${demo?"\nDEMO (simulación)":""}`}
+const q=new URLSearchParams(location.search),src=q.get("src");if(q.get("mood"))S.mood=q.get("mood");
+addEventListener("keydown",e=>{const i=+e.key;if(i>=1&&i<=7){S.mood=P[i-1];draw()}});
+if(src){demo=false;setInterval(async()=>{try{const j=await(await fetch(src,{cache:"no-store"})).json();
+ if(j.authority!=="æ1"){S.mood="lost"}else Object.assign(S,{mood:j.mood||"lost",neck_yaw:+j.neck_yaw||0,neck_pitch:+j.neck_pitch||0,audio:+j.audio||0,battery:j.battery??100})}catch(e){S.mood="lost"}draw()},200)}
+else{let t=0;setInterval(()=>{t+=.05;S.neck_yaw=.35*Math.sin(t*.7);S.neck_pitch=.15*Math.sin(t*1.1);S.audio=S.mood=="work"?Math.abs(Math.sin(t*9)):0;draw()},50)}
+draw();
+</script></body></html>

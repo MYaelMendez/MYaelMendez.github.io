@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Digitus · Tu línea · una labor digital</title>
+<meta name="description" content="Laboratorio: tu progreso es una sola línea dibujada a mano. Cada tarea con Hark Pro añade un trazo.">
+<style>
+:root{--paper:#f6efdf;--ink:#16130f;--chalk:#f4f1e8;--board:#1d1f1c;--y:#e7b928;--b:#2f63b5;--g:#3f9a5a}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:var(--paper);color:var(--ink)}
+main{max-width:460px;margin:0 auto;padding:18px 16px 40px}
+header{display:flex;justify-content:space-between;align-items:center;font-size:.8rem;letter-spacing:.08em}
+.sq{display:inline-flex;gap:3px}.sq i{width:12px;height:12px;display:block}
+h1{font:800 2.1rem/1 "Arial Narrow",Impact,system-ui;text-transform:uppercase;margin:14px 0 4px;letter-spacing:.01em}
+.sub{margin:0 0 14px;color:#5a5246}
+.stage{background:var(--board);border-radius:14px;padding:8px;position:relative}
+svg{display:block;width:100%;height:auto}
+#line{fill:none;stroke:var(--chalk);stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;transition:stroke-dashoffset 1.6s ease}
+#ghost{fill:none;stroke:#ffffff14;stroke-width:2}
+.who{font:700 22px "Bradley Hand","Segoe Script",cursive;fill:var(--chalk)}
+.tag{font:12px ui-monospace,monospace;fill:#bdb7a8}
+label{display:block;font-weight:700;margin:16px 0 6px}
+input{width:100%;font-size:1.1rem;padding:12px;border:2px solid var(--ink);border-radius:10px;background:#fffaf0}
+.task{border:2px solid var(--ink);border-radius:12px;padding:12px;margin:10px 0;background:#fffaf0}
+.task.done{opacity:.55}.task h3{margin:0 0 6px;font-size:1rem}
+.task p{margin:0 0 10px;font-size:.92rem;color:#3d372e}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+button,a.btn{font:700 .95rem system-ui;padding:10px 12px;border-radius:10px;border:2px solid var(--ink);background:var(--ink);color:var(--paper);text-decoration:none;cursor:pointer}
+button.alt,a.alt{background:transparent;color:var(--ink)}
+.note{font-size:.8rem;color:#6b6252;margin-top:18px;line-height:1.4}
+.cp{font:12px ui-monospace,monospace;word-break:break-all;background:#efe6d2;padding:8px;border-radius:8px;display:none}
+.term{background:var(--board);color:var(--chalk);border-radius:12px;padding:10px;margin-top:14px;font:13px/1.45 ui-monospace,Menlo,monospace}
+.term pre{margin:0 0 6px;white-space:pre-wrap;max-height:180px;overflow:auto}
+.term form{display:flex;gap:6px;align-items:center}.term span{color:var(--y)}
+.term input{flex:1;background:transparent;border:0;border-bottom:1px solid #ffffff40;color:var(--chalk);font:inherit;padding:6px 2px;border-radius:0}
+footer{margin-top:22px;font-size:.8rem;text-align:center;color:#6b6252}
+</style></head>
+<body><main>
+<header><span class="sq"><i style="background:var(--y)"></i><i style="background:var(--b)"></i><i style="background:var(--g)"></i></span><span>L:// LABORATORIO</span><a href="#" id="lang" style="color:inherit">EN</a></header>
+<h1 data-es="Digitus" data-en="Digitus">Digitus</h1>
+<p class="sub" data-es="Tu línea · una labor digital. Digital viene de digitus: dedo. Cada tarea que haces añade un trazo." data-en="Your line · a digital labor. Digital comes from digitus: finger. Every task you do adds a stroke.">Tu línea · una labor digital. Digital viene de digitus: dedo. Cada tarea que haces añade un trazo.</p>
+
+<div class="stage">
+<svg id="art" viewBox="0 0 360 640" role="img" aria-label="Una sola línea que dibuja unas manos con un teléfono y >_">
+<path id="ghost" d=""/>
+<path id="line" pathLength="100" d="M10 560 C70 545 110 575 150 560 C200 545 250 520 250 494 L250 174 Q250 150 226 150 L134 150 Q110 150 110 174 L110 446 Q110 470 134 470 L210 470 C236 440 238 220 205 210 C175 200 140 222 142 250 L177 280 L142 310 C152 318 172 316 190 316 L222 316 C232 350 214 390 196 398 C230 404 300 420 302 480 C304 545 270 600 220 632"/>
+<text id="who" class="who" x="20" y="60">🫵</text>
+<text id="tag" class="tag" x="20" y="84">0/5 · nano^svg</text>
+</svg>
+</div>
+
+<label for="name" data-es="Escribe tu nombre (se queda en tu teléfono)" data-en="Write your name (it stays on your phone)">Escribe tu nombre (se queda en tu teléfono)</label>
+<input id="name" maxlength="40" autocomplete="off" placeholder="🫵">
+
+<div id="tasks"></div>
+<div class="term" aria-label="Terminal Digitus"><pre id="out">>_ digitus · escribe ayuda / type help</pre>
+<form id="tf"><span>>_</span><input id="cmd" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="digitus trazo 1" aria-label="comando"></form></div>
+
+
+<div class="row" style="margin-top:12px">
+<button id="save" data-es="Guardar mi línea (SVG)" data-en="Save my line (SVG)">Guardar mi línea (SVG)</button>
+<button id="resume" class="alt" data-es="Copiar enlace de regreso" data-en="Copy return link">Copiar enlace de regreso</button>
+<button id="reset" class="alt" data-es="Empezar de nuevo" data-en="Start over">Empezar de nuevo</button>
+</div>
+<p id="cp" class="cp"></p>
+
+<p class="note" data-es="Laboratorio. Nada se envía: tu nombre y tu progreso viven en este teléfono. El logro es autodeclarado y el checkpoint no está firmado. El agente propone; la persona comprueba y decide." data-en="Lab. Nothing is sent: your name and progress live on this phone. Completion is self-reported and the checkpoint is unsigned. The agent proposes; the person checks and decides.">Laboratorio. Nada se envía: tu nombre y tu progreso viven en este teléfono. El logro es autodeclarado y el checkpoint no está firmado. El agente propone; la persona comprueba y decide.</p>
+<footer>🟨 Tecnología · <a href="https://lutheraninstitute.github.io/diplomado-agentico/" style="color:inherit">Diplomado</a> · <a href="https://lutheraninstitute.github.io/hark/invitados/" style="color:inherit">Clase 0 Hark Pro</a><br>L:// Aprender · æ:// Construir · æQR:// Compartir · ☩ Soli Deo Gloria</footer>
+</main>
+<script>
+const T=[
+ {es:["Preséntate","Pide a Hark Pro que te ayude a presentarte en tres líneas."],en:["Introduce yourself","Ask Hark Pro to help you introduce yourself in three lines."],p:{es:"Hola Hark, soy {n}. Ayúdame a escribir una presentación de tres líneas: quién soy, qué hago y qué quiero aprender.",en:"Hi Hark, I'm {n}. Help me write a three-line introduction: who I am, what I do and what I want to learn."}},
+ {es:["Un recordatorio","Pide un recordatorio útil para esta semana."],en:["A reminder","Ask for a useful reminder this week."],p:{es:"Hark, soy {n}. Ponme un recordatorio para algo importante de esta semana y pregúntame qué es.",en:"Hark, I'm {n}. Set me a reminder for something important this week and ask me what it is."}},
+ {es:["Traduce","Traduce un mensaje corto al inglés o al español."],en:["Translate","Translate a short message into English or Spanish."],p:{es:"Hark, soy {n}. Traduce este mensaje al inglés con tono amable: ",en:"Hark, I'm {n}. Translate this message into Spanish with a friendly tone: "}},
+ {es:["Resume","Pide el resumen de un texto o un enlace."],en:["Summarize","Ask for a summary of a text or a link."],p:{es:"Hark, soy {n}. Resúmeme esto en cinco líneas sencillas: ",en:"Hark, I'm {n}. Summarize this for me in five simple lines: "}},
+ {es:["Escribe un mensaje","Redacta un mensaje para alguien; tú decides si lo envías."],en:["Write a message","Draft a message for someone; you decide whether to send it."],p:{es:"Hark, soy {n}. Ayúdame a escribir un mensaje corto para ... Muéstramelo antes; yo decido si lo envío.",en:"Hark, I'm {n}. Help me write a short message for ... Show it to me first; I decide whether to send it."}}
+];
+let L=localStorage.getItem("digitus.lang")||"es";
+let S=JSON.parse(localStorage.getItem("digitus.state")||'{"n":"","d":[]}');
+// resume from link
+try{const h=new URLSearchParams(location.hash.slice(1));if(h.get("s")){const r=JSON.parse(decodeURIComponent(escape(atob(h.get("s")))));if(r.v==="aestate/0.1"&&r.app==="digitus"){S={n:r.n||"",d:r.d||[]};save();history.replaceState(null,"",location.pathname)}}}catch(e){}
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem("digitus.state",JSON.stringify(S))}
+function name(){return S.n.trim()||"🫵"}
+function draw(){
+ const k=S.d.length,line=$("line");
+ line.style.strokeDasharray="100 100";line.style.strokeDashoffset=String(100-(k/5)*100);
+ $("who").textContent=name();
+ $("tag").textContent=k+"/5 · "+(k<2?"nano^svg":k<5?"widget^æ":"site^CHAT ✓");
+}
+function render(){
+ document.querySelectorAll("[data-es]").forEach(e=>e.textContent=e.dataset[L]);
+ $("lang").textContent=L==="es"?"EN":"ES";
+ const box=$("tasks");box.innerHTML="";
+ T.forEach((t,i)=>{const done=S.d.includes(i);const d=document.createElement("div");d.className="task"+(done?" done":"");
+  d.innerHTML=`<h3>${done?"✓ ":""}${i+1}. ${t[L][0]}</h3><p>${t[L][1]}</p><div class="row"><button class="alt" data-c="${i}">${L==="es"?"Copiar prompt":"Copy prompt"}</button><button data-d="${i}">${done?(L==="es"?"Deshacer":"Undo"):(L==="es"?"Lo hice":"I did it")}</button></div>`;box.appendChild(d)});
+ $("name").value=S.n;draw();
+}
+$("tasks").addEventListener("click",async e=>{const c=e.target.dataset.c,d=e.target.dataset.d;
+ if(c!==undefined){const txt=T[c].p[L].replace("{n}",name());try{await navigator.clipboard.writeText(txt);e.target.textContent=L==="es"?"Copiado ✓":"Copied ✓"}catch(_){prompt("",txt)}}
+ if(d!==undefined){const i=+d;S.d=S.d.includes(i)?S.d.filter(x=>x!==i):[...S.d,i].sort();save();render()}});
+$("name").addEventListener("input",e=>{S.n=e.target.value;save();draw()});
+$("lang").onclick=e=>{e.preventDefault();L=L==="es"?"en":"es";localStorage.setItem("digitus.lang",L);render()};
+async function checkpoint(){const body={v:"aestate/0.1",app:"digitus",n:S.n,d:S.d,t:new Date().toISOString()};
+ const raw=JSON.stringify(body);const h=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(raw));
+ body.sha256=[...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,"0")).join("");return body}
+$("resume").onclick=async()=>{const c=await checkpoint();const url=location.origin+location.pathname+"#s="+btoa(unescape(encodeURIComponent(JSON.stringify(c))));
+ try{await navigator.clipboard.writeText(url)}catch(_){}const p=$("cp");p.style.display="block";p.textContent=url};
+$("save").onclick=async()=>{const c=await checkpoint();const svg=$("art").cloneNode(true);
+ svg.setAttribute("xmlns","http://www.w3.org/2000/svg");const md=document.createElementNS("http://www.w3.org/2000/svg","metadata");md.textContent=JSON.stringify(c);svg.prepend(md);
+ const st=document.createElementNS("http://www.w3.org/2000/svg","style");st.textContent="#line{fill:none;stroke:#f4f1e8;stroke-width:3.2;stroke-linecap:round}.who{font:700 22px cursive;fill:#f4f1e8}.tag{font:12px monospace;fill:#bdb7a8}";svg.prepend(st);
+ const bg=document.createElementNS("http://www.w3.org/2000/svg","rect");bg.setAttribute("width","360");bg.setAttribute("height","640");bg.setAttribute("fill","#1d1f1c");svg.insertBefore(bg,svg.querySelector("#ghost"));
+ svg.querySelector("#line").setAttribute("style",`stroke-dasharray:100 100;stroke-dashoffset:${100-(S.d.length/5)*100}`);
+ const blob=new Blob([new XMLSerializer().serializeToString(svg)],{type:"image/svg+xml"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="digitus-"+(S.n||"linea").replace(/\W+/g,"-")+".svg";a.click()};
+$("reset").onclick=()=>{if(confirm(L==="es"?"¿Borrar tu línea en este teléfono?":"Erase your line on this phone?")){S={n:"",d:[]};save();render()}};
+$("ghost").setAttribute("d",$("line").getAttribute("d"));
+render();
+const out=$("out");function say(s){out.textContent+="\n"+s;out.scrollTop=out.scrollHeight}
+function run(line){let a=line.trim().split(/\s+/);if(a[0]==="digitus"||a[0]===">_")a.shift();const c=(a[0]||"").toLowerCase(),n=parseInt(a[1],10)-1;const es=L==="es";
+ say(">_ "+line);
+ const ok=i=>Number.isInteger(i)&&i>=0&&i<5;
+ switch(c){
+  case"ayuda":case"help":say(es?"nombre <tu nombre> · tareas · trazo <1-5> · deshacer <1-5> · prompt <1-5> · estado · guardar · regreso · idioma es|en · reiniciar":"name <your name> · tasks · stroke <1-5> · undo <1-5> · prompt <1-5> · status · save · resume · lang es|en · reset");break;
+  case"nombre":case"name":S.n=a.slice(1).join(" ");save();render();say("🫵 → "+name());break;
+  case"tareas":case"tasks":case"ls":T.forEach((t,i)=>say((S.d.includes(i)?"✓ ":"· ")+(i+1)+" "+t[L][0]));break;
+  case"trazo":case"stroke":if(!ok(n)){say(es?"usa: trazo 1-5":"use: stroke 1-5");break}if(!S.d.includes(n)){S.d=[...S.d,n].sort();save();render()}say("✓ "+(n+1)+" · "+S.d.length+"/5");break;
+  case"deshacer":case"undo":if(!ok(n))break;S.d=S.d.filter(x=>x!==n);save();render();say("↺ "+(n+1)+" · "+S.d.length+"/5");break;
+  case"prompt":if(!ok(n)){say("prompt 1-5");break}{const t=T[n].p[L].replace("{n}",name());navigator.clipboard&&navigator.clipboard.writeText(t).catch(()=>{});say(t)}break;
+  case"estado":case"status":say(name()+" · "+S.d.length+"/5 · "+$("tag").textContent.split("· ")[1]);break;
+  case"guardar":case"save":$("save").click();say(es?"SVG con checkpoint descargado":"SVG with checkpoint downloaded");break;
+  case"regreso":case"resume":$("resume").click();setTimeout(()=>say($("cp").textContent),300);break;
+  case"idioma":case"lang":if(a[1]==="es"||a[1]==="en"){L=a[1];localStorage.setItem("digitus.lang",L);render()}say("lang "+L);break;
+  case"reiniciar":case"reset":S={n:"",d:[]};save();render();say("∅");break;
+  default:say(es?"no conozco ese comando · ayuda":"unknown command · help")}
+}
+$("tf").addEventListener("submit",e=>{e.preventDefault();const v=$("cmd").value;if(v.trim())run(v);$("cmd").value=""});
+// addressable: ?run=trazo%203
+{const q=new URLSearchParams(location.search).get("run");if(q)setTimeout(()=>run(q),400)}
+</script>
+</body></html>

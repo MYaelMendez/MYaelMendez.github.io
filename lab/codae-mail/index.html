@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Codæ Mail · LAB</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--g:#D4AF37;--bg:#050505;--ink:#e8e2cf;--dim:#8a8370;--ok:#5fd38d;--hold:#f0b13a;--no:#e2574c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "JetBrains Mono",monospace}
+.lab{background:var(--g);color:#000;text-align:center;font:700 12px "JetBrains Mono";letter-spacing:.2em;padding:6px}
+main{max-width:760px;margin:0 auto;padding:28px 18px 60px}
+h1{font:800 clamp(30px,8vw,54px)/1 Orbitron,sans-serif;color:var(--g);margin:18px 0 6px;letter-spacing:.02em}
+.tag{color:var(--dim);margin:0 0 26px}
+.map{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#2a2615;border:1px solid #2a2615;margin:0 0 28px}
+.map div{background:var(--bg);padding:10px 12px}.map b{color:var(--g)}
+h2{font:600 15px Orbitron;color:var(--g);letter-spacing:.12em;margin:30px 0 10px}
+label{display:block;color:var(--dim);font-size:12px;margin:12px 0 4px}
+input,textarea,select{width:100%;background:#0d0c08;color:var(--ink);border:1px solid #3a3420;padding:10px;font:inherit;border-radius:4px}
+textarea{min-height:90px}
+input:focus,textarea:focus{outline:1px solid var(--g)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+button{background:var(--g);color:#000;border:0;padding:11px 16px;font:700 13px "JetBrains Mono";border-radius:4px;cursor:pointer}
+button.ghost{background:transparent;color:var(--g);border:1px solid var(--g)}
+.chip{font-size:12px;padding:6px 9px}
+pre{background:#0b0a06;border:1px solid #3a3420;border-left:3px solid var(--g);padding:14px;white-space:pre-wrap;word-break:break-word;margin:14px 0}
+.gates{list-style:none;padding:0;margin:14px 0}.gates li{padding:5px 0;border-bottom:1px dashed #2a2615}
+.PASS{color:var(--ok)}.HOLD{color:var(--hold)}.RECHAZADO,.IGNORADO{color:var(--no)}
+.note{color:var(--dim);font-size:12px;border:1px dashed #3a3420;padding:10px;margin-top:24px}
+a{color:var(--g)}
+</style>
+</head>
+<body>
+<div class="lab">LAB · SIMULACIÓN · NADA SE ENVÍA</div>
+<main>
+<div style="color:var(--dim)">&gt;_ æ://codae-mail</div>
+<h1>CODÆ MAIL</h1>
+<p class="tag">Codæ Mode por correo. El correo más viejo de internet, convertido en terminal soberana.</p>
+
+<div class="map">
+<div><b>Asunto</b></div><div>el &gt;_ prompt</div>
+<div><b>Cuerpo</b></div><div>el contexto</div>
+<div><b>Respuesta</b></div><div>el recibo con evidencia</div>
+<div><b>Hilo</b></div><div>la bitácora</div>
+</div>
+
+<h2>&gt;_ REDACTAR</h2>
+<div class="row">
+<button class="ghost chip" data-s="[æ:008] ping">ping</button>
+<button class="ghost chip" data-s="[æ:007] status v/GEN">status</button>
+<button class="ghost chip" data-s="[æ:007] prepare PR segment.py #preparar">preparar</button>
+<button class="ghost chip" data-s="[æ:008] run gateway install #ejecutar">ejecutar</button>
+<button class="ghost chip" data-s="[æ:006] run publicar sitio #ejecutar">publicar</button>
+<button class="ghost chip" data-s="[æ:new] idea correo como terminal">nueva</button>
+</div>
+<label>De</label>
+<select id="from"><option>yael.eureka@gmail.com</option><option>desconocido@spam.example</option></select>
+<label>Para</label><input value="hermes@llm.store (propuesta)" disabled>
+<label>Asunto</label><input id="subj" value="[æ:008] ping">
+<label>Cuerpo (contexto)</label><textarea id="body">Hola Hermes, ¿estás vivo en el droplet?</textarea>
+<div class="row"><button id="send">&gt;_ ENVIAR (simulado)</button></div>
+
+<h2>&gt;_ PUERTAS</h2>
+<ul class="gates" id="gates"><li style="color:var(--dim)">Envía un correo para ver las puertas.</li></ul>
+<h2>&gt;_ RECIBO DE HERMES</h2>
+<pre id="rcpt">—</pre>
+
+<h2>&gt;_ #OSW · EL LENGUAJE æ ES TUYO</h2>
+<p>Codæ Mail es <b>#opensourceware</b>: no se democratiza solo el conocimiento, se democratiza la <b>agencia</b>. La gramática es abierta; cópiala, haz fork, ponle tu propio buzón y tu propio agente.</p>
+<pre>[æ:&lt;tarjeta&gt;] &lt;verbo&gt; &lt;objeto&gt; [#consulta|#preparar|#ejecutar]
+
+verbos: ping · status · read · summarize · draft · prepare · review · run
+recibo: &gt;_ recibo æ:&lt;tarjeta&gt;-&lt;aaaammdd&gt;-&lt;n&gt; · puerta PASS|HOLD|RECHAZADO · sha256</pre>
+<div class="row"><button id="copy">&gt;_ COPIAR GRAMÁTICA</button><a href="https://github.com/LutheranInstitute/aeee-lab/fork"><button class="ghost">🍴 FORK</button></a></div>
+<p style="color:var(--dim)">Se comparte: la gramática, las puertas, el recibo y este simulador. Nunca se comparte: buzones, contraseñas, listas de remitentes, ni la autoridad de nadie. Cada fork reclama su propio x0:y0:z0:æ0. <a href="OPENSOURCEWARE_BOUNDARY.md">Frontera OSW</a></p>
+<p style="color:var(--g)">Many humans. Many agents. One principal per environment.</p>
+
+<div class="note">
+Estados de tarjetas en esta simulación: 006 review · 007 triage · 008 triage (como en STATE.md hoy). Por eso un <i>#ejecutar</i> se detiene: solo corre en <i>ready</i>.<br>
+Reglas: <a href="SPEC.md">SPEC.md</a> · <a href="ae.json">ae.json</a> · <a href="llms.txt">llms.txt</a> · <a href="https://github.com/LutheranInstitute/Cli.llc/blob/main/cards/008-hermes-correo.md">tarjeta 008</a><br>
+Evidence ≠ Authority: el recibo informa, Yæl decide. · æQR conceptual, not scannable.
+</div>
+</main>
+<script>
+const ALLOWED=["yael.eureka@gmail.com"];
+const CARDS={"001":"todo","002":"blocked","003":"todo","004":"triage","005":"todo","006":"review","007":"triage","008":"triage"};
+const CLASS={ping:"consulta",status:"consulta",read:"consulta",summarize:"consulta",draft:"preparar",prepare:"preparar",review:"preparar",run:"ejecutar"};
+const HUMAN=/\b(pag|pay|dinero|money|borra|delete|public|publish|merge|secret|secreto|firma|legal|contrato)/i;
+const SECRET=/(sk-[A-Za-z0-9]{8,}|ghp_[A-Za-z0-9]{8,}|password\s*[:=]|contraseña\s*[:=]|AKIA[0-9A-Z]{12,})/i;
+let n=0;
+copy.onclick=()=>{navigator.clipboard.writeText(document.querySelectorAll("pre")[0].innerText);copy.textContent=">_ COPIADA ✓"};
+document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{subj.value=b.dataset.s});
+async function sha(t){const h=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+send.onclick=async()=>{
+ const g=[];let verdict="PASS",cls="—",card="—",next="nada";const s=subj.value.trim(),b=body.value,f=from.value;
+ const add=(name,st,msg)=>{g.push(`<li><span class="${st}">${st}</span> · ${name} — ${msg}</li>`)};
+ if(!ALLOWED.includes(f)){add("remitente","IGNORADO",f+" no está en EMAIL_ALLOWED_USERS");gates.innerHTML=g.join("");rcpt.textContent="(sin respuesta: Hermes ignora remitentes no autorizados)";return}
+ add("remitente","PASS",f);
+ const m=s.match(/^\[æ:(\d{3}|new)\]\s+(\w+)\s*(.*?)(?:\s+#(consulta|preparar|ejecutar))?$/i);
+ if(!m){add("gramática","RECHAZADO","usa [æ:<tarjeta>] <verbo> <objeto> [#clase]");verdict="RECHAZADO";next="reescribir el asunto"}
+ else{
+  card=m[1];const verb=m[2].toLowerCase(),obj=m[3];cls=(m[4]||CLASS[verb]||"consulta").toLowerCase();
+  add("gramática","PASS",`tarjeta ${card} · verbo ${verb} · clase ${cls}`);
+  if(SECRET.test(b)){add("secretos","RECHAZADO","algo con forma de secreto en el cuerpo; rótalo, nunca por correo");verdict="RECHAZADO";next="rotar la llave"}
+  else add("secretos","PASS","cuerpo limpio");
+  if(verdict==="PASS"){
+   if(card==="new"){add("tarjeta","PASS","se crea una tarjeta nueva en triage; no se ejecuta nada");next="revisar la tarjeta nueva en triage"}
+   else if(!CARDS[card]){add("tarjeta","RECHAZADO","no existe en Cli.llc/cards/");verdict="RECHAZADO";next="crear la tarjeta con [æ:new]"}
+   else{
+    add("tarjeta","PASS",`${card} en ${CARDS[card]}`);
+    if(cls==="ejecutar"&&CARDS[card]!=="ready"){add("estado","HOLD",`#ejecutar solo en ready; ${card} está en ${CARDS[card]}`);verdict="HOLD";next=`mover ${card} a ready`}
+    else add("estado","PASS",cls==="ejecutar"?"ready":"no requiere ready");
+    if(verdict==="PASS"&&HUMAN.test(s+" "+obj)){add("autoridad","HOLD","acción reservada a Yæl");verdict="HOLD";next="responder APROBADO <recibo> en este hilo"}
+    else if(verdict==="PASS")add("autoridad","PASS","dentro de lo que Hermes puede hacer");
+    if(verdict==="PASS")next=cls==="consulta"?"leer la respuesta":cls==="preparar"?"revisar el PR":"revisar la evidencia y decidir done";
+   }
+  }
+ }
+ gates.innerHTML=g.join("");
+ n++;const d=new Date().toISOString().slice(0,10).replace(/-/g,"");const id=`æ:${card}-${d}-${n}`;
+ const changes=verdict!=="PASS"?"ninguno":cls==="consulta"?"ninguno (solo lectura)":cls==="preparar"?"rama + PR (simulado)":"según la tarjeta (simulado)";
+ const base=`>_ recibo ${id}\nasunto:     ${s}\nclase:      ${cls}\npuerta:     ${verdict}\nestado:     tarjeta ${card} → ${card==="new"?"triage (nueva)":CARDS[card]||"—"}\ncambios:    ${changes}\nsiguiente:  ${next}`;
+ rcpt.textContent=base+`\nevidencia:  sha256:${await sha(base)}\n\nEvidence ≠ Authority · el recibo informa, Yæl decide.`;
+};
+</script>
+</body>
+</html>

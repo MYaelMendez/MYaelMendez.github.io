@@ -1,0 +1,26 @@
+# mæchlæng · Face
+
+The Asimov face bridge (LutheranInstitute/Robot, branch ae-face, ae/face.py) as Mech.
+Rules run top to bottom, so safety wins. Sketch in Mech syntax; not yet run on a Mech runtime.
+
+```mech
+<mood> := :hold | :lost | :tired | :sleep | :think | :ready | :work
+
+#Face(md<string>, ar<bool>, ft<bool>, ag<f64>, sc<f64>) ⇒ <mood> :=
+  ├ :Read(md<string>, ar<bool>, ft<bool>, ag<f64>, sc<f64>)
+  └ :Show(m<mood>).
+
+#Face(md, ar, ft, ag, sc) → :Read(md, ar, ft, ag, sc)
+  :Read(md, ar, ft, ag, sc)
+    ├ ft → :Show(:hold)                       -- fault latched
+    ├ ag > 0.5 → :Show(:lost)                 -- no fresh state
+    ├ sc < 20 → :Show(:tired)                 -- battery low
+    ├ md ⩵ "DAMP" → :Show(:sleep)
+    ├ md ⩵ "STAND" && ¬ar → :Show(:think)
+    ├ md ⩵ "STAND" && ar → :Show(:ready)
+    └ md ⩵ "MOVE" → :Show(:work)
+  :Show(m) ⇒ m
+.
+
+#Face("MOVE", true, false, 0.05, 80)
+```

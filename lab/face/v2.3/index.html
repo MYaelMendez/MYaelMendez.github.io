@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>🤖æsymov_face · Viewport Surface v2.2</title>
+<style>
+:root{--cy:#00f3ff;--cu:#b87333;--bg:#000;--u:1px;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#000;color:var(--cy);font-family:var(--mono);overflow:hidden;-webkit-text-size-adjust:100%}
+#wrap{position:fixed;inset:0;display:grid;place-items:center}
+#stage{position:relative;overflow:hidden;background:#000}
+#gpu,#bg{position:absolute;inset:0;width:100%;height:100%}#gpu{z-index:0}#bg{z-index:0;mix-blend-mode:screen}
+#ui{position:absolute;inset:0;display:flex;flex-direction:column;padding:calc(var(--u)*3)}
+nav{display:flex;gap:calc(var(--u)*1.5)}
+nav button{flex:1;min-height:44px;background:transparent;color:var(--cy);border:1px solid rgba(0,243,255,.35);border-radius:6px;font:inherit;font-size:max(12px,calc(var(--u)*3.2));cursor:pointer}
+nav button.on{background:rgba(0,243,255,.12);border-color:var(--cy)}
+.law{font-size:max(9px,calc(var(--u)*2.3));opacity:.65;text-align:center;margin:calc(var(--u)*1.5) 0;letter-spacing:.04em}
+.view{flex:1;min-height:0;overflow:auto;display:none;font-size:max(12px,calc(var(--u)*3.4));line-height:1.45}
+.view.on{display:block}
+#v-face.on{display:flex;align-items:center;justify-content:center;position:relative}
+#v-face svg{height:100%;max-width:100%;touch-action:none}
+#mood-tag{position:absolute;top:0;left:0;font-size:max(11px,calc(var(--u)*3));opacity:.85}
+#hud{position:absolute;top:0;right:0;text-align:right;white-space:pre-wrap;font-size:max(9px,calc(var(--u)*2.2));opacity:.6;max-width:60%}
+#cap{position:absolute;bottom:calc(var(--u)*4);left:0;right:0;text-align:center;color:#fff;font-size:max(11px,calc(var(--u)*3))}
+#hash-tag{position:absolute;bottom:0;left:0;right:0;font-size:max(9px,calc(var(--u)*2.2));opacity:.55;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+h1{font-size:max(20px,calc(var(--u)*7));letter-spacing:.06em;margin:calc(var(--u)*2) 0}
+h2{font-size:max(13px,calc(var(--u)*3.6));margin:calc(var(--u)*2.5) 0 calc(var(--u)*1);color:#fff}
+.dim{opacity:.6}.cu{color:var(--cu)}.w{color:#fff}
+table{border-collapse:collapse;width:100%}
+td{padding:2px 6px 2px 0;vertical-align:top;border-bottom:1px solid rgba(0,243,255,.12)}
+.big{font-size:max(28px,calc(var(--u)*11));color:#fff}
+#log{font-size:max(11px,calc(var(--u)*2.8));max-height:calc(var(--u)*16);overflow:hidden;opacity:.85;margin-top:calc(var(--u)*1.5);white-space:pre-wrap}
+#log .err{color:#ff6a3d}
+form{display:flex;align-items:center;gap:6px;border:1px solid rgba(0,243,255,.45);border-radius:6px;padding:0 8px;margin-top:calc(var(--u)*1.5);min-height:44px}
+form span{color:#fff;white-space:nowrap}
+#cmd{flex:1;background:transparent;border:0;outline:0;color:var(--cy);font:inherit;font-size:16px;min-height:44px}
+.chip{display:inline-block;min-height:44px;line-height:44px;padding:0 10px;margin:4px 4px 0 0;border:1px solid rgba(0,243,255,.35);border-radius:6px;cursor:pointer;background:transparent;color:var(--cy);font:inherit}
+#agent{display:none;white-space:pre-wrap;user-select:text;padding:16px;color:#ddd;font-size:14px;overflow:auto;height:100%}
+body.agent #wrap{display:none}body.agent #agent{display:block}
+@media (prefers-reduced-motion:reduce){.nz-halo{animation:none!important}}
+.nz-halo{transform-origin:120px 42px;animation:nz 4s ease-in-out infinite}
+@keyframes nz{50%{transform:scale(1.18);opacity:.15}}
+</style>
+</head>
+<body>
+<div id="wrap"><div id="stage">
+<canvas id="gpu" aria-hidden="true"></canvas><canvas id="bg"></canvas>
+<div id="ui">
+  <nav>
+    <button data-m="0" class="on">🧿 æsymov</button>
+    <button data-m="1">🔩 ANATOMÍA</button>
+    <button data-m="2">🧾 WITNESS</button>
+    <button data-m="3">🤖 FACE</button>
+  </nav>
+  <div class="law">>_æ: Humans decide · agents relay · Evidence ≠ Authority · æ1 read-only · DEMO</div>
+
+  <section class="view on" id="v-cover"></section>
+  <section class="view" id="v-anat"></section>
+  <section class="view" id="v-wit"></section>
+  <section class="view" id="v-face">
+    <div id="mood-tag"></div>
+    <svg id="face" viewBox="40 6 160 252" role="img" aria-label="æsymov: solo la cara. Casco negro, visor con filamento de humor, ojo de la mente 🧿 arriba">
+      <defs><radialGradient id="halo"><stop offset="0" id="h0" stop-color="#00f3ff" stop-opacity=".22"/><stop offset="1" stop-color="#00f3ff" stop-opacity="0"/></radialGradient></defs>
+      <g id="head">
+        <circle cx="120" cy="132" r="118" fill="url(#halo)"/>
+        <path d="M52 78 Q52 18 120 18 Q188 18 188 78 V176 Q188 246 120 250 Q52 246 52 176 Z" fill="#141416" stroke="#3a3a3e" stroke-width="2"/>
+        <path d="M60 70 Q66 30 120 28" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="10" stroke-linecap="round"/>
+        <rect x="66" y="96" width="108" height="64" rx="30" fill="#05060a" stroke="#b87333" stroke-width="2.5"/>
+        <path id="fil" d="" fill="none" stroke="#00f3ff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M52 176 Q60 232 120 240 Q180 232 188 176" fill="none" stroke="#b87333" stroke-opacity=".55" stroke-width="2"/>
+        <g fill="#b87333"><circle cx="54" cy="128" r="3"/><circle cx="186" cy="128" r="3"/><circle cx="86" cy="208" r="2.2"/><circle cx="154" cy="208" r="2.2"/></g>
+        <g id="nazar">
+          <circle class="nz-halo" cx="120" cy="42" r="15" fill="none" stroke="#3a6fe0" stroke-width="1.5" opacity=".5"/>
+          <circle cx="120" cy="42" r="11" fill="#12348f" stroke="#b87333" stroke-width="1.8"/>
+          <circle cx="120" cy="42" r="8" fill="#fff"/>
+          <circle id="iris" cx="120" cy="42" r="5.6" fill="#5fa8ff"/>
+          <circle id="pupil" cx="120" cy="42" r="2.8" fill="#05060a"/>
+        </g>
+      </g>
+    </svg>
+    <div id="hud"></div><div id="cap" aria-live="polite"></div><div id="hash-tag"></div>
+  </section>
+
+  <div id="log" aria-live="polite"></div>
+  <form id="f" autocomplete="off"><span>>_æ:</span><input id="cmd" enterkeyhint="send" placeholder="help" aria-label="comando" autocapitalize="off" spellcheck="false"></form>
+</div>
+</div></div>
+<pre id="agent"></pre>
+
+<script type="application/json" id="face-data">
+{
+  "schema":"æ.face/0.1",
+  "id":"aeqr://lutheraninstitute/aeee-lab/lab/face/v1",
+  "name":"æsymov_face",
+  "version":"2.2",
+  "body":"Asimov 1 · Menlo · solo la cara (módulo 700)",
+  "eye":"🧿 ojo de la mente: mira, protege, no se apropia",
+  "authority":{"level":"æ1","mode":"read-only","label":"DEMO","agents_may":["read","cite","relay"],"human_only":["accept","sign","price","transfer","move the robot"]},
+  "doctrine":"Humans decide · agents relay · Evidence ≠ Authority · Human stays root",
+  "moods":{"hold":"en espera","lost":"perdido","tired":"cansado","sleep":"dormido","think":"pensando","ready":"listo","work":"trabajando"},
+  "modules":[["100","torso"],["200","pelvis"],["300","brazo derecho"],["400","brazo izquierdo"],["500","pierna derecha"],["600","pierna izquierda"],["700","cabeza · aquí vivo yo"]],
+  "actuator_types":{"A":"EC-A6416-P2-25","B":"EC-A5013-H17-100","C":"EC-A3814-H14-107","D":"EC-A4315-P2-36","E":"EC-A4310-P2-36"},
+  "actuators":[
+    [1,"cadera pitch izq","A"],[2,"cadera roll izq","B"],[3,"cadera yaw izq","C"],[4,"rodilla izq","D"],[5,"tobillo A izq","E"],[6,"tobillo B izq","E"],
+    [7,"cadera pitch der","A"],[8,"cadera roll der","B"],[9,"cadera yaw der","C"],[10,"rodilla der","D"],[11,"tobillo A der","E"],[12,"tobillo B der","E"],
+    [13,"hombro pitch izq","B"],[14,"hombro roll izq","D"],[15,"hombro yaw izq","C"],[16,"codo izq","E"],[17,"muñeca izq","E"],
+    [18,"hombro pitch der","B"],[19,"hombro roll der","D"],[20,"hombro yaw der","C"],[21,"codo der","E"],[22,"muñeca der","E"],
+    [23,"cintura yaw","A"],[24,"cuello yaw","E"],[25,"cuello pitch","E"]
+  ],
+  "source":"https://docs.menlo.ai/asimov/1/build/assembly-preparations",
+  "lineage":["v1.1 glifo","v1.2 >_teleprompter","v1.3 Asimov de Menlo","v1.4 face_soul.md","v1.5 ✍️ plano","v1.6 🧿 ojo de la mente","v1.7 🔩 anatomía","v2.0 solo la cara · Viewport Surface","v2.1 consciente del viewport","v2.2 🧮 MathByte mueve la cabeza"]
+}
+</script>
+<script>
+(()=>{
+"use strict";
+const D = JSON.parse(document.getElementById("face-data").textContent);
+const $ = id => document.getElementById(id);
+const MOODS = ["hold","lost","tired","sleep","think","ready","work"];
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ── 1 · Stage ── */
+const stage=$("stage"), cv=$("bg"), cx=cv.getContext("2d");
+function layout(){
+  const W=innerWidth, H=innerHeight, wide = W > H;
+  const r = wide ? 16/9 : 9/16;
+  let w=W, h=W/r; if (h>H){ h=H; w=H*r; }
+  stage.style.width=w+"px"; stage.style.height=h+"px";
+  document.documentElement.style.setProperty("--u", (Math.min(w,h)/100)+"px");
+  const dpr=Math.min(devicePixelRatio||1,3);
+  cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
+  drawBg(cv.width,cv.height,dpr);
+}
+function drawBg(w,h,dpr){
+  cx.fillStyle="#000"; cx.fillRect(0,0,w,h);
+  const g=Math.min(w,h)/20;
+  cx.strokeStyle="rgba(0,243,255,.07)"; cx.lineWidth=1;
+  cx.beginPath();
+  for(let x=g;x<w;x+=g){cx.moveTo(x,0);cx.lineTo(x,h);}
+  for(let y=g;y<h;y+=g){cx.moveTo(0,y);cx.lineTo(w,y);}
+  cx.stroke();
+  const m=6*dpr; cx.strokeStyle="#00f3ff"; cx.lineWidth=1.5*dpr;
+  cx.strokeRect(m,m,w-2*m,h-2*m);
+  const k=g*.8; cx.lineWidth=3*dpr; cx.beginPath();
+  [[m,m,1,1],[w-m,m,-1,1],[m,h-m,1,-1],[w-m,h-m,-1,-1]].forEach(([x,y,sx,sy])=>{cx.moveTo(x,y+sy*k);cx.lineTo(x,y);cx.lineTo(x+sx*k,y);});
+  cx.stroke();
+}
+addEventListener("resize",layout); layout();
+
+/* ── 5 · Witness ── */
+const chain=[]; let prev="GENESIS";
+async function sha(s){
+  if(!(crypto&&crypto.subtle)) return "no-webcrypto";
+  const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+async function witness(ev){
+  const e=JSON.stringify({t:new Date().toISOString(),...ev});
+  const h=await sha(prev+"|"+e);
+  chain.push({prev,e,h}); prev=h;
+  $("hash-tag").textContent="witness #"+chain.length+" · "+h.slice(0,16)+"… · æ1 DEMO";
+  if(cur===2) renderWit();
+  return h;
+}
+
+/* ── 4 · Face engine ── */
+const FIL={
+  hold:["M96 128 H144","#ffb000"],
+  lost:["M98 128 q11 -16 22 0 t22 0 M112 140 h16","#a78bfa"],
+  tired:["M96 126 Q120 142 144 126","#8899aa"],
+  sleep:["M100 130 H112 M128 130 H140","#3a6fe0"],
+  think:["M96 128 C106 108 116 148 126 128 S140 112 146 128","#00f3ff"],
+  ready:["M98 128 L113 140 L144 114","#39ff88"],
+  work:["M94 128 L102 116 L110 140 L118 116 L126 140 L134 116 L142 140 L148 128","#ff6a3d"]
+};
+const POSTURE={hold:[0,0],lost:[14,-6],tired:[0,10],sleep:[0,16],think:[-6,-4],ready:[0,-3],work:[0,4]};
+const TAU={motor:.18,mood:.9};
+const tgt={mood:"think",yaw:0,pitch:0,glow:1}, st={yaw:0,pitch:0,glow:1};
+let finger=null, fingerT=0, drift=null, raf=0, last=0;
+const ease=(x,t,dt,tau)=>x+(t-x)*(1-Math.exp(-dt/tau));
+function paintMood(){
+  const [d,c]=FIL[tgt.mood];
+  $("fil").setAttribute("d",d); $("fil").setAttribute("stroke",c); $("h0").setAttribute("stop-color",c);
+  $("mood-tag").textContent="🤖 "+tgt.mood+" · "+D.moods[tgt.mood];
+}
+async function face(m,why="human",react=false){
+  if(!FIL[m]) return false;
+  const from=tgt.mood; tgt.mood=m; paintMood();
+  clearTimeout(drift);
+  if(react && m!=="think") drift=setTimeout(()=>face("think","drift"),3500);
+  if(from!==m) await witness({op:"mood",from,to:m,why});
+  return true;
+}
+function frame(t){
+  const dt=Math.min(.05,(t-(last||t))/1000)||.016; last=t;
+  const p=POSTURE[tgt.mood];
+  const here=finger&&performance.now()-fingerT<3000&&!reduce&&tgt.mood!=="sleep";
+  let ty=here?finger[0]:p[0], tp=here?finger[1]:p[1];
+  if(!reduce&&!here){ty+=Math.sin(t/1400)*2;tp+=Math.sin(t/1100+1)*1.2;}
+  if(kick&&t<kick.u){ty+=kick.y;tp+=kick.p;}
+  if(mbProg&&!here){const e=MB.vm(mbProg,{t:t/1000,y:ty,p:tp});if(isFinite(e.y))ty=Math.max(-40,Math.min(40,e.y));if(isFinite(e.p))tp=Math.max(-30,Math.min(30,e.p));}
+  aw=ease(aw,score(),dt,TAU.mood);
+  $("hud").textContent=`${ratio()} · ${innerWidth}×${innerHeight} @${Math.min(3,devicePixelRatio||1)}x · ${orient}\nzoom ${(vv?vv.scale:1).toFixed(2)} · finger ${here?"✓":"—"} · aw ${Math.round(aw*100)}%\nyaw ${st.yaw.toFixed(0)}° · pitch ${st.pitch.toFixed(0)}°`;
+  const tg=tgt.mood==="sleep"?.25:tgt.mood==="work"?(.75+.25*Math.abs(Math.sin(t/90))):1;
+  st.yaw=ease(st.yaw,ty,dt,TAU.motor); st.pitch=ease(st.pitch,tp,dt,TAU.motor); st.glow=ease(st.glow,tg,dt,TAU.mood);
+  $("head").setAttribute("transform",`rotate(${(st.yaw*.12).toFixed(2)} 120 140) translate(0 ${(st.pitch*.25).toFixed(2)})`);
+  $("iris").setAttribute("cx",(120+st.yaw*.06).toFixed(2)); $("iris").setAttribute("cy",(42+st.pitch*.05).toFixed(2));
+  $("pupil").setAttribute("cx",(120+st.yaw*.09).toFixed(2)); $("pupil").setAttribute("cy",(42+st.pitch*.07).toFixed(2));
+  $("fil").setAttribute("opacity",st.glow.toFixed(2));
+  raf=requestAnimationFrame(frame);
+}
+function loop(on){ if(on&&!raf){last=0;raf=requestAnimationFrame(frame);} if(!on&&raf){cancelAnimationFrame(raf);raf=0;} }
+
+/* ── 4b · Viewport awareness (from the æsymov Viewport Face page) ── */
+const vv=window.visualViewport, DK=matchMedia("(prefers-color-scheme: dark)");
+let orient=innerWidth>innerHeight?"landscape":"portrait", zoomed=false, kb=false, rz=0, kick=null, aw=0, idleLv=0, t0=performance.now(), back=0;
+const ratio=()=>innerWidth>innerHeight?"16:9":"9:16";
+function sense(m,why,line){ if(line) $("cap").textContent=line; face(m,"viewport: "+why); }
+function score(){const r=[innerWidth>0,!!devicePixelRatio,!!vv,performance.now()-fingerT<3000,!document.hidden,document.hasFocus(),navigator.onLine,true,true];return r.filter(Boolean).length/r.length;}
+function aware(){return{size:{w:innerWidth,h:innerHeight},dpr:devicePixelRatio||1,orientation:orient,ratio:ratio(),
+  visualViewport:vv?{scale:+vv.scale.toFixed(2),height:Math.round(vv.height),keyboard:kb}:null,
+  pointer:{present:performance.now()-fingerT<3000,idleMs:Math.round(performance.now()-(fingerT||t0))},
+  hidden:document.hidden,focus:document.hasFocus(),reducedMotion:reduce,colorScheme:DK.matches?"dark":"light",online:navigator.onLine,
+  mood:tgt.mood,awareness:Math.round(aw*100)};}
+addEventListener("resize",()=>{const o=innerWidth>innerHeight?"landscape":"portrait";
+  if(o!==orient){orient=o;kick={y:o==="landscape"?14:0,p:o==="portrait"?-8:0,u:performance.now()+700};sense("think","orientation","giraste el mundo · you turned the world");clearTimeout(back);back=setTimeout(()=>sense("ready","orientation settled","listo · ready"),1400);return;}
+  if(zoomed||kb)return; if(!kick||performance.now()>kick.u+700){ if(tgt.mood!=="work") sense("work","resize","me estiran · resizing"); clearTimeout(rz); rz=setTimeout(()=>sense("ready","resize end","listo · ready"),250);} });
+if(vv) vv.addEventListener("resize",()=>{const z=vv.scale>1.05;
+  if(z!==zoomed){zoomed=z;z?sense("hold","pinch zoom","me acercas · close-up"):sense("think","zoom reset","vuelvo a escala · back to scale");return;}
+  const k=!z&&vv.height<.75*innerHeight; if(k!==kb){kb=k;k?sense("think","keyboard","te escucho · listening"):sense("ready","keyboard closed","listo · ready");}});
+document.addEventListener("visibilitychange",()=>{ if(document.hidden){clearTimeout(back);sense("sleep","hidden","a oscuras · lights out");}
+  else {fingerT=0;t0=performance.now();idleLv=0;sense("lost","visible","¿quién está? · who's there?");clearTimeout(back);back=setTimeout(()=>sense("think","returned","pensando · thinking"),1500);} });
+addEventListener("offline",()=>sense("lost","offline","sin red · offline"));
+addEventListener("online",()=>sense("ready","online","red de vuelta · back online"));
+setInterval(()=>{ if(document.hidden||!navigator.onLine||zoomed||kb||cur!==3) return; const i=performance.now()-(fingerT||t0);
+  if(i>30000&&idleLv<2){idleLv=2;sense("sleep","absent 30s","me duermo · going to sleep");}
+  else if(i>8000&&idleLv<1){idleLv=1;sense("tired","absent 8s","¿sigues ahí? · still there?");} },500);
+
+/* ── 🧮 MathByte v0.1 (lab/mathbyte/v0): text → bytes → VM ── */
+const MB=(()=>{
+/* ── ISA ── */
+const OP={"+":1,"-":2,"*":3,"/":4,"^":5,sin:6,cos:7,tan:8,log:9,exp:10,PI:0x2A,E:0x2B,gpu_mul:0x30,gpu_add:0x31,
+  if:0x40,else:0x41,for:0x42,while:0x43,"(":0x50,")":0x51,"{":0x52,"}":0x53,";":0x54,NUM:0x60};
+const BYTE=Object.fromEntries(Object.entries(OP).map(([k,v])=>[v,k]));
+for(let i=0;i<26;i++){const c=String.fromCharCode(97+i);OP[c]=0x10+i;BYTE[0x10+i]=c;}
+const FN1=new Set(["sin","cos","tan","log","exp"]), FN2=new Set(["gpu_mul","gpu_add"]);
+const PREC={"+":1,"-":1,"*":2,"/":2,"^":3};
+const hx=b=>"0x"+b.toString(16).padStart(2,"0").toUpperCase();
+/* ── text → bytes ── */
+function tokens(s){
+  s=s.replace(/\/\/.*$/gm,"");const re=/\s*(\d+\.?\d*|\.\d+|[A-Za-z_]+|[-+*/^(),=;])/y;const out=[];let m;
+  while(re.lastIndex<s.length){const i=re.lastIndex;m=re.exec(s);if(!m){if(/^\s*$/.test(s.slice(i)))break;throw Error("símbolo raro cerca de: "+s.slice(i,i+8));}out.push(m[1]);}
+  return out;
+}
+function compile(src){
+  const t=tokens(src),bytes=[];let i=0;
+  const f32=n=>{const b=new Uint8Array(new Float32Array([n]).buffer);bytes.push(OP.NUM,...b);};
+  while(i<t.length){
+    const tgt=t[i];if(!/^[a-z]$/.test(tgt)||t[i+1]!=="=")throw Error("esperaba  letra = expresión;  en «"+t.slice(i,i+3).join(" ")+"»");
+    bytes.push(OP[tgt]);i+=2;
+    const ops=[];let prevVal=false;
+    const pop=()=>{const o=ops.pop();bytes.push(OP[o]);};
+    for(;i<t.length&&t[i]!==";";i++){
+      const k=t[i];
+      if(/^[\d.]/.test(k)){f32(parseFloat(k));prevVal=true;}
+      else if(k==="PI"||k==="E"){bytes.push(OP[k]);prevVal=true;}
+      else if(/^[a-z]$/.test(k)){bytes.push(OP[k]);prevVal=true;}
+      else if(FN1.has(k)||FN2.has(k)){ops.push(k);prevVal=false;}
+      else if(k==="("){ops.push("(");prevVal=false;}
+      else if(k===","){while(ops.length&&ops.at(-1)!=="(")pop();prevVal=false;}
+      else if(k===")"){while(ops.length&&ops.at(-1)!=="(")pop();if(!ops.length)throw Error("falta (");ops.pop();if(ops.length&&(FN1.has(ops.at(-1))||FN2.has(ops.at(-1))))pop();prevVal=true;}
+      else if(k in PREC){
+        if(k==="-"&&!prevVal){f32(-1);ops.push("*");continue;}
+        while(ops.length&&ops.at(-1) in PREC&&(PREC[ops.at(-1)]>PREC[k]||(PREC[ops.at(-1)]===PREC[k]&&k!=="^")))pop();
+        ops.push(k);prevVal=false;
+      } else throw Error("no conozco «"+k+"»");
+    }
+    while(ops.length){if(ops.at(-1)==="(")throw Error("falta )");pop();}
+    bytes.push(OP[";"]);i++;
+  }
+  return new Uint8Array(bytes);
+}
+/* ── bytes → statements of RPN ── */
+function decode(b){
+  const st=[];let cur=null;
+  for(let i=0;i<b.length;i++){
+    const x=b[i];
+    if(!cur){if(x<0x10||x>0x29)throw Error("byte "+hx(x)+": se esperaba variable");cur={tgt:BYTE[x],rpn:[]};continue;}
+    if(x===OP[";"]){st.push(cur);cur=null;continue;}
+    if(x===OP.NUM){cur.rpn.push(new Float32Array(b.slice(i+1,i+5).buffer)[0]);i+=4;continue;}
+    if(!(x in BYTE))throw Error("byte desconocido "+hx(x));
+    cur.rpn.push(BYTE[x]);
+  }
+  return st;
+}
+/* ── CPU path: tiny VM ── */
+function vm(st,env){
+  for(const {tgt,rpn} of st){const s=[];
+    for(const k of rpn){
+      if(typeof k==="number")s.push(k);else if(k==="PI")s.push(Math.PI);else if(k==="E")s.push(Math.E);
+      else if(/^[a-z]$/.test(k))s.push(env[k]||0);
+      else if(FN1.has(k))s.push(Math[k](s.pop()));
+      else{const b=s.pop(),a=s.pop();s.push(k==="+"||k==="gpu_add"?a+b:k==="-"?a-b:k==="*"||k==="gpu_mul"?a*b:k==="/"?a/b:Math.pow(a,b));}
+    }
+    env[tgt]=s[0];
+  }
+  return env;
+}
+
+return {compile,decode,vm,hx};
+})();
+let mbProg=null;
+const fv=$("v-face");
+fv.addEventListener("pointermove",e=>{const r=fv.getBoundingClientRect();finger=[((e.clientX-r.left)/r.width-.5)*60,((e.clientY-r.top)/r.height-.5)*40];fingerT=performance.now();if(idleLv){idleLv=0;sense("ready","presence","te veo · I see you");}});
+fv.addEventListener("pointerdown",e=>fv.dispatchEvent(new PointerEvent("pointermove",e)));
+fv.addEventListener("pointerleave",()=>finger=null);
+fv.addEventListener("pointerup",e=>{if(e.pointerType!=="mouse")finger=null;});
+
+/* ── 2 · Modes ── */
+const views=["v-cover","v-anat","v-wit","v-face"]; let cur=0;
+function mode(i){
+  i=+i; if(!(i>=0&&i<4)) return false; cur=i;
+  views.forEach((v,k)=>$(v).classList.toggle("on",k===i));
+  document.querySelectorAll("nav button").forEach((b,k)=>b.classList.toggle("on",k===i));
+  if(i===2) renderWit();
+  loop(i===3);
+  return true;
+}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>mode(b.dataset.m));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+$("v-cover").innerHTML=`
+  <h1 class="w">🤖æsymov_face</h1>
+  <div class="big">🧿</div>
+  <p>Solo la cara. Asimov 1 · módulo <b class="w">700</b>. ${esc(D.eye)}.</p>
+  <h2>Lo que encarno</h2>
+  <p><b class="w">ID 24</b> cuello yaw · <b class="w">ID 25</b> cuello pitch. Los muestro; no los muevo.</p>
+  <h2>Humores</h2>
+  <p>${MOODS.map((m,i)=>`<button class="chip" data-face="${m}">${i+1} ${m}</button>`).join("")}</p>
+  <h2>Autoridad</h2>
+  <p>${D.authority.level} · ${D.authority.mode} · ${D.authority.label}. Agentes: ${D.authority.agents_may.join(", ")}. Solo el humano: ${D.authority.human_only.join(", ")}.</p>
+  <p class="dim">${esc(D.schema)} · v${D.version} · ${esc(D.id)}</p>`;
+$("v-cover").addEventListener("click",e=>{const m=e.target.dataset.face;if(m){face(m,"tap");mode(3);}});
+const groups=[["Pierna izq",1,6],["Pierna der",7,12],["Brazo izq",13,17],["Brazo der",18,22],["Cintura",23,23],["Cuello · la cara",24,25]];
+$("v-anat").innerHTML=`<h2>7 módulos</h2><table>${D.modules.map(([n,p])=>`<tr><td class="w">${n}</td><td>${p}</td></tr>`).join("")}</table>
+  <h2>25 actuadores · 5 tipos</h2>${groups.map(([g,a,b])=>`<p class="w" style="margin-top:8px">${g}</p><table>${D.actuators.filter(x=>x[0]>=a&&x[0]<=b).map(([id,j,t])=>`<tr><td class="${id>=24?"cu":"w"}">ID ${id}</td><td>${j}</td><td class="dim">${D.actuator_types[t]}</td></tr>`).join("")}</table>`).join("")}
+  <p class="dim" style="margin-top:10px">Fuente: Menlo Docs, Part Organisation. Los IDs se asignan uno por uno en el banco, antes de armar.</p>`;
+function renderWit(){
+  $("v-wit").innerHTML=`<h2>Cadena de testigo</h2><p class="dim">SHA-256(prev | evento) desde GENESIS · æ1 · solo lectura · DEMO</p>`+
+   (chain.length?`<table>${chain.slice().reverse().map((c,i)=>{const e=JSON.parse(c.e);return `<tr><td class="w">#${chain.length-i}</td><td>${esc(e.from)} → <b class="w">${esc(e.to)}</b><br><span class="dim">${esc(e.why)} · ${esc(e.t.slice(11,19))}</span><br><span class="cu">${c.h.slice(0,24)}…</span></td></tr>`}).join("")}</table>`:`<p>Sin recibos aún. Cambia un humor.</p>`);
+}
+
+/* ── 3 · Command line ── */
+const logEl=$("log"); const hist=[]; let hi=0;
+function log(s,cls){const d=document.createElement("div");if(cls)d.className=cls;d.textContent=s;logEl.appendChild(d);while(logEl.children.length>5)logEl.firstChild.remove();}
+const C={
+  help(){log("login [publish] · me · publish <texto> · approve <id> <clave> · gpu · help · cover · ls · anatomy · aware · mb · id <n> · module <n> · face [humor|1-7] · moods · receipts · whoami · agent · clear");},
+  cover(){mode(0);}, anatomy(){mode(1);}, receipts(){mode(2);log(chain.length+" recibos · cabeza "+prev.slice(0,12));},
+  ls(){log(D.modules.map(m=>m.join(" ")).join(" · "));},
+  moods(){log(MOODS.map((m,i)=>(i+1)+" "+m).join(" · "));},
+  async face(a){ if(!a){mode(3);return log("humor: "+tgt.mood);} const m=MOODS[+a-1]||a; if(await face(m,"cli: face")){mode(3);log("→ "+m);} else {log("humor inválido: "+a,"err");face("hold","cli: error",true);} },
+  async id(a){ const x=D.actuators.find(r=>r[0]===+a); if(!x){log("no existe ID "+a+" · son 1–25","err");return face("hold","cli: id inválido",true);} log(`ID ${x[0]} · ${x[1]} · ${D.actuator_types[x[2]]}`+(x[0]>=24?" · lo encarno":"")); face("work","cli: id "+x[0],true); },
+  async module(a){ const m=D.modules.find(r=>r[0]===String(a)); if(!m){log("módulos: 100–700","err");return face("hold","cli: módulo inválido",true);} log(m.join(" · ")); face("work","cli: módulo "+m[0],true); },
+  async mb(a){
+    if(!a){log("mb <letra = expr; …>  · y yaw° · p pitch° · t segundos · mb off");return;}
+    if(a==="off"){mbProg=null;log("🧮 apagado");return;}
+    try{const b=MB.compile(a);mbProg=MB.decode(b);const h=await witness({op:"mathbyte",from:tgt.mood,to:tgt.mood,why:"mb "+b.length+" bytes"});
+      log("🧮 "+b.length+" bytes · "+[...b].slice(0,24).map(MB.hx).join(" ")+(b.length>24?" …":""));mode(3);face("work","mb",true);}
+    catch(e){log("🧮 ✗ "+e.message,"err");face("lost","mb error",true);}
+  },
+  aware(){mode(3);log(JSON.stringify(aware()));},
+  async login(a){log("🔐 LinkedIn → llm.store");await witness({op:"login",from:tgt.mood,to:"ready",why:a==="publish"?"login publish":"login"});location.href="/linkedin/login"+(a==="publish"?"?scope=publish":"");},
+  async me(){try{const r=await fetch("/me",{credentials:"same-origin",headers:{Accept:"application/json"}});const t=await r.text();let j;try{j=JSON.parse(t)}catch{j=null}
+    if(!j){log("sin sesión · escribe login");return face("hold","me: anon",true);} PC=j;log("👤 "+(j.name||j.sub)+(j.can_publish?" · puede publicar":" · solo lectura"));face("ready","me",true);}catch(e){log("✗ "+e.message,"err");face("lost","me error",true);}},
+  async publish(a){if(!a){log("publish <texto> · crea un BORRADOR; solo el humano aprueba");return;}
+    try{const r=await fetch("/publish",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:a})});
+      if(!r.ok){log("✗ "+r.status+" · "+(await r.text()),"err");return face("hold","publish denied",true);}
+      const j=await r.json();LAST=j.draft;await witness({op:"draft",from:tgt.mood,to:"work",why:"draft "+j.draft});log("📝 borrador "+j.draft+" · espera tu firma: approve "+j.draft+" <clave>");face("work","publish draft",true);}
+    catch(e){log("✗ "+e.message,"err");face("lost","publish error",true);}},
+  async approve(a){const [d,k]=a.split(/\s+/);if(!d||!k){log("approve <borrador> <clave> · solo el humano");return;}
+    try{const r=await fetch("/approve",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({draft:d,key:k})});
+      if(!r.ok){log("✗ "+r.status,"err");return face("hold","approve denied",true);}
+      const j=await r.json();await witness({op:"published",from:tgt.mood,to:"ready",why:"post "+j.post});log("✅ publicado · recibo "+String(j.receipt).slice(0,16)+"…");face("ready","published",true);}
+    catch(e){log("✗ "+e.message,"err");face("lost","approve error",true);}},
+  gpu(){log(GPU?"⚡ WebGPU activo · "+GPU:"WebGPU no disponible · lienzo 2D");},
+  whoami(){log("tú: el humano, root. yo: æsymov_face, æ1, solo lectura. Humans decide · agents relay.");},
+  agent(){document.body.classList.toggle("agent");},
+  clear(){logEl.textContent="";}
+};
+async function run(line){
+  line=String(line||"").trim(); if(!line) return;
+  log(">_æ: "+line);
+  const [c,...a]=line.split(/\s+/); const f=C[c.toLowerCase()];
+  if(f) await f(a.join(" "));
+  else if(MOODS.includes(c)) await C.face(c);
+  else { log("¿"+c+"? prueba help","err"); face("lost","cli: typo",true); }
+}
+$("f").addEventListener("submit",e=>{e.preventDefault();const v=$("cmd").value;$("cmd").value="";if(v.trim()){hist.push(v);hi=hist.length;}run(v);});
+$("cmd").addEventListener("keydown",e=>{
+  if(e.key==="ArrowUp"&&hi>0){hi--;$("cmd").value=hist[hi];e.preventDefault();}
+  if(e.key==="ArrowDown"){hi=Math.min(hist.length,hi+1);$("cmd").value=hist[hi]||"";e.preventDefault();}
+});
+
+/* ── 6 · Agent interface ── */
+$("agent").textContent=[
+ "æsymov_face · "+D.schema+" · v"+D.version, D.id, "", D.body, D.eye, "",
+ "Authority: "+D.authority.level+" "+D.authority.mode+" "+D.authority.label,
+ "Agents may: "+D.authority.agents_may.join(", "), "Human only: "+D.authority.human_only.join(", "), "",
+ "Moods: "+MOODS.map((m,i)=>(i+1)+" "+m+" ("+D.moods[m]+")").join(", "), "",
+ "Modules: "+D.modules.map(m=>m.join(" ")).join("; "), "",
+ "Actuators:", ...D.actuators.map(([i,j,t])=>"  ID "+i+" · "+j+" · "+D.actuator_types[t]), "",
+ "Source: "+D.source, "Lineage: "+D.lineage.join(" → "), "", ">_æ: "+D.doctrine, "", "(agent toggles back to the surface)"
+].join("\n");
+$("agent").addEventListener("click",()=>document.body.classList.remove("agent"));
+
+/* ── 7 · WebGPU surface (runs on the visitor's GPU; droplet only serves) ── */
+let GPU="",PC=null,LAST=null;
+(async()=>{try{
+  if(!navigator.gpu||matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+  const ad=await navigator.gpu.requestAdapter();if(!ad)return;const dev=await ad.requestDevice();
+  const c=document.getElementById("gpu"),ctx=c.getContext("webgpu"),fmt=navigator.gpu.getPreferredCanvasFormat();
+  ctx.configure({device:dev,format:fmt,alphaMode:"premultiplied"});
+  const code=`struct U{t:f32,w:f32,h:f32,m:f32,yaw:f32,pit:f32,a:f32,b:f32};@group(0)@binding(0)var<uniform>u:U;
+  @vertex fn vs(@builtin(vertex_index)i:u32)->@builtin(position)vec4f{var p=array<vec2f,3>(vec2f(-1,-3),vec2f(-1,1),vec2f(3,1));return vec4f(p[i],0,1);}
+  @fragment fn fs(@builtin(position)q:vec4f)->@location(0)vec4f{
+    let uv=(q.xy-vec2f(u.w,u.h)*.5)/u.h; let o=vec2f(u.yaw,u.pit)*.004;
+    let r=length(uv-o); let g=abs(fract((uv+o)*12.)-.5); let line=smoothstep(.48,.5,max(g.x,g.y));
+    let ring=smoothstep(.012,0.,abs(fract(r*6.-u.t*.25)-.5)-.47);
+    let k=.18+.12*u.m; let col=vec3f(0.,.95,1.)*(line*.10+ring*k)*exp(-r*1.6);
+    return vec4f(col,1.);}`;
+  const mod=dev.createShaderModule({code});
+  const pipe=dev.createRenderPipeline({layout:"auto",vertex:{module:mod,entryPoint:"vs"},fragment:{module:mod,entryPoint:"fs",targets:[{format:fmt}]},primitive:{topology:"triangle-list"}});
+  const ub=dev.createBuffer({size:32,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST});
+  const bg=dev.createBindGroup({layout:pipe.getBindGroupLayout(0),entries:[{binding:0,resource:{buffer:ub}}]});
+  const MI={hold:0,lost:1,tired:.3,sleep:0,think:.6,ready:.8,work:1};const t0=performance.now();
+  GPU=(ad.info&&ad.info.vendor)||"gpu";
+  (function f(){const d=devicePixelRatio||1,W=Math.max(1,c.clientWidth*d|0),H=Math.max(1,c.clientHeight*d|0);if(c.width!==W||c.height!==H){c.width=W;c.height=H;}
+    const a=window.AESYMOV&&AESYMOV.aware?AESYMOV.aware():{};
+    dev.queue.writeBuffer(ub,0,new Float32Array([(performance.now()-t0)/1e3,W,H,MI[window.AESYMOV?AESYMOV.mood:"think"]??.5,+(a.yaw||0),+(a.pitch||0),0,0]));
+    const e=dev.createCommandEncoder(),p=e.beginRenderPass({colorAttachments:[{view:ctx.getCurrentTexture().createView(),loadOp:"clear",clearValue:{r:0,g:0,b:0,a:1},storeOp:"store"}]});
+    p.setPipeline(pipe);p.setBindGroup(0,bg);p.draw(3);p.end();dev.queue.submit([e.finish()]);requestAnimationFrame(f);})();
+}catch(e){GPU="";}})();
+window.AESYMOV={run,mode,face:m=>face(m,"agent"),get mood(){return tgt.mood},aware,mathbyte:MB,data:D,chain};
+
+const q=new URLSearchParams(location.search);
+if(q.has("agent")) document.body.classList.add("agent");
+paintMood(); witness({op:"boot",from:"GENESIS",to:"think",why:"boot"});
+log("🧿 æsymov_face v2.3 · llm.store · escribe login o help");if(location.protocol==="https:")C.me();
+if(q.has("face")) mode(3);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+ "schema":"ae.agent-card/0.1",
+ "name":"PRIVATE CLIENT",
+ "description":"Human-rooted portal on the Internet of Agents. Agents may propose; only the human principal authorizes. Every decision leaves a SHA-256 receipt.",
+ "url":"https://auth.llm.store/",
+ "principal":"HUMAN://ROOT",
+ "identity":"LinkedIn OpenID Connect",
+ "protocols":["https","json","ae.manifest/0.1"],
+ "endpoints":{"card":"/.well-known/agent-card.json","propose":"POST /intents","privacy":"/privacy"},
+ "intent_schema":{"agent":"string (your name or domain)","kind":"post | read | ask","title":"string ≤120","body":"string ≤3000","why":"string ≤300"},
+ "authority":{"agents_may":["propose an intent","read this card","read /privacy"],"human_only":["approve","publish","grant capability","share personal data"]},
+ "invariants":["Many agents. One principal.","Context may propagate; authority does not.","No capability without provenance.","Evidence ≠ Authority."],
+ "license":"#OSW · fork freely, preserve attribution"
+}
