@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="webmcp" href="../webmcp-tools.json">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#050505">
+  <title>KÆNBÆN IRL · kanban-irl</title>
+  <meta name="description" content="IRL kænbæn card loop hardened to local resources. 8 kanban cards with Ed25519 signatures.">
+  <link rel="canonical" href="https://myaelmendez.github.io/kanban-irl/">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--void:#050505;--gold:#D4AF37;--gold-hi:#ffda83;--neon:#00ff9d;--cyan:#70dcff;--ink:#e8e6df;--muted:#6f6a5c;--frame:#0c0c0c;--line:rgba(212,175,55,.18)}
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
+    #grid{position:fixed;inset:0;z-index:0}
+    .scan{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(212,175,55,.025) 0 1px,transparent 1px 3px)}
+    .wrap{position:relative;z-index:2;max-width:680px;margin:0 auto;padding:0 18px}
+    .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:14px 0 12px;border-bottom:1px solid var(--line);font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+    .bar .b1{color:var(--gold);font-weight:700;text-transform:none}
+    .core{flex:1 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px 0}
+    .glyph{font-size:clamp(50px,16vw,92px);line-height:1;color:var(--gold);text-shadow:0 0 34px rgba(212,175,55,.5);font-family:'Orbitron';font-weight:900;animation:breathe 4s ease-in-out infinite}
+    @keyframes breathe{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.03)}}
+    .coord{font-size:clamp(19px,6vw,32px);font-weight:700;letter-spacing:2px;white-space:nowrap}
+    .coord .x,.coord .y,.coord .z{color:var(--neon)}
+    .coord .a{color:var(--gold-hi);text-shadow:0 0 16px rgba(212,175,55,.5)}
+    .coord .sep{color:var(--muted);opacity:.5}
+    .tag{font-size:10px;letter-spacing:2.5px;color:var(--muted);text-transform:uppercase;min-height:1.2em}
+    .tag b{color:var(--gold)}
+    .mesh{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;padding:6px 0 16px}
+    @media(max-width:560px){.mesh{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:360px){.mesh{grid-template-columns:1fr}}
+    .door{display:flex;flex-direction:column;gap:3px;padding:10px 11px;border:1px solid var(--line);border-left:2px solid var(--ac,var(--gold));background:rgba(212,175,55,.03);color:var(--ink);text-decoration:none;transition:all .18s;min-width:0}
+    .door:hover{background:rgba(212,175,55,.09);transform:translateY(-2px);border-color:var(--ac,var(--gold))}
+    .door .ax{font-size:8px;color:var(--ac,var(--cyan));letter-spacing:.5px}
+    .door b{font-size:11px;color:var(--gold);letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .door small{font-size:9px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .hint{font-size:9px;color:var(--muted);letter-spacing:1px;padding-bottom:14px;opacity:.7;text-align:center}
+    .back{text-align:center;padding:16px 0}
+    .back a{color:var(--neon);text-decoration:none;font-size:11px;letter-spacing:1px}
+    .back a:hover{color:var(--gold-hi)}
+  </style>
+</head>
+<body>
+  <canvas id="grid"></canvas>
+  <div class="scan"></div>
+  <div class="wrap">
+    <div class="bar">
+      <span class="b1">æ://kanban · IRL</span>
+      <span>PHYSICAL → DIGITAL</span>
+    </div>
+    <div class="core">
+      <div class="glyph">☺</div>
+      <div class="coord">
+        <span class="x">x<span class="num">4</span></span><span class="sep">:</span><span class="y">y<span class="num">5</span></span><span class="sep">:</span><span class="z">z<span class="num">0</span></span><span class="sep">:</span><span class="a">æ<span class="num">0</span></span>
+      </div>
+      <div class="tag">IRL kænbæn · <b>8 cards</b> · local resources</div>
+      <div class="mesh" id="mesh"></div>
+      <div class="hint">SCAN QR → DISPATCH → CARD ADVANCES A LANE</div>
+    </div>
+    <div class="back">
+      <a href="../index.html">← back to origin</a>
+    </div>
+  </div>
+  <script>
+    // Load board.json and render cards as local resources (no phantom dispatch endpoint)
+    fetch('./board.json').then(r=>r.json()).then(s=>{
+      const mesh = document.getElementById('mesh');
+      const AXCOL=['#D4AF37','#70dcff','#00ff9d','#b98cff'];
+      s.cards.forEach((c,i)=>{
+        const a = document.createElement('a');
+        a.className = 'door';
+        a.style.setProperty('--ac', AXCOL[i%4]);
+        a.href = './' + c.qr;  // local card image
+        a.innerHTML = '<span class="ax">'+c.addr+'</span><b>'+c.name+'</b><small>'+c.verb+' · '+c.face+'</small>';
+        mesh.appendChild(a);
+      });
+    }).catch(e=>{
+      document.getElementById('mesh').innerHTML = '<div style="color:var(--muted);font-size:11px;padding:20px">board.json load failed: '+e.message+'</div>';
+    });
+    // Scanline grid (matches origin aesthetic)
+    var c = document.getElementById('grid'), x = c.getContext('2d');
+    var dpr = Math.min(2, window.devicePixelRatio||1);
+    function fit(){c.width=window.innerWidth*dpr;c.height=window.innerHeight*dpr;x.setTransform(dpr,0,0,dpr,0,0)}
+    fit();window.addEventListener('resize',fit);
+    var t=0;function loop(){x.clearRect(0,0,c.width,c.height);
+      var w=c.width,h=c.height,hy=h*0.46;x.strokeStyle='rgba(0,255,157,.06)';x.lineWidth=1;
+      for(var i=-12;i<=12;i++){x.beginPath();x.moveTo(w/2+i*46,hy);x.lineTo(w/2+i*220,h);x.stroke()}
+      for(var j=0;j<14;j++){var yy=hy+(h-hy)*(j/14)+(t%60)*0.4;x.beginPath();x.moveTo(0,yy);x.lineTo(w,yy);x.stroke()}
+      x.strokeStyle='rgba(212,175,55,.10)';x.beginPath();x.moveTo(w/2,0);x.lineTo(w/2,h);x.stroke();t+=0.4;requestAnimationFrame(loop)}
+    loop();
+  </script>
+  <script src="../webmcp.js"></script>
+</body>
+</html>
