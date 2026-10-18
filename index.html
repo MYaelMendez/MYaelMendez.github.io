@@ -20,7 +20,9 @@
 <link rel="manifest" href="./surface-manifest.json" type="application/json">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-:root{--void:#050505;--gold:#D4AF37;--gold-hi:#ffda83;--neon:#00ff9d;--cyan:#70dcff;--purple:#b98cff;--ink:#e8e6df;--muted:#6f6a5c;--frame:#0c0c0c;--line:rgba(212,175,55,.18)}
+:root{--void:#050505;--gold:#D4AF37;--gold-hi:#ffda83;--neon:#00ff9d;--cyan:#70dcff;--purple:#b98cff;--ink:#e8e6df;--muted:#6f6a5c;--frame:#0c0c0c;--line:rgba(212,175,55,.18);--grid-neon:rgba(0,255,157,.06);--grid-gold:rgba(212,175,55,.10);--grid-center:rgba(212,175,55,.10)}
+:root[data-theme="day"]{--void:#f5f2ea;--ink:#1a1a1a;--muted:#6f6a5c;--frame:#e8e6df;--line:rgba(0,0,0,.12);--grid-neon:rgba(0,0,0,.04);--grid-gold:rgba(180,150,80,.08);--grid-center:rgba(180,150,80,.10)}
+:root[data-env="agentic_environments"]{--void:#0a1f11;--gold:#a8ffc1;--gold-hi:#d0ffde;--neon:#00ff9d;--cyan:#70dcff;--purple:#b98cff;--ink:#c1d9c8;--muted:#6f8a7a;--frame:#1a3423;--line:rgba(168,255,193,.25);--grid-neon:rgba(168,255,193,.06);--grid-gold:rgba(168,255,193,.08);--grid-center:rgba(168,255,193,.10)}
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden;overflow-y:auto}
 #grid{position:fixed;inset:0;z-index:0}
@@ -95,8 +97,19 @@ html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'J
 .aeportal .ae-link small{font:11px/1.4 system-ui,sans-serif;color:#bedac5}
 .aeportal .ae-principal{font:700 11px system-ui,sans-serif;color:#a8ffc1;margin-top:12px;text-align:center}
 .aeportal a:focus-visible{outline:3px solid #ffd08c;outline-offset:3px}
+:root[data-theme="day"] .aeportal{background:linear-gradient(140deg,rgba(255,255,255,.97),rgba(240,238,230,.94));border-color:rgba(168,255,193,.34);box-shadow:0 14px 50px #0003}
+:root[data-theme="day"] .aeportal h2{color:#1a3423}
+:root[data-theme="day"] .aeportal p{color:#3e6b49}
+:root[data-theme="day"] .aeportal .eyebrow{color:#6f8a7a}
+:root[data-theme="day"] .aeportal .ae-marquee{border-color:#d0d0c8}
+:root[data-theme="day"] .aeportal .ae-track{color:#6f8a7a}
+:root[data-theme="day"] .aeportal .ae-link{background:#f5f2ea;border-color:#c8c8c0;color:#1a1a1a}
+:root[data-theme="day"] .aeportal .ae-link:hover{background:#e8e6df}
+:root[data-theme="day"] .aeportal .ae-link strong{color:#1a1a1a}
+:root[data-theme="day"] .aeportal .ae-link small{color:#6f6a5c}
+:root[data-theme="day"] .aeportal .ae-principal{color:#6f8a7a}
 @media(prefers-reduced-motion:reduce){.aeportal *{animation:none!important;transition:none!important}.aeportal .ae-track{white-space:normal}}
-</style>
+:root[data-theme="day"] .scan{background:repeating-linear-gradient(0deg,rgba(0,0,0,.02) 0 1px,transparent 1px 3px)}:root[data-theme="day"] .vig{background:radial-gradient(ellipse at 50% 42%,transparent 45%,rgba(180,160,120,.16) 100%)}:root[data-theme="day"] .log{background:rgba(255,255,255,.72)}:root[data-theme="day"] .inrow{background:rgba(255,255,255,.85)}:root[data-theme="day"] .door{background:rgba(0,0,0,.02)}:root[data-theme="day"] .door:hover{background:rgba(0,0,0,.05)}:root[data-theme="day"] .glyph{text-shadow:0 0 34px rgba(180,150,80,.4)}</style>
 </head>
 <body>
 <canvas id="grid"></canvas>
@@ -106,6 +119,10 @@ html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'J
     <span class="b1">æææ:// · ORIGIN</span>
     <span class="mid">LANGUAGE · IMPLEMENTATION · RUNTIME</span>
     <span class="live"><span class="dot"></span><span id="meshstate">22 addresses</span></span>
+    <span class="theme-controls" style="display:inline-flex;gap:6px;align-items:center">
+      <button id="theme-toggle" type="button" style="background:transparent;border:1px solid var(--line);color:var(--muted);font:inherit;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:4px 8px;cursor:pointer">◐ theme</button>
+      <button id="env-toggle" type="button" style="background:transparent;border:1px solid var(--line);color:var(--muted);font:inherit;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:4px 8px;cursor:pointer">⬡ env</button>
+    </span>
   </div>
   <div class="ticker">
     <span class="tlabel"><span class="dot"></span>æ://live</span>
@@ -151,6 +168,14 @@ html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'J
 <script src="ae-atlas.js"></script>
 <script>
 (function(){'use strict';
+// ── theme & environment toggle ──
+var _theme='night',_env='default';
+try{_theme=localStorage.getItem('ae-theme')||'night';_env=localStorage.getItem('ae-env')||'default'}catch(e){}
+function applyTheme(t){document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('ae-theme',t)}catch(e){}}
+function applyEnv(e){document.documentElement.setAttribute('data-env',e);try{localStorage.setItem('ae-env',e)}catch(e){}}
+applyTheme(_theme);applyEnv(_env);
+var _tt=$('theme-toggle');if(_tt)_tt.addEventListener('click',function(){_theme=(_theme==='night')?'day':'night';applyTheme(_theme);tickPush('theme → '+_theme,'')});
+var _et=$('env-toggle');if(_et)_et.addEventListener('click',function(){_env=(_env==='default')?'agentic_environments':'default';applyEnv(_env);tickPush('env → '+_env,'')});
 var ATLAS=window.AE_ATLAS;
 var AXCOL=['#D4AF37','#70dcff','#00ff9d','#b98cff'];
 var AXNAME=['public','published','operator','custody'];
@@ -254,10 +279,10 @@ $('cmd').addEventListener('keydown',function(e){if(e.key==='Enter'){run($('cmd')
 window.addEventListener('hashchange',function(){parseHash();render()});
 try{if(navigator.registerProtocolHandler){navigator.registerProtocolHandler('web+ae',location.origin+'/?q=%s')}}catch(e){}
 function drawGrid(){var c=$('grid'),x=c.getContext('2d');var dpr=Math.min(2,window.devicePixelRatio||1);function fit(){c.width=innerWidth*dpr;c.height=innerHeight*dpr;x.setTransform(dpr,0,0,dpr,0,0)}fit();window.addEventListener('resize',fit);
- var t=0;function loop(){x.clearRect(0,0,innerWidth,innerHeight);var h=innerHeight,w=innerWidth,hy=h*0.46;x.strokeStyle='rgba(0,255,157,.06)';x.lineWidth=1;
+  var t=0;function loop(){x.clearRect(0,0,innerWidth,innerHeight);var h=innerHeight,w=innerWidth,hy=h*0.46;var cs=getComputedStyle(document.documentElement);var gridNeon=cs.getPropertyValue('--grid-neon').trim()||'rgba(0,255,157,.06)';var gridGold=cs.getPropertyValue('--grid-gold').trim()||'rgba(212,175,55,.10)';var gridCenter=cs.getPropertyValue('--grid-center').trim()||'rgba(212,175,55,.10)';x.strokeStyle=gridNeon;x.lineWidth=1;
   for(var i=-12;i<=12;i++){x.beginPath();x.moveTo(w/2+i*46,hy);x.lineTo(w/2+i*220,h);x.stroke()}
   for(var j=0;j<14;j++){var yy=hy+(h-hy)*(j/14)+(t%60)*0.4;x.beginPath();x.moveTo(0,yy);x.lineTo(w,yy);x.stroke()}
-  x.strokeStyle='rgba(212,175,55,.10)';x.beginPath();x.moveTo(w/2,0);x.lineTo(w/2,h);x.stroke();t+=0.4;requestAnimationFrame(loop)}loop()}
+  x.strokeStyle=gridGold;x.beginPath();x.moveTo(w/2,0);x.lineTo(w/2,h);x.stroke();t+=0.4;requestAnimationFrame(loop)}loop()}
 var BOOT=[
  ['æææ:// kernel · sovereign runtime','g',160],
  ['> locking origin ................ OK','ok',180],
