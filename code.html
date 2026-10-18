@@ -132,6 +132,10 @@ function run(raw){
     out('<span class="h">  æ.chain()         the væult chain status</span>');
     out('<span class="h">  æ.capabilities()  list every capability tag</span>');
     out('<span class="h">  find(q) | open    compose: search, then act on the top hit</span>');
+    out('<span class="h">  ---- codebase (agentic environment) ----</span>');
+    out('<span class="h">  æ.tree()          the codebase — packages, runtime, counts</span>');
+    out('<span class="h">  æ.module(id)      one module: kind · path · exports · address</span>');
+    out('<span class="h">  æ.grep(q)         search modules by id · path · export · desc</span>');
     out('<span class="h">  clear             wipe the terminal</span>');
   }
   else if(name==='clear'){$('out').innerHTML=''}
@@ -142,6 +146,29 @@ function run(raw){
   else if(name==='open'||name==='goto'){var r=search(arg)[0];if(r)open(r.c);else out('<span class="e">  no capability "'+esc(arg)+'"</span>')}
   else if(name==='manifest'||name==='ls'||name==='list'){var r=search(arg);r.forEach(function(x){out(row(x.c,arg?x.s:null))});out('<span class="c">  '+r.length+' / '+CAPS.length+' capabilities · '+(LIVE?'live manifest':'cached')+'</span>')}
   else if(name==='find'||name==='grep'||name==='search'){var r=search(arg);r.forEach(function(x){out(row(x.c,x.s))});out('<span class="c">  '+r.length+' match'+(r.length===1?'':'es')+' · ranked by relevance</span>')}
+  else if(name==='tree'||name==='codebase'||name==='cwd'){
+    if(!CODEBASE){out('<span class="e">  codebase not loaded</span>');return}
+    out('<span class="c">  '+esc(CODEBASE.name)+'  ·  entry '+esc(CODEBASE.entry)+'</span>');
+    out('<span class="k">  '+CODEBASE.counts.modules+' modules · '+CODEBASE.counts.surfaces+' surfaces · '+CODEBASE.counts.packages+' packages</span>');
+    out('  <span class="k">packages:</span>  '+CODEBASE.modules.filter(function(m){return m.kind==='package'}).map(function(m){return m.id}).join(' · '));
+    out('  <span class="k">runtime:</span>  terminal '+esc(CODEBASE.runtime.terminal)+'  ·  webllm '+esc(CODEBASE.runtime.webllm)+'  ·  webmcp '+esc(CODEBASE.runtime.webmcp));
+  }
+  else if(name==='module'||name==='cat'||name==='show'){
+    if(!CODEBASE){out('<span class="e">  codebase not loaded</span>');return}
+    var m=CODEBASE.modules.filter(function(x){return x.id===arg||x.id.indexOf(arg)===0})[0];
+    if(!m){out('<span class="e">  no module "'+esc(arg)+'"</span>');return}
+    out('  <span class="nm">'+esc(m.id)+'</span>  <span class="k">'+esc(m.kind)+'</span>  <span class="c">'+esc(m.path)+'</span>');
+    out('  <span class="k">exports  </span>'+esc((m.exports||[]).join(' · ')));
+    if(m.address)out('  <span class="k">address  </span><span class="addr">'+esc(m.address)+'</span>');
+    out('  <span class="k">desc     </span>'+esc(m.desc||''));
+  }
+  else if(name==='grep'||name==='exports'||name==='files'){
+    if(!CODEBASE){out('<span class="e">  codebase not loaded</span>');return}
+    var q=(arg||'').toLowerCase();
+    var r=CODEBASE.modules.filter(function(m){return !q||m.id.toLowerCase().indexOf(q)>=0||m.path.toLowerCase().indexOf(q)>=0||(m.exports||[]).join(' ').indexOf(q)>=0||String(m.desc).toLowerCase().indexOf(q)>=0});
+    r.slice(0,24).forEach(function(m){out('  <span class="nm">'+esc(m.id)+'</span>  <span class="k">'+esc(m.kind)+'</span>  <span class="c">'+esc(m.path)+'</span>  <span class="k">'+esc((m.exports||[]).join(' '))+'</span>')});
+    out('<span class="c">  '+r.length+' module'+(r.length===1?'':'es')+(r.length>24?' (first 24)':'')+'</span>');
+  }
   else {var r=search(c)[0];if(r)open(r.c);else out('<span class="e">  unknown: '+esc(c)+' — type help</span>')}
 }
 function boot(){
@@ -163,6 +190,8 @@ function load(M){
 $('go').addEventListener('click',function(){run($('cmd').value);$('cmd').value=''});
 $('cmd').addEventListener('keydown',function(e){if(e.key==='Enter'){run($('cmd').value);$('cmd').value=''}});
 document.addEventListener('keydown',function(e){if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();$('cmd').focus()}});
+var CODEBASE=null;
+fetch('codebase.json',{cache:'no-cache'}).then(function(r){return r.json()}).then(function(B){CODEBASE=B}).catch(function(){});
 fetch('capability-manifest.json',{cache:'no-cache'}).then(function(r){return r.json()}).then(function(M){
   if(load(M)){boot()}else{out('<span class="e">manifest empty — cached fallback in use</span>');boot()}
 }).catch(function(){out('<span class="e">manifest unreachable — cached fallback in use</span>');boot()});

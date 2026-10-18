@@ -1,0 +1,137 @@
+{
+  "schema": "receipt-rail/v1",
+  "batches": [
+    {
+      "wave": "daollc-content",
+      "status": "completed",
+      "tasks": 5,
+      "total": 5,
+      "complete": 5,
+      "verb_list": [
+        "scan",
+        "extract",
+        "claim",
+        "complete",
+        "verify"
+      ]
+    },
+    {
+      "wave": "daollc-batch-2",
+      "status": "complete",
+      "tasks": 4,
+      "total": 4,
+      "complete": 4,
+      "verb_list": [
+        "scan",
+        "extract",
+        "claim",
+        "verify"
+      ]
+    },
+    {
+      "wave": "daollc-batch-3",
+      "status": "complete",
+      "tasks": 3,
+      "total": 3,
+      "complete": 3,
+      "verb_list": [
+        "scan",
+        "extract",
+        "verify"
+      ]
+    },
+    {
+      "wave": "daollc-batch-4",
+      "status": "complete",
+      "tasks": 3,
+      "total": 3,
+      "complete": 3,
+      "verb_list": [
+        "claim",
+        "complete",
+        "verify"
+      ]
+    },
+    {
+      "wave": "daollc-batch-5",
+      "status": "complete",
+      "tasks": 5,
+      "total": 5,
+      "complete": 5,
+      "verb_list": [
+        "scan",
+        "extract",
+        "claim",
+        "complete",
+        "verify"
+      ]
+    }
+  ],
+  "total_waves": 5,
+  "total_tasks": 20,
+  "total_complete": 20,
+  "consolidated_verdict": "PASS — 20/20 verified via fleet waves",
+  "topology": "one human → waves of batches (fan-out) → agents → receipts (fan-in)",
+  "signatures": {
+    "daollc-content": {
+      "sig_hash": "07d46e2c9bfab65c",
+      "verb": "verify",
+      "task_id": "daollc-content",
+      "subject": "hermes-agent:daollc-content",
+      "expires_at": 1792100961,
+      "by": "fa7dcfbbaebfc351",
+      "sig": "mMtJYflesghpjmx6TF6ec5NruRDS1oB9SJBJldHDCWwSnyNcyh03zI4-TfPeGq1YpXoeZ0qwtx6bqNlIWwzsBg",
+      "nonce": "b9ff2bbafefe72c4",
+      "cmd": "kanban://verify daollc-content"
+    },
+    "daollc-batch-2": {
+      "sig_hash": "1e54e0e12b0c43e2",
+      "verb": "verify",
+      "task_id": "daollc-batch-2",
+      "subject": "hermes-agent:daollc-batch-2",
+      "expires_at": 1792100961,
+      "by": "fa7dcfbbaebfc351",
+      "sig": "s0xEWmWpy4S2e4JJugFCiebOWbGrJgZG4yOqzmJDbTDZK8YDRIbn7yQtwXXEW-nsRKsb_89VJJU6jZ2teXG0Aw",
+      "nonce": "76ff340ee70388ea",
+      "cmd": "kanban://verify daollc-batch-2"
+    },
+    "daollc-batch-3": {
+      "sig_hash": "13b81bfdc6312a38",
+      "verb": "verify",
+      "task_id": "daollc-batch-3",
+      "subject": "hermes-agent:daollc-batch-3",
+      "expires_at": 1792100961,
+      "by": "fa7dcfbbaebfc351",
+      "sig": "aoge4dGjGPt3k5CJgpN04fDt-D81EwniBOkM3VcUS6e-3nSDcLdR7NO4fv-2axgl4oC-__--jJmyauTMdlWrDw",
+      "nonce": "f4441f30ccaa0746",
+      "cmd": "kanban://verify daollc-batch-3"
+    },
+    "daollc-batch-4": {
+      "sig_hash": "dc59565bc9e0fbd8",
+      "verb": "verify",
+      "task_id": "daollc-batch-4",
+      "subject": "hermes-agent:daollc-batch-4",
+      "expires_at": 1792100961,
+      "by": "fa7dcfbbaebfc351",
+      "sig": "OXyJuUhcv1RJg6jIf8-u0zj6a-hKj7EfWudTiuwdfShPol5b_OTMrgE7UCzZCItRqivJHdoHBH4TtwY9OpnSDA",
+      "nonce": "257fa55c2e1d28d9",
+      "cmd": "kanban://verify daollc-batch-4"
+    },
+    "daollc-batch-5": {
+      "sig_hash": "e85cd0de0c35fa24",
+      "verb": "verify",
+      "task_id": "daollc-batch-5",
+      "subject": "hermes-agent:daollc-batch-5",
+      "expires_at": 1792100961,
+      "by": "fa7dcfbbaebfc351",
+      "sig": "k8sgEP_ulbcKRBTeypRAC8DzJjJprvGSOehj04ZUdQKvzTCUrtxNk7mroQThFhon74h6uBp3EphVH4ov-TqmCA",
+      "nonce": "c5c3dc6714a2d202",
+      "cmd": "kanban://verify daollc-batch-5"
+    }
+  },
+  "signing": {
+    "scheme": "ed25519",
+    "authority": "card_signing.py",
+    "note": "Each wave signed with subject hermes-agent:<wave>. sig_hash = SHA-256(Ed25519_signature)[:16] — unique per wave. by = SHA-256(pubkey)[:16] — same for all (key identity)."
+  }
+}
