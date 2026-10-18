@@ -116,6 +116,36 @@ window.addEventListener('mousemove', e => {
   mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
 });
 
+// æC2 command listeners — origin commands reach the Xbot operator here
+let c2Override = null; // {clip, until} — manual command pauses auto-sequence
+window.addEventListener('æc2:anim', e => {
+  const clip = (e.detail && e.detail.clip) || 'idle';
+  if(clips[clip] && mixer){
+    nextAction = mixer.clipAction(clips[clip]);
+    nextAction.reset();
+    nextAction.play();
+    blendT = 0;
+    c2Override = {clip: clip, until: performance.now() + 3500};
+  }
+});
+window.addEventListener('æc2:light', e => {
+  const col = (e.detail && e.detail.color) || '#ffe6a3';
+  key.color.set(col);
+});
+window.addEventListener('æc2:look', e => {
+  const dir = (e.detail && e.detail.dir) || 'center';
+  if(headBone){
+    const targets = {
+      center: new THREE.Vector3(0, 2.2, 5),
+      left:   new THREE.Vector3(-4, 2.2, 5),
+      right:  new THREE.Vector3(4, 2.2, 5),
+      up:     new THREE.Vector3(0, 4.5, 5),
+      down:   new THREE.Vector3(0, 0.5, 5)
+    };
+    headBone.lookAt(targets[dir] || targets.center);
+  }
+});
+
 function makeHalo(color, radius, tilt){
   const g = new THREE.TorusGeometry(radius, 0.015, 8, 64);
   const m = new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.7});
@@ -162,6 +192,7 @@ new GLTFLoader().load('assets/gltf/Xbot.glb', (gltf) => {
   let state = 0;
   const states = ['idle', 'walk', 'run', 'walk', 'idle'];
   setInterval(() => {
+    if(c2Override) return;
     state = (state + 1) % states.length;
     const nextClip = clips[states[state]];
     if(nextClip && mixer){
@@ -193,6 +224,11 @@ renderer.setAnimationLoop(() => {
   if(soldier){
     soldier.rotation.y = Math.sin(t * 0.25) * 0.08;
     soldier.position.y = Math.sin(t * 0.8) * 0.02;
+  }
+
+  // Release C2 override back to auto-sequence
+  if(c2Override && performance.now() > c2Override.until){
+    c2Override = null;
   }
 
   if(headBone){
@@ -366,5 +402,204 @@ renderer.setAnimationLoop(() => {
     });
 })();
 </script>
+
+
+<!-- æC2 Command Console -->
+<div id="c2-console" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;background:rgba(8,12,20,.95);border:1px solid #6fd0ff44;padding:16px;min-width:280px;display:none">
+  <div style="font-size:10px;letter-spacing:.15em;color:#6fd0ff;margin-bottom:10px">⌘ æC2 COMMAND CONSOLE</div>
+  <div id="c2-status" style="font-size:9px;color:#5a7a8a;margin-bottom:8px">idle — send a command</div>
+  <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
+    <button data-cmd="gesture" data-action="agree" class="c2-btn" style="background:#0a1a2a;border:1px solid #00ff9d44;color:#00ff9d;padding:4px 8px;font-size:8px;cursor:pointer">agree</button>
+    <button data-cmd="gesture" data-action="headShake" class="c2-btn" style="background:#0a1a2a;border:1px solid #ff335544;color:#ff3355;padding:4px 8px;font-size:8px;cursor:pointer">headShake</button>
+    <button data-cmd="gesture" data-action="sad_pose" class="c2-btn" style="background:#0a1a2a;border:1px solid #ffd70044;color:#ffd700;padding:4px 8px;font-size:8px;cursor:pointer">sad_pose</button>
+    <button data-cmd="gesture" data-action="sneak_pose" class="c2-btn" style="background:#0a1a2a;border:1px solid #6fd0ff44;color:#6fd0ff;padding:4px 8px;font-size:8px;cursor:pointer">sneak</button>
+    <button data-cmd="gesture" data-action="walk" class="c2-btn" style="background:#0a1a2a;border:1px solid #00d4ff44;color:#00d4ff;padding:4px 8px;font-size:8px;cursor:pointer">walk</button>
+    <button data-cmd="gesture" data-action="run" class="c2-btn" style="background:#0a1a2a;border:1px solid #c084fc44;color:#c084fc;padding:4px 8px;font-size:8px;cursor:pointer">run</button>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
+    <button data-cmd="light" data-action="gold" class="c2-btn" style="background:#0a1a2a;border:1px solid #ffe6a344;color:#ffe6a3;padding:4px 8px;font-size:8px;cursor:pointer">light:gold</button>
+    <button data-cmd="light" data-action="cyan" class="c2-btn" style="background:#0a1a2a;border:1px solid #6fd0ff44;color:#6fd0ff;padding:4px 8px;font-size:8px;cursor:pointer">light:cyan</button>
+    <button data-cmd="light" data-action="red" class="c2-btn" style="background:#0a1a2a;border:1px solid #ff335544;color:#ff3355;padding:4px 8px;font-size:8px;cursor:pointer">light:red</button>
+    <button data-cmd="look" data-action="left" class="c2-btn" style="background:#0a1a2a;border:1px solid #5a7a8a44;color:#5a7a8a;padding:4px 8px;font-size:8px;cursor:pointer">look:left</button>
+    <button data-cmd="look" data-action="right" class="c2-btn" style="background:#0a1a2a;border:1px solid #5a7a8a44;color:#5a7a8a;padding:4px 8px;font-size:8px;cursor:pointer">look:right</button>
+    <button data-cmd="look" data-action="center" class="c2-btn" style="background:#0a1a2a;border:1px solid #5a7a8a44;color:#5a7a8a;padding:4px 8px;font-size:8px;cursor:pointer">look:center</button>
+  </div>
+  <div style="display:flex;gap:4px">
+    <button id="c2-voice" style="flex:1;background:#0a1a2a;border:1px solid #00ff9d44;color:#00ff9d;padding:4px 8px;font-size:8px;cursor:pointer">🔊 voice test</button>
+    <button id="c2-close" style="background:#0a1a2a;border:1px solid #ff335544;color:#ff3355;padding:4px 8px;font-size:8px;cursor:pointer">close ✕</button>
+  </div>
+</div>
+<button id="c2-toggle" style="position:absolute;bottom:60px;right:16px;z-index:10;background:#0a1a2a;border:1px solid #6fd0ff44;color:#6fd0ff;padding:6px 10px;font-size:8px;letter-spacing:.12em;cursor:pointer">⌘ C2</button>
+
+<!-- ===== æC2 Command & Control channel ===== -->
+<script>
+(function(){
+  'use strict';
+  const QUEUE_URL = 'c2/queue.json';
+  const RECEIPTS_URL = 'c2/receipts.json';
+  let executedIds = new Set();
+  let c2Log = [];
+  let c2Active = false;
+
+  // Xbot action map — all 7 clips wired for command control
+  const ACTIONS = {
+    idle:      'idle — operator standing by',
+    walk:      'walk — operator moving',
+    run:       'run — operator sprinting',
+    agree:     'agree — operator acknowledges (signature verified)',
+    headShake: 'headShake — operator rejects',
+    sad_pose:  'sad_pose — operator error/failure',
+    sneak_pose:'sneak_pose — operator focused/stealth'
+  };
+
+  const LIGHTS = {
+    gold:  {color:'#ffe6a3', label:'gold — key light'},
+    cyan:  {color:'#6fd0ff', label:'cyan — rim light'},
+    green: {color:'#00ff9d', label:'green — fill light'},
+    blue:  {color:'#4466ff', label:'blue — back light'},
+    red:   {color:'#ff3355', label:'red — alert'},
+    white: {color:'#ffffff', label:'white — full power'}
+  };
+
+  function c2Toast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = '⌘ ' + msg;
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 2000);
+  }
+
+  function c2Speak(text){
+    if('speechSynthesis' in window){
+      try{ speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang='es-ES'; u.rate=0.95; u.pitch=1;
+        speechSynthesis.speak(u);
+      }catch(e){}
+    }
+  }
+
+  function logC2(msg){
+    const ts = new Date().toISOString().substr(11,8);
+    c2Log.push(ts + ' ' + msg);
+    if(c2Log.length > 50) c2Log.shift();
+    console.log('[æC2]', msg);
+  }
+
+  // Execute a command against the Xbot operator
+  function executeCommand(cmd){
+    if(!cmd || !cmd.cmd) return null;
+    const action = (cmd.cmd === 'gesture') ? cmd.action
+                 : (cmd.cmd === 'anim')    ? cmd.action
+                 : (cmd.cmd === 'light')   ? cmd.action
+                 : (cmd.cmd === 'speak')   ? cmd.action
+                 : (cmd.cmd === 'gesture' && cmd.action) ? cmd.action
+                 : null;
+
+    let result = {ok:false, detail:'unknown cmd: '+cmd.cmd};
+
+    if(cmd.cmd === 'gesture' || cmd.cmd === 'anim'){
+      const clip = action || 'idle';
+      if(ACTIONS[clip]){
+        // Trigger the 3D animation via a custom event the module listens to
+        window.dispatchEvent(new CustomEvent('æc2:anim', {detail:{clip:clip, label:ACTIONS[clip]}}));
+        result = {ok:true, detail:ACTIONS[clip]};
+      } else {
+        result = {ok:false, detail:'unknown clip: '+clip};
+      }
+    }
+    else if(cmd.cmd === 'light'){
+      const l = LIGHTS[action];
+      if(l){
+        window.dispatchEvent(new CustomEvent('æc2:light', {detail:{color:l.color, label:l.label}}));
+        result = {ok:true, detail:l.label};
+      } else {
+        result = {ok:false, detail:'unknown light: '+action};
+      }
+    }
+    else if(cmd.cmd === 'speak'){
+      const txt = action || cmd.label || 'operator acknowledging';
+      c2Speak(txt);
+      result = {ok:true, detail:'spoke: '+txt};
+    }
+    else if(cmd.cmd === 'look'){
+      const dir = action || 'center';
+      window.dispatchEvent(new CustomEvent('æc2:look', {detail:{dir:dir}}));
+      result = {ok:true, detail:'look '+dir};
+    }
+
+    // Write receipt
+    const receipt = {
+      schema:'æc2/receipt/v1',
+      cmd_id: cmd.id || 'unknown',
+      cmd: cmd.cmd,
+      action: action,
+      result: result.ok ? 'ok' : 'fail',
+      detail: result.detail,
+      executed_at: new Date().toISOString(),
+      by: 'hermes-live@x0:y0:z0:æ3'
+    };
+    writeReceipt(receipt);
+    return result;
+  }
+
+  function writeReceipt(rcpt){
+    // In a real deployment this POSTs to a receipt rail. For GitHub Pages (static),
+    // we append to the local log and the origin can read it via the receipts file.
+    c2Log.push('RECEIPT ' + JSON.stringify(rcpt));
+    logC2('receipt: ' + rcpt.cmd + '/' + rcpt.action + ' → ' + rcpt.result);
+  }
+
+  function pollQueue(){
+    fetch(QUEUE_URL, {cache:'no-cache'})
+      .then(r => r.json())
+      .then(q => {
+        const cmds = q.queue || [];
+        cmds.forEach(cmd => {
+          if(!executedIds.has(cmd.id)){
+            executedIds.add(cmd.id);
+            logC2('cmd ' + cmd.id + ': ' + cmd.cmd + '/' + cmd.action);
+            const res = executeCommand(cmd);
+            c2Toast(cmd.cmd + ' → ' + (res.ok ? '✓' : '✗'));
+          }
+        });
+      })
+      .catch(e => {
+        if(!c2Active){ logC2('queue poll: ' + e.message); c2Active = true; }
+      });
+  }
+
+  // Poll every 3 seconds
+  setInterval(pollQueue, 3000);
+  logC2('C2 channel online — polling ' + QUEUE_URL);
+
+  // Command console UI wiring
+  const consoleEl = document.getElementById('c2-console');
+  const statusEl = document.getElementById('c2-status');
+  const toggleBtn = document.getElementById('c2-toggle');
+  toggleBtn.addEventListener('click', () => {
+    consoleEl.style.display = consoleEl.style.display === 'none' ? 'block' : 'none';
+  });
+  document.getElementById('c2-close').addEventListener('click', () => {
+    consoleEl.style.display = 'none';
+  });
+  document.querySelectorAll('.c2-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cmd = btn.dataset.cmd;
+      const action = btn.dataset.action;
+      const label = btn.textContent.trim();
+      statusEl.textContent = 'sending: ' + cmd + '/' + action;
+      const res = executeCommand({id:'ui_' + Date.now(), cmd: cmd, action: action, label: label});
+      statusEl.textContent = res.ok ? '✓ ' + label : '✗ ' + label;
+    });
+  });
+  document.getElementById('c2-voice').addEventListener('click', () => {
+    statusEl.textContent = 'sending: voice';
+    executeCommand({id:'ui_voice_' + Date.now(), cmd: 'speak', action: 'Operador Hermes en línea. Sistema verificado.', label: 'voice test'});
+    statusEl.textContent = '✓ voice sent';
+  });
+
+})();
+</script>
+
 </body>
 </html>
