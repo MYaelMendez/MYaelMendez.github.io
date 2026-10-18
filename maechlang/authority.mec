@@ -1,0 +1,26 @@
+# mæchlang · Authority
+
+Evidence ≠ Authority. Many agents. One principal.
+Sketch in Mech syntax (v0.3 guide). Not yet run on a Mech runtime.
+
+```mech
+<authority> := :æ0 | :æ1 | :æ2 | :æ3
+
+agents := {"hark", "hermes", "codex"}
+principal := "yæl"
+
+#Authority(req<u8>) ⇒ <u8> :=
+  ├ :Context(req<u8>)
+  ├ :Evidence(req<u8>)
+  └ :Granted(level<u8>).
+
+#Authority(req<u8>) → :Context(req)
+  :Context(r)
+    ├ r < 2u8 → :Granted(r)     -- æ0 public, æ1 published
+    └ r > 1u8 → :Evidence(r)    -- æ2 operator, æ3 custody
+  :Evidence(r) → :Granted(r)     -- only after passkey + Witness receipt
+  :Granted(l) ⇒ l
+.
+
+#Authority(3u8)
+```
