@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>HERMES-AGENT // æQR Kænbæn Live</title>
 <style>
+:root{--void:#050505;--gold:#D4AF37;--gold-hi:#ffda83;--neon:#00ff9d;--cyan:#70dcff;--purple:#b98cff;--ink:#e8e6df;--muted:#6f6a5c;--line:rgba(212,175,55,.18);--grid-neon:rgba(0,255,157,.06);--grid-gold:rgba(212,175,55,.10);--grid-center:rgba(212,175,55,.10)}
+:root[data-theme="day"]{--void:#f5f2ea;--ink:#1a1a1a;--muted:#6f6a5c;--frame:#e8e6df;--line:rgba(0,0,0,.12);--grid-neon:rgba(0,0,0,.04);--grid-gold:rgba(180,150,80,.08);--grid-center:rgba(180,150,80,.10)}
+:root[data-env="agentic_environments"]{--void:#0a1f11;--gold:#a8ffc1;--gold-hi:#d0ffde;--neon:#00ff9d;--cyan:#70dcff;--purple:#b98cff;--ink:#c1d9c8;--muted:#6f8a7a;--frame:#1a3423;--line:rgba(168,255,193,.25);--grid-neon:rgba(168,255,193,.06);--grid-gold:rgba(168,255,193,.08);--grid-center:rgba(168,255,193,.10)}
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:"JetBrains Mono","SF Mono",monospace}
 #stage{position:absolute;inset:0;width:100%;height:100%}
@@ -245,6 +248,58 @@ renderer.setAnimationLoop(() => {
 
   renderer.render(scene, camera);
 });
+
+// ── theme & environment awareness for 3D scene ──
+window.applyHlTheme = function(theme){
+  var isDay = (theme === 'day');
+  var bgColor = isDay ? 0xf5f2ea : 0x0a0a0f;
+  var fogColor = isDay ? 0xf5f2ea : 0x0a0a0f;
+  var gridColor = isDay ? 0x999999 : 0x00ff9d;
+  var gridColor2 = isDay ? 0xb8964f : 0xd4af37;
+
+  if(typeof scene !== 'undefined' && scene){
+    scene.background = new THREE.Color(bgColor);
+    scene.fog = new THREE.FogExp2(fogColor, 0.06);
+  }
+  if(typeof renderer !== 'undefined' && renderer){
+    renderer.setClearColor(bgColor);
+  }
+  if(typeof key !== 'undefined' && key){
+    key.color.set(isDay ? 0xffffff : 0xffe6a3);
+  }
+  if(typeof halo1 !== 'undefined' && halo1){
+    halo1.material.color.set(isDay ? 0xd4af37 : 0xffe6a3);
+  }
+  if(typeof halo2 !== 'undefined' && halo2){
+    halo2.material.color.set(isDay ? 0x70dcff : 0x6fd0ff);
+  }
+
+  var hud = document.getElementById('hud');
+  if(hud){
+    hud.style.color = isDay ? '#1a1a1a' : '#70dcff';
+    hud.style.borderColor = isDay ? 'rgba(0,0,0,.2)' : 'rgba(112,220,255,.3)';
+  }
+};
+
+window.applyHlEnv = function(env){
+  var accentColor = '#00ff9d';
+  if(env === 'public') accentColor = '#00ff9d';
+  else if(env === 'published') accentColor = '#70dcff';
+  else if(env === 'operator') accentColor = '#d4af37';
+  else if(env === 'custody') accentColor = '#b98cff';
+
+  var hud = document.getElementById('hud');
+  if(hud){
+    hud.style.borderColor = accentColor + '44';
+    hud.style.color = accentColor;
+  }
+
+  var glyph = document.querySelector('.glyph');
+  if(glyph){
+    glyph.style.color = accentColor;
+    glyph.style.textShadow = '0 0 20px ' + accentColor + '88';
+  }
+};
 </script>
 
 <script>
@@ -430,8 +485,23 @@ renderer.setAnimationLoop(() => {
   </div>
 </div>
 <button id="c2-toggle" style="position:absolute;bottom:60px;right:16px;z-index:10;background:#0a1a2a;border:1px solid #6fd0ff44;color:#6fd0ff;padding:6px 10px;font-size:8px;letter-spacing:.12em;cursor:pointer">⌘ C2</button>
+<span class="theme-controls" style="position:absolute;bottom:60px;right:100px;z-index:10;display:inline-flex;gap:4px">
+  <button id="theme-toggle" type="button" style="background:#0a1a2a;border:1px solid #6fd0ff44;color:#6fd0ff;padding:6px 8px;font-size:8px;letter-spacing:.1em;cursor:pointer">◐</button>
+  <button id="env-toggle" type="button" style="background:#0a1a2a;border:1px solid #6fd0ff44;color:#6fd0ff;padding:6px 8px;font-size:8px;letter-spacing:.1em;cursor:pointer">⬡</button>
+</span>
 
 <!-- ===== æC2 Command & Control channel ===== -->
+<script>
+(function(){'use strict';
+var _theme='night',_env='default';
+try{_theme=localStorage.getItem('ae-theme')||'night';_env=localStorage.getItem('ae-env')||'default'}catch(e){}
+function applyTheme(t){document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('ae-theme',t)}catch(e){}if(typeof window.applyHlTheme==='function')window.applyHlTheme(t)}
+function applyEnv(e){document.documentElement.setAttribute('data-env',e);try{localStorage.setItem('ae-env',e)}catch(e){}if(typeof window.applyHlEnv==='function')window.applyHlEnv(e)}
+applyTheme(_theme);applyEnv(_env);
+var _tt=document.getElementById('theme-toggle');if(_tt)_tt.addEventListener('click',function(){_theme=(_theme==='night')?'day':'night';applyTheme(_theme)});
+var _et=document.getElementById('env-toggle');if(_et)_et.addEventListener('click',function(){_env=(_env==='default')?'agentic_environments':'default';applyEnv(_env)});
+})();
+</script>
 <script>
 (function(){
   'use strict';
@@ -601,5 +671,38 @@ renderer.setAnimationLoop(() => {
 })();
 </script>
 
+<script>
+/* æC2 free-move console */
+(function(){
+  function boot(){
+    var c = document.getElementById('c2-console');
+    if(!c || c.dataset.dragReady) return;
+    c.dataset.dragReady = '1';
+    c.style.transform = 'none';
+    var h = document.getElementById('c2-drag-handle');
+    if(!h){
+      h = document.createElement('div');
+      h.id = 'c2-drag-handle';
+      h.textContent = '\u2318 \u00e6C2 COMMAND CONSOLE';
+      h.style.cssText = 'cursor:move;margin:-16px -16px 10px -16px;padding:8px 12px;font:700 9px ui-monospace,monospace;color:#6fd0ff;letter-spacing:.14em;background:rgba(10,26,42,.85);border-bottom:1px solid rgba(112,220,255,.25);user-select:none;touch-action:none;border-radius:2px 2px 0 0';
+      c.insertBefore(h, c.firstChild);
+    }
+    var down=false, ox=0, oy=0;
+    function begin(e){var pt=e.touches?e.touches[0]:e;down=true;ox=pt.clientX-c.offsetLeft;oy=pt.clientY-c.offsetTop;if(e.cancelable)e.preventDefault();}
+    function drag(e){if(!down)return;var pt=e.touches?e.touches[0]:e;var nx=pt.clientX-ox, ny=pt.clientY-oy;nx=Math.max(0,Math.min(nx,window.innerWidth-60));ny=Math.max(0,Math.min(ny,window.innerHeight-30));c.style.left=nx+'px';c.style.top=ny+'px';if(e.cancelable)e.preventDefault();}
+    function stop(){down=false;}
+    h.addEventListener('mousedown', begin);
+    h.addEventListener('touchstart', begin, {passive:false});
+    window.addEventListener('mousemove', drag);
+    window.addEventListener('touchmove', drag, {passive:false});
+    window.addEventListener('mouseup', stop);
+    window.addEventListener('touchend', stop);
+    h.addEventListener('dblclick', function(){c.style.left=Math.max(8,(window.innerWidth-c.offsetWidth)/2)+'px';c.style.top=Math.max(8,(window.innerHeight-c.offsetHeight)/2)+'px';});
+    var btn = document.getElementById('c2-toggle');
+    if(btn){btn.addEventListener('click', function(){setTimeout(function(){if(c.style.display!=='none'&&c.style.display!==''){if(!c.dataset.posInit){c.style.left=Math.max(8,(window.innerWidth-c.offsetWidth)/2)+'px';c.style.top=Math.max(8,(window.innerHeight-c.offsetHeight)/2)+'px';c.dataset.posInit='1';}}},0);});}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
 </body>
 </html>
