@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>æ://CODE_MODE · Attention Interface</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-dim:#8a7022;--text:#e8e8e8;--muted:#555;--line:#1a1a1a;--g3:#0a0a0a;--cyan:#00e5ff;--neon:#39ff14;--violet:#bf5af2}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--void);color:var(--text);font-family:'JetBrains Mono',monospace;overflow:hidden;height:100%;width:100%}
+@keyframes breathe{0%,100%{opacity:.85}50%{opacity:1}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes colorShift{0%{color:var(--gold)}33%{color:var(--cyan)}66%{color:var(--neon)}100%{color:var(--gold)}}
+@keyframes glow{0%,100%{box-shadow:0 0 8px var(--gold-dim)}50%{box-shadow:0 0 22px var(--gold)}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes lineFlow{0%{background-position:0% 0}100%{background-position:200% 0}}
+@keyframes scanline{0%{top:-10%}100%{top:110%}}
+@keyframes qrBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes qrGlow{0%,100%{box-shadow:0 0 4px var(--gold-dim)}50%{box-shadow:0 0 16px var(--gold)}}
+@keyframes cellActivate{0%,100%{border-color:var(--gold-dim);background:var(--void)}50%{border-color:var(--gold);background:#0a0a0a;box-shadow:inset 0 0 30px rgba(212,175,55,.1)}}
+@keyframes attentionPulse{0%,100%{opacity:.6}50%{opacity:1}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+#cinema{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 40%,#0d0d0d 0%,var(--void) 70%)}
+#frame{position:relative;width:min(96vw,177.78vh);height:min(96vh,56.25vw);max-width:1920px;max-height:1080px;background:var(--void);border:1px solid var(--gold-dim);border-radius:6px;overflow:hidden;box-shadow:0 0 80px rgba(212,175,55,.06)}
+#frame::before,#frame::after{content:"";position:absolute;left:0;right:0;height:6.5%;z-index:50;pointer-events:none;background:var(--void)}
+#frame::before{top:0}#frame::after{bottom:0}
+#frame .scanline{position:absolute;left:0;right:0;height:8%;z-index:40;pointer-events:none;background:linear-gradient(to bottom,transparent,rgba(212,175,55,.03),transparent);animation:scanline 6s linear infinite}
+#spatial{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,1fr);gap:1px;background:var(--line);opacity:.35}
+#spatial .cell{background:var(--void);position:relative;transition:background .4s,box-shadow .4s}
+#spatial .cell.active{background:#0a0a0a;box-shadow:inset 0 0 40px rgba(212,175,55,.08);animation:cellActivate 2s ease infinite}
+#spatial .cell .coord{position:absolute;top:6px;left:8px;font-size:9px;color:#333;letter-spacing:.15em}
+#spatial .cell .qr{position:absolute;bottom:8px;right:8px;width:40px;height:40px;border:1px solid var(--gold-dim);border-radius:6px;background:var(--void);padding:2px;animation:qrBob 3s ease-in-out infinite,qrGlow 3s ease-in-out infinite}
+#spatial .cell .qr img{width:100%;height:100%;display:block;border-radius:4px}
+#viewport{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8% 6%}
+.eyebrow{font-size:clamp(9px,1.1vw,13px);letter-spacing:.4em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:clamp(8px,1.2vh,16px);animation:colorShift 7s ease infinite}
+.title{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(28px,5.5vw,80px);line-height:.88;letter-spacing:-.03em;color:var(--gold);text-shadow:0 0 60px rgba(212,175,55,.3);animation:pulse 5s ease-in-out infinite}
+.subtitle{font-size:clamp(10px,1.3vw,16px);color:#777;margin-top:clamp(8px,1.2vh,18px);max-width:680px;line-height:1.55;animation:breathe 6s ease-in-out infinite}
+.attention-thesis{margin-top:clamp(10px,1.6vh,24px);padding:clamp(8px,1.2vh,16px) clamp(12px,1.8vw,24px);border:1px solid var(--gold-dim);border-radius:12px;background:var(--g3);max-width:700px}
+.attention-thesis .label{font-size:clamp(7px,.85vw,10px);letter-spacing:.2em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:6px}
+.attention-thesis .thesis{font-size:clamp(11px,1.4vw,18px);color:var(--gold);font-weight:700;line-height:1.4}
+.attention-thesis .hashtags{font-size:clamp(8px,1vw,12px);color:#666;margin-top:6px;letter-spacing:.1em}
+.cap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:clamp(6px,.8vw,12px);width:100%;max-width:900px;margin:clamp(10px,1.6vh,22px) auto 0}
+.cap-card{background:var(--g3);border:1px solid var(--line);border-radius:10px;padding:clamp(6px,.9vh,12px) clamp(6px,.8vw,10px);text-align:left;transition:all .3s;opacity:.3;transform:scale(.95)}
+.cap-card.active{opacity:1;transform:scale(1);border-color:var(--gold-dim);box-shadow:0 0 20px rgba(212,175,55,.1);animation:cellActivate 1.5s ease infinite}
+.cap-card.done{opacity:.7;transform:scale(1);border-color:var(--gold-dim)}
+.cap-card .ico{font-size:clamp(14px,1.8vw,20px);margin-bottom:3px}
+.cap-card h4{font-family:'Orbitron',sans-serif;font-size:clamp(7px,.9vw,10px);letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
+.cap-card .cost{font-size:clamp(6px,.75vw,9px);color:#666}
+.cap-card .cost.low{color:var(--neon)}
+.cap-card .cost.med{color:var(--gold)}
+.cap-card .cost.high{color:#ff6b6b}
+#telemetry{position:absolute;bottom:8%;left:50%;transform:translateX(-50%);z-index:15;font-size:clamp(7px,.9vw,11px);color:#444;letter-spacing:.18em;text-transform:uppercase;white-space:nowrap}
+.ticker-wrap{position:absolute;bottom:0;left:0;right:0;z-index:30;height:5%;overflow:hidden;background:#060606;border-top:1px solid var(--gold-dim);display:flex;align-items:center}
+.ticker{display:inline-block;white-space:nowrap;animation:ticker 24s linear infinite;font-size:clamp(7px,.85vw,10px)}
+.ticker span{display:inline-block;padding:0 20px;color:var(--gold);letter-spacing:.15em;text-transform:uppercase}
+.ticker span.sep{color:#333}
+#ae-qr-badge{position:fixed;bottom:16px;right:16px;z-index:99999;width:56px;height:56px;border:1px solid var(--gold);border-radius:8px;background:var(--void);padding:4px;display:block;text-decoration:none;transition:transform .25s,box-shadow .25s}
+#ae-qr-badge:hover{transform:scale(1.1);box-shadow:0 0 22px var(--gold)}
+#ae-qr-badge img{width:100%;height:100%;display:block;border-radius:4px}
+footer{position:absolute;top:8%;right:3%;z-index:15;font-size:clamp(7px,.8vw,10px);color:#333;letter-spacing:.15em;text-transform:uppercase}
+</style>
+</head>
+<body>
+<div id="cinema">
+<div id="frame" role="img" aria-label="æ code mode attention interface">
+<div class="scanline" aria-hidden="true"></div>
+<div id="spatial" aria-hidden="true"></div>
+<div id="viewport">
+<div class="eyebrow">æ://CODE_MODE · ATTENTION INTERFACE · v0.1</div>
+<h1 class="title">ATTENTION<br>IS THE<br>RESOURCE</h1>
+<p class="subtitle">
+Code Mode exists because human attention is the scarcest resource.
+Every command is designed to cost less attention than the problem it solves.
+Agents want code mode because it optimizes the one thing humans cannot scale.
+</p>
+<div class="attention-thesis">
+<div class="label">Thesis</div>
+<div class="thesis">You don't need more features. You need less attention spent per feature.</div>
+<div class="hashtags">#allyouneedisattention #attentionisallyouneed</div>
+</div>
+<div class="cap-grid" id="capGrid"></div>
+</div>
+<div id="telemetry" aria-live="polite">x:0 · y:0 · z:0 · æ:0 · ATTENTION: optimized</div>
+<div class="ticker-wrap" role="marquee" aria-label="attention ticker">
+<div class="ticker">
+<span>æ://CODE_MODE</span><span class="sep">·</span>
+<span>ATTENTION = RESOURCE</span><span class="sep">·</span>
+<span>LESS COST PER COMMAND</span><span class="sep">·</span>
+<span>AGENTS WANT THIS</span><span class="sep">·</span>
+<span>+MyaelMendez · PRINCIPAL</span><span class="sep">·</span>
+<span>æ://CODE_MODE</span><span class="sep">·</span>
+<span>ATTENTION = RESOURCE</span><span class="sep">·</span>
+<span>LESS COST PER COMMAND</span><span class="sep">·</span>
+<span>AGENTS WANT THIS</span><span class="sep">·</span>
+<span>+MyaelMendez · PRINCIPAL</span><span class="sep">·</span>
+</div>
+</div>
+<footer>æ://CODE_MODE · 16:9 · FIXED</footer>
+</div>
+</div>
+<a id="ae-qr-badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Fcode-mode.html" target="_blank" rel="noopener" aria-label="Verify this surface">
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=56x56&data=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Fcode-mode.html&bgcolor=050505&color=D4AF37" alt="QR verify" width="56" height="56">
+</a>
+<script>
+(function(){
+'use strict';
+var CAPS=[
+{ico:'\u26a1',name:'Audit',cost:'low',desc:'keeper://audit \u2014 verify mesh state'},
+{ico:'\u2705',name:'Reconcile',cost:'low',desc:'keeper://reconcile \u2014 fix drift'},
+{ico:'\ud83d\udcdd',name:'Ledger',cost:'low',desc:'keeper://ledger \u2014 append-only log'},
+{ico:'\ud83d\udd04',name:'Handoff',cost:'med',desc:'keeper://handoff \u2014 transfer custody'},
+{ico:'\ud83d\udd12',name:'Custody',cost:'high',desc:'keeper://custody \u2014 biometric lock'},
+{ico:'\ud83d\udcbb',name:'Code Mode',cost:'med',desc:'monaco://code-mode \u2014 sandboxed exec'},
+{ico:'\ud83d\udd17',name:'Mesh',cost:'med',desc:'+ae://route \u2014 device addressing'},
+{ico:'\ud83d\udcf7',name:'Supervision',cost:'low',desc:'supervisionvidaeo:// \u2014 gate PASS'},
+{ico:'\ud83d\udce7',name:'ATProto',cost:'med',desc:'did:web \u2014 identity anchor'},
+{ico:'\ud83d\udd01',name:'Compiler',cost:'low',desc:'||| ^ \u21ba \u2014 recursive chat'},
+{ico:'\u21a9\ufe0f',name:'Commerce',cost:'med',desc:'9 states \u2014 human approval'},
+{ico:'\ud83c\udf10',name:'Fleet Waves',cost:'high',desc:'storyboard\u2192render\u2192digest'}
+];
+var COLS=4,ROWS=3;
+var spatial=document.getElementById('spatial');
+var cells=[];
+for(var r=0;r<ROWS;r++){
+for(var c=0;c<COLS;c++){
+var cell=document.createElement('div');
+cell.className='cell';
+cell.dataset.x=c;
+cell.dataset.y=r;
+var idx=r*COLS+c;
+var cap=CAPS[idx];
+var coord=document.createElement('div');
+coord.className='coord';
+coord.textContent='x:'+c+':y:'+r+':z:'+idx%3+':\u00e6:'+Math.min(idx,3);
+cell.appendChild(coord);
+var qr=document.createElement('div');
+qr.className='qr';
+var qrUrl='https://api.qrserver.com/v1/create-qr-code/?size=40x40&data='+encodeURIComponent('https://myaelmendez.github.io/aipodcast_me/code-mode.html#cap-'+idx)+'&bgcolor=050505&color=D4AF37';
+qr.innerHTML='<img src="'+qrUrl+'" alt="QR: '+cap.name+'" width="40" height="40">';
+cell.appendChild(qr);
+spatial.appendChild(cell);
+cells.push(cell);
+}
+}
+var capGrid=document.getElementById('capGrid');
+CAPS.forEach(function(cap,i){
+var el=document.createElement('div');
+el.className='cap-card';
+el.id='cap-'+i;
+var costClass=cap.cost;
+el.innerHTML='<div class="ico">'+cap.ico+'</div><h4>'+cap.name+'</h4><div class="cost '+costClass+'">attention: '+cap.cost+'</div>';
+capGrid.appendChild(el);
+});
+var telemetry=document.getElementById('telemetry');
+var capIndex=0;
+var lastCapTime=0;
+var LOOP_MS=15000;
+var CAP_INTERVAL=LOOP_MS/CAPS.length;
+function tick(now){
+var elapsed=now-lastCapTime;
+if(elapsed>=CAP_INTERVAL){
+lastCapTime=now;
+var prev=document.getElementById('cap-'+(capIndex-1+CAPS.length)%CAPS.length);
+if(prev){prev.classList.remove('active');prev.classList.add('done');}
+var cur=document.getElementById('cap-'+capIndex);
+if(cur){cur.classList.remove('done');cur.classList.add('active');}
+var cell=cells[capIndex];
+if(cell){cell.classList.add('active');var prevCell=cells[(capIndex-1+cells.length)%cells.length];if(prevCell)prevCell.classList.remove('active');}
+var cap=CAPS[capIndex];
+telemetry.textContent='x:'+capIndex+' \u00b7 y:'+Math.floor(capIndex/4)+' \u00b7 z:'+capIndex%3+' \u00b7 \u00e6:'+Math.min(capIndex,3)+' \u00b7 ATTENTION: '+cap.cost;
+capIndex++;
+if(capIndex>=CAPS.length){capIndex=0;document.querySelectorAll('.cap-card').forEach(function(c){c.classList.remove('active');c.classList.add('done');});document.querySelectorAll('.cell').forEach(function(c){c.classList.remove('active');});}
+}
+requestAnimationFrame(tick);
+}
+var first=document.getElementById('cap-0');
+if(first)first.classList.add('active');
+var firstCell=cells[0];
+if(firstCell)firstCell.classList.add('active');
+requestAnimationFrame(tick);
+console.log('[code-mode] \u00e6://CODE_MODE READY \u00b7 15s loop \u00b7 12 caps \u00b7 attention optimized');
+})();
+</script>
+</body>
+</html>
