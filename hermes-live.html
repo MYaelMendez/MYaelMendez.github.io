@@ -28,6 +28,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .gate-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;pointer-events:none;font-size:8px;letter-spacing:.3em;color:#ff3355;text-transform:uppercase;background:rgba(10,10,15,.8);padding:4px 12px;border:1px solid #ff335533}
 .success-toast{position:absolute;top:80px;left:50%;transform:translateX(-50%);z-index:4;pointer-events:none;font-size:10px;letter-spacing:.14em;color:#00ff9d;text-transform:uppercase;background:rgba(0,20,10,.9);padding:8px 16px;border:1px solid #00ff9d33;opacity:0;transition:opacity .3s}
 .success-toast.show{opacity:1}
+.imp-counter{color:#ffe6a3}
 </style>
 </head>
 <body>
@@ -52,7 +53,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
     <div class="right">
       <div>9:16 <b>vertical</b></div>
       <div>three.js <b>webgl</b></div>
-      <div id="sig-count">0 SIGNED</div>
+      <div class="imp-counter">IMPROVEMENTS <b id="improvement-count">0</b></div>
     </div>
   </div>
 </div>
@@ -88,6 +89,9 @@ scene.add(rim);
 const fill = new THREE.PointLight(0x00ff9d, 0.5, 20);
 fill.position.set(0, 2, 3);
 scene.add(fill);
+const back = new THREE.PointLight(0x4466ff, 0.7, 30);
+back.position.set(0, 4, -7);
+scene.add(back);
 
 const grid = new THREE.GridHelper(20, 40, 0x1a3a4a, 0x0d1f2a);
 grid.position.y = 0;
@@ -106,6 +110,12 @@ function resize(){
 window.addEventListener('resize', resize);
 resize();
 
+let mouseX = 0, mouseY = 0;
+window.addEventListener('mousemove', e => {
+  mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+  mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+});
+
 function makeHalo(color, radius, tilt){
   const g = new THREE.TorusGeometry(radius, 0.015, 8, 64);
   const m = new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.7});
@@ -121,6 +131,7 @@ halo2.position.y = 2.2;
 scene.add(halo1, halo2);
 
 let soldier = null;
+let headBone = null;
 let clips = {};
 let mixer = null;
 let currentAction = null;
@@ -137,6 +148,8 @@ new GLTFLoader().load('assets/gltf/Xbot.glb', (gltf) => {
 
   const anims = gltf.animations || [];
   anims.forEach(c => { clips[c.name.toLowerCase()] = c; });
+
+  headBone = soldier.getObjectByName('mixamorigHead') || soldier.getObjectByName('Head');
 
   mixer = new THREE.AnimationMixer(soldier);
 
@@ -159,7 +172,7 @@ new GLTFLoader().load('assets/gltf/Xbot.glb', (gltf) => {
     }
   }, 4000);
 
-}, undefined, (e) => console.error('Soldier load failed', e));
+}, undefined, (e) => console.error('Xbot load failed', e));
 
 let t = 0;
 renderer.setAnimationLoop(() => {
@@ -182,6 +195,11 @@ renderer.setAnimationLoop(() => {
     soldier.position.y = Math.sin(t * 0.8) * 0.02;
   }
 
+  if(headBone){
+    const target = new THREE.Vector3(mouseX * 4, 2.2 + mouseY * 2.5, 5);
+    headBone.lookAt(target);
+  }
+
   halo1.rotation.z += 0.003;
   halo2.rotation.z -= 0.002;
   halo1.position.y = 2.2 + Math.sin(t * 0.5) * 0.05;
@@ -194,12 +212,12 @@ renderer.setAnimationLoop(() => {
 </script>
 
 <script>
-// æQR Kænbæn board overlay
 (function(){
   const BOARD_URL = 'board/state.json';
   let WAVES = null, WAVE_PROG = null, SIGS = {};
   let updateCount = 0;
   let signedCount = 0;
+  let improvementCount = 0;
 
   const cv = document.getElementById('c');
   const ctx = cv.getContext('2d');
@@ -232,15 +250,40 @@ renderer.setAnimationLoop(() => {
     setTimeout(() => toast.classList.remove('show'), 2000);
   }
 
+  function speak(text){
+    if('speechSynthesis' in window){
+      try{
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'es-ES'; u.rate = 0.95; u.pitch = 1;
+        speechSynthesis.speak(u);
+      }catch(e){}
+    }
+  }
+
+  function animateImprovements(target){
+    const el = document.getElementById('improvement-count');
+    const start = improvementCount;
+    const diff = target - start;
+    const dur = 1200;
+    const t0 = performance.now();
+    function step(now){
+      const p = Math.min((now - t0) / dur, 1);
+      const val = Math.round(start + diff * (1 - Math.pow(1 - p, 3)));
+      el.textContent = val;
+      improvementCount = val;
+      if(p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
   function updateHUD(){
     document.getElementById('update-count').textContent = updateCount;
-    document.getElementById('sig-count').textContent = signedCount + ' SIGNED';
   }
 
   function draw(){
     ctx.clearRect(0, 0, W, H);
 
-    // Lane labels
     ctx.font = '10px "JetBrains Mono"';
     ctx.textAlign = 'left';
     for(let i = 0; i < LANES.length; i++){
@@ -255,7 +298,6 @@ renderer.setAnimationLoop(() => {
       ctx.font = '10px "JetBrains Mono"';
     }
 
-    // Cards
     if(!WAVES) return;
     WAVES.forEach(function(w, idx){
       const lane = (WAVE_PROG && WAVE_PROG[w] != null) ? WAVE_PROG[w] : 3;
@@ -263,7 +305,6 @@ renderer.setAnimationLoop(() => {
       const y = laneY(lane);
       const cw = 140, ch = LN_H() - 10;
 
-      // Card background
       ctx.fillStyle = 'rgba(10,15,25,0.85)';
       ctx.strokeStyle = LCOL[LANES[lane]] + '66';
       ctx.lineWidth = 1;
@@ -271,12 +312,10 @@ renderer.setAnimationLoop(() => {
       ctx.roundRect(x - cw/2, y + 5, cw, ch, 4);
       ctx.fill(); ctx.stroke();
 
-      // æQR badge
       const signed = true;
       const sig = (SIGS[w] && SIGS[w].sig_hash) || '';
       aeqr(x - cw/2 + 7, y + 14, 11, signed ? '#00ff9d' : '#70dcff', signed);
 
-      // Signature hash
       if(sig){
         ctx.fillStyle = signed ? 'rgba(0,255,157,.9)' : 'rgba(112,220,255,.8)';
         ctx.font = '7px "JetBrains Mono"';
@@ -285,13 +324,11 @@ renderer.setAnimationLoop(() => {
         signedCount++;
       }
 
-      // Card name
       ctx.fillStyle = '#c8d8e8';
       ctx.font = '10px "JetBrains Mono"';
       ctx.textAlign = 'center';
       ctx.fillText(w, x, y + ch/2 + 8);
 
-      // kanban:// route
       ctx.fillStyle = 'rgba(112,220,255,.6)';
       ctx.font = '7px "JetBrains Mono"';
       ctx.fillText('kanban://' + w, x, y + ch - 8);
@@ -315,12 +352,14 @@ renderer.setAnimationLoop(() => {
         WAVE_PROG[short] = Math.min(3, Math.floor(3 * b.complete / b.total));
       });
       updateCount = s.total_complete;
+      signedCount = Object.keys(SIGS).length;
       showToast(s.consolidated_verdict.split(' — ')[0] || 'LOADED');
+      speak((s.consolidated_verdict || 'Sistema verificado').replace('—', '.'));
+      animateImprovements(s.total_complete);
       draw();
     })
     .catch(err => {
       console.error('Board fetch failed', err);
-      // Fallback: draw empty board
       WAVES = ['content','batch-2','batch-3','batch-4','batch-5'];
       WAVE_PROG = {content:3,'batch-2':3,'batch-3':3,'batch-4':3,'batch-5':3};
       draw();
