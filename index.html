@@ -36,7 +36,19 @@ html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'J
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
 @media(max-width:520px){.bar .mid{display:none}}
 .core{flex:1 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px 0}
-.glyph{font-size:clamp(50px,16vw,92px);line-height:1;color:var(--gold);text-shadow:0 0 34px rgba(212,175,55,.5);font-family:'Orbitron';font-weight:900;animation:breathe 4s ease-in-out infinite}
+.glyph{position:relative;width:clamp(64px,17vw,104px);height:clamp(64px,17vw,104px);animation:breathe 4s ease-in-out infinite;cursor:pointer;display:grid;place-items:center}
+.glyph .face{width:100%;height:100%;display:block;overflow:visible;filter:drop-shadow(0 0 16px rgba(212,175,55,.5));transition:filter .3s}
+.glyph:hover .face{filter:drop-shadow(0 0 30px rgba(212,175,55,.9))}
+.face .ring{fill:none;stroke:var(--gold);stroke-width:5;opacity:.95}
+.face .halo{fill:none;stroke:var(--gold);stroke-width:1;opacity:.3;stroke-dasharray:2 6;transform-box:fill-box;transform-origin:center;animation:halo 26s linear infinite}
+@keyframes halo{to{transform:rotate(360deg)}}
+.face .eye{transition:transform .12s ease-out}
+.face .pupil{fill:var(--gold);transform-box:fill-box;transform-origin:center;animation:blink 5.6s infinite}
+@keyframes blink{0%,91%,100%{transform:scaleY(1)}94%,96%{transform:scaleY(.1)}}
+.face .smile{fill:none;stroke:var(--gold);stroke-width:5;stroke-linecap:round;transition:stroke .3s}
+.glyph:hover .face .smile{stroke:var(--gold-hi)}
+@media(prefers-reduced-motion:reduce){.glyph{animation:none}.face .halo{animation:none}.face .pupil{animation:none}}
+:root[data-theme="day"] .glyph .face{filter:drop-shadow(0 0 16px rgba(180,150,80,.4))}
 @keyframes breathe{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.03)}}
 .coord{font-size:clamp(19px,6vw,32px);font-weight:700;letter-spacing:2px;white-space:nowrap}
 .coord .x,.coord .y,.coord .z{color:var(--neon)}
@@ -81,6 +93,33 @@ html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'J
 .coord{transition:transform .22s,opacity .22s}
 .coord.dip{transform:scale(.94);opacity:.66}
 .hint{font-size:9px;color:var(--muted);letter-spacing:1px;padding-bottom:14px;opacity:.7;text-align:center}
+/* ── CTA ticker: special announcements growing out of the ☺ ── */
+.cta{position:relative;width:100%;max-width:540px;margin-top:0;max-height:0;opacity:0;transform:scaleY(.2);transform-origin:50% 0;overflow:hidden;pointer-events:none;transition:max-height .65s cubic-bezier(.16,.84,.24,1),opacity .5s ease,transform .65s cubic-bezier(.16,.84,.24,1),margin-top .5s ease}
+.cta.grown{max-height:60px;opacity:1;transform:scaleY(1);margin-top:8px;pointer-events:auto}
+.cta-stem{position:absolute;left:50%;top:-12px;width:1px;height:12px;background:linear-gradient(var(--gold),transparent);transform:translateX(-50%);opacity:.7}
+.cta-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--line);border-radius:2px;background:linear-gradient(90deg,rgba(212,175,55,.12),rgba(212,175,55,.02))}
+.cta-badge{flex:none;font:700 8px/1 'Orbitron',sans-serif;letter-spacing:1.4px;color:var(--void);background:var(--gold);padding:4px 6px;border-radius:2px;white-space:nowrap}
+.cta-mask{flex:1;min-width:0;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.cta-track{display:inline-flex;white-space:nowrap;animation:cta-scroll 24s linear infinite}
+.cta-track .h{display:inline-flex;white-space:nowrap}
+.cta-track a{color:var(--gold-hi);text-decoration:none;font-size:10px;letter-spacing:.3px;margin-right:26px}
+.cta-track a:hover{color:var(--gold);text-decoration:underline}
+@keyframes cta-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.cta-go{flex:none;font:700 9px/1 'JetBrains Mono',monospace;letter-spacing:.4px;color:var(--void);background:var(--gold);padding:6px 9px;border-radius:2px;text-decoration:none;white-space:nowrap}
+.cta-go:hover{background:var(--gold-hi)}
+/* ── ☺ docked: the origin sits left of the command prompt (DOM-aware) ── */
+.console{width:100%;max-width:540px;display:flex;flex-direction:column;align-items:center}
+.cmdline{display:flex;align-items:center;gap:12px;width:100%}
+.cmdline .inrow{flex:1;min-width:0;max-width:none}
+.glyph.docked{width:clamp(34px,9vw,46px);height:clamp(34px,9vw,46px);flex:none}
+.cta-stem{left:20px;top:auto;bottom:-12px;background:linear-gradient(transparent,var(--gold))}
+.glyph.react .face{animation:react .6s ease}
+@keyframes react{0%,100%{transform:scale(1)}35%{transform:scale(1.14)}}
+@media(prefers-reduced-motion:reduce){.glyph.react .face{animation:none}}
+.glyph{cursor:pointer}
+@media(prefers-reduced-motion:reduce){.cta{transition:none}.cta-track{animation:none}.cta-track .h:last-child{display:none}}
+:root[data-theme="day"] .cta-row{background:linear-gradient(90deg,rgba(180,150,80,.16),rgba(180,150,80,.03));border-color:rgba(0,0,0,.14)}
+:root[data-env="agentic_environments"] .cta-badge,:root[data-env="agentic_environments"] .cta-go{color:#0a1f11}
 
 /* æPICO · additive onboarding and agentic cockpit */
 .aeportal{width:100%;border:1px solid rgba(168,255,193,.34);border-radius:17px;background:linear-gradient(140deg,rgba(10,31,17,.97),rgba(5,13,9,.94));padding:16px;margin:0 0 18px;box-shadow:0 14px 50px #0007}
@@ -129,17 +168,38 @@ html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'J
     <div class="tmask"><div class="tstream" id="tstream"></div></div>
   </div>
   <div class="core">
-    <div class="glyph">☺</div>
+
     <div class="coord" id="coord">
       <span class="x">x<span class="num" id="cx">0</span></span><span class="sep">:</span><span class="y">y<span class="num" id="cy">0</span></span><span class="sep">:</span><span class="z">z<span class="num" id="cz">0</span></span><span class="sep">:</span><span class="a">æ<span class="num" id="ca">0</span></span>
     </div>
     <div class="tag" id="where">you are here · the origin of æ-space</div>
     <div class="prompt">&gt;_æææ://|||<span class="blink"></span></div>
     <div class="log" id="log"></div>
-    <div class="inrow">
-      <span class="p">›</span>
-      <input id="cmd" placeholder="æ://bookstore · goto x9:y0:z0:æ0 · or type 'help'" autocomplete="off" spellcheck="false">
-      <button id="go">RUN</button>
+    <div class="console" id="console">
+      <div class="cta" id="cta" aria-label="Special announcements" aria-live="polite">
+        <div class="cta-stem" aria-hidden="true"></div>
+        <div class="cta-row">
+          <span class="cta-badge">★ SPECIAL</span>
+          <div class="cta-mask"><div class="cta-track" id="cta-track"></div></div>
+          <a class="cta-go" href="https://privateclient.ai" target="_blank" rel="noopener">privateclient.ai →</a>
+        </div>
+      </div>
+      <div class="cmdline" id="cmdline">
+        <div class="glyph docked" id="glyph" title="☺ · the origin · tap for announcements" role="button" tabindex="0" aria-label="☺ · announcements">
+          <svg class="face" viewBox="0 0 100 100" aria-hidden="true">
+            <circle class="halo" cx="50" cy="50" r="47"/>
+            <circle class="ring" cx="50" cy="50" r="40"/>
+            <g class="eye" id="eyeL"><circle class="pupil" cx="35" cy="42" r="6.5"/></g>
+            <g class="eye" id="eyeR"><circle class="pupil" cx="65" cy="42" r="6.5"/></g>
+            <path class="smile" d="M31 57 Q50 74 69 57"/>
+          </svg>
+        </div>
+        <div class="inrow">
+          <span class="p">›</span>
+          <input id="cmd" placeholder="æ://bookstore · goto x9:y0:z0:æ0 · or type 'help'" autocomplete="off" spellcheck="false">
+          <button id="go">RUN</button>
+        </div>
+      </div>
     </div>
     <div class="legend">
       <span><i style="background:var(--gold)"></i>æ0 public</span>
@@ -295,6 +355,57 @@ var BOOT=[
 parseHash();render();buildMesh();drawGrid();typeSeq(BOOT,0);
 tickRender();tickScroll();for(var _s=0;_s<4;_s++)tickAmb();setInterval(tickAmb,4200);
 window.travel=travel;
+// ── CTA ticker: special announcements growing out of the ☺ ──
+var ANNO=[
+  ['Private Client · early access →','https://privateclient.ai'],
+  ['Sovereign studio · book a session →','https://privateclient.ai'],
+  ['One principal · many agents · privateclient.ai','https://privateclient.ai'],
+  ['x0:y0:z0:æ0 · where the loop closes →','https://privateclient.ai']
+];
+(function(){
+  var cta=document.getElementById('cta'),g=document.getElementById('glyph'),tr=document.getElementById('cta-track');
+  if(!cta||!tr)return;
+  var half=ANNO.map(function(a){return '<a href="'+a[1]+'" target="_blank" rel="noopener">'+a[0]+'</a>'}).join('');
+  tr.innerHTML='<span class="h">'+half+'</span><span class="h">'+half+'</span>';
+  function toggle(){cta.classList.toggle('grown');tickPush('☺ · '+(cta.classList.contains('grown')?'announcements on ▾':'announcements off ▴'),'g')}
+  if(g){g.addEventListener('click',toggle);g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle()}})}
+  setTimeout(function(){cta.classList.add('grown')},1500);
+})();
+// ── living ☺: the origin watches — eyes track the cursor, it blinks, it breathes ──
+(function(){
+  var face=document.getElementById('glyph');
+  var eyeL=document.getElementById('eyeL'),eyeR=document.getElementById('eyeR');
+  if(!face||!eyeL||!eyeR)return;
+  var MAX=3.4;
+  function look(e){
+    var r=face.getBoundingClientRect();
+    var dx=(e.clientX-(r.left+r.width/2))/Math.max(r.width,1);
+    var dy=(e.clientY-(r.top+r.height/2))/Math.max(r.height,1);
+    var len=Math.sqrt(dx*dx+dy*dy)||1; if(len>1){dx/=len;dy/=len}
+    var tr='translate('+(dx*MAX).toFixed(2)+','+(dy*MAX).toFixed(2)+')';
+    eyeL.setAttribute('transform',tr); eyeR.setAttribute('transform',tr);
+  }
+  window.addEventListener('mousemove',look,{passive:true});
+  document.addEventListener('mouseleave',function(){eyeL.removeAttribute('transform');eyeR.removeAttribute('transform')});
+})();
+// ── DOM-aware ☺: docked left of the command prompt; it watches the DOM and reacts ──
+(function(){
+  var glyph=document.getElementById('glyph'),cmd=document.getElementById('cmd'),log=document.getElementById('log');
+  if(!glyph||!cmd)return;
+  glyph.classList.add('docked');                 // default: docked left of the command prompt
+  function react(){glyph.classList.add('react');clearTimeout(glyph._rt);glyph._rt=setTimeout(function(){glyph.classList.remove('react')},640)}
+  if(log&&window.MutationObserver){              // every console write makes the ☺ read/react
+    new MutationObserver(function(muts){for(var i=0;i<muts.length;i++){var m=muts[i];if((m.addedNodes&&m.addedNodes.length)||m.type==='characterData'){react();break}}}).observe(log,{childList:true,subtree:true,characterData:true});
+  }
+  function dock(){                               // DOM-aware: verify alignment left of the prompt, re-assert on layout change
+    var r=cmd.getBoundingClientRect(),g=glyph.getBoundingClientRect();
+    glyph.setAttribute('data-dock-dx',(r.left-g.right).toFixed(0));
+    glyph.setAttribute('data-dock-ok',(g.left<=r.left+6&&Math.abs((g.top+g.height/2)-(r.top+r.height/2))<16)?'1':'0');
+  }
+  var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(dock,80)});
+  dock();
+  window.aeGlyph={dock:dock,react:react,state:function(){return{docked:glyph.classList.contains('docked'),left:glyph.getBoundingClientRect().left,cmdLeft:cmd.getBoundingClientRect().left}}};
+})();
 })();
 </script>
 <script src="webmcp.js"></script>
