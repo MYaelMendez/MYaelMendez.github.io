@@ -54,9 +54,10 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
       <div>æææ:// <b>digital twin</b> · mirror</div>
     </div>
     <div class="right">
-      <div>9:16 <b>vertical</b></div>
-      <div>three.js <b>webgl</b></div>
-      <div class="imp-counter">IMPROVEMENTS <b id="improvement-count">0</b></div>
+    <div id="mood-hud" style="color:#00ff9d;font-weight:700">MOOD THINK</div>
+    <div>9:16 <b>vertical</b></div>
+    <div>three.js <b>webgl</b></div>
+    <div class="imp-counter">IMPROVEMENTS <b id="improvement-count">0</b></div>
     </div>
   </div>
 </div>
@@ -303,6 +304,51 @@ window.applyHlEnv = function(env){
 </script>
 
 <script>
+/* mæchlæng #Face mood engine — polls /maechlang/, maps mood→Xbot clip via æc2:anim */
+(function(){
+  'use strict';
+  const FACE_URL = '/maechlang/';
+  let currentMood = 'think';
+
+  const MOOD_TO_CLIP = {
+    hold: 'idle', think: 'sneak_pose', ready: 'sneak_pose',
+    work: 'walk', lost: 'sad_pose', tired: 'sad_pose', sleep: 'idle',
+    checking: 'sneak_pose', ok: 'agree', stop: 'headShake'
+  };
+
+  function dispatchMood(mood){
+    const clip = MOOD_TO_CLIP[mood] || 'idle';
+    if(clips[clip] && mixer){
+      window.dispatchEvent(new CustomEvent('æc2:anim', {detail:{clip:clip, label:'mood:'+mood}}));
+    }
+    const mh = document.getElementById('mood-hud');
+    if(mh) mh.textContent = 'MOOD ' + mood.toUpperCase();
+  }
+
+  function fetchMood(){
+    fetch(FACE_URL + '?t=' + Date.now(), {cache:'no-cache'})
+      .then(r => r.text())
+      .then(html => {
+        const m = html.match(/\{[\s\S]*?"schema":"ae\.face\/0\.[12]"[\s\S]*?\}/);
+        if(m){
+          try{
+            const face = JSON.parse(m[0]);
+            if(face.mood && face.mood !== currentMood){
+              currentMood = face.mood;
+              dispatchMood(currentMood);
+            }
+          }catch(e){}
+        }
+      })
+      .catch(()=>{});
+  }
+
+  setInterval(fetchMood, 5000);
+  setTimeout(fetchMood, 1500);
+})();
+</script>
+
+<script>
 (function(){
   const BOARD_URL = 'board/state.json';
   let WAVES = null, WAVE_PROG = null, SIGS = {};
@@ -471,6 +517,16 @@ window.applyHlEnv = function(env){
     <button data-cmd="gesture" data-action="walk" class="c2-btn" style="background:#0a1a2a;border:1px solid #00d4ff44;color:#00d4ff;padding:4px 8px;font-size:8px;cursor:pointer">walk</button>
     <button data-cmd="gesture" data-action="run" class="c2-btn" style="background:#0a1a2a;border:1px solid #c084fc44;color:#c084fc;padding:4px 8px;font-size:8px;cursor:pointer">run</button>
   </div>
+  <div style="font-size:8px;letter-spacing:.14em;color:#5a7a8a;margin:8px 0 4px">ÆSINOV · sovereign face</div>
+  <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
+    <button data-cmd="sinov" data-action="ready" class="c2-btn" style="background:#0a1a2a;border:1px solid #3ddc8444;color:#3ddc84;padding:4px 8px;font-size:8px;cursor:pointer">ready</button>
+    <button data-cmd="sinov" data-action="think" class="c2-btn" style="background:#0a1a2a;border:1px solid #6fd0ff44;color:#6fd0ff;padding:4px 8px;font-size:8px;cursor:pointer">think</button>
+    <button data-cmd="sinov" data-action="checking" class="c2-btn" style="background:#0a1a2a;border:1px solid #ffb02044;color:#ffb020;padding:4px 8px;font-size:8px;cursor:pointer">checking</button>
+    <button data-cmd="sinov" data-action="ok" class="c2-btn" style="background:#0a1a2a;border:1px solid #3ee08f44;color:#3ee08f;padding:4px 8px;font-size:8px;cursor:pointer">ok</button>
+    <button data-cmd="sinov" data-action="stop" class="c2-btn" style="background:#0a1a2a;border:1px solid #ff6b6b44;color:#ff6b6b;padding:4px 8px;font-size:8px;cursor:pointer">stop</button>
+    <button data-cmd="sinov" data-action="sleep" class="c2-btn" style="background:#0a1a2a;border:1px solid #a78bfa44;color:#a78bfa;padding:4px 8px;font-size:8px;cursor:pointer">sleep</button>
+    <button data-cmd="sinov" data-action="lost" class="c2-btn" style="background:#0a1a2a;border:1px solid #ffcf5c44;color:#ffcf5c;padding:4px 8px;font-size:8px;cursor:pointer">lost</button>
+  </div>
   <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
     <button data-cmd="light" data-action="gold" class="c2-btn" style="background:#0a1a2a;border:1px solid #ffe6a344;color:#ffe6a3;padding:4px 8px;font-size:8px;cursor:pointer">light:gold</button>
     <button data-cmd="light" data-action="cyan" class="c2-btn" style="background:#0a1a2a;border:1px solid #6fd0ff44;color:#6fd0ff;padding:4px 8px;font-size:8px;cursor:pointer">light:cyan</button>
@@ -595,6 +651,15 @@ var _et=document.getElementById('env-toggle');if(_et)_et.addEventListener('click
       const dir = action || 'center';
       window.dispatchEvent(new CustomEvent('æc2:look', {detail:{dir:dir}}));
       result = {ok:true, detail:'look '+dir};
+    }
+    else if(cmd.cmd === 'sinov'){
+      const SINOV_TO_CLIP = {
+        ready: 'idle', think: 'sneak_pose', checking: 'sneak_pose',
+        ok: 'agree', stop: 'headShake', sleep: 'idle', lost: 'sad_pose'
+      };
+      const clip = SINOV_TO_CLIP[action] || 'idle';
+      window.dispatchEvent(new CustomEvent('æc2:anim', {detail:{clip:clip, label:'sinov:'+action}}));
+      result = {ok:true, detail:'sinov '+action+' → '+clip};
     }
 
     // Write receipt
