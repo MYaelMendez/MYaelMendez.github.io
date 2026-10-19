@@ -20,12 +20,23 @@ def authority(s):
     return 0
 
 counts, atlas, caps = {}, [], []
+def next_y(cat, z):
+    """y = item ordinal within (category, depth). Every (x,y,z,æ) is unique."""
+    key = (cat, z); y = counts.get(key, 0); counts[key] = y + 1; return y
+
+def emit(id, name, url, cat, x, y, z, a, desc, access, tags):
+    atlas.append({"id": id, "name": name, "url": url, "cat": cat, "x": x, "y": y, "z": z, "a": a, "desc": desc, "access": access})
+    caps.append({"id": id, "name": name, "address": f"x{x}:y{y}:z{z}:æ{a}", "url": url, "category": cat,
+                 "capabilities": tags, "access": access, "layer": a, "layer_name": LAYER[a]})
+
 for s in sm["surfaces"]:
-    cat = s.get("category", "misc"); x = x_of(cat); y = counts.get(cat, 0); counts[cat] = y + 1; a = authority(s)
-    atlas.append({"id": s["id"], "name": s["name"], "url": s["url"], "cat": cat, "x": x, "y": y, "z": 0, "a": a, "desc": s.get("description", ""), "access": s.get("agent_access", "read")})
-    caps.append({"id": s["id"], "name": s["name"], "address": f"x{x}:y{y}:z0:æ{a}", "url": s["url"], "category": cat, "capabilities": s.get("capabilities", []), "access": s.get("agent_access", "read"), "layer": a, "layer_name": LAYER[a]})
+    cat = s.get("category", "misc"); x = x_of(cat); a = authority(s); tags = s.get("capabilities", [])
+    emit(s["id"], s["name"], s["url"], cat, x, next_y(cat, 0), 0, a, s.get("description", ""), s.get("agent_access", "read"), tags)
     for sub in s.get("subpages", []):
-        atlas.append({"id": s["id"] + "-" + sub["name"].lower(), "name": sub["name"], "url": sub["url"], "cat": cat, "x": x, "y": y, "z": 1, "a": a, "desc": s["name"] + " · " + sub["name"], "access": s.get("agent_access", "read")})
+        # subpages live at depth z=1, each with its own y ordinal — never collide,
+        # and they are REAL resources so they belong in the capability manifest too
+        emit(s["id"] + "-" + sub["name"].lower(), sub["name"], sub["url"], cat, x, next_y(cat, 1), 1, a,
+             s["name"] + " · " + sub["name"], s.get("agent_access", "read"), tags)
 
 (ROOT / "ae-atlas.json").write_text(json.dumps({
     "$schema": "https://myaelmendez.github.io/schemas/ae-atlas-v1.json", "name": "æ:// coordinate atlas", "version": "1.0.0",

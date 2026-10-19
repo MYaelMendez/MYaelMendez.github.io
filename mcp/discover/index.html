@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#08130d">
+<title>æPICO · Capability Discovery</title>
+<style>
+:root{font-family:system-ui,sans-serif;color:#eef8f0;background:#08130d}
+*{box-sizing:border-box}body{margin:0;padding:12px;display:grid;place-items:center;min-height:100vh}
+main{width:min(100%,420px);padding:18px;border:1px solid #395b42;border-radius:24px;background:#101d15}
+h1{font-size:30px;margin:5px 0}h2{font-size:19px;margin:4px 0}
+p{font-size:13px;line-height:1.5;color:#c0d7c6}
+.accent{color:#a8ffc1}.tiny{font-size:11px;color:#b4cbbb}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tag{font-size:10px;border:1px solid #55765f;border-radius:20px;padding:5px 9px}
+input,select{width:100%;background:#1b3022;color:white;border:1px solid #54765b;border-radius:9px;padding:12px;font:inherit}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+button{font:inherit;cursor:pointer;border:1px solid #55765f;border-radius:10px;padding:10px;background:#213d2a;color:#f0fff2}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #ffbb77;outline-offset:2px}
+.tile{min-height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.tile[aria-pressed=true]{background:#365c3e;border-color:#b2ffc6}
+.emoji{font-size:26px}.name{font-size:12px;font-weight:700}.status{font-size:10px;color:#c1d9c7}
+.panel{margin-top:13px;background:#1a3021;border-radius:13px;padding:14px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.primary{background:#a8ffc1;color:#0b2213;font-weight:700;border:0}
+footer{font-size:11px;line-height:1.5;color:#bad1bf;margin-top:14px;border-top:1px solid #35523d;padding-top:12px}
+a{color:#a8ffc1}
+.ticker{margin:12px 0;border:1px solid #41694b;border-radius:10px;background:#172c1e;overflow:hidden}.ticker-track{display:flex;gap:18px;overflow:auto;scrollbar-width:thin;padding:9px;white-space:nowrap}.ticker span{font-size:10px;color:#d2ebd8}.ticker strong{color:#a8ffc1}.nano{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0}.nano button{font-size:19px;padding:7px;min-width:38px;background:#223b2a}.tele{margin-top:12px;padding:13px;background:#15291b;border:1px solid #476d50;border-radius:12px}.tele p{font-size:15px;color:#efffed;min-height:52px}.tele .actions{margin-top:10px}.ticker-label{font-size:10px;color:#b4cbbb;letter-spacing:.09em;margin-top:12px}.mono{font-family:ui-monospace,monospace}.micro{font-size:10px;color:#a7c6af}
+</style>
+</head>
+<body>
+<main>
+<div class="top"><div><div class="tiny accent">#OSW · æQR³ · HUMAN://principal</div><h1>æ<span class="accent">PICO</span></h1><div class="tiny">CAPABILITY DISCOVERY · DEMO</div></div><span class="tag">v0.1</span></div>
+<p>Discover what you can do, not just which app to open. Inspect capability status before connecting or authorizing.</p>
+<label class="tiny" for="query">Intent or capability</label>
+<input id="query" type="search" placeholder="Search commerce, food, business">
+<div class="controls">
+<select id="category" aria-label="Category"><option value="all">All categories</option><option value="commerce">Commerce</option><option value="lifestyle">Lifestyle</option><option value="business">Business</option><option value="trust">Trust</option></select>
+<select id="status" aria-label="Availability"><option value="all">All statuses</option><option value="installed">Installed snapshot</option><option value="concept">Concept slots</option></select>
+</div>
+<div class="ticker-label">↗ PICO SIGNALS · DOCUMENTED STATUS, NOT LIVE TELEMETRY</div>
+<div class="ticker"><div class="ticker-track" aria-label="Capability status ticker"><span>🟢 <strong>SHOPIFY</strong> · INSTALLED SNAPSHOT</span><span>🟢 <strong>STRIPE</strong> · INSTALLED SNAPSHOT</span><span>🟡 <strong>æQR³</strong> · SPECIFIED</span><span>🟡 <strong>WITNESS</strong> · PROTOTYPE</span><span>⚪ <strong>WEBMCP</strong> · ADAPTER PLANNED</span><span>🫵 <strong>AUTHORITY</strong> · HUMAN</span></div></div>
+<div class="tiny accent">NANO CAPABILITIES · TAP TO INSPECT</div>
+<div class="nano" id="nano" aria-label="Nano emoji shortcuts"></div>
+<div id="tiles" class="grid" aria-label="Capabilities"></div>
+<section class="panel" aria-live="polite">
+<div class="tiny accent">CAPABILITY INSPECTOR</div>
+<h2 id="selectedTitle"></h2>
+<p id="description"></p>
+<div id="state" class="tiny"></div>
+<div class="actions" style="margin-top:12px">
+<button id="inspect">Explore intent ↗</button>
+<button class="primary" id="directory">Plugin directory ↗</button>
+</div>
+</section>
+<section class="tele" aria-label="Pico teleprompter"><div class="top"><div class="tiny accent">🎙️ PICO TELEPROMPT <span class="mono" id="teleIndex">01/04</span></div><span class="tag">LOCAL · GUIDED</span></div><p id="teleText"></p><div class="actions"><button id="telePrev" type="button">← Previous</button><button id="teleNext" class="primary" type="button">Next →</button></div><div class="micro">Educational prompts only · no autonomous execution</div></section>
+<footer>
+Static, review-only interface. The installed labels reflect a 2026-10-15 discovery snapshot, not a live account check. No plugin is executed, no payment is initiated, and no private data is sent by this page. Public availability, installation and verification are separate states.
+<p><a href="../agents/">⌘ 🦞 $æ Agentic Home</a> · <a href="../">← $mcp</a> · <a href="https://github.com/MYaelMendez/MYaelMendez.github.io">Fork #OSW</a></p>
+<strong>Context may propagate; authority does not.</strong>
+</footer>
+</main>
+<script>
+(function(){
+'use strict';
+const capabilities=[
+['🔍','Discover','commerce','concept','Search and compare capabilities. Emoji identity does not establish plugin installation.'],
+['🛍️','Shop','commerce','concept','Buyer-side procurement planning and offer comparisons.'],
+['🏪','Shopify','business','installed','Merchant products, inventory and orders. Installation snapshot only; permissions are separate.'],
+['💳','Stripe','commerce','installed','Payment infrastructure and merchant records. No transaction authority granted here.'],
+['🍕','Food','lifestyle','concept','Food and ordering provider discovery.'],
+['☕','Coffee','lifestyle','concept','Local coffee and lifestyle capability discovery.'],
+['📦','Fulfillment','commerce','concept','Shipping quotes and tracking integrations to be verified.'],
+['🧾','Witness','trust','concept','Receipts, evidence states and transaction provenance.'],
+['🔐','Private','trust','concept','Scoped consent and private-client controls.'],
+['🏢','Business','business','concept','One-person company workflows and #startabusiness.'],
+['🏎️','Mobility','lifestyle','concept','Motorsports and transport discovery.'],
+['📚','Learn','lifestyle','concept','Guided, forkable capability education.']
+];
+const $=id=>document.getElementById(id);
+let selected=capabilities[0],teleIndex=0;
+const teleprompts=[
+'🫵 What do you want to accomplish? Name the outcome, not the app.',
+'🔍 Discover available capabilities. Check which are installed, public, or merely proposed.',
+'🔐 Inspect the exact action and scope. Never transfer your authority to a tool.',
+'🧾 Verify the result, record evidence, and teach someone else what you learned.'
+];
+function showTele(){$('teleText').textContent=teleprompts[teleIndex];$('teleIndex').textContent=String(teleIndex+1).padStart(2,'0')+'/04'}
+$('telePrev').onclick=()=>{teleIndex=(teleIndex+3)%4;showTele()};
+$('teleNext').onclick=()=>{teleIndex=(teleIndex+1)%4;showTele()};
+$('nano').replaceChildren(...capabilities.map(c=>{const b=document.createElement('button');b.type='button';b.textContent=c[0];b.title=c[1];b.setAttribute('aria-label','Inspect '+c[1]);b.onclick=()=>{selected=c;render()};return b}));
+function render(){
+const q=$('query').value.toLowerCase(),category=$('category').value,status=$('status').value;
+const matches=capabilities.filter(c=>(category==='all'||c[2]===category)&&(status==='all'||c[3]===status)&&(c[1]+' '+c[4]).toLowerCase().includes(q));
+$('tiles').replaceChildren(...matches.map(c=>{
+const b=document.createElement('button');b.type='button';b.className='tile';b.setAttribute('aria-pressed',String(c===selected));
+for(const [name,value] of [['emoji',c[0]],['name',c[1]],['status',c[3]==='installed'?'Installed*':'Concept']]){const span=document.createElement('span');span.className=name;span.textContent=value;b.append(span)}
+b.onclick=()=>{selected=c;render()};return b;
+}));
+$('selectedTitle').textContent=selected[0]+' '+selected[1];
+$('description').textContent=selected[4];
+$('state').textContent=selected[3]==='installed'?'* Installed in prior discovery snapshot; confirm live availability and permission before use.':'Concept slot; no installed plugin is implied.';
+}
+$('inspect').onclick=()=>{const q='æPICO '+selected[0]+' '+selected[1]+': Discover relevant public and connected plugins for this capability. Distinguish installed, available, and verified statuses. Do not take consequential action without my approval.';window.open('https://chatgpt.com/?q='+encodeURIComponent(q),'_blank','noopener,noreferrer')};
+$('directory').onclick=()=>window.open('https://chatgpt.com/plugins','_blank','noopener,noreferrer');
+$('query').addEventListener('input',render);
+$('category').addEventListener('change',render);
+$('status').addEventListener('change',render);
+showTele();render();
+})();
+</script>
+</body>
+</html>

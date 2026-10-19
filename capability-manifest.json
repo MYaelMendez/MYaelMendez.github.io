@@ -1,368 +1,336 @@
 {
-  "$schema": "https://myaelmendez.github.io/schemas/capability-manifest-v1.json",
-  "name": "æ:// capability manifest",
-  "version": "1.0.0",
-  "homebase": "https://myaelmendez.github.io",
-  "operator": "Yæl Méndez",
-  "description": "One manifest. Every capability surface addressed in 4-space and reachable by code-mode. Derived from surface-manifest.json — never hand-written.",
-  "authority_axis": {
-    "0": "public",
-    "1": "published",
-    "2": "operator",
-    "3": "custody"
+ "capabilities": [
+  {
+   "doc": "Read the board (read-only). Returns a list of task dicts.",
+   "hash": "c97e6cb59f1d",
+   "line": 326,
+   "mesh": "kanban",
+   "name": "æ.kanban.board",
+   "sig": "()"
   },
-  "discovery": {
-    "manifest": "/capability-manifest.json",
-    "atlas": "/ae-atlas.json",
-    "surfaces": "/surface-manifest.json",
-    "code_mode": "/code.html"
+  {
+   "doc": "Run one kanban verb. Mutations pass through the signature gate.",
+   "hash": "5ce853094f75",
+   "line": 357,
+   "mesh": "kanban",
+   "name": "æ.kanban.dispatch",
+   "sig": "(verb: str, task_id: str = None, dry: bool = False)"
   },
-  "count": 22,
-  "capabilities": [
-    {
-      "id": "mesh-agenti",
-      "name": "MESH AGENTI",
-      "address": "x1:y0:z0:æ0",
-      "url": "/mesh-agenti.html",
-      "category": "networking",
-      "capabilities": [
-        "qr-pairing",
-        "node-discovery",
-        "wifi-lan"
-      ],
-      "access": "read",
-      "layer": 0,
-      "layer_name": "public"
-    },
-    {
-      "id": "fleet",
-      "name": "FLEET",
-      "address": "x2:y0:z0:æ0",
-      "url": "/fleet.html",
-      "category": "orchestration",
-      "capabilities": [
-        "device-mixture",
-        "bootstrap",
-        "mod-mom"
-      ],
-      "access": "read",
-      "layer": 0,
-      "layer_name": "public"
-    },
-    {
-      "id": "cuda-vlc",
-      "name": "CUDA · VLC",
-      "address": "x3:y0:z0:æ0",
-      "url": "/cuda-vlc.html",
-      "category": "media",
-      "capabilities": [
-        "cuda",
-        "nvenc",
-        "vlc",
-        "streaming"
-      ],
-      "access": "read",
-      "layer": 0,
-      "layer_name": "public"
-    },
-    {
-      "id": "demo",
-      "name": "DEMO",
-      "address": "x4:y0:z0:æ0",
-      "url": "/demo.html",
-      "category": "demo",
-      "capabilities": [
-        "html",
-        "vscode",
-        "primitive"
-      ],
-      "access": "read",
-      "layer": 0,
-      "layer_name": "public"
-    },
-    {
-      "id": "sovereign-state",
-      "name": "SOVEREIGN STATE",
-      "address": "x5:y0:z0:æ0",
-      "url": "/sovereign-state.html",
-      "category": "state",
-      "capabilities": [
-        "memory",
-        "ledger",
-        "mission"
-      ],
-      "access": "read",
-      "layer": 0,
-      "layer_name": "public"
-    },
-    {
-      "id": "agentic",
-      "name": "#STARTABUSINESS",
-      "address": "x6:y0:z0:æ0",
-      "url": "/agentic.html",
-      "category": "business",
-      "capabilities": [
-        "bootstrap",
-        "stripe",
-        "daollc",
-        "startabusiness"
-      ],
-      "access": "read",
-      "layer": 0,
-      "layer_name": "public"
-    },
-    {
-      "id": "cuda-blueprint",
-      "name": "CUDA BLUEPRINT",
-      "address": "x7:y0:z0:æ0",
-      "url": "/cuda-blueprint.html",
-      "category": "blueprint",
-      "capabilities": [
-        "cuda",
-        "blueprint",
-        "opensourceware"
-      ],
-      "access": "read",
-      "layer": 0,
-      "layer_name": "public"
-    },
-    {
-      "id": "gpu-preview",
-      "name": "GPU PREVIEW",
-      "address": "x8:y0:z0:æ0",
-      "url": "/gpu-preview.html",
-      "category": "gpu",
-      "capabilities": [
-        "webgpu",
-        "cuda",
-        "gui"
-      ],
-      "access": "read",
-      "layer": 0,
-      "layer_name": "public"
-    },
-    {
-      "id": "skill-guide",
-      "name": "SKILL GUIDE",
-      "address": "x9:y0:z0:æ0",
-      "url": "/skill-guide/",
-      "category": "skills",
-      "capabilities": [
-        "skills",
-        "catalog",
-        "topology",
-        "graph"
-      ],
-      "access": "read",
-      "layer": 0,
-      "layer_name": "public"
-    },
-    {
-      "id": "privateclient-vault",
-      "name": "VÆULT WEB",
-      "address": "x10:y0:z0:æ3",
-      "url": "/privateclient/vault.html",
-      "category": "secrets",
-      "capabilities": [
-        "vault",
-        "encryption",
-        "qr-airgap",
-        "secrets"
-      ],
-      "access": "write",
-      "layer": 3,
-      "layer_name": "custody"
-    },
-    {
-      "id": "privateclient-vault-cli",
-      "name": "VÆULT CLI",
-      "address": "x10:y1:z0:æ3",
-      "url": "/privateclient/vaeult/vaeult.py",
-      "category": "secrets",
-      "capabilities": [
-        "vault",
-        "cli",
-        "scrypt",
-        "pbkdf2",
-        "aes-256-gcm",
-        "qr"
-      ],
-      "access": "read",
-      "layer": 3,
-      "layer_name": "custody"
-    },
-    {
-      "id": "privateclient-vault-layers",
-      "name": "VAULT LAYERS",
-      "address": "x10:y2:z0:æ3",
-      "url": "/privateclient/vault-layers.html",
-      "category": "secrets",
-      "capabilities": [
-        "vault",
-        "3d",
-        "visualization",
-        "webgpu",
-        "threejs"
-      ],
-      "access": "read",
-      "layer": 3,
-      "layer_name": "custody"
-    },
-    {
-      "id": "privateclient-secret-bridge",
-      "name": "SECRET BRIDGE",
-      "address": "x10:y3:z0:æ3",
-      "url": "/privateclient/secret-source-bridge.html",
-      "category": "secrets",
-      "capabilities": [
-        "secrets",
-        "bridge",
-        "local",
-        "handoff"
-      ],
-      "access": "read",
-      "layer": 3,
-      "layer_name": "custody"
-    },
-    {
-      "id": "privateclient-glocal-secrets",
-      "name": "GLOCAL SECRETS",
-      "address": "x10:y4:z0:æ3",
-      "url": "/privateclient/glocal-secrets-blueprint.html",
-      "category": "secrets",
-      "capabilities": [
-        "secrets",
-        "blueprint",
-        "glocal",
-        "broker"
-      ],
-      "access": "read",
-      "layer": 3,
-      "layer_name": "custody"
-    },
-    {
-      "id": "privateclient-secret-system",
-      "name": "SECRET SYSTEM",
-      "address": "x10:y5:z0:æ3",
-      "url": "/privateclient/SECRET_SOURCE_SYSTEM.md",
-      "category": "secrets",
-      "capabilities": [
-        "secrets",
-        "architecture",
-        "contract"
-      ],
-      "access": "read",
-      "layer": 3,
-      "layer_name": "custody"
-    },
-    {
-      "id": "privateclient-terminal",
-      "name": "PRIVATE CLIENT TERMINAL",
-      "address": "x11:y0:z0:æ2",
-      "url": "/privateclient/terminal.html",
-      "category": "privateclient",
-      "capabilities": [
-        "terminal",
-        "command-prompt",
-        "æ-store"
-      ],
-      "access": "read",
-      "layer": 2,
-      "layer_name": "operator"
-    },
-    {
-      "id": "privateclient-compute",
-      "name": "PRIVATE CLIENT COMPUTE",
-      "address": "x11:y1:z0:æ2",
-      "url": "/privateclient/compute.html",
-      "category": "privateclient",
-      "capabilities": [
-        "compute",
-        "sovereign"
-      ],
-      "access": "read",
-      "layer": 2,
-      "layer_name": "operator"
-    },
-    {
-      "id": "privateclient-omnibox",
-      "name": "PRIVATE CLIENT OMNIBOX",
-      "address": "x11:y2:z0:æ2",
-      "url": "/privateclient/omnibox.html",
-      "category": "privateclient",
-      "capabilities": [
-        "omnibox",
-        "gateway",
-        "cli"
-      ],
-      "access": "read",
-      "layer": 2,
-      "layer_name": "operator"
-    },
-    {
-      "id": "vaeult-repo",
-      "name": "VÆULT REPO",
-      "address": "x10:y6:z0:æ3",
-      "url": "https://github.com/MYaelMendez/vaeult",
-      "category": "secrets",
-      "capabilities": [
-        "opensourceware",
-        "mit",
-        "github"
-      ],
-      "access": "read",
-      "layer": 3,
-      "layer_name": "custody"
-    },
-    {
-      "id": "aeqr",
-      "name": "ÆQR",
-      "address": "x13:y0:z0:æ0",
-      "url": "/aeqr.html",
-      "category": "sovereign",
-      "capabilities": [
-        "registry",
-        "qr-verify",
-        "audit",
-        "authority"
-      ],
-      "access": "read",
-      "layer": 0,
-      "layer_name": "public"
-    },
-    {
-      "id": "code-mode",
-      "name": "CODE-MODE",
-      "address": "x12:y0:z0:æ0",
-      "url": "/code.html",
-      "category": "runtime",
-      "capabilities": [
-        "code-mode",
-        "terminal",
-        "dsl",
-        "manifest",
-        "discovery"
-      ],
-      "access": "read",
-      "layer": 0,
-      "layer_name": "public"
-    },
-    {
-      "id": "webmcp",
-      "name": "WEBMCP",
-      "address": "x12:y1:z0:æ0",
-      "url": "/webmcp.html",
-      "category": "runtime",
-      "capabilities": [
-        "webmcp",
-        "mcp",
-        "tools",
-        "agent-discovery",
-        "registerTool"
-      ],
-      "access": "read",
-      "layer": 0,
-      "layer_name": "public"
-    }
-  ]
+  {
+   "doc": "Read one task (read-only). Returns a dict or None.",
+   "hash": "0267f8a5b016",
+   "line": 341,
+   "mesh": "kanban",
+   "name": "æ.kanban.inspect",
+   "sig": "(task_id: str)"
+  },
+  {
+   "doc": "List the card vocabulary (verb -> spec).",
+   "hash": "166d35da94d5",
+   "line": 353,
+   "mesh": "kanban",
+   "name": "æ.kanban.verbs",
+   "sig": "()"
+  },
+  {
+   "doc": "Scan a resource for issues.",
+   "hash": "63855b545f25",
+   "line": 63,
+   "mesh": "keeper",
+   "name": "æ.keeper.audit",
+   "sig": "(target: str)"
+  },
+  {
+   "doc": "Delegate work to another bot.",
+   "hash": "749e04e25b15",
+   "line": 111,
+   "mesh": "keeper",
+   "name": "æ.keeper.handoff",
+   "sig": "(to: str, task: str)"
+  },
+  {
+   "doc": "Append-only ledger write. Atomic. Evidence required.",
+   "hash": "4ba821159323",
+   "line": 99,
+   "mesh": "keeper",
+   "name": "æ.keeper.ledger",
+   "sig": "(entry: dict)"
+  },
+  {
+   "doc": "Publish measured facts to the æ.social receipts network.",
+   "hash": "9c853d4e2129",
+   "line": 115,
+   "mesh": "keeper",
+   "name": "æ.keeper.publish",
+   "sig": "(facts: str)"
+  },
+  {
+   "doc": "Retrieve facts from the ledger.",
+   "hash": "46d86ea18a73",
+   "line": 138,
+   "mesh": "keeper",
+   "name": "æ.keeper.recall",
+   "sig": "(query: str = '', limit: int = 50)"
+  },
+  {
+   "doc": "Compare two sources.",
+   "hash": "5a692413d939",
+   "line": 95,
+   "mesh": "keeper",
+   "name": "æ.keeper.reconcile",
+   "sig": "(a: str, b: str)"
+  },
+  {
+   "doc": "Store a fact in the ledger.",
+   "hash": "b7b9089e682a",
+   "line": 134,
+   "mesh": "keeper",
+   "name": "æ.keeper.remember",
+   "sig": "(fact: str)"
+  },
+  {
+   "doc": "Bounce animation — vertical translation.",
+   "hash": "34737da79326",
+   "line": 395,
+   "mesh": "kinetic",
+   "name": "æ.kinetic.bounce",
+   "sig": "(duration: <function _Kinetic.float at 0x0000013C1AD6BB60> = 2.3)"
+  },
+  {
+   "doc": "Color shift animation — hue rotation through palette.",
+   "hash": "74e3d601752a",
+   "line": 416,
+   "mesh": "kinetic",
+   "name": "æ.kinetic.color_shift",
+   "sig": "(duration: <function _Kinetic.float at 0x0000013C1AD6BB60> = 10.0)"
+  },
+  {
+   "doc": "List all available motion effects.",
+   "hash": "f15855762d64",
+   "line": 378,
+   "mesh": "kinetic",
+   "name": "æ.kinetic.effects",
+   "sig": "()"
+  },
+  {
+   "doc": "Flip animation — 3D Y-axis rotation.",
+   "hash": "2beb7c3c52e7",
+   "line": 391,
+   "mesh": "kinetic",
+   "name": "æ.kinetic.flip",
+   "sig": "(duration: <function _Kinetic.float at 0x0000013C1AD6BB60> = 4.0)"
+  },
+  {
+   "doc": "Float animation — translation + rotation.",
+   "hash": "2cce6e3e0da0",
+   "line": 412,
+   "mesh": "kinetic",
+   "name": "æ.kinetic.float",
+   "sig": "(duration: <function _Kinetic.float at 0x0000013C1AD6BB60> = 4.0)"
+  },
+  {
+   "doc": "Glow animation — text-shadow pulse.",
+   "hash": "f1c43b900641",
+   "line": 399,
+   "mesh": "kinetic",
+   "name": "æ.kinetic.glow",
+   "sig": "(intensity: <function _Kinetic.float at 0x0000013C1AD6BB60> = 1.0, duration: <function _Kinetic.float at 0x0000013C1AD6BB60> = 2.5)"
+  },
+  {
+   "doc": "Grow/Shrink animation — scale oscillation.",
+   "hash": "7a19323992cb",
+   "line": 404,
+   "mesh": "kinetic",
+   "name": "æ.kinetic.grow",
+   "sig": "(duration: <function _Kinetic.float at 0x0000013C1AD6BB60> = 3.0)"
+  },
+  {
+   "doc": "Pulse animation — opacity oscillation.",
+   "hash": "c64a0392277a",
+   "line": 382,
+   "mesh": "kinetic",
+   "name": "æ.kinetic.pulse",
+   "sig": "(duration: <function _Kinetic.float at 0x0000013C1AD6BB60> = 2.0)"
+  },
+  {
+   "doc": "Signal animation — color step alternation.",
+   "hash": "28fa2272bd83",
+   "line": 408,
+   "mesh": "kinetic",
+   "name": "æ.kinetic.signal",
+   "sig": "(duration: <function _Kinetic.float at 0x0000013C1AD6BB60> = 2.8)"
+  },
+  {
+   "doc": "Slide animation — horizontal or vertical translation.",
+   "hash": "c6998063ae52",
+   "line": 386,
+   "mesh": "kinetic",
+   "name": "æ.kinetic.slide",
+   "sig": "(direction: str = 'horizontal', duration: <function _Kinetic.float at 0x0000013C1AD6BB60> = 3.5)"
+  },
+  {
+   "doc": "Kinetic system status — all effects available, no errors.",
+   "hash": "a26b447359c0",
+   "line": 420,
+   "mesh": "kinetic",
+   "name": "æ.kinetic.status",
+   "sig": "()"
+  },
+  {
+   "doc": "List active mesh bots.",
+   "hash": "b33e1af6421b",
+   "line": 42,
+   "mesh": "mesh",
+   "name": "æ.mesh.bots",
+   "sig": "()"
+  },
+  {
+   "doc": "Read a bot's state.",
+   "hash": "6a6b8f338d0f",
+   "line": 51,
+   "mesh": "mesh",
+   "name": "æ.mesh.read",
+   "sig": "(bot_id: str)"
+  },
+  {
+   "doc": "Write state to a bot.",
+   "hash": "8a4db1350456",
+   "line": 55,
+   "mesh": "mesh",
+   "name": "æ.mesh.write",
+   "sig": "(bot_id: str, key: str, value)"
+  },
+  {
+   "doc": "",
+   "hash": "ee8bb4c8ffd7",
+   "line": 191,
+   "mesh": "rtx",
+   "name": "æ.rtx.compute",
+   "sig": "(op: str)"
+  },
+  {
+   "doc": "",
+   "hash": "fb3d1b657f4d",
+   "line": 178,
+   "mesh": "rtx",
+   "name": "æ.rtx.probe",
+   "sig": "()"
+  },
+  {
+   "doc": "",
+   "hash": "223441c50762",
+   "line": 300,
+   "mesh": "social",
+   "name": "æ.social.follow",
+   "sig": "(subject: str)"
+  },
+  {
+   "doc": "Publish a post to the receipts network. Evidence is required.",
+   "hash": "98fa407ce715",
+   "line": 285,
+   "mesh": "social",
+   "name": "æ.social.post",
+   "sig": "(value: dict)"
+  },
+  {
+   "doc": "Read records by nsid.",
+   "hash": "482d0d2bb807",
+   "line": 296,
+   "mesh": "social",
+   "name": "æ.social.read",
+   "sig": "(nsid: str)"
+  },
+  {
+   "doc": "",
+   "hash": "c04dc57aecbf",
+   "line": 445,
+   "mesh": "storage",
+   "name": "æ.storage.list",
+   "sig": "(dir: str)"
+  },
+  {
+   "doc": "",
+   "hash": "bd7806d08941",
+   "line": 433,
+   "mesh": "storage",
+   "name": "æ.storage.read",
+   "sig": "(path: str)"
+  },
+  {
+   "doc": "",
+   "hash": "a677657d443b",
+   "line": 439,
+   "mesh": "storage",
+   "name": "æ.storage.write",
+   "sig": "(path: str, content: str)"
+  },
+  {
+   "doc": "Compute receipt chain entry.",
+   "hash": "7f21214f696e",
+   "line": 257,
+   "mesh": "video",
+   "name": "æ.video.receipt",
+   "sig": "(video_path: str, intent: str, prev: str = '')"
+  },
+  {
+   "doc": "Render a scene via æRTXrender. Returns receipt or refusal.",
+   "hash": "4cef4ab7d5a2",
+   "line": 199,
+   "mesh": "video",
+   "name": "æ.video.render",
+   "sig": "(scene: str, seconds: int = 5, out: str = '')"
+  },
+  {
+   "doc": "Toolchain status.",
+   "hash": "4984368b47e7",
+   "line": 271,
+   "mesh": "video",
+   "name": "æ.video.status",
+   "sig": "()"
+  },
+  {
+   "doc": "Verify video with SupervisorVideo gate.",
+   "hash": "493d4c86229c",
+   "line": 217,
+   "mesh": "video",
+   "name": "æ.video.verify",
+   "sig": "(video_path: str)"
+  },
+  {
+   "doc": "",
+   "hash": "ec5fb8672ebb",
+   "line": 169,
+   "mesh": "vps",
+   "name": "æ.vps.down",
+   "sig": "(resource: str)"
+  },
+  {
+   "doc": "",
+   "hash": "c7e66973bca6",
+   "line": 172,
+   "mesh": "vps",
+   "name": "æ.vps.logs",
+   "sig": "(resource: str, lines: int = 50)"
+  },
+  {
+   "doc": "",
+   "hash": "8ce9f7d99e2b",
+   "line": 156,
+   "mesh": "vps",
+   "name": "æ.vps.status",
+   "sig": "()"
+  },
+  {
+   "doc": "",
+   "hash": "5f43468d8b9f",
+   "line": 166,
+   "mesh": "vps",
+   "name": "æ.vps.up",
+   "sig": "(resource: str)"
+  }
+ ],
+ "count": 41,
+ "generated_from": "agents/æ_code_mode.py",
+ "scheme": "æ://capabilities",
+ "source_sha256": "3aad0eb888a2a5f22479b129c280ca2520bd856920267a7e9a244ee2a0f38dfa"
 }

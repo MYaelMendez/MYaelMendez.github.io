@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>+MyaelMendez // Agents Want</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#050505; --gold:#D4AF37; --gold-dim:#8a7022; --gold-bright:#f5d760;
+    --text:#e8e8e8; --muted:#666; --line:#1a1a1a;
+    --g2:#161616;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:var(--void);color:var(--text);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
+  body{min-height:100vh}
+
+  /* motion baseline */
+  @keyframes breathe{0%,100%{opacity:.85}50%{opacity:1}}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+  @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+  @keyframes colorShift{0%{color:var(--gold)}33%{color:#7ec8e3}66%{color:#c084fc}100%{color:var(--gold)}}
+  @keyframes glow{0%,100%{box-shadow:0 0 8px var(--gold-dim)}50%{box-shadow:0 0 22px var(--gold)}}
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes lineFlow{0%{background-position:0% 0}100%{background-position:200% 0}}
+
+  /* reduced motion */
+  @media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  }
+
+  /* ticker */
+  .ticker-wrap{width:100%;overflow:hidden;border-top:1px solid var(--gold-dim);border-bottom:1px solid var(--gold-dim);background:#080808;padding:10px 0}
+  .ticker{display:inline-block;white-space:nowrap;animation:ticker 28s linear infinite}
+  .ticker span{display:inline-block;padding:0 32px;color:var(--gold);font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+  .ticker span.sep{color:#333}
+
+  /* hero */
+  .hero{position:relative;min-height:92vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center}
+  .hero::before{content:"";position:absolute;inset:0;background:
+    radial-gradient(circle at 50% 38%,rgba(212,175,55,.08) 0%,transparent 55%),
+    radial-gradient(circle at 50% 72%,rgba(212,175,55,.05) 0%,transparent 55%);
+    pointer-events:none}
+
+  .eyebrow{font-size:11px;letter-spacing:.35em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:18px;animation:colorShift 8s ease infinite}
+  .title{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(48px,10vw,120px);line-height:.92;letter-spacing:-.02em;color:var(--gold);animation:pulse 4s ease-in-out infinite;text-shadow:0 0 60px rgba(212,175,55,.25)}
+  .subtitle{font-size:14px;color:#888;margin-top:18px;max-width:640px;line-height:1.6;animation:breathe 5s ease-in-out infinite}
+
+  .sigil{display:inline-flex;align-items:center;gap:10px;margin-top:34px;padding:12px 22px;border:1px solid var(--gold-dim);border-radius:999px;background:#0a0a0a;animation:glow 3s ease-in-out infinite}
+  .sigil .dot{width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold)}
+  .sigil span{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+
+  /* cards */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;width:100%;max-width:1100px;margin:0 auto;padding:0 20px}
+  .card{background:var(--g2);border:1px solid var(--line);border-radius:12px;padding:22px;position:relative;overflow:hidden;transition:transform .25s,border-color .25s,box-shadow .25s;animation:fadeInUp .6s ease both}
+  .card:hover{transform:translateY(-3px);border-color:var(--gold-dim);box-shadow:0 12px 40px rgba(0,0,0,.6),0 0 0 1px var(--gold-dim)}
+  .card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);background-size:200% 100%;animation:lineFlow 3s linear infinite}
+  .card .ico{font-size:26px;margin-bottom:10px}
+  .card h3{font-family:'Orbitron',sans-serif;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+  .card p{font-size:12px;color:#999;line-height:1.55}
+
+  /* authority rail */
+  .rail{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:18px auto 0;max-width:900px;padding:0 20px}
+  .badge{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border:1px solid var(--gold-dim);border-radius:999px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#aaa;background:#0a0a0a}
+  .badge .d{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold)}
+
+  /* evidence */
+  .evidence{max-width:860px;margin:70px auto 0;padding:0 20px}
+  .evidence h2{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:14px}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .tag{flex:1;min-width:120px;padding:14px;background:#0a0a0a;border:1px solid var(--line);border-radius:10px}
+  .tag .k{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#666;margin-bottom:4px}
+  .tag .v{font-size:20px;font-weight:700;color:var(--gold)}
+
+  footer{padding:40px 20px;text-align:center;color:#444;font-size:11px;letter-spacing:.08em}
+
+  section{animation:fadeInUp .8s ease both}
+
+  .chain{display:flex;align-items:center;justify-content:center;gap:14px;margin:28px auto 0;flex-wrap:wrap;max-width:900px;padding:0 20px}
+  .chain-node{padding:10px 16px;border:1px solid var(--gold-dim);border-radius:10px;background:#0a0a0a;font-size:12px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase}
+  .chain-arrow{color:#444;font-size:18px}
+</style>
+</head>
+<body>
+
+<!-- ticker: motion baseline; direction implies information flow, not agent execution -->
+<div class="ticker-wrap" role="marquee" aria-label="live status ticker">
+  <div class="ticker">
+    <span>AGENTS WANT</span><span class="sep">·</span>
+    <span>+MyaelMendez</span><span class="sep">·</span>
+    <span>SOVEREIGN PRINCIPAL</span><span class="sep">·</span>
+    <span>AUTHORITY AXIS ONLINE</span><span class="sep">·</span>
+    <span>AGENTS WANT</span><span class="sep">·</span>
+    <span>+MyaelMendez</span><span class="sep">·</span>
+    <span>SOVEREIGN PRINCIPAL</span><span class="sep">·</span>
+    <span>AUTHORITY AXIS ONLINE</span><span class="sep">·</span>
+    <span>AGENTS WANT</span><span class="sep">·</span>
+    <span>+MyaelMendez</span><span class="sep">·</span>
+    <span>SOVEREIGN PRINCIPAL</span><span class="sep">·</span>
+    <span>AUTHORITY AXIS ONLINE</span><span class="sep">·</span>
+  </div>
+</div>
+
+<!-- hero -->
+<section class="hero">
+  <div class="eyebrow">æ://SOVEREIGN SIGNAL · v0.1 · LIVE</div>
+  <h1 class="title">AGENTS<br>WANT<br>+MyaelMendez</h1>
+  <p class="subtitle">
+    This is not a homepage. This is a signal. Agents that land here find a named principal,
+    an explicit authority axis, and a verified sovereign environment. Nothing is implied.
+    Everything is proven.
+  </p>
+  <div class="sigil">
+    <div class="dot"></div>
+    <span>+MyaelMendez · Principal</span>
+  </div>
+
+  <div class="rail">
+    <div class="badge"><div class="d"></div>æ0 Public</div>
+    <div class="badge"><div class="d"></div>æ1 Published</div>
+    <div class="badge"><div class="d"></div>æ2 Operator</div>
+    <div class="badge"><div class="d"></div>æ3 Custody</div>
+  </div>
+</section>
+
+<!-- capabilities: what agents actually find -->
+<section style="padding:70px 0 40px">
+  <div class="grid">
+    <article class="card" style="animation-delay:.05s">
+      <div class="ico">🔗</div>
+      <h3>Discovery</h3>
+      <p>Canonical surfaces, verified links, deterministic punycode. Agents find truth, not parked domains.</p>
+    </article>
+    <article class="card" style="animation-delay:.12s">
+      <div class="ico">🐛</div>
+      <h3>WebGPU / TSL</h3>
+      <p>Real compute surfaces. navigator.gpu probed, never claimed from import. Motion baseline enforced.</p>
+    </article>
+    <article class="card" style="animation-delay:.19s">
+      <div class="ico">📦</div>
+      <h3>AEE Pipeline</h3>
+      <p>SPEC→RTL→SIM→SYNTH→P&amp;R. Real measured evidence. 104.66 MHz. 397 LC. 471 cells.</p>
+    </article>
+    <article class="card" style="animation-delay:.26s">
+      <div class="ico">🧿</div>
+      <h3>æQR³</h3>
+      <p>Recursive addressing. Ed25519. Multi-sig. 12-char density budget. Human principal at every boundary.</p>
+    </article>
+    <article class="card" style="animation-delay:.33s">
+      <div class="ico">💻</div>
+      <h3>$æ://SHELL</h3>
+      <p>Real llama.cpp on RTX 3050. 206 t/s prompt. Capability registry. No simulation.</p>
+    </article>
+    <article class="card" style="animation-delay:.4s">
+      <div class="ico">📧</div>
+      <h3>ATProto Mesh</h3>
+      <p>did:web + ae.core + ae.social + PDS. No federation theater. Real lexicon, real identity.</p>
+    </article>
+    <article class="card" style="animation-delay:.47s">
+      <div class="ico">📷</div>
+      <h3>Supervisionvidaeo</h3>
+      <p>15s gold-on-void neural mesh. supervisionvidaeo gate PASS. Luminancia 39.1. 450 frames.</p>
+    </article>
+    <article class="card" style="animation-delay:.54s">
+      <div class="ico">🔁</div>
+      <h3>Agentic Email</h3>
+      <p>MAIL:// IMAP+SMTP + hash chain + triage. Alerts. Ledger. Append-only receipt chain.</p>
+    </article>
+    <article class="card" style="animation-delay:.61s">
+      <div class="ico">🔒</div>
+      <h3>Keeper Custodian</h3>
+      <p>4th mesh bot. Audit. Reconcile. Ledger. Handoff. Cron daily 9am. Plugin hooks loaded.</p>
+    </article>
+    <article class="card" style="animation-delay:.68s">
+      <div class="ico">🌐</div>
+      <h3>AgenticVille</h3>
+      <p>FarmVille inverted. Ownership is the distinction. People leave with something they built.</p>
+    </article>
+  </div>
+</section>
+
+<!-- evidence: numbers agents can verify -->
+<section class="evidence">
+  <h2>Measured Evidence · Append-Only</h2>
+  <div class="row">
+    <div class="tag"><div class="k">RTX Leaf</div><div class="v">3050</div></div>
+    <div class="tag"><div class="k">Llamacpp</div><div class="v">18.4 t/s</div></div>
+    <div class="tag"><div class="k">AEE Freq</div><div class="v">104.66 MHz</div></div>
+    <div class="tag"><div class="k">QR Density</div><div class="v">80 chars</div></div>
+    <div class="tag"><div class="k">Auth Layers</div><div class="v">4 · æ0–æ3</div></div>
+    <div class="tag"><div class="k">Surfaces Live</div><div class="v">22+</div></div>
+  </div>
+</section>
+
+<!-- execution rail: baseline -->
+<section style="padding:60px 20px">
+  <div class="chain" aria-label="execution rail">
+    <div class="chain-node">INTENT</div>
+    <div class="chain-arrow">→</div>
+    <div class="chain-node">AUTHORIZE</div>
+    <div class="chain-arrow">→</div>
+    <div class="chain-node">EXECUTE</div>
+    <div class="chain-arrow">→</div>
+    <div class="chain-node">WITNESS</div>
+    <div class="chain-arrow">→</div>
+    <div class="chain-node">PUBLISH</div>
+  </div>
+</section>
+
+<!-- æQR badge: verification-link pattern, gold-on-void compliant -->
+<a id="ae-qr-badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Fagents-want.html" target="_blank" rel="noopener" aria-label="Verify this surface">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=56x56&data=https%3A%2F%2Fmyaelmendez.github.io%2Fverify.html%3Furl%3Dhttps%253A%252F%252Fmyaelmendez.github.io%252Fagents-want.html&bgcolor=050505&color=D4AF37" alt="QR verify" width="56" height="56" style="position:fixed;bottom:16px;right:16px;z-index:99999;border:1px solid #D4AF37;border-radius:8px;background:#050505;padding:4px">
+</a>
+
+<footer>
+  +MyaelMendez · Sovereign Principal · æ://Authority Axis · All surfaces gold-on-void
+</footer>
+</body>
+</html>

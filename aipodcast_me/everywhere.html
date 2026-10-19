@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>æ://EVERYWHERE — Federation of Human-Owned Capabilities</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--void2:#0a0a0a;--gold:#D4AF37;--gold-dim:rgba(212,175,55,.22);--yellow:#FFD700;--blue:#4A90D9;--green:#34C759;--purple:#A855F7;--orange:#F97316;--red:#FF4D5F;--ink:#e8e6df;--muted:#6f6a5c}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:99998;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px)}
+.mesh{position:fixed;inset:0;z-index:0;opacity:.12}
+.mesh canvas{width:100%;height:100%}
+.ticker-wrap{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--void2);border-bottom:1px solid var(--gold-dim);height:36px;display:flex;align-items:center;overflow:hidden}
+.ticker{display:flex;gap:4rem;white-space:nowrap;animation:tick 28s linear infinite;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+nav{position:fixed;top:36px;left:0;right:0;z-index:100;background:rgba(5,5,5,.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(212,175,55,.12);display:flex;align-items:center;justify-content:space-between;padding:.55rem 1.2rem}
+nav .logo{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.05rem;color:var(--gold);text-decoration:none}
+nav .logo span{font-size:.58rem;opacity:.45;display:block;line-height:1;letter-spacing:.08em}
+nav .links{display:flex;gap:1rem;align-items:center}
+nav .links a{color:#888;text-decoration:none;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;transition:color .2s}
+nav .links a:hover{color:var(--gold)}
+.hero{position:relative;z-index:1;min-height:92vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5.5rem 1.5rem 3rem;text-align:center}
+.hero-emoji{font-size:4.5rem;margin-bottom:1.2rem;animation:bob 3.5s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.hero h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(1.8rem,5.5vw,3.5rem);color:var(--gold);letter-spacing:.02em;margin-bottom:.4rem}
+.hero .sub{font-size:clamp(.75rem,1.8vw,.95rem);color:#999;max-width:560px;margin-bottom:1.8rem;line-height:1.6}
+.hero .cmd{font-size:clamp(.7rem,1.8vw,.9rem);color:var(--gold);background:rgba(212,175,55,.07);border:1px solid var(--gold-dim);border-radius:8px;padding:.55rem 1.3rem;margin-bottom:1.5rem}
+.freedoms{position:relative;z-index:1;padding:3rem 1.5rem;max-width:900px;margin:0 auto}
+.freedoms h2{font-family:'Orbitron',sans-serif;font-size:1.1rem;color:var(--gold);margin-bottom:1.4rem;text-align:center}
+.fg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.8rem}
+.fg-card{border-radius:12px;padding:1rem;border:1px solid;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
+.fg-card:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(0,0,0,.4)}
+.fg-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.fg-id{background:rgba(212,175,55,.04);border-color:rgba(212,175,55,.28)}.fg-id::before{background:var(--gold)}.fg-id h3{color:var(--gold)}
+.fg-repo{background:rgba(74,144,217,.04);border-color:rgba(74,144,217,.28)}.fg-repo::before{background:var(--blue)}.fg-repo h3{color:var(--blue)}
+.fg-model{background:rgba(168,85,247,.04);border-color:rgba(168,85,247,.28)}.fg-model::before{background:var(--purple)}.fg-model h3{color:var(--purple)}
+.fg-agent{background:rgba(52,199,89,.04);border-color:rgba(52,199,89,.28)}.fg-agent::before{background:var(--green)}.fg-agent h3{color:var(--green)}
+.fg-value{background:rgba(249,115,22,.04);border-color:rgba(249,115,22,.28)}.fg-value::before{background:var(--orange)}.fg-value h3{color:var(--orange)}
+.fg-witness{background:rgba(255,77,95,.04);border-color:rgba(255,77,95,.28)}.fg-witness::before{background:var(--red)}.fg-witness h3{color:var(--red)}
+.fg-card .em{font-size:1.8rem;margin-bottom:.25rem}
+.fg-card h3{font-family:'Orbitron',sans-serif;font-size:.68rem;margin-bottom:.2rem}
+.fg-card p{font-size:.6rem;color:#888;line-height:1.4}
+.fg-card .tag{margin-top:.4rem;font-size:.55rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.rail{position:relative;z-index:1;padding:3rem 1.5rem;max-width:900px;margin:0 auto}
+.rail h2{font-family:'Orbitron',sans-serif;font-size:1.1rem;color:var(--gold);margin-bottom:1.4rem;text-align:center}
+.rail-flow{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.3rem}
+.rnode{display:flex;flex-direction:column;align-items:center;gap:.2rem;min-width:70px}
+.rnode .em{font-size:1.8rem}
+.rnode .lb{font-size:.52rem;color:#777;text-transform:uppercase;letter-spacing:.06em}
+.rnode .st{font-size:.5rem;color:var(--muted)}
+.rarr{font-size:1.1rem;color:var(--gold);margin:0 .15rem;animation:parr 1.5s ease-in-out infinite}
+.rarr.loop{color:var(--green)}
+@keyframes parr{0%,100%{opacity:.4;transform:translateX(0)}50%{opacity:1;transform:translateX(4px)}}
+.nano{position:relative;z-index:1;padding:2.5rem 1.5rem;max-width:800px;margin:0 auto}
+.nano h2{font-family:'Orbitron',sans-serif;font-size:1.1rem;color:var(--gold);margin-bottom:1.2rem;text-align:center}
+.nano-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.6rem}
+.nano-item{padding:.6rem;border:1px solid rgba(212,175,55,.15);border-radius:8px;text-align:center;transition:transform .2s}
+.nano-item:hover{transform:scale(1.05)}
+.nano-item .em{font-size:1.5rem}
+.nano-item .cmd{font-size:.55rem;color:var(--gold);margin-top:.1rem}
+.nano-item .desc{font-size:.5rem;color:#666;margin-top:.1rem}
+.economy{position:relative;z-index:1;padding:2.5rem 1.5rem;max-width:700px;margin:0 auto;text-align:center}
+.economy h2{font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--gold);margin-bottom:1rem}
+.econ-flow{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.3rem;margin-bottom:1.2rem}
+.econ-node{padding:.5rem .8rem;border:1px solid rgba(212,175,55,.2);border-radius:8px;font-size:.65rem;color:var(--gold)}
+.econ-arr{font-size:1rem;color:var(--gold);animation:parr 1.5s ease-in-out infinite}
+.economy p{font-size:.7rem;color:#999;line-height:1.6}
+.surfaces{position:relative;z-index:1;padding:2.5rem 1.5rem;max-width:800px;margin:0 auto}
+.surfaces h2{font-family:'Orbitron',sans-serif;font-size:1.1rem;color:var(--gold);margin-bottom:1.2rem;text-align:center}
+.sf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.8rem}
+.sf-card{border-radius:12px;padding:1rem;border:1px solid rgba(212,175,55,.15);text-align:center;transition:transform .25s,box-shadow .25s;cursor:pointer;text-decoration:none;color:inherit}
+.sf-card:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(0,0,0,.4)}
+.sf-card .em{font-size:2rem;margin-bottom:.3rem}
+.sf-card h3{font-family:'Orbitron',sans-serif;font-size:.7rem;color:var(--gold);margin-bottom:.2rem}
+.sf-card p{font-size:.58rem;color:#777}
+.principle{position:relative;z-index:1;padding:2.5rem 1.5rem;max-width:640px;margin:0 auto;text-align:center}
+.principle .flag{font-size:3rem;margin-bottom:.6rem}
+.principle h2{font-family:'Orbitron',sans-serif;font-size:.95rem;color:var(--orange);margin-bottom:.5rem}
+.principle p{font-size:.7rem;color:#999;line-height:1.6}
+.principle .rule{margin-top:.8rem;padding:.7rem 1rem;border:1px dashed rgba(249,115,22,.3);border-radius:8px;font-size:.65rem;color:var(--orange)}
+footer{position:relative;z-index:1;padding:2rem 1.5rem;text-align:center;border-top:1px solid rgba(212,175,55,.08)}
+footer .sig{font-family:'Orbitron',sans-serif;font-size:.72rem;color:var(--gold);margin-bottom:.3rem}
+footer .tag{font-size:.6rem;color:#444}
+.badge{position:fixed;bottom:16px;right:16px;z-index:99999;width:56px;height:56px;border:1px solid var(--gold);border-radius:8px;background:var(--void);padding:4px;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.badge:hover{transform:scale(1.1);box-shadow:0 0 16px rgba(212,175,55,.4)}
+.badge img{width:100%;height:100%;border-radius:4px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="mesh"><canvas id="m"></canvas></div>
+<div class="ticker-wrap"><div class="ticker" id="tick"></div></div>
+<nav>
+  <a class="logo" href="https://myaelmendez.github.io">æ://EVERYWHERE<span>Federation</span></a>
+  <div class="links"><a href="#freedoms">Freedoms</a><a href="#rail">Rail</a><a href="#nano">Nano</a><a href="#economy">Economy</a></div>
+</nav>
+<section class="hero">
+  <div class="hero-emoji">🇺🇸</div>
+  <h1>EVERYWHERE</h1>
+  <p class="sub">The next American century is not one giant computer owning everybody's work.<br>It is millions of people owning their own computational capabilities—and choosing how to connect them.</p>
+  <div class="cmd">🇺🇸 HUMAN://ROOT → æᵃᵉ → AGENTSⁿ → VALUEᵉ → HUMAN′ ↺</div>
+</section>
+<section class="freedoms" id="freedoms">
+  <h2>Six Freedoms</h2>
+  <div class="fg-grid">
+    <div class="fg-card fg-id"><div class="em">🫵</div><h3>Identity Sovereignty</h3><p>Authenticate, revoke permissions, retain control over data and decisions.</p><div class="tag">HUMANᵖ</div></div>
+    <div class="fg-card fg-repo"><div class="em">📦</div><h3>Computational Ownership</h3><p>Fork the blueprint, change the tools, migrate between hosting providers.</p><div class="tag">REPOʳ</div></div>
+    <div class="fg-card fg-model"><div class="em">🧠</div><h3>Model Independence</h3><p>Route tasks to compatible reasoning, vision, speech, and coding models.</p><div class="tag">MODELᵐ</div></div>
+    <div class="fg-card fg-agent"><div class="em">🛸</div><h3>Delegated Agency</h3><p>Many specialized agents, each with explicit permissions, limits, and accountable results.</p><div class="tag">AGENTᵃ</div></div>
+    <div class="fg-card fg-value"><div class="em">💵</div><h3>Economic Participation</h3><p>Discover services, transact, create products, reinvest genuine earnings.</p><div class="tag">VALUEᵉ</div></div>
+    <div class="fg-card fg-witness"><div class="em">🧾</div><h3>Verifiable Execution</h3><p>Every consequential action produces a traceable receipt: who, what, what changed, what it cost.</p><div class="tag">WITNESSʷ</div></div>
+  </div>
+</section>
+<section class="rail" id="rail">
+  <h2>Agent Execution Rail</h2>
+  <div class="rail-flow">
+    <div class="rnode"><span class="em">🟨</span><span class="lb">Intent</span><span class="st">Human requests</span></div><span class="rarr">→</span>
+    <div class="rnode"><span class="em">🟦</span><span class="lb">Plan</span><span class="st">Model proposes</span></div><span class="rarr">→</span>
+    <div class="rnode"><span class="em">🟪</span><span class="lb">Authorize</span><span class="st">Human grants</span></div><span class="rarr">→</span>
+    <div class="rnode"><span class="em">🟧</span><span class="lb">Execute</span><span class="st">Worker invokes</span></div><span class="rarr">→</span>
+    <div class="rnode"><span class="em">🟩</span><span class="lb">Verify</span><span class="st">Witness records</span></div><span class="rarr">→</span>
+    <div class="rnode"><span class="em">🫵</span><span class="lb">Return</span><span class="st">Human receives</span></div><span class="rarr loop">↺</span>
+  </div>
+</section>
+<section class="nano" id="nano">
+  <h2>Nano-Command Language</h2>
+  <div class="nano-grid">
+    <div class="nano-item"><div class="em">🏡ʰ</div><div class="cmd">$home</div><div class="desc">Household</div></div>
+    <div class="nano-item"><div class="em">☕ᶜ</div><div class="cmd">$coffee</div><div class="desc">Routine</div></div>
+    <div class="nano-item"><div class="em">▦ᑫ</div><div class="cmd">$qr</div><div class="desc">Doorway</div></div>
+    <div class="nano-item"><div class="em">🛸ᵃ</div><div class="cmd">$agent</div><div class="desc">Delegate</div></div>
+    <div class="nano-item"><div class="em">🧠ᵐ</div><div class="cmd">$model</div><div class="desc">Route</div></div>
+    <div class="nano-item"><div class="em">📦ʳ</div><div class="cmd">$fork</div><div class="desc">Own</div></div>
+    <div class="nano-item"><div class="em">🧾ʷ</div><div class="cmd">$witness</div><div class="desc">Verify</div></div>
+    <div class="nano-item"><div class="em">⚖️ᵍ</div><div class="cmd">$govern</div><div class="desc">Control</div></div>
+    <div class="nano-item"><div class="em">🏁ᵉ</div><div class="cmd">$economy</div><div class="desc">Transact</div></div>
+  </div>
+</section>
+<section class="economy" id="economy">
+  <h2>Circular QR Economy</h2>
+  <div class="econ-flow">
+    <span class="econ-node">Real value</span><span class="econ-arr">→</span>
+    <span class="econ-node">Verified transaction</span><span class="econ-arr">→</span>
+    <span class="econ-node">Measured costs</span><span class="econ-arr">→</span>
+    <span class="econ-node">Reinvestment</span><span class="econ-arr">→</span>
+    <span class="econ-node">Better capability</span><span class="econ-arr">↺</span>
+  </div>
+  <p>The sustainability mechanism: value flows back into the environment, compounding human capability.</p>
+</section>
+<section class="surfaces">
+  <h2>Live Surfaces</h2>
+  <div class="sf-grid">
+    <a class="sf-card" href="https://myaelmendez.github.io/aipodcast_me/home.html"><div class="em">🏡</div><h3>Home</h3><p>Household coordination</p></a>
+    <a class="sf-card" href="https://myaelmendez.github.io/aipodcast_me/grow.html"><div class="em">🍊</div><h3>GROW</h3><p>AgenticVille</p></a>
+    <a class="sf-card" href="https://myaelmendez.github.io/aipodcast_me/mother.html"><div class="em">🍼</div><h3>Mother</h3><p>Care continuity</p></a>
+    <a class="sf-card" href="https://myaelmendez.github.io/aipodcast_me/mix.html"><div class="em">🧩</div><h3>MIX</h3><p>Capability routing</p></a>
+    <a class="sf-card" href="https://myaelmendez.github.io/aipodcast_me/business.html"><div class="em">🏢</div><h3>Business</h3><p>Forkable template</p></a>
+  </div>
+</section>
+<section class="principle">
+  <div class="flag">🇺🇸</div>
+  <h2>The Americana Principle</h2>
+  <p>A rancher in Texas, a mother in Appalachia, a machinist in Detroit, a student in Puerto Rico, and a founder in New York should each be able to command their own agentic environment—without needing to become programmers.</p>
+  <div class="rule">The intelligence may be supplied by others. The electronic environment can be forked and owned. The human remains principal.</div>
+</section>
+<footer>
+  <div class="sig">🇺🇸 HUMAN://ROOT → æᵃᵉ → AGENTSⁿ → VALUEᵉ → HUMAN′ ↺</div>
+  <div class="tag">Many agents. One human principal per person. An expanding universe of environments.</div>
+</footer>
+<a class="badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Feverywhere.html" title="æ:// Verify">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=112x112&color=D4AF37&bgcolor=050505&data=https%3A%2F%2Fmyaelmendez.github.io%2Fverify.html%3Furl%3Dhttps%253A%252F%252Fmyaelmendez.github.io%252Faipodcast_me%252Feverywhere.html" alt="æQR">
+</a>
+<script>
+(function(){var c=document.getElementById('m'),x=c.getContext('2d'),w,h,t=0;
+function rs(){w=c.width=innerWidth;h=c.height=innerHeight}addEventListener('resize',rs);rs();
+var N=35,pts=[];for(var i=0;i<N;i++)pts.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3});
+function dr(){t+=.004;x.clearRect(0,0,w,h);
+for(var i=0;i<N;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;x.fillStyle='rgba(212,175,55,.5)';x.beginPath();x.arc(p.x,p.y,2,0,7);x.fill()}
+for(var i=0;i<N;i++)for(var j=i+1;j<N;j++){var a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<140){x.strokeStyle='rgba(212,175,55,'+((1-d/140)*.14)+')';x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}}
+requestAnimationFrame(dr)}dr()})();
+var routes=['🫵 Identity sovereignty','📦 Computational ownership','🧠 Model independence','🛸 Delegated agency','💵 Economic participation','🧾 Verifiable execution','🟨 INTENT → 🟦 PLAN → 🟪 AUTHORIZE → 🟧 EXECUTE → 🟩 VERIFY → 🫵 RETURN'];
+var html='';for(var i=0;i<2;i++)for(var j=0;j<routes.length;j++)html+='<span>'+routes[j]+'</span>';
+document.getElementById('tick').innerHTML=html;
+</script>
+</body>
+</html>

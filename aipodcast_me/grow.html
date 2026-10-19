@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>$æ://GROW · AgenticVille</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--void2:#0a0a0a;--gold:#D4AF37;--gold-dim:rgba(212,175,55,.35);--yellow:#FFD700;--blue:#4A90D9;--green:#34C759;--purple:#A855F7;--orange:#F97316;--ink:#e8e6df;--muted:#6f6a5c}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden;line-height:1.5}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:99998;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px)}
+.bg-mesh{position:fixed;inset:0;z-index:0;overflow:hidden;opacity:.15}
+.bg-mesh canvas{width:100%;height:100%}
+.ticker-wrap{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--void2);border-bottom:1px solid var(--gold-dim);overflow:hidden;height:32px;display:flex;align-items:center}
+.ticker{display:flex;gap:3rem;white-space:nowrap;animation:ticker-scroll 30s linear infinite;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase}
+.ticker span{padding:0 1rem}
+.tick-yellow{color:var(--yellow)}.tick-blue{color:var(--blue)}.tick-green{color:var(--green)}.tick-orange{color:var(--orange)}
+@keyframes ticker-scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+nav{position:fixed;top:32px;left:0;right:0;z-index:100;background:rgba(5,5,5,.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(212,175,55,.15);display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.2rem}
+nav .logo{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1rem;color:var(--gold);text-decoration:none}
+nav .logo span{font-size:.6rem;opacity:.5;display:block;line-height:1}
+nav .links{display:flex;gap:1.2rem;align-items:center}
+nav .links a{color:#aaa;text-decoration:none;font-size:.7rem;letter-spacing:.05em;text-transform:uppercase;transition:color .2s}
+nav .links a:hover{color:var(--gold)}
+.hero{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6rem 1.5rem 4rem;text-align:center}
+.hero-emoji{font-size:5rem;margin-bottom:1.5rem;animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.hero h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(2rem,6vw,4rem);color:var(--gold);letter-spacing:.03em;margin-bottom:.5rem;background:linear-gradient(135deg,var(--gold),#f5e6a3,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 200%;animation:shimmer 4s ease-in-out infinite}
+@keyframes shimmer{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.hero .sub{font-size:clamp(.8rem,2vw,1rem);color:#aaa;max-width:600px;margin-bottom:2rem}
+.hero .command{font-family:'JetBrains Mono',monospace;font-size:clamp(.75rem,2vw,.95rem);color:var(--gold);background:rgba(212,175,55,.08);border:1px solid var(--gold-dim);border-radius:8px;padding:.6rem 1.4rem;margin-bottom:2.5rem}
+.hero .north-star{font-size:.72rem;color:#666;letter-spacing:.15em;text-transform:uppercase;max-width:500px}
+.hero .north-star em{color:var(--orange);font-style:normal}
+.flow-chain{position:relative;z-index:1;padding:4rem 1.5rem;display:flex;flex-direction:column;align-items:center}
+.flow-title{font-family:'Orbitron',sans-serif;font-size:1.2rem;color:var(--gold);margin-bottom:2rem;letter-spacing:.05em}
+.flow-row{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center}
+.flow-node{display:flex;flex-direction:column;align-items:center;gap:.3rem;min-width:90px}
+.flow-node .emoji{font-size:2.5rem;transition:transform .3s}
+.flow-node .emoji:hover{transform:scale(1.2)}
+.flow-node .label{font-size:.62rem;color:#aaa;text-transform:uppercase;letter-spacing:.08em;text-align:center}
+.flow-arrow{font-size:1.4rem;color:var(--gold);margin:0 .4rem;animation:pulse-arrow 1.5s ease-in-out infinite}
+.flow-arrow.loop{animation:pulse-arrow 2s ease-in-out infinite;color:var(--green)}
+@keyframes pulse-arrow{0%,100%{opacity:.4;transform:translateX(0)}50%{opacity:1;transform:translateX(4px)}}
+.roles{position:relative;z-index:1;padding:4rem 1.5rem;max-width:900px;margin:0 auto}
+.roles h2{font-family:'Orbitron',sans-serif;font-size:1.3rem;color:var(--gold);margin-bottom:1.5rem;text-align:center}
+.roles-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+.role-card{border-radius:12px;padding:1.2rem;border:1px solid;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s}
+.role-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.role-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.role-card.r-yellow{background:rgba(255,215,0,.05);border-color:rgba(255,215,0,.3)}.role-card.r-yellow::before{background:var(--yellow)}.role-card.r-yellow h3{color:var(--yellow)}
+.role-card.r-blue{background:rgba(74,144,217,.05);border-color:rgba(74,144,217,.3)}.role-card.r-blue::before{background:var(--blue)}.role-card.r-blue h3{color:var(--blue)}
+.role-card.r-green{background:rgba(52,199,89,.05);border-color:rgba(52,199,89,.3)}.role-card.r-green::before{background:var(--green)}.role-card.r-green h3{color:var(--green)}
+.role-card.r-purple{background:rgba(168,85,247,.05);border-color:rgba(168,85,247,.3)}.role-card.r-purple::before{background:var(--purple)}.role-card.r-purple h3{color:var(--purple)}
+.role-card.r-orange{background:rgba(249,115,22,.05);border-color:rgba(249,115,22,.3)}.role-card.r-orange::before{background:var(--orange)}.role-card.r-orange h3{color:var(--orange)}
+.role-card .role-emoji{font-size:1.8rem;margin-bottom:.4rem}
+.role-card h3{font-family:'Orbitron',sans-serif;font-size:.8rem;margin-bottom:.3rem}
+.role-card p{font-size:.7rem;color:#999;line-height:1.4}
+.role-card .flow-hint{margin-top:.6rem;font-size:.62rem;color:#666}
+.compare{position:relative;z-index:1;padding:4rem 1.5rem;max-width:800px;margin:0 auto}
+.compare h2{font-family:'Orbitron',sans-serif;font-size:1.2rem;color:var(--gold);margin-bottom:1.5rem;text-align:center}
+.compare-table{width:100%;border-collapse:collapse;font-size:.75rem}
+.compare-table th{font-family:'Orbitron',sans-serif;font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;padding:.7rem .5rem;text-align:left;border-bottom:1px solid var(--gold-dim)}
+.compare-table th:first-child{color:#666;width:30%}
+.compare-table th:nth-child(2){color:#999}
+.compare-table th:nth-child(3){color:var(--orange)}
+.compare-table td{padding:.6rem .5rem;border-bottom:1px solid rgba(255,255,255,.05);color:#aaa}
+.compare-table td:nth-child(2){color:#777}
+.compare-table td:nth-child(3){color:var(--orange)}
+.compare-table tr:hover td{background:rgba(212,175,55,.03)}
+.ownership{position:relative;z-index:1;padding:4rem 1.5rem;max-width:700px;margin:0 auto;text-align:center}
+.ownership h2{font-family:'Orbitron',sans-serif;font-size:1.2rem;color:var(--gold);margin-bottom:1rem}
+.ownership p{font-size:.8rem;color:#999;line-height:1.6;margin-bottom:1rem}
+.ownership .highlight{color:var(--orange);font-weight:700}
+.ownership .fork-loop{margin-top:2rem;padding:1.5rem;border:1px dashed var(--gold-dim);border-radius:12px;font-size:.72rem;color:#888}
+.ownership .fork-loop strong{color:var(--gold)}
+footer{position:relative;z-index:1;padding:2rem 1.5rem;text-align:center;border-top:1px solid rgba(212,175,55,.1)}
+footer .sig{font-family:'Orbitron',sans-serif;font-size:.75rem;color:var(--gold);margin-bottom:.3rem}
+footer .tag{font-size:.62rem;color:#555}
+.æ-qr-badge{position:fixed;bottom:16px;right:16px;z-index:99999;width:56px;height:56px;border:1px solid var(--gold);border-radius:8px;background:var(--void);padding:4px;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.æ-qr-badge:hover{transform:scale(1.1);box-shadow:0 0 16px rgba(212,175,55,.4)}
+.æ-qr-badge img{width:100%;height:100%;border-radius:4px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="bg-mesh"><canvas id="mesh"></canvas></div>
+<div class="ticker-wrap"><div class="ticker">
+<span class="tick-yellow">🟨 DISCOVER · skills · repos · tools</span>
+<span class="tick-blue">🟦 ENGINEER · build · agents · publish</span>
+<span class="tick-green">🟩 GOVERN · own · verify · fork</span>
+<span class="tick-orange">🍊 GROW · plant → build → grow → enterprise</span>
+<span class="tick-yellow">🟨 DISCOVER · skills · repos · tools</span>
+<span class="tick-blue">🟦 ENGINEER · build · agents · publish</span>
+<span class="tick-green">🟩 GOVERN · own · verify · fork</span>
+<span class="tick-orange">🍊 GROW · plant → build → grow → enterprise</span>
+</div></div>
+<nav>
+<a class="logo" href="https://myaelmendez.github.io">$æ://GROW<span>AgenticVille</span></a>
+<div class="links">
+<a href="#flow">Flow</a>
+<a href="#roles">Roles</a>
+<a href="#compare">Compare</a>
+<a href="#ownership">Own</a>
+</div>
+</nav>
+<section class="hero">
+<div class="hero-emoji">🍊</div>
+<h1>AgenticVille</h1>
+<p class="sub">FarmVille cultivated virtual farms. $æ cultivates real capabilities, businesses, knowledge, and assets you own.</p>
+<div class="command">&gt;_$æ://GROW · 🌱→📦→🏢→🌐→💵→🌳↺</div>
+<p class="north-star">North-star metric: not time spent inside a chat — <em>people who leave each session with something useful they own.</em></p>
+</section>
+<section class="flow-chain" id="flow">
+<h2 class="flow-title">The Loop</h2>
+<div class="flow-row">
+<div class="flow-node"><span class="emoji">🌱</span><span class="label">Plant</span></div>
+<span class="flow-arrow">→</span>
+<div class="flow-node"><span class="emoji">🛠️</span><span class="label">Build</span></div>
+<span class="flow-arrow">→</span>
+<div class="flow-node"><span class="emoji">🌳</span><span class="label">Grow</span></div>
+<span class="flow-arrow">→</span>
+<div class="flow-node"><span class="emoji">📦</span><span class="label">Publish</span></div>
+<span class="flow-arrow">→</span>
+<div class="flow-node"><span class="emoji">🔄</span><span class="label">Fork</span></div>
+<span class="flow-arrow">→</span>
+<div class="flow-node"><span class="emoji">💵</span><span class="label">Earn</span></div>
+<span class="flow-arrow loop">↺</span>
+</div>
+</section>
+<section class="roles" id="roles">
+<h2>Color Roles</h2>
+<div class="roles-grid">
+<div class="role-card r-yellow"><div class="role-emoji">🟨</div><h3>Discover</h3><p>Find skills, repos, tools. Explore what others built.</p><div class="flow-hint">↳ feeds 🟦 Engineer</div></div>
+<div class="role-card r-blue"><div class="role-emoji">🟦</div><h3>Engineer</h3><p>Build, test, deploy. Turn ideas into working agents.</p><div class="flow-hint">↳ feeds 🟩 Govern</div></div>
+<div class="role-card r-green"><div class="role-emoji">🟩</div><h3>Govern</h3><p>Own, verify, fork. Control your environment and data.</p><div class="flow-hint">↳ feeds 🍊 Grow</div></div>
+<div class="role-card r-purple"><div class="role-emoji">🟪</div><h3>Economics</h3><p>Price, exchange, compound. Real value creation.</p><div class="flow-hint">↳ feeds 🌱 Plant</div></div>
+<div class="role-card r-orange"><div class="role-emoji">🍊</div><h3>Grow</h3><p>Scale, share, compound capability. The loop continues.</p><div class="flow-hint">↳ feeds 🟨 Discover</div></div>
+</div>
+</section>
+<section class="compare" id="compare">
+<h2>FarmVille → AgenticVille</h2>
+<table class="compare-table">
+<tr><th></th><th>FarmVille</th><th>$æ</th></tr>
+<tr><td>🌱 Plant</td><td>Start crops</td><td>Start projects</td></tr>
+<tr><td>🚜 Tend</td><td>Improve farm</td><td>Improve agents</td></tr>
+<tr><td>👥 Visit</td><td>Visit neighbors</td><td>Collaborate &amp; fork</td></tr>
+<tr><td>🏡 Expand</td><td>Grow land</td><td>Grow enterprise</td></tr>
+<tr><td>🪙 Earn</td><td>Virtual coins</td><td>Real economic value</td></tr>
+<tr><td>🏆 Share</td><td>Achievements</td><td>Verifiable work</td></tr>
+</table>
+</section>
+<section class="ownership" id="ownership">
+<h2>Ownership</h2>
+<p>A FarmVille player depended on the game's platform.<br><span class="highlight">An $æ participant can export their environment, fork their repository, bring their own domain, and take their work elsewhere.</span></p>
+<div class="fork-loop"><strong>Social network effect:</strong> one person creates a useful agentic workflow, publishes it, and a thousand others fork and improve it. That's not just engagement — that's <strong>compounding productive capability</strong>.</div>
+</section>
+<footer>
+<div class="sig">&gt;_🍊^$æ://🌱→🌳↺</div>
+<div class="tag">FarmVille grew virtual farms. $æ grows human agency.</div>
+</footer>
+<a class="æ-qr-badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Fgrow.html" title="æ:// Verify">
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=112x112&color=D4AF37&bgcolor=e8e6df&data=https%3A%2F%2Fmyaelmendez.github.io%2Fverify.html%3Furl%3Dhttps%253A%252F%252Fmyaelmendez.github.io%252Faipodcast_me%252Fgrow.html" alt="æQR">
+</a>
+<script>
+(function(){var c=document.getElementById('mesh'),x=c.getContext('2d'),w,h,t=0;
+function rs(){w=c.width=innerWidth;h=c.height=innerHeight}addEventListener('resize',rs);rs();
+var N=40,pts=[];for(var i=0;i<N;i++)pts.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3});
+function dr(){t+=.005;x.clearRect(0,0,w,h);
+for(var i=0;i<N;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;x.fillStyle='rgba(212,175,55,.6)';x.beginPath();x.arc(p.x,p.y,2,0,7);x.fill()}
+for(var i=0;i<N;i++)for(var j=i+1;j<N;j++){var a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<150){x.strokeStyle='rgba(212,175,55,'+((1-d/150)*.15)+')';x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}}
+requestAnimationFrame(dr)}dr()})();
+</script>
+</body>
+</html>

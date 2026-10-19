@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#08130d"><title>æQR³ · $æ QR Widget</title>
+<style>:root{font-family:system-ui,sans-serif;background:#08130d;color:#ecf8ee}*{box-sizing:border-box}body{margin:0;padding:16px;display:grid;place-items:center;min-height:100vh}main{width:min(100%,440px);background:#132419;border:1px solid #426c4c;border-radius:22px;padding:20px}h1{margin:8px 0;color:#a8ffc1;font-size:32px}p{color:#c3dbc9;line-height:1.5;font-size:13px}.micro{font-size:11px;color:#a8ffc1}label{display:block;margin:14px 0 5px;font-size:13px}input,button{font:inherit;border-radius:9px;padding:11px;border:1px solid #648b6b}input{width:100%;background:#0d1c12;color:white}button{cursor:pointer;background:#a8ffc1;color:#0c2413;font-weight:700}button:disabled{opacity:.5;cursor:not-allowed}button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #ffcc79;outline-offset:2px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.qrwrap{display:grid;place-items:center;padding:22px;background:#fff;border-radius:12px;width:fit-content;margin:20px auto}.qrwrap img,.qrwrap canvas{display:block}a{color:#a8ffc1;overflow-wrap:anywhere}.status{min-height:20px;color:#f5c98a;font-size:12px}.footer{border-top:1px solid #35573d;margin-top:20px;padding-top:14px;font-size:12px}</style></head>
+<body><main><div class="micro">>_$æ://æQR³ · PORTABLE DISCOVERY</div><h1>æQR³ Widget</h1><p>Generate a real QR code for a public HTTPS entry point. The QR is an address, not an authorization grant.</p>
+<label for="target">Public HTTPS destination</label><input id="target" type="url" value="https://yael-mendez.teologia-7508.chatgpt.site/" autocomplete="url" spellcheck="false">
+<div class="actions" style="margin-top:12px"><button id="generate" type="button">Generate QR</button><button id="download" type="button" disabled>Save PNG ↓</button></div>
+<div class="qrwrap" aria-label="Generated QR code"><div id="qr"></div></div>
+<p id="status" class="status" role="status" aria-live="polite">Loading QR encoder…</p>
+<p class="micro">Destination preview</p><a id="preview" href="https://yael-mendez.teologia-7508.chatgpt.site/" target="_blank" rel="noopener noreferrer">https://yael-mendez.teologia-7508.chatgpt.site/</a>
+<p>Scan with a second device before printing or distributing. Changing the destination requires regenerating the QR unless you control a stable redirect.</p>
+<div class="footer"><a href="../agents/">← $æ Agentic Home</a> · <a href="../AEQR-BASELINE.md">æQR³ baseline</a><p>Public discovery only · no credentials, personal data, or inherited authority · no live resolver or manifest verification implied.</p></div>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(()=>{'use strict';const $=id=>document.getElementById(id);let ready=false;
+function render(){const value=$('target').value.trim();let u;try{u=new URL(value);if(u.protocol!=='https:'||u.username||u.password)throw Error('Only public HTTPS URLs without embedded credentials are allowed.')}catch(e){$('status').textContent='Enter a valid HTTPS address without credentials.';$('download').disabled=true;return}
+if(typeof QRCode==='undefined'){$('status').textContent='QR encoder unavailable. Check your connection; no QR was generated.';return}
+$('qr').replaceChildren();try{new QRCode($('qr'),{text:u.href,width:240,height:240,colorDark:'#102f1c',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});$('preview').href=u.href;$('preview').textContent=u.href;$('status').textContent='QR generated. Scan-test before distribution.';$('download').disabled=false;ready=true}catch(e){$('status').textContent='Unable to encode this URL. Try a shorter public address.';$('download').disabled=true;ready=false}}
+$('generate').onclick=render;$('target').addEventListener('keydown',e=>{if(e.key==='Enter')render()});
+$('download').onclick=()=>{if(!ready)return;const canvas=$('qr').querySelector('canvas'),img=$('qr').querySelector('img');const href=canvas?canvas.toDataURL('image/png'):img?.src;if(!href)return;const a=document.createElement('a');a.href=href;a.download='aeqr3-entry.png';a.click()};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render);else render();
+})();
+</script></body></html>

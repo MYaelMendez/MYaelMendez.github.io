@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#08130d"><title>$æ · Read-only Environment Inspector</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#08130d;color:#e7f9eb}*{box-sizing:border-box}body{margin:0;padding:16px;min-height:100vh;display:grid;place-items:center}main{width:min(100%,540px);background:#112118;border:1px solid #416b4b;border-radius:22px;padding:20px}h1{font-size:clamp(22px,6vw,32px);margin:8px 0}.muted{color:#b6d2be}p{line-height:1.5}dl{display:grid;grid-template-columns:minmax(115px,40%) 1fr;gap:9px;padding:12px;background:#1a3021;border-radius:12px;overflow-wrap:anywhere}dt{color:#b6d2be}dd{margin:0;font-weight:600}a,button{color:#a8ffc1}a:focus-visible,button:focus-visible{outline:3px solid #ffd085;outline-offset:3px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.actions a,button{border:1px solid #548565;background:#203c29;border-radius:10px;padding:11px;text-align:center;text-decoration:none;font:inherit;cursor:pointer}.actions a[aria-disabled="true"]{opacity:.6;pointer-events:none}.status{padding:10px;border-radius:10px;background:#1a3021;color:#e7f9eb}.warn{color:#ffdc9e}.ok{color:#a8ffc1}small{color:#b6d2be;line-height:1.5}code{overflow-wrap:anywhere}details{margin-top:12px}summary{cursor:pointer}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;max-height:240px;overflow:auto}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}</style></head><body><main>
+<div class="muted">#OSW · æQR³ · HUMAN://principal</div>
+<h1>$æ <span style="color:#a8ffc1">Environment Inspector</span></h1>
+<p class="muted">One public descriptor, two peer destinations. Inspection does not grant execution authority or synchronize sessions.</p>
+<p id="status" class="status" role="status" aria-live="polite">Loading public source files…</p>
+<dl><dt>Environment</dt><dd id="env">Pending</dd><dt>Widget</dt><dd id="widget">Pending</dd><dt>Version</dt><dd id="version">Pending</dd><dt>Capabilities</dt><dd id="capabilities">Pending</dd><dt>Permissions</dt><dd id="permissions">Pending</dd><dt>Execution</dt><dd id="execution">Pending</dd><dt>Source</dt><dd id="source">Pending</dd></dl>
+<h2>Choose your destination</h2>
+<div class="actions"><button type="button" id="work">💬 Work here</button><a id="site" href="#" aria-disabled="true">🏙️ Open site</a></div>
+<p id="chat-status" class="muted">Work here keeps you in the current chat when used inside ChatGPT. This static GitHub page cannot identify or restore a private conversation.</p>
+<div class="actions"><a href="../agents/">← $æ Home</a><a id="manifest-link" href="../manifest.json">View source manifest ↗</a></div>
+<details><summary>Read-only evidence</summary><pre id="evidence">Awaiting inspection.</pre></details>
+<p><small>Sources: <code>../manifest.json</code> and <code>../../ae-destinations.json</code>, fetched from this same branch/site origin. No keys, cookies, identity grants, transactions, or private profile data are requested. A Site-side implementation must independently load and verify the same public version before claiming cross-destination integration. Static previews require an HTTP(S) host; file:// is unsupported.</small></p>
+</main><script>
+(async()=>{'use strict';
+const el=id=>document.getElementById(id);
+const base=new URL('../manifest.json',location.href),contractUrl=new URL('../../ae-destinations.json',location.href);
+const evidence={manifest_url:base.href,destination_contract_url:contractUrl.href,checked_at:new Date().toISOString(),runtime:'static_read_only'};
+const show=(id,value)=>{el(id).textContent=String(value)};
+el('work').addEventListener('click',()=>{show('chat-status','You are already working here if this inspector was opened inside ChatGPT. In a standalone browser, use your existing ChatGPT conversation; this page does not create or restore a chat session.')});
+try{
+const [mResp,dResp]=await Promise.all([fetch(base,{cache:'no-store',credentials:'omit'}),fetch(contractUrl,{cache:'no-store',credentials:'omit'})]);
+if(!mResp.ok||!dResp.ok)throw Error('Public file HTTP status: manifest '+mResp.status+', destinations '+dResp.status);
+const [m,d]=await Promise.all([mResp.json(),dResp.json()]);
+if(m.schema!=='osw.aewidget.v1'||m.environment?.schema!=='osw.ae1.environment.v1'||typeof m.environment.id!=='string'||!/^0\.\d+\.\d+$/.test(m.version)||d.schema!=='ae.destination-contract.v1'||!Array.isArray(d.destinations)||d.destinations.length!==2)throw Error('Unexpected descriptor schema, version or destinations');
+const chat=d.destinations.find(x=>x.id==='chat'),site=d.destinations.find(x=>x.id==='site');
+if(!chat||!site||chat.auto_redirect!==false||site.kind!=='existing_openai_site'||d.authority?.inherit!==false||m.environment.permissions?.inherit!==false||m.environment.permissions?.default!=='deny')throw Error('Destination or human-authority invariant failed');
+const siteUrl=new URL(site.entry_url);
+if(siteUrl.protocol!=='https:'||siteUrl.username||siteUrl.password||siteUrl.origin!=='https://yael-mendez.teologia-7508.chatgpt.site')throw Error('Site URL failed the pinned public-destination check');
+show('env',m.environment.id);show('widget',m.id);show('version',m.version);show('capabilities',m.capabilities.join(' · '));show('permissions','Deny by default · no inherited grants');show('execution',m.execution+' · '+m.status);show('source','Public GitHub files (same origin)');
+el('site').href=siteUrl.href;el('site').removeAttribute('aria-disabled');
+show('status','✓ Read-only contract validated · '+m.environment.id+' @ '+m.version);
+el('status').classList.add('ok');
+evidence.result='validated_public_source';evidence.environment_id=m.environment.id;evidence.version=m.version;evidence.destinations=['chat','site'];evidence.site_url=siteUrl.href;evidence.authorization='none';evidence.site_runtime_verified=false;evidence.source_revision='Not pinned by this static page: verify GitHub commit separately';
+}catch(e){show('status','⚠ Inspector unavailable: '+e.message);el('status').classList.add('warn');evidence.result='failed';evidence.error=String(e.message)}
+show('evidence',JSON.stringify(evidence,null,2));
+})();
+</script></body></html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>æ://QR WIDGETS · Motion Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-dim:#8a7022;--text:#e8e8e8;--muted:#555;--line:#1a1a1a;--g3:#0a0a0a;--cyan:#00e5ff;--neon:#39ff14;--violet:#bf5af2}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--void);color:var(--text);font-family:'JetBrains Mono',monospace;min-height:100vh}
+@keyframes breathe{0%,100%{opacity:.85}50%{opacity:1}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes colorShift{0%{color:var(--gold)}33%{color:var(--cyan)}66%{color:var(--neon)}100%{color:var(--gold)}}
+@keyframes glow{0%,100%{box-shadow:0 0 8px var(--gold-dim)}50%{box-shadow:0 0 22px var(--gold)}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes lineFlow{0%{background-position:0% 0}100%{background-position:200% 0}}
+@keyframes scanline{0%{top:-10%}100%{top:110%}}
+@keyframes qrBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes qrGlow{0%,100%{box-shadow:0 0 4px var(--gold-dim)}50%{box-shadow:0 0 16px var(--gold)}}
+@keyframes widgetHover{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.02)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+header{text-align:center;padding:40px 20px 20px}
+.eyebrow{font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:12px;animation:colorShift 7s ease infinite}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(28px,5vw,64px);color:var(--gold);text-shadow:0 0 40px rgba(212,175,55,.2);animation:pulse 5s ease-in-out infinite}
+.subtitle{font-size:13px;color:#777;margin-top:10px;max-width:600px;margin-left:auto;margin-right:auto;line-height:1.6;animation:breathe 6s ease-in-out infinite}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;max-width:1200px;margin:30px auto;padding:0 20px}
+.widget{background:var(--g3);border:1px solid var(--line);border-radius:14px;padding:20px;position:relative;overflow:hidden;transition:transform .3s,border-color .3s,box-shadow .3s;animation:fadeInUp .6s ease both}
+.widget:hover{transform:translateY(-4px);border-color:var(--gold-dim);box-shadow:0 12px 40px rgba(0,0,0,.6),0 0 0 1px var(--gold-dim)}
+.widget::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);background-size:200% 100%;animation:lineFlow 3s linear infinite}
+.widget .qr-row{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.widget .qr{width:80px;height:80px;flex-shrink:0;border:1px solid var(--gold-dim);border-radius:8px;background:var(--void);padding:4px;animation:qrBob 3s ease-in-out infinite,qrGlow 3s ease-in-out infinite}
+.widget .qr img{width:100%;height:100%;display:block;border-radius:4px}
+.widget .info h3{font-family:'Orbitron',sans-serif;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.widget .info .desc{font-size:11px;color:#888;line-height:1.5;margin-bottom:6px}
+.widget .info .meta{font-size:10px;color:#666;display:flex;gap:10px;flex-wrap:wrap}
+.widget .info .meta span{display:inline-flex;align-items:center;gap:4px}
+.widget .info .meta .dot{width:6px;height:6px;border-radius:50%}
+.widget .badge-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.widget .badge{font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--line);border-radius:999px;color:#888;background:var(--void)}
+.widget .badge.motion{border-color:var(--gold-dim);color:var(--gold)}
+.widget .badge.webmcp{border-color:#444;color:#666}
+footer{text-align:center;padding:40px 20px;color:#444;font-size:11px;letter-spacing:.08em}
+#ae-qr-badge{position:fixed;bottom:16px;right:16px;z-index:99999;width:56px;height:56px;border:1px solid var(--gold);border-radius:8px;background:var(--void);padding:4px;display:block;text-decoration:none;transition:transform .25s,box-shadow .25s}
+#ae-qr-badge:hover{transform:scale(1.1);box-shadow:0 0 22px var(--gold)}
+#ae-qr-badge img{width:100%;height:100%;display:block;border-radius:4px}
+.ticker-wrap{width:100%;overflow:hidden;border-top:1px solid var(--gold-dim);border-bottom:1px solid var(--gold-dim);background:#080808;padding:10px 0;margin-top:20px}
+.ticker{display:inline-block;white-space:nowrap;animation:ticker 28s linear infinite}
+.ticker span{display:inline-block;padding:0 32px;color:var(--gold);font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+.ticker span.sep{color:#333}
+</style>
+</head>
+<body>
+<header>
+<div class="eyebrow">æ://QR WIDGET GALLERY · MOTION + WEBMC</div>
+<h1>EVERY WIDGET<br>QR-CODED</h1>
+<p class="subtitle">Each widget carries its own QR code, motion baseline, and honest WebMCP status. No silent shims. No false claims. Scan any code to verify the surface live.</p>
+</header>
+<div class="ticker-wrap" role="marquee" aria-label="widget status ticker">
+<div class="ticker">
+<span>æ://QR GALLERY</span><span class="sep">·</span>
+<span>MOTION BASELINE</span><span class="sep">·</span>
+<span>WEBMC HONEST</span><span class="sep">·</span>
+<span>NO SILENT SHIMS</span><span class="sep">·</span>
+<span>+MyaelMendez · PRINCIPAL</span><span class="sep">·</span>
+<span>æ://QR GALLERY</span><span class="sep">·</span>
+<span>MOTION BASELINE</span><span class="sep">·</span>
+<span>WEBMC HONEST</span><span class="sep">·</span>
+<span>NO SILENT SHIMS</span><span class="sep">·</span>
+<span>+MyaelMendez · PRINCIPAL</span><span class="sep">·</span>
+</div>
+</div>
+<div class="grid" id="widgetGrid"></div>
+<footer>æ://QR WIDGET GALLERY · gold-on-void · reduced-motion supported · honest WebMCP</footer>
+<a id="ae-qr-badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Fqr-widgets-gallery.html" target="_blank" rel="noopener" aria-label="Verify this surface">
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=56x56&data=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Fqr-widgets-gallery.html&bgcolor=050505&color=D4AF37" alt="QR verify" width="56" height="56" style="position:fixed;bottom:16px;right:16px;z-index:99999;border:1px solid #D4AF37;border-radius:8px;background:#050505;padding:4px">
+</a>
+
+<script>
+(function(){
+'use strict';
+var WIDGETS=[
+{name:'AEE Pipeline',desc:'SPEC to RTL to SIM to SYNTH to P&R. Real measured evidence.',url:'https://myaelmendez.github.io/aipodcast_me/demo-15s.html',color:'#D4AF37',motion:true,webmcp:false},
+{name:'Cinematic Space',desc:'16:9 fixed viewport with spatial authority grid. WASD navigation.',url:'https://myaelmendez.github.io/aipodcast_me/cinematic-space.html',color:'#00e5ff',motion:true,webmcp:false},
+{name:'Demo 15s Loop',desc:'15-second closed loop. 12 capabilities, 4 authority levels.',url:'https://myaelmendez.github.io/aipodcast_me/demo-15s.html',color:'#39ff14',motion:true,webmcp:false},
+{name:'Agents Want',desc:'Sovereign signal surface for agents. +MyaelMendez principal.',url:'https://myaelmendez.github.io/aipodcast_me/agents-want.html',color:'#D4AF37',motion:true,webmcp:false},
+{name:'æQR Addressable',desc:'12 routes. Ed25519. Multi-sig. Recursive addressing.',url:'https://myaelmendez.github.io/aipodcast_me/aeqr.html',color:'#D4AF37',motion:true,webmcp:false},
+{name:'æQR³ Recursive',desc:'QR to QR to QR. Discoverable environments inside environments.',url:'https://myaelmendez.github.io/aipodcast_me/aeqr3.html',color:'#bf5af2',motion:true,webmcp:false},
+{name:'Commerce',desc:'Intent-driven procurement. 9 states. Human approval boundary.',url:'https://myaelmendez.github.io/aipodcast_me/aecommerce.html',color:'#D4AF37',motion:true,webmcp:true},
+{name:'Kinetic Typography',desc:'5 motion techniques. Scroll, breathe, color shift, typewriter, pulse.',url:'https://myaelmendez.github.io/aipodcast_me/kinetic.html',color:'#00e5ff',motion:true,webmcp:false},
+{name:'Tetration',desc:'Right-associative exponentiation. Productive Recursion.',url:'https://myaelmendez.github.io/aipodcast_me/tetration.html',color:'#D4AF37',motion:true,webmcp:false},
+{name:'OSW to IoA',desc:'Promptification to Agentic Engineering to Internet of Agents.',url:'https://myaelmendez.github.io/aipodcast_me/osw-to-ioa.html',color:'#00e5ff',motion:true,webmcp:false},
+{name:'Life Tower',desc:'9 floors. Recursive viewport. Space origin.',url:'https://myaelmendez.github.io/aipodcast_me/life-tower.html',color:'#39ff14',motion:true,webmcp:false},
+{name:'Everywhere',desc:'Federation layer. Cross-surface routing.',url:'https://myaelmendez.github.io/aipodcast_me/everywhere.html',color:'#bf5af2',motion:true,webmcp:false},
+{name:'QR Gallery',desc:'This gallery. 13 widgets, QR-coded, motion + WebMCP honest.',url:'https://myaelmendez.github.io/aipodcast_me/qr-widgets-gallery.html',color:'#D4AF37',motion:true,webmcp:false}
+];
+var grid=document.getElementById('widgetGrid');
+WIDGETS.forEach(function(w,i){
+var el=document.createElement('div');
+el.className='widget';
+el.style.animationDelay=(i*0.08)+'s';
+var qrUrl='https://api.qrserver.com/v1/create-qr-code/?size=80x80&data='+encodeURIComponent(w.url)+'&bgcolor=050505&color='+w.color.replace('#','');
+var webmcpBadge=w.webmcp?'<span class="badge webmcp">WebMCP: navigator.modelContext — honestly BLOCKED (no browser support)</span>':'<span class="badge webmcp">WebMCP: not applicable</span>';
+el.innerHTML='<div class="qr-row"><div class="qr"><img src="'+qrUrl+'" alt="QR: '+w.name+'" width="80" height="80"></div><div class="info"><h3>'+w.name+'</h3><div class="desc">'+w.desc+'</div><div class="meta"><span class="dot" style="background:'+w.color+'"></span><span>'+(w.motion?'motion: yes':'motion: no')+'</span><span>QR: live</span></div></div></div><div class="badge-row"><span class="badge motion">motion: '+(w.motion?'active':'off')+'</span>'+webmcpBadge+'<span class="badge">scan to verify</span></div>';
+grid.appendChild(el);
+});
+console.log('[qr-gallery] '+WIDGETS.length+' widgets rendered · QR live · motion baseline · WebMCP honest');
+})();
+</script>
+</body>
+</html>

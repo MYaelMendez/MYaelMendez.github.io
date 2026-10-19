@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>$🏡:// · Agentic Home</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--void2:#0a0a0a;--gold:#D4AF37;--gold-dim:rgba(212,175,55,.22);--yellow:#FFD700;--blue:#4A90D9;--green:#34C759;--purple:#A855F7;--orange:#F97316;--ink:#e8e6df;--muted:#6f6a5c}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:99998;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px)}
+.mesh{position:fixed;inset:0;z-index:0;opacity:.12}
+.mesh canvas{width:100%;height:100%}
+
+/* ticker */
+.ticker-wrap{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--void2);border-bottom:1px solid var(--gold-dim);height:36px;display:flex;align-items:center;overflow:hidden}
+.ticker{display:flex;gap:4rem;white-space:nowrap;animation:tick 28s linear infinite;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase}
+.ticker span{padding:0 1rem}
+.t-verified{color:var(--green)}
+.t-suggested{color:var(--muted)}
+.t-yellow{color:var(--yellow)}.t-blue{color:var(--blue)}.t-green{color:var(--green)}.t-purple{color:var(--purple)}.t-orange{color:var(--orange)}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* nav */
+nav{position:fixed;top:36px;left:0;right:0;z-index:100;background:rgba(5,5,5,.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(212,175,55,.12);display:flex;align-items:center;justify-content:space-between;padding:.55rem 1.2rem}
+nav .logo{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.05rem;color:var(--gold);text-decoration:none}
+nav .logo span{font-size:.58rem;opacity:.45;display:block;line-height:1;letter-spacing:.08em}
+nav .links{display:flex;gap:1rem;align-items:center}
+nav .links a{color:#888;text-decoration:none;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;transition:color .2s}
+nav .links a:hover{color:var(--gold)}
+
+/* hero */
+.hero{position:relative;z-index:1;min-height:92vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5.5rem 1.5rem 3rem;text-align:center}
+.hero-emoji{font-size:4.5rem;margin-bottom:1.2rem;animation:bob 3.5s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.hero h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(1.8rem,5.5vw,3.5rem);color:var(--gold);letter-spacing:.02em;margin-bottom:.4rem}
+.hero .sub{font-size:clamp(.75rem,1.8vw,.95rem);color:#999;max-width:560px;margin-bottom:1.8rem;line-height:1.6}
+.hero .cmd{font-size:clamp(.7rem,1.8vw,.9rem);color:var(--gold);background:rgba(212,175,55,.07);border:1px solid var(--gold-dim);border-radius:8px;padding:.55rem 1.3rem;margin-bottom:1.5rem}
+.hero .ns{font-size:.68rem;color:#555;letter-spacing:.12em;text-transform:uppercase;max-width:480px;line-height:1.7}
+.hero .ns em{color:var(--orange);font-style:normal}
+
+/* status */
+.status{position:relative;z-index:1;display:flex;align-items:center;gap:.5rem;margin-bottom:2rem}
+.status .dot{width:10px;height:10px;border-radius:50%;background:var(--green);animation:pulse-dot 2s ease-in-out infinite}
+.status .dot.working{background:var(--orange)}
+@keyframes pulse-dot{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+.status .txt{font-size:.65rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+
+/* entry grid */
+.entries{position:relative;z-index:1;padding:2rem 1.5rem 3rem;max-width:860px;margin:0 auto}
+.entries h2{font-family:'Orbitron',sans-serif;font-size:1.1rem;color:var(--gold);margin-bottom:1.4rem;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem}
+.card{border-radius:12px;padding:1.1rem;border:1px solid;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s;cursor:pointer}
+.card:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(0,0,0,.4)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.card .em{font-size:2rem;margin-bottom:.35rem}
+.card h3{font-family:'Orbitron',sans-serif;font-size:.75rem;margin-bottom:.25rem}
+.card p{font-size:.65rem;color:#888;line-height:1.4}
+.card .role{margin-top:.5rem;font-size:.58rem;letter-spacing:.06em;text-transform:uppercase}
+.c-y{background:rgba(255,215,0,.04);border-color:rgba(255,215,0,.28)}.c-y::before{background:var(--yellow)}.c-y h3{color:var(--yellow)}.c-y .role{color:var(--yellow)}
+.c-b{background:rgba(74,144,217,.04);border-color:rgba(74,144,217,.28)}.c-b::before{background:var(--blue)}.c-b h3{color:var(--blue)}.c-b .role{color:var(--blue)}
+.c-g{background:rgba(52,199,89,.04);border-color:rgba(52,199,89,.28)}.c-g::before{background:var(--green)}.c-g h3{color:var(--green)}.c-g .role{color:var(--green)}
+.c-p{background:rgba(168,85,247,.04);border-color:rgba(168,85,247,.28)}.c-p::before{background:var(--purple)}.c-p h3{color:var(--purple)}.c-p .role{color:var(--purple)}
+.c-o{background:rgba(249,115,22,.04);border-color:rgba(249,115,22,.28)}.c-o::before{background:var(--orange)}.c-o h3{color:var(--orange)}.c-o .role{color:var(--orange)}
+
+/* flow */
+.flow{position:relative;z-index:1;padding:2rem 1.5rem 3rem;max-width:700px;margin:0 auto;text-align:center}
+.flow h2{font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--gold);margin-bottom:1.2rem}
+.flow-chain{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.2rem}
+.flow-node{display:flex;flex-direction:column;align-items:center;gap:.2rem;min-width:64px}
+.flow-node .em{font-size:1.6rem}
+.flow-node .lb{font-size:.55rem;color:#777;text-transform:uppercase;letter-spacing:.06em}
+.flow-arr{font-size:1.1rem;color:var(--gold);margin:0 .3rem;animation:parr 1.5s ease-in-out infinite}
+@keyframes parr{0%,100%{opacity:.4;transform:translateX(0)}50%{opacity:1;transform:translateX(4px)}}
+
+/* legend */
+.legend{position:relative;z-index:1;padding:1.5rem 1.5rem 3rem;max-width:600px;margin:0 auto;display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center}
+.legend span{font-size:.62rem;padding:.3rem .7rem;border-radius:6px;letter-spacing:.04em}
+.l-y{background:rgba(255,215,0,.08);color:var(--yellow);border:1px solid rgba(255,215,0,.2)}
+.l-b{background:rgba(74,144,217,.08);color:var(--blue);border:1px solid rgba(74,144,217,.2)}
+.l-g{background:rgba(52,199,89,.08);color:var(--green);border:1px solid rgba(52,199,89,.2)}
+.l-p{background:rgba(168,85,247,.08);color:var(--purple);border:1px solid rgba(168,85,247,.2)}
+.l-o{background:rgba(249,115,22,.08);color:var(--orange);border:1px solid rgba(249,115,22,.2)}
+
+footer{position:relative;z-index:1;padding:2rem 1.5rem;text-align:center;border-top:1px solid rgba(212,175,55,.08)}
+footer .sig{font-family:'Orbitron',sans-serif;font-size:.72rem;color:var(--gold);margin-bottom:.3rem}
+footer .tag{font-size:.6rem;color:#444}
+
+/* badge */
+.badge{position:fixed;bottom:16px;right:16px;z-index:99999;width:56px;height:56px;border:1px solid var(--gold);border-radius:8px;background:var(--void);padding:4px;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.badge:hover{transform:scale(1.1);box-shadow:0 0 16px rgba(212,175,55,.4)}
+.badge img{width:100%;height:100%;border-radius:4px}
+
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<div class="mesh"><canvas id="m"></canvas></div>
+
+<div class="ticker-wrap"><div class="ticker" id="tick"></div></div>
+
+<nav>
+  <a class="logo" href="https://myaelmendez.github.io">$🏡://<span>Agentic Home</span></a>
+  <div class="links">
+    <a href="#entries">Home</a>
+    <a href="#flow">Flow</a>
+    <a href="#legend">Roles</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-emoji">🏡</div>
+  <h1>Agentic Home</h1>
+  <p class="sub">Honey, where's the remote? Honey, where's the baby bottle?<br>The household's emoji-native entry point — what matters, not what the agents are doing.</p>
+  <div class="cmd">&gt;_$🏡:// · 📺^🍼^☕^🛒|||👨‍👩‍👧^🏢^🎙️</div>
+  <div class="status"><span class="dot" id="sdot"></span><span class="txt" id="stxt">idle — mesh alive</span></div>
+  <p class="ns">Not time spent inside a chat — <em>what matters to the household, verified.</em></p>
+</section>
+
+<section class="entries" id="entries">
+  <h2>What matters</h2>
+  <div class="grid">
+    <div class="card c-y"><div class="em">📺</div><h3>Remote</h3><p>Where did we last use it?</p><div class="role">🟨 Discover</div></div>
+    <div class="card c-g"><div class="em">🍼</div><h3>Baby</h3><p>Care schedule, feeding log.</p><div class="role">🟩 Care</div></div>
+    <div class="card c-b"><div class="em">☕</div><h3>Coffee</h3><p>Morning routine, brew log.</p><div class="role">🟦 Routine</div></div>
+    <div class="card c-p"><div class="em">🛒</div><h3>Groceries</h3><p>List ready, needs approval.</p><div class="role">🟪 Provision</div></div>
+    <div class="card c-g"><div class="em">👨‍👩‍👧</div><h3>Family</h3><p>Plan, calendar, decisions.</p><div class="role">🟩 Govern</div></div>
+    <div class="card c-b"><div class="em">🏢</div><h3>Business</h3><p>Workflows, agents, output.</p><div class="role">🟦 Engineer</div></div>
+    <div class="card c-o"><div class="em">🎙️</div><h3>Teleprompter</h3><p>Create, record, share.</p><div class="role">🍊 Grow</div></div>
+  </div>
+</section>
+
+<section class="flow" id="flow">
+  <h2>The loop</h2>
+  <div class="flow-chain">
+    <div class="flow-node"><span class="em">📺</span><span class="lb">Ask</span></div>
+    <span class="flow-arr">→</span>
+    <div class="flow-node"><span class="em">🛸</span><span class="lb">Route</span></div>
+    <span class="flow-arr">→</span>
+    <div class="flow-node"><span class="em">🧠</span><span class="lb">Model</span></div>
+    <span class="flow-arr">→</span>
+    <div class="flow-node"><span class="em">📱</span><span class="lb">Device</span></div>
+    <span class="flow-arr">→</span>
+    <div class="flow-node"><span class="em">🧾</span><span class="lb">Receipt</span></div>
+    <span class="flow-arr">↺</span>
+  </div>
+</section>
+
+<section class="legend" id="legend">
+  <span class="l-y">🟨 Discover</span>
+  <span class="l-b">🟦 Engineer</span>
+  <span class="l-g">🟩 Govern</span>
+  <span class="l-p">🟪 Economics</span>
+  <span class="l-o">🍊 Grow</span>
+</section>
+
+<footer>
+  <div class="sig">&gt;_🏡://📺^🍼^☕^🛒|||🛸🛸🛸</div>
+  <div class="tag">The household speaks emoji. The interface listens.</div>
+</footer>
+
+<a class="badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Fhome.html" title="æ:// Verify">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=112x112&color=D4AF37&bgcolor=050505&data=https%3A%2F%2Fmyaelmendez.github.io%2Fverify.html%3Furl%3Dhttps%253A%252F%252Fmyaelmendez.github.io%252Faipodcast_me%252Fhome.html" alt="æQR">
+</a>
+
+<script>
+// mesh
+(function(){var c=document.getElementById('m'),x=c.getContext('2d'),w,h,t=0;
+function rs(){w=c.width=innerWidth;h=c.height=innerHeight}addEventListener('resize',rs);rs();
+var N=35,pts=[];for(var i=0;i<N;i++)pts.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3});
+function dr(){t+=.004;x.clearRect(0,0,w,h);
+for(var i=0;i<N;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;
+if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;
+x.fillStyle='rgba(212,175,55,.5)';x.beginPath();x.arc(p.x,p.y,2,0,7);x.fill()}
+for(var i=0;i<N;i++)for(var j=i+1;j<N;j++){var a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);
+if(d<140){x.strokeStyle='rgba(212,175,55,'+((1-d/140)*.14)+')';x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}}
+requestAnimationFrame(dr)}dr()})();
+
+// ticker — verified vs suggested
+var verified=[
+'✓ 🛒 Grocery list ready — verified',
+'✓ 👨‍👩‍👧 Family plan needs approval — verified',
+'✓ 🏢 Business workflow completed — verified',
+'✓ 📺 Remote last used: living room — verified'
+];
+var suggested=[
+'→ ☕ Coffee routine available',
+'→ 🍼 Baby feeding in 30 min',
+'→ 🎙️ Teleprompter script ready',
+'→ 🛒 Add milk to grocery list'
+];
+var all=verified.concat(suggested,verified.concat(suggested));
+var tickEl=document.getElementById('tick');
+var html='';
+for(var i=0;i<all.length;i++){
+  var v=all[i].indexOf('✓')===0;
+  html+='<span class="'+(v?'t-verified':'t-suggested')+'">'+all[i]+'</span>';
+}
+tickEl.innerHTML=html;
+
+// status pulse
+var sdot=document.getElementById('sdot'),stxt=document.getElementById('stxt');
+var working=false;
+setInterval(function(){
+  working=!working;
+  sdot.className='dot'+(working?' working':'');
+  stxt.textContent=working?'working — agents active':'idle — mesh alive';
+},4000);
+</script>
+</body>
+</html>

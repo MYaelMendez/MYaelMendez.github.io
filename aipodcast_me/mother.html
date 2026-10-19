@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>$🍼:// Mother & Child — Care Continuity</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--void2:#0a0a0a;--gold:#D4AF37;--gold-dim:rgba(212,175,55,.22);--yellow:#FFD700;--blue:#4A90D9;--green:#34C759;--purple:#A855F7;--orange:#F97316;--red:#FF4D5F;--ink:#e8e6df;--muted:#6f6a5c}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:99998;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px)}
+.mesh{position:fixed;inset:0;z-index:0;opacity:.12}
+.mesh canvas{width:100%;height:100%}
+
+/* emergency banner — always visible */
+.emergency{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(255,77,95,.12);border-bottom:1px solid rgba(255,77,95,.3);padding:.45rem 1rem;display:flex;align-items:center;justify-content:center;gap:.6rem;font-size:.68rem;color:var(--red);text-align:center}
+.emergency .icon{font-size:1rem;animation:pulse-dot 2s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
+
+/* ticker */
+.ticker-wrap{position:fixed;top:32px;left:0;right:0;z-index:100;background:var(--void2);border-bottom:1px solid var(--gold-dim);height:32px;display:flex;align-items:center;overflow:hidden}
+.ticker{display:flex;gap:4rem;white-space:nowrap;animation:tick 28s linear infinite;font-size:.65rem;letter-spacing:.04em;text-transform:uppercase}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* nav */
+nav{position:fixed;top:64px;left:0;right:0;z-index:100;background:rgba(5,5,5,.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(212,175,55,.12);display:flex;align-items:center;justify-content:space-between;padding:.5rem 1.2rem}
+nav .logo{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1rem;color:var(--gold);text-decoration:none}
+nav .logo span{font-size:.55rem;opacity:.45;display:block;line-height:1;letter-spacing:.08em}
+nav .lang{font-size:.65rem;color:#888;background:rgba(212,175,55,.07);border:1px solid var(--gold-dim);border-radius:6px;padding:.3rem .7rem;cursor:pointer}
+
+/* hero */
+.hero{position:relative;z-index:1;min-height:88vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:7rem 1.5rem 3rem;text-align:center}
+.hero-emoji{font-size:4rem;margin-bottom:1rem;animation:bob 3.5s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.hero h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(1.6rem,5vw,3rem);color:var(--gold);letter-spacing:.02em;margin-bottom:.4rem}
+.hero .sub{font-size:clamp(.72rem,1.8vw,.9rem);color:#999;max-width:520px;margin-bottom:1.6rem;line-height:1.6}
+.hero .voice-prompts{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;margin-bottom:1.8rem}
+.hero .vp{font-size:.7rem;color:var(--gold);background:rgba(212,175,55,.06);border:1px solid var(--gold-dim);border-radius:20px;padding:.5rem 1rem;cursor:pointer;transition:background .2s}
+.hero .vp:hover{background:rgba(212,175,55,.12)}
+.hero .north-star{font-size:.65rem;color:#555;letter-spacing:.1em;text-transform:uppercase;max-width:440px;line-height:1.7}
+.hero .north-star em{color:var(--green);font-style:normal}
+
+/* lifecycle */
+.lifecycle{position:relative;z-index:1;padding:2.5rem 1.5rem;max-width:860px;margin:0 auto;text-align:center}
+.lifecycle h2{font-family:'Orbitron',sans-serif;font-size:1.05rem;color:var(--gold);margin-bottom:1.2rem}
+.life-flow{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.3rem}
+.lnode{display:flex;flex-direction:column;align-items:center;gap:.15rem;min-width:60px}
+.lnode .em{font-size:1.8rem}
+.lnode .lb{font-size:.5rem;color:#777;text-transform:uppercase;letter-spacing:.06em}
+.larr{font-size:1rem;color:var(--gold);margin:0 .15rem;animation:parr 1.5s ease-in-out infinite}
+.larr.loop{color:var(--green)}
+@keyframes parr{0%,100%{opacity:.4;transform:translateX(0)}50%{opacity:1;transform:translateX(4px)}}
+
+/* nonnegotiables */
+.nonneg{position:relative;z-index:1;padding:2.5rem 1.5rem;max-width:800px;margin:0 auto}
+.nonneg h2{font-family:'Orbitron',sans-serif;font-size:1.05rem;color:var(--gold);margin-bottom:1.2rem;text-align:center}
+.nonneg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8rem}
+.nn-card{border-radius:12px;padding:1rem;border:1px solid;position:relative;overflow:hidden}
+.nn-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.nn-offline{background:rgba(74,144,217,.04);border-color:rgba(74,144,217,.28)}.nn-offline::before{background:var(--blue)}.nn-offline h3{color:var(--blue)}
+.nn-voice{background:rgba(52,199,89,.04);border-color:rgba(52,199,89,.28)}.nn-voice::before{background:var(--green)}.nn-voice h3{color:var(--green)}
+.nn-device{background:rgba(168,85,247,.04);border-color:rgba(168,85,247,.28)}.nn-device::before{background:var(--purple)}.nn-device h3{color:var(--purple)}
+.nn-care{background:rgba(249,115,22,.04);border-color:rgba(249,115,22,.28)}.nn-care::before{background:var(--orange)}.nn-care h3{color:var(--orange)}
+.nn-card .em{font-size:1.6rem;margin-bottom:.25rem}
+.nn-card h3{font-family:'Orbitron',sans-serif;font-size:.68rem;margin-bottom:.2rem}
+.nn-card p{font-size:.6rem;color:#888;line-height:1.4}
+
+/* stages */
+.stages{position:relative;z-index:1;padding:2.5rem 1.5rem;max-width:900px;margin:0 auto}
+.stages h2{font-family:'Orbitron',sans-serif;font-size:1.05rem;color:var(--gold);margin-bottom:1.2rem;text-align:center}
+.st-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.8rem}
+.st-card{border-radius:12px;padding:1rem;border:1px solid;transition:transform .25s,box-shadow .25s;cursor:pointer}
+.st-card:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(0,0,0,.4)}
+.st-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.st-preg{background:rgba(255,215,0,.04);border-color:rgba(255,215,0,.28)}.st-preg::before{background:var(--yellow)}.st-preg h3{color:var(--yellow)}
+.st-birth{background:rgba(255,77,95,.04);border-color:rgba(255,77,95,.28)}.st-birth::before{background:var(--red)}.st-birth h3{color:var(--red)}
+.st-newborn{background:rgba(74,144,217,.04);border-color:rgba(74,144,217,.28)}.st-newborn::before{background:var(--blue)}.st-newborn h3{color:var(--blue)}
+.st-toddler{background:rgba(52,199,89,.04);border-color:rgba(52,199,89,.28)}.st-toddler::before{background:var(--green)}.st-toddler h3{color:var(--green)}
+.st-card .em{font-size:1.8rem;margin-bottom:.25rem}
+.st-card h3{font-family:'Orbitron',sans-serif;font-size:.68rem;margin-bottom:.2rem}
+.st-card p{font-size:.6rem;color:#888;line-height:1.4}
+
+/* governance */
+.gov{position:relative;z-index:1;padding:2.5rem 1.5rem;max-width:640px;margin:0 auto;text-align:center}
+.gov .lock{font-size:2.5rem;margin-bottom:.6rem}
+.gov h2{font-family:'Orbitron',sans-serif;font-size:.95rem;color:var(--orange);margin-bottom:.5rem}
+.gov p{font-size:.7rem;color:#999;line-height:1.6;margin-bottom:.8rem}
+.gov .rule{padding:.7rem 1rem;border:1px dashed rgba(249,115,22,.3);border-radius:8px;font-size:.65rem;color:var(--orange)}
+.gov .rule strong{color:var(--red)}
+
+footer{position:relative;z-index:1;padding:2rem 1.5rem;text-align:center;border-top:1px solid rgba(212,175,55,.08)}
+footer .sig{font-family:'Orbitron',sans-serif;font-size:.68rem;color:var(--gold);margin-bottom:.2rem}
+footer .tag{font-size:.55rem;color:#444}
+
+.badge{position:fixed;bottom:16px;right:16px;z-index:99999;width:56px;height:56px;border:1px solid var(--gold);border-radius:8px;background:var(--void);padding:4px;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.badge:hover{transform:scale(1.1);box-shadow:0 0 16px rgba(212,175,55,.4)}
+.badge img{width:100%;height:100%;border-radius:4px}
+
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<div class="mesh"><canvas id="m"></canvas></div>
+
+<div class="emergency">
+  <span class="icon">🚨</span>
+  <span><strong>No es un profesional médico.</strong> Emergencia: llame al <strong>911</strong> local inmediatamente. · Not a medical professional. Emergency: call local 911 immediately.</span>
+</div>
+
+<div class="ticker-wrap"><div class="ticker" id="tick"></div></div>
+
+<nav>
+  <a class="logo" href="https://myaelmendez.github.io">$🍼://<span>Mother &amp; Child</span></a>
+  <span class="lang" onclick="alert('Idiomas: ES · EN · más próximamente')">ES / EN</span>
+</nav>
+
+<section class="hero">
+  <div class="hero-emoji">🍼</div>
+  <h1>Mother &amp; Child</h1>
+  <p class="sub">Continuidad de cuidados — del embarazo a la escuela, en tu idioma, sin importar dónde estés.<br>Continuity of care — from pregnancy to school, in your language, wherever you are.</p>
+  <div class="voice-prompts">
+    <span class="vp">"Estoy embarazada. ¿Qué hago?"</span>
+    <span class="vp">"Mi bebé tiene fiebre."</span>
+    <span class="vp">"Ayúdame."</span>
+  </div>
+  <p class="north-star">Un ambiente que crece junto a la vida humana — <em>voz primero, multilingüe, bajo ancho de banda, gobernado por humanos.</em></p>
+</section>
+
+<section class="lifecycle">
+  <h2>El ciclo de vida</h2>
+  <div class="life-flow">
+    <div class="lnode"><span class="em">🤰</span><span class="lb">Embarazo</span></div><span class="larr">→</span>
+    <div class="lnode"><span class="em">🏥</span><span class="lb">Parto</span></div><span class="larr">→</span>
+    <div class="lnode"><span class="em">🍼</span><span class="lb">Recién nacido</span></div><span class="larr">→</span>
+    <div class="lnode"><span class="em">🚼</span><span class="lb">Infante</span></div><span class="larr">→</span>
+    <div class="lnode"><span class="em">🧸</span><span class="lb">Niño</span></div><span class="larr">→</span>
+    <div class="lnode"><span class="em">🎒</span><span class="lb">Escuela</span></div><span class="larr">→</span>
+    <div class="lnode"><span class="em">🎓</span><span class="lb">Graduar</span></div><span class="larr">→</span>
+    <div class="lnode"><span class="em">🌳</span><span class="lb">Crecer</span></div><span class="larr loop">↺</span>
+  </div>
+</section>
+
+<section class="nonneg">
+  <h2>Cuatro requisitos innegociables</h2>
+  <div class="nonneg-grid">
+    <div class="nn-card nn-offline"><div class="em">📴</div><h3>Offline</h3><p>Contenido educativo revisado accesible sin conexión. Reviewed educational content available offline.</p></div>
+    <div class="nn-card nn-voice"><div class="em">🎙️</div><h3>Voz multilingüe</h3><p>Interacción por voz en tu idioma. Voice interaction in your language.</p></div>
+    <div class="nn-card nn-device"><div class="em">📱</div><h3>Dispositivos low-cost</h3><p>Funciona en teléfonos económicos. Works on low-cost devices.</p></div>
+    <div class="nn-card nn-care"><div class="em">🏥</div><h3>Ruta a cuidado humano</h3><p>Conexión confiable con profesionales médicos. Reliable route to qualified human care.</p></div>
+  </div>
+</section>
+
+<section class="stages">
+  <h2>Etapas</h2>
+  <div class="st-grid">
+    <div class="st-card st-preg"><div class="em">🤰</div><h3>Embarazo</h3><p>Citas prenatales, nutrición, señales de alerta, preparación.</p></div>
+    <div class="st-card st-birth"><div class="em">🏥</div><h3>Parto</h3><p>Plan de parto, contactos de emergencia, transporte, instalaciones.</p></div>
+    <div class="st-card st-newborn"><div class="em">🍼</div><h3>Recién nacido</h3><p>Alimentación, sueño, cuidado, signos de alerta.</p></div>
+    <div class="st-card st-toddler"><div class="em">🧸</div><h3>Niño</h3><p>Desarrollo, aprendizaje, vacunación, rutinas.</p></div>
+  </div>
+</section>
+
+<section class="gov">
+  <div class="lock">🔒</div>
+  <h2>Gobernanza humana</h2>
+  <p>Este modelo <strong>no se presenta como</strong> obstetra, partera o pediatra.<br>Helps families recognize when to seek care and connects them with qualified people.</p>
+  <div class="rule"><strong>La escalada de emergencia nunca depende de una respuesta de IA sola.</strong><br>Emergency escalation must never depend on an AI response alone.<br>Urgent maternal or infant warning signs require immediate professional assessment.</div>
+</section>
+
+<footer>
+  <div class="sig">&gt;_🤰 → 🤝 → 🏥 → 🍼 → 🧸 → 🎓 → 🌳</div>
+  <div class="tag">Enséñales temprano lo que aprendimos tarde. · Teach them early what we learned late.</div>
+</footer>
+
+<a class="badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Fmother.html" title="æ:// Verify">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=112x112&color=D4AF37&bgcolor=050505&data=https%3A%2F%2Fmyaelmendez.github.io%2Fverify.html%3Furl%3Dhttps%253A%252F%252Fmyaelmendez.github.io%252Faipodcast_me%252Fmother.html" alt="æQR">
+</a>
+
+<script>
+(function(){var c=document.getElementById('m'),x=c.getContext('2d'),w,h,t=0;
+function rs(){w=c.width=innerWidth;h=c.height=innerHeight}addEventListener('resize',rs);rs();
+var N=30,pts=[];for(var i=0;i<N;i++)pts.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25});
+function dr(){t+=.004;x.clearRect(0,0,w,h);
+for(var i=0;i<N;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;x.fillStyle='rgba(212,175,55,.4)';x.beginPath();x.arc(p.x,p.y,1.5,0,7);x.fill()}
+for(var i=0;i<N;i++)for(var j=i+1;j<N;j++){var a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<130){x.strokeStyle='rgba(212,175,55,'+((1-d/130)*.12)+')';x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}}
+requestAnimationFrame(dr)}dr()})();
+var routes=['📴 Offline — contenido sin conexión','🎙️ Voz — tu idioma','📱 Low-cost — cualquier teléfono','🏥 Cuidado humano — ruta confiable','🚨 Emergencia — llame al 911','🔒 Gobernanza — humana, no IA'];
+var html='';for(var i=0;i<2;i++)for(var j=0;j<routes.length;j++)html+='<span>'+routes[j]+'</span>';
+document.getElementById('tick').innerHTML=html;
+</script>
+</body>
+</html>

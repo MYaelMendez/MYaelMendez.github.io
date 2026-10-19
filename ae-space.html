@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>æ-space · the authority axis you steer by</title>
+<meta name="description" content="x0:y0:z0:æ0 — the navigable sovereign surface. Move with WASD, focus with ⌘K, steer through the æ authority axis. Crossing into æ2 and æ3 is a gate you must pass, not a label you read.">
+<link rel="canonical" href="https://myaelmendez.github.io/ae-space.html">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-hi:#ffda83;--neon:#00ff9d;--cyan:#70dcff;--purple:#b98cff;--ink:#e8e6df;--muted:#6f6a5c;--line:rgba(212,175,55,.18);--red:#ff4d5f}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow:hidden}
+#grid{position:fixed;inset:0;z-index:0}
+.scan{position:fixed;inset:0;z-index:3;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(212,175,55,.02) 0 1px,transparent 1px 3px)}
+.vig{position:fixed;inset:0;z-index:3;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 34%,rgba(0,0,0,.74) 100%)}
+.wrap{position:relative;z-index:2;height:100vh;display:flex;flex-direction:column;max-width:1100px;margin:0 auto;padding:0 16px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line);font-size:10px;letter-spacing:1.4px;color:var(--muted);text-transform:uppercase}
+.bar .brand{color:var(--gold);font-weight:700;text-transform:none;letter-spacing:.5px}
+.bar .live{display:flex;align-items:center;gap:6px;color:var(--neon)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.coordbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--line)}
+.coord{font-size:clamp(16px,4.4vw,26px);font-weight:700;letter-spacing:1.5px;white-space:nowrap}
+.coord .x,.coord .y,.coord .z{color:var(--cyan)}
+.coord .a{color:var(--gold-hi);text-shadow:0 0 16px rgba(212,175,55,.5)}
+.coord .sep{color:var(--muted);opacity:.5}
+.coord .num{display:inline-block;min-width:.55em}
+.zone{font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:5px 12px;border:1px solid currentColor;border-radius:4px}
+.stage{flex:1 1 auto;position:relative;margin:12px 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:rgba(5,5,5,.6)}
+#map{display:block;width:100%;height:100%}
+.legend{display:flex;gap:14px;flex-wrap:wrap;padding:8px 0 4px;font-size:9.5px;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:9px;height:9px;border-radius:2px;display:inline-block}
+.hint{padding:6px 0 12px;font-size:9.5px;letter-spacing:1.6px;color:var(--muted);text-transform:uppercase;text-align:center}
+.hint b{color:var(--gold)}
+/* gate panel */
+.gate{position:absolute;inset:0;z-index:6;display:none;align-items:center;justify-content:center;background:rgba(5,5,5,.86);backdrop-filter:blur(4px);padding:20px}
+.gate.on{display:flex;animation:fade .25s ease-out}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.gcard{width:100%;max-width:430px;border:1px solid var(--line);border-radius:10px;background:#0b0b0b;padding:22px}
+.gcard h3{font-family:'Orbitron',sans-serif;font-size:15px;letter-spacing:1px;margin-bottom:6px}
+.gcard .req{font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:14px}
+.gcard .req b{color:var(--ink)}
+.gcard .honest{font-size:9.5px;color:var(--muted);border-left:2px solid var(--line);padding-left:9px;margin-bottom:16px;line-height:1.6}
+.grow{display:flex;gap:9px}
+.gbtn{flex:1;padding:10px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--ink);transition:.18s}
+.gbtn.pri{border-color:var(--gold);color:var(--gold)}
+.gbtn.pri:hover{background:rgba(212,175,55,.12);box-shadow:0 0 16px rgba(212,175,55,.25)}
+.gbtn:hover{background:rgba(255,255,255,.05)}
+/* palette */
+.pal{position:absolute;inset:0;z-index:7;display:none;align-items:flex-start;justify-content:center;padding-top:8vh;background:rgba(5,5,5,.8);backdrop-filter:blur(4px)}
+.pal.on{display:flex}
+.pbox{width:100%;max-width:520px;border:1px solid var(--line);border-radius:10px;background:#0b0b0b;overflow:hidden}
+.pbox input{width:100%;background:transparent;border:0;border-bottom:1px solid var(--line);padding:15px 16px;color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none}
+.pbox .plist{max-height:230px;overflow-y:auto}
+.prow{padding:10px 16px;font-size:11.5px;color:var(--muted);cursor:pointer;display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid rgba(212,175,55,.06)}
+.prow:hover,.prow.sel{background:rgba(212,175,55,.08);color:var(--ink)}
+.prow b{color:var(--gold)}
+.badge{position:fixed;bottom:14px;right:14px;z-index:9;width:52px;height:52px;border:1px solid var(--gold);border-radius:8px;background:var(--void);padding:4px;transition:.25s}
+.badge:hover{transform:scale(1.08);box-shadow:0 0 16px rgba(212,175,55,.4)}
+.badge img{width:100%;height:100%;border-radius:4px}
+@media(max-width:640px){.wrap{padding:0 10px}.legend{display:none}.bar .mid{display:none}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div id="grid"><canvas id="bg"></canvas></div>
+<div class="scan"></div><div class="vig"></div>
+
+<div class="wrap">
+  <div class="bar">
+    <span class="brand">&gt;_æ-space</span>
+    <span class="mid">x=category · y=item · z=depth · æ=authority</span>
+    <span class="live"><span class="dot"></span>navigable</span>
+  </div>
+
+  <div class="coordbar">
+    <div class="coord">
+      x<span class="num" id="cx">0</span><span class="sep">:</span>y<span class="num" id="cy">0</span><span class="sep">:</span>z<span class="num" id="cz">0</span><span class="sep">:</span><span class="a">æ<span class="num" id="ca">0</span></span>
+    </div>
+    <div class="zone" id="zone" style="color:var(--gold)">æ0 · PUBLIC</div>
+  </div>
+
+  <div class="stage">
+    <canvas id="map"></canvas>
+    <div class="gate" id="gate">
+      <div class="gcard">
+        <h3 id="gt">AUTHORIZATION REQUIRED</h3>
+        <div class="req" id="gr"></div>
+        <div class="honest" id="gh"></div>
+        <div class="grow">
+          <button class="gbtn" id="gc">CANCEL</button>
+          <button class="gbtn pri" id="ga">AUTHORIZE</button>
+        </div>
+      </div>
+    </div>
+    <div class="pal" id="pal">
+      <div class="pbox">
+        <input id="pin" placeholder="goto x9:y3:z0:æ1 · authorize · help" autocomplete="off" spellcheck="false">
+        <div class="plist" id="plist"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><i style="background:var(--gold)"></i>æ0 public</span>
+    <span><i style="background:var(--cyan)"></i>æ1 published</span>
+    <span><i style="background:var(--neon)"></i>æ2 operator</span>
+    <span><i style="background:var(--purple)"></i>æ3 custody</span>
+  </div>
+  <div class="hint">MOVE WITH <b>WASD</b> / ARROWS · <b>⌘K</b> FOCUS · <b>E</b> ENTER · <b>ESC</b> CLOSE</div>
+</div>
+
+<a class="badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Fae-space.html" title="æ:// Verify">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=104x104&color=D4AF37&bgcolor=050505&data=https%3A%2F%2Fmyaelmendez.github.io%2Fverify.html%3Furl%3Dhttps%253A%252F%252Fmyaelmendez.github.io%252Fae-space.html" alt="æQR">
+</a>
+
+<script>
+(function(){
+'use strict';
+var COLS=24, ROWS=12;
+var BANDS=[
+  {a:0,x0:0,x1:5, name:'PUBLIC',    color:'#D4AF37', desc:'Open discovery · no authority required'},
+  {a:1,x0:6,x1:11,name:'PUBLISHED', color:'#70dcff', desc:'Bounded environment · capabilities declared'},
+  {a:2,x0:12,x1:17,name:'OPERATOR', color:'#00ff9d', desc:'Private client · agent execution on your behalf'},
+  {a:3,x0:18,x1:23,name:'CUSTODY',  color:'#b98cff', desc:'Sovereign core · identity, keys, ownership'}
+];
+var LANDMARKS=[
+  {x:2,y:3, n:'bookstore', a:0},
+  {x:4,y:8, n:'discover',  a:0},
+  {x:8,y:3, n:'ae1',       a:1},
+  {x:10,y:8,n:'commerce',  a:1},
+  {x:14,y:3,n:'control',   a:2},
+  {x:16,y:8,n:'fleet',     a:2},
+  {x:20,y:3,n:'vault',     a:3},
+  {x:22,y:8,n:'witness',   a:3}
+];
+var S={x:0,y:0,z:0,a:0,granted:{2:false,3:false}};
+var GATE_REQ={
+  2:{t:'æ1 → æ2 · OPERATOR', r:'Entering the <b>operator</b> layer lets agents act on your behalf. Requires an <b>operator authorization</b>.', h:'This gate is a client-side state machine. It demonstrates the boundary — it is not, by itself, a security control.'},
+  3:{t:'æ2 → æ3 · CUSTODY', r:'The <b>custody</b> core holds identity, keys and ownership. Requires a <b>custody confirmation</b> — the deepest authority you hold.', h:'An HTML surface is not an unspoofable authorization boundary. Real custody lives in local hardware custody, never in the page.'}
+};
+var $=function(id){return document.getElementById(id)};
+function bandOf(x){for(var i=0;i<BANDS.length;i++){if(x>=BANDS[i].x0&&x<=BANDS[i].x1)return i}return 0}
+function allowedBand(){var m=1;if(S.granted[2])m=2;if(S.granted[3])m=3;return m}
+function colorOf(a){return BANDS[a].color}
+
+/* ── background mesh ── */
+var bg=$('bg'), bx=bg.getContext('2d'), bw,bh,pts=[];
+function sizeBg(){bw=bg.width=innerWidth;bh=bg.height=innerHeight}
+addEventListener('resize',function(){sizeBg();sizeMap()});sizeBg();
+for(var i=0;i<26;i++)pts.push({x:Math.random()*bw,y:Math.random()*bh,vx:(Math.random()-.5)*.18,vy:(Math.random()-.5)*.18});
+(function drawBg(){
+  bx.clearRect(0,0,bw,bh);
+  for(var i=0;i<pts.length;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0||p.x>bw)p.vx*=-1;if(p.y<0||p.y>bh)p.vy*=-1;
+    bx.fillStyle='rgba(212,175,55,.28)';bx.beginPath();bx.arc(p.x,p.y,1.4,0,7);bx.fill()}
+  for(var i=0;i<pts.length;i++)for(var j=i+1;j<pts.length;j++){var a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);
+    if(d<130){bx.strokeStyle='rgba(212,175,55,'+((1-d/130)*.09)+')';bx.beginPath();bx.moveTo(a.x,a.y);bx.lineTo(b.x,b.y);bx.stroke()}}
+  requestAnimationFrame(drawBg);
+})();
+
+/* ── map ── */
+var map=$('map'), mx=map.getContext('2d'), CELL=36, OX=0, OY=0, TW, TH;
+function sizeMap(){
+  var st=map.parentElement.getBoundingClientRect();
+  map.width=st.width*devicePixelRatio; map.height=st.height*devicePixelRatio;
+  map.style.width=st.width+'px'; map.style.height=st.height+'px';
+  mx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  TW=st.width; TH=st.height;
+  CELL=Math.min((TW-20)/COLS,(TH-20)/ROWS);
+  OX=(TW-CELL*COLS)/2; OY=(TH-CELL*ROWS)/2;
+}
+function cellXY(x,y){return [OX+x*CELL, OY+y*CELL]}
+function drawMap(t){
+  mx.clearRect(0,0,TW,TH);
+  /* bands */
+  for(var b=0;b<BANDS.length;b++){
+    var B=BANDS[b], x0=OX+B.x0*CELL, x1=OX+(B.x1+1)*CELL, w=x1-x0;
+    var g=mx.createLinearGradient(x0,0,x1,0);
+    g.addColorStop(0,B.color+'14'); g.addColorStop(1,B.color+'05');
+    mx.fillStyle=g; mx.fillRect(x0,OY,w,CELL*ROWS);
+    /* gate line at left edge (except band 0) */
+    if(b>0){
+      var gx=x0, locked=allowedBand()<b;
+      mx.save();
+      mx.setLineDash(locked?[5,5]:[]);
+      mx.strokeStyle=locked?B.color+'aa':B.color+'44';
+      mx.lineWidth=locked?1.6:1;
+      mx.beginPath();mx.moveTo(gx,OY);mx.lineTo(gx,OY+CELL*ROWS);mx.stroke();
+      mx.restore();
+      mx.fillStyle=locked?B.color:B.color+'88';
+      mx.font='700 11px "JetBrains Mono",monospace';
+      mx.fillText(locked?'🔒':'◇', gx+5, OY+CELL*ROWS-8);
+      /* gate pulse */
+      if(locked){var pu=(Math.sin(t/500)+1)/2;mx.globalAlpha=.35+.45*pu;mx.fillStyle=B.color;
+        mx.fillRect(gx-1,OY,2.4,CELL*ROWS);mx.globalAlpha=1}
+    }
+  }
+  /* grid */
+  mx.strokeStyle='rgba(212,175,55,.07)';mx.lineWidth=1;
+  for(var x=0;x<=COLS;x++){var cx=OX+x*CELL;mx.beginPath();mx.moveTo(cx,OY);mx.lineTo(cx,OY+CELL*ROWS);mx.stroke()}
+  for(var y=0;y<=ROWS;y++){var cy=OY+y*CELL;mx.beginPath();mx.moveTo(OX,cy);mx.lineTo(OX+CELL*COLS,cy);mx.stroke()}
+  /* landmarks */
+  for(var i=0;i<LANDMARKS.length;i++){var L=LANDMARKS[i],p=cellXY(L.x,L.y),c=colorOf(L.a);
+    var cx2=p[0]+CELL/2, cy2=p[1]+CELL/2;
+    mx.strokeStyle=c+'cc';mx.lineWidth=1.3;
+    mx.beginPath();mx.moveTo(cx2,cy2-6);mx.lineTo(cx2+6,cy2);mx.lineTo(cx2,cy2+6);mx.lineTo(cx2-6,cy2);mx.closePath();mx.stroke();
+    mx.fillStyle=c+'33';mx.fill();
+    mx.fillStyle='rgba(232,230,223,.62)';mx.font='9px "JetBrains Mono",monospace';mx.textAlign='center';
+    mx.fillText(L.n,cx2,cy2+18);mx.textAlign='left';
+  }
+  /* principal */
+  var pp=cellXY(S.x,S.y), px2=pp[0]+CELL/2, py2=pp[1]+CELL/2, pc=colorOf(S.a);
+  var gl=mx.createRadialGradient(px2,py2,0,px2,py2,CELL*1.1);
+  gl.addColorStop(0,pc+'55');gl.addColorStop(1,pc+'00');
+  mx.fillStyle=gl;mx.beginPath();mx.arc(px2,py2,CELL*1.1,0,7);mx.fill();
+  mx.fillStyle=pc;mx.beginPath();mx.arc(px2,py2,CELL*.26,0,7);mx.fill();
+  mx.strokeStyle=pc;mx.lineWidth=1.6;mx.beginPath();mx.arc(px2,py2,CELL*.42,0,7);mx.stroke();
+  mx.fillStyle=pc;mx.font='700 10px "JetBrains Mono",monospace';
+  mx.fillText('🫵',px2-5,py2+3.5);
+  requestAnimationFrame(drawMap);
+}
+sizeMap(); requestAnimationFrame(drawMap);
+
+/* ── hud ── */
+function update(){
+  S.a=bandOf(S.x);
+  $('cx').textContent=S.x; $('cy').textContent=S.y; $('cz').textContent=S.z; $('ca').textContent=S.a;
+  var B=BANDS[S.a];
+  $('zone').textContent='æ'+S.a+' · '+B.name;
+  $('zone').style.color=B.color;
+}
+
+/* ── movement ── */
+function move(dx,dy){
+  var nx=S.x+dx, ny=S.y+dy;
+  if(nx<0||nx>=COLS||ny<0||ny>=ROWS)return;
+  var b=bandOf(nx);
+  if(b>allowedBand()){openGate(b,nx,ny);return}
+  S.x=nx;S.y=ny;update();
+}
+var pending=null;
+function openGate(b,nx,ny){
+  pending={b:b,x:nx,y:ny};
+  var G=GATE_REQ[b], c=colorOf(b);
+  $('gt').textContent=G.t; $('gt').style.color=c;
+  $('gr').innerHTML=G.r; $('gh').textContent=G.h;
+  $('ga').style.borderColor=c; $('ga').style.color=c;
+  $('gate').classList.add('on');
+}
+function closeGate(){$('gate').classList.remove('on');pending=null}
+$('gc').onclick=closeGate;
+$('ga').onclick=function(){
+  if(!pending)return;
+  var b=pending.b;
+  for(var i=2;i<=b;i++)S.granted[i]=true;
+  S.x=pending.x;S.y=pending.y;
+  closeGate();update();
+  toast('authorized · æ'+b);
+};
+function toast(msg){/* simple transient via zone tag */var z=$('zone');var old=z.textContent;z.textContent=msg.toUpperCase();setTimeout(function(){update()},1200)}
+
+/* ── palette ── */
+var CMDS=[
+  {k:'goto x9:y3:z0:æ1',d:'jump to a coordinate'},
+  {k:'authorize',d:'request the next authority gate'},
+  {k:'status',d:'report current position + authority'},
+  {k:'help',d:'list commands'}
+];
+var pal=$('pal'), pin=$('pin'), plist=$('plist'), sel=0;
+function renderList(filter){
+  var f=(filter||'').toLowerCase();
+  var items=CMDS.filter(function(c){return !f||c.k.indexOf(f)>=0});
+  sel=0;
+  plist.innerHTML=items.map(function(c,i){return '<div class="prow'+(i===0?' sel':'')+'" data-k="'+c.k+'"><span><b>'+c.k+'</b></span><span>'+c.d+'</span></div>'}).join('');
+  Array.prototype.forEach.call(plist.children,function(el){el.onclick=function(){pin.value=el.getAttribute('data-k');run()}});
+}
+function openPal(){pal.classList.add('on');pin.value='';renderList('');setTimeout(function(){pin.focus()},30)}
+function closePal(){pal.classList.remove('on')}
+pin.addEventListener('input',function(){renderList(pin.value)});
+pin.addEventListener('keydown',function(e){
+  var rows=plist.children;
+  if(e.key==='ArrowDown'){e.preventDefault();sel=Math.min(sel+1,rows.length-1);paint()}
+  else if(e.key==='ArrowUp'){e.preventDefault();sel=Math.max(sel-1,0);paint()}
+  else if(e.key==='Enter'){e.preventDefault();run()}
+  else if(e.key==='Escape'){closePal()}
+});
+function paint(){Array.prototype.forEach.call(plist.children,function(el,i){el.classList.toggle('sel',i===sel)})}
+function run(){
+  var v=pin.value.trim().toLowerCase();
+  var g=v.match(/^goto\s+x(\d+):y(\d+):z(\d+):æ(\d+)/);
+  if(g){
+    var nx=+g[1],ny=+g[2],nz=+g[3],na=+g[4];
+    if(nx<0||nx>=COLS||ny<0||ny>=ROWS){closePal();return}
+    var b=bandOf(nx);
+    if(b>allowedBand()){closePal();openGate(b,nx,ny);return}
+    S.x=nx;S.y=ny;S.z=nz;closePal();update();return;
+  }
+  if(v==='authorize'){var nb=allowedBand()+1;if(nb>3){closePal();return}closePal();openGate(nb,S.x+1,S.y);return}
+  if(v==='status'){closePal();toast('x'+S.x+' y'+S.y+' æ'+S.a);return}
+  if(v==='help'){renderList('');return}
+  closePal();
+}
+
+/* ── keys ── */
+addEventListener('keydown',function(e){
+  var k=e.key.toLowerCase();
+  if((e.metaKey||e.ctrlKey)&&k==='k'){e.preventDefault();openPal();return}
+  if(e.key==='Escape'){closePal();closeGate();return}
+  if(pal.classList.contains('on')||$('gate').classList.contains('on'))return;
+  if(k==='w'||e.key==='ArrowUp'){e.preventDefault();move(0,-1)}
+  else if(k==='s'||e.key==='ArrowDown'){e.preventDefault();move(0,1)}
+  else if(k==='a'||e.key==='ArrowLeft'){e.preventDefault();move(-1,0)}
+  else if(k==='d'||e.key==='ArrowRight'){e.preventDefault();move(1,0)}
+  else if(k==='e'){var nb=allowedBand()+1;if(nb<=3)openGate(nb,S.x+1,S.y)}
+});
+
+/* ── touch ── */
+map.addEventListener('click',function(ev){
+  var r=map.getBoundingClientRect();
+  var cx=Math.floor((ev.clientX-r.left-OX)/CELL), cy=Math.floor((ev.clientY-r.top-OY)/CELL);
+  if(cx<0||cx>=COLS||cy<0||cy>=ROWS)return;
+  var b=bandOf(cx);
+  if(b>allowedBand()){openGate(b,cx,cy);return}
+  S.x=cx;S.y=cy;update();
+});
+
+update();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>æææ · Origin of Agentic Environments</title>
+<meta name="description" content="The root namespace of the æ ecosystem. One namespace, many environments, one principal. æ1 environments, æQR addressing, æ-Commerce, the navigable æ-space, and the æ authority axis.">
+<link rel="canonical" href="https://myaelmendez.github.io/ae-ecosystem.html">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#050505;--gold:#D4AF37;--gold-hi:#ffda83;--paper:#F5F0E1;
+  --neon:#00ff9d;--cyan:#70dcff;--purple:#b98cff;--red:#ff4d5f;--amber:#FFB347;
+  --muted:#6f6a5c;--line:rgba(212,175,55,.18);
+  --g1:#0a0a0a;--g2:#161616;--g3:#242424;--g4:#3a3a3a;--radius:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{min-height:100%;background:var(--void);color:var(--paper);font-family:'Inter',system-ui,sans-serif;overflow-x:hidden;line-height:1.5;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:99998;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(212,175,55,.008) 2px,rgba(212,175,55,.008) 4px)}
+.mesh{position:fixed;inset:0;z-index:0;opacity:.05}
+.mesh canvas{width:100%;height:100%}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(5,5,5,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--g2);display:flex;align-items:center;justify-content:space-between;padding:.55rem 1.2rem}
+nav .logo{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.95rem;color:var(--gold);text-decoration:none;letter-spacing:-.03em}
+nav .logo span{font-size:.5rem;opacity:.45;display:block;line-height:1;letter-spacing:.08em;text-transform:uppercase}
+nav .links{display:flex;gap:1rem;align-items:center}
+nav .links a{color:var(--muted);text-decoration:none;font-size:.62rem;letter-spacing:.04em;text-transform:uppercase;transition:color .2s;font-weight:500}
+nav .links a:hover{color:var(--gold)}
+.hero{position:relative;z-index:1;min-height:88vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5rem 1.5rem 3rem;text-align:center}
+.hero-glyph{font-size:clamp(3rem,10vw,5rem);line-height:1;color:var(--gold);text-shadow:0 0 40px rgba(212,175,55,.5);font-family:'Orbitron',sans-serif;font-weight:900;animation:breathe 4s ease-in-out infinite;margin-bottom:1rem}
+@keyframes breathe{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.04)}}
+.hero h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(1.6rem,5.5vw,2.8rem);color:var(--gold);letter-spacing:-.02em;margin-bottom:.4rem;line-height:1.05}
+.hero h1 .tag{font-size:.18em;font-weight:500;color:var(--muted);display:block;margin-top:.4rem;letter-spacing:.2em;text-transform:uppercase}
+.hero .sub{font-size:clamp(.72rem,1.8vw,.88rem);color:var(--muted);max-width:580px;line-height:1.6;margin-bottom:1.6rem}
+.hero .sub b{color:var(--paper);font-weight:600}
+.hero .cmd{font-family:'JetBrains Mono',monospace;font-size:clamp(.68rem,1.8vw,.8rem);color:var(--gold);background:var(--g2);border:1px solid var(--g3);border-radius:8px;padding:.5rem 1.2rem;margin:.5rem 0}
+.hero .cmd span{color:var(--muted)}
+.hero .inv{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);margin-top:.7rem;letter-spacing:.06em;text-transform:uppercase}
+.axis{display:flex;gap:1.1rem;flex-wrap:wrap;justify-content:center;margin:1.2rem 0;padding:.6rem}
+.axis-i{display:flex;align-items:center;gap:.5rem;font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:600;color:var(--paper)}
+.axis-dot{width:10px;height:10px;border-radius:50%}
+.ad-a0{background:var(--gold);box-shadow:0 0 10px var(--gold)}
+.ad-a1{background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.ad-a2{background:var(--neon);box-shadow:0 0 10px var(--neon)}
+.ad-a3{background:var(--purple);box-shadow:0 0 10px var(--purple)}
+.section{position:relative;z-index:1;padding:2.6rem 1.5rem;max-width:1080px;margin:0 auto}
+.section h2{font-family:'Inter',sans-serif;font-weight:700;font-size:clamp(.95rem,2.5vw,1.15rem);color:var(--gold);margin-bottom:.5rem;letter-spacing:-.01em}
+.section h2 .tag{font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--muted);display:inline-block;margin-left:.5rem;letter-spacing:.14em;text-transform:uppercase;font-weight:500}
+.section .desc{font-size:.68rem;color:var(--muted);margin-bottom:1.4rem;line-height:1.6;max-width:660px}
+.section .desc b{color:var(--paper);font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:.85rem;margin:1.1rem 0}
+.card{border:1px solid var(--g3);background:var(--g2);border-radius:var(--radius);padding:1rem .8rem;text-align:center;text-decoration:none;color:inherit;display:block;transition:transform .25s,border-color .25s,box-shadow .25s}
+a.card:hover{transform:translateY(-5px);border-color:var(--gold);box-shadow:0 14px 36px rgba(0,0,0,.6)}
+.card .ci{font-size:1.7rem;margin-bottom:.4rem}
+.card h3{font-family:'Inter',sans-serif;font-weight:600;font-size:.68rem;color:var(--paper);margin-bottom:.2rem}
+.card .cr{font-size:.55rem;color:var(--muted);line-height:1.45}
+.card .cv{font-size:.5rem;color:var(--neon);margin-top:.4rem;font-weight:600;letter-spacing:.06em}
+.card.off{border-style:dashed;opacity:.62}
+.card.off .cv{color:var(--amber)}
+.evo{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:.7rem;margin:1.1rem 0}
+.evo-i{padding:.9rem;border:1px solid var(--g3);border-radius:var(--radius);background:var(--g2);text-align:center}
+.evo-i .en{font-family:'Orbitron',sans-serif;font-weight:700;font-size:.6rem;color:var(--gold);letter-spacing:.06em;margin-bottom:.3rem}
+.evo-i .et{font-size:.55rem;color:var(--muted);margin-bottom:.35rem;letter-spacing:.08em}
+.evo-i .ed{font-size:.6rem;color:var(--paper);font-weight:600}
+.invariant{margin:1.8rem 0;padding:1.5rem;border-left:3px solid var(--gold);background:var(--g2);border-radius:0 var(--radius) var(--radius) 0}
+.invariant .big{font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(.86rem,2.2vw,1.05rem);color:var(--gold);letter-spacing:-.01em;margin-bottom:.5rem}
+.invariant .sub{font-size:.62rem;color:var(--muted);line-height:1.6}
+.invariant .sub b{color:var(--paper)}
+.f1{margin:1.8rem 0;padding:1.5rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--g2)}
+.f1 .stat{font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(.8rem,2vw,.96rem);color:var(--gold);margin-bottom:.5rem}
+.f1 .exp{font-size:.62rem;color:var(--muted);line-height:1.6}
+.f1 .exp b{color:var(--paper)}
+.note{margin:1.4rem 0;padding:1rem 1.2rem;border:1px solid var(--amber);border-radius:var(--radius);background:var(--g2);font-size:.62rem;color:var(--amber);line-height:1.6}
+.note b{color:var(--paper)}
+footer{position:relative;z-index:1;padding:2.4rem 1.5rem;text-align:center;border-top:1px solid var(--g3);margin-top:2.6rem}
+footer .sig{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--gold);margin-bottom:.4rem}
+footer .tag{font-size:.52rem;color:var(--muted)}
+.badge{position:fixed;bottom:14px;right:14px;z-index:99999;width:52px;height:52px;border:1px solid var(--gold);border-radius:8px;background:var(--void);padding:4px;cursor:pointer;transition:.25s}
+.badge:hover{transform:scale(1.1);box-shadow:0 0 16px rgba(212,175,55,.4)}
+.badge img{width:100%;height:100%;border-radius:4px}
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease-out,transform .7s ease-out}
+.reveal.visible{opacity:1;transform:translateY(0)}
+@media(max-width:560px){.axis{gap:.7rem}.axis-i{font-size:.58rem}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="mesh"><canvas id="m"></canvas></div>
+
+<nav>
+  <a class="logo" href="https://myaelmendez.github.io">æææ<span>origin</span></a>
+  <div class="links">
+    <a href="https://myaelmendez.github.io/ae-space.html">æ-space</a>
+    <a href="https://myaelmendez.github.io/work-here.html">work_here!</a>
+    <a href="https://myaelmendez.github.io/aipodcast_me/home.html">æ1</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-glyph">æææ</div>
+  <h1>Origin of Agentic Environments<span class="tag">æææ://ROOT · x0:y0:z0:æ0</span></h1>
+  <p class="sub">One namespace. <b>Many environments.</b> One principal. 🫵<br>æ is the authority axis you steer by. <b>Context may propagate. Authority does not.</b></p>
+  <div class="cmd">&gt;æææ:// <span>discover · fork · own · build · publish ↺</span></div>
+  <div class="inv">Many devices · Many models · Many agents · One principal</div>
+  <div class="axis">
+    <div class="axis-i"><span class="axis-dot ad-a0"></span>æ0 PUBLIC</div>
+    <div class="axis-i"><span class="axis-dot ad-a1"></span>æ1 PUBLISHED</div>
+    <div class="axis-i"><span class="axis-dot ad-a2"></span>æ2 OPERATOR</div>
+    <div class="axis-i"><span class="axis-dot ad-a3"></span>æ3 CUSTODY</div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <h2>Command Surfaces<span class="tag">where you steer</span></h2>
+  <p class="desc">The entry points. <b>æ-space</b> is the navigable surface where the æ axis is a gate you pass; <b>work_here!</b> is the campaign; <b>keeper</b> is the custodian.</p>
+  <div class="grid">
+    <a class="card" href="https://myaelmendez.github.io/"><div class="ci">🎛️</div><h3>ææ:// Origin</h3><div class="cr">x0:y0:z0:æ0 · the origin of æ-space</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/ae-space.html"><div class="ci">🕹️</div><h3>æ-space</h3><div class="cr">Navigable · WASD · authority gates</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/work-here.html"><div class="ci">💬</div><h3>&gt;_work_here!</h3><div class="cr">Human intent → authorized action</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/keeper.html"><div class="ci">🫵</div><h3>&gt;_govern · keeper</h3><div class="cr">Custodian · permissions · verification</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/verify.html"><div class="ci">✅</div><h3>Verifier</h3><div class="cr">SHA-256 receipt verification</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/command-map.html"><div class="ci">🗺️</div><h3>Command Map</h3><div class="cr">Operator grammar across schemes</div><div class="cv">LIVE</div></a>
+  </div>
+</section>
+
+<section class="section reveal">
+  <h2>æ1 · Agentic Environments<span class="tag">portable · human-owned</span></h2>
+  <p class="desc">The environments you live and work in. Each is portable, forkable, and accountable to its principal.</p>
+  <div class="grid">
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/home.html"><div class="ci">🏡</div><h3>$🏡:// Home</h3><div class="cr">Agentic home · navigation hub</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/grow.html"><div class="ci">🌱</div><h3>$æ://GROW</h3><div class="cr">AgenticVille · FarmVille inverted</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/mix.html"><div class="ci">🧬</div><h3>$æ://MIX</h3><div class="cr">Capability routing</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/mother.html"><div class="ci">🍼</div><h3>$🍼:// Mother</h3><div class="cr">Family essentials · voice-first</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/business.html"><div class="ci">🏢</div><h3>$🏢:// Business</h3><div class="cr">One-person merchant template</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/everywhere.html"><div class="ci">🌐</div><h3>æ://EVERYWHERE</h3><div class="cr">Federation layer · ATProto</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/life-tower.html"><div class="ci">🏙️</div><h3>Life Tower</h3><div class="cr">Portable 9:16 environment</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/index.html"><div class="ci">🏗️</div><h3>æ Environment</h3><div class="cr">The /aipodcast_me/ index</div><div class="cv">LIVE</div></a>
+  </div>
+</section>
+
+<section class="section reveal">
+  <h2>Design &amp; Doctrine<span class="tag">the language</span></h2>
+  <p class="desc">The doctrine surfaces — design system, motion language, the synthesis of #OSW into #IoA, and the recursion that makes capability compound.</p>
+  <div class="grid">
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/ae1.html"><div class="ci">🔧</div><h3>æ1 Design System</h3><div class="cr">White-label · 3 layers</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/ae-manifest.html"><div class="ci">📐</div><h3>æ Manifest</h3><div class="cr">Architecture synthesis</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/kinetic.html"><div class="ci">🎨</div><h3>Kinetic Typography</h3><div class="cr">Language in motion</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/tetration.html"><div class="ci">🔼</div><h3>Tetration</h3><div class="cr">Productive ræcursion</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/osw-to-ioa.html"><div class="ci">🔄</div><h3>#OSW → #IoA</h3><div class="cr">OpenSourceWare → Internet of Agents</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/internetofagents.html"><div class="ci">🕸️</div><h3>Internet of Agents</h3><div class="cr">The network</div><div class="cv">LIVE</div></a>
+  </div>
+</section>
+
+<section class="section reveal">
+  <h2>Address · Commerce · Verify<span class="tag">the economy</span></h2>
+  <p class="desc">Every intelligent work product deserves an address. Every address preserves provenance. Every exchange leaves a witness.</p>
+  <div class="grid">
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/aeqr.html"><div class="ci">▦</div><h3>æQR Registry</h3><div class="cr">12 canonical routes</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/aecommerce.html"><div class="ci">🛒</div><h3>æ-Commerce</h3><div class="cr">Sovereign procurement lifecycle</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/aestore.html"><div class="ci">🏬</div><h3>æ.store</h3><div class="cr">Manual widget hub</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/cri-index.html"><div class="ci">📊</div><h3>CRI Index</h3><div class="cr">Consumer Redline Index</div><div class="cv">LIVE</div></a>
+  </div>
+</section>
+
+<section class="section reveal">
+  <h2>Engineering Surfaces<span class="tag">real · measured · verified</span></h2>
+  <p class="desc">AEE pipeline: SPEC → RTL → SIM → SYNTH → P&amp;R. Real measured evidence, never claimed. A failed simulation blocks synthesis.</p>
+  <div class="grid">
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/vscoder.html"><div class="ci">⚙️</div><h3>VSCODER</h3><div class="cr">Engineering surface</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/vault-layers.html"><div class="ci">📦</div><h3>Vault Layers</h3><div class="cr">WebGPU / TSL / Rapier</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/monaco-editor.html"><div class="ci">🗂️</div><h3>Monaco Editor</h3><div class="cr">TSL shader integration</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/fleet-waves.html"><div class="ci">🌊</div><h3>Fleet Waves</h3><div class="cr">Prompt → storyboard → render</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/cri_surface.html"><div class="ci">📈</div><h3>CRI Surface</h3><div class="cr">Index infrastructure</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/skill-graph.html"><div class="ci">🕸️</div><h3>Skill Graph</h3><div class="cr">Skill topology · page→skill</div><div class="cv">LIVE</div></a>
+  </div>
+</section>
+
+<section class="section reveal">
+  <h2>Data &amp; Media<span class="tag">live feeds</span></h2>
+  <div class="grid">
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/markets.html"><div class="ci">📉</div><h3>Markets</h3><div class="cr">Financial surfaces</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/indices.html"><div class="ci">📊</div><h3>Indices</h3><div class="cr">Observation-based measurement</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/media.html"><div class="ci">🎞️</div><h3>Media</h3><div class="cr">Media manifest</div><div class="cv">LIVE</div></a>
+    <a class="card" href="https://myaelmendez.github.io/aipodcast_me/discover.html"><div class="ci">🔍</div><h3>Discover</h3><div class="cr">Exploration surface</div><div class="cv">LIVE</div></a>
+  </div>
+</section>
+
+<section class="section reveal">
+  <h2>Evolution Map<span class="tag">command → ownership</span></h2>
+  <p class="desc">From command to city: the architecture scales recursively while preserving human authority at every level.</p>
+  <div class="evo">
+    <div class="evo-i"><div class="en">01</div><div class="et">COMMAND</div><div class="ed">&gt;_ · Alias Electronic</div></div>
+    <div class="evo-i"><div class="en">02</div><div class="et">CAPABILITY</div><div class="ed">$æ · emoji entrances</div></div>
+    <div class="evo-i"><div class="en">03</div><div class="et">ENVIRONMENT</div><div class="ed">Portable 9:16 Life Tower</div></div>
+    <div class="evo-i"><div class="en">04</div><div class="et">RECURSION</div><div class="ed">Floors contain lofts</div></div>
+    <div class="evo-i"><div class="en">05</div><div class="et">CITY</div><div class="ed">Many portable towers</div></div>
+    <div class="evo-i"><div class="en">06</div><div class="et">ADDRESSABILITY</div><div class="ed">Every widget carries æQR</div></div>
+    <div class="evo-i"><div class="en">07</div><div class="et">OWNERSHIP</div><div class="ed">Fork · authorize · publish</div></div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <h2>Not Yet Deployed<span class="tag">honest status</span></h2>
+  <p class="desc">These are named in the architecture but have <b>no live surface</b>. They are listed as open, not as working — no link, because a link to nothing is a claim without a signature.</p>
+  <div class="grid">
+    <div class="card off"><div class="ci">▦³</div><h3>æQR³ Recursive</h3><div class="cr">L1 ROOT → L2 CHILD → L3 NESTED</div><div class="cv">NOT DEPLOYED</div></div>
+    <div class="card off"><div class="ci">⌨️</div><h3>Codex Micro</h3><div class="cr">Virtual agent keypad</div><div class="cv">NOT DEPLOYED</div></div>
+    <div class="card off"><div class="ci">🛸</div><h3>æPICO</h3><div class="cr">Portable agentic runtime</div><div class="cv">NOT DEPLOYED</div></div>
+    <div class="card off"><div class="ci">🔗</div><h3>QR Hash Chain</h3><div class="cr">Immutable receipt chain</div><div class="cv">NOT DEPLOYED</div></div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="invariant">
+    <div class="big">Context may propagate. Authority does not.</div>
+    <div class="sub">HUMAN → $æ → æ1 → authorized capabilities → Witness.<br><b>Many agents. One principal.</b> 🫵 Real progress.</div>
+  </div>
+  <div class="f1">
+    <div class="stat">Human = Driver · Agents = Team · Tools = Machinery · Telemetry = Intelligence · Witness = Race Record</div>
+    <div class="exp">The driver retains responsibility for decisions. An agent's available capability is <b>not automatic permission to execute</b>. &gt;_work_here! is simultaneously a command, an invitation, and a product promise: <b>"I have something to accomplish. I can start right here."</b></div>
+  </div>
+  <div class="note"><b>Verification note:</b> every card above marked <b>LIVE</b> was checked to exist on the deployment at build time. Where a surface was absent, it appears under <b>Not Yet Deployed</b> rather than as a link. A check that was not run is never shown as passing.</div>
+</section>
+
+<footer>
+  <div class="sig">æææ://ROOT · æ = agentic_environments · #OSW → #IoA</div>
+  <div class="tag">x0:y0:z0:æ0 · the origin · Many agents. One principal. Real progress. · MYaelMendez © 2026</div>
+</footer>
+
+<a class="badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Fae-ecosystem.html" title="æ:// Verify">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=104x104&color=D4AF37&bgcolor=050505&data=https%3A%2F%2Fmyaelmendez.github.io%2Fverify.html%3Furl%3Dhttps%253A%252F%252Fmyaelmendez.github.io%252Fae-ecosystem.html" alt="æQR">
+</a>
+
+<script>
+(function(){var c=document.getElementById('m'),x=c.getContext('2d'),w,h,t=0;
+function rs(){w=c.width=innerWidth;h=c.height=innerHeight}addEventListener('resize',rs);rs();
+var N=24,pts=[];for(var i=0;i<N;i++)pts.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.18,vy:(Math.random()-.5)*.18});
+function dr(){t+=.0018;x.clearRect(0,0,w,h);
+for(var i=0;i<N;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;x.fillStyle='rgba(212,175,55,.28)';x.beginPath();x.arc(p.x,p.y,1.4,0,7);x.fill()}
+for(var i=0;i<N;i++)for(var j=i+1;j<N;j++){var a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<130){x.strokeStyle='rgba(212,175,55,'+((1-d/130)*.09)+')';x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}}
+requestAnimationFrame(dr)}dr()})();
+var obs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(function(s){obs.observe(s)});
+</script>
+</body>
+</html>

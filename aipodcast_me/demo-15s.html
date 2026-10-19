@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>æ://DEMO · 15s Closed Loop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-dim:#8a7022;--text:#e8e8e8;--muted:#555;--line:#1a1a1a;--g3:#0a0a0a;--cyan:#00e5ff;--neon:#39ff14;--violet:#bf5af2}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--void);color:var(--text);font-family:'JetBrains Mono',monospace;overflow:hidden;height:100%;width:100%}
+@keyframes breathe{0%,100%{opacity:.85}50%{opacity:1}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes colorShift{0%{color:var(--gold)}33%{color:var(--cyan)}66%{color:var(--neon)}100%{color:var(--gold)}}
+@keyframes glow{0%,100%{box-shadow:0 0 8px var(--gold-dim)}50%{box-shadow:0 0 22px var(--gold)}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes lineFlow{0%{background-position:0% 0}100%{background-position:200% 0}}
+@keyframes scanline{0%{top:-10%}100%{top:110%}}
+@keyframes progressFill{0%{width:0%}100%{width:100%}}
+@keyframes nodeActivate{0%,100%{border-color:var(--gold-dim);color:#aaa}50%{border-color:var(--gold);color:var(--gold);box-shadow:0 0 18px rgba(212,175,55,.2)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+#cinema{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 40%,#0d0d0d 0%,var(--void) 70%)}
+#frame{position:relative;width:min(96vw,177.78vh);height:min(96vh,56.25vw);max-width:1920px;max-height:1080px;background:var(--void);border:1px solid var(--gold-dim);border-radius:6px;overflow:hidden;box-shadow:0 0 80px rgba(212,175,55,.06)}
+#frame::before,#frame::after{content:"";position:absolute;left:0;right:0;height:6.5%;z-index:50;pointer-events:none;background:var(--void)}
+#frame::before{top:0}#frame::after{bottom:0}
+#frame .scanline{position:absolute;left:0;right:0;height:8%;z-index:40;pointer-events:none;background:linear-gradient(to bottom,transparent,rgba(212,175,55,.03),transparent);animation:scanline 6s linear infinite}
+#viewport{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8% 6%}
+.progress-wrap{position:absolute;top:5%;left:50%;transform:translateX(-50%);z-index:20;width:min(40%,400px)}
+.progress-label{display:flex;justify-content:space-between;font-size:clamp(7px,.8vw,10px);letter-spacing:.2em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:6px}
+.progress-label .current{color:var(--gold)}
+.progress-bar{height:4px;background:var(--g3);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:2px;animation:progressFill 15s linear infinite}
+.cap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:clamp(6px,.8vw,12px);width:100%;max-width:900px;margin:0 auto}
+.cap-card{background:var(--g3);border:1px solid var(--line);border-radius:10px;padding:clamp(8px,1vh,14px) clamp(6px,.8vw,12px);text-align:left;transition:all .3s;opacity:.3;transform:scale(.95)}
+.cap-card.active{opacity:1;transform:scale(1);border-color:var(--gold-dim);box-shadow:0 0 20px rgba(212,175,55,.1);animation:nodeActivate 1.5s ease infinite}
+.cap-card.done{opacity:.7;transform:scale(1);border-color:var(--gold-dim)}
+.cap-card .ico{font-size:clamp(16px,2vw,24px);margin-bottom:4px}
+.cap-card h4{font-family:'Orbitron',sans-serif;font-size:clamp(8px,1vw,11px);letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:3px}
+.cap-card .val{font-size:clamp(9px,1.1vw,13px);color:#aaa;font-weight:700}
+.cap-card .lbl{font-size:clamp(6px,.7vw,9px);color:#666;margin-top:2px}
+.auth-rail{display:flex;gap:clamp(4px,.6vw,10px);margin:clamp(8px,1.2vh,16px) auto 0;flex-wrap:wrap;justify-content:center}
+.auth-node{padding:clamp(4px,.7vh,8px) clamp(8px,1vw,14px);border:1px solid var(--gold-dim);border-radius:8px;background:var(--g3);font-size:clamp(7px,.85vw,11px);letter-spacing:.1em;text-transform:uppercase;color:#aaa;transition:all .3s;opacity:.3}
+.auth-node.active{opacity:1;border-color:var(--gold);color:var(--gold);box-shadow:0 0 14px rgba(212,175,55,.15);animation:nodeActivate 1s ease infinite}
+.auth-node.done{opacity:.7}
+.auth-arrow{color:#333;font-size:clamp(10px,1.2vw,16px);align-self:center;opacity:.5}
+#telemetry{position:absolute;bottom:8%;left:50%;transform:translateX(-50%);z-index:15;font-size:clamp(7px,.9vw,11px);color:#444;letter-spacing:.18em;text-transform:uppercase;white-space:nowrap}
+.ticker-wrap{position:absolute;bottom:0;left:0;right:0;z-index:30;height:5%;overflow:hidden;background:#060606;border-top:1px solid var(--gold-dim);display:flex;align-items:center}
+.ticker{display:inline-block;white-space:nowrap;animation:ticker 24s linear infinite;font-size:clamp(7px,.85vw,10px)}
+.ticker span{display:inline-block;padding:0 20px;color:var(--gold);letter-spacing:.15em;text-transform:uppercase}
+.ticker span.sep{color:#333}
+#ae-qr-badge{position:fixed;bottom:16px;right:16px;z-index:99999;width:56px;height:56px;border:1px solid var(--gold);border-radius:8px;background:var(--void);padding:4px;display:block;text-decoration:none;transition:transform .25s,box-shadow .25s}
+#ae-qr-badge:hover{transform:scale(1.1);box-shadow:0 0 22px var(--gold)}
+#ae-qr-badge img{width:100%;height:100%;display:block;border-radius:4px}
+.band-\u00e60{color:#D4AF37}.band-\u00e61{color:var(--cyan)}.band-\u00e62{color:var(--neon)}.band-\u00e63{color:var(--violet)}
+footer{position:absolute;top:8%;right:3%;z-index:15;font-size:clamp(7px,.8vw,10px);color:#333;letter-spacing:.15em;text-transform:uppercase}
+</style>
+</head>
+<body>
+<div id="cinema">
+<div id="frame" role="img" aria-label="æ capabilities demo 15 second closed loop">
+<div class="scanline" aria-hidden="true"></div>
+<div id="viewport">
+<div class="progress-wrap">
+<div class="progress-label"><span>LOOP</span><span class="current" id="loopCounter">01</span><span>15s</span></div>
+<div class="progress-bar"><div class="progress-fill"></div></div>
+</div>
+<div class="cap-grid" id="capGrid"></div>
+<div class="auth-rail" id="authRail"></div>
+</div>
+<div id="telemetry" aria-live="polite">x:0 · y:0 · z:0 · æ:0 · LOOP: 01</div>
+<div class="ticker-wrap" role="marquee" aria-label="capability ticker">
+<div class="ticker">
+<span>æ://CAPABILITIES DEMO</span><span class="sep">·</span><span>15s CLOSED LOOP</span><span class="sep">·</span><span>SELF-CONTAINED</span><span class="sep">·</span><span>REPEATS FOREVER</span><span class="sep">·</span><span>+MyaelMendez · PRINCIPAL</span><span class="sep">·</span><span>æ://CAPABILITIES DEMO</span><span class="sep">·</span><span>15s CLOSED LOOP</span><span class="sep">·</span><span>SELF-CONTAINED</span><span class="sep">·</span><span>REPEATS FOREVER</span><span class="sep">·</span><span>+MyaelMendez · PRINCIPAL</span><span class="sep">·</span>
+</div>
+</div>
+<footer>æ://DEMO · 15s · CLOSED</footer>
+</div>
+</div>
+<a id="ae-qr-badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Fdemo-15s.html" target="_blank" rel="noopener" aria-label="Verify this surface">
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=56x56&data=https%3A%2F%2Fmyaelmendez.github.io%2Fverify.html%3Furl%3Dhttps%253A%252F%252Fmyaelmendez.github.io%252Fdemo-15s.html&bgcolor=050505&color=D4AF37" alt="QR verify" width="56" height="56">
+</a>
+<script>
+(function(){
+'use strict';
+var CAPS=[
+{ico:'\u26a1',name:'AEE Pipeline',val:'104.66 MHz',lbl:'SPEC\u2192RTL\u2192SIM\u2192SYNTH\u2192P&R',band:'\u00e61'},
+{ico:'\ud83d\udcbb',name:'Llamacpp',val:'18.4 t/s',lbl:'RTX 3050 \u00b7 qwen2.5-coder:7b',band:'\u00e62'},
+{ico:'\ud83e\uddff',name:'\u00e6QR\u00b3',val:'12 routes',lbl:'Ed25519 \u00b7 multi-sig \u00b7 recursive',band:'\u00e61'},
+{ico:'\ud83d\udcf7',name:'Supervision',val:'39.1',lbl:'luminancia \u00b7 450 frames \u00b7 PASS',band:'\u00e61'},
+{ico:'\ud83d\udce7',name:'ATProto Mesh',val:'did:web',lbl:'ae.core + ae.social + PDS',band:'\u00e60'},
+{ico:'\ud83d\udd12',name:'Keeper',val:'15 entries',lbl:'custodian \u00b7 audit \u00b7 cron 9am',band:'\u00e63'},
+{ico:'\ud83d\udd01',name:'Compiler',val:'3 ops',lbl:'||| ^ \u21ba \u00b7 recursive chat',band:'\u00e62'},
+{ico:'\u21a9\ufe0f',name:'Commerce',val:'9 states',lbl:'DISCOVER\u2192COMPARE\u2192QUOTE\u2192\u21ba',band:'\u00e61'},
+{ico:'\ud83d\udce6',name:'AgenticVille',val:'6 cmds',lbl:'Plant\u2192Build\u2192Grow\u2192\u21ba',band:'\u00e60'},
+{ico:'\ud83c\udf10',name:'Fleet Waves',val:'7.5/10',lbl:'storyboard\u2192codegen\u2192render\u2192digest',band:'\u00e61'},
+{ico:'\u26a1',name:'WebGPU',val:'probed',lbl:'navigator.gpu \u00b7 never claimed',band:'\u00e61'},
+{ico:'\ud83d\udd17',name:'CRI Index',val:'7 ind',lbl:'Consumer Redline \u00b7 append-only',band:'\u00e60'}
+];
+var AUTH=[{name:'\u00e60 PUBLIC',band:'\u00e60'},{name:'\u00e61 PUBLISHED',band:'\u00e61'},{name:'\u00e62 OPERATOR',band:'\u00e62'},{name:'\u00e63 CUSTODY',band:'\u00e63'}];
+var capGrid=document.getElementById('capGrid');
+var authRail=document.getElementById('authRail');
+var telemetry=document.getElementById('telemetry');
+var loopCounter=document.getElementById('loopCounter');
+CAPS.forEach(function(cap,i){
+var el=document.createElement('div');
+el.className='cap-card';
+el.id='cap-'+i;
+el.innerHTML='<div class="ico">'+cap.ico+'</div><h4>'+cap.name+'</h4><div class="val">'+cap.val+'</div><div class="lbl">'+cap.lbl+'</div>';
+capGrid.appendChild(el);
+});
+AUTH.forEach(function(node,i){
+if(i>0){var arrow=document.createElement('span');arrow.className='auth-arrow';arrow.textContent='\u2192';authRail.appendChild(arrow);}
+var el=document.createElement('div');
+el.className='auth-node';
+el.id='auth-'+i;
+el.textContent=node.name;
+authRail.appendChild(el);
+});
+var LOOP_MS=15000;
+var CAPS_PER_LOOP=CAPS.length;
+var CAP_INTERVAL=LOOP_MS/CAPS_PER_LOOP;
+var loopNum=1;
+var capIndex=0;
+var lastCapTime=0;
+function tick(now){
+var elapsed=now-lastCapTime;
+if(elapsed>=CAP_INTERVAL){
+lastCapTime=now;
+var cur=document.getElementById('cap-'+capIndex);
+if(cur){var prev=document.getElementById('cap-'+(capIndex-1+CAPS_PER_LOOP)%CAPS_PER_LOOP);if(prev){prev.classList.remove('active');prev.classList.add('done');}cur.classList.remove('done');cur.classList.add('active');}
+var cap=CAPS[capIndex];
+var authIdx=parseInt(cap.band.replace('\u00e6',''));
+var authEl=document.getElementById('auth-'+authIdx);
+if(authEl){authEl.classList.add('active');var prevAuth=document.getElementById('auth-'+((authIdx-1+4)%4));if(prevAuth&&prevAuth!==authEl)prevAuth.classList.remove('active');}
+telemetry.textContent='x:'+capIndex+' \u00b7 y:'+Math.floor(capIndex/4)+' \u00b7 z:'+capIndex%3+' \u00b7 \u00e6:'+authIdx+' \u00b7 LOOP: '+String(loopNum).padStart(2,'0');
+capIndex++;
+if(capIndex>=CAPS_PER_LOOP){capIndex=0;loopNum++; loopCounter.textContent=String(loopNum).padStart(2,'0');
+document.querySelectorAll('.cap-card').forEach(function(c){c.classList.remove('active');c.classList.add('done');});
+document.querySelectorAll('.auth-node').forEach(function(a){a.classList.remove('active');});}
+}
+requestAnimationFrame(tick);
+}
+var first=document.getElementById('cap-0');
+if(first)first.classList.add('active');
+var firstAuth=document.getElementById('auth-1');
+if(firstAuth)firstAuth.classList.add('active');
+requestAnimationFrame(tick);
+console.log('[demo] \u00e6://CAPABILITIES READY \u00b7 15s closed loop \u00b7 12 caps \u00b7 4 auth levels');
+})();
+</script>
+</body>
+</html>

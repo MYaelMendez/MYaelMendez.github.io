@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="es"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#050505">
+<title>æ · mæchlæng LAB · Mech en vivo</title>
+<style>
+:root{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#050505;color:#e8e6df;--gold:#D4AF37;--gold-dim:rgba(212,175,55,.3);--gold-glow:rgba(212,175,55,.15);--gold-hot:rgba(212,175,55,.5);--neon:#00ff9d;--cyan:#00eaff;--violet:#8c72ff;--red:#ff4d5f;--muted:#6f6a5c;--border:rgba(212,175,55,.2)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;padding:12px}
+.lab{width:min(100%,420px);background:#0a0a0c;border:1px solid var(--border);border-radius:15px;overflow:hidden}
+.head,.foot{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px;border-bottom:1px solid var(--border);font-size:11px;color:var(--muted)}
+.foot{border-bottom:0;border-top:1px solid var(--border)}
+button{font:inherit;cursor:pointer;color:#e9edf0;background:#141418;border:1px solid #34353b;border-radius:6px;padding:8px}
+button:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+.stage{padding:14px}
+.hero{font-size:clamp(28px,8vw,42px);font-weight:700;text-align:center;padding:20px 0;animation:breathe 3s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(.92)}50%{transform:scale(1.05)}}
+.mood-display{text-align:center;font-size:15px;margin:10px 0;min-height:24px}
+.mood-label{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.mood-value{font-size:28px;font-weight:700;margin-top:4px}
+.controls{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0}
+.controls label{font-size:10px;color:var(--muted);display:block;margin-bottom:4px}
+.controls select,.controls input{width:100%;background:#141418;border:1px solid #34353b;border-radius:6px;color:#e9edf0;padding:8px;font:inherit}
+.controls input[type=range]{padding:0}
+.receipt{font-size:10px;color:var(--muted);word-break:break-all;background:#141418;border:1px solid #34353b;border-radius:6px;padding:8px;margin-top:10px}
+.receipt strong{color:var(--cyan)}
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600}
+.badge-ok{background:rgba(0,230,118,.15);color:#00e676;border:1px solid rgba(0,230,118,.3)}
+.badge-wait{background:rgba(255,171,0,.15);color:#ffab00;border:1px solid rgba(255,171,0,.3)}
+.badge-evidence{background:rgba(255,77,95,.15);color:#ff4d5f;border:1px solid rgba(255,77,95,.3)}
+.nav{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--border)}
+.nav button{border-radius:0;border:0;border-right:1px solid var(--border);background:transparent;font-size:22px;padding:12px}
+.nav button[aria-pressed=true]{background:#1a1a1e;box-shadow:inset 0 -3px var(--cyan)}
+.witness-chain{max-height:120px;overflow-y:auto;font-size:9px;color:var(--muted);padding:8px;background:#0d0d10;border:1px solid #34353b;border-radius:6px;margin-top:8px}
+.witness-chain div{padding:2px 0;border-bottom:1px solid #1a1a1e}
+.links{display:flex;gap:8px;padding:12px;justify-content:center}
+.links a{color:var(--muted);text-decoration:none;font-size:11px}
+.links a:hover{color:var(--cyan)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head><body>
+<main class="lab" id="lab">
+  <div class="head">
+    <span>&gt;_æ://MÆCHLÆNG</span>
+    <span class="badge badge-ok" id="motor-badge">Mech 0.3.5</span>
+  </div>
+
+  <div class="stage">
+    <div class="hero">🤖</div>
+    <div class="mood-display">
+      <div class="mood-label">Mood · #Face</div>
+      <div class="mood-value" id="mood-value">:think</div>
+    </div>
+
+    <div class="controls" aria-label="Face inputs">
+      <div><label for="face-md">Mode</label>
+        <select id="face-md"><option value="STAND">STAND</option><option value="MOVE">MOVE</option><option value="DAMP">DAMP</option><option value="FAULT_DAMP">FAULT_DAMP</option></select></div>
+      <div><label for="face-armed">Armed</label>
+        <select id="face-armed"><option value="false">false</option><option value="true">true</option></select></div>
+      <div><label for="face-fault">Fault</label>
+        <select id="face-fault"><option value="false">false</option><option value="true">true</option></select></div>
+      <div><label for="face-battery">Battery</label>
+        <input type="range" id="face-battery" min="0" max="100" value="80"><span id="battery-val">80</span>%</div>
+    </div>
+
+    <div class="mood-display">
+      <div class="mood-label">Authority · #Authority</div>
+      <div class="mood-value" id="authority-value">:Evidence</div>
+    </div>
+
+    <div class="controls" aria-label="Authority inputs">
+      <div><label for="auth-agent">Agent</label>
+        <select id="auth-agent"><option value="hark-pro">hark-pro</option><option value="hermes">hermes</option><option value="codex">codex</option></select></div>
+      <div><label for="auth-level">Request æ</label>
+        <select id="auth-level"><option value="0">æ0</option><option value="1">æ1</option><option value="2">æ2</option><option value="3" selected>æ3</option></select></div>
+      <div><label for="auth-pk">Passkey (pk)</label>
+        <select id="auth-pk"><option value="false">false</option><option value="true">true</option></select></div>
+      <div><label for="auth-wr">Witness (wr)</label>
+        <select id="auth-wr"><option value="false">false</option><option value="true">true</option></select></div>
+    </div>
+
+    <div class="receipt" aria-live="polite">
+      <div>Motor: <strong id="motor-status">loading…</strong></div>
+      <div>Mood: <strong id="mood-receipt">—</strong></div>
+      <div>Authority: <strong id="auth-receipt">—</strong></div>
+      <div>Witness: <strong id="witness-hash">—</strong></div>
+    </div>
+
+    <div class="witness-chain" id="witness-chain" aria-label="Witness receipt chain"></div>
+  </div>
+
+  <nav class="nav" aria-label="Machines">
+    <button data-to="face" aria-pressed="true" aria-label="Face machine">🤖</button>
+    <button data-to="authority" aria-pressed="false" aria-label="Authority machine">🔐</button>
+    <button data-to="chain" aria-pressed="false" aria-label="Witness chain">🧾</button>
+    <button data-to="links" aria-pressed="false" aria-label="Links">🔗</button>
+  </nav>
+
+  <div class="links" id="links-area">
+    <a href="https://mech-lang.org">mech-lang.org</a>
+    <a href="https://github.com/mech-lang/mech">github</a>
+    <a href="https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/">original</a>
+    <a href="https://myaelmendez.github.io/">← origin</a>
+  </div>
+
+  <div class="foot">
+    <span>Evidence ≠ Authority</span>
+    <span>vendored runtime · no CDN</span>
+  </div>
+</main>
+
+<script type="module">
+import * as mech from './runtime/mech_wasm.js';
+
+// --- JS mirror (fallback before wasm loads) ---
+function faceMirror({md, ar, ft, ag, sc}) {
+  if (ft || md === 'FAULT_DAMP') return ':hold';
+  if (ag > 0.5) return ':lost';
+  if (sc < 20.0) return ':tired';
+  if (md === 'DAMP') return ':sleep';
+  if (md === 'STAND' && !ar) return ':think';
+  if (md === 'STAND' && ar) return ':ready';
+  if (md === 'MOVE') return ':work';
+  return ':lost';
+}
+function authorityMirror({level, pk, wr}) {
+  const r = level;
+  if (r < 2) return ':granted';
+  if (pk && wr) return ':granted';
+  return ':waiting';
+}
+
+// --- State ---
+let face = { md: 'STAND', ar: false, ft: false, ag: 0.05, sc: 80 };
+let authority = { agent: 'hark-pro', level: 3, pk: false, wr: false };
+let witnessChain = [];
+let mechReady = false;
+let MAECH = null;
+
+// --- Witness (SHA-256) ---
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+async function addWitness(label, data) {
+  const ts = Date.now();
+  const prev = witnessChain.length > 0 ? witnessChain[witnessChain.length - 1].hash : 'GENESIS';
+  const payload = JSON.stringify({ label, data, ts, prev });
+  const hash = await sha256(payload);
+  witnessChain.push({ label, ts, hash, prev });
+  return hash;
+}
+
+// --- Run face ---
+async function runFace() {
+  let mood;
+  if (mechReady && MAECH && MAECH.face) {
+    try {
+      const result = await MAECH.face(face, { show: false });
+      mood = result.mood || result.state || ':lost';
+    } catch (e) {
+      mood = faceMirror(face);
+    }
+  } else {
+    mood = faceMirror(face);
+  }
+  document.getElementById('mood-value').textContent = mood;
+  const hash = await addWitness('face', JSON.stringify(face) + mood);
+  document.getElementById('mood-receipt').textContent = mood;
+  document.getElementById('witness-hash').textContent = hash.slice(0, 16) + '…';
+  renderChain();
+  return mood;
+}
+
+// --- Run authority ---
+async function runAuthority() {
+  let verdict;
+  if (mechReady && MAECH && MAECH.authority) {
+    try {
+      const result = await MAECH.authority(authority);
+      verdict = result.state || result.verdict || ':evidence';
+    } catch (e) {
+      verdict = authorityMirror(authority);
+    }
+  } else {
+    verdict = authorityMirror(authority);
+  }
+  document.getElementById('authority-value').textContent = verdict;
+  const badge = document.getElementById('motor-badge');
+  if (verdict === ':granted') { badge.className = 'badge badge-ok'; badge.textContent = 'GRANTED'; }
+  else if (verdict === ':waiting') { badge.className = 'badge badge-wait'; badge.textContent = 'WAITING'; }
+  else { badge.className = 'badge badge-evidence'; badge.textContent = 'EVIDENCE'; }
+  await addWitness('authority', JSON.stringify(authority) + verdict);
+  renderChain();
+  return verdict;
+}
+
+function renderChain() {
+  const el = document.getElementById('witness-chain');
+  el.innerHTML = witnessChain.slice(-10).map(w =>
+    `<div>${w.label} · ${new Date(w.ts).toLocaleTimeString()} · ${w.hash.slice(0,12)}…</div>`
+  ).join('');
+}
+
+// --- Init ---
+async function init() {
+  document.getElementById('motor-status').textContent = 'loading wasm…';
+  try {
+    const wasmResponse = await fetch('./runtime/mech_wasm_bg.wasm');
+    const wasmBytes = await wasmResponse.arrayBuffer();
+    await mech.default(wasmBytes);
+    MAECH = mech;
+    mechReady = true;
+    document.getElementById('motor-status').textContent = 'Mech 0.3.5 ready ✓';
+    document.getElementById('motor-badge').textContent = 'Mech 0.3.5';
+  } catch (e) {
+    document.getElementById('motor-status').textContent = 'JS mirror (wasm failed)';
+  }
+  await runFace();
+  await runAuthority();
+}
+
+// --- Event listeners ---
+document.getElementById('face-md').addEventListener('change', e => { face.md = e.target.value; runFace(); });
+document.getElementById('face-armed').addEventListener('change', e => { face.ar = e.target.value === 'true'; runFace(); });
+document.getElementById('face-fault').addEventListener('change', e => { face.ft = e.target.value === 'true'; runFace(); });
+document.getElementById('face-battery').addEventListener('input', e => {
+  face.sc = Number(e.target.value);
+  document.getElementById('battery-val').textContent = e.target.value;
+  runFace();
+});
+document.getElementById('auth-agent').addEventListener('change', e => { authority.agent = e.target.value; runAuthority(); });
+document.getElementById('auth-level').addEventListener('change', e => { authority.level = Number(e.target.value); runAuthority(); });
+document.getElementById('auth-pk').addEventListener('change', e => { authority.pk = e.target.value === 'true'; runAuthority(); });
+document.getElementById('auth-wr').addEventListener('change', e => { authority.wr = e.target.value === 'true'; runAuthority(); });
+
+document.querySelectorAll('.nav button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav button').forEach(b => b.setAttribute('aria-pressed', 'false'));
+    btn.setAttribute('aria-pressed', 'true');
+  });
+});
+
+init();
+</script>
+</body></html>

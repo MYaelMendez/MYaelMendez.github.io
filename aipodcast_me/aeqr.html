@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>æQR · Addressable Intelligence</title>
+<meta name="description" content="æQR — canonical routes that give every intelligent widget a versioned, addressable invitation to an agentic environment.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#050505;--ink:#D4AF37;--paper:#F5F0E1;
+  --g1:#0a0a0a;--g2:#161616;--g3:#242424;--g4:#3a3a3a;--g5:#6e6e6e;--g6:#a0a0a0;--g7:#d6d6d7;
+  --blue:#4A90D9;--green:#34C759;--orange:#F97316;--purple:#A855F7;--red:#FF4D5F;
+  --radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--void);color:var(--paper);font-family:'Inter',system-ui,sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:99998;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(212,175,55,.018) 2px,rgba(212,175,55,.018) 4px)}
+.mesh{position:fixed;inset:0;z-index:0;opacity:.06}
+.mesh canvas{width:100%;height:100%}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(5,5,5,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--g2);display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.4rem}
+nav .logo{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.05rem;color:var(--ink);text-decoration:none;letter-spacing:-.03em}
+nav .logo span{font-size:.55rem;opacity:.45;display:block;line-height:1;letter-spacing:.08em;text-transform:uppercase}
+nav .links{display:flex;gap:1.2rem;align-items:center}
+nav .links a{color:var(--g5);text-decoration:none;font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;transition:color .2s;font-weight:500}
+nav .links a:hover{color:var(--ink)}
+.hero{position:relative;z-index:1;min-height:84vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4.5rem 1.5rem 3rem;text-align:center}
+.hero-emoji{font-size:3.5rem;margin-bottom:1rem;animation:bob 2.5s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.hero h1{font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,3rem);color:var(--ink);letter-spacing:-.03em;margin-bottom:.4rem;line-height:1}
+.hero h1 .tag{font-size:.28em;font-weight:500;color:var(--g5);display:block;margin-top:.3rem;letter-spacing:.14em;text-transform:uppercase}
+.hero .tagline{font-size:clamp(.78rem,2vw,.92rem);color:var(--g5);max-width:500px;margin-bottom:1.5rem;line-height:1.6;font-weight:400}
+.hero .tagline b{color:var(--g7);font-weight:600}
+.hero .formula{font-family:'JetBrains Mono',monospace;font-size:clamp(1rem,3.5vw,1.4rem);color:var(--ink);letter-spacing:-.015em;margin:1rem 0}
+.hero .formula .base{color:var(--blue)}
+.hero .formula .exp1{color:var(--green)}
+.hero .formula .exp2{color:var(--orange)}
+.hero .formula .exp3{color:var(--purple)}
+.hero .cap{font-size:.62rem;color:var(--g5);margin-top:.8rem;letter-spacing:.06em;text-transform:uppercase}
+.section{position:relative;z-index:1;padding:3rem 1.5rem;max-width:960px;margin:0 auto}
+.section h2{font-family:'Inter',sans-serif;font-weight:700;font-size:1.2rem;color:var(--ink);margin-bottom:.4rem;letter-spacing:-.01em}
+.section h2 .tag{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--ink);display:inline-block;margin-left:.5rem;letter-spacing:.12em;text-transform:uppercase;font-weight:500}
+.section .sub{font-size:.75rem;color:var(--g5);margin-bottom:1.8rem;line-height:1.55;max-width:640px}
+.section .sub b{color:var(--g7);font-weight:600}
+.registry{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem}
+.reg-card{border-radius:var(--radius);padding:1.4rem;border:1px solid var(--g2);background:var(--g1);text-align:center;transition:transform .25s,box-shadow .25s;cursor:pointer}
+.reg-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.55)}
+.reg-card .ri{font-size:2rem;margin-bottom:.4rem}
+.reg-card h3{font-family:'Inter',sans-serif;font-weight:700;font-size:.82rem;margin-bottom:.2rem}
+.reg-card .target{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--blue);margin-bottom:.5rem;letter-spacing:.02em}
+.reg-card .desc{font-size:.62rem;color:var(--g5);line-height:1.5}
+.rail{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:1.2rem 0;padding:1rem;background:var(--g1);border:1px solid var(--g2);border-radius:var(--radius)}
+.rail .step{display:flex;align-items:center;gap:.4rem;font-size:.65rem;color:var(--g6);font-family:'JetBrains Mono',monospace}
+.rail .step.active{color:var(--ink)}
+.rail .step .dot{width:8px;height:8px;border-radius:50%;display:inline-block;background:var(--g4)}
+.rail .step.active .dot{background:var(--ink)}
+.rail .arrow{color:var(--g4);font-size:.75rem;font-family:'JetBrains Mono',monospace}
+.example{background:var(--g1);border-radius:var(--radius);padding:1.6rem;border:1px solid var(--g2);margin:1.5rem 0}
+.example h3{font-family:'Inter',sans-serif;font-weight:700;font-size:.8rem;color:var(--ink);margin-bottom:.8rem}
+.example pre{background:#0a0a0a;border:1px solid var(--g2);border-radius:8px;padding:1rem;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--paper);line-height:1.55}
+.example pre b{color:var(--ink)}
+.example .note{font-size:.6rem;color:var(--g5);margin-top:.7rem;font-style:italic}
+.thesis{margin:2rem 0;padding:1.8rem;border-left:3px solid var(--ink);background:var(--g1);border-radius:0 var(--radius) var(--radius) 0}
+.thesis .stat{font-family:'Inter',sans-serif;font-weight:700;font-size:clamp(.9rem,2.5vw,1.1rem);color:var(--ink);margin-bottom:.4rem;letter-spacing:-.01em}
+.thesis .exp{font-size:.68rem;color:var(--g5);line-height:1.6}
+.badge{position:fixed;bottom:16px;right:16px;z-index:99999;width:56px;height:56px;border:1px solid var(--ink);border-radius:8px;background:var(--void);padding:4px;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.badge:hover{transform:scale(1.1);box-shadow:0 0 16px rgba(212,175,55,.4)}
+.badge img{width:100%;height:100%;border-radius:4px}
+footer{position:relative;z-index:1;padding:2rem 1.5rem;text-align:center;border-top:1px solid var(--g2);margin-top:3rem}
+footer .sig{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--ink);margin-bottom:.3rem}
+footer .tag{font-size:.58rem;color:var(--g6)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="mesh"><canvas id="m"></canvas></div>
+<nav>
+  <a class="logo" href="https://myaelmendez.github.io">æQR<span>Addressable Intelligence</span></a>
+  <div class="links"><a href="#routes">Routes</a><a href="#rail">Rail</a><a href="#example">Record</a><a href="#thesis">Thesis</a></div>
+</nav>
+
+<section class="hero">
+  <div class="hero-emoji">▦</div>
+  <h1>æQR<span class="tag">Portable Address</span></h1>
+  <p class="tagline"><b>Every intelligent widget carries æQR.</b><br>A versioned, addressable invitation to an agentic environment. Scanning alone never grants authority.</p>
+  <div class="formula"><span class="base">æ1</span><sup><span class="exp1">æ2</span><sup><span class="exp2">æ3</span><sup><span class="exp3">æQR</span></sup></sup></sup></div>
+  <div class="cap">Recursive · Exponential · Addressable</div>
+</section>
+
+<section class="section" id="routes">
+  <h2>Canonical Routes<span class="tag">12 æQR Routes</span></h2>
+  <p class="sub">Each route is a proposed entry point. The æQR image encodes a short HTTPS resolver URL pointing to the versioned record. Permissions are checked when the code is opened.</p>
+  <div class="registry" id="registry">
+    <div class="reg-card" onclick="show('city')"><div class="ri">🏙️</div><h3>CITY</h3><div class="target">aeqr://city</div><div class="desc">Discover the entire agentic city</div></div>
+    <div class="reg-card" onclick="show('tower')"><div class="ri">🏢</div><h3>TOWER</h3><div class="target">aeqr://tower</div><div class="desc">Enter a 9:16 Life Tower viewport</div></div>
+    <div class="reg-card" onclick="show('loft')"><div class="ri">🧱</div><h3>LOFT</h3><div class="target">aeqr://loft</div><div class="desc">Enter a capability loft inside a tower</div></div>
+    <div class="reg-card" onclick="show('model')"><div class="ri">🧠</div><h3>MODEL</h3><div class="target">aeqr://model</div><div class="desc">Route a query to a model picker</div></div>
+    <div class="reg-card" onclick="show('agent')"><div class="ri">🛸</div><h3>AGENT</h3><div class="target">aeqr://agent</div><div class="desc">Dispatch to a bounded agent</div></div>
+    <div class="reg-card" onclick="show('private')"><div class="ri">🔐</div><h3>PRIVATE</h3><div class="target">aeqr://private</div><div class="desc">Consent-gated private context</div></div>
+    <div class="reg-card" onclick="show('sov')"><div class="ri">🗝️</div><h3>SOV</h3><div class="target">aeqr://sov</div><div class="desc">Sovereign client — ownership & authority</div></div>
+    <div class="reg-card" onclick="show('fork')"><div class="ri">📦</div><h3>FORK</h3><div class="target">aeqr://fork</div><div class="desc">Fork a capability or environment</div></div>
+    <div class="reg-card" onclick="show('witness')"><div class="ri">🧾</div><h3>WITNESS</h3><div class="target">aeqr://witness</div><div class="desc">Record a verifiable receipt</div></div>
+    <div class="reg-card" onclick="show('publish')"><div class="ri">🌐</div><h3>PUBLISH</h3><div class="target">aeqr://publish</div><div class="desc">Publish to a durable address</div></div>
+    <div class="reg-card" onclick="show('move')"><div class="ri">🏎️</div><h3>MOVE</h3><div class="target">aeqr://move</div><div class="desc">Navigation / agency (Arvix)</div></div>
+    <div class="reg-card" onclick="show('learn')"><div class="ri">📚</div><h3>LEARN</h3><div class="target">aeqr://learn</div><div class="desc">Enter a learning loft</div></div>
+  </div>
+</section>
+
+<section class="section" id="rail">
+  <h2>The Execution Rail<span class="tag">Yellow → Blue → Purple → Gold</span></h2>
+  <p class="sub">State flows from idle through action to return. The RGB language (white idle · blue thinking · green complete · amber input · red error) maps directly to the agent execution rail:</p>
+  <div class="rail">
+    <div class="step active"><span class="dot"></span>Yellow · Intent</div><span class="arrow">→</span>
+    <div class="step"><span class="dot"></span>Blue · Plan</div><span class="arrow">→</span>
+    <div class="step"><span class="dot"></span>Purple · Authorize</div><span class="arrow">→</span>
+    <div class="step"><span class="dot"></span>Orange · Execute</div><span class="arrow">→</span>
+    <div class="step"><span class="dot"></span>Green · Verify</div><span class="arrow">→</span>
+    <div class="step"><span class="dot"></span>Gold · Return</div>
+  </div>
+  <div class="note" style="font-size:.62rem;color:var(--g5);margin-top:.8rem">Codex Micro RGB: White=Idle · Blue=Thinking · Green=Complete · Amber=Input · Red=Error · Off=No agent</div>
+</section>
+
+<section class="section" id="example">
+  <h2>Canonical Record<span class="tag">Versioned · Attributed · Explicit</span></h2>
+  <p class="sub">A canonical æQR record carries a version, target, capability, intent, principal, authorization policy, and witness requirement. The QR image encodes a short HTTPS resolver URL — not raw credentials or raw capability bindings.</p>
+  <div class="example">
+    <h3>Example record</h3>
+    <pre><b>{
+  "protocol": "aeqr",
+  "version": "0.1",
+  "target": "ae://city/business/loft/start",
+  "capability": "startabusiness",
+  "intent": "open",
+  "principal": "human-required",
+  "authorization": "explicit",
+  "witness": "required"
+}</b></pre>
+    <div class="note">The resolver validates the record, checks permissions when opened, and routes to the correct loft. Scanning the QR code alone never grants authority.</div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="thesis">
+    <div class="stat">æQR makes the nested environment discoverable and portable.</div>
+    <div class="exp">It gives intelligent work an address — a way to recover its context, a path to reuse, and a route to publication. Every widget carries its own æQR. Every loft can become a tower. Every tower can become a city.</div>
+  </div>
+</section>
+
+<footer>
+  <div class="sig">#OSW · æ = agentic_environments</div>
+  <div class="tag">Open by default · Human orchestrated · Accessible at scale · MYaelMendez © 2026</div>
+</footer>
+
+<a class="badge" onclick="show('city')">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=112x112&color=D4AF37&bgcolor=050505&data=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Faeqr.html" alt="æQR">
+</a>
+
+<script>
+function show(route){alert('æQR route: '+route+'\n\nResolves via HTTPS to the canonical record.\nSee aeqr_registry.json in your agent context.');}
+(function(){var c=document.getElementById('m'),x=c.getContext('2d'),w,h,t=0;
+function rs(){w=c.width=innerWidth;h=c.height=innerHeight}addEventListener('resize',rs);rs();
+var N=28,pts=[];for(var i=0;i<N;i++)pts.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25});
+function dr(){t+=.003;x.clearRect(0,0,w,h);
+for(var i=0;i<N;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;x.fillStyle='rgba(212,175,55,.4)';x.beginPath();x.arc(p.x,p.y,1.5,0,7);x.fill()}
+for(var i=0;i<N;i++)for(var j=i+1;j<N;j++){var a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<130){x.strokeStyle='rgba(212,175,55,'+((1-d/130)*.09)+')';x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}}
+requestAnimationFrame(dr)}dr()})();
+</script>
+</body>
+</html>

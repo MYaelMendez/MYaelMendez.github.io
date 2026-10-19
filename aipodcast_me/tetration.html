@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>æ · Productive Ræcursion</title>
+<meta name="description" content="æ1^æ2^æ3 — right-associative exponentiation. Capability compounds exponentially. Authority does not.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#050505;--ink:#D4AF37;--paper:#F5F0E1;
+  --g1:#0a0a0a;--g2:#161616;--g3:#242424;--g4:#3a3a3a;--g5:#6e6e6e;--g6:#a0a0a0;--g7:#d6d6d6;
+  --blue:#4A90D9;--green:#34C759;--orange:#F97316;--red:#E53935;
+  --radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--void);color:var(--paper);font-family:'Inter',system-ui,sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:99998;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(212,175,55,.014) 2px,rgba(212,175,55,.014) 4px)}
+.mesh{position:fixed;inset:0;z-index:0;opacity:.06}
+.mesh canvas{width:100%;height:100%}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(5,5,5,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--g2);display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.4rem}
+nav .logo{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:1rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em}
+nav .logo span{font-size:.55rem;opacity:.5;display:block;line-height:1;letter-spacing:.06em;text-transform:uppercase}
+nav .links{display:flex;gap:1.2rem;align-items:center}
+nav .links a{color:var(--g5);text-decoration:none;font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;transition:color .2s;font-weight:500}
+nav .links a:hover{color:var(--ink)}
+.hero{position:relative;z-index:1;min-height:88vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5rem 1.5rem 3rem;text-align:center}
+.hero-emoji{font-size:3.5rem;margin-bottom:1rem;animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.hero h1{font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(1.8rem,5vw,3.2rem);color:var(--ink);letter-spacing:-.03em;margin-bottom:.5rem;line-height:1}
+.hero h1 .primitive{font-size:.3em;font-weight:500;color:var(--g5);display:block;margin-top:.4rem;letter-spacing:.1em;text-transform:uppercase}
+.hero .tagline{font-size:clamp(.78rem,2vw,.95rem);color:var(--g5);max-width:480px;margin-bottom:1.8rem;line-height:1.6;font-weight:400}
+.hero .tagline b{color:var(--g7);font-weight:600}
+.formula-block{margin:1.5rem 0;padding:1.5rem 2rem;background:var(--g1);border:1px solid var(--g2);border-radius:var(--radius);text-align:center}
+.formula-block .eq{font-family:'JetBrains Mono',monospace;font-size:clamp(1.2rem,3.5vw,1.8rem);color:var(--ink);letter-spacing:-.01em}
+.formula-block .eq .base{color:var(--blue)}
+.formula-block .eq .exp1{color:var(--green)}
+.formula-block .eq .exp2{color:var(--orange)}
+.formula-block .assoc{font-size:.62rem;color:var(--g5);margin-top:.6rem;letter-spacing:.06em;text-transform:uppercase}
+.section{position:relative;z-index:1;padding:3rem 1.5rem;max-width:940px;margin:0 auto}
+.section h2{font-family:'Inter',sans-serif;font-weight:700;font-size:1.2rem;color:var(--ink);margin-bottom:.4rem;letter-spacing:-.01em}
+.section h2 .layer{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--ink);display:block;margin-bottom:.3rem;letter-spacing:.12em;text-transform:uppercase;font-weight:500}
+.section .sub{font-size:.75rem;color:var(--g5);margin-bottom:1.8rem;line-height:1.55;max-width:640px}
+.section .sub b{color:var(--g7);font-weight:600}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+.compare-card{border-radius:var(--radius);padding:1.4rem;border:1px solid;position:relative;overflow:hidden}
+.compare-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.compare-card.right{background:#0a1628;border-color:#1e3a5f}.compare-card.right::before{background:var(--green)}
+.compare-card.left{background:#1a0a0a;border-color:#3f1e1e}.compare-card.left::before{background:var(--red)}
+.compare-card .label{font-size:.58rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;font-weight:600}
+.compare-card.right .label{color:var(--green)}
+.compare-card.left .label{color:var(--red)}
+.compare-card .expr{font-family:'JetBrains Mono',monospace;font-size:clamp(.85rem,2.5vw,1.1rem);color:var(--paper);margin-bottom:.8rem}
+.compare-card .result{font-size:.72rem;color:var(--g5)}
+.compare-card .result b{color:var(--paper);font-family:'JetBrains Mono',monospace;font-size:.85rem}
+.vs{text-align:center;font-size:.7rem;color:var(--g4);margin-bottom:1rem;letter-spacing:.1em;text-transform:uppercase}
+.layers{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1.5rem}
+.layer-card{border-radius:var(--radius);padding:1.4rem;border:1px solid var(--g2);background:var(--g1);transition:transform .25s,box-shadow .25s}
+.layer-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.55)}
+.layer-card .li{font-size:2rem;margin-bottom:.4rem}
+.layer-card h3{font-family:'Inter',sans-serif;font-weight:700;font-size:.9rem;margin-bottom:.2rem}
+.layer-card .role{font-size:.58rem;color:var(--ink);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem}
+.layer-card p{font-size:.64rem;color:var(--g5);line-height:1.5}
+.ops{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-bottom:1.5rem}
+.op-card{border-radius:var(--radius);padding:1.4rem;border:1px solid var(--g2);background:var(--g1)}
+.op-card .oi{font-size:1.8rem;margin-bottom:.4rem}
+.op-card h3{font-family:'Inter',sans-serif;font-weight:700;font-size:.85rem;margin-bottom:.2rem}
+.op-card .kind{font-size:.58rem;color:var(--g5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem}
+.op-card p{font-size:.64rem;color:var(--g5);line-height:1.5}
+.invariant{margin:2rem 0;padding:1.6rem;border-left:3px solid var(--ink);background:var(--g1);border-radius:0 var(--radius) var(--radius) 0}
+.invariant .stat{font-family:'Inter',sans-serif;font-weight:700;font-size:clamp(1rem,3vw,1.3rem);color:var(--ink);margin-bottom:.4rem}
+.invariant .exp{font-size:.7rem;color:var(--g5);line-height:1.6}
+.thesis{margin-top:2.5rem;padding:2rem;border:1px solid var(--g2);border-radius:var(--radius);background:var(--g1);text-align:center}
+.thesis .ti{font-size:2.5rem;margin-bottom:.8rem}
+.thesis .stat{font-family:'Inter',sans-serif;font-weight:700;font-size:clamp(1.1rem,3.5vw,1.5rem);color:var(--ink);margin-bottom:.6rem;letter-spacing:-.01em}
+.thesis .exp{font-size:.72rem;color:var(--g5);line-height:1.6;max-width:520px;margin:0 auto}
+.badge{position:fixed;bottom:16px;right:16px;z-index:99999;width:56px;height:56px;border:1px solid var(--ink);border-radius:8px;background:var(--void);padding:4px;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.badge:hover{transform:scale(1.1);box-shadow:0 0 16px rgba(212,175,55,.4)}
+.badge img{width:100%;height:100%;border-radius:4px}
+footer{position:relative;z-index:1;padding:2rem 1.5rem;text-align:center;border-top:1px solid var(--g2);margin-top:3rem}
+footer .sig{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--ink);margin-bottom:.3rem}
+footer .tag{font-size:.58rem;color:var(--g6)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="mesh"><canvas id="m"></canvas></div>
+<nav>
+  <a class="logo" href="https://myaelmendez.github.io">æ1<span>Productive Ræcursion</span></a>
+  <div class="links"><a href="#compare">Compare</a><a href="#layers">Layers</a><a href="#ops">Operations</a><a href="#thesis">Thesis</a></div>
+</nav>
+
+<section class="hero">
+  <div class="hero-emoji">🏎️</div>
+  <h1>æ · Productive Ræcursion<span class="primitive">Mathematical Primitive</span></h1>
+  <p class="tagline"><b>Hyper-exponential growth</b>, not merely recursion. Capability compounds exponentially. Authority does not.</p>
+  <div class="formula-block">
+    <div class="eq"><span class="base">æ1</span><sup><span class="exp1">æ2</span><sup><span class="exp2">æ3</span></sup></sup></div>
+    <div class="assoc">Right-associative exponentiation</div>
+  </div>
+</section>
+
+<section class="section" id="compare">
+  <h2><span class="layer">The distinction</span>Right vs. left associativity</h2>
+  <p class="sub">Repeated exponentiation produces a <b>power tower</b>. The grouping determines the magnitude — dramatically.</p>
+  <div class="vs">same numbers · different grouping · vastly different result</div>
+  <div class="compare">
+    <div class="compare-card right">
+      <div class="label">Right-associative</div>
+      <div class="expr">2<sup>(3<sup>4</sup>)</sup> = 2<sup>81</sup></div>
+      <div class="result"><b>≈ 2.42 × 10<sup>24</sup></b></div>
+    </div>
+    <div class="compare-card left">
+      <div class="label">Left-associative</div>
+      <div class="expr">(2<sup>3</sup>)<sup>4</sup> = 8<sup>4</sup></div>
+      <div class="result"><b>= 4,096</b></div>
+    </div>
+  </div>
+  <p class="sub">The right-associative form is <b>≈ 590 billion times larger</b>. That is the difference between recursion and tetration.</p>
+</section>
+
+<section class="section" id="layers">
+  <h2><span class="layer">The three layers</span>æ1 · æ2 · æ3</h2>
+  <p class="sub">The third layer determines the exponent of the second, which becomes the exponent of the first.</p>
+  <div class="layers">
+    <div class="layer-card">
+      <div class="li">🛸</div>
+      <h3>æ1</h3>
+      <div class="role">Environment</div>
+      <p>The agentic environment — the base of the tower.</p>
+    </div>
+    <div class="layer-card">
+      <div class="li">🔐</div>
+      <h3>æ2</h3>
+      <div class="role">Private Client</div>
+      <p>Authorizes capabilities — the first exponent.</p>
+    </div>
+    <div class="layer-card">
+      <div class="li">🗝️</div>
+      <h3>æ3</h3>
+      <div class="role">Sovereign Client</div>
+      <p>Retains authority — the top exponent.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="ops">
+  <h2><span class="layer">Two operations</span>↺ and ^</h2>
+  <p class="sub">Recursive improvement and exponential amplification are complementary, not competing.</p>
+  <div class="ops">
+    <div class="op-card">
+      <div class="oi">↺</div>
+      <h3>Recursive improvement</h3>
+      <div class="kind">Execution · Reflection · Learning · Reintegration</div>
+      <p>Each cycle compounds what the previous one built. The loop returns stronger.</p>
+    </div>
+    <div class="op-card">
+      <div class="oi">^</div>
+      <h3>Exponential amplification</h3>
+      <div class="kind">One capability enabling higher-order combinations</div>
+      <p>Capabilities multiply across layers. The tower grows faster than its height.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="invariant">
+    <div class="stat">Capability can compound exponentially. Authority cannot.</div>
+    <div class="exp">The power tower describes how capabilities scale. It does not describe how permissions scale. Authority remains bounded, revocable, and human-held — regardless of how tall the tower grows.</div>
+  </div>
+</section>
+
+<section class="section" id="thesis">
+  <div class="thesis">
+    <div class="ti">🏎️🏁</div>
+    <div class="stat">æ is productive ræcursion</div>
+    <div class="exp">Not merely repeating intelligence, but compounding what intelligence can create. Hardware provides capacity. Software provides instructions. Agents provide adaptive execution. <b>Sourceware is what their integration produces.</b></div>
+  </div>
+</section>
+
+<footer>
+  <div class="sig">#OSW · Don't just open the source. Open the means of creation.</div>
+  <div class="tag">MYaelMendez © 2026 · OpenSourceWare</div>
+</footer>
+
+<a class="badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Ftetration.html" title="æ:// Verify">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=112x112&color=D4AF37&bgcolor=050505&data=https%3A%2F%2Fmyaelmendez.github.io%2Fverify.html%3Furl%3Dhttps%253A%252F%252Fmyaelmendez.github.io%252Faipodcast_me%252Ftetration.html" alt="æQR">
+</a>
+
+<script>
+(function(){var c=document.getElementById('m'),x=c.getContext('2d'),w,h,t=0;
+function rs(){w=c.width=innerWidth;h=c.height=innerHeight}addEventListener('resize',rs);rs();
+var N=25,pts=[];for(var i=0;i<N;i++)pts.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2});
+function dr(){t+=.002;x.clearRect(0,0,w,h);
+for(var i=0;i<N;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;x.fillStyle='rgba(212,175,55,.4)';x.beginPath();x.arc(p.x,p.y,1.5,0,7);x.fill()}
+for(var i=0;i<N;i++)for(var j=i+1;j<N;j++){var a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<120){x.strokeStyle='rgba(212,175,55,'+((1-d/120)*.08)+')';x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}}
+requestAnimationFrame(dr)}dr()})();
+</script>
+</body>
+</html>

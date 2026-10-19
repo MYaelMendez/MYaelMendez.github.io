@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏢⁹:¹⁶ · Life Tower</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--void2:#0a0a0a;--gold:#D4AF37;--gold-dim:rgba(212,175,55,.22);--yellow:#FFD700;--blue:#4A90D9;--green:#34C759;--purple:#A855F7;--orange:#F97316;--red:#FF4D5F;--ink:#e8e6df;--muted:#6f6a5c}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:99998;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px)}
+.mesh{position:fixed;inset:0;z-index:0;opacity:.12}
+.mesh canvas{width:100%;height:100%}
+.ticker-wrap{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--void2);border-bottom:1px solid var(--gold-dim);height:36px;display:flex;align-items:center;overflow:hidden}
+.ticker{display:flex;gap:4rem;white-space:nowrap;animation:tick 28s linear infinite;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+nav{position:fixed;top:36px;left:0;right:0;z-index:100;background:rgba(5,5,5,.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(212,175,55,.12);display:flex;align-items:center;justify-content:space-between;padding:.55rem 1.2rem}
+nav .logo{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.05rem;color:var(--gold);text-decoration:none}
+nav .logo span{font-size:.58rem;opacity:.45;display:block;line-height:1;letter-spacing:.08em}
+nav .links{display:flex;gap:1rem;align-items:center}
+nav .links a{color:#888;text-decoration:none;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;transition:color .2s}
+nav .links a:hover{color:var(--gold)}
+.hero{position:relative;z-index:1;min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5rem 1.5rem 2rem;text-align:center}
+.hero-emoji{font-size:4rem;margin-bottom:1rem;animation:bob 3.5s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.hero h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(1.8rem,5.5vw,3rem);color:var(--gold);letter-spacing:.02em;margin-bottom:.4rem}
+.hero .sub{font-size:clamp(.7rem,1.8vw,.85rem);color:#999;max-width:500px;margin-bottom:1.5rem;line-height:1.6}
+.hero .ops{display:flex;gap:1rem;justify-content:center;margin-bottom:1.5rem}
+.hero .op{font-size:1.2rem;padding:.5rem .8rem;border:1px solid var(--gold-dim);border-radius:8px;background:rgba(212,175,55,.05)}
+.hero .op small{display:block;font-size:.5rem;color:var(--muted);margin-top:.2rem}
+.tower{position:relative;z-index:1;padding:2rem 1.5rem;max-width:600px;margin:0 auto}
+.tower h2{font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--gold);margin-bottom:1rem;text-align:center}
+.floors{display:flex;flex-direction:column;gap:.6rem}
+.floor{border:1px solid rgba(212,175,55,.12);border-radius:10px;padding:.8rem 1rem;display:flex;align-items:center;gap:.8rem;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.floor:hover{transform:translateX(4px);box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.floor::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.f-home::before{background:var(--gold)}.f-health::before{background:var(--blue)}.f-learn::before{background:var(--green)}.f-faith::before{background:var(--purple)}.f-enterprise::before{background:var(--orange)}.f-economy::before{background:var(--yellow)}.f-mobility::before{background:var(--red)}.f-community::before{background:var(--green)}.f-build::before{background:var(--gold)}
+.floor .fi{font-size:1.6rem;min-width:32px}
+.floor .fb{flex:1}
+.floor .fn{font-family:'Orbitron',sans-serif;font-size:.65rem;color:var(--ink);margin-bottom:.1rem}
+.floor .fd{font-size:.55rem;color:#666}
+.floor .fw{display:flex;gap:.3rem;flex-wrap:wrap}
+.floor .fw span{font-size:.55rem;padding:.15rem .4rem;border-radius:4px;background:rgba(212,175,55,.06);color:var(--muted)}
+.floor .fs{font-size:.5rem;color:var(--muted);min-width:50px;text-align:right}
+.rail{position:relative;z-index:1;padding:2rem 1.5rem;max-width:800px;margin:0 auto}
+.rail h2{font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--gold);margin-bottom:1rem;text-align:center}
+.rail-flow{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.3rem}
+.rnode{display:flex;flex-direction:column;align-items:center;gap:.1rem;min-width:60px}
+.rnode .em{font-size:1.5rem}
+.rnode .lb{font-size:.48rem;color:#777;text-transform:uppercase}
+.rarr{font-size:1rem;color:var(--gold);margin:0 .15rem;animation:parr 1.5s ease-in-out infinite}
+@keyframes parr{0%,100%{opacity:.4;transform:translateX(0)}50%{opacity:1;transform:translateX(4px)}}
+.teleprompter{position:relative;z-index:1;padding:2rem 1.5rem 3rem;max-width:600px;margin:0 auto;text-align:center}
+.teleprompter h2{font-family:'Orbitron',sans-serif;font-size:.9rem;color:var(--gold);margin-bottom:.8rem}
+.tp-status{padding:1rem;border:1px solid var(--gold-dim);border-radius:10px;background:rgba(212,175,55,.03)}
+.tp-row{display:flex;justify-content:space-between;font-size:.62rem;color:#999;padding:.2rem 0;border-bottom:1px solid rgba(212,175,55,.05)}
+.tp-row:last-child{border-bottom:none}
+.tp-row .k{color:var(--muted)}
+.tp-row .v{color:var(--ink)}
+footer{position:relative;z-index:1;padding:2rem 1.5rem;text-align:center;border-top:1px solid rgba(212,175,55,.08)}
+footer .sig{font-family:'Orbitron',sans-serif;font-size:.68rem;color:var(--gold);margin-bottom:.2rem}
+footer .tag{font-size:.55rem;color:#444}
+.badge{position:fixed;bottom:16px;right:16px;z-index:99999;width:56px;height:56px;border:1px solid var(--gold);border-radius:8px;background:var(--void);padding:4px;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.badge:hover{transform:scale(1.1);box-shadow:0 0 16px rgba(212,175,55,.4)}
+.badge img{width:100%;height:100%;border-radius:4px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="mesh"><canvas id="m"></canvas></div>
+<div class="ticker-wrap"><div class="ticker" id="tick"></div></div>
+<nav>
+  <a class="logo" href="https://myaelmendez.github.io">🏢⁹:¹⁶<span>Life Tower</span></a>
+  <div class="links"><a href="#tower">Tower</a><a href="#rail">Rail</a><a href="#teleprompter">Status</a></div>
+</nav>
+<section class="hero">
+  <div class="hero-emoji">🏢</div>
+  <h1>Life Tower</h1>
+  <p class="sub">Nine floors. One viewport. Every widget carries 🧠ᵐ + ▦ᑫ + 🛸ᵃ + 🧾ʷ.</p>
+  <div class="ops">
+    <div class="op">|||<small>parallel</small></div>
+    <div class="op">^<small>compose</small></div>
+    <div class="op">↺<small>verify</small></div>
+  </div>
+</section>
+<section class="tower" id="tower">
+  <h2>Floors</h2>
+  <div class="floors">
+    <div class="floor f-home"><span class="fi">🏡</span><div class="fb"><div class="fn">Home</div><div class="fd">Household coordination and care</div></div><div class="fw"><span>🧠ᵐ</span><span>▦ᑫ</span><span>🛸ᵃ</span><span>🧾ʷ</span></div><span class="fs">🟩</span></div>
+    <div class="floor f-health"><span class="fi">🍼</span><div class="fb"><div class="fn">Health</div><div class="fd">Care continuity, mother &amp; child</div></div><div class="fw"><span>🧠ᵐ</span><span>▦ᑫ</span><span>🛸ᵃ</span><span>🧾ʷ</span></div><span class="fs">🟩</span></div>
+    <div class="floor f-learn"><span class="fi">🎓</span><div class="fb"><div class="fn">Learning</div><div class="fd">Education and development</div></div><div class="fw"><span>🧠ᵐ</span><span>▦ᑫ</span><span>🛸ᵃ</span><span>🧾ʷ</span></div><span class="fs">🟩</span></div>
+    <div class="floor f-faith"><span class="fi">⛪</span><div class="fb"><div class="fn">Faith</div><div class="fd">Spiritual and community life</div></div><div class="fw"><span>🧠ᵐ</span><span>▦ᑫ</span><span>🛸ᵃ</span><span>🧾ʷ</span></div><span class="fs">🟩</span></div>
+    <div class="floor f-enterprise"><span class="fi">🏢</span><div class="fb"><div class="fn">Enterprise</div><div class="fd">Business and entrepreneurship</div></div><div class="fw"><span>🧠ᵐ</span><span>▦ᑫ</span><span>🛸ᵃ</span><span>🧾ʷ</span></div><span class="fs">🟩</span></div>
+    <div class="floor f-economy"><span class="fi">💵</span><div class="fb"><div class="fn">Economy</div><div class="fd">Transactions and value creation</div></div><div class="fw"><span>🧠ᵐ</span><span>▦ᑫ</span><span>🛸ᵃ</span><span>🧾ʷ</span></div><span class="fs">🟩</span></div>
+    <div class="floor f-mobility"><span class="fi">🚜</span><div class="fb"><div class="fn">Mobility</div><div class="fd">Transport and logistics</div></div><div class="fw"><span>🧠ᵐ</span><span>▦ᑫ</span><span>🛸ᵃ</span><span>🧾ʷ</span></div><span class="fs">🟩</span></div>
+    <div class="floor f-community"><span class="fi">🤝</span><div class="fb"><div class="fn">Community</div><div class="fd">Social and civic engagement</div></div><div class="fw"><span>🧠ᵐ</span><span>▦ᑫ</span><span>🛸ᵃ</span><span>🧾ʷ</span></div><span class="fs">🟩</span></div>
+    <div class="floor f-build"><span class="fi">🔨</span><div class="fb"><div class="fn">Construction</div><div class="fd">Building and infrastructure</div></div><div class="fw"><span>🧠ᵐ</span><span>▦ᑫ</span><span>🛸ᵃ</span><span>🧾ʷ</span></div><span class="fs">🟩</span></div>
+  </div>
+</section>
+<section class="rail" id="rail">
+  <h2>Execution Rail</h2>
+  <div class="rail-flow">
+    <div class="rnode"><span class="em">🟨</span><span class="lb">Intent</span></div><span class="rarr">→</span>
+    <div class="rnode"><span class="em">🟦</span><span class="lb">Plan</span></div><span class="rarr">→</span>
+    <div class="rnode"><span class="em">🟪</span><span class="lb">Authorize</span></div><span class="rarr">→</span>
+    <div class="rnode"><span class="em">🟧</span><span class="lb">Execute</span></div><span class="rarr">→</span>
+    <div class="rnode"><span class="em">🟩</span><span class="lb">Verify</span></div><span class="rarr">→</span>
+    <div class="rnode"><span class="em">🫵</span><span class="lb">Return</span></div><span class="rarr">↺</span>
+  </div>
+</section>
+<section class="teleprompter" id="teleprompter">
+  <h2>Teleprompter · Async Status</h2>
+  <div class="tp-status">
+    <div class="tp-row"><span class="k">Running</span><span class="v">🏢 life-tower · 🛸 agent-mesh</span></div>
+    <div class="tp-row"><span class="k">Waiting</span><span class="v">🧠 model-mesh · ▦ qr-network</span></div>
+    <div class="tp-row"><span class="k">Needs approval</span><span class="v">💵 economy</span></div>
+    <div class="tp-row"><span class="k">Finished</span><span class="v">📦 publish · 🎙️ teleprompter</span></div>
+    <div class="tp-row"><span class="k">Cost</span><span class="v">Σ 8.00 units · 🧾 receipt</span></div>
+  </div>
+</section>
+<footer>
+  <div class="sig">🫵 → >_æææ://||| → 🛸ᵃ^🛸ᵃ^🛸ᵃ → 🧾 → 🫵′ ↺</div>
+  <div class="tag">Peace of mind is the acceptance criterion.</div>
+</footer>
+<a class="badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Flife-tower.html" title="æ:// Verify">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=112x112&color=D4AF37&bgcolor=050505&data=https%3A%2F%2Fmyaelmendez.github.io%2Fverify.html%3Furl%3Dhttps%253A%252F%252Fmyaelmendez.github.io%252Faipodcast_me%252Flife-tower.html" alt="æQR">
+</a>
+<script>
+(function(){var c=document.getElementById('m'),x=c.getContext('2d'),w,h,t=0;
+function rs(){w=c.width=innerWidth;h=c.height=innerHeight}addEventListener('resize',rs);rs();
+var N=35,pts=[];for(var i=0;i<N;i++)pts.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3});
+function dr(){t+=.004;x.clearRect(0,0,w,h);
+for(var i=0;i<N;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;x.fillStyle='rgba(212,175,55,.5)';x.beginPath();x.arc(p.x,p.y,2,0,7);x.fill()}
+for(var i=0;i<N;i++)for(var j=i+1;j<N;j++){var a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<140){x.strokeStyle='rgba(212,175,55,'+((1-d/140)*.14)+')';x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}}
+requestAnimationFrame(dr)}dr()})();
+var routes=['🫵 INTENT → 🟦 PLAN → 🟪 AUTHORIZE → 🟧 EXECUTE → 🟩 VERIFY → 🫵 RETURN','🏢 🧠 🛸 ▦ — ||| parallel dispatch','💵 🧾 📦 🎙️ — ^ composed delegation','🧾 ↺ verified return — SHA-256 receipt','🏢⁹:¹⁶ Life Tower — nine floors, one viewport'];
+var html='';for(var i=0;i<2;i++)for(var j=0;j<routes.length;j++)html+='<span>'+routes[j]+'</span>';
+document.getElementById('tick').innerHTML=html;
+</script>
+</body>
+</html>

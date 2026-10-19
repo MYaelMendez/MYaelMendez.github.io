@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>æ · Kinetic Typography Lab</title>
+<meta name="description" content="Motion that conveys meaning rather than decoration. Language in motion for agentic environments.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#050505;--ink:#D4AF37;--paper:#F5F0E1;
+  --g1:#0a0a0a;--g2:#161616;--g3:#242424;--g4:#3a3a3a;--g5:#6e6e6e;--g6:#a0a0a0;--g7:#d6d6d7;
+  --blue:#4A90D9;--green:#34C759;--orange:#F97316;--purple:#A855F7;--red:#FF4D5F;--amber:#FFB347;
+  --radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--void);color:var(--paper);font-family:'Inter',system-ui,sans-serif;overflow-x:hidden;line-height:1.5;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:99998;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(212,175,55,.008) 2px,rgba(212,175,55,.008) 4px)}
+.mesh{position:fixed;inset:0;z-index:0;opacity:.04}
+.mesh canvas{width:100%;height:100%}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(5,5,5,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--g2);display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.4rem}
+nav .logo{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1rem;color:var(--ink);text-decoration:none;letter-spacing:-.03em}
+nav .logo span{font-size:.52rem;opacity:.45;display:block;line-height:1;letter-spacing:.08em;text-transform:uppercase}
+nav .links{display:flex;gap:1.2rem;align-items:center}
+nav .links a{color:var(--g6);text-decoration:none;font-size:.65rem;letter-spacing:.04em;text-transform:uppercase;transition:color .2s;font-weight:500}
+nav .links a:hover{color:var(--ink)}
+.hero{position:relative;z-index:1;min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 1.5rem 2rem;text-align:center}
+.hero-emoji{font-size:3rem;margin-bottom:1rem;animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.hero h1{font-family:'Inter',sans-serif;font-weight:900;font-size:clamp(1.8rem,6vw,3rem);color:var(--ink);letter-spacing:-.04em;margin-bottom:.4rem}
+.hero h1 .tag{font-size:.22em;font-weight:500;color:var(--g6);display:block;margin-top:.3rem;letter-spacing:.2em;text-transform:uppercase}
+.hero .sub{font-size:clamp(.75rem,2vw,.9rem);color:var(--g6);max-width:500px;line-height:1.55}
+.section{position:relative;z-index:1;padding:3rem 1.5rem;max-width:900px;margin:0 auto}
+.section h2{font-family:'Inter',sans-serif;font-weight:700;font-size:clamp(1rem,2.8vw,1.2rem);color:var(--ink);margin-bottom:.6rem;letter-spacing:-.01em}
+.section h2 .tag{font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--g6);display:inline-block;margin-left:.5rem;letter-spacing:.14em;text-transform:uppercase;font-weight:500}
+.section .desc{font-size:.7rem;color:var(--g6);margin-bottom:1.8rem;line-height:1.5;max-width:600px}
+.demo{min-height:50vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.5rem;text-align:center;position:relative;overflow:hidden}
+.demo .label{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--g6);text-transform:uppercase;letter-spacing:.12em;margin-bottom:1.5rem}
+.ticker-wrap{width:100%;overflow:hidden;padding:1.5rem 0;border-top:1px solid var(--g2);border-bottom:1px solid var(--g2)}
+.ticker{display:flex;gap:3rem;white-space:nowrap;animation:tick 25s linear infinite;font-family:'JetBrains Mono',monospace;font-size:clamp(1.4rem,4vw,2.2rem);font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:-.02em}
+.ticker span{opacity:.8}
+.ticker span:nth-child(2n){color:var(--blue);opacity:.6}
+.ticker span:nth-child(3n){color:var(--green);opacity:.7}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.breathe{font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(1.6rem,5vw,3rem);color:var(--ink);letter-spacing:-.03em;animation:breathe 4s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:.6;transform:scale(.98)}50%{opacity:1;transform:scale(1.02)}}
+.color-shift{font-family:'Inter',sans-serif;font-weight:900;font-size:clamp(1.6rem,5vw,3rem);letter-spacing:-.03em;background:linear-gradient(90deg,var(--blue),var(--green),var(--orange),var(--purple),var(--ink),var(--blue));background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shift 4s linear infinite}
+@keyframes shift{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+.typewriter{font-family:'JetBrains Mono',monospace;font-size:clamp(1.2rem,4vw,2.5rem);font-weight:500;color:var(--ink);min-height:1.4em;letter-spacing:-.01em}
+.typewriter::after{content:'▌';animation:blink 1s step-end infinite;color:var(--ink);margin-left:.1em}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.pulse-container{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;justify-content:center}
+.pulse-word{font-family:'Inter',sans-serif;font-weight:700;font-size:clamp(1.1rem,3.5vw,1.8rem);animation:pulse 2.5s ease-in-out infinite}
+.pulse-word:nth-child(1){color:var(--blue);animation-delay:0s}
+.pulse-word:nth-child(2){color:var(--green);animation-delay:.3s}
+.pulse-word:nth-child(3){color:var(--orange);animation-delay:.6s}
+.pulse-word:nth-child(4){color:var(--purple);animation-delay:.9s}
+.pulse-word:nth-child(5){color:var(--ink);animation-delay:1.2s}
+@keyframes pulse{0%,100%{opacity:.5;transform:scale(.96)}50%{opacity:1;transform:scale(1.04)}}
+.status-row{display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin:1.5rem 0}
+.status-item{text-align:center}
+.status-item .si{font-size:2rem;margin-bottom:.4rem}
+.status-item .sl{font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--g6);text-transform:uppercase;letter-spacing:.08em}
+.status-dot{width:14px;height:14px;border-radius:50%;margin:0 auto .5rem;animation:statusPulse 2s ease-in-out infinite}
+.dot-amber{background:var(--amber);box-shadow:0 0 12px var(--amber)}
+.dot-blue{background:var(--blue);box-shadow:0 0 12px var(--blue)}
+.dot-green{background:var(--green);box-shadow:0 0 12px var(--green)}
+@keyframes statusPulse{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.2);opacity:1}}
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .8s ease-out,transform .8s ease-out}
+.reveal.visible{opacity:1;transform:translateY(0)}
+footer{position:relative;z-index:1;padding:2rem 1.5rem;text-align:center;border-top:1px solid var(--g2);margin-top:3rem}
+footer .sig{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--ink);margin-bottom:.3rem}
+footer .tag{font-size:.55rem;color:var(--g6)}
+.badge{position:fixed;bottom:16px;right:16px;z-index:99999;width:56px;height:56px;border:1px solid var(--ink);border-radius:8px;background:var(--void);padding:4px;cursor:pointer;transition:transform .25s,box-shadow .25s}
+.badge:hover{transform:scale(1.1);box-shadow:0 0 16px rgba(212,175,55,.4)}
+.badge img{width:100%;height:100%;border-radius:4px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="mesh"><canvas id="m"></canvas></div>
+<nav>
+  <a class="logo" href="https://myaelmendez.github.io">æ://KINETIC<span>Typography Lab</span></a>
+  <div class="links"><a href="#scroll">Scroll</a><a href="#breathe">Breathe</a><a href="#color">Color</a><a href="#type">Type</a><a href="#pulse">Pulse</a></div>
+</nav>
+
+<section class="hero">
+  <div class="hero-emoji">🎨</div>
+  <h1>Kinetic<span class="tag">Language in Motion</span></h1>
+  <p class="sub">Motion that conveys meaning rather than decoration. Words that move, scale, change color, and communicate the state of an agentic environment.</p>
+</section>
+
+<div class="section reveal" id="scroll">
+  <h2>Scroll<span class="tag">ticker · pending tasks</span></h2>
+  <p class="desc">An æQ ticker can scroll pending tasks — continuous motion signals an active system.</p>
+  <div class="ticker-wrap"><div class="ticker" id="ticker"></div></div>
+</div>
+
+<div class="section reveal" id="breathe">
+  <h2>Breathe<span class="tag">idle state</span></h2>
+  <p class="desc">Gentle breathing signals an idle but ready system — alive, not dead.</p>
+  <div class="demo"><div class="label">Idle · Ready</div><div class="breathe">æ://AWAITING</div></div>
+</div>
+
+<div class="section reveal" id="color">
+  <h2>Color Shift<span class="tag">state transition</span></h2>
+  <p class="desc">Color flows communicate transformation — blue thinking, green complete, amber input, red error.</p>
+  <div class="demo"><div class="label">Thinking → Complete</div><div class="color-shift">PROCESSING</div></div>
+</div>
+
+<div class="section reveal" id="type">
+  <h2>Typewriter<span class="tag">execution · agent output</span></h2>
+  <p class="desc">Typewriter effects show real-time execution — each character is a token of actual work.</p>
+  <div class="demo"><div class="label">Executing</div><div class="typewriter" id="typewriter"></div></div>
+</div>
+
+<div class="section reveal" id="pulse">
+  <h2>Pulse<span class="tag">authorization · awaiting approval</span></h2>
+  <p class="desc">Gently pulsing labels indicate a system awaiting human authorization — the principal decides.</p>
+  <div class="demo"><div class="label">Awaiting Authorization</div><div class="pulse-container"><span class="pulse-word">AUTHORIZE</span></div></div>
+</div>
+
+<div class="section reveal">
+  <h2>Status Transitions<span class="tag">Codex Micro RGB → execution rail</span></h2>
+  <p class="desc">The official RGB language maps directly to agent execution states. Each color communicates a real system condition.</p>
+  <div class="status-row">
+    <div class="status-item"><div class="status-dot dot-blue"></div><div class="si">🧠</div><div class="sl">Thinking</div></div>
+    <div class="status-item"><div class="status-dot dot-amber"></div><div class="si">⏳</div><div class="sl">Input</div></div>
+    <div class="status-item"><div class="status-dot dot-green"></div><div class="si">✅</div><div class="sl">Complete</div></div>
+  </div>
+  <div class="status-row">
+    <div class="status-item"><div class="status-dot" style="background:var(--paper);box-shadow:0 0 8px var(--paper)"></div><div class="si">💤</div><div class="sl">Idle</div></div>
+    <div class="status-item"><div class="status-dot" style="background:var(--red);box-shadow:0 0 8px var(--red)"></div><div class="si">⚠️</div><div class="sl">Error</div></div>
+    <div class="status-item"><div class="status-dot" style="background:var(--g4);opacity:.3"></div><div class="si">🚫</div><div class="sl">Off</div></div>
+  </div>
+</div>
+
+<div class="section reveal">
+  <h2>The Principle<span class="tag">motion · meaning · principal</span></h2>
+  <p class="desc">Motion indicates direction and relationships. It never falsely implies agent execution. The interface should feel alive even when idle — unmistakably different when real work happens.</p>
+  <div style="text-align:center;padding:2rem;border:1px solid var(--g2);border-radius:var(--radius);background:var(--g2)">
+    <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(.9rem,2.5vw,1.1rem);color:var(--ink);margin-bottom:.5rem">Motion is meaning.</div>
+    <div style="font-size:.65rem;color:var(--g6);line-height:1.6">Not decoration. Not distraction. A living language that communicates the state of your agentic environment.</div>
+  </div>
+</div>
+
+<footer>
+  <div class="sig">æ://LANGUAGE IN MOTION · æ = agentic_environments</div>
+  <div class="tag">Motion that conveys meaning · MYaelMendez © 2026</div>
+</footer>
+
+<a class="badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Fkinetic.html" title="æ:// Verify">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=112x112&color=D4AF37&bgcolor=050505&data=https%3A%2F%2Fmyaelmendez.github.io%2Fverify.html%3Furl%3Dhttps%253A%252F%252Fmyaelmendez.github.io%252Faipodcast_me%252Fkinetic.html" alt="æQR">
+</a>
+
+<script>
+(function(){var c=document.getElementById('m'),x=c.getContext('2d'),w,h,t=0;
+function rs(){w=c.width=innerWidth;h=c.height=innerHeight}addEventListener('resize',rs);rs();
+var N=25,pts=[];for(var i=0;i<N;i++)pts.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.15,vy:(Math.random()-.5)*.15});
+function dr(){t+=.0015;x.clearRect(0,0,w,h);
+for(var i=0;i<N;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;x.fillStyle='rgba(212,175,55,.25)';x.beginPath();x.arc(p.x,p.y,1.5,0,7);x.fill()}
+for(var i=0;i<N;i++)for(var j=i+1;j<N;j++){var a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<120){x.strokeStyle='rgba(212,175,55,'+((1-d/120)*.06)+')';x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}}
+requestAnimationFrame(dr)}dr()})();
+var tickerItems=['æ://PENDING','▸ TASK-042','▸ AUTHORIZE','▸ WITNESS','▸ VERIFY','▸ RETURN','▸ FORK','▸ PUBLISH','▸ DISCOVER','▸ EXECUTE'];
+var html='';for(var i=0;i<2;i++)for(var j=0;j<tickerItems.length;j++)html+='<span>'+tickerItems[j]+'</span>';
+document.getElementById('ticker').innerHTML=html;
+var typeTarget='> æ://compose intent → authorize → execute → witness → return';
+var typeEl=document.getElementById('typewriter');
+var typeIdx=0;
+function typeChar(){
+  if(typeIdx<typeTarget.length){
+    typeEl.textContent+=typeTarget.charAt(typeIdx);
+    typeIdx++;
+    setTimeout(typeChar,typeTarget.charAt(typeIdx-1)==='→'?120:40);
+  }
+}
+setTimeout(typeChar,1500);
+var obs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(function(s){obs.observe(s)});
+</script>
+</body>
+</html>

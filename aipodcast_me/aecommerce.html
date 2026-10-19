@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="æ:architecture" content="æQR³ — recursive addressable commerce">
+<meta name="æ:invariant" content="Context may propagate. Authority does not.">
+<title>æ-Commerce · Sovereign Intent-Driven Procurement</title>
+<meta name="description" content="Human-governed procurement architecture. Agents discover, compare, negotiate. Authority to purchase remains with the human principal.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#050505;--ink:#D4AF37;--paper:#F5F0E1;
+  --g2:#161616;--g3:#242424;--g4:#3a3a3a;
+  --blue:#4A90D9;--green:#34C759;--orange:#F97316;--purple:#A855F7;--red:#FF4D5F;--amber:#FFB347;
+  --radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--void);color:var(--paper);font-family:'Inter',system-ui,sans-serif;overflow-x:hidden;line-height:1.5;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:99998;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(212,175,55,.01) 2px,rgba(212,175,55,.01) 4px)}
+.mesh{position:fixed;inset:0;z-index:0;opacity:.05}
+.mesh canvas{width:100%;height:100%}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(5,5,5,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--g2);display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.4rem}
+nav .logo{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.05rem;color:var(--ink);text-decoration:none;letter-spacing:-.03em}
+nav .logo span{font-size:.55rem;opacity:.45;display:block;line-height:1;letter-spacing:.08em;text-transform:uppercase}
+nav .links{display:flex;gap:1.2rem;align-items:center}
+nav .links a{color:#8890a0;text-decoration:none;font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;transition:color .2s;font-weight:500}
+nav .links a:hover{color:var(--ink)}
+.hero{position:relative;z-index:1;min-height:88vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4.5rem 1.5rem 3rem;text-align:center}
+.hero-emoji{font-size:3.5rem;margin-bottom:1rem;animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes flow{0%,100%{opacity:.3;transform:scaleX(1)}50%{opacity:1;transform:scaleX(1.3)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(212,175,55,.25)}50%{box-shadow:0 0 0 8px rgba(212,175,55,0)}}
+@keyframes glow{0%,100%{border-color:var(--ink);box-shadow:0 0 8px rgba(212,175,55,.15)}50%{border-color:var(--ink);box-shadow:0 0 20px rgba(212,175,55,.35)}}
+@keyframes fadeInUp{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes stateGlow{0%,100%{border-color:var(--g4);background:var(--g3)}50%{border-color:var(--ink);background:var(--g4);box-shadow:0 0 12px rgba(212,175,55,.2)}}
+@keyframes iconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+@keyframes cardEntrance{0%{opacity:0;transform:translateY(30px) scale(.95)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes rfFlow{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+@keyframes corrPulse{0%,100%{box-shadow:0 0 0 0 rgba(212,175,55,.1)}50%{box-shadow:0 0 0 4px rgba(212,175,55,.05)}}
+.hero{animation:fadeInUp .8s ease-out}
+.hero-emoji{animation:bob 3s ease-in-out infinite,iconPulse 4s ease-in-out infinite}
+.hero .cmd::after{content:'▊';animation:blink 1s step-end infinite;color:var(--ink)}
+.sm-state{animation:stateGlow 3s ease-in-out infinite}
+.sm-state:nth-child(2){animation-delay:.3s}
+.sm-state:nth-child(3){animation-delay:.6s}
+.sm-arrow{animation:flow 2s ease-in-out infinite}
+.rf-node{animation:rfFlow 2.5s ease-in-out infinite}
+.rf-node:nth-child(3){animation-delay:.4s}
+.rf-node:nth-child(5){animation-delay:.8s}
+.rf-arrow{animation:flow 1.8s ease-in-out infinite}
+.emoji-card{animation:cardEntrance .6s ease-out both}
+.emoji-card:nth-child(2){animation-delay:.05s}.emoji-card:nth-child(3){animation-delay:.1s}
+.emoji-card:nth-child(4){animation-delay:.15s}.emoji-card:nth-child(5){animation-delay:.2s}
+.emoji-card:nth-child(6){animation-delay:.25s}.emoji-card:nth-child(7){animation-delay:.3s}
+.emoji-card:nth-child(8){animation-delay:.35s}.emoji-card:nth-child(9){animation-delay:.4s}
+.emoji-card:nth-child(10){animation-delay:.45s}.emoji-card:nth-child(11){animation-delay:.5s}
+.emoji-card:nth-child(12){animation-delay:.55s}
+.emoji-card:hover{animation:iconPulse .6s ease-in-out}
+.witness-box{animation:glow 4s ease-in-out infinite}
+.invariant-box{animation:glow 4s ease-in-out infinite 1s}
+.corr{animation:corrPulse 3s ease-in-out infinite}
+.corr:nth-child(2){animation-delay:.5s}.corr:nth-child(3){animation-delay:1s}
+.corr:nth-child(4){animation-delay:1.5s}
+.corr .ci{animation:iconPulse 3s ease-in-out infinite}
+.section{opacity:0;transform:translateY(20px);transition:opacity .6s ease-out,transform .6s ease-out}
+.section.visible{opacity:1;transform:translateY(0)}
+.hero h1{font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(1.8rem,5vw,3rem);color:var(--ink);letter-spacing:-.03em;margin-bottom:.3rem;line-height:1.05}
+.hero h1 .tag{font-size:.24em;font-weight:500;color:#8890a0;display:block;margin-top:.3rem;letter-spacing:.18em;text-transform:uppercase}
+.hero .tagline{font-size:clamp(.8rem,2vw,1rem);color:#8890a0;margin-bottom:1.5rem;line-height:1.55;max-width:600px}
+.hero .tagline b{color:var(--paper);font-weight:600}
+.hero .cmd{font-family:'JetBrains Mono',monospace;font-size:clamp(.7rem,2vw,.85rem);color:var(--ink);background:var(--g2);border:1px solid var(--g3);border-radius:8px;padding:.5rem 1.2rem;margin:.8rem 0}
+.hero .inv{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:#8890a0;margin-top:1rem;letter-spacing:.06em;text-transform:uppercase}
+.section{position:relative;z-index:1;padding:3rem 1.5rem;max-width:1000px;margin:0 auto}
+.section h2{font-family:'Inter',sans-serif;font-weight:700;font-size:clamp(1.05rem,2.8vw,1.25rem);color:var(--ink);margin-bottom:.8rem;letter-spacing:-.01em}
+.section h2 .tag{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:#8890a0;display:inline-block;margin-left:.5rem;letter-spacing:.14em;text-transform:uppercase;font-weight:500}
+.section .sub{font-size:.75rem;color:#8890a0;margin-bottom:2rem;line-height:1.55;max-width:640px}
+.section .sub b{color:var(--paper);font-weight:600}
+.corrections{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin:1.5rem 0}
+.corr{border-radius:var(--radius);padding:1.4rem;border:1px solid var(--g3);background:var(--g2)}
+.corr .ci{font-size:1.5rem;margin-bottom:.4rem}
+.corr h3{font-family:'Inter',sans-serif;font-weight:600;font-size:.78rem;color:var(--ink);margin-bottom:.3rem}
+.corr p{font-size:.64rem;color:#8890a0;line-height:1.5}
+.statemachine{display:flex;flex-direction:column;gap:.4rem;margin:1.5rem 0;padding:1.5rem;background:var(--g2);border:1px solid var(--g3);border-radius:var(--radius)}
+.sm-row{display:flex;align-items:center;gap:1rem}
+.sm-state{padding:.5rem 1rem;border:1px solid var(--g4);border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--paper);background:var(--g3);text-align:center;min-width:120px;transition:transform .2s}
+.sm-state:hover{transform:translateX(4px);border-color:var(--ink)}
+.sm-arrow{color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700}
+.sm-note{font-size:.58rem;color:#8890a0;margin-top:.8rem;font-style:italic}
+.recursive-flow{display:flex;align-items:center;gap:.5rem;margin:1.5rem 0;padding:1.2rem;background:var(--g2);border:1px solid var(--g3);border-radius:var(--radius);flex-wrap:wrap}
+.rf-node{padding:.6rem 1rem;border:1px solid var(--ink);border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--ink);background:var(--g3);text-align:center}
+.rf-arrow{color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700}
+.emoji-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin:1.5rem 0}
+.emoji-card{border:1px solid var(--g3);background:var(--g2);border-radius:var(--radius);padding:1.2rem;text-align:center;transition:transform .25s,box-shadow .25s;cursor:pointer}
+.emoji-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.55);border-color:var(--ink)}
+.emoji-card .ei{font-size:2rem;margin-bottom:.4rem}
+.emoji-card h3{font-family:'Inter',sans-serif;font-weight:600;font-size:.72rem;color:var(--paper);margin-bottom:.15rem}
+.emoji-card .role{font-size:.58rem;color:#8890a0}
+.confirmed{display:inline-block;font-size:.52rem;color:var(--green);border:1px solid var(--green);border-radius:4px;padding:.1rem .4rem;margin-top:.4rem}
+.proposed{display:inline-block;font-size:.52rem;color:var(--amber);border:1px solid var(--amber);border-radius:4px;padding:.1rem .4rem;margin-top:.4rem}
+.witness-box{margin:2rem 0;padding:1.6rem;border-left:3px solid var(--ink);background:var(--g2);border-radius:0 var(--radius) var(--radius) 0}
+.witness-box .stat{font-family:'Inter',sans-serif;font-weight:700;font-size:clamp(.9rem,2.5vw,1.1rem);color:var(--ink);letter-spacing:-.01em}
+.witness-box .exp{font-size:.64rem;color:#8890a0;margin-top:.5rem;line-height:1.6}
+.sandbox-note{margin:1.5rem 0;padding:1.2rem;border:1px solid var(--amber);border-radius:var(--radius);background:var(--g2);font-size:.68rem;color:var(--amber);line-height:1.5}
+.sandbox-note b{color:var(--paper)}
+.invariant-box{margin:2rem 0;padding:1.6rem;border-left:3px solid var(--ink);background:var(--g2);border-radius:0 var(--radius) var(--radius) 0}
+.invariant-box .stat{font-family:'Inter',sans-serif;font-weight:700;font-size:clamp(.9rem,2.5vw,1.1rem);color:var(--ink);letter-spacing:-.01em}
+.invariant-box .exp{font-size:.64rem;color:#8890a0;margin-top:.5rem;line-height:1.6}
+.badge{position:fixed;bottom:16px;right:16px;z-index:99999;width:56px;height:56px;border:1px solid var(--ink);border-radius:8px;background:var(--void);padding:4px;cursor:pointer;transition:transform .25s,box-shadow .25s}
+.badge:hover{transform:scale(1.1);box-shadow:0 0 16px rgba(212,175,55,.4)}
+.badge img{width:100%;height:100%;border-radius:4px}
+footer{position:relative;z-index:1;padding:2.5rem 1.5rem;text-align:center;border-top:1px solid var(--g3);margin-top:3rem}
+footer .sig{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--ink);margin-bottom:.4rem;letter-spacing:.02em}
+footer .tag{font-size:.58rem;color:#8890a0}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="mesh"><canvas id="m"></canvas></div>
+<nav>
+  <a class="logo" href="https://myaelmendez.github.io">æ-Commerce<span>Sovereign Procurement</span></a>
+  <div class="links"><a href="#corrections">Corrections</a><a href="#statemachine">State</a><a href="#emoji">Capabilities</a><a href="#witness">Witness</a></div>
+</nav>
+
+<section class="hero">
+  <div class="hero-emoji">🛒</div>
+  <h1>æ-Commerce<span class="tag">Sovereign Intent-Driven Procurement</span></h1>
+  <p class="tagline">Human-governed procurement architecture. <b>Agents discover, compare, negotiate. Authority to purchase remains with the human principal.</b></p>
+  <div class="cmd">&gt;_æ://commerce</div>
+  <div class="inv">Many merchants · Many tools · One principal 🫵</div>
+</section>
+
+<section class="section" id="corrections">
+  <h2>Four Engineering Corrections<span class="tag">before standard</span></h2>
+  <p class="sub">Essential distinctions for a trustworthy implementation. These strengthen the sovereignty argument.</p>
+  <div class="corrections">
+    <div class="corr">
+      <div class="ci">🔌</div>
+      <h3>WebMCP ≠ MCP</h3>
+      <p>WebMCP exposes web capabilities to agents; a merchant-hosted remote MCP server is another pattern. Define an adapter contract rather than assuming every WebMCP endpoint accepts direct JSON-RPC calls.</p>
+    </div>
+    <div class="corr">
+      <div class="ci">🔐</div>
+      <h3>AndroidMCP ≠ Trusted Wallet</h3>
+      <p>Android Keystore, biometric authentication, payment credentials and native app handoffs each have different security properties. Biometrics gate a cryptographic operation; they do not prove a merchant received payment.</p>
+    </div>
+    <div class="corr">
+      <div class="ci">🚫</div>
+      <h3>HTML &lt;dialog&gt; ≠ Authorization Boundary</h3>
+      <p>An HTML dialog can be styled or imitated by page content. Consequential payments require a trusted native or payment-provider confirmation surface with a transaction-specific authorization challenge.</p>
+    </div>
+    <div class="corr">
+      <div class="ci">⚠️</div>
+      <h3>Structured Commerce ≠ No Manipulation</h3>
+      <p>Agents can still receive misleading prices, fake scarcity claims or malicious tool responses. Signed quotes, trustworthy merchant identities, total-price comparison, independent policy checks and auditable consent are still needed.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="statemachine">
+  <h2>Procurement Lifecycle State Machine<span class="tag">observable · reversible</span></h2>
+  <p class="sub">Every transition is observable, reversible where possible, and subject to its own authorization rules. Payment requires an idempotency key — an agent must never silently retry a purchase after an uncertain result.</p>
+  <div class="statemachine">
+    <div class="sm-row"><span class="sm-state">DISCOVER</span><span class="sm-arrow">→</span><span class="sm-state">COMPARE</span><span class="sm-arrow">→</span><span class="sm-state">QUOTE</span></div>
+    <div class="sm-row"><span class="sm-state">CHECK CONSTRAINTS</span><span class="sm-arrow">→</span><span class="sm-state">HUMAN APPROVAL</span><span class="sm-arrow">→</span><span class="sm-state">PAYMENT COMMIT</span></div>
+    <div class="sm-row"><span class="sm-state">MERCHANT CONFIRM</span><span class="sm-arrow">→</span><span class="sm-state">WITNESS RECEIPT</span><span class="sm-arrow">→</span><span class="sm-state">RETURN / SUPPORT ↺</span></div>
+    <div class="sm-note">Quote expired? → Re-quote and re-authorize. No silent retries on uncertain payment results.</div>
+  </div>
+  <div class="recursive-flow">
+    <span class="rf-node">æQR(ROOT: Buyer)</span><span class="rf-arrow">→</span>
+    <span class="rf-node">æQR(CHILD: æPICO Commerce)</span><span class="rf-arrow">→</span>
+    <span class="rf-node">æQR(CAPABILITY: Merchant Procurement)</span>
+  </div>
+  <p style="font-size:.62rem;color:#8890a0;margin-top:.8rem">A merchant can publish its own capabilities, but it cannot inherit the buyer's identity, payment authority or private context.</p>
+</section>
+
+<section class="section" id="emoji">
+  <h2>Emoji Capability Slots<span class="tag">installed vs proposed</span></h2>
+  <p class="sub">Each emoji is a discoverable capability in the æPICO viewport. Shopify and Stripe are confirmed installed; others are proposed capability slots pending verification.</p>
+  <div class="emoji-grid">
+    <div class="emoji-card"><div class="ei">🔍</div><h3>Discovery</h3><div class="role">Find best matching product</div></div>
+    <div class="emoji-card"><div class="ei">🛒</div><h3>Procurement</h3><div class="role">Compare offers, prepare purchase</div></div>
+    <div class="emoji-card"><div class="ei">🏁</div><h3>Mobility</h3><div class="role">Parts, services, experiences</div></div>
+    <div class="emoji-card"><div class="ei">🍕</div><h3>Food</h3><div class="role">Find and order pizza</div></div>
+    <div class="emoji-card"><div class="ei">🌮</div><h3>Local Food</h3><div class="role">Compare nearby meals</div></div>
+    <div class="emoji-card"><div class="ei">☕</div><h3>Coffee</h3><div class="role">Find café or reorder</div></div>
+    <div class="emoji-card"><div class="ei">🍼</div><h3>Family</h3><div class="role">Recurring household supplies</div></div>
+    <div class="emoji-card"><div class="ei">🧾</div><h3>Witness</h3><div class="role">Save evidence, manage returns</div></div>
+    <div class="emoji-card"><div class="ei">🔐</div><h3>Private Client</h3><div class="role">Identity, consent, authorization</div></div>
+    <div class="emoji-card"><div class="ei">🏢</div><h3>Business</h3><div class="role">One-person merchant</div></div>
+    <div class="emoji-card"><div class="ei">🏪</div><h3>Shopify</h3><div class="role">Products, inventory, orders</div><span class="confirmed">INSTALLED</span></div>
+    <div class="emoji-card"><div class="ei">💳</div><h3>Stripe</h3><div class="role">Payments, invoices, refunds</div><span class="confirmed">INSTALLED</span></div>
+  </div>
+</section>
+
+<section class="section" id="witness">
+  <h2>Witness Receipt<span class="tag">buyer-owned · verifiable</span></h2>
+  <p class="sub">A Witness receipt records the order reference, merchant identity, authorized amount, payment status, item and policy references, and verification evidence. It must not place full addresses, payment credentials or private purchase histories into a public repository.</p>
+  <div class="witness-box">
+    <div class="stat">The receipt becomes a reusable service reference.</div>
+    <div class="exp">The merchant becomes an interoperable capability provider. The buyer remains the principal. The receipt is locally exportable and SHA-256 verifiable.</div>
+  </div>
+  <div class="sandbox-note"><b>First proof:</b> a sandboxed jacket purchase with two mock merchants, live-style inventory and quote responses, a trusted simulated approval step, and a locally exportable Witness receipt. <b>No real payments, accounts or addresses.</b></div>
+</section>
+
+<section class="section">
+  <div class="invariant-box">
+    <div class="stat">The buyer can bring their own agent, constraints, and transaction history to competing merchants.</div>
+    <div class="exp">The most important economic implication is not the disappearance of marketplaces. It is that the buyer is no longer required to adopt each merchant's interface.</div>
+  </div>
+</section>
+
+<footer>
+  <div class="sig">$æ · #OSW · æQR³ · æ = agentic_environments</div>
+  <div class="tag">Discover capabilities · Preserve authority · Verify exchange · MYaelMendez © 2026</div>
+</footer>
+
+<a class="badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Faecommerce.html" title="æ:// Verify">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=112x112&color=D4AF37&bgcolor=050505&data=https%3A%2F%2Fmyaelmendez.github.io%2Fverify.html%3Furl%3Dhttps%253A%252F%252Fmyaelmendez.github.io%252Faipodcast_me%252Faecommerce.html" alt="æQR">
+</a>
+
+<script>
+(function(){var c=document.getElementById('m'),x=c.getContext('2d'),w,h,t=0;
+function rs(){w=c.width=innerWidth;h=c.height=innerHeight}addEventListener('resize',rs);rs();
+var N=28,pts=[];for(var i=0;i<N;i++)pts.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2});
+function dr(){t+=.002;x.clearRect(0,0,w,h);
+for(var i=0;i<N;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;x.fillStyle='rgba(212,175,55,.35)';x.beginPath();x.arc(p.x,p.y,1.5,0,7);x.fill()}
+for(var i=0;i<N;i++)for(var j=i+1;j<N;j++){var a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<140){x.strokeStyle='rgba(212,175,55,'+((1-d/140)*.11)+')';x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}}
+requestAnimationFrame(dr)}dr()})();
+var obs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:.15});
+document.querySelectorAll('.section').forEach(function(s){obs.observe(s)});
+</script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>æ1 · OpenSourceWare Edition 01</title>
+<meta name="description" content="æ1 — the open, human-orchestrated agentic environment. A white-label design system. Inspired by restraint; not an official OpenAI design system or endorsement.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#000000;--ink:#FFFFFF;
+  --g1:#0a0a0a;--g2:#161616;--g3:#242424;--g4:#3a3a3a;--g5:#6e6e6e;--g6:#a0a0a0;--g7:#d6d6d6;
+  --gold:#D4AF37;--blue:#4A90D9;--green:#34C759;--orange:#F97316;
+  --radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--void);color:var(--ink);font-family:'Inter',system-ui,sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:99998;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,.014) 2px,rgba(255,255,255,.014) 4px)}
+.mesh{position:fixed;inset:0;z-index:0;opacity:.07}
+.mesh canvas{width:100%;height:100%}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(0,0,0,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--g2);display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.4rem}
+nav .logo{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:1.1rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em}
+nav .logo span{font-size:.55rem;opacity:.4;display:block;line-height:1;letter-spacing:.06em;text-transform:uppercase}
+nav .links{display:flex;gap:1.2rem;align-items:center}
+nav .links a{color:var(--g5);text-decoration:none;font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;transition:color .2s;font-weight:500}
+nav .links a:hover{color:var(--ink)}
+.hero{position:relative;z-index:1;min-height:92vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5.5rem 1.5rem 3rem;text-align:center}
+.hero-emoji{font-size:4rem;margin-bottom:1.2rem;animation:bob 3.5s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.hero h1{font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(2.4rem,6vw,4.2rem);color:var(--ink);letter-spacing:-.03em;margin-bottom:.6rem;line-height:1}
+.hero h1 .edition{font-size:.28em;font-weight:500;color:var(--g5);display:block;margin-top:.5rem;letter-spacing:.1em;text-transform:uppercase}
+.hero .tagline{font-size:clamp(.85rem,2vw,1.05rem);color:var(--g5);max-width:500px;margin-bottom:2rem;line-height:1.6;font-weight:400}
+.hero .tagline b{color:var(--g7);font-weight:600}
+.hero .cmd{font-family:'JetBrains Mono',monospace;font-size:clamp(.62rem,1.6vw,.78rem);color:var(--gold);background:var(--g1);border:1px solid var(--g2);border-radius:8px;padding:.6rem 1.4rem;margin-bottom:2rem}
+.hero .principles{display:flex;gap:1.6rem;flex-wrap:wrap;justify-content:center}
+.hero .principle{font-size:.62rem;color:var(--g5);letter-spacing:.06em;text-transform:uppercase;font-weight:500}
+.hero .principle::before{content:'● ';color:var(--gold)}
+.section{position:relative;z-index:1;padding:3rem 1.5rem;max-width:940px;margin:0 auto}
+.section h2{font-family:'Inter',sans-serif;font-weight:700;font-size:1.3rem;color:var(--ink);margin-bottom:.4rem;letter-spacing:-.01em}
+.section h2 .layer{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--gold);display:block;margin-bottom:.3rem;letter-spacing:.12em;text-transform:uppercase;font-weight:500}
+.section .sub{font-size:.75rem;color:var(--g5);margin-bottom:1.8rem;line-height:1.55;max-width:640px}
+.section .sub b{color:var(--g7);font-weight:600}
+/* Layer 1 — foundation tokens */
+.tokens{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
+.token-card{border:1px solid var(--g2);border-radius:var(--radius);padding:1.2rem;background:var(--g1)}
+.token-card h3{font-size:.7rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--g6);margin-bottom:.8rem}
+.ramp{display:flex;gap:.35rem;margin-bottom:.9rem}
+.ramp span{flex:1;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.06)}
+.type-scale{display:flex;flex-direction:column;gap:.5rem}
+.type-scale .t1{font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
+.type-scale .t2{font-size:1rem;font-weight:600}
+.type-scale .t3{font-size:.75rem;color:var(--g5)}
+.type-scale .t4{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--gold)}
+.chrome-demo{display:flex;flex-direction:column;gap:.5rem}
+.chrome-demo button{background:var(--ink);color:var(--void);border:none;border-radius:6px;padding:.5rem;font-size:.65rem;font-weight:600;cursor:pointer}
+.chrome-demo button.ghost{background:transparent;color:var(--g6);border:1px solid var(--g3)}
+/* Layer 2 — providers */
+.providers{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1rem}
+.provider{border-radius:var(--radius);padding:1.4rem;border:1px solid;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
+.provider:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.55)}
+.provider::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.p-openai{background:#0a0a0a;border-color:#333}.p-openai::before{background:linear-gradient(90deg,#000 0%,#fff 100%)}
+.p-github{background:#0d1117;border-color:#30363d}.p-github::before{background:var(--green)}
+.p-google{background:#0a0a0a;border-color:#333}.p-google::before{background:linear-gradient(90deg,#4285F4,#EA4335,#FBBC05,#34A853)}
+.provider .pi{font-size:1.9rem;margin-bottom:.4rem}
+.provider h3{font-family:'Inter',sans-serif;font-weight:700;font-size:.85rem;margin-bottom:.2rem}
+.provider .role{font-size:.58rem;color:var(--g5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem}
+.provider p{font-size:.64rem;color:var(--g5);line-height:1.5}
+.provider .attr{margin-top:.8rem;font-size:.55rem;color:var(--g6);font-style:italic}
+/* Layer 3 — owners */
+.owners{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8rem}
+.owner{border-radius:var(--radius);padding:1.2rem;border:1px solid var(--g2);background:var(--g1);transition:transform .25s,box-shadow .25s}
+.owner:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.45)}
+.owner .oi{font-size:1.7rem;margin-bottom:.3rem}
+.owner h3{font-family:'Inter',sans-serif;font-weight:600;font-size:.75rem;margin-bottom:.15rem}
+.owner p{font-size:.6rem;color:var(--g5);line-height:1.4}
+.owner .swatches{display:flex;gap:.3rem;margin-top:.6rem}
+.owner .swatches span{width:18px;height:18px;border-radius:4px;border:1px solid rgba(255,255,255,.1)}
+/* Models */
+.models{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem}
+.model{border-radius:var(--radius);padding:1.4rem;border:1px solid var(--g2);background:var(--g1);transition:transform .25s,box-shadow .25s}
+.model:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.55)}
+.model .mi{font-size:2rem;margin-bottom:.4rem}
+.model h3{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:.85rem;margin-bottom:.15rem}
+.model .tier{font-size:.55rem;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.8rem}
+.model .specs{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.9rem}
+.model .spec{display:flex;justify-content:space-between;font-size:.62rem}
+.model .spec .k{color:var(--g5)}
+.model .spec .v{color:var(--ink);font-weight:500}
+.model .adapter{font-size:.55rem;color:var(--g6);padding:.45rem .6rem;background:var(--g2);border-radius:6px;text-align:center;font-family:'JetBrains Mono',monospace}
+.note{margin-top:1.2rem;font-size:.62rem;color:var(--g5);line-height:1.6;border-left:2px solid var(--gold);padding-left:.9rem;max-width:640px}
+/* Pipeline */
+.pipeline{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.4rem;padding:1.2rem 0}
+.pipe-node{padding:.8rem 1.1rem;border:1px solid var(--g2);border-radius:8px;font-size:.62rem;color:var(--ink);background:var(--g1);text-align:center;min-width:110px}
+.pipe-node .pi{font-size:1.3rem;display:block;margin-bottom:.25rem}
+.pipe-arr{font-size:1.1rem;color:var(--g4);animation:parr 1.5s ease-in-out infinite}
+.pipe-arr.loop{color:var(--green)}
+@keyframes parr{0%,100%{opacity:.3;transform:translateX(0)}50%{opacity:1;transform:translateX(4px)}}
+/* White-label flow */
+.wl-flow{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.5rem;padding:1rem 0 1.6rem}
+.wl-node{padding:.6rem 1rem;border:1px solid var(--g3);border-radius:8px;font-size:.65rem;color:var(--ink);font-weight:500;background:var(--g1);font-family:'JetBrains Mono',monospace}
+.wl-node.active{border-color:var(--gold);background:var(--gold);color:var(--void);font-weight:700}
+.wl-arr{font-size:1rem;color:var(--g4)}
+footer{position:relative;z-index:1;padding:2.5rem 1.5rem;text-align:center;border-top:1px solid var(--g2)}
+footer .sig{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--gold);margin-bottom:.4rem}
+footer .tag{font-size:.6rem;color:var(--g6)}
+footer .links{margin-top:1rem;display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap}
+footer .links a{color:var(--g5);text-decoration:none;font-size:.6rem;letter-spacing:.04em;text-transform:uppercase;transition:color .2s}
+footer .links a:hover{color:var(--ink)}
+.badge{position:fixed;bottom:16px;right:16px;z-index:99999;width:56px;height:56px;border:1px solid var(--gold);border-radius:8px;background:var(--void);padding:4px;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.badge:hover{transform:scale(1.1);box-shadow:0 0 16px rgba(212,175,55,.4)}
+.badge img{width:100%;height:100%;border-radius:4px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="mesh"><canvas id="m"></canvas></div>
+<nav>
+  <a class="logo" href="https://myaelmendez.github.io">æ1<span>OpenSourceWare · Edition 01</span></a>
+  <div class="links"><a href="#foundation">Foundation</a><a href="#providers">Providers</a><a href="#owners">Owners</a><a href="#models">Models</a><a href="#slice">Slice</a></div>
+</nav>
+
+<section class="hero">
+  <div class="hero-emoji">🫵</div>
+  <h1>æ1<span class="edition">OpenSourceWare · Edition 01</span></h1>
+  <p class="tagline"><b>One human. Many capabilities.</b><br>The open, human-orchestrated agentic environment.</p>
+  <div class="cmd">&gt;_æ:// · Discover · Connect · Orchestrate · Publish</div>
+  <div class="principles">
+    <span class="principle">Open by default</span>
+    <span class="principle">Human orchestrated</span>
+    <span class="principle">Accessible at scale</span>
+  </div>
+</section>
+
+<section class="section" id="foundation">
+  <h2><span class="layer">Layer 1 · Neutral foundation</span>Black, white, grayscale</h2>
+  <p class="sub">The starting point is <b>restraint</b> — accessible typography, a grayscale ramp, and minimal interface chrome. No branded clutter. æ1 is our design system, inspired by the restraint of OpenAI's visual language — <b>not an official OpenAI design system or endorsement</b>.</p>
+  <div class="tokens">
+    <div class="token-card">
+      <h3>Grayscale ramp</h3>
+      <div class="ramp">
+        <span style="background:#000"></span><span style="background:#161616"></span>
+        <span style="background:#242424"></span><span style="background:#3a3a3a"></span>
+        <span style="background:#6e6e6e"></span><span style="background:#a0a0a0"></span>
+        <span style="background:#d6d6d6"></span><span style="background:#fff"></span>
+      </div>
+      <div class="type-scale">
+        <span class="t4">--void / --g1…--g7 / --ink</span>
+      </div>
+    </div>
+    <div class="token-card">
+      <h3>Typography</h3>
+      <div class="type-scale">
+        <span class="t1">Display · Inter 800</span>
+        <span class="t2">Heading · Inter 600</span>
+        <span class="t3">Body · Inter 400</span>
+        <span class="t4">Mono · JetBrains Mono</span>
+      </div>
+    </div>
+    <div class="token-card">
+      <h3>Minimal chrome</h3>
+      <div class="chrome-demo">
+        <button type="button">Primary action</button>
+        <button type="button" class="ghost">Secondary</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="providers">
+  <h2><span class="layer">Layer 2 · Provider identity</span>Each service keeps its own</h2>
+  <p class="sub">Connected providers retain their own properly attributed identity. This lets the environment identify <b>which provider supplies each capability</b> — without implying that any provider endorses æ1.</p>
+  <div class="providers">
+    <div class="provider p-openai">
+      <div class="pi">⚫</div>
+      <h3>OpenAI</h3>
+      <div class="role">Intelligence</div>
+      <p>gpt-oss open-weight models under Apache 2.0 — tool use, configurable reasoning effort, self-managed deployment.</p>
+      <div class="attr">Black &amp; white · official logo unchanged</div>
+    </div>
+    <div class="provider p-github">
+      <div class="pi">🐙</div>
+      <h3>GitHub</h3>
+      <div class="role">Source &amp; Distribution</div>
+      <p>The repository is the durable computer. Fork, own, publish — with GitHub's own published palette and green accents.</p>
+      <div class="attr">Green accents · own published palette</div>
+    </div>
+    <div class="provider p-google">
+      <div class="pi">🔍</div>
+      <h3>Google</h3>
+      <div class="role">Search &amp; Services</div>
+      <p>Connected services keep their own identity. The provider of each capability stays identifiable at a glance.</p>
+      <div class="attr">Four-colour identity · properly attributed</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="owners">
+  <h2><span class="layer">Layer 3 · Owner identity</span>Fork it. Make it yours.</h2>
+  <p class="sub">Anyone who forks #OSW applies their own organisation's colours, domain, capabilities, and emoji vocabulary. White-labeling is a first-class capability, not a redesign.</p>
+  <div class="wl-flow">
+    <span class="wl-node active">æ1</span><span class="wl-arr">→</span>
+    <span class="wl-node">FORK</span><span class="wl-arr">→</span>
+    <span class="wl-node">THEME</span><span class="wl-arr">→</span>
+    <span class="wl-node">CONNECT</span><span class="wl-arr">→</span>
+    <span class="wl-node">PUBLISH</span>
+  </div>
+  <div class="owners">
+    <div class="owner"><div class="oi">🏢</div><h3>Enterprise</h3><p>Corporate colours, domain, capabilities</p><div class="swatches"><span style="background:#1a1a2e"></span><span style="background:#16213e"></span><span style="background:#0f3460"></span><span style="background:#e94560"></span></div></div>
+    <div class="owner"><div class="oi">🌱</div><h3>Community</h3><p>Open source, shared governance</p><div class="swatches"><span style="background:#2d6a4f"></span><span style="background:#40916c"></span><span style="background:#52b788"></span><span style="background:#74c69d"></span></div></div>
+    <div class="owner"><div class="oi">🏛️</div><h3>Municipality</h3><p>Civic services, public accountability</p><div class="swatches"><span style="background:#003049"></span><span style="background:#d62828"></span><span style="background:#f77f00"></span><span style="background:#fcbf49"></span></div></div>
+    <div class="owner"><div class="oi">🎓</div><h3>Education</h3><p>Learning environments, accessible</p><div class="swatches"><span style="background:#001219"></span><span style="background:#0a9396"></span><span style="background:#94d2bd"></span><span style="background:#e9d8a6"></span></div></div>
+  </div>
+</section>
+
+<section class="section" id="models">
+  <h2>Model independence</h2>
+  <p class="sub"><b>gpt-oss supplies intelligence. æ1 supplies the environment</b> in which that intelligence is discovered, authorized, orchestrated, and put to work. One model adapter — many providers, no lock-in.</p>
+  <div class="models">
+    <div class="model">
+      <div class="mi">🧠</div>
+      <h3>gpt-oss-20b</h3>
+      <div class="tier">Accessible entry · local / edge</div>
+      <div class="specs">
+        <div class="spec"><span class="k">Memory target</span><span class="v">~16 GB</span></div>
+        <div class="spec"><span class="k">Use case</span><span class="v">Personal agents</span></div>
+        <div class="spec"><span class="k">License</span><span class="v">Apache 2.0</span></div>
+      </div>
+      <div class="adapter">Ollama-compatible adapter</div>
+    </div>
+    <div class="model">
+      <div class="mi">🧠</div>
+      <h3>gpt-oss-120b</h3>
+      <div class="tier">Higher capacity · server / hosted</div>
+      <div class="specs">
+        <div class="spec"><span class="k">Memory target</span><span class="v">~80 GB</span></div>
+        <div class="spec"><span class="k">Use case</span><span class="v">Complex reasoning</span></div>
+        <div class="spec"><span class="k">License</span><span class="v">Apache 2.0</span></div>
+      </div>
+      <div class="adapter">Separately configured endpoint</div>
+    </div>
+  </div>
+  <p class="note">Hardware figures reflect OpenAI's documented deployment targets, not a guarantee for every runtime or device. gpt-oss is <b>open-weight, not the entire OpenAI stack</b>, and is not available directly through ChatGPT or the OpenAI API. æ1 is an independent #OSW project; attribution and licensing are handled accordingly.</p>
+</section>
+
+<section class="section" id="slice">
+  <h2>The next engineering milestone</h2>
+  <p class="sub">A working vertical slice: human command → model inference → authorized tool call → verifiable receipt → published result. The phone can be the interface while inference runs on an authorized local machine or server.</p>
+  <div class="pipeline">
+    <div class="pipe-node"><span class="pi">🫵</span>Human command</div><span class="pipe-arr">→</span>
+    <div class="pipe-node"><span class="pi">🧠</span>Model inference</div><span class="pipe-arr">→</span>
+    <div class="pipe-node"><span class="pi">🧮</span>Authorized tool</div><span class="pipe-arr">→</span>
+    <div class="pipe-node"><span class="pi">🧾</span>Witness receipt</div><span class="pipe-arr">→</span>
+    <div class="pipe-node"><span class="pi">📦</span>Published result</div><span class="pipe-arr loop">↺</span>
+  </div>
+</section>
+
+<footer>
+  <div class="sig">#OSW · æ = agentic_environments</div>
+  <div class="tag">Open by default · Human orchestrated · Accessible at scale</div>
+  <div class="links">
+    <a href="https://openai.com/open-models/">OpenAI Open Models</a>
+    <a href="https://github.com/openai/gpt-oss">gpt-oss GitHub</a>
+    <a href="https://openai.com/brand/">OpenAI Brand Guidelines</a>
+  </div>
+</footer>
+
+<a class="badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Fae1.html" title="æ:// Verify">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=112x112&color=D4AF37&bgcolor=050505&data=https%3A%2F%2Fmyaelmendez.github.io%2Fverify.html%3Furl%3Dhttps%253A%252F%252Fmyaelmendez.github.io%252Faipodcast_me%252Fae1.html" alt="æQR">
+</a>
+
+<script>
+(function(){var c=document.getElementById('m'),x=c.getContext('2d'),w,h,t=0;
+function rs(){w=c.width=innerWidth;h=c.height=innerHeight}addEventListener('resize',rs);rs();
+var N=30,pts=[];for(var i=0;i<N;i++)pts.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25});
+function dr(){t+=.003;x.clearRect(0,0,w,h);
+for(var i=0;i<N;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;x.fillStyle='rgba(255,255,255,.4)';x.beginPath();x.arc(p.x,p.y,1.5,0,7);x.fill()}
+for(var i=0;i<N;i++)for(var j=i+1;j<N;j++){var a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<130){x.strokeStyle='rgba(255,255,255,'+((1-d/130)*.09)+')';x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}}
+requestAnimationFrame(dr)}dr()})();
+</script>
+</body>
+</html>
