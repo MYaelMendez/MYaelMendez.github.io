@@ -527,6 +527,12 @@ window.applyHlEnv = function(env){
     <button data-cmd="sinov" data-action="sleep" class="c2-btn" style="background:#0a1a2a;border:1px solid #a78bfa44;color:#a78bfa;padding:4px 8px;font-size:8px;cursor:pointer">sleep</button>
     <button data-cmd="sinov" data-action="lost" class="c2-btn" style="background:#0a1a2a;border:1px solid #ffcf5c44;color:#ffcf5c;padding:4px 8px;font-size:8px;cursor:pointer">lost</button>
   </div>
+  <div style="font-size:8px;letter-spacing:.14em;color:#5a7a8a;margin:8px 0 4px">THINK · word cloud</div>
+  <div style="display:flex;gap:4px;margin-bottom:4px">
+    <button id="c2-think" style="flex:1;background:#0a1a2a;border:1px solid #6fd0ff44;color:#6fd0ff;padding:4px 8px;font-size:8px;cursor:pointer">💭 think</button>
+    <button id="c2-dom-scan" style="flex:1;background:#0a1a2a;border:1px solid #3ee08f44;color:#3ee08f;padding:4px 8px;font-size:8px;cursor:pointer">👁 dom scan</button>
+  </div>
+  <div id="think-cloud" style="background:rgba(10,15,25,.9);border:1px solid #6fd0ff33;border-radius:2px;padding:8px;min-height:60px;font-size:9px;line-height:1.5;color:#c8d8e8;word-wrap:break-word"></div>
   <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
     <button data-cmd="light" data-action="gold" class="c2-btn" style="background:#0a1a2a;border:1px solid #ffe6a344;color:#ffe6a3;padding:4px 8px;font-size:8px;cursor:pointer">light:gold</button>
     <button data-cmd="light" data-action="cyan" class="c2-btn" style="background:#0a1a2a;border:1px solid #6fd0ff44;color:#6fd0ff;padding:4px 8px;font-size:8px;cursor:pointer">light:cyan</button>
@@ -733,6 +739,76 @@ var _et=document.getElementById('env-toggle');if(_et)_et.addEventListener('click
     statusEl.textContent = '✓ voice sent';
   });
 
+  // ── æsinov THINK + DOM awareness ──
+  const thinkEl = document.getElementById('think-cloud');
+  const domScanBtn = document.getElementById('c2-dom-scan');
+  const thinkBtn = document.getElementById('c2-think');
+  let domAware = false;
+  let mutationObserver = null;
+
+  const THINK_TEMPLATES = [
+    'reading your words...', 'checking spelling, tone, rules...',
+    'a human held it', 'nothing leaves without you',
+    'no human signed in', "I don't have a door for that",
+    'I watch the door', 'processing sovereign state...',
+    'the face shows, it never decides', 'human stays root'
+  ];
+
+  function renderThinkCloud(words){
+    if(!thinkEl) return;
+    const cloud = words.length ? words : THINK_TEMPLATES.slice(0, 5);
+    const maxLen = Math.max(...cloud.map(w => w.length));
+    thinkEl.innerHTML = cloud.map(w => {
+      const size = 8 + Math.round((w.length / maxLen) * 6);
+      const color = (w === 'think' || w === 'checking') ? '#6fd0ff'
+                  : (w === 'ok' || w === 'ready') ? '#3ee08f'
+                  : (w === 'stop' || w === 'lost') ? '#ff6b6b' : '#c8d8e8';
+      return '<span style="display:inline-block;margin:2px 4px;font-size:' + size + 'px;color:' + color + ';font-weight:' + (size > 11 ? 700 : 400) + '">' + w + '</span>';
+    }).join(' ');
+  }
+
+  function extractDOMWords(){
+    const text = document.body.innerText || '';
+    const stop = new Set(['the','a','an','and','or','but','if','then','else','for','with','this','that','from','into','your','you','are','was','were','been','have','has','had','will','would','could','should','may','might','must','can','do','does','did','not','no','yes','so','as','at','by','in','on','of','to','is','it','its','be','my','me','we','our','they','them','he','she','his','her','their','i']);
+    return text.toLowerCase().replace(/[^a-z\s]/g,' ').split(/\s+/)
+      .filter(w => w.length > 3 && !stop.has(w))
+      .slice(0, 20);
+  }
+
+  function scanDOM(){
+    const words = extractDOMWords();
+    renderThinkCloud(words);
+    logC2('DOM scan: ' + words.length + ' words extracted');
+    if(domScanBtn) domScanBtn.textContent = '👁 dom (' + words.length + ')';
+  }
+
+  function toggleDOMAware(){
+    domAware = !domAware;
+    if(mutationObserver){ mutationObserver.disconnect(); mutationObserver = null; }
+    if(domAware){
+      mutationObserver = new MutationObserver(() => { if(domAware) scanDOM(); });
+      mutationObserver.observe(document.body, {childList:true, subtree:true, characterData:true});
+      logC2('DOM awareness ON — MutationObserver active');
+      if(domScanBtn) domScanBtn.style.borderColor = '#3ee08f';
+    } else {
+      logC2('DOM awareness OFF');
+      if(domScanBtn) domScanBtn.style.borderColor = '#3ee08f44';
+    }
+  }
+
+  if(thinkBtn) thinkBtn.addEventListener('click', () => {
+    const words = extractDOMWords();
+    const mixed = [...new Set([...THINK_TEMPLATES.slice(0, 3), ...words.slice(0, 7)])];
+    renderThinkCloud(mixed);
+    statusEl.textContent = 'thinking...';
+    c2Speak('Pensando. Leyendo la página.');
+    executeCommand({id:'ui_think_' + Date.now(), cmd: 'sinov', action: 'think', label: 'think'});
+    statusEl.textContent = '✓ think cloud rendered';
+  });
+
+  if(domScanBtn) domScanBtn.addEventListener('click', toggleDOMAware);
+  renderThinkCloud([]);
+  logC2('æsinov THINK + DOM awareness ready');
 })();
 </script>
 
