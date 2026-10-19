@@ -744,6 +744,7 @@ var _et=document.getElementById('env-toggle');if(_et)_et.addEventListener('click
   const domScanBtn = document.getElementById('c2-dom-scan');
   const thinkBtn = document.getElementById('c2-think');
   let domAware = false;
+  let lastDispatch = 0;  // DOM event throttle
   let mutationObserver = null;
 
   const THINK_TEMPLATES = [
@@ -782,11 +783,36 @@ var _et=document.getElementById('env-toggle');if(_et)_et.addEventListener('click
     if(domScanBtn) domScanBtn.textContent = '👁 dom (' + words.length + ')';
   }
 
+  // DOM mutation → æsinov reaction bridge. Debounced 2s so a burst of
+  // mutations fires ONE reaction, and every reaction writes a receipt
+  // (executeCommand already does) so DOM awareness is auditable, not just visual.
+  function dispatchDOMEvent(type, detail){
+    const now = performance.now();
+    if(now - lastDispatch < 2000) return;
+    lastDispatch = now;
+    const SINOV_MAP = {think:'think', ok:'ok', check:'checking'};
+    const action = SINOV_MAP[type] || 'checking';
+    logC2('DOM event: ' + type + ' → sinov:' + action);
+    executeCommand({id:'dom_' + type + '_' + Date.now(), cmd:'sinov', action:action, label:'DOM:' + type});
+    scanDOM();
+  }
+
   function toggleDOMAware(){
     domAware = !domAware;
     if(mutationObserver){ mutationObserver.disconnect(); mutationObserver = null; }
     if(domAware){
-      mutationObserver = new MutationObserver(() => { if(domAware) scanDOM(); });
+      mutationObserver = new MutationObserver((mutations) => {
+        if(!domAware) return;
+        for(const m of mutations){
+          if(m.type === 'characterData' && m.target && m.target.nodeType === 3 && m.target.data.trim()){
+            dispatchDOMEvent('think', {word:m.target.data.trim().slice(0,40)}); break;
+          } else if(m.addedNodes && m.addedNodes.length && m.addedNodes[0].nodeType === 1){
+            dispatchDOMEvent('ok', {tag:m.addedNodes[0].nodeName.toLowerCase()}); break;
+          } else if(m.removedNodes && m.removedNodes.length && m.removedNodes[0].nodeType === 1){
+            dispatchDOMEvent('check', {tag:m.removedNodes[0].nodeName.toLowerCase()}); break;
+          }
+        }
+      });
       mutationObserver.observe(document.body, {childList:true, subtree:true, characterData:true});
       logC2('DOM awareness ON — MutationObserver active');
       if(domScanBtn) domScanBtn.style.borderColor = '#3ee08f';
