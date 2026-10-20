@@ -27,6 +27,23 @@ The pattern is **Widget → Drawer → Carousel → Environment → Loft → Tow
 - `æ → æ(æ) → æ(æ(æ)) → …` is conceptual recursion, not an infinite runtime or a permission chain.
 - Address layers are descriptive references only. **Context may propagate; authority does not.**
 
+## Foundational dependency: models → agents → viewport code → widgets
+
+**Creator's clarification, 2026-10-20:** "The mixture of widgets is only possible today after mixture of models, agents and viewport code."
+
+For this architecture, **Mixture of Widgets is the interface-level synthesis of model composition, agent coordination and executable viewport composition**—not a collection of decorative dashboard cards. Preserve this lineage when implementing or describing MoW.
+
+1. **Mixture of Models (MoM):** independently selected model capabilities, each with explicit inputs, outputs and provenance. Here this means composing model services, not asserting a particular model's internal mixture-of-experts architecture.
+2. **Mixture of Agents (MoA):** task-oriented participants coordinate capabilities through defined responsibilities, bounded context, permissions and completion checks. This is our architectural usage, not a claim to implement a particular published multi-agent algorithm.
+3. **Viewport code composition (working shorthand: MoV):** independently operable interfaces render controls, state and interactions across full 9:16 scenes, drawers and nested surfaces. A viewport contains executable interface code, not merely a picture. MoV is a local working label, not an established external standard.
+4. **Mixture of Widgets (MoW):** these model- and agent-connected surfaces become heterogeneous, independently stateful, recursively composable units. Each can contain another mixture (MoMoW).
+
+**Architectural lineage:** `MoM → MoA → viewport code → MoW → MoMoW`, with feedback between layers. This describes the proposed system's enabling layers, not a universal historical claim that ordinary widgets or nested interfaces were previously impossible. It does not require every widget to invoke an LLM, nor establish that any particular integration is connected.
+
+A composed widget keeps **model bindings, agent responsibilities, viewport implementation, child composition, local state, provenance and authorization requirements** distinct. A visual container never grants a model, agent or child widget permission to act.
+
+**Design consequence:** carousel navigation exposes complete environments; drawers open their internal capabilities; recursive mixtures make the underlying models and agents usable through those environments. The intelligence, operations and interface are composed together under one human principal.
+
 ## Container and widget contract (proposal)
 
 ```ts
