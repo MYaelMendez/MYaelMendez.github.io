@@ -130,3 +130,25 @@ HUMAN://principal
 
 **Many agents. One principal.**  
 **Return value to the human. ❤️ Work here.**
+
+
+## $LæTæX
+
+$LæTæX is the agentic mathematical notation widget in YÆL × æ Studio.
+
+```text
+notation
+→ reasoning
+→ computation
+→ verification
+→ visualization
+→ bounded action
+→ witness
+→ ❤️ HUMAN://value
+```
+
+Canonical implementation: `MYaelMendez/Studio/docs/agentic-widgets/LAETEX.md`
+
+Discovery capability: `MYaelMendez/llm.store/capabilities/laetex/README.md`
+
+The origin layer documents and routes the widget; it does not duplicate the implementation. If it only renders math, it is LaTeX. If it understands, computes, verifies, acts, and returns evidence, it is $LæTæX.
