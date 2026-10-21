@@ -71,7 +71,62 @@ header{display:flex;align-items:center;gap:6px;padding:10px 8px;border-bottom:1p
 <div id="ticker"><span class="ref">Cargando...</span></div>
 <button class="cart-btn" onclick="openCart()" style="position:fixed;top:10px;right:10px;z-index:300;box-shadow:0 2px 8px rgba(0,0,0,.5)">🛒<span class="cart-badge" id="cartCount">0</span></button>
 <div id="qr" title="Verificar"><img alt="QR" src="qr.png"></div>
+<div id="plugins-section">
+  <div id="latex-widget"></div>
+  <div id="teologia-widget"></div>
+  <div id="aeqr-widget"></div>
+  <div id="canvas-widget"></div>
 </div>
+</div>
+<!-- Widget Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="plugins/latex/index.js"></script>
+<script src="plugins/teologia-ai/index.js"></script>
+<script src="plugins/aeqr-badge/index.js"></script>
+<script src="plugins/studio-canvas/index.js"></script>
+<script>
+// Initialize widgets
+setTimeout(() => {
+  // LaTeX Widget
+  ReactDOM.createRoot(document.getElementById('latex-widget')).render(
+    React.createElement(LæTæXWidget, { expression: '∫₀¹ x² dx' })
+  );
+  
+  // Teologia AI Widget
+  ReactDOM.createRoot(document.getElementById('teologia-widget')).render(
+    React.createElement(TeologiaWidget, { 
+      text: 'La justificación por la fe es el don de Dios...',
+      author: 'Luther',
+      year: 1517
+    })
+  );
+  
+  // æQR Badge Widget
+  ReactDOM.createRoot(document.getElementById('aeqr-widget')).render(
+    React.createElement(AeQrWidget, { data: 'æqr://gospel-bookstore/verify' })
+  );
+  
+  // Studio Canvas Widget
+  ReactDOM.createRoot(document.getElementById('canvas-widget')).render(
+    React.createElement(StudioCanvasWidget, { scene: 'gospel-stage' })
+  );
+}, 500);
+</script>
+<style>
+#plugins-section {
+  position: fixed;
+  bottom: 64px;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 99;
+}
+#latex-widget, #teologia-widget, #aeqr-widget, #canvas-widget {
+  min-width: 280px;
+}
+</style>
 <div class="overlay" id="cartOverlay" onclick="if(event.target===this)closeCart()">
   <div class="sheet">
     <h2>🛒 Tu Carrito</h2>
