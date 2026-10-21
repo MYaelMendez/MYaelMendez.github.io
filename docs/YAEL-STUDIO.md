@@ -18,6 +18,32 @@ The current ChatGPT conversation is the default working surface when the task ca
 - YÆL Plugin: `app://plugin_b608fd3fbe548191964ac63c347f2f0f`
 - Existing public Site: `https://yael-mendez.teologia-7508.chatgpt.site/`
 
+## Double sign-on action gate
+
+Engineering controls are **action widgets, not decoration**.
+
+An action widget is enabled only when both gates are satisfied:
+
+```text
+ChatGPT identity = authenticated
+AND
+GitHub connection = connected + authorized
+-------------------------------------------
+ACTION WIDGETS = enabled
+```
+
+If either gate is absent, the control remains locked and must show the missing requirement. No GitHub action may be presented as executable from visual state alone.
+
+This gate does **not** collapse later authority boundaries:
+
+```text
+identity ≠ authority
+repo access ≠ authority
+commit ≠ merge
+merge ≠ deploy
+deploy ≠ publish
+```
+
 ## Native GitHub
 
 GitHub is a first-class Studio capability, not a handoff.
