@@ -43,6 +43,7 @@ body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',ui-mon
 </style>
 </head>
 <body>
+<div class="origin-rail" style="position:relative;z-index:50;display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-items:center;padding:8px 12px;font:10px 'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;border-bottom:1px solid rgba(128,128,128,.20)"><span style="color:#D4AF37">æ:// ORIGIN</span><a href="./origin-spectrum.html" style="color:#D4AF37;text-decoration:none">⌂ origin</a><a href="./skill-guide/" style="color:#D4AF37;text-decoration:none">æ skills · 237</a><a href="./skill-guide/skill-graph.html" style="color:#D4AF37;text-decoration:none">◈ graph</a><a href="./capability-mesh.html" style="color:#D4AF37;text-decoration:none">▦ mesh</a></div>
 <div id="stage"></div>
 <div class="vig"></div>
 <div class="scan"></div>
@@ -65,6 +66,16 @@ body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',ui-mon
       <div class="row" style="justify-content:flex-end">
         <span class="badge gold" id="knb-receipts">2 receipts</span>
         <span class="badge" id="knb-debts">6 debts</span>
+      </div>
+    </div>
+    <div class="panel" style="text-align:center">
+      <div class="label">catalog · derived</div>
+      <div class="value" id="cat-status">—</div>
+      <div class="sub" id="cat-detail">surfaces · agents · videos</div>
+      <div class="row" style="justify-content:center">
+        <span class="badge gold" id="cat-surfaces">—</span>
+        <span class="badge cyan" id="cat-agents">—</span>
+        <span class="badge violet" id="cat-videos">—</span>
       </div>
     </div>
   </div>
@@ -206,6 +217,21 @@ function updateUI() {
   document.getElementById('mesh-status').textContent = (AGENTS.length + SURFACES.length) + ' nodes';
   document.getElementById('mesh-detail').textContent = AGENTS.map(a => a.id).join(' · ') + ' · ' + SURFACES.filter(s => !s.fixed).map(s => s.id).join(' · ');
 }
+// Catalog counts are DERIVED from qr_inventory.json — never hardcoded.
+// The mesh badges above count topology nodes; these count the real catalog.
+fetch('./qr_inventory.json')
+  .then(r => r.ok ? r.json() : null)
+  .then(d => {
+    const st = document.getElementById('cat-status');
+    if (!d) { st.textContent = 'OFFLINE'; return; }
+    st.textContent = 'LIVE';
+    document.getElementById('cat-surfaces').textContent = d.html_surfaces.length + ' surfaces';
+    document.getElementById('cat-agents').textContent = d.python_agents.length + ' agents';
+    document.getElementById('cat-videos').textContent = d.videos.length + ' videos';
+    document.getElementById('cat-detail').textContent = 'derived from qr_inventory.json';
+  })
+  .catch(() => { document.getElementById('cat-status').textContent = 'OFFLINE'; });
+
 const tooltip = document.getElementById('tooltip');
 renderer.domElement.addEventListener('mousemove', e => {
   const rect = renderer.domElement.getBoundingClientRect();

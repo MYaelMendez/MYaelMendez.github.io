@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>æææ · Origin of Agentic Environments · LIVE</title>
+<meta name="description" content="The root namespace of the æ ecosystem. Live surface: three.js scene, æC2 console, mood engine, kanban, and the authority axis.">
+<link rel="canonical" href="https://myaelmendez.github.io/ae-ecosystem.html">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#050505;--gold:#D4AF37;--gold-hi:#ffda83;--paper:#F5F0E1;
+  --neon:#00ff9d;--cyan:#70dcff;--purple:#b98cff;--red:#ff4d5f;--amber:#FFB347;
+  --muted:#6f6a5c;--line:rgba(212,175,55,.18);
+  --g1:#0a0a0a;--g2:#161616;--g3:#242424;--g4:#3a3a3a;--radius:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{min-height:100%;background:var(--void);color:var(--paper);font-family:'Inter',system-ui,sans-serif;overflow-x:hidden;line-height:1.5;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:99998;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(212,175,55,.008) 2px,rgba(212,175,55,.008) 4px)}
+.mesh{position:fixed;inset:0;z-index:0;opacity:.05}
+.mesh canvas{width:100%;height:100%}
+#stage{position:fixed;inset:0;z-index:0;pointer-events:none}
+#stage canvas{width:100%;height:100%;display:block}
+
+/* ── hermes-live C2 console ── */
+#c2-console{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;background:rgba(8,12,20,.95);border:1px solid rgba(112,220,255,.35);padding:16px;min-width:280px;display:none;box-shadow:0 0 40px rgba(0,0,0,.6)}
+#c2-console .hdr{font-size:10px;letter-spacing:.15em;color:#6fd0ff;margin-bottom:10px;user-select:none;touch-action:none;display:flex;justify-content:space-between;align-items:center}
+#c2-status{font-size:9px;color:#5a7a8a;margin-bottom:8px}
+.c2-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.c2-btn{background:#0a1a2a;border:1px solid rgba(0,255,157,.25);color:#00ff9d;padding:4px 8px;font-size:8px;cursor:pointer;font-family:'JetBrains Mono',monospace}
+.c2-btn:hover{background:#0a2a1a}
+#c2-close{background:transparent;border:1px solid rgba(255,77,95,.3);color:#ff4d5f;padding:2px 8px;font-size:9px;cursor:pointer}
+#c2-log{max-height:140px;overflow-y:auto;font-size:9px;color:#5a7a8a;line-height:1.6;white-space:pre-wrap;word-break:break-word;margin-top:8px;border-top:1px solid rgba(112,220,255,.15);padding-top:6px}
+#c2-log .ok{color:#00ff9d}
+#c2-toggle{position:fixed;bottom:20px;right:20px;z-index:1001;background:rgba(8,12,20,.85);border:1px solid #6fd0ff;color:#6fd0ff;padding:8px 12px;font:700 9px 'JetBrains Mono',monospace;letter-spacing:.14em;cursor:pointer;text-transform:uppercase}
+#c2-toggle:hover{background:rgba(112,220,255,.15)}
+.think-cloud{position:fixed;bottom:70px;right:20px;z-index:999;font:700 10px 'JetBrains Mono',monospace;color:#6fd0ff;opacity:0;transition:opacity .4s;pointer-events:none;text-align:right;letter-spacing:.1em}
+.think-cloud.show{opacity:.7}
+
+/* ── ae-ecosystem base (kept intact) ── */
+nav{position:relative;z-index:10;background:rgba(5,5,5,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--g2);display:flex;align-items:center;justify-content:space-between;padding:.55rem 1.2rem}
+nav .logo{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.95rem;color:var(--gold);text-decoration:none;letter-spacing:.05em}
+nav .logo span{color:var(--muted);font-weight:400;font-size:.75rem;margin-left:.4rem}
+nav .links{display:flex;gap:1.1rem}
+nav .links a{color:var(--muted);text-decoration:none;font-size:.72rem;letter-spacing:.08em;transition:color .2s}
+nav .links a:hover{color:var(--gold)}
+.hero{position:relative;z-index:2;text-align:center;padding:5rem 1.2rem 3rem}
+.hero-glyph{font-size:clamp(3rem,9vw,5.5rem);color:var(--gold);filter:drop-shadow(0 0 28px rgba(212,175,55,.45));margin-bottom:.6rem;line-height:1}
+.hero h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(1.1rem,3.6vw,2.1rem);letter-spacing:-.01em;line-height:1.25;margin-bottom:.7rem}
+.hero h1 .tag{display:block;font-family:'JetBrains Mono',monospace;font-weight:400;font-size:clamp(.55rem,1.4vw,.72rem);color:var(--muted);letter-spacing:.14em;margin-top:.35rem}
+.hero .sub{font-size:clamp(.7rem,1.6vw,.88rem);color:var(--muted);max-width:640px;margin:0 auto 1.2rem;line-height:1.65}
+.hero .sub b{color:var(--paper);font-weight:600}
+.hero .cmd{display:inline-block;font:700 .78rem 'JetBrains Mono',monospace;color:var(--gold);border:1px solid var(--line);background:var(--g2);padding:.55rem .9rem;letter-spacing:.06em;margin-bottom:.9rem}
+.hero .cmd span{color:var(--muted)}
+.hero .inv{font-size:.68rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+.axis{display:flex;gap:1.1rem;justify-content:center;flex-wrap:wrap;margin-top:1.1rem}
+.axis-i{font-size:.62rem;color:var(--muted);letter-spacing:.12em;display:inline-flex;align-items:center;gap:.4rem}
+.axis-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.ad-a0{background:#00ff9d;box-shadow:0 0 8px #00ff9d88}.ad-a1{background:#70dcff;box-shadow:0 0 8px #70dcff88}.ad-a2{background:#d4af37;box-shadow:0 0 8px #d4af3788}.ad-a3{background:#b98cff;box-shadow:0 0 8px #b98cff88}
+.section{position:relative;z-index:2;max-width:980px;margin:0 auto;padding:2.2rem 1.2rem}
+.section h2{font-family:'Orbitron',sans-serif;font-weight:700;font-size:clamp(.85rem,2vw,1.05rem);letter-spacing:.04em;margin-bottom:1rem;color:var(--gold)}
+.section h2 .tag{font-family:'JetBrains Mono',monospace;font-weight:400;font-size:.6rem;color:var(--muted);letter-spacing:.12em;margin-left:.5rem}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.grid{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(180deg,var(--g2),var(--g1));padding:18px 16px;transition:transform .2s,border-color .2s}
+.card:hover{transform:translateY(-3px);border-color:var(--gold)}
+.card .k{font:700 .58rem 'JetBrains Mono',monospace;color:var(--cyan);letter-spacing:.12em;margin-bottom:.4rem}
+.card b{display:block;font-size:.82rem;color:var(--paper);margin-bottom:.3rem}
+.card p{font-size:.68rem;color:var(--muted);line-height:1.55}
+.card .a{display:inline-block;margin-top:.5rem;font:700 .62rem 'JetBrains Mono',monospace;color:var(--gold);text-decoration:none;letter-spacing:.08em}
+.card .a:hover{color:var(--gold-hi)}
+.evo{margin:1.6rem 0;padding:1.2rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--g2)}
+.evo-i{margin:.55rem 0}.evo-i .et{font-size:.55rem;color:var(--muted);margin-bottom:.35rem;letter-spacing:.08em}.evo-i .ed{font-size:.6rem;color:var(--paper);font-weight:600}
+.invariant{margin:1.8rem 0;padding:1.5rem;border-left:3px solid var(--gold);background:var(--g2);border-radius:0 var(--radius) var(--radius) 0}
+.invariant .big{font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(.86rem,2.2vw,1.05rem);color:var(--gold);letter-spacing:-.01em;margin-bottom:.5rem}
+.invariant .sub{font-size:.62rem;color:var(--muted);line-height:1.6}.invariant .sub b{color:var(--paper)}
+.f1{margin:1.8rem 0;padding:1.5rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--g2)}
+.f1 .stat{font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(.8rem,2vw,.96rem);color:var(--gold);margin-bottom:.5rem}
+.f1 .exp{font-size:.62rem;color:var(--muted);line-height:1.6}.f1 .exp b{color:var(--paper)}
+.note{margin:1.4rem 0;padding:1rem 1.2rem;border:1px solid var(--amber);border-radius:var(--radius);background:var(--g2);font-size:.62rem;color:var(--amber);line-height:1.6}.note b{color:var(--paper)}
+footer{position:relative;z-index:1;padding:2.4rem 1.5rem;text-align:center;border-top:1px solid var(--g3);margin-top:2.6rem}
+footer .sig{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--gold);margin-bottom:.4rem}
+footer .tag{font-size:.52rem;color:var(--muted)}
+.badge{position:fixed;bottom:14px;right:14px;z-index:99999;width:52px;height:52px;border:1px solid var(--gold);border-radius:8px;background:var(--void);padding:4px;cursor:pointer;transition:.25s}
+.badge:hover{transform:scale(1.1);box-shadow:0 0 16px rgba(212,175,55,.4)}
+.badge img{width:100%;height:100%;border-radius:4px}
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease-out,transform .7s ease-out}
+.reveal.visible{opacity:1;transform:translateY(0)}
+@media(max-width:560px){.axis{gap:.7rem}.axis-i{font-size:.58rem}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="origin-rail" style="position:relative;z-index:50;display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-items:center;padding:8px 12px;font:10px 'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;border-bottom:1px solid rgba(128,128,128,.20)"><span style="color:#D4AF37">æ:// ORIGIN</span><a href="./origin-spectrum.html" style="color:#D4AF37;text-decoration:none">⌂ origin</a><a href="./skill-guide/" style="color:#D4AF37;text-decoration:none">æ skills · 237</a><a href="./skill-guide/skill-graph.html" style="color:#D4AF37;text-decoration:none">◈ graph</a><a href="./capability-mesh.html" style="color:#D4AF37;text-decoration:none">▦ mesh</a></div>
+<div class="mesh"><canvas id="m"></canvas></div>
+<div id="stage"><canvas id="h"></canvas></div>
+
+<nav>
+  <a class="logo" href="https://myaelmendez.github.io">æææ<span>origin</span></a>
+  <div class="links">
+    <a href="https://myaelmendez.github.io/ae-space.html">æ-space</a>
+    <a href="https://myaelmendez.github.io/work-here.html">work_here!</a>
+    <a href="https://myaelmendez.github.io/aipodcast_me/home.html">æ1</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-glyph">æææ</div>
+  <h1>Origin of Agentic Environments<span class="tag">æææ://ROOT · x0:y0:z0:æ0 · LIVE</span></h1>
+  <p class="sub">One namespace. <b>Many environments.</b> One principal. 🫵<br>æ is the authority axis you steer by. <b>Context may propagate. Authority does not.</b></p>
+  <div class="cmd">&gt;æææ:// <span>discover · fork · own · build · publish ↺</span></div>
+  <div class="inv">Many devices · Many models · Many agents · One principal</div>
+  <div class="axis">
+    <div class="axis-i"><span class="axis-dot ad-a0"></span>æ0 PUBLIC</div>
+    <div class="axis-i"><span class="axis-dot ad-a1"></span>æ1 PUBLISHED</div>
+    <div class="axis-i"><span class="axis-dot ad-a2"></span>æ2 OPERATOR</div>
+    <div class="axis-i"><span class="axis-dot ad-a3"></span>æ3 CUSTODY</div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <h2>Command Surfaces<span class="tag">where the work happens</span></h2>
+  <div class="grid">
+    <div class="card"><div class="k">æ://AGENTIC_HOME</div><b>Agentic Home</b><p>Your intent composer. Codex, OpenClaw, and the sovereign operator seat.</p><a class="a" href="./mcp/agents/">enter →</a></div>
+    <div class="card"><div class="k">æ://KEYPAD</div><b>$mcp · Keypad</b><p>Discover capabilities, compose commands, and route through human approval.</p><a class="a" href="./mcp/">enter →</a></div>
+    <div class="card"><div class="k">æ://DISCOVER</div><b>æPICO · Discover</b><p>Nano emojis, capability labels, teleprompts, and the agentic palette.</p><a class="a" href="./mcp/discover/">enter →</a></div>
+    <div class="card"><div class="k">æ://KINETIC</div><b>Kinetic Studio</b><p>Tickers, color, breathing typography, and the motion layer of #OSW.</p><a class="a" href="./mcp/kinetic/">enter →</a></div>
+    <div class="card"><div class="k">æ://VERIFY</div><b>WITNESS://VERIFY</b><p>Receipts, kanban signatures, and the væult chain. Every action auditable.</p><a class="a" href="./verify.html">enter →</a></div>
+    <div class="card"><div class="k">æ://LIVE</div><b>HERMES-AGENT</b><p>Living console. three.js scene, mood engine, C2 command channel, kanban.</p><a class="a" href="./hermes-live.html">enter →</a></div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <h2>Authority Axis<span class="tag">the spine of æ-space</span></h2>
+  <div class="evo">
+    <div class="evo-i"><div class="et">æ0 · PUBLIC</div><div class="ed">Shared surfaces, open protocols, public goods. No keys required.</div></div>
+    <div class="evo-i"><div class="et">æ1 · PUBLISHED</div><div class="ed">Signed artifacts, versioned releases, discoverable content addresses.</div></div>
+    <div class="evo-i"><div class="et">æ2 · OPERATOR</div><div class="ed">Active control plane. Human-in-the-loop commands, C2, dispatch, live oversight.</div></div>
+    <div class="evo-i"><div class="et">æ3 · CUSTODY</div><div class="ed">Root key, signing authority, receipts, and the invariant: one principal.</div></div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <h2>Ecosystem<span class="tag">fleet waves</span></h2>
+  <div class="grid">
+    <div class="card"><div class="k">FLEET · WAVE-0</div><b>Foundational surfaces</b><p>origin · æ-space · work_here · æ1 podcast · verify · æQR badge</p></div>
+    <div class="card"><div class="k">FLEET · WAVE-1</div><b>Agentic environments</b><p>mcp · discover · kinetic · agentic home · codex · openclaw</p></div>
+    <div class="card"><div class="k">FLEET · WAVE-2</div><b>Live surfaces</b><p>hermes-live · origin-live · ecosystem-live · æC2 · kanban · mood engine</p></div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <h2>Honesty <span class="tag">what we ship vs what we imagine</span></h2>
+  <div class="note">
+    <b>Not yet deployed.</b> æ-ecosystem-live is a <b>local fusion prototype</b> — ae-ecosystem's content + hermes-live's living-console engine (three.js, C2, mood, kanban). Until it ships through <b>kanban_push.py</b> and GitHub-API verification confirms the blob, treat the live surface as <b>ae-ecosystem.html</b>.
+  </div>
+  <div class="invariant">
+    <div class="big">The invariant</div>
+    <div class="sub">Many agents. <b>One principal.</b> Context may propagate. Authority does not. <b>æ</b> is the axis you steer by. Every surface is a coordinate in æ-space: <b>x:y:z:æ</b>.</div>
+  </div>
+</section>
+
+<footer>
+  <div class="sig">æææ://ROOT · æ = agentic_environments · #OSW → #IoA</div>
+  <div class="tag">x0:y0:z0:æ0 · the origin · Many agents. One principal. Real progress. · MYaelMendez © 2026</div>
+</footer>
+
+<a class="badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Fae-ecosystem.html" title="æ:// Verify">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=104x104&color=D4AF37&bgcolor=050505&data=https%3A%2F%2Fmyaelmendez.github.io%2Fverify.html%3Furl%3Dhttps%253A%252F%252Fmyaelmendez.github.io%252Fae-ecosystem.html" alt="æQR">
+</a>
+
+<!-- hermes-live C2 console toggle -->
+<button id="c2-toggle" type="button">⌘ æC2</button>
+<div id="c2-console" aria-label="æC2 Command Console">
+  <div class="hdr">
+    <span>⌘ æC2 COMMAND CONSOLE</span>
+    <button id="c2-close" type="button">close ✕</button>
+  </div>
+  <div id="c2-status">idle — send a command</div>
+  <div class="c2-row" id="c2-btns">
+    <button class="c2-btn" data-cmd="gesture" data-action="agree">agree</button>
+    <button class="c2-btn" data-cmd="gesture" data-action="headShake">headShake</button>
+    <button class="c2-btn" data-cmd="gesture" data-action="sad_pose">sad_pose</button>
+    <button class="c2-btn" data-cmd="gesture" data-action="sneak">sneak</button>
+    <button class="c2-btn" data-cmd="gesture" data-action="walk">walk</button>
+    <button class="c2-btn" data-cmd="gesture" data-action="run">run</button>
+    <button class="c2-btn" data-cmd="look" data-action="left">look:left</button>
+    <button class="c2-btn" data-cmd="look" data-action="center">look:center</button>
+    <button class="c2-btn" data-cmd="look" data-action="right">look:right</button>
+    <button class="c2-btn" data-cmd="light" data-action="#ffe6a3">light:gold</button>
+    <button class="c2-btn" data-cmd="light" data-action="#6fd0ff">light:cyan</button>
+    <button class="c2-btn" data-cmd="light" data-action="#ff3355">light:red</button>
+    <button class="c2-btn" data-cmd="think">think</button>
+    <button class="c2-btn" data-cmd="voice">voice test</button>
+  </div>
+  <div id="c2-log"></div>
+</div>
+<div class="think-cloud" id="think-cloud">THINKING...</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "./assets/vendor/three.module.js",
+    "three/addons/": "./assets/vendor/"
+  }
+}
+</script>
+
+<script src="webmcp.js"></script>
+
+<!-- ae-ecosystem original scripts (kept) -->
+<script>
+(function(){var c=document.getElementById('m'),x=c.getContext('2d'),w,h,t=0;
+function rs(){w=c.width=innerWidth;h=c.height=innerHeight}addEventListener('resize',rs);rs();
+var N=24,pts=[];for(var i=0;i<N;i++)pts.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.18,vy:(Math.random()-.5)*.18});
+function dr(){t+=.0018;x.clearRect(0,0,w,h);
+for(var i=0;i<N;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;x.fillStyle='rgba(212,175,55,.28)';x.beginPath();x.arc(p.x,p.y,1.4,0,7);x.fill()}
+for(var i=0;i<N;i++)for(var j=i+1;j<N;j++){var a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<130){x.strokeStyle='rgba(212,175,55,'+((1-d/130)*.09)+')';x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}}
+requestAnimationFrame(dr)}dr()})();
+var obs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(function(s){obs.observe(s)});
+</script>
+
+<!-- hermes-live three.js scene + C2 + mood + kanban + dispatchDOMEvent -->
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/GLTFLoader.js';
+
+// ── three.js background scene ──
+const cv = document.getElementById('h');
+const renderer = new THREE.WebGLRenderer({canvas:cv, alpha:false, antialias:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+renderer.setClearColor(0x050505, 1);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x050505, 0.06);
+
+scene.add(new THREE.AmbientLight(0x1a2a3a, 0.6));
+const key = new THREE.DirectionalLight(0xffe6a3, 1.8);
+key.position.set(4, 8, 6); key.castShadow = true; key.shadow.mapSize.set(1024,1024);
+scene.add(key);
+const rim = new THREE.DirectionalLight(0x6fd0ff, 1.2);
+rim.position.set(-4, 3, -4); scene.add(rim);
+const fill = new THREE.PointLight(0x00ff9d, 0.5, 20);
+fill.position.set(0, 2, 3); scene.add(fill);
+const back = new THREE.PointLight(0x4466ff, 0.7, 30);
+back.position.set(0, 4, -7); scene.add(back);
+
+const grid = new THREE.GridHelper(20, 40, 0x1a3a4a, 0x0d1f2a);
+grid.position.y = 0; scene.add(grid);
+
+const camera = new THREE.PerspectiveCamera(38, 9/16, 0.1, 60);
+camera.position.set(0, 1.8, 6.5);
+camera.lookAt(0, 1.2, 0);
+
+function resize(){
+  const b = cv.getBoundingClientRect();
+  renderer.setSize(b.width, b.height, false);
+  camera.aspect = b.width/b.height;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize);
+resize();
+
+let mouseX = 0, mouseY = 0;
+window.addEventListener('mousemove', e => {
+  mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+  mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+});
+
+// ── halos ──
+function makeHalo(color, radius, tilt){
+  const g = new THREE.TorusGeometry(radius, 0.015, 8, 64);
+  const m = new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.7});
+  const mesh = new THREE.Mesh(g, m);
+  mesh.rotation.x = tilt; mesh.rotation.z = tilt * 0.5;
+  return mesh;
+}
+const halo1 = makeHalo(0xffe6a3, 0.9, Math.PI/2.2);
+const halo2 = makeHalo(0x6fd0ff, 1.1, Math.PI/2.5);
+halo1.position.y = 2.2; halo2.position.y = 2.2;
+scene.add(halo1, halo2);
+
+// ── soldier ──
+let soldier = null, headBone = null, clips = {}, mixer = null, currentAction = null, nextAction = null, blendT = 0;
+const BLEND_DUR = 0.8;
+const loader = new GLTFLoader();
+loader.load('./assets/gltf/Soldier.glb', gltf => {
+  soldier = gltf.scene; scene.add(soldier);
+  const skel = gltf.animations || [];
+  skel.forEach(c => { clips[c.name] = c; });
+  mixer = new THREE.AnimationMixer(soldier);
+  if(skel[0]){ currentAction = mixer.clipAction(skel[0]); currentAction.play(); }
+});
+
+// ── æC2 event bridge ──
+window.addEventListener('æc2:anim', e => {
+  const clip = (e.detail && e.detail.clip) || 'idle';
+  if(clips[clip] && mixer){ nextAction = mixer.clipAction(clips[clip]); nextAction.reset(); nextAction.play(); blendT = 0; }
+});
+window.addEventListener('æc2:light', e => {
+  const col = (e.detail && e.detail.color) || '#ffe6a3';
+  key.color.set(col);
+});
+window.addEventListener('æc2:look', e => {
+  const dir = (e.detail && e.detail.dir) || 'center';
+  if(headBone){
+    const targets = { center: new THREE.Vector3(0, 2.2, 5), left: new THREE.Vector3(-4, 2.2, 5), right: new THREE.Vector3(4, 2.2, 5), up: new THREE.Vector3(0, 4.5, 5), down: new THREE.Vector3(0, 0.5, 5) };
+    headBone.lookAt(targets[dir] || targets.center);
+  }
+});
+
+// ── theme/env awareness for 3D ──
+window.applyHlTheme = function(theme){
+  const isDay = (theme === 'day');
+  const bgColor = isDay ? 0xf5f2ea : 0x050505;
+  const fogColor = isDay ? 0xf5f2ea : 0x050505;
+  if(scene){ scene.background = new THREE.Color(bgColor); scene.fog = new THREE.FogExp2(fogColor, 0.06); }
+  if(renderer) renderer.setClearColor(bgColor);
+  if(key) key.color.set(isDay ? 0xffffff : 0xffe6a3);
+  if(halo1) halo1.material.color.set(isDay ? 0xd4af37 : 0xffe6a3);
+  if(halo2) halo2.material.color.set(isDay ? 0x70dcff : 0x6fd0ff);
+  const hud = document.getElementById('hud');
+  if(hud){ hud.style.color = isDay ? '#1a1a1a' : '#70dcff'; hud.style.borderColor = isDay ? 'rgba(0,0,0,.2)' : 'rgba(112,220,255,.3)'; }
+};
+window.applyHlEnv = function(env){
+  const accentColor = env === 'published' ? '#70dcff' : env === 'operator' ? '#d4af37' : env === 'custody' ? '#b98cff' : '#00ff9d';
+  const hud = document.getElementById('hud');
+  if(hud){ hud.style.borderColor = accentColor + '44'; hud.style.color = accentColor; }
+  const glyph = document.querySelector('.hero-glyph');
+  if(glyph){ glyph.style.color = accentColor; glyph.style.filter = 'drop-shadow(0 0 28px ' + accentColor + '88)'; }
+};
+
+// ── render loop ──
+let clock = new THREE.Clock();
+function animate(){
+  const t = clock.getElapsedTime();
+  if(soldier){
+    soldier.rotation.y = Math.sin(t * 0.25) * 0.08;
+    soldier.position.y = Math.sin(t * 0.8) * 0.02;
+  }
+  if(headBone){
+    const target = new THREE.Vector3(mouseX * 4, 2.2 + mouseY * 2.5, 5);
+    headBone.lookAt(target);
+  }
+  halo1.rotation.z += 0.003; halo2.rotation.z -= 0.002;
+  halo1.position.y = 2.2 + Math.sin(t * 0.5) * 0.05;
+  halo2.position.y = 2.2 + Math.sin(t * 0.5 + 1) * 0.05;
+  grid.position.z = (t * 0.3) % 0.5;
+  renderer.render(scene, camera);
+}
+renderer.setAnimationLoop(animate);
+
+// ── mood engine (mæchlæng) ──
+const FACE_URL = '/maechlang/';
+let currentMood = 'think';
+const MOOD_TO_CLIP = { hold:'idle', think:'sneak_pose', ready:'sneak_pose', work:'walk', lost:'sad_pose', tired:'sad_pose', sleep:'idle', checking:'sneak_pose', ok:'agree', stop:'headShake' };
+function dispatchMood(mood){
+  const clip = MOOD_TO_CLIP[mood] || 'idle';
+  window.dispatchEvent(new CustomEvent('æc2:anim', {detail:{clip:clip, label:'mood:'+mood}}));
+  const mh = document.getElementById('mood-hud');
+  if(mh) mh.textContent = 'MOOD ' + mood.toUpperCase();
+}
+function fetchMood(){
+  fetch(FACE_URL + '?t=' + Date.now(), {cache:'no-cache'})
+    .then(r => r.text())
+    .then(html => {
+      const m = html.match(/\{[\s\S]*?"schema":"ae\.face\/[01]\."[\s\S]*?\}/);
+      if(m){ try{ const face = JSON.parse(m[0]); if(face.mood && face.mood !== currentMood){ currentMood = face.mood; dispatchMood(face.mood); } }catch(e){} }
+    })
+    .catch(()=>{});
+}
+setInterval(fetchMood, 4000);
+fetchMood();
+
+// ── kanban canvas ──
+const BOARD_URL = 'board/state.json';
+let kanbanSigs = {}, kanbanWaves = [], waveProgress = {}, updateCount = 0, signedCount = 0;
+function drawKanban(){
+  const c = document.createElement('canvas'); c.style.cssText = 'width:100%;height:220px;display:block;margin-top:10px';
+  const ctx = c.getContext('2d'); const dpr = Math.min(2, window.devicePixelRatio||1);
+  function fit(){ const r = c.getBoundingClientRect(); c.width = r.width * dpr; c.height = r.height * dpr; ctx.setTransform(dpr,0,0,dpr,0,0); }
+  fit(); window.addEventListener('resize', fit);
+  const ch = 18, cw = 90;
+  function render(){
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.fillStyle = '#6fd0ff'; ctx.font = '700 9px "JetBrains Mono"'; ctx.textAlign = 'center';
+    kanbanWaves.forEach((w, i) => {
+      const x = 40 + i * (cw + 14);
+      const y = 28; const prog = waveProgress[w] || 0;
+      const signed = !!kanbanSigs[w];
+      ctx.strokeStyle = 'rgba(112,220,255,.25)'; ctx.lineWidth = 1;
+      ctx.strokeRect(x - cw/2, y - 6, cw, ch + 18);
+      ctx.fillStyle = signed ? '#00ff9d' : '#70dcff';
+      ctx.fillRect(x - cw/2 + 1, y + 10 - prog * 8, cw - 2, prog * 8);
+      ctx.fillStyle = '#c8d8e8'; ctx.font = '10px "JetBrains Mono"'; ctx.textAlign = 'center';
+      ctx.fillText(w, x, y + ch/2 + 8);
+      ctx.fillStyle = 'rgba(112,220,255,.6)'; ctx.font = '7px "JetBrains Mono"';
+      ctx.fillText('kanban://' + w, x, y + ch - 8);
+      if(signed){ ctx.fillStyle = 'rgba(0,255,157,.9)'; ctx.font = '7px "JetBrains Mono"'; ctx.textAlign = 'left'; ctx.fillText('✓' + (kanbanSigs[w]||'').slice(0,16), x - cw/2 + 7, y + 24); }
+    });
+    requestAnimationFrame(render);
+  }
+  fetch(BOARD_URL, {cache:'no-cache'})
+    .then(r => r.json())
+    .then(s => {
+      kanbanSigs = s.signatures || {};
+      Object.keys(kanbanSigs).forEach(k => { if(k.indexOf('daollc-')===0) kanbanSigs[k.slice(7)] = kanbanSigs[k]; });
+      kanbanWaves = s.batches.map(b => b.wave.replace('daollc-', ''));
+      waveProgress = {}; s.batches.forEach(b => { const sh = b.wave.replace('daollc-', ''); waveProgress[sh] = Math.min(3, Math.floor(3 * b.complete / b.total)); });
+      updateCount = s.total_complete; signedCount = Object.keys(kanbanSigs).length;
+    })
+    .catch(e => console.error('Board fetch failed', e));
+  render();
+  return c;
+}
+
+// ── C2 command console ──
+const QUEUE_URL = 'c2/queue.json';
+const RECEIPTS_URL = 'c2/receipts.json';
+let c2Active = false, executedIds = new Set(), c2Log = [];
+function logC2(t){ const el = document.getElementById('c2-log'); if(el){ el.textContent += (el.textContent ? '\n' : '') + t; el.scrollTop = el.scrollHeight; } c2Log.push(t); }
+function c2Toast(t){ const s = document.getElementById('c2-status'); if(s) s.textContent = t; setTimeout(() => { if(s && s.textContent === t) s.textContent = 'idle — send a command'; }, 2200); }
+function writeReceipt(rcpt){
+  fetch(RECEIPTS_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(rcpt)}).catch(()=>{});
+  logC2('receipt: ' + rcpt.cmd + '/' + rcpt.action + ' → ' + rcpt.result);
+}
+function executeCommand(cmd){
+  const id = cmd.id || ('c2_' + Date.now());
+  let action = cmd.action || 'idle';
+  const c = cmd.cmd;
+  if(c === 'gesture'){
+    window.dispatchEvent(new CustomEvent('æc2:anim', {detail:{clip: action, label:'c2:'+action}}));
+    return {ok:true, detail:'gesture ' + action};
+  }else if(c === 'look'){
+    window.dispatchEvent(new CustomEvent('æc2:look', {detail:{dir: action}}));
+    return {ok:true, detail:'look ' + action};
+  }else if(c === 'light'){
+    window.dispatchEvent(new CustomEvent('æc2:light', {detail:{color: action}}));
+    return {ok:true, detail:'light ' + action};
+  }else if(c === 'think'){
+    const tc = document.getElementById('think-cloud');
+    if(tc){ tc.textContent = 'THINKING...'; tc.classList.add('show'); setTimeout(()=>tc.classList.remove('show'), 2400); }
+    return {ok:true, detail:'think'};
+  }else if(c === 'sinov'){
+    const SINOV_TO_CLIP = { ready:'idle', think:'sneak_pose', checking:'sneak_pose', ok:'agree', stop:'headShake', sleep:'idle', lost:'sad_pose' };
+    const clip = SINOV_TO_CLIP[action] || 'idle';
+    window.dispatchEvent(new CustomEvent('æc2:anim', {detail:{clip, label:'sinov:'+action}}));
+    return {ok:true, detail:'sinov ' + action + ' → ' + clip};
+  }else if(c === 'speak'){
+    if('speechSynthesis' in window){ const u = new SpeechSynthesisUtterance(action); u.lang='es-ES'; speechSynthesis.speak(u); }
+    return {ok:true, detail:'voice'};
+  }else if(c === 'travel'){
+    window.dispatchEvent(new CustomEvent('æ:travel', {detail:{coord: action}}));
+    return {ok:true, detail:'travel ' + action};
+  }
+  const receipt = { schema:'æc2/receipt/v1', cmd_id: id, cmd: c, action: action, result: 'ok', detail: 'executed', executed_at: new Date().toISOString(), by: 'hermes-live@x0:y0:z0:æ3' };
+  writeReceipt(receipt);
+  return {ok:true, detail: c + '/' + action};
+}
+function pollQueue(){
+  fetch(QUEUE_URL, {cache:'no-cache'})
+    .then(r => r.json())
+    .then(q => {
+      const cmds = q.queue || [];
+      cmds.forEach(cmd => { if(!executedIds.has(cmd.id)){ executedIds.add(cmd.id); logC2('cmd ' + cmd.id + ': ' + cmd.cmd + '/' + cmd.action); const res = executeCommand(cmd); c2Toast(cmd.cmd + ' → ' + (res.ok ? '✓' : '✗')); } });
+    })
+    .catch(e => { if(!c2Active){ logC2('queue poll: ' + e.message); c2Active = true; } });
+}
+setInterval(pollQueue, 3000);
+logC2('C2 channel online — polling ' + QUEUE_URL);
+
+// ── console UI ──
+const consoleEl = document.getElementById('c2-console');
+const toggleBtn = document.getElementById('c2-toggle');
+const closeBtn = document.getElementById('c2-close');
+const statusEl = document.getElementById('c2-status');
+if(toggleBtn) toggleBtn.addEventListener('click', () => { consoleEl.style.display = consoleEl.style.display === 'none' ? 'block' : 'none'; });
+if(closeBtn) closeBtn.addEventListener('click', () => { consoleEl.style.display = 'none'; });
+document.querySelectorAll('.c2-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const cmd = btn.dataset.cmd, action = btn.dataset.action, label = btn.textContent.trim();
+    statusEl.textContent = 'sending: ' + cmd + '/' + action;
+    const res = executeCommand({id:'ui_' + Date.now(), cmd, action, label});
+    statusEl.textContent = res.ok ? '✓ ' + label : '✗ ' + label;
+  });
+});
+
+// ── dispatchDOMEvent bridge ──
+let lastDispatch = 0;
+function dispatchDOMEvent(type, detail){
+  const now = performance.now();
+  if(now - lastDispatch < 2000) return;
+  lastDispatch = now;
+  const SINOV_MAP = {think:'think', ok:'ok', check:'checking'};
+  const action = SINOV_MAP[type] || 'checking';
+  logC2('DOM event: ' + type + ' → sinov:' + action);
+  executeCommand({id:'dom_' + type + '_' + Date.now(), cmd:'sinov', action:action, label:'DOM:' + type});
+}
+if(document.getElementById('log')){
+  const logEl = document.getElementById('log');
+  new MutationObserver(muts => {
+    for(let i=0;i<muts.length;i++){ const m=muts[i]; if((m.addedNodes&&m.addedNodes.length)||m.type==='characterData'){ dispatchDOMEvent('think',{word:'log'}); break; } }
+  }).observe(logEl, {childList:true, subtree:true, characterData:true});
+}
+
+// ── drag C2 console ──
+(function(){
+  const c = document.getElementById('c2-console'); if(!c) return;
+  const h = c.querySelector('.hdr'); if(!h) return;
+  h.style.cursor = 'move';
+  h.addEventListener('mousedown', begin); h.addEventListener('touchstart', begin, {passive:false});
+  window.addEventListener('mousemove', drag); window.addEventListener('touchmove', drag, {passive:false});
+  window.addEventListener('mouseup', stop); window.addEventListener('touchend', stop);
+  h.addEventListener('dblclick', () => { c.style.left = Math.max(8,(window.innerWidth-c.offsetWidth)/2)+'px'; c.style.top = Math.max(8,(window.innerHeight-c.offsetHeight)/2)+'px'; });
+  if(toggleBtn) toggleBtn.addEventListener('click', () => { setTimeout(() => { if(c.style.display!=='none'&&c.style.display!==''){ if(!c.dataset.posInit){ c.style.left=Math.max(8,(window.innerWidth-c.offsetWidth)/2)+'px'; c.style.top=Math.max(8,(window.innerHeight-c.offsetHeight)/2)+'px'; c.dataset.posInit='1'; } } },0); });
+  function begin(e){ const pt=e.touches?e.touches[0]:e; down=true; ox=pt.clientX-c.offsetLeft; oy=pt.clientY-c.offsetTop; if(e.cancelable) e.preventDefault(); }
+  function drag(e){ if(!down) return; const pt=e.touches?e.touches[0]:e; const nx=pt.clientX-ox, ny=pt.clientY-oy; nx=Math.max(0,Math.min(nx,window.innerWidth-60)); ny=Math.max(0,Math.min(ny,window.innerHeight-30)); c.style.left=nx+'px'; c.style.top=ny+'px'; if(e.cancelable) e.preventDefault(); }
+  function stop(){ down=false; }
+  let down=false, ox=0, oy=0;
+})();
+
+// ── inject kanban into ecosystem ──
+const kanbanTarget = document.querySelector('.section.reveal');
+if(kanbanTarget){
+  const kh = document.createElement('div'); kh.style.gridColumn = '1 / -1';
+  kh.innerHTML = '<div style="font:700 .72rem Orbitron,sans-serif;color:var(--gold);margin-bottom:.6rem">⌘ KÆNBÆN · LIVE</div>';
+  const kc = drawKanban(); kh.appendChild(kc);
+  kanbanTarget.insertBefore(kh, kanbanTarget.firstChild);
+}
+
+// ── boot ──
+const THEME_KEY = 'ae-theme', ENV_KEY = 'ae-env';
+let curTheme = localStorage.getItem(THEME_KEY) || 'night';
+let curEnv = localStorage.getItem(ENV_KEY) || 'default';
+function applyTheme(t){ document.documentElement.setAttribute('data-theme', t); try{localStorage.setItem(THEME_KEY,t)}catch(e){} if(window.applyHlTheme) window.applyHlTheme(t); }
+function applyEnv(e){ if(window.applyHlEnv) window.applyHlEnv(e); }
+applyTheme(curTheme); applyEnv(curEnv);
+
+</script>
+</body>
+</html>
