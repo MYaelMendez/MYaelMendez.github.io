@@ -1,45 +1,65 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>æ · Emoji Registry · SOVEREIGN</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta rel="canonical" href="https://myaelmendez.github.io/aipodcast_me/emoji-registry.html">
-<meta name="description" content="Æmojification Registry — the historical inventory of promoted emoji symbols, mapped to Unicode, Punycode and capability, under the #opensourceware mandate.">
-<meta property="og:title" content="æ · Emoji Registry · SOVEREIGN">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://myaelmendez.github.io/aipodcast_me/emoji-registry.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
-  :root{--gold:#D4AF37;--void:#050505;--panel:#0d0b07;--line:#2a2416;--dim:#8a7a4a}
-  *{box-sizing:border-box}
-  body{background:var(--void);color:var(--gold);font-family:'Orbitron','JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;margin:0;padding:0;line-height:1.5}
-  body::before{content:"";position:fixed;inset:0;pointer-events:none;
-    background:repeating-linear-gradient(0deg,rgba(212,175,55,.035) 0 1px,transparent 1px 3px)}
-  .wrap{max-width:1080px;margin:0 auto;padding:2.2rem 1.2rem 4rem}
-  header{border-bottom:2px solid var(--gold);padding-bottom:1rem;margin-bottom:1.6rem}
-  h1{font-size:1.6rem;letter-spacing:.12em;margin:0 0 .3rem}
-  h1 .tag{font-size:.62rem;vertical-align:middle;background:var(--gold);color:var(--void);padding:.15rem .45rem;border-radius:2px;margin-left:.5rem;letter-spacing:.1em}
-  .sub{color:var(--dim);font-size:.82rem;margin:0}
-  h2{font-size:.95rem;letter-spacing:.16em;color:var(--gold);border-left:4px solid var(--gold);padding-left:.6rem;margin:2rem 0 .8rem}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.5rem;margin:.6rem 0 1rem}
-  .card{background:var(--panel);border:1px solid var(--line);padding:.6rem .7rem;border-radius:2px}
-  .card .sym{font-size:1.5rem;line-height:1}
-  .card .cap{font-size:.72rem;color:var(--dim);margin-top:.25rem}
-  table{width:100%;border-collapse:collapse;margin:.8rem 0;font-size:.82rem}
-  th,td{border:1px solid var(--line);padding:.42rem .6rem;text-align:left;vertical-align:top}
-  th{background:#12100a;color:var(--gold);letter-spacing:.08em;font-size:.72rem}
-  td.e{font-size:1.15rem}
-  code{background:#12100a;color:#ffd966;padding:.08rem .32rem;border-radius:2px;font-size:.78rem}
-  .rosetta{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--gold);padding:1rem 1.1rem;margin:1rem 0}
-  .rosetta input{width:100%;background:#000;border:1px solid var(--line);color:var(--gold);
-    font-family:'JetBrains Mono',ui-monospace,monospace;font-size:1.4rem;padding:.6rem .8rem;border-radius:2px;letter-spacing:.1em}
-  .rosetta .out{margin-top:.7rem;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.8rem;color:#ffd966;white-space:pre-wrap;word-break:break-all}
-  .ladder{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.85rem;color:#ffd966;letter-spacing:.06em;margin:.6rem 0}
-  .ladder span{color:var(--dim);font-family:'Orbitron',monospace;font-size:.72rem}
-  .principle{font-size:.78rem;color:var(--dim);border:1px dashed var(--line);padding:.7rem .9rem;margin:1rem 0;font-style:italic}
-  a{color:var(--gold)}
-  footer{margin-top:2.4rem;border-top:1px solid var(--line);padding-top:.9rem;font-size:.72rem;color:var(--dim)}
-  .sec{animation:none}
+:root{--void:#050505;--gold:#D4AF37;--gold-dim:#8a7022;--text:#e8e8e8;--dim:#8a7a4a;--panel:#0d0b07;--line:#2a2416;--cyan:#00e5ff;--neon:#39ff14}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--void);color:var(--gold);font-family:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;min-height:100vh;line-height:1.5}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg,rgba(212,175,55,.035) 0 1px,transparent 1px 3px)}
+@keyframes breathe{0%,100%{opacity:.85}50%{opacity:1}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+@keyframes colorShift{0%{color:var(--gold)}33%{color:var(--cyan)}66%{color:var(--neon)}100%{color:var(--gold)}}
+@keyframes glow{0%,100%{box-shadow:0 0 8px var(--gold-dim)}50%{box-shadow:0 0 22px var(--gold)}}
+@keyframes qrBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes qrGlow{0%,100%{box-shadow:0 0 4px var(--gold-dim)}50%{box-shadow:0 0 16px var(--gold)}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:2.2rem 1.2rem 4rem}
+header{border-bottom:2px solid var(--gold);padding-bottom:1rem;margin-bottom:1.6rem}
+h1{font-family:'Orbitron',sans-serif;font-size:clamp(1.3rem,4vw,1.8rem);letter-spacing:.12em;margin:0 0 .3rem;animation:pulse 5s ease-in-out infinite}
+h1 .tag{font-size:.62rem;vertical-align:middle;background:var(--gold);color:var(--void);padding:.15rem .45rem;border-radius:2px;margin-left:.5rem;letter-spacing:.1em}
+.sub{color:var(--dim);font-size:clamp(.75rem,1.6vw,.9rem);margin:0;animation:breathe 6s ease-in-out infinite}
+h2{font-family:'Orbitron',sans-serif;font-size:.95rem;letter-spacing:.16em;color:var(--gold);border-left:4px solid var(--gold);padding-left:.6rem;margin:2rem 0 .8rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.5rem;margin:.6rem 0 1rem}
+.card{background:var(--panel);border:1px solid var(--line);padding:.6rem .7rem;border-radius:2px;position:relative;overflow:hidden;transition:transform .3s,border-color .3s,box-shadow .3s;animation:fadeInUp .6s ease both}
+.card:hover{transform:translateY(-3px);border-color:var(--gold-dim);box-shadow:0 8px 24px rgba(0,0,0,.6)}
+.card .sym{font-size:1.5rem;line-height:1}
+.card .cap{font-size:.72rem;color:var(--dim);margin-top:.25rem}
+table{width:100%;border-collapse:collapse;margin:.8rem 0;font-size:.82rem}
+th,td{border:1px solid var(--line);padding:.42rem .6rem;text-align:left;vertical-align:top}
+th{background:#12100a;color:var(--gold);letter-spacing:.08em;font-size:.72rem}
+td.e{font-size:1.15rem}
+code{background:#12100a;color:#ffd966;padding:.08rem .32rem;border-radius:2px;font-size:.78rem}
+.pc-x{color:#ffd966}
+.pc-warn{color:#ff6b6b}
+.rosetta{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--gold);padding:1rem 1.1rem;margin:1rem 0;animation:fadeInUp .6s ease both}
+.rosetta input{width:100%;background:#000;border:1px solid var(--line);color:var(--gold);
+  font-family:'JetBrains Mono',ui-monospace,monospace;font-size:1.4rem;padding:.6rem .8rem;border-radius:2px;letter-spacing:.1em}
+.rosetta .out{margin-top:.7rem;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.8rem;color:#ffd966;white-space:pre-wrap;word-break:break-all}
+.ladder{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.85rem;color:#ffd966;letter-spacing:.06em;margin:.6rem 0}
+.ladder span{color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:.72rem}
+.principle{font-size:.78rem;color:var(--dim);border:1px dashed var(--line);padding:.7rem .9rem;margin:1rem 0;font-style:italic}
+a{color:var(--gold)}
+footer{margin-top:2.4rem;border-top:1px solid var(--line);padding-top:.9rem;font-size:.72rem;color:var(--dim)}
+.ticker-wrap{width:100%;overflow:hidden;border-top:1px solid var(--gold-dim);border-bottom:1px solid var(--gold-dim);background:#080808;padding:8px 0;margin-top:20px}
+.ticker{display:inline-block;white-space:nowrap;animation:ticker 28s linear infinite}
+.ticker span{display:inline-block;padding:0 32px;color:var(--gold);font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+.ticker span.sep{color:#333}
+#ae-qr-badge{position:fixed;bottom:16px;right:16px;z-index:99999;width:56px;height:56px;border:1px solid var(--gold);border-radius:8px;background:var(--void);padding:4px;display:block;text-decoration:none;transition:transform .25s,box-shadow .25s}
+#ae-qr-badge:hover{transform:scale(1.1);box-shadow:0 0 22px var(--gold)}
+#ae-qr-badge img{width:100%;height:100%;display:block;border-radius:4px}
+.reg-card .qr{position:absolute;top:6px;right:6px;width:34px;height:34px;border:1px solid var(--gold-dim);border-radius:5px;background:var(--void);padding:2px;opacity:.5;transition:opacity .3s;animation:qrBob 3s ease-in-out infinite,qrGlow 3s ease-in-out infinite}
+.reg-card:hover .qr{opacity:1}
+.reg-card .qr img{width:100%;height:100%;display:block;border-radius:3px}
+.note{font-size:.7rem;color:var(--dim);margin:.4rem 0}
 </style>
 </head>
 <body>
@@ -53,88 +73,27 @@
     <label for="sym" style="font-size:.72rem;letter-spacing:.14em;color:var(--dim)">LIVE ROSETTA STONE — type any symbol to inspect its Unicode code points</label>
     <input id="sym" value="🍊æ∞" autocomplete="off" spellcheck="false">
     <div class="out" id="out">…</div>
+    <div class="note" id="segNote"></div>
   </div>
 
   <h2>THE CORE REGISTRY</h2>
+  <p class="note">Punycode computed live in-browser via <code>new URL()</code> (IDNA/UTS46, authoritative). Not hardcoded. Not verified domains.</p>
   <table>
     <thead><tr><th>Æmoji</th><th>Unicode</th><th>Punycode</th><th>Capability</th></tr></thead>
-    <tbody>
-      <tr><td class="e">🍊</td><td><code>U+1F34A</code></td><td><code>xn--ki8h</code></td><td>Æ root — entrepreneurship, recursive capability</td></tr>
-      <tr><td class="e">∞</td><td><code>U+221E</code></td><td><code>xn--59g</code></td><td>Infinity</td></tr>
-      <tr><td class="e">♾️</td><td><code>U+267E + FE0F</code></td><td><code>xn--56hw699e</code></td><td>Recursion</td></tr>
-      <tr><td class="e">👟</td><td><code>U+1F45F</code></td><td><code>xn--hq8h</code></td><td>Nike / NKE — vertical financial carousel</td></tr>
-      <tr><td class="e">🏎️</td><td><code>U+1F3CE + FE0F</code></td><td><code>xn--v86ct254b</code></td><td>Racing / Agentic Economics</td></tr>
-      <tr><td class="e">🏁</td><td><code>U+1F3C1</code></td><td><code>xn--yl8h</code></td><td>OSW / Launch — publication motif</td></tr>
-      <tr><td class="e">🛸</td><td><code>U+1F6F8</code></td><td><code>xn--h98h</code></td><td>Internet of Agents — discovery, orchestration, execution</td></tr>
-      <tr><td class="e">🧬</td><td><code>U+1F9EC</code></td><td><code>xn--2v9h</code></td><td>Neuromitosis / MOLT — differentiation, inheritance, reintegration</td></tr>
-      <tr><td class="e">🪺</td><td><code>U+1FABA</code></td><td><code>xn--y19h</code></td><td>Zygotæ — initialization, parent-child lineage</td></tr>
-      <tr><td class="e">💧</td><td><code>U+1F4A7</code></td><td><code>xn--js8h</code></td><td>Wætær — fluid simulation, computational environments</td></tr>
-      <tr><td class="e">🤳</td><td><code>U+1F933</code></td><td><code>xn--sq9h</code></td><td>Human principal — mobile-first digital twin</td></tr>
-      <tr><td class="e">🔍</td><td><code>U+1F50D</code></td><td><code>xn--gv8h</code></td><td>Search</td></tr>
-      <tr><td class="e">📚</td><td><code>U+1F4DA</code></td><td><code>xn--zt8h</code></td><td>Knowledge</td></tr>
-      <tr><td class="e">🎓</td><td><code>U+1F393</code></td><td><code>xn--nk8h</code></td><td>Education</td></tr>
-      <tr><td class="e">❤️</td><td><code>U+2764 + FE0F</code></td><td><code>xn--qei9934e</code></td><td>Human</td></tr>
-      <tr><td class="e">🤖</td><td><code>U+1F916</code></td><td><code>xn--yp9h</code></td><td>AI execution</td></tr>
-      <tr><td class="e">🧠</td><td><code>U+1F9E0</code></td><td><code>xn--qv9h</code></td><td>Cognition</td></tr>
-      <tr><td class="e">🐇</td><td><code>U+1F407</code></td><td><code>xn--yn8h</code></td><td>RÆBIT — 4D creative agent, æl.net</td></tr>
-      <tr><td class="e">🌐</td><td><code>U+1F310</code></td><td><code>xn--wg8h</code></td><td>Network</td></tr>
-      <tr><td class="e">📱</td><td><code>U+1F4F1</code></td><td><code>xn--nu8h</code></td><td>Widget</td></tr>
-      <tr><td class="e">⌨️</td><td><code>U+2328 + FE0F</code></td><td><code>xn--rih5337f</code></td><td>Command line</td></tr>
-      <tr><td class="e">🎬</td><td><code>U+1F3AC</code></td><td><code>xn--dl8h</code></td><td>Cinema</td></tr>
-      <tr><td class="e">🎥</td><td><code>U+1F3A5</code></td><td><code>xn--5k8h</code></td><td>Video</td></tr>
-      <tr><td class="e">🦩</td><td><code>U+1F9A9</code></td><td><code>xn--5t9h</code></td><td>Birding / Flamingo</td></tr>
-      <tr><td class="e">🌴</td><td><code>U+1F334</code></td><td><code>xn--xh8h</code></td><td>Environments</td></tr>
-    </tbody>
+    <tbody id="regBody"></tbody>
   </table>
-  <p class="principle">Punycode encodes Unicode symbols — but not every Punycode label is a valid registrable domain. The registry preserves that distinction; these are raw encodings, not verified domains.</p>
+  <p class="principle">Punycode encodes Unicode symbols — but not every Punycode label is a valid registrable domain. The registry preserves that distinction; these are IDNA/UTS46 encodings computed live, not verified domains.</p>
 
   <h2>FOUNDING CONSTELLATION · 2023</h2>
-  <div class="grid">
-    <div class="card"><div class="sym">♿</div><div class="cap">Accessibility — explicitly prioritized</div></div>
-    <div class="card"><div class="sym">🍕</div><div class="cap">Food</div></div>
-    <div class="card"><div class="sym">📚</div><div class="cap">Books</div></div>
-    <div class="card"><div class="sym">🔍</div><div class="cap">Search</div></div>
-    <div class="card"><div class="sym">💡</div><div class="cap">Idea</div></div>
-    <div class="card"><div class="sym">🧪</div><div class="cap">Experiment</div></div>
-    <div class="card"><div class="sym">😂</div><div class="cap">Humor</div></div>
-    <div class="card"><div class="sym">🤖</div><div class="cap">Agent</div></div>
-    <div class="card"><div class="sym">🧮</div><div class="cap">Math</div></div>
-    <div class="card"><div class="sym">🚦</div><div class="cap">Signals</div></div>
-    <div class="card"><div class="sym">🚨</div><div class="cap">Alert</div></div>
-    <div class="card"><div class="sym">🧠</div><div class="cap">Mind</div></div>
-    <div class="card"><div class="sym">🤝</div><div class="cap">Cooperation</div></div>
-    <div class="card"><div class="sym">🏵️</div><div class="cap">Award</div></div>
-    <div class="card"><div class="sym">🍼</div><div class="cap">Mother &amp; Child</div></div>
-    <div class="card"><div class="sym">🎥</div><div class="cap">Camera</div></div>
-    <div class="card"><div class="sym">🎬</div><div class="cap">Cinema</div></div>
-    <div class="card"><div class="sym">☕</div><div class="cap">Coffee</div></div>
-    <div class="card"><div class="sym">🎞️</div><div class="cap">Film</div></div>
-    <div class="card"><div class="sym">🗞️</div><div class="cap">Press</div></div>
-    <div class="card"><div class="sym">❤️</div><div class="cap">Human</div></div>
-    <div class="card"><div class="sym">📋</div><div class="cap">List</div></div>
-    <div class="card"><div class="sym">🔘</div><div class="cap">Primitive</div></div>
-    <div class="card"><div class="sym">📺</div><div class="cap">TV</div></div>
-    <div class="card"><div class="sym">📰</div><div class="cap">News</div></div>
-    <div class="card"><div class="sym">🦍</div><div class="cap">Gorilla</div></div>
-    <div class="card"><div class="sym">🦁</div><div class="cap">Lion</div></div>
-    <div class="card"><div class="sym">🐻</div><div class="cap">Bear</div></div>
-    <div class="card"><div class="sym">🏭</div><div class="cap">Production</div></div>
-    <div class="card"><div class="sym">🗣️</div><div class="cap">Voice</div></div>
-    <div class="card"><div class="sym">✨</div><div class="cap">Enhance</div></div>
-  </div>
+  <div class="grid" id="constGrid"></div>
 
   <h2>THE EVOLUTION · 2023 → 2026</h2>
   <div class="ladder">
-    ⌨️ <span>Emoji as identity — named GPTs</span><br>
-    ↓<br>
-    💬 <span>Emoji as language — promptification</span><br>
-    ↓<br>
-    ⬛ <span>Emoji as address — Unicode and QR</span><br>
-    ↓<br>
-    🍊 <span>Emoji as capability — connected agents</span><br>
-    ↓<br>
-    📱 <span>Emoji as interface — $9_16 widgets</span><br>
-    ↓<br>
+    ⌨️ <span>Emoji as identity — named GPTs</span><br>↓<br>
+    💬 <span>Emoji as language — promptification</span><br>↓<br>
+    ⬛ <span>Emoji as address — Unicode and QR</span><br>↓<br>
+    🍊 <span>Emoji as capability — connected agents</span><br>↓<br>
+    📱 <span>Emoji as interface — $9_16 widgets</span><br>↓<br>
     🤖 <span>Emoji as agency — bounded execution with human authority</span>
   </div>
 
@@ -147,37 +106,131 @@
   </p>
 
   <footer>
-    Registry built read-only from the Æmojification doc. No credentials exposed. æQR pending a hosted resolver.<br>
+    Registry built read-only from the Æmojification doc. No credentials exposed. Punycode computed live via URL (IDNA/UTS46) — never hardcoded.<br>
     <a href="https://myaelmendez.github.io/aipodcast_me/">← aipodcast_me surfaces</a> ·
-    <a href="https://myaelmendez.github.io/aipodcast_me/ae-manifest.html">ae-manifest</a> ·
-    <a href="https://myaelmendez.github.io/aipodcast_me/mother.html">mother</a> ·
-    <a href="https://myaelmendez.github.io/aipodcast_me/home.html">home</a> ·
-    <a href="https://myaelmendez.github.io/aipodcast_me/agents-want.html">agents-want</a> ·
-    <a href="https://myaelmendez.github.io/hermes-demo-916.html">hermes-demo-916</a> ·
-    <a href="https://myaelmendez.github.io/wittenberg.html">wittenberg</a> ·
-    <a href="https://myaelmendez.github.io/webmcp.html">webmcp</a> ·
+    <a href="https://myaelmendez.github.io/aipodcast_me/qr-widgets-gallery.html">qr-widgets-gallery</a> ·
     <a href="https://github.com/MYaelMendez">MYaelMendez</a>
   </footer>
 </div>
+
+<div class="ticker-wrap" role="marquee" aria-label="registry ticker">
+<div class="ticker">
+<span>æ://EMOJI REGISTRY</span><span class="sep">·</span>
+<span>PUNYCODE COMPUTED LIVE</span><span class="sep">·</span>
+<span>NOT VERIFIED DOMAINS</span><span class="sep">·</span>
+<span>#opensourceware</span><span class="sep">·</span>
+<span>+MyaelMendez · PRINCIPAL</span><span class="sep">·</span>
+<span>æ://EMOJI REGISTRY</span><span class="sep">·</span>
+<span>PUNYCODE COMPUTED LIVE</span><span class="sep">·</span>
+<span>NOT VERIFIED DOMAINS</span><span class="sep">·</span>
+<span>#opensourceware</span><span class="sep">·</span>
+<span>+MyaelMendez · PRINCIPAL</span><span class="sep">·</span>
+</div>
+</div>
+
+<a id="ae-qr-badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Femoji-registry.html" target="_blank" rel="noopener" aria-label="Verify this surface">
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=56x56&data=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Femoji-registry.html&bgcolor=050505&color=D4AF37" alt="QR verify" width="56" height="56">
+</a>
+
 <script>
-  (function(){
-    var inp = document.getElementById('sym');
-    var out = document.getElementById('out');
-    function render(){
-      var s = inp.value;
-      var pts = [];
-      for (var i = 0; i < s.length; i++){
-        var cp = s.codePointAt(i);
-        pts.push('U+' + cp.toString(16).toUpperCase().padStart(4,'0'));
-        if (cp > 0xFFFF) i++; // skip low surrogate
-      }
-      out.textContent = s.length === 0
-        ? 'type a symbol…'
-        : 'code points : ' + pts.join('  ·  ') + '\ncharacters  : ' + Array.from(s).length;
-    }
-    inp.addEventListener('input', render);
-    render();
-  })();
+(function(){
+'use strict';
+
+// ── Punycode: computed live via URL parser (IDNA/UTS46). Never hardcoded. ──
+function toPunycode(label){
+  try {
+    return new URL('http://' + label + '.com').hostname.replace(/\.com$/,'');
+  } catch(e){
+    return 'ERR';
+  }
+}
+
+// ── Core registry — data-driven. Only Unicode + capability stored. ──
+var CORE=[
+{s:'🍊',cp:'U+1F34A',cap:'Æ root — entrepreneurship, recursive capability'},
+{s:'∞',cp:'U+221E',cap:'Infinity'},
+{s:'♾️',cp:'U+267E + FE0F',cap:'Recursion'},
+{s:'👟',cp:'U+1F45F',cap:'Nike / NKE — vertical financial carousel'},
+{s:'🏎️',cp:'U+1F3CE + FE0F',cap:'Racing / Agentic Economics'},
+{s:'🏁',cp:'U+1F3C1',cap:'OSW / Launch — publication motif'},
+{s:'🛸',cp:'U+1F6F8',cap:'Internet of Agents — discovery, orchestration, execution'},
+{s:'🧬',cp:'U+1F9EC',cap:'Neuromitosis / MOLT — differentiation, inheritance, reintegration'},
+{s:'🪺',cp:'U+1FABA',cap:'Zygotæ — initialization, parent-child lineage'},
+{s:'💧',cp:'U+1F4A7',cap:'Wætær — fluid simulation, computational environments'},
+{s:'🤳',cp:'U+1F933',cap:'Human principal — mobile-first digital twin'},
+{s:'🔍',cp:'U+1F50D',cap:'Search'},
+{s:'📚',cp:'U+1F4DA',cap:'Knowledge'},
+{s:'🎓',cp:'U+1F393',cap:'Education'},
+{s:'❤️',cp:'U+2764 + FE0F',cap:'Human'},
+{s:'🤖',cp:'U+1F916',cap:'AI execution'},
+{s:'🧠',cp:'U+1F9E0',cap:'Cognition'},
+{s:'🐇',cp:'U+1F407',cap:'RÆBIT — 4D creative agent, æl.net'},
+{s:'🌐',cp:'U+1F310',cap:'Network'},
+{s:'📱',cp:'U+1F4F1',cap:'Widget'},
+{s:'⌨️',cp:'U+2328 + FE0F',cap:'Command line'},
+{s:'🎬',cp:'U+1F3AC',cap:'Cinema'},
+{s:'🎥',cp:'U+1F3A5',cap:'Video'},
+{s:'🦩',cp:'U+1F9A9',cap:'Birding / Flamingo'},
+{s:'🌴',cp:'U+1F334',cap:'Environments'}
+];
+
+var body=document.getElementById('regBody');
+CORE.forEach(function(r,i){
+  var pc=toPunycode(r.s);
+  var tr=document.createElement('tr');
+  tr.className='reg-card';
+  tr.style.animationDelay=(i*0.05)+'s';
+  var qrUrl='https://api.qrserver.com/v1/create-qr-code/?size=34x34&data='+encodeURIComponent('https://myaelmendez.github.io/verify.html?a='+r.cp.replace(/[^0-9A-F]/g,'')+'&h=emoji')+'&bgcolor=050505&color=D4AF37';
+  tr.innerHTML='<td class="e">'+r.s+'</td><td><code>'+r.cp+'</code></td><td><code class="pc-x">'+pc+'</code></td><td>'+r.cap+'</td>';
+  var qr=document.createElement('div');
+  qr.className='qr';
+  qr.innerHTML='<img src="'+qrUrl+'" alt="QR" width="34" height="34">';
+  tr.appendChild(qr);
+  body.appendChild(tr);
+});
+
+// ── Founding constellation 2023 ──
+var CONST=[['♿','Accessibility — explicitly prioritized'],['🍕','Food'],['📚','Books'],['🔍','Search'],['💡','Idea'],['🧪','Experiment'],['😂','Humor'],['🤖','Agent'],['🧮','Math'],['🚦','Signals'],['🚨','Alert'],['🧠','Mind'],['🤝','Cooperation'],['🏵️','Award'],['🍼','Mother & Child'],['🎥','Camera'],['🎬','Cinema'],['☕','Coffee'],['🎞️','Film'],['🗞️','Press'],['❤️','Human'],['📋','List'],['🔘','Primitive'],['📺','TV'],['📰','News'],['🦍','Gorilla'],['🦁','Lion'],['🐻','Bear'],['🏭','Production'],['🗣️','Voice'],['✨','Enhance']];
+var cg=document.getElementById('constGrid');
+CONST.forEach(function(c,i){
+  var d=document.createElement('div');
+  d.className='card';
+  d.style.animationDelay=(i*0.03)+'s';
+  d.innerHTML='<div class="sym">'+c[0]+'</div><div class="cap">'+c[1]+'</div>';
+  cg.appendChild(d);
+});
+
+// ── Live Rosetta inspector ──
+var inp=document.getElementById('sym');
+var out=document.getElementById('out');
+var segNote=document.getElementById('segNote');
+function inspect(){
+  var s=inp.value;
+  if(!s){ out.textContent='type a symbol…'; segNote.textContent=''; return; }
+  // grapheme clusters via Intl.Segmenter, fallback to Array.from
+  var clusters;
+  if(typeof Intl!=='undefined' && Intl.Segmenter){
+    var seg=new Intl.Segmenter('en',{granularity:'grapheme'});
+    clusters=Array.from(seg.segment(s)).map(function(x){return x.segment;});
+    segNote.textContent='grapheme clusters: '+clusters.length+' (Intl.Segmenter)';
+  } else {
+    clusters=Array.from(s);
+    segNote.textContent='grapheme clusters: '+clusters.length+' (Array.from fallback — Intl.Segmenter unavailable)';
+  }
+  var pts=[];
+  for(var i=0;i<s.length;i++){
+    var cp=s.codePointAt(i);
+    pts.push('U+'+(cp>0xFFFF?cp.toString(16).toUpperCase():cp.toString(16).toUpperCase().padStart(4,'0')));
+    if(cp>0xFFFF)i++;
+  }
+  var vs16=/[\uFE0F\uFE0E]/.test(s) ? '\nVS16: present (emoji/text presentation selector)' : '\nVS16: none';
+  var pc=toPunycode(Array.from(s).join(''));
+  out.textContent='code points : '+pts.join('  ·  ')+'\ncharacters  : '+Array.from(s).length+'\ngrapheme    : '+clusters.length+'\npunycode    : '+pc+vs16;
+}
+inp.addEventListener('input',inspect);
+inspect();
+console.log('[emoji-registry] '+CORE.length+' core symbols · '+CONST.length+' constellation · punycode computed live via URL parser');
+})();
 </script>
 </body>
 </html>
