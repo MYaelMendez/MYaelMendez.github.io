@@ -18,6 +18,40 @@ The current ChatGPT conversation is the default working surface when the task ca
 - YÆL Plugin: `app://plugin_b608fd3fbe548191964ac63c347f2f0f`
 - Existing public Site: `https://yael-mendez.teologia-7508.chatgpt.site/`
 
+## Agentic widgets as the composition primitive
+
+æ Studio environments are composed from **agentic widgets**.
+
+An agentic widget is not decorative UI. It is a stateful interface bound to a real connected capability and must expose purpose, current state, identity/connection gates, bounded actions, review boundaries, and resulting evidence.
+
+```text
+AGENTIC_WIDGET =
+interface
++ live capability
++ state
++ identity/connection gate
++ bounded action
++ review boundary
++ witness/evidence
++ return-to-human
+```
+
+This makes the environment computational rather than ornamental. Widgets may be informational when no action connection exists, but they must never imply executable authority from appearance alone.
+
+```text
+HUMAN://principal
+  → intent
+  → ❤️ Work here
+  → æ Studio
+      ↔ agentic widget
+      ↔ agentic widget
+      ↔ agentic widget
+  → review
+  → authorized execution
+  → witness
+  → HUMAN://value ❤️
+```
+
 ## Double sign-on action gate
 
 Engineering controls are **action widgets, not decoration**.
