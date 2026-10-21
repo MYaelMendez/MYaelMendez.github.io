@@ -18,6 +18,28 @@ The current ChatGPT conversation is the default working surface when the task ca
 - YÆL Plugin: `app://plugin_b608fd3fbe548191964ac63c347f2f0f`
 - Existing public Site: `https://yael-mendez.teologia-7508.chatgpt.site/`
 
+## Native GitHub
+
+GitHub is a first-class Studio capability, not a handoff.
+
+The Studio should be able to inspect and work with repositories, branches, commits, diffs, pull requests, issues, reviews, workflow runs, and CI status directly through the connected GitHub capability.
+
+```text
+YÆL
+  → Work here
+  → æ Studio
+      ↔ GitHub://repositories
+      ↔ GitHub://branches
+      ↔ GitHub://commits
+      ↔ GitHub://pull-requests
+      ↔ GitHub://issues
+      ↔ GitHub://actions
+  → review
+  → HUMAN://principal
+```
+
+GitHub is the versioned engineering memory and review surface. It does not become the principal and repository permissions do not expand human authorization. Creating source changes, opening a PR, merging, deploying, and publishing remain separate actions.
+
 ## Shared loop
 
 ```text
@@ -25,6 +47,7 @@ HUMAN://principal
   → intent
   → Work here
   → æ Studio capabilities
+  → GitHub-native source / review when appropriate
   → review
   → authorized execution
   → witness
