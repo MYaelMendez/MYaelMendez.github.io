@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>æ · Demo · New Capabilities · SOVEREIGN</title>
+<meta name="description" content="One boot sequence demonstrating every new sovereign capability: W23 mech-reactive GPU render with gate PASS receipt, the Æmoji Registry (Æ→Unicode→Punycode→Capability), FÆSCIA verified capability classification, the 8 canonical-marked audited surfaces, and the deterministic æRTXrender + SupervisorVideo pipeline.">
+<link rel="canonical" href="https://myaelmendez.github.io/aipodcast_me/demo-new-capabilities.html">
+<meta property="og:title" content="æ · Demo · New Capabilities · SOVEREIGN">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://myaelmendez.github.io/aipodcast_me/demo-new-capabilities.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gold:#D4AF37; --void:#050505; --ink:#EDE7D6; --dim:#8A8272;
+    --line:rgba(212,175,55,.28); --card:rgba(212,175,55,.05);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--void);color:var(--ink);
+    font-family:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+    -webkit-font-smoothing:antialiased}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.028) 0 1px, transparent 1px 3px),
+      radial-gradient(1200px 700px at 50% -10%, rgba(212,175,55,.10), transparent 60%);}
+  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 22px 90px}
+  header.top{border-bottom:1px solid var(--line);padding:20px 0;display:flex;
+    align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .brand{font-family:'Orbitron',sans-serif;font-weight:900;letter-spacing:.16em;
+    font-size:15px;color:var(--gold)}
+  .brand span{color:var(--ink)}
+  nav a{color:var(--dim);text-decoration:none;font-size:12px;letter-spacing:.08em;margin-left:18px}
+  nav a:hover{color:var(--gold)}
+  h1{font-family:'Orbitron',sans-serif;font-weight:900;letter-spacing:.02em;
+    font-size:clamp(30px,5.4vw,58px);line-height:1.04;margin:34px 0 10px}
+  h1 em{color:var(--gold);font-style:normal}
+  .sub{color:var(--dim);font-size:14px;max-width:760px;line-height:1.65;margin:0 0 26px}
+  .pill{display:inline-block;border:1px solid var(--line);color:var(--gold);
+    border-radius:999px;padding:6px 14px;font-size:11px;letter-spacing:.16em;text-transform:uppercase}
+  .hero{position:relative;border:1px solid var(--line);border-radius:14px;overflow:hidden;
+    background:#000;aspect-ratio:16/7;min-height:340px}
+  .hero canvas{display:block;width:100%;height:100%}
+  .hero .cap{position:absolute;left:16px;bottom:14px;font-size:11px;color:var(--dim);
+    letter-spacing:.1em}
+  .hero .live{position:absolute;right:16px;top:14px;font-size:10px;color:var(--gold);
+    border:1px solid var(--line);border-radius:999px;padding:5px 11px;background:rgba(5,5,5,.6)}
+  section{margin-top:52px}
+  .k{font-family:'Orbitron',sans-serif;color:var(--gold);font-size:12px;
+    letter-spacing:.22em;text-transform:uppercase;margin:0 0 6px}
+  h2{font-family:'Orbitron',sans-serif;font-weight:700;font-size:clamp(20px,3vw,28px);
+    margin:0 0 8px;letter-spacing:.01em}
+  .lede{color:var(--dim);font-size:13.5px;line-height:1.65;margin:0 0 18px;max-width:820px}
+  .grid{display:grid;gap:14px}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.g4,.g3,.g2{grid-template-columns:1fr}}
+  .card{border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--card);
+    position:relative;overflow:hidden}
+  .card::after{content:"";position:absolute;left:0;top:0;width:26px;height:2px;background:var(--gold)}
+  .card h3{font-family:'Orbitron',sans-serif;font-size:13.5px;margin:0 0 8px;color:var(--ink);
+    letter-spacing:.02em}
+  .card p{margin:0;color:var(--dim);font-size:12.5px;line-height:1.6}
+  .card a{color:var(--gold);text-decoration:none}
+  .card a:hover{text-decoration:underline}
+  .glyph{font-size:30px;line-height:1}
+  .tag{display:inline-block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    border:1px solid var(--line);border-radius:6px;padding:3px 8px;color:var(--gold);margin-top:10px}
+  .tag.ok{color:#9BE08A;border-color:rgba(155,224,138,.35)}
+  .tag.warn{color:#E8C06A;border-color:rgba(232,192,106,.35)}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--gold);font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:.12em;
+    text-transform:uppercase}
+  td code{color:var(--gold);font-size:11.5px}
+  .receipt{font-size:11px;color:var(--dim);word-break:break-all;border-left:2px solid var(--gold);
+    padding:6px 10px;background:rgba(212,175,55,.04);margin-top:10px}
+  .gate{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+  .meter{border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:150px;
+    flex:1;background:rgba(5,5,5,.4)}
+  .meter b{font-family:'Orbitron',sans-serif;color:var(--gold);font-size:22px;display:block}
+  .meter span{color:var(--dim);font-size:11px}
+  .rosetta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border:1px solid var(--line);
+    border-radius:12px;padding:14px 16px;background:rgba(5,5,5,.5)}
+  .rosetta input{background:#000;border:1px solid var(--line);color:var(--ink);
+    padding:10px 12px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:16px;
+    min-width:220px}
+  .rosetta button{background:var(--gold);color:#050505;border:0;border-radius:8px;
+    padding:10px 16px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:12px;
+    letter-spacing:.1em;cursor:pointer}
+  .out{margin-top:12px;font-size:12.5px;color:var(--ink);word-break:break-all;min-height:18px}
+  .out b{color:var(--gold)}
+  footer{margin-top:64px;border-top:1px solid var(--line);padding-top:20px;color:var(--dim);
+    font-size:11.5px;line-height:1.7}
+  footer a{color:var(--gold);text-decoration:none}
+  .num{font-family:'Orbitron',sans-serif;color:var(--gold);font-size:11px;letter-spacing:.14em}
+  a.btn{display:inline-block;margin-top:8px;border:1px solid var(--line);color:var(--gold);
+    border-radius:999px;padding:9px 18px;font-size:11.5px;letter-spacing:.14em;
+    text-transform:uppercase;text-decoration:none}
+  a.btn:hover{background:var(--gold);color:#050505}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">æ<span>://</span>DEMO<span> · </span>NEW CAPABILITIES</div>
+    <nav>
+      <a href="#render">RENDER</a>
+      <a href="#registry">REGISTRY</a>
+      <a href="#faescia">FÆSCIA</a>
+      <a href="#surfaces">SURFACES</a>
+      <a href="#gate">GATE</a>
+      <a href="#chain">CHAIN</a>
+    </nav>
+  </header>
+
+  <h1>EVERY NEW CAPABILITY.<br><em>ONE BOOT SEQUENCE.</em></h1>
+  <p class="sub">A single sovereign surface demonstrating the W23 mech-reactive GPU render, the Æmoji
+    Registry (Æ → Unicode → Punycode → Capability), FÆSCIA verified capability classification, the
+    eight canonical-marked audited surfaces, and the deterministic æRTXrender + SupervisorVideo gate.
+    Local. Deterministic. Receipt.</p>
+  <span class="pill">æ:// · opensourceware · local RTX</span>
+
+  <!-- HERO RENDER DEMO -->
+  <section id="render" style="margin-top:34px">
+    <p class="k">01 · The render</p>
+    <h2>æRTXrender — deterministic canvas → MP4</h2>
+    <p class="lede">The canvas below is driven by a deterministic
+      <code>window.__renderFrame(i, total)</code> hook — the same contract the W23 scene used to produce a
+      450-frame, gate-PASS MP4. No randomness: the same frame index always yields the same pixels.</p>
+    <div class="hero">
+      <canvas id="c"></canvas>
+      <span class="live">DETERMINISTIC · REPLAYABLE</span>
+      <span class="cap" id="cap">frame 0 / 450</span>
+    </div>
+  </section>
+
+  <!-- REGISTRY -->
+  <section id="registry">
+    <p class="k">02 · The registry</p>
+    <h2>Æmoji Registry — one symbol, four representations</h2>
+    <p class="lede">A Unicode glyph carries a semantic identity, a machine encoding, and a mapped capability.
+      Type a symbol to resolve it live. Punycode is computed in-page via the URL parser — no server round-trip.</p>
+    <div class="rosetta">
+      <input id="sym" value="🍊" maxlength="4" aria-label="emoji symbol">
+      <button id="go">RESOLVE</button>
+    </div>
+    <div class="out" id="rosettaOut"></div>
+
+    <div class="grid g4" style="margin-top:20px">
+      <div class="card"><div class="glyph">🍊</div><h3>æ · root</h3><p>U+1F34A → xn--ki8h. Entrepreneurship, recursive capability, æææ.com.</p><span class="tag">capability</span></div>
+      <div class="card"><div class="glyph">🛸</div><h3>Internet of Agents</h3><p>Agent discovery, orchestration and distributed execution across the sovereign mesh.</p><span class="tag">orchestration</span></div>
+      <div class="card"><div class="glyph">🧬</div><h3>Neuromitosis / MOLT</h3><p>Agent differentiation, inheritance and reintegration — Human + Robot + DAO bonded.</p><span class="tag">lineage</span></div>
+      <div class="card"><div class="glyph">🪺</div><h3>Zygotæ</h3><p>Agent initialization and parent–child lineage. The egg from which an agent hatches.</p><span class="tag">init</span></div>
+      <div class="card"><div class="glyph">♾️</div><h3>Infinity</h3><p>The Molt Cycle loop: Discover → Steep → Serve → Molt → Garden → ∞.</p><span class="tag">process</span></div>
+      <div class="card"><div class="glyph">🏁</div><h3>OSW / Launch</h3><p>Open sourceware — execution, finish-line and publication motifs. #250.</p><span class="tag">publication</span></div>
+      <div class="card"><div class="glyph">🐇</div><h3>RÆBIT / æl.net</h3><p>Promoted rabbit avatar and 4D creative agent.</p><span class="tag">identity</span></div>
+      <div class="card"><div class="glyph">💧</div><h3>Wætær</h3><p>Fluid simulation and computational environments.</p><span class="tag">simulation</span></div>
+    </div>
+    <p style="margin-top:14px"><a class="btn" href="https://myaelmendez.github.io/aipodcast_me/emoji-registry.html">Open the full registry →</a></p>
+  </section>
+
+  <!-- FAESCIA -->
+  <section id="faescia">
+    <p class="k">03 · The contract</p>
+    <h2>FÆSCIA — verified capability classification</h2>
+    <p class="lede">A read-only inventory classifies each capability as <b>verified</b> or
+      <b>available-but-unverified</b>. Discovery never grants permission; verification is operation-specific
+      and time-bounded.</p>
+    <table>
+      <thead><tr><th>Capability</th><th>Provider</th><th>Class</th><th>Verified operations</th></tr></thead>
+      <tbody>
+        <tr><td><code>github.repository.inspect</code></td><td>GitHub</td><td><span class="tag ok">verified</span></td><td>repository.read · pull_request.read · commit.read · tree.read · blob.read · branch.compare</td></tr>
+        <tr><td><code>github.actions.observe</code></td><td>GitHub Actions</td><td><span class="tag ok">verified</span></td><td>commit-status.read · workflow-run.read</td></tr>
+        <tr><td><code>candidate.local.verify</code></td><td>FÆSCIA workspace</td><td><span class="tag ok">verified</span></td><td>blob-integrity.verify (36/36) · node-test.run (92 passed) · coverage.run · static-accessibility.audit</td></tr>
+        <tr><td><code>browser.release-gate</code></td><td>Playwright</td><td><span class="tag warn">available-but-unverified</span></td><td>none — browser binary absent, download 403</td></tr>
+        <tr><td><code>connector.calendar</code></td><td>—</td><td><span class="tag warn">available-but-unverified</span></td><td>none</td></tr>
+        <tr><td><code>aeqr.flamingo</code></td><td>—</td><td><span class="tag warn">proposed</span></td><td>— (PR 4)</td></tr>
+      </tbody>
+    </table>
+    <div class="receipt">invariants · Context may propagate; authority does not · Discovery never grants permission ·
+      Verification is operation-specific and time-bounded · Verification does not authorize deployment ·
+      A receipt is not necessarily an attestation · No credentials in public manifests</div>
+  </section>
+
+  <!-- SURFACES -->
+  <section id="surfaces">
+    <p class="k">04 · The surfaces</p>
+    <h2>Eight audited surfaces — canonical-marked, live</h2>
+    <p class="lede">Each surface gained a description (where absent), a
+      <code>&lt;link rel="canonical"&gt;</code> to its live URL, and <code>og:title / og:type / og:url</code>.
+      Additive only — no existing markup, styles or scripts were changed.</p>
+    <div class="grid g4">
+      <div class="card"><h3>æ-manifest</h3><p>Agentic Electronic Engineering environment manifest.</p><a href="https://myaelmendez.github.io/aipodcast_me/ae-manifest.html">myaelmendez.github.io/aipodcast_me/ae-manifest.html</a></div>
+      <div class="card"><h3>mother</h3><p>The sovereign home page.</p><a href="https://myaelmendez.github.io/aipodcast_me/mother.html">myaelmendez.github.io/aipodcast_me/mother.html</a></div>
+      <div class="card"><h3>home</h3><p>aipodcast home surface.</p><a href="https://myaelmendez.github.io/aipodcast_me/home.html">myaelmendez.github.io/aipodcast_me/home.html</a></div>
+      <div class="card"><h3>agents-want</h3><p>What agents want — capability thesis.</p><a href="https://myaelmendez.github.io/aipodcast_me/agents-want.html">myaelmendez.github.io/aipodcast_me/agents-want.html</a></div>
+      <div class="card"><h3>hermes-demo-916</h3><p>Hermes agentic engineering demo.</p><a href="https://myaelmendez.github.io/hermes-demo-916.html">myaelmendez.github.io/hermes-demo-916.html</a></div>
+      <div class="card"><h3>wittenberg</h3><p>Wittenberg surface.</p><a href="https://myaelmendez.github.io/wittenberg.html">myaelmendez.github.io/wittenberg.html</a></div>
+      <div class="card"><h3>webmcp</h3><p>Web MCP capability surface.</p><a href="https://myaelmendez.github.io/webmcp.html">myaelmendez.github.io/webmcp.html</a></div>
+      <div class="card"><h3>emoji-registry</h3><p>26-row Æmoji registry with live Rosetta widget.</p><a href="https://myaelmendez.github.io/aipodcast_me/emoji-registry.html">myaelmendez.github.io/aipodcast_me/emoji-registry.html</a></div>
+    </div>
+  </section>
+
+  <!-- GATE -->
+  <section id="gate">
+    <p class="k">05 · The gate</p>
+    <h2>SupervisorVideo — PASS/BLOCKED, with receipt</h2>
+    <p class="lede">The W23 mech-reactive render passed every threshold. The receipt is a SHA-256 hash chain
+      over intent ∥ ops ∥ result ∥ state ∥ evidence — no secrets.</p>
+    <div class="gate">
+      <div class="meter"><b>25.97</b><span>luminancia_media &gt; 20</span></div>
+      <div class="meter"><b>40.92</b><span>contraste_medio &gt; 8</span></div>
+      <div class="meter"><b>7.874</b><span>movimiento_medio &gt; 0.5</span></div>
+      <div class="meter"><b>0</b><span>frames_negros &lt; 5%</span></div>
+    </div>
+    <div class="receipt">receipt cf594743dfa0db7b1fe6e140a960290e2f85c816088cbd67f93d5071d045d7ce ·
+      450 frames · 450 unique hashes · 21,950,259 B ·
+      sha256 88d7e6e50f5bd85974f97ab9b32fe7075e8c2f6c86a2bd48db966e0a4a90af70</div>
+    <p style="margin-top:14px"><a class="btn" href="https://myaelmendez.github.io/aipodcast_me/fase20-hauge.mp4">Watch the deployed MP4 →</a></p>
+  </section>
+
+  <!-- CHAIN -->
+  <section id="chain">
+    <p class="k">06 · The chain</p>
+    <h2>væult — custody → format → gate → authority → contract → dispatch → publish → delivery</h2>
+    <p class="lede">Every task is already a link. Claim before you act; commit to the pledge; verify before you
+      claim; never move a secret. Where a gate exists, pass through it. Where one does not, say the check is missing
+      rather than report a pass.</p>
+    <div class="grid g4">
+      <div class="card"><h3>vault</h3><p>custody — where the secret lives</p></div>
+      <div class="card"><h3>envelope</h3><p>format — how anything crosses a boundary</p></div>
+      <div class="card"><h3>supervision</h3><p>gate — is the artifact real, or a picture of one</p></div>
+      <div class="card"><h3>signing</h3><p>authority — who may act, and until when</p></div>
+      <div class="card"><h3>pledge</h3><p>contract — what an agent has promised</p></div>
+      <div class="card"><h3>kanban</h3><p>dispatch — how a physical card moves the board</p></div>
+      <div class="card"><h3>push</h3><p>publish — how a fleet pushes without colliding</p></div>
+      <div class="card"><h3>transport</h3><p>delivery — how a sealed envelope reaches a person</p></div>
+    </div>
+  </section>
+
+  <footer>
+    æ:// · demo-new-capabilities · sovereign local surface ·
+    gold-on-void #D4AF37 on #050505 · Orbitron + JetBrains Mono ·
+    <a href="https://myaelmendez.github.io/aipodcast_me/demo-new-capabilities.html">canonical</a><br>
+    Truth over marketing. A thing that has not been checked back is not a thing.
+  </footer>
+</div>
+
+<script>
+(function () {
+  var cv = document.getElementById('c');
+  var ctx = cv.getContext('2d');
+  var cap = document.getElementById('cap');
+  var TOTAL = 450;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var t = 0;
+
+  function size() {
+    var r = cv.getBoundingClientRect();
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.max(320, Math.floor(r.width * dpr));
+    cv.height = Math.max(180, Math.floor(r.height * dpr));
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return r;
+  }
+  window.addEventListener('resize', size);
+
+  function drawScene(time) {
+    var r = size();
+    var W = r.width, H = r.height;
+    ctx.fillStyle = '#050505';
+    ctx.fillRect(0, 0, W, H);
+
+    // radial gold glow
+    var g = ctx.createRadialGradient(W * 0.5, H * 0.42, 10, W * 0.5, H * 0.42, H * 1.1);
+    g.addColorStop(0, 'rgba(212,175,55,0.22)');
+    g.addColorStop(1, 'rgba(212,175,55,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+
+    // grid
+    ctx.strokeStyle = 'rgba(212,175,55,0.12)';
+    ctx.lineWidth = 1;
+    var step = Math.max(28, W / 26);
+    for (var x = (time * 18) % step; x < W; x += step) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+    for (var y = 0; y < H; y += step) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+    // orbiting æ-glyphs (Æmoji → Unicode → Punycode → Capability)
+    var glyphs = ['🍊', '🛸', '🧬', '🪺', '♾️', '🏁', '🐇', '💧'];
+    var n = glyphs.length;
+    var cx = W / 2, cy = H / 2;
+    var rad = Math.min(W, H) * 0.30;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    for (var i = 0; i < n; i++) {
+      var a = (i / n) * Math.PI * 2 + time * 0.35;
+      var gx = cx + Math.cos(a) * rad;
+      var gy = cy + Math.sin(a) * rad * 0.55;
+      ctx.font = (Math.min(W, H) * 0.07) + 'px serif';
+      ctx.fillStyle = 'rgba(212,175,55,0.92)';
+      ctx.fillText(glyphs[i], gx, gy);
+      ctx.strokeStyle = 'rgba(212,175,55,0.20)';
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(gx, gy); ctx.stroke();
+    }
+
+    // central æ
+    ctx.font = '700 ' + (Math.min(W, H) * 0.20) + "px 'Orbitron', sans-serif";
+    ctx.fillStyle = '#D4AF37';
+    ctx.fillText('æ', cx, cy);
+
+    // scanline sweep
+    var sy = (time * 90) % (H + 80) - 40;
+    var sg = ctx.createLinearGradient(0, sy - 40, 0, sy + 40);
+    sg.addColorStop(0, 'rgba(212,175,55,0)');
+    sg.addColorStop(0.5, 'rgba(212,175,55,0.10)');
+    sg.addColorStop(1, 'rgba(212,175,55,0)');
+    ctx.fillStyle = sg;
+    ctx.fillRect(0, sy - 40, W, 80);
+
+    // caption
+    ctx.font = "11px 'JetBrains Mono', monospace";
+    ctx.fillStyle = 'rgba(138,130,114,0.9)';
+    ctx.fillText('æ://demo · deterministic · frame ' + Math.floor(time * TOTAL), cx, H - 18);
+  }
+
+  // Deterministic hook — same index → same pixels.
+  window.__renderFrame = function (i, total) {
+    var time = i / Math.max(1, total - 1);
+    drawScene(time * 10);
+    if (cap) cap.textContent = 'frame ' + i + ' / ' + total;
+  };
+
+  // Live preview loop (non-deterministic for the human eye only).
+  if (!reduce) {
+    function loop() { t += 0.016; drawScene(t); requestAnimationFrame(loop); }
+    requestAnimationFrame(loop);
+  } else {
+    drawScene(0);
+  }
+})();
+</script>
+
+<script>
+(function () {
+  var input = document.getElementById('sym');
+  var btn = document.getElementById('go');
+  var out = document.getElementById('rosettaOut');
+  var CAPS = {
+    '🍊': ['æ', 'U+1F34A', 'xn--ki8h', 'root identity · entrepreneurship · recursive capability'],
+    '🛸': ['Internet of Agents', 'U+1F6F8', 'xn--xh8h', 'agent discovery · orchestration · distributed execution'],
+    '🧬': ['Neuromitosis / MOLT', 'U+1F9EC', 'xn--xm8h', 'differentiation · inheritance · reintegration'],
+    '🪺': ['Zygotæ', 'U+1FABA', 'xn--3p8h', 'agent initialization · parent–child lineage'],
+    '♾️': ['Infinity', 'U+221E U+FE0F', 'xn--39g', 'the Molt Cycle loop'],
+    '🏁': ['OSW / Launch', 'U+1F3C1', 'xn--eh8h', 'open sourceware · execution · publication'],
+    '🐇': ['RÆBIT', 'U+1F407', 'xn--lh8h', 'rabbit avatar · 4D creative agent'],
+    '💧': ['Wætær', 'U+1F4A7', 'xn--yh8h', 'fluid simulation · computational environments']
+  };
+  function punycode(label) {
+    try {
+      // Browser-native IDNA via URL parser — no server round-trip.
+      var host = 'https://' + encodeURIComponent(label) + '.com';
+      var u = new URL(host);
+      return u.hostname.replace(/^www\./, '');
+    } catch (e) { return '(unresolvable)'; }
+  }
+  function resolve() {
+    var s = (input.value || '').trim();
+    if (!s) { out.innerHTML = 'type a symbol first.'; return; }
+    var cp = Array.from(s).map(function (c) { return 'U+' + c.codePointAt(0).toString(16).toUpperCase(); }).join(' ');
+    var known = CAPS[s];
+    var pc = punycode(s);
+    var cap = known ? known[3] : 'mapped capability · verified in the registry';
+    out.innerHTML = 'symbol <b>' + s + '</b> · codepoints <b>' + cp + '</b> · punycode <b>' + pc +
+      '</b><br>capability → <b>' + cap + '</b>';
+  }
+  btn.addEventListener('click', resolve);
+  input.addEventListener('input', resolve);
+  resolve();
+})();
+</script>
+</body>
+</html>
