@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<title>&aelig; Studio &middot; First MoW Garden frame</title>
+<style>
+:root{font:14px system-ui,sans-serif;color-scheme:dark;color:#e9ffed;background:#071c16}*{box-sizing:border-box}html,body{margin:0;height:100%;min-height:0}body{padding:13px;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:10px;background:radial-gradient(circle at top,#204b35,#071b17 72%)}.top,.foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:5px;color:#b9dfc4;font-size:11px}.content{min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:2px;display:flex;flex-direction:column;gap:10px}.content>*{flex-shrink:0}.hero{text-align:center;padding:14px 10px;background:#1b4131;border:1px solid #385f47;border-radius:14px}.em{font-size:40px}h1{font-size:24px;margin:5px 0}.sub{font-size:13px;color:#bce4c6;margin:0}.drawer{border:1px solid #47785b;border-radius:11px;overflow:hidden}summary{min-height:44px;padding:12px;cursor:pointer;font-weight:650;background:#173c2d;list-style:none}summary::-webkit-details-marker{display:none}summary::after{content:'+';float:right}details[open] summary{background:#24533d}details[open] summary::after{content:'\2212'}summary:focus-visible,button:focus-visible,.content:focus-visible{outline:3px solid #ffcb65;outline-offset:-3px}.chips{display:flex;flex-wrap:wrap;gap:7px;padding:9px;background:#10291e}button{font:inherit;min-height:44px;border-radius:9px;border:1px solid #6b9f77;background:#264934;color:#efffed;cursor:pointer;padding:7px 9px}button[aria-pressed=true]{border-color:#e4c989;background:#375d39}.work{margin-top:auto;min-height:120px;background:#102e23;border:1px solid #4c8061;border-radius:12px;padding:11px;display:flex;flex-direction:column;gap:9px}.work button{align-self:flex-start}.small{font-size:12px;line-height:1.5;color:#b8d8c2}.nested{border:1px dashed #a4d7a0;padding:8px;border-radius:9px;color:#d8efda;overflow-wrap:anywhere}.foot{font-size:10px}.foot code{font:inherit}p{margin:0}[hidden]{display:none!important}@media(prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="top"><strong>&aelig;&aelig;&aelig;://STUDIO</strong><span>SCENE 01 &middot; 9:16</span></header>
+<main class="content" aria-label="MoW Garden widgets" tabindex="0">
+<section class="hero"><div class="em" aria-hidden="true">&#127818;&#129449;</div><h1>MoW Garden</h1><p class="sub">Grow &middot; Adapt &middot; Regenerate</p></section>
+<details class="drawer" open><summary>&#127818; Orchard</summary><div class="chips"><button type="button" data-name="Seed" aria-pressed="true">&#127793; Seed</button><button type="button" data-name="Grove" aria-pressed="false">&#127818; Grove</button><button type="button" data-name="Water" aria-pressed="false">&#128167; Water</button></div></details>
+<details class="drawer"><summary>&#129449; Living Worlds</summary><div class="chips"><button type="button" data-name="Village" aria-pressed="false">&#127969; Village</button><button type="button" data-name="Habitat" aria-pressed="false">&#128506;&#65039; Habitat</button><button type="button" data-name="County" aria-pressed="false">&#127758; County</button></div></details>
+<details class="drawer"><summary>&#129516; Nested Mixtures</summary><div class="chips"><button type="button" data-name="Models" aria-pressed="false">&#129504; Models</button><button type="button" data-name="Agents" aria-pressed="false">&#129302; Agents</button><button type="button" data-name="Viewports" aria-pressed="false">&#128241; Viewports</button></div></details>
+<section class="work" aria-label="Active widget"><strong id="active" aria-live="polite">&#127793; Seed</strong><p class="small">A widget can hold a drawer, carousel, or another mixture.</p><button id="nest" type="button" aria-expanded="false" aria-controls="nested">+ Nest widget</button><div id="nested" class="nested" hidden>&aelig;(&aelig;) &middot; &#129504; Models + &#129302; Agents + &#128241; Viewport<br><span class="small">Local composition preview. No API call or inherited authority.</span></div><p class="small">This tab only. No external actions.</p></section>
+</main>
+<footer class="foot"><code>x0:y0:z0:&aelig;:&aelig;</code><span>&#10084;&#65039; HUMAN://ROOT</span></footer>
+<script>
+(function(){
+'use strict';
+const buttons=Array.from(document.querySelectorAll('[data-name]'));
+const active=document.getElementById('active'),nested=document.getElementById('nested'),nest=document.getElementById('nest');
+const states=new Map(buttons.map(b=>[b.dataset.name,{nested:false}]));
+let selected='Seed';
+function paint(){const shown=states.get(selected).nested;nested.hidden=!shown;nest.textContent=shown?'\u2212 Unnest widget':'+ Nest widget';nest.setAttribute('aria-expanded',String(shown));}
+buttons.forEach(b=>b.addEventListener('click',()=>{selected=b.dataset.name;active.textContent=b.textContent;buttons.forEach(other=>other.setAttribute('aria-pressed',String(other===b)));paint();}));
+nest.addEventListener('click',()=>{states.get(selected).nested=!states.get(selected).nested;paint();});
+})();
+</script>
+</body>
+</html>
