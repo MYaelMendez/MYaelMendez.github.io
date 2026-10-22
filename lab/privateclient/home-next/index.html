@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#000">
+<title>&gt;_PrivateClient · draft for human approval</title>
+<meta name="description" content="You write. I check. You approve. Sign in with LinkedIn, hold to approve, and every post carries a public receipt.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://privateclient.ai/">
+<meta property="og:title" content="&gt;_PrivateClient · You write. I check. You approve.">
+<meta property="og:description" content="Sign in with LinkedIn, hold to approve, and every post carries a public receipt. Human stays root.">
+<meta property="og:image" content="https://privateclient.ai/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="627">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://privateclient.ai/og.png">
+<link rel="icon" href="/logo.png">
+<script src="pc-face.js"></script>
+<style>
+:root{--c:#00f3ff;--li:#0a66c2;--ink:#e9f6f7;--dim:#7d9a9e;--ok:#3ddc84;--warn:#ffc53d;--stop:#ff5d5d;--bg:#000;--bg0:#050607;--fl:#06191b;--fl2:#031416;--bd:#1d4a4e;--bd2:#0e3b3f;--grid:.07}
+[data-theme=day]{--c:#00747c;--ink:#161616;--dim:#48443d;--ok:#1a7f45;--warn:#8a5a00;--stop:#b3261e;--bg:#f4efe3;--bg0:#e9e3d4;--fl:#fffaf0;--fl2:#fffaf0;--bd:#c9c0ad;--bd2:#c9c0ad;--grid:.09}
+[data-theme=agent]{--bg0:#000;--fl:#020c0d;--fl2:#020c0d;--grid:.1}
+.hr{display:flex;gap:6px;align-items:center}
+#th{min-width:44px;min-height:44px;border:1px solid var(--bd);border-radius:22px;background:none;color:var(--ink);font-size:16px;cursor:pointer}
+#tk,#tp{display:none;z-index:1}
+[data-theme=agent] #tk{display:block;overflow:hidden;white-space:nowrap;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);font-size:12px;color:var(--c);line-height:24px;margin-top:6px}
+#tkr{display:inline-block;padding-left:100%;animation:tick 30s linear infinite}
+@keyframes tick{to{transform:translateX(-100%)}}
+[data-theme=agent] #tp{display:flex;justify-content:center;align-items:baseline;gap:.4em;min-height:2em;font:700 clamp(18px,3.4vw,28px)/1.2 ui-monospace,Menlo,monospace;color:var(--ink);border:1px solid var(--bd);border-radius:12px;padding:6px 10px;margin:8px 0}
+#tp i{font-style:normal;color:var(--c);font-size:.55em;font-weight:400}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg0);color:var(--ink);font:16px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+body{display:grid;place-items:center;min-height:100dvh}
+#st{position:relative;width:min(100vw,calc(100dvh*9/16));height:min(100dvh,calc(100vw*16/9));background:var(--bg);overflow:hidden;
+ border:1px solid var(--bd2);display:flex;flex-direction:column;padding:max(14px,env(safe-area-inset-top)) 18px max(14px,env(safe-area-inset-bottom))}
+#st::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:var(--grid);
+ background:linear-gradient(var(--c) 1px,transparent 1px) 0 0/28px 28px,linear-gradient(90deg,var(--c) 1px,transparent 1px) 0 0/28px 28px}
+header{display:flex;justify-content:space-between;align-items:flex-start;z-index:1}
+.brand{font-weight:700;font-size:16px}.brand small{display:block;font-weight:400;font-size:11px;color:var(--dim);letter-spacing:.08em}
+.lang{background:none;border:1px solid var(--bd);color:var(--dim);border-radius:22px;min-width:44px;min-height:44px;padding:0 10px;font:inherit;font-size:12px}
+.lang option{background:var(--fl);color:var(--ink)}
+main{flex:1;display:flex;flex-direction:column;z-index:1;min-height:0}
+section{display:none;flex:1;flex-direction:column;min-height:0;animation:in .35s ease}
+section.on{display:flex}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.face{width:min(62%,260px);margin:4% auto 0;cursor:pointer;display:block;border:0;background:none}
+.face svg{width:100%;height:auto;display:block}
+.visor{transition:stroke .4s}
+.pulse .visor{animation:pv 2.2s ease-in-out infinite}
+@keyframes pv{50%{stroke:var(--li);filter:drop-shadow(0 0 10px var(--li))}}
+h1{font:700 clamp(20px,6.2vw,30px)/1.2 system-ui,-apple-system,Segoe UI,sans-serif;text-align:center;margin:5% 0 2%}
+h2{font:700 20px/1.25 system-ui,-apple-system,sans-serif;margin:6px 0 10px}
+.sub{color:var(--dim);text-align:center;font-size:13px}
+.pcm{width:1.1em;height:1.1em;vertical-align:-.2em;color:var(--c)}
+.big .pcm{width:72px;height:72px}
+.kick{color:var(--c);text-align:center;font:600 12px ui-monospace,Menlo,monospace;letter-spacing:.06em;text-transform:uppercase;margin:0 0 4px}
+.promise{list-style:none;margin:auto 0 8px;font-size:12px;color:var(--dim);display:grid;gap:6px}
+.promise li::before{content:"🧿 "}
+.btn{min-height:52px;border-radius:14px;border:1px solid var(--c);background:transparent;color:var(--ink);font:600 16px system-ui,sans-serif;padding:0 18px;cursor:pointer;width:100%}
+.btn.li{background:var(--li);border-color:var(--li);color:#fff;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn.li b{background:#fff;color:var(--li);border-radius:4px;padding:0 6px;font:800 15px/22px system-ui}
+.btn.ghost{border-color:var(--bd);color:var(--dim)}
+.btn:disabled{opacity:.35}
+.row{display:flex;gap:10px;margin-top:10px}
+textarea{flex:1;min-height:0;width:100%;resize:none;background:var(--fl);border:1px solid var(--bd);border-radius:14px;color:var(--ink);font:16px/1.5 system-ui,sans-serif;padding:14px;outline:none}
+textarea:focus{border-color:var(--c)}
+.meta{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--dim);margin:8px 0 2px;gap:8px}
+.tog{display:flex;align-items:center;gap:8px;min-height:44px;cursor:pointer}
+.tog input{width:20px;height:20px;accent-color:var(--c)}
+.card{background:#fff;color:#191919;border-radius:12px;padding:14px;font:15px/1.45 system-ui,-apple-system,sans-serif;overflow:auto;max-height:46%;flex-shrink:1}
+.card .who{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.card .av{width:40px;height:40px;border-radius:50%;background:var(--li);color:#fff;display:grid;place-items:center;font-weight:700}
+.card .nm{font-weight:600}.card .tm{font-size:12px;color:#666}
+.card pre{white-space:pre-wrap;word-wrap:break-word;font:inherit}
+.card img{width:100%;border-radius:8px;margin-top:10px;display:block;background:#000}
+.kl{width:100%;min-height:44px;margin-top:10px;background:var(--fl);border:1px solid var(--bd);border-radius:12px;color:var(--ink);font:16px system-ui,sans-serif;padding:0 12px}
+.kl:focus{border-color:var(--c);outline:none}
+.card .foot{color:#666;font-size:13px;margin-top:10px;border-top:1px solid #eee;padding-top:8px;white-space:pre-wrap}
+.checks{list-style:none;margin:12px 0;font-size:13px;display:grid;gap:6px;overflow:auto}
+.checks li{display:flex;gap:8px}.checks .ok{color:var(--ok)}.checks .warn{color:var(--warn)}.checks .stop{color:var(--stop)}
+.hold{position:relative;height:64px;border-radius:32px;border:1px solid var(--c);background:transparent;color:var(--ink);font:700 17px system-ui,sans-serif;overflow:hidden;width:100%;touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer}
+.hold i{position:absolute;inset:0;width:0;background:linear-gradient(90deg,#00f3ff33,#00f3ff88)}
+.hold span{position:relative}
+.rc{border:1px solid var(--bd);border-radius:14px;padding:14px;font-size:13px;display:grid;gap:6px;margin:12px 0;word-break:break-all}
+.rc b{color:var(--c)}
+.big{font-size:44px;text-align:center;margin-top:6%}
+.tag{font-size:11px;color:var(--dim);text-align:center;margin-top:8px}
+a{color:var(--c)}
+.brand{transition:font-size .5s ease,letter-spacing .5s ease}
+.brand.pc{font-size:22px;letter-spacing:.04em;color:var(--c)}.brand.pc small{color:var(--dim);letter-spacing:.02em}
+.pcq{display:flex;align-items:center;gap:6px;border:1px solid var(--bd);border-radius:12px;padding:0 12px;min-height:48px;margin:10px 0 4px;background:var(--fl)}
+.pcq b{color:var(--c)}.pcq input{flex:1;background:none;border:0;outline:none;color:var(--ink);font:16px ui-monospace,Menlo,monospace;min-width:0}
+.pch{font-size:11px;color:var(--dim);margin:0 0 8px}
+.pci{list-style:none;display:grid;gap:2px;overflow:auto;min-height:0}
+.pci a{display:grid;grid-template-columns:30px 9.5em 1fr;align-items:center;min-height:46px;padding:0 8px;border-radius:10px;color:var(--ink);text-decoration:none;font-size:14px}
+.pci a:hover,.pci a:focus,.pci a.hit{background:var(--fl);outline:none}.pci a.hit{box-shadow:inset 2px 0 var(--c)}
+.pci .e{font-size:18px}.pci .k{color:var(--c)}.pci .d{color:var(--dim);font:13px/1.3 system-ui,sans-serif}
+.pcback{align-self:flex-start;background:none;border:0;color:var(--c);font:14px ui-monospace,Menlo,monospace;min-height:44px;cursor:pointer;padding:0}
+#bot{position:absolute;left:0;top:0;z-index:5;width:44px;height:50px;border:0;background:none;cursor:pointer;transition:transform .7s cubic-bezier(.3,1.3,.5,1);display:none;padding:0}
+#bot.on{display:block}#bot pc-face{filter:drop-shadow(0 0 6px #00f3ff55)}
+#bot .eyes{transition:transform .4s}
+#tip{position:absolute;z-index:6;max-width:min(78%,300px);background:var(--fl2);border:1px solid var(--c);border-radius:14px;padding:10px 12px;font:14px/1.4 system-ui,sans-serif;display:none;box-shadow:0 8px 30px #000a}
+#tip.on{display:block;animation:in .3s ease}#tip p{margin:0 0 8px}#tip .r{display:flex;gap:8px;justify-content:flex-end}
+#tip button{min-height:40px;border-radius:10px;border:1px solid var(--bd);background:none;color:var(--dim);font:13px system-ui,sans-serif;padding:0 10px;cursor:pointer}#tip button.y{border-color:var(--c);color:var(--ink)}
+.toast{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);z-index:7;background:var(--fl2);border:1px solid var(--c);border-radius:20px;padding:8px 14px;font-size:13px}
+#s0{overflow-y:auto;overflow-x:hidden}
+.dl,.dr{display:contents}
+@media (min-width:760px) and (orientation:landscape){
+ body{display:block}
+ #st{width:100%;height:100dvh;border:0;padding:24px clamp(24px,5vw,72px)}
+ main{width:100%;max-width:1180px;margin:0 auto}
+ section:not(#s0){width:100%;max-width:600px;margin:0 auto}
+ #s0.on{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:clamp(32px,5vw,80px);align-items:center}
+ #s0 .dl,#s0 .dr{display:flex;flex-direction:column;width:100%;justify-self:center}
+ #s0 .dl{max-width:520px}#s0 .dr{max-width:460px}
+ #s0 .dr>.new{margin:0 0 6px!important;max-width:none!important}
+ #s0 .face{width:min(240px,26vh);margin:0 auto}
+ #s0 h1{font-size:clamp(28px,2.6vw,40px);margin:18px 0 8px}
+ #s0 .sub{font-size:15px}
+ #s0 .promise{margin:18px 0 14px;font-size:13px}
+ .card{max-height:56vh}
+}
+@media (min-width:1500px) and (orientation:landscape){html,body{font-size:17px}}
+@media (prefers-reduced-motion:reduce){#bot{transition:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<div id="st">
+<header><div class="brand" id="brand">&gt;_PrivateClient<small>powered by llm.store</small></div><div class="hr"><select class="lang" id="lang" aria-label="Language"><option value="en">EN</option><option value="es">ES</option><option value="pt">PT</option><option value="fr">FR</option><option value="de">DE</option><option value="sv">SV</option></select><button type="button" id="th" aria-label="theme">🌙</button></div></header>
+<div id="tk" aria-hidden="true"><span id="tkr">pc:// · human stays root</span></div>
+<main>
+ <!-- 0 · door -->
+ <section id="s0" class="on">
+  <div class="dl">
+  <button class="face pulse" id="face" aria-label="Sign in with LinkedIn">
+   <svg viewBox="0 0 240 270" aria-hidden="true">
+    <path d="M52 78 Q52 18 120 18 Q188 18 188 78 V176 Q188 246 120 250 Q52 246 52 176 Z" fill="#141416" stroke="#3a3a3e" stroke-width="2"/>
+    <rect class="visor" x="66" y="92" width="108" height="56" rx="26" fill="#030a0b" stroke="#00f3ff" stroke-width="2.5"/>
+    <g id="inMark"><rect x="104" y="104" width="32" height="32" rx="6" fill="#0a66c2"/><text x="120" y="129" text-anchor="middle" font-family="system-ui" font-weight="800" font-size="21" fill="#fff">in</text></g>
+    <path id="eyes" d="M88 120 h18 M134 120 h18" stroke="#00f3ff" stroke-width="4" stroke-linecap="round" opacity="0"/>
+    <path id="mouth" d="M100 196 Q120 206 140 196" fill="none" stroke="#00f3ff" stroke-width="3" stroke-linecap="round"/>
+    <path d="M52 176 Q60 232 120 240 Q180 232 188 176" fill="none" stroke="#b87333" stroke-opacity=".55" stroke-width="2"/>
+    <path d="M111 40L115.5 45L120 40M125 31V45" fill="none" stroke="#00f3ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+   </svg>
+  </button>
+  <p class="kick" data-en="Private Client draft · for human approval" data-es="Borrador Private Client · para aprobación humana"></p>
+  <h1 data-en="Hi, I'm Private Client." data-es="Hola, soy Private Client."></h1>
+  <p class="sub" data-en="You write. I check. You approve." data-es="Tú escribes. Yo reviso. Tú apruebas."></p>
+  <div id="tp" aria-hidden="true"></div>
+  <ul class="promise">
+   <li data-en="I post only the exact words you approve." data-es="Solo publico las palabras exactas que apruebas."></li>
+   <li data-en="Your LinkedIn access lives in memory, never on disk." data-es="Tu acceso a LinkedIn vive en memoria, nunca en disco."></li>
+   <li data-en="Every post carries a public receipt: a human reviewed it." data-es="Cada post lleva un recibo público: lo revisó un humano."></li>
+  </ul>
+  <button class="btn li" id="go"><b>in</b><span data-en="Sign in with LinkedIn" data-es="Entrar con LinkedIn"></span></button>
+  <p class="tag" id="tag0"></p>
+  </div><div class="dr">
+ <div class="new" style="margin:18px auto 0;max-width:400px;text-align:left;border-left:2px solid #00f3ff;padding:2px 0 2px 12px">
+   <p class="kick" style="margin:0 0 6px" data-en="New · Oct 2026" data-es="Nuevo · oct 2026"></p>
+   <p style="margin:2px 0">🗝️ <b>pc://owner</b> · <span data-en="Your door. Only you." data-es="Tu puerta. Solo tú."></span></p>
+   <p style="margin:2px 0">🤝 <span data-en="Agents ask. You hold. 15 min." data-es="Agentes piden. Tú sostienes. 15 min."></span></p>
+   <p style="margin:2px 0">🧩 <span data-en="Composio, on your own server." data-es="Composio, en tu propio servidor."></span></p>
+   <p style="margin:2px 0">🧾 <span data-en="Every call: a receipt." data-es="Cada llamada: un recibo."></span></p>
+  </div>
+  <div class="offer" style="margin-top:22px;border:1px solid var(--bd);border-radius:14px;padding:16px 16px 14px;text-align:center">
+   <p class="kick" data-en="Owner-only setup · with Yæl" data-es="Instalación solo-dueño · con Yæl"></p>
+   <p style="margin:6px 0;font:700 18px/1.3 Georgia,serif" data-en="Your own Private Client, set up with Yæl." data-es="Tu propio Private Client, instalado con Yæl."></p>
+   <p class="sub" style="margin:0 0 10px" data-en="Owner sign-in, your own agent browser over MCP, and a public receipt on every approved post. From $1,200. Family offices welcome." data-es="Acceso del dueño, tu propio navegador para agentes por MCP y un recibo público en cada post aprobado. Desde $1,200. Family offices bienvenidos."></p>
+   <a class="btn ghost" style="text-decoration:none;display:inline-flex;min-height:44px;align-items:center;justify-content:center" href="mailto:yaelmendez@pm.me?subject=Private%20Client%20owner-only%20setup" data-en="Ask Yæl →" data-es="Escríbele a Yæl →"></a>
+  </div>
+  <div class="offer" id="startabusiness" style="margin-top:12px;border:1px solid var(--bd);border-radius:14px;padding:16px 16px 14px;text-align:center">
+   <p class="kick" data-en="#startabusiness · with Yæl" data-es="#startabusiness · con Yæl"></p>
+   <p style="margin:6px 0;font:700 18px/1.3 Georgia,serif" data-en="Start your business with its own Private Client." data-es="Empieza tu negocio con su propio Private Client."></p>
+   <p class="sub" style="margin:0 0 10px" data-en="From day one: owner sign-in, your own agent browser over MCP, and a public receipt on every post you approve. Owner-only setup with Yæl, from $1,200." data-es="Desde el primer día: acceso del dueño, tu propio navegador para agentes por MCP y un recibo público en cada post que apruebes. Instalación solo-dueño con Yæl, desde $1,200."></p>
+   <a class="btn ghost" style="text-decoration:none;display:inline-flex;min-height:44px;align-items:center;justify-content:center" href="mailto:yaelmendez@pm.me?subject=%23startabusiness%20%C2%B7%20Private%20Client%20setup" data-en="#startabusiness →" data-es="#startabusiness →"></a>
+  </div>
+  </div>
+ </section>
+ <!-- 1 · write -->
+ <section id="s1">
+  <h2 id="hello"></h2>
+  <textarea id="tx" maxlength="3000"></textarea>
+  <div class="meta"><label class="tog"><input type="checkbox" id="ai"><span data-en="AI helped write this" data-es="Una IA ayudó a escribir"></span></label><span id="cnt">0</span></div>
+  <div class="row"><button class="btn ghost" id="paste" data-en="Paste" data-es="Pegar"></button><button class="btn" id="toCheck" data-en="Check it →" data-es="Revisar →"></button></div>
+  <button class="btn ghost" id="out1" style="margin-top:10px;min-height:44px" data-en="Sign out" data-es="Salir"></button>
+ </section>
+ <!-- 2 · review + approve -->
+ <section id="s2">
+  <p class="kick" data-en="Private Client draft · awaiting your approval" data-es="Borrador Private Client · espera tu aprobación"></p>
+  <h2 data-en="Here's how it will look." data-es="Así se verá."></h2>
+  <div class="card"><div class="who"><div class="av" id="av">A</div><div><div class="nm" id="nm"></div><div class="tm" data-en="Now · 🌐" data-es="Ahora · 🌐"></div></div></div>
+   <pre id="pv"></pre><div class="foot" id="ft"></div><img id="cardImg" alt=""></div>
+  <input class="kl" id="kl" maxlength="140" aria-label="Card line">
+  <ul class="checks" id="ck"></ul>
+  <button class="hold" id="hold"><i id="fill"></i><span data-en="Hold · I approve this message" data-es="Mantén · Yo apruebo este mensaje"></span></button>
+  <button class="btn ghost" id="edit" style="margin-top:10px;min-height:44px" data-en="← Edit" data-es="← Editar"></button>
+ </section>
+ <!-- 3 · receipt -->
+ <section id="s3">
+  <div class="big"><svg class="pcm" viewBox="0 0 24 24" aria-label="Private Client check" role="img"><path d="M3 12 L7.5 17 L12 12 M17 3 V17" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  <h1 data-en="Posted. You approved it." data-es="Publicado. Tú lo aprobaste."></h1>
+  <div class="rc" id="rc"></div>
+  <div class="row"><a class="btn li" id="view" target="_blank" rel="noopener" style="text-decoration:none"><span data-en="View on LinkedIn" data-es="Ver en LinkedIn"></span></a></div>
+  <div class="row"><button class="btn" id="again" data-en="Write another" data-es="Escribir otro"></button><button class="btn ghost" id="out3" data-en="Sign out" data-es="Salir"></button></div>
+  <p class="tag" data-en="Signing out drops your LinkedIn access right away." data-es="Al salir, tu acceso a LinkedIn se borra al instante."></p>
+ </section>
+ <!-- 4 · pc:// index -->
+ <section id="s4">
+  <label class="pcq"><b>pc://</b><input id="pcq" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="pc://"></label>
+  <p class="pch" id="pch"></p>
+  <ul class="pci" id="pci"></ul>
+ </section>
+</main>
+<button id="bot" aria-label="Private Client guide"><pc-face id="botf" mood="ready" crown="pc" size="44" label="private_client_æsimov"></pc-face></button>
+<div id="tip" role="dialog" aria-live="polite"><p id="tipt"></p><div class="r"><button id="tiph"></button><button class="y" id="tipy"></button></div></div>
+</div>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const LIVE=["privateclient.ai","www.privateclient.ai","auth.llm.store"].includes(location.hostname);
+const LANGS=["en","es","pt","fr","de","sv"],I18N={"Private Client draft · for human approval":{"pt":"Rascunho Private Client · para aprovação humana","fr":"Brouillon Private Client · pour validation humaine","de":"Private-Client-Entwurf · zur menschlichen Freigabe","sv":"Private Client-utkast · för mänskligt godkännande"},"Hi, I'm Private Client.":{"pt":"Olá, sou o Private Client.","fr":"Bonjour, je suis Private Client.","de":"Hallo, ich bin Private Client.","sv":"Hej, jag är Private Client."},"You write. I check. You approve.":{"pt":"Você escreve. Eu reviso. Você aprova.","fr":"Vous écrivez. Je vérifie. Vous validez.","de":"Sie schreiben. Ich prüfe. Sie geben frei.","sv":"Du skriver. Jag granskar. Du godkänner."},"I post only the exact words you approve.":{"pt":"Publico apenas as palavras exatas que você aprova.","fr":"Je publie uniquement les mots exacts que vous validez.","de":"Ich veröffentliche nur genau die Worte, die Sie freigeben.","sv":"Jag publicerar bara exakt de ord du godkänner."},"Your LinkedIn access lives in memory, never on disk.":{"pt":"Seu acesso ao LinkedIn fica na memória, nunca em disco.","fr":"Votre accès LinkedIn reste en mémoire, jamais sur disque.","de":"Ihr LinkedIn-Zugang bleibt im Arbeitsspeicher, nie auf der Festplatte.","sv":"Din LinkedIn-åtkomst finns i minnet, aldrig på disk."},"Every post carries a public receipt: a human reviewed it.":{"pt":"Cada post leva um recibo público: um humano o revisou.","fr":"Chaque publication porte un reçu public : un humain l’a relue.","de":"Jeder Beitrag trägt einen öffentlichen Beleg: Ein Mensch hat ihn geprüft.","sv":"Varje inlägg har ett offentligt kvitto: en människa har granskat det."},"Sign in with LinkedIn":{"pt":"Entrar com o LinkedIn","fr":"Se connecter avec LinkedIn","de":"Mit LinkedIn anmelden","sv":"Logga in med LinkedIn"},"Owner-only setup · with Yæl":{"pt":"Instalação só do dono · com Yæl","fr":"Installation réservée au propriétaire · avec Yæl","de":"Einrichtung nur für den Inhaber · mit Yæl","sv":"Installation endast för ägaren · med Yæl"},"Your own Private Client, set up with Yæl.":{"pt":"Seu próprio Private Client, instalado com Yæl.","fr":"Votre propre Private Client, installé avec Yæl.","de":"Ihr eigener Private Client, eingerichtet mit Yæl.","sv":"Din egen Private Client, installerad med Yæl."},"Owner sign-in, your own agent browser over MCP, and a public receipt on every approved post. From $1,200. Family offices welcome.":{"pt":"Acesso do dono, seu próprio navegador para agentes via MCP e um recibo público em cada post aprovado. A partir de US$ 1.200. Family offices são bem-vindos.","fr":"Connexion du propriétaire, votre propre navigateur pour agents via MCP et un reçu public pour chaque publication validée. À partir de 1 200 $. Family offices bienvenus.","de":"Inhaber-Anmeldung, Ihr eigener Agenten-Browser über MCP und ein öffentlicher Beleg für jeden freigegebenen Beitrag. Ab 1.200 $. Family Offices willkommen.","sv":"Ägarinloggning, din egen agentwebbläsare via MCP och ett offentligt kvitto för varje godkänt inlägg. Från 1 200 $. Family offices välkomna."},"Ask Yæl →":{"pt":"Fale com Yæl →","fr":"Écrire à Yæl →","de":"Yæl schreiben →","sv":"Skriv till Yæl →"},"#startabusiness · with Yæl":{"pt":"#startabusiness · com Yæl","fr":"#startabusiness · avec Yæl","de":"#startabusiness · mit Yæl","sv":"#startabusiness · med Yæl"},"Start your business with its own Private Client.":{"pt":"Comece seu negócio com o próprio Private Client.","fr":"Lancez votre entreprise avec son propre Private Client.","de":"Starten Sie Ihr Unternehmen mit eigenem Private Client.","sv":"Starta ditt företag med en egen Private Client."},"From day one: owner sign-in, your own agent browser over MCP, and a public receipt on every post you approve. Owner-only setup with Yæl, from $1,200.":{"pt":"Desde o primeiro dia: acesso do dono, seu próprio navegador para agentes via MCP e um recibo público em cada post que você aprovar. Instalação só do dono com Yæl, a partir de US$ 1.200.","fr":"Dès le premier jour : connexion du propriétaire, votre propre navigateur pour agents via MCP et un reçu public pour chaque publication validée. Installation réservée au propriétaire avec Yæl, à partir de 1 200 $.","de":"Vom ersten Tag an: Inhaber-Anmeldung, Ihr eigener Agenten-Browser über MCP und ein öffentlicher Beleg für jeden freigegebenen Beitrag. Einrichtung nur für den Inhaber mit Yæl, ab 1.200 $.","sv":"Från dag ett: ägarinloggning, din egen agentwebbläsare via MCP och ett offentligt kvitto för varje inlägg du godkänner. Installation endast för ägaren med Yæl, från 1 200 $."},"#startabusiness →":{"pt":"#startabusiness →","fr":"#startabusiness →","de":"#startabusiness →","sv":"#startabusiness →"},"AI helped write this":{"pt":"Uma IA ajudou a escrever","fr":"Une IA a aidé à l’écrire","de":"Eine KI hat beim Schreiben geholfen","sv":"En AI hjälpte till att skriva"},"Paste":{"pt":"Colar","fr":"Coller","de":"Einfügen","sv":"Klistra in"},"Check it →":{"pt":"Revisar →","fr":"Vérifier →","de":"Prüfen →","sv":"Granska →"},"Sign out":{"pt":"Sair","fr":"Se déconnecter","de":"Abmelden","sv":"Logga ut"},"Private Client draft · awaiting your approval":{"pt":"Rascunho Private Client · aguardando sua aprovação","fr":"Brouillon Private Client · en attente de votre validation","de":"Private-Client-Entwurf · wartet auf Ihre Freigabe","sv":"Private Client-utkast · väntar på ditt godkännande"},"Here's how it will look.":{"pt":"Assim vai ficar.","fr":"Voici le rendu.","de":"So wird es aussehen.","sv":"Så här kommer det att se ut."},"Now · 🌐":{"pt":"Agora · 🌐","fr":"Maintenant · 🌐","de":"Jetzt · 🌐","sv":"Nu · 🌐"},"Hold · I approve this message":{"pt":"Segure · Eu aprovo esta mensagem","fr":"Maintenez · J’approuve ce message","de":"Halten · Ich gebe diese Nachricht frei","sv":"Håll in · Jag godkänner detta meddelande"},"← Edit":{"pt":"← Editar","fr":"← Modifier","de":"← Bearbeiten","sv":"← Redigera"},"Posted. You approved it.":{"pt":"Publicado. Você aprovou.","fr":"Publié. Vous l’avez validé.","de":"Veröffentlicht. Sie haben es freigegeben.","sv":"Publicerat. Du godkände det."},"View on LinkedIn":{"pt":"Ver no LinkedIn","fr":"Voir sur LinkedIn","de":"Auf LinkedIn ansehen","sv":"Visa på LinkedIn"},"Write another":{"pt":"Escrever outro","fr":"En écrire un autre","de":"Weiteren schreiben","sv":"Skriv ett till"},"Signing out drops your LinkedIn access right away.":{"pt":"Ao sair, seu acesso ao LinkedIn é apagado na hora.","fr":"En vous déconnectant, votre accès LinkedIn est effacé aussitôt.","de":"Beim Abmelden wird Ihr LinkedIn-Zugang sofort gelöscht.","sv":"När du loggar ut raderas din LinkedIn-åtkomst direkt."},"Line for your card":{"pt":"Frase para o seu cartão","fr":"Phrase pour votre carte","de":"Zeile für Ihre Karte","sv":"Rad för ditt kort"},"What do you want to say? Write it, or paste what your AI drafted.":{"pt":"O que você quer dizer? Escreva ou cole o que sua IA redigiu.","fr":"Que voulez-vous dire ? Écrivez-le ou collez le brouillon de votre IA.","de":"Was möchten Sie sagen? Schreiben Sie es oder fügen Sie den Entwurf Ihrer KI ein.","sv":"Vad vill du säga? Skriv det eller klistra in det din AI har skrivit."},"LAB DEMO · no LinkedIn calls":{"pt":"DEMO LAB · sem chamadas ao LinkedIn","fr":"DÉMO LAB · aucun appel à LinkedIn","de":"LAB-DEMO · keine LinkedIn-Aufrufe","sv":"LAB-DEMO · inga anrop till LinkedIn"},"Private Client checked it. You decide.":{"pt":"O Private Client revisou. Você decide.","fr":"Private Client a vérifié. Vous décidez.","de":"Private Client hat geprüft. Sie entscheiden.","sv":"Private Client har granskat. Du bestämmer."},"Posting…":{"pt":"Publicando…","fr":"Publication…","de":"Wird veröffentlicht…","sv":"Publicerar…"},"Checks failed on the server.":{"pt":"As verificações falharam no servidor.","fr":"Les vérifications ont échoué sur le serveur.","de":"Die Prüfungen sind auf dem Server fehlgeschlagen.","sv":"Kontrollerna misslyckades på servern."},"Nothing was posted. Try again.":{"pt":"Nada foi publicado. Tente de novo.","fr":"Rien n’a été publié. Réessayez.","de":"Es wurde nichts veröffentlicht. Bitte erneut versuchen.","sv":"Inget publicerades. Försök igen."},"Receipt":{"pt":"Recibo","fr":"Reçu","de":"Beleg","sv":"Kvitto"},"Approved":{"pt":"Aprovado","fr":"Validé","de":"Freigegeben","sv":"Godkänt"},"Text SHA-256":{"pt":"SHA-256 do texto","fr":"SHA-256 du texte","de":"Text-SHA-256","sv":"Textens SHA-256"},"Card SHA-256":{"pt":"SHA-256 do cartão","fr":"SHA-256 de la carte","de":"Karten-SHA-256","sv":"Kortets SHA-256"},"AI-assisted":{"pt":"Com IA","fr":"Assisté par IA","de":"KI-unterstützt","sv":"AI-assisterat"},"yes · human-reviewed":{"pt":"sim · revisado por humano","fr":"oui · relu par un humain","de":"ja · von einem Menschen geprüft","sv":"ja · granskat av en människa"},"no":{"pt":"não","fr":"non","de":"nein","sv":"nej"},"Verify":{"pt":"Verificar","fr":"Vérifier","de":"Überprüfen","sv":"Verifiera"},"LAB DEMO: nothing was posted to LinkedIn.":{"pt":"DEMO LAB: nada foi publicado no LinkedIn.","fr":"DÉMO LAB : rien n’a été publié sur LinkedIn.","de":"LAB-DEMO: Auf LinkedIn wurde nichts veröffentlicht.","sv":"LAB-DEMO: inget publicerades på LinkedIn."},"No problem. Nothing was shared.":{"pt":"Sem problema. Nada foi compartilhado.","fr":"Aucun souci. Rien n’a été partagé.","de":"Kein Problem. Es wurde nichts geteilt.","sv":"Inga problem. Inget delades."},"That didn't finish. Tap me to try again.":{"pt":"Não terminou. Toque em mim para tentar de novo.","fr":"Ça n’a pas abouti. Touchez-moi pour réessayer.","de":"Das hat nicht geklappt. Tippen Sie auf mich, um es erneut zu versuchen.","sv":"Det blev inte klart. Tryck på mig för att försöka igen."},"__hello":{"pt":"Olá {n}. Qual é a mensagem?","fr":"Bonjour {n}. Quel est le message ?","de":"Hallo {n}. Wie lautet die Nachricht?","sv":"Hej {n}. Vad är meddelandet?"},"New · Oct 2026":{"pt":"Novo · out 2026","fr":"Nouveau · oct. 2026","de":"Neu · Okt. 2026","sv":"Nytt · okt 2026"},"Your door. Only you.":{"pt":"Sua porta. Só você.","fr":"Votre porte. Vous seul.","de":"Ihre Tür. Nur Sie.","sv":"Din dörr. Bara du."},"Agents ask. You hold. 15 min.":{"pt":"Agentes pedem. Você segura. 15 min.","fr":"L'agent demande. Vous tenez. 15 min.","de":"Agenten fragen. Sie halten. 15 Min.","sv":"Agenter ber. Du håller. 15 min."},"Composio, on your own server.":{"pt":"Composio, no seu servidor.","fr":"Composio, sur votre serveur.","de":"Composio, auf Ihrem Server.","sv":"Composio, på din egen server."},"Every call: a receipt.":{"pt":"Cada chamada: um recibo.","fr":"Chaque appel : un reçu.","de":"Jeder Aufruf: ein Beleg.","sv":"Varje anrop: ett kvitto."}};
+let L=(()=>{const q=new URLSearchParams(location.search).get("lang"),n=(q||localStorage.getItem("pc_lang")||navigator.language||"en").slice(0,2).toLowerCase();return LANGS.includes(n)?n:"en"})(),ME=null,LAST=null,DEMO_N=0,DEMO_P=null,RID=null,CARD=null,QR=null;
+const tr=(en,es)=>L==="es"?es:L==="en"?en:((I18N[en]||{})[L]||en);
+function paint(){document.documentElement.lang=L;$("lang").value=L;
+ document.querySelectorAll("[data-en]").forEach(e=>e.textContent=e.dataset[L]||(I18N[e.dataset.en]||{})[L]||e.dataset.en);
+ $("kl").placeholder=tr("Line for your card","Frase para tu tarjeta");
+ $("tx").placeholder=tr("What do you want to say? Write it, or paste what your AI drafted.","¿Qué quieres decir? Escríbelo o pega lo que tu IA redactó.");
+ if(ME){const n=ME.name.split(" ")[0];$("hello").textContent=L in I18N.__hello?I18N.__hello[L].replace("{n}",n):tr(`Hi ${n}. What's the message?`,`Hola ${n}. ¿Cuál es el mensaje?`);}
+ if(typeof brand==="function"){brand();if($("s4").classList.contains("on"))index();$("bot").setAttribute("aria-label",pt("guide"))}
+ $("tag0").textContent=LIVE?"privateclient.ai · 🧿 guarded":tr("LAB DEMO · no LinkedIn calls","LAB DEMO · sin llamadas a LinkedIn");}
+$("lang").onchange=()=>{L=$("lang").value;try{localStorage.setItem("pc_lang",L)}catch(e){}paint();if($("s2").classList.contains("on"))review();};
+function show(n){document.querySelectorAll("section").forEach((s,i)=>s.classList.toggle("on",i===n));if(typeof mood==="function"){const M={1:"think",3:"ok",4:"ready"};if(M[n])mood(M[n])}if(n===4){$("pcq").value="";index()}if(typeof guide==="function")setTimeout(()=>guide(n),380);}
+
+/* ── checks: same rules as checks.py (the server's word is final when live) ── */
+const SEC=[["API key",/\bsk-[A-Za-z0-9_-]{20,}/],["GitHub token",/\bgh[pousr]_[A-Za-z0-9]{30,}/],["AWS key",/\bAKIA[0-9A-Z]{16}\b/],["Slack token",/\bxox[abprs]-[A-Za-z0-9-]{10,}/],["Private key",/-----BEGIN [A-Z ]*PRIVATE KEY-----/],["Google key",/\bAIza[0-9A-Za-z_-]{35}\b/]];
+const luhn=d=>{let s=0,a=false;for(const c of [...d].reverse()){let n=+c;if(a){n*=2;if(n>9)n-=9}s+=n;a=!a}return s%10===0};
+function localCheck(t){const o=[],add=(level,code,en,es)=>o.push({level,code,en,es}),n=t.trim().length,w=t.split(/\s+/).filter(Boolean).length,m=Math.max(1,Math.round(w/200));
+ if(!n)add("stop","empty","Nothing to post yet.","Aún no hay nada que publicar.");
+ else if(n>2800)add("stop","long",`${n} characters; keep it under 2800.`,`${n} caracteres; menos de 2800.`);
+ else add("ok","length",`${n} characters · about ${m} min read`,`${n} caracteres · ~${m} min de lectura`);
+ for(const [nm,rx] of SEC)if(rx.test(t))add("stop","secret",`Looks like a secret (${nm}). Remove it before posting.`,`Parece una credencial (${nm}). Quítala antes de publicar.`);
+ let card=false;for(const x of t.matchAll(/(?<!\d)(?:\d[ -]?){13,19}(?!\d)/g)){const d=x[0].replace(/\D/g,"");if(d.length>=13&&d.length<=19&&luhn(d)){card=true;add("stop","card","Looks like a card number. Remove it.","Parece un número de tarjeta. Quítalo.");break}}
+ if(/[\w.+-]+@[\w-]+\.[\w.]+/.test(t))add("warn","email","Contains an email address: public on purpose?","Incluye un email: ¿público a propósito?");
+ if(!card&&/(?<!\d)(?:\+?\d[\s().-]?){10,13}(?!\d)/.test(t))add("warn","phone","Contains a phone number: public on purpose?","Incluye un teléfono: ¿público a propósito?");
+ const lk=t.match(/https?:\/\/\S+/g)||[];if(lk.length>2)add("warn","links",`${lk.length} links; LinkedIn tends to show fewer.`,`${lk.length} enlaces; LinkedIn suele mostrar menos.`);else if(lk.length)add("ok","links",`${lk.length} link`,`${lk.length} enlace`);
+ const tg=t.match(/(?<!\w)#\w+/g)||[];if(tg.length>5)add("warn","tags",`${tg.length} hashtags; 3 to 5 reads cleaner.`,`${tg.length} hashtags; 3 a 5 se lee mejor.`);
+ const al=[...t].filter(c=>/\p{L}/u.test(c)).length,up=[...t].filter(c=>c!==c.toLowerCase()).length;if(n>20&&up>.6*al)add("warn","caps","Mostly capitals reads as shouting.","Casi todo en mayúsculas se lee como gritar.");
+ return{ok:!o.some(c=>c.level==="stop"),checks:o};}
+
+/* ── API: live server, or a mock in the LAB ── */
+async function sha(s){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+const API=LIVE?{
+ me:()=>fetch("/me",{credentials:"same-origin"}).then(r=>r.json()),
+ prepare:b=>fetch("/prepare",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}).then(async r=>({status:r.status,...await r.json()})),
+ check:t=>fetch("/check",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:t})}).then(r=>r.json()),
+ sign:b=>fetch("/sign",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}).then(async r=>({status:r.status,...await r.json()})),
+ out:()=>fetch("/logout",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"})
+}:{
+ me:async()=>sessionStorage.pc_demo?{signed_in:true,name:"Ana Demo",can_post:true}:{signed_in:false},
+ check:async t=>localCheck(t),
+ prepare:async b=>{const c=localCheck(b.text);if(!c.ok)return{status:422,...c};const rid=(await sha(b.text+Date.now()+Math.random())).slice(0,12);DEMO_P={rid,text:b.text,ai:b.ai_assisted};return{status:200,rid,verify:"https://privateclient.ai/r/"+rid,...c}},
+ sign:async b=>{const t=Math.floor(Date.now()/1e3),ts=await sha(DEMO_P.text),cs=b.image?await sha(b.image):null;
+  return{status:200,rid:b.rid,t,text_sha:ts,card_sha:cs,ai_assisted:DEMO_P.ai,post:"urn:li:share:DEMO"+(++DEMO_N),url:null,verify:"https://privateclient.ai/r/"+b.rid,demo:true}},
+ out:async()=>{delete sessionStorage.pc_demo}
+};
+function signin(){$("face").classList.remove("pulse");
+ if(LIVE){location.href="/linkedin/login?scope=post&next="+(new URLSearchParams(location.search).get("go")==="write"?"write":"client");return}
+ sessionStorage.pc_demo=1;boot();}
+$("face").onclick=signin;$("go").onclick=signin;
+$("face").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();signin()}};
+
+const footer=rid=>"";  /* the text is all yours; the receipt rides on the card as an æQR */
+$("tx").oninput=()=>{const n=$("tx").value.trim().length;$("cnt").textContent=n+" / 2800";$("cnt").style.color=n>2800?"var(--stop)":""};
+$("paste").onclick=async()=>{try{const t=await navigator.clipboard.readText();if(t){$("tx").value+=t;$("tx").oninput()}}catch(e){$("tx").focus()}};
+let CK=null;
+const keyLine=t=>{const f=(t.trim().split(/\n/)[0].match(/^.*?[.!?](\s|$)/)||[t.trim().split(/\n/)[0]])[0].trim();return f.length>140?f.slice(0,137).trimEnd()+"…":f};
+/* the signed card · 1080×1350 (4:5, LinkedIn feed) */
+const FACE=["M52 78 Q52 18 120 18 Q188 18 188 78 V176 Q188 246 120 250 Q52 246 52 176 Z","M52 176 Q60 232 120 240 Q180 232 188 176"];
+function wrap(x,t,w){const out=[];let line="";for(const word of t.split(/\s+/)){const tst=line?line+" "+word:word;if(x.measureText(tst).width>w&&line){out.push(line);line=word}else line=tst}if(line)out.push(line);return out}
+function drawCard(){const c=document.createElement("canvas");c.width=1080;c.height=1350;const x=c.getContext("2d");
+ x.fillStyle="#000";x.fillRect(0,0,1080,1350);x.strokeStyle="rgba(0,243,255,.08)";x.lineWidth=1;
+ for(let i=0;i<=1080;i+=54){x.beginPath();x.moveTo(i,0);x.lineTo(i,1350);x.stroke()}for(let j=0;j<=1350;j+=54){x.beginPath();x.moveTo(0,j);x.lineTo(1080,j);x.stroke()}
+ x.strokeStyle="#00f3ff";x.lineWidth=3;x.strokeRect(24,24,1032,1302);
+ x.fillStyle="#e9f6f7";x.font="700 40px ui-monospace,Menlo,monospace";x.fillText(">_PrivateClient",64,104);
+ x.fillStyle="#7d9a9e";x.font="400 24px ui-monospace,Menlo,monospace";x.fillText("powered by llm.store",64,142);
+ x.save();x.translate(540-120*1.5,170);x.scale(1.5,1.5);
+ x.fillStyle="#141416";x.strokeStyle="#3a3a3e";x.lineWidth=2;const hd=new Path2D(FACE[0]);x.fill(hd);x.stroke(hd);
+ x.fillStyle="#030a0b";x.strokeStyle="#00f3ff";x.lineWidth=2.5;x.beginPath();x.roundRect(66,92,108,56,26);x.fill();x.stroke();
+ x.lineCap="round";x.lineWidth=4;x.beginPath();x.moveTo(88,120);x.lineTo(106,120);x.moveTo(134,120);x.lineTo(152,120);x.shadowColor="#00f3ff";x.shadowBlur=12;x.stroke();x.shadowBlur=0;
+ x.lineWidth=3;x.beginPath();x.moveTo(100,196);x.quadraticCurveTo(120,206,140,196);x.stroke();
+ x.strokeStyle="rgba(184,115,51,.55)";x.lineWidth=2;x.stroke(new Path2D(FACE[1]));
+ x.strokeStyle="#3a6fe0";x.lineWidth=1.5;x.beginPath();x.arc(120,40,12,0,7);x.stroke();x.fillStyle="#00f3ff";x.beginPath();x.arc(120,40,4,0,7);x.fill();x.restore();
+ const line=($("kl").value||keyLine($("tx").value)).trim();let fs=66,ls;
+ do{x.font=`700 ${fs}px system-ui,-apple-system,Segoe UI,sans-serif`;ls=wrap(x,"“"+line+"”",920);fs-=4}while(ls.length>5&&fs>34);
+ x.fillStyle="#fff";x.textAlign="center";const lh=fs*1.28,y0=790-((ls.length-1)*lh)/2;ls.forEach((l,i)=>x.fillText(l,540,y0+i*lh));
+ x.fillStyle="#00f3ff";x.font="500 36px system-ui,sans-serif";x.fillText("— "+ME.name,540,Math.min(1080,y0+ls.length*lh+30));
+ x.save();x.translate(540,1170);x.rotate(-0.05);x.strokeStyle="#0a66c2";x.lineWidth=6;x.beginPath();x.roundRect(-330,-52,660,104,18);x.stroke();
+ let sf=40;x.font=`800 ${sf}px system-ui,sans-serif`;while(x.measureText("I APPROVE THIS MESSAGE").width>520&&sf>24){sf-=2;x.font=`800 ${sf}px system-ui,sans-serif`}
+ const tw=x.measureText("I APPROVE THIS MESSAGE").width,mw=56,gap=22,x0=-(mw+gap+tw)/2;
+ x.save();x.translate(x0-4,-40);x.scale(2.6,2.6);x.strokeStyle="#00f3ff";x.lineWidth=2.6;x.lineCap="round";x.lineJoin="round";x.stroke(new Path2D("M3 12 L7.5 17 L12 12 M17 3 V17"));x.restore();
+ x.fillStyle="#4c9be8";x.textAlign="left";x.fillText("I APPROVE THIS MESSAGE",x0+mw+gap,sf*0.36);x.textAlign="center";x.restore();
+ if(QR&&QR.length){const n=QR.length,S=168,q=10,m=S/n,X=1080-64-S-q,Y=56;x.fillStyle="#fff";x.fillRect(X-q,Y-q,S+2*q,S+2*q);x.fillStyle="#000";
+  QR.forEach((r,i)=>{for(let j=0;j<n;j++)if(r[j]==="1")x.fillRect(X+j*m,Y+i*m,Math.ceil(m),Math.ceil(m))});
+  x.fillStyle="#00f3ff";x.font="600 18px ui-monospace,Menlo,monospace";x.textAlign="center";x.fillText("æQR · receipt",X+S/2,Y+S+q+26)}
+ x.fillStyle="#7d9a9e";x.font="400 26px ui-monospace,Menlo,monospace";
+ x.fillText(($("ai").checked?"AI-assisted · human-reviewed · ":"human-reviewed · ")+"privateclient.ai/r/"+(RID||"············"),540,1285);
+ return c.toDataURL("image/png");}
+const PCM='<svg class="pcm" viewBox="0 0 24 24" aria-label="Private Client check" role="img"><path d="M3 12 L7.5 17 L12 12 M17 3 V17" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+let kt=0;$("kl").oninput=()=>{clearTimeout(kt);kt=setTimeout(()=>{CARD=drawCard();$("cardImg").src=CARD},150)};
+async function review(){const t=$("tx").value.trim();$("toCheck").disabled=true;mood("checking");
+ const r=await API.prepare({text:t,ai_assisted:$("ai").checked}).catch(()=>({status:0,...localCheck(t)}));$("toCheck").disabled=false;
+ CK=r.checks?r:localCheck(t);RID=r.status===200?r.rid:null;QR=r.status===200?r.qr:null;
+ $("pv").textContent=t;$("ft").textContent=footer(RID);$("nm").textContent=ME.name;$("av").textContent=ME.name[0];
+ if(!$("kl").value)$("kl").value=keyLine(t);CARD=drawCard();$("cardImg").src=CARD;$("cardImg").alt=$("kl").value;
+ $("ck").innerHTML="";for(const c of CK.checks){const li=document.createElement("li");li.className=c.level;li.textContent=(c.level==="warn"?"⚠ ":c.level==="ok"?" ":"✕ ")+(c[L]||c.en);if(c.level==="ok")li.insertAdjacentHTML("afterbegin",PCM);$("ck").appendChild(li)}
+ const h=document.createElement("li");h.className="ok";h.textContent="🧿 "+tr("Private Client checked it. You decide.","Private Client lo revisó. Tú decides.");$("ck").appendChild(h);
+ $("hold").disabled=!(CK.ok&&RID);show(2);mood(CK.ok&&RID?"ready":"stop");}
+$("toCheck").onclick=review;$("edit").onclick=()=>{$("kl").value="";show(1)};
+
+/* hold-to-approve, 1.2 s */
+let t0=0,raf=0,busy=false;const HOLD=1200;
+function step(){const p=Math.min(1,(performance.now()-t0)/HOLD);$("fill").style.width=p*100+"%";if(p<1)raf=requestAnimationFrame(step);else approve(performance.now()-t0)}
+function down(e){if($("hold").disabled||busy)return;e.preventDefault();t0=performance.now();raf=requestAnimationFrame(step);navigator.vibrate&&navigator.vibrate(10)}
+function up(){if(busy)return;cancelAnimationFrame(raf);$("fill").style.width="0"}
+$("hold").addEventListener("pointerdown",down);["pointerup","pointerleave","pointercancel"].forEach(ev=>$("hold").addEventListener(ev,up));
+$("hold").onkeydown=e=>{if((e.key==="Enter"||e.key===" ")&&!e.repeat)down(e)};$("hold").onkeyup=up;
+async function approve(held){busy=true;mood("checking");navigator.vibrate&&navigator.vibrate([20,40,20]);$("hold").querySelector("span").textContent=tr("Posting…","Publicando…");
+ const r=await API.sign({rid:RID,image:CARD,alt:$("kl").value,held_ms:Math.round(held)}).catch(()=>({status:0}));
+ busy=false;$("fill").style.width="0";paint();
+ if(r.status!==200){mood("stop");$("ck").insertAdjacentHTML("afterbegin",`<li class="stop">✕ ${r.error||(r.checks?tr("Checks failed on the server.","La revisión falló en el servidor."):tr("Nothing was posted. Try again.","No se publicó nada. Intenta de nuevo."))}</li>`);return}
+ LAST=r;const when=new Date(r.t*1e3).toLocaleString(L);
+ $("rc").innerHTML="";[[tr("Receipt","Recibo"),r.rid],[tr("Approved","Aprobado"),when],[tr("Text SHA-256","SHA-256 del texto"),r.text_sha],[tr("Card SHA-256","SHA-256 de la tarjeta"),r.card_sha||"—"],[tr("AI-assisted","Con IA"),r.ai_assisted?tr("yes · human-reviewed","sí · revisado por humano"):tr("no","no")],[tr("Verify","Verificar"),r.verify.replace("https://","")]].forEach(([k,v])=>{const d=document.createElement("div");d.innerHTML="<b></b> ";d.firstChild.textContent=k;d.append(v);$("rc").appendChild(d)});
+ if(r.demo){const d=document.createElement("div");d.textContent=tr("LAB DEMO: nothing was posted to LinkedIn.","LAB DEMO: no se publicó nada en LinkedIn.");$("rc").appendChild(d)}
+ $("view").style.display=r.url?"":"none";if(r.url)$("view").href=r.url;
+ try{localStorage.setItem("pc_last_rid",RID)}catch(e){}$("tx").value="";$("kl").value="";RID=null;QR=null;$("tx").oninput();show(3);}
+$("again").onclick=()=>show(1);
+async function out(){await API.out();ME=null;$("face").classList.add("pulse");show(0);paint()}
+$("out1").onclick=out;$("out3").onclick=out;
+
+async function boot(){const q=new URLSearchParams(location.search).get("signin");
+ if(q&&q!=="ok")$("tag0").textContent=q==="cancelled"?tr("No problem. Nothing was shared.","Sin problema. No se compartió nada."):tr("That didn't finish. Tap me to try again.","No terminó. Tócame para intentar de nuevo.");
+ const m=await API.me().catch(()=>({signed_in:false}));
+ if(m.signed_in&&m.can_post){ME=m;paint();$("tx").oninput();const g=new URLSearchParams(location.search).get("go");show(g==="write"?1:4);history.replaceState(null,"",location.pathname)}
+ else if(m.signed_in){ME=m;paint();show(0)} /* signed in without post access: tap the face to grant it */
+ else{paint();if(q&&q!=="ok")$("tag0").textContent=q==="cancelled"?tr("No problem. Nothing was shared.","Sin problema. No se compartió nada."):tr("That didn't finish. Tap me to try again.","No terminó. Tócame para intentar de nuevo.")}}
+
+/* ── pc:// · the quick-access text index (after LinkedIn sign-in) ── */
+const PC={"write":{"en":"Write and approve a post","es":"Escribe y aprueba un post","pt":"Escreva e aprove um post","fr":"Écrire et valider une publication","de":"Beitrag schreiben und freigeben","sv":"Skriv och godkänn ett inlägg"},"studio":{"en":"Templates and cards","es":"Plantillas y tarjetas","pt":"Modelos e cartões","fr":"Modèles et cartes","de":"Vorlagen und Karten","sv":"Mallar och kort"},"r":{"en":"Your last receipt","es":"Tu último recibo","pt":"Seu último recibo","fr":"Votre dernier reçu","de":"Ihr letzter Beleg","sv":"Ditt senaste kvitto"},"labs":{"en":"Signed archive","es":"Archivo firmado","pt":"Arquivo assinado","fr":"Archive signée","de":"Signiertes Archiv","sv":"Signerat arkiv"},"mcp":{"en":"Keys for your agents","es":"Claves para tus agentes","pt":"Chaves para seus agentes","fr":"Clés pour vos agents","de":"Schlüssel für Ihre Agenten","sv":"Nycklar för dina agenter"},"yael":{"en":"Yæl's work, for agents · copy","es":"La obra de Yæl, para agentes · copiar","pt":"O trabalho de Yæl, para agentes · copiar","fr":"Le travail de Yæl, pour agents · copier","de":"Yæls Werk, für Agenten · kopieren","sv":"Yæls verk, för agenter · kopiera"},"setup":{"en":"Owner-only setup with Yæl","es":"Instalación solo-dueño con Yæl","pt":"Instalação só do dono com Yæl","fr":"Installation propriétaire avec Yæl","de":"Inhaber-Einrichtung mit Yæl","sv":"Ägarinstallation med Yæl"},"out":{"en":"Sign out","es":"Salir","pt":"Sair","fr":"Se déconnecter","de":"Abmelden","sv":"Logga ut"},"go":{"en":"type to jump · ↵ opens","es":"escribe para saltar · ↵ abre","pt":"digite para ir · ↵ abre","fr":"tapez pour aller · ↵ ouvre","de":"tippen zum Springen · ↵ öffnet","sv":"skriv för att hoppa · ↵ öppnar"},"copied":{"en":"Copied ✓","es":"Copiado ✓","pt":"Copiado ✓","fr":"Copié ✓","de":"Kopiert ✓","sv":"Kopierat ✓"},"tip_index":{"en":"👋 New here? Everything lives at pc://. Start with ✍️ write.","es":"👋 ¿Eres nuevo? Todo vive en pc://. Empieza con ✍️ write.","pt":"👋 Primeira vez? Tudo vive em pc://. Comece por ✍️ write.","fr":"👋 Nouveau ? Tout vit sur pc://. Commencez par ✍️ write.","de":"👋 Neu hier? Alles lebt unter pc://. Starten Sie mit ✍️ write.","sv":"👋 Ny här? Allt finns på pc://. Börja med ✍️ write."},"tip_write":{"en":"Write it, or paste what your AI drafted. Then ✅ Check it.","es":"Escríbelo o pega lo que redactó tu IA. Luego ✅ Revisar.","pt":"Escreva ou cole o que sua IA redigiu. Depois ✅ Revisar.","fr":"Écrivez-le ou collez le brouillon de votre IA. Puis ✅ Vérifier.","de":"Schreiben Sie es oder fügen Sie den KI-Entwurf ein. Dann ✅ Prüfen.","sv":"Skriv det eller klistra in AI-utkastet. Sedan ✅ Granska."},"tip_review":{"en":"Read the card. Holding this button is your signature ✍️.","es":"Lee la tarjeta. Mantener este botón es tu firma ✍️.","pt":"Leia o cartão. Segurar este botão é a sua assinatura ✍️.","fr":"Lisez la carte. Maintenir ce bouton, c’est votre signature ✍️.","de":"Lesen Sie die Karte. Dieses Halten ist Ihre Unterschrift ✍️.","sv":"Läs kortet. Att hålla in knappen är din signatur ✍️."},"tip_done":{"en":"🧾 Your public receipt. Anyone can verify it, forever.","es":"🧾 Tu recibo público. Cualquiera puede verificarlo, para siempre.","pt":"🧾 Seu recibo público. Qualquer pessoa pode verificar, para sempre.","fr":"🧾 Votre reçu public. Vérifiable par tous, pour toujours.","de":"🧾 Ihr öffentlicher Beleg. Jeder kann ihn prüfen, für immer.","sv":"🧾 Ditt offentliga kvitto. Vem som helst kan verifiera det, för alltid."},"ok":{"en":"Got it 👍","es":"Entendido 👍","pt":"Entendi 👍","fr":"Compris 👍","de":"Verstanden 👍","sv":"Uppfattat 👍"},"hide":{"en":"Hide tips","es":"Ocultar consejos","pt":"Ocultar dicas","fr":"Masquer les conseils","de":"Tipps ausblenden","sv":"Dölj tips"},"guide":{"en":"Private Client guide","es":"Guía de Private Client","pt":"Guia do Private Client","fr":"Guide Private Client","de":"Private-Client-Guide","sv":"Private Client-guide"},"owner":{"en":"Owner console · your MCP sites","es":"Consola del dueño · tus sitios MCP","pt":"Console do dono · seus sites MCP","fr":"Console propriétaire · vos sites MCP","de":"Inhaber-Konsole · Ihre MCP-Seiten","sv":"Ägarkonsol · dina MCP-sajter"}};
+const pt=k=>(PC[k]||{})[L]||(PC[k]||{}).en||k;
+const YMCP="https://privateclient.ai/yael/mcp";
+function rows(){const r=[["✍️","write",()=>show(1)],["🎨","studio","/studio"],["🧪","labs","/labs"],["🧭","mcp","/mcp/connect"],["📚","yael",()=>copy(YMCP)],["🤝","setup","mailto:yaelmendez@pm.me?subject=Private%20Client%20owner-only%20setup"],["🚪","out",()=>out()]];
+ if(ME&&ME.owner)r.unshift(["🗝️","owner","/owner"]);let last=null;try{last=localStorage.getItem("pc_last_rid")}catch(e){}if(last)r.splice(1,0,["🧾","r/"+last,"/r/"+last,"r"]);return r}
+function index(){const q=$("pcq").value.trim().toLowerCase().replace(/^pc:\/\//,""),ul=$("pci");ul.innerHTML="";let first=true;
+ for(const [e,k,act,dk] of rows()){const d=pt(dk||k);if(q&&!(k+" "+d).toLowerCase().includes(q))continue;
+  const li=document.createElement("li"),a=document.createElement("a");a.href=typeof act==="string"?act:"#";a.dataset.k=k;
+  a.innerHTML='<span class="e" aria-hidden="true"></span><span class="k"></span><span class="d"></span>';a.children[0].textContent=e;a.children[1].textContent="pc://"+k;a.children[2].textContent=d;
+  if(typeof act==="function")a.onclick=ev=>{ev.preventDefault();act()};if(q&&first)a.classList.add("hit");first=false;li.appendChild(a);ul.appendChild(li)}
+ $("pch").textContent=pt("go");}
+$("pcq").oninput=index;
+$("pcq").onkeydown=e=>{if(e.key==="Enter"){const h=$("pci").querySelector("a");if(h){e.preventDefault();h.click()}}};
+async function copy(t){try{await navigator.clipboard.writeText(t)}catch(e){}const d=document.createElement("div");d.className="toast";d.textContent=pt("copied")+" "+t;$("st").appendChild(d);setTimeout(()=>d.remove(),1800)}
+function brand(){const b=$("brand");if(ME){b.classList.add("pc");b.innerHTML="pc://<small></small>";b.querySelector("small").textContent="privateclient.ai · "+ME.name.split(" ")[0]}
+ else{b.classList.remove("pc");b.innerHTML="&gt;_PrivateClient<small>powered by llm.store</small>"}}
+function addBack(id){const s=$(id);if(s.querySelector(".pcback"))return;const b=document.createElement("button");b.className="pcback";b.textContent="← pc://";b.onclick=()=>show(4);s.insertBefore(b,s.firstChild)}
+["s1","s3"].forEach(addBack);
+
+/* ── the small æsymov: moves to what matters, training wheels for first-timers ── */
+const TIPS={4:["tip_index",()=>$("pci").querySelector("a")],1:["tip_write",()=>$("tx")],2:["tip_review",()=>$("hold")],3:["tip_done",()=>$("rc")]};
+let CUR=null;const seen=()=>{try{return JSON.parse(localStorage.getItem("pc_tw")||"{}")}catch(e){return{}}};
+const mark=k=>{try{const s=seen();s[k]=1;localStorage.setItem("pc_tw",JSON.stringify(s))}catch(e){}};
+function place(el){const st=$("st").getBoundingClientRect(),r=el.getBoundingClientRect(),bot=$("bot");
+ let x=Math.min(st.width-52,Math.max(6,r.right-st.left-22)),y=r.top-st.top-56;if(y<56)y=r.bottom-st.top+6;y=Math.min(st.height-58,y);
+ bot.style.transform=`translate(${x}px,${y}px)`;return{x,y,st}}
+/* the face shows the real state: ae.face/0.1 moods */
+function mood(m){const f=$("botf");if(f)f.mood=m}
+function guide(n,force){const bot=$("bot"),tip=$("tip");tip.classList.remove("on");if(!ME||n===0){bot.classList.remove("on");return}
+ bot.classList.add("on");const t=TIPS[n];if(!t){bot.style.transform="translate(8px,60px)";return}
+ requestAnimationFrame(()=>{const el=t[1]();if(!el)return;const {x,y,st}=place(el);CUR=[n,t[0]];
+  if(!force&&(seen()[t[0]]||seen().off))return;$("tipt").textContent=pt(t[0]);$("tipy").textContent=pt("ok");$("tiph").textContent=pt("hide");
+  tip.classList.add("on");const w=tip.offsetWidth,h=tip.offsetHeight;let tx=Math.max(8,Math.min(st.width-w-8,x-w+40)),ty=y>st.height/2?y-h-6:y+56;tip.style.left=tx+"px";tip.style.top=Math.max(56,ty)+"px"})}
+$("tipy").onclick=()=>{if(CUR)mark(CUR[1]);$("tip").classList.remove("on")};
+$("tiph").onclick=()=>{mark("off");$("tip").classList.remove("on")};
+$("bot").onclick=()=>{if($("tip").classList.contains("on")){$("tip").classList.remove("on");return}const n=[...document.querySelectorAll("section")].findIndex(s=>s.classList.contains("on"));guide(n,true)};
+addEventListener("resize",()=>{const n=[...document.querySelectorAll("section")].findIndex(s=>s.classList.contains("on"));guide(n)});
+paint();boot();
+
+/* themes: 🌙 night · ☀️ day · 🤖 agent (ticker + nano teleprompter), shared with pc://terminal */
+(function(){const $$=id=>document.getElementById(id),W=ms=>new Promise(r=>setTimeout(r,ms)),RM=matchMedia("(prefers-reduced-motion:reduce)").matches;
+const TH=["night","day","agent"],TI={night:"🌙",day:"☀️",agent:"🤖"};
+function theme(t){document.documentElement.dataset.theme=t;$$("th").textContent=TI[t];$$("th").title=t;try{localStorage.setItem("pc_term_theme",t)}catch(e){}if(t==="agent")feed()}
+$$("th").onclick=()=>theme(TH[(TH.indexOf(document.documentElement.dataset.theme)+1)%3]);
+const txt=sel=>[...document.querySelectorAll(sel)].map(e=>e.textContent.trim()).filter(Boolean);
+let run=0;async function feed(){
+ const lines=[...txt("#s0 .sub"),...txt("#s0 .promise li"),...txt("#s0 .new p")];
+ try{const g=await (await fetch("/guard",{cache:"no-store"})).json();lines.push("guard "+g.mood,"witness "+g.witness_head.slice(0,12)+"…",g.promise)}catch(e){}
+ $$("tkr").textContent=lines.join("   ·   ")+"   ·   human stays root";
+ if(run)return;run=1;const tp=$$("tp");
+ while(document.documentElement.dataset.theme==="agent"){for(const l of lines){if(document.documentElement.dataset.theme!=="agent")break;
+  if(RM){tp.textContent=l;await W(2500);continue}
+  for(const w of l.split(/\s+/)){tp.textContent=w;await W(Math.min(420,180+w.length*22))}await W(500)}}
+ run=0}
+theme(localStorage.getItem("pc_term_theme")||(matchMedia("(prefers-color-scheme:light)").matches?"day":"night"));})();
+</script>
+</body></html>

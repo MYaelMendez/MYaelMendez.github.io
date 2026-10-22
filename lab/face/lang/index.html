@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en" data-th="night"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>æsymov · a visual language</title>
+<meta property="og:image" content="https://privateclient.ai/og.png">
+<style>
+:root{--bg:#000;--fl:rgba(3,16,18,.9);--ink:#e9f6f7;--dim:#a3c0c4;--c:#00f3ff;--bd:#1d4a4e;--grid:rgba(0,243,255,.05)}
+html[data-th=day]{--bg:#f4efe3;--fl:#fffaf0;--ink:#151515;--dim:#4c4840;--c:#00687a;--bd:#c9c0ad;--grid:rgba(0,0,0,.045)}
+html[data-th=agent]{--fl:#020c0d;--grid:rgba(0,243,255,.09)}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+body{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:40px 40px}
+.mono,pre{font-family:ui-monospace,Menlo,Consolas,monospace}
+main{max-width:640px;margin:0 auto;padding:16px 14px 64px}
+.top{display:flex;justify-content:space-between;align-items:center}
+.top button{background:none;border:1px solid var(--bd);border-radius:999px;color:var(--ink);font-size:13px;padding:3px 9px;cursor:pointer;min-height:32px}
+.top button[aria-pressed=true]{border-color:var(--c)}
+.hero{text-align:center;margin:20px 0 6px}
+h1{font-size:30px;line-height:1.1;margin:10px 0 4px}.lead{color:var(--dim);margin:0}
+#say{font:600 14px ui-monospace,Menlo,monospace;color:var(--c);min-height:1.5em;margin-top:6px}
+h2{font:600 12px ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--c);margin:32px 0 10px}
+.gram{display:grid;gap:6px}.gram div{display:grid;grid-template-columns:96px 1fr;gap:10px;border:1px solid var(--bd);border-radius:10px;padding:8px 12px;background:var(--fl);font-size:14.5px}
+.gram b{font-family:ui-monospace,Menlo,monospace;color:var(--c);font-size:13px}
+.moods{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.moods button{background:var(--fl);border:1px solid var(--bd);border-radius:14px;padding:10px 6px;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font:13px ui-monospace,Menlo,monospace;min-height:44px}
+.moods button:hover,.moods button[aria-pressed=true]{border-color:var(--c)}
+.moods small{color:var(--dim);font-family:system-ui,sans-serif;font-size:12px;text-align:center;line-height:1.3}
+.crowns{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.crowns button{background:var(--fl);border:1px solid var(--bd);border-radius:14px;padding:8px;cursor:pointer;color:var(--ink);font:12px ui-monospace,Menlo,monospace;display:flex;flex-direction:column;align-items:center;gap:2px}
+.crowns button[aria-pressed=true]{border-color:var(--c)}
+.loop{list-style:none;margin:0;padding:0;counter-reset:l}.loop li{counter-increment:l;border-left:2px solid var(--bd);padding:0 0 12px 16px;position:relative}
+.loop li:before{content:counter(l);position:absolute;left:-11px;top:0;width:20px;height:20px;border-radius:50%;background:var(--bg);border:2px solid var(--c);font:700 11px/16px ui-monospace,monospace;text-align:center;color:var(--c)}
+.loop small{display:block;color:var(--dim);font-size:13.5px}
+pre{white-space:pre-wrap;font-size:12px;color:var(--dim);border:1px dashed var(--bd);border-radius:12px;padding:12px}
+footer{margin-top:36px;text-align:center;font-size:12px;color:var(--dim)}footer a{color:var(--c)}
+@media (min-width:760px) and (orientation:landscape){main{max-width:1100px}.two{display:grid;grid-template-columns:.9fr 1.1fr;gap:32px;align-items:start}.hero{position:sticky;top:16px}}
+</style>
+<script src="./pc-face.js"></script>
+</head><body><main>
+<div class="top"><b class="mono">&gt;_æsymov · ae.face/0.1</b><span><button data-t="night">🌙</button> <button data-t="day">☀️</button> <button data-t="agent">🤖</button></span></div>
+
+<div class="two"><div>
+<section class="hero">
+ <pc-face id="hero" mood="ready" crown="pc" size="200" label="private_client_æsimov"></pc-face>
+ <h1>One face. Every state.</h1>
+ <p class="lead">The face is the alphabet. Every page speaks it.</p>
+ <div id="say" aria-live="polite"></div>
+</section>
+<h2>Live</h2>
+<p class="lead" style="font-size:14px">The hero reads privateclient.ai now: <span class="mono" id="live">…</span></p>
+</div><div>
+
+<h2>Grammar</h2>
+<div class="gram">
+ <div><b>head</b><span>Same everywhere. One family.</span></div>
+ <div><b>mood</b><span>The system's real state. Never decoration.</span></div>
+ <div><b>crown</b><span>Which product you're in.</span></div>
+ <div><b>color</b><span>Which edition. Red, green and amber are verdicts.</span></div>
+ <div><b>visor</b><span>What it sees. Eyes follow you, never lead you.</span></div>
+ <div><b>copper chin</b><span>The human. Root of every face.</span></div>
+</div>
+
+<h2>Moods = states</h2>
+<div class="moods" id="moods"></div>
+
+<h2>Crowns = products</h2>
+<div class="crowns" id="crowns"></div>
+
+<h2>Recursive loop</h2>
+<ol class="loop">
+ <li><b>Yæl says</b><small>A word, a mood, a door.</small></li>
+ <li><b>The face changes once</b><small>pc-face.js is the only source.</small></li>
+ <li><b>Every surface inherits</b><small>home, terminal, prompt, studio, receipt.</small></li>
+ <li><b>The face checks the page</b><small>Its mood reports what it read.</small></li>
+ <li><b>Yæl signs</b><small>Receipt. Next turn.</small></li>
+</ol>
+
+<h2>Use</h2>
+<pre class="mono">&lt;script src="pc-face.js"&gt;&lt;/script&gt;
+&lt;pc-face mood="checking" crown="pc" size="96"&gt;&lt;/pc-face&gt;
+face.mood = "ok"   // a human held it</pre>
+
+<h2>For agents</h2>
+<pre id="agent" class="mono"></pre>
+</div></div>
+<footer class="mono">$🤖osw · the face shows, it never decides · <a href="../v1/">face v1</a> · <a href="../../privateclient/">PC:// LAB</a></footer>
+</main>
+<script>
+const hero=document.getElementById("hero"),say=document.getElementById("say");
+document.addEventListener("pc-face",e=>{if(e.target===hero)say.textContent=e.detail.say});
+const M=Object.keys(PC_FACE.moods),C=Object.keys(PC_FACE.crowns),N={pc:"Private Client",week:"æ.store",moon:"llm.store",qr:"æææ QR",sun:"Yæl.com"};
+let crown="pc";
+const mb=document.getElementById("moods");M.forEach(m=>{const b=document.createElement("button");b.innerHTML=`<pc-face mood="${m}" crown="pc" size="72"></pc-face><span>${m}</span><small></small>`;b.querySelector("small").textContent=PC_FACE.moods[m].split(" · ")[1];b.onclick=()=>{hero.mood=m;mb.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b))};mb.appendChild(b)});
+const cb=document.getElementById("crowns");C.forEach(k=>{const b=document.createElement("button");b.innerHTML=`<pc-face mood="ready" crown="${k}" size="56"></pc-face><span>${N[k]}</span>`;b.setAttribute("aria-pressed",k==="pc");b.onclick=()=>{crown=k;hero.setAttribute("crown",k);mb.querySelectorAll("pc-face").forEach(f=>f.setAttribute("crown",k));cb.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b))};cb.appendChild(b)});
+async function live(){const el=document.getElementById("live");hero.mood="think";
+ try{const g=await (await fetch("https://privateclient.ai/guard",{cache:"no-store",credentials:"omit"})).json();
+  hero.mood=g.mood==="ready"?"ready":"checking";el.textContent="guard "+g.mood+" · witness "+String(g.witness_head||"").slice(0,12)+"…"}
+ catch(e){hero.mood="lost";el.textContent="no answer"}}
+setTimeout(live,600);
+const K="pc_term_theme";function th(x){document.documentElement.dataset.th=x;try{localStorage.setItem(K,x)}catch(e){}document.querySelectorAll(".top button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===x))}
+document.querySelectorAll(".top button").forEach(b=>b.onclick=()=>th(b.dataset.t));let t0="night";try{t0=localStorage.getItem(K)||"night"}catch(e){}th(t0);
+document.getElementById("agent").textContent=JSON.stringify(Object.assign({},PC_FACE,{source:"./pc-face.js",inherits:["privateclient.ai/","/terminal","pc://prompt","/studio","/r/{rid}"],authority:{face:"shows",human:"decides"}}),null,1);
+</script>
+</body></html>

@@ -1,0 +1,231 @@
+{
+ "schema": "ae.agent/0.1",
+ "name": "mæchlæng LAB",
+ "slug": "maechlang",
+ "version": "0.1.0",
+ "updated": "2026-10-18",
+ "status": "LAB · beta · demo · read-only for robots · noindex",
+ "description": "æ authority (æ0–æ3) and the Asimov robot face written as Mech state machines and run live on the real Mech runtime (wasm, vendored, no CDN). Static page, no server.",
+ "url": "https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/",
+ "llms_txt": "https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/llms.txt",
+ "agent_mode": {
+  "text": "https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/?agent",
+  "json": "https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/?agent=json",
+  "note": "Needs JavaScript: the page swaps itself for a plain-text/JSON summary (state + API + links). Headless fetchers without JS: read this file and llms.txt."
+ },
+ "motto": "Make something agents want.",
+ "doctrine": {
+  "principle": "Evidence ≠ Authority",
+  "roles": "Many agents. One principal. Human stays root.",
+  "agents": "Agents relay context and evidence. An agent may act at æ0 (public) and æ1 (published).",
+  "principal": "Only the human principal grants æ2 (operator) and æ3 (custody), and only with pk && wr: the principal's passkey AND a Witness receipt.",
+  "levels": {
+   "æ0": "public",
+   "æ1": "published",
+   "æ2": "operator",
+   "æ3": "custody"
+  },
+  "pk_on_this_page": "SIMULATED. Any caller can pass pk:true here, so a :Granted on this LAB page is a demo, never authority. A real æ2/æ3 grant needs the human principal's own passkey (WebAuthn), outside this page.",
+  "robot": "The face is read-only, robot authority æ1: it shows state, it never moves a robot."
+ },
+ "machines": [
+  {
+   "id": "#Authority",
+   "source": "https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/authority.mec",
+   "language": "Mech 0.3.5 (mæchlæng dialect)",
+   "input": {
+    "type": "object",
+    "properties": {
+     "agent": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,31}$",
+      "default": "hark-pro",
+      "known": [
+       "hark-pro",
+       "hermes",
+       "codex"
+      ]
+     },
+     "level": {
+      "type": "integer",
+      "enum": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "default": 3,
+      "description": "requested æ level"
+     },
+     "pk": {
+      "type": "boolean",
+      "default": false,
+      "description": "principal passkey (simulated here; only boolean true counts)"
+     },
+     "wr": {
+      "type": "boolean",
+      "default": false,
+      "description": "Witness receipt present (only boolean true counts)"
+     }
+    }
+   },
+   "states": [
+    ":Context",
+    ":Evidence",
+    ":Waiting",
+    ":Granted"
+   ],
+   "transitions": [
+    ":Context ├ r < 2u8 → :Granted(r)",
+    ":Context └ r > 1u8 → :Evidence(r, pk, wr)",
+    ":Evidence ├ pk && wr → :Granted(r)",
+    ":Evidence └ * → :Waiting(r)",
+    ":Waiting(r) ⇒ :evidence",
+    ":Granted(l) ⇒ :granted"
+   ],
+   "output": {
+    "type": "string",
+    "enum": [
+     "granted",
+     "evidence"
+    ],
+    "mech_record": "{state<verdict>, hi<bool>, guard<bool>, known<bool>}"
+   },
+   "invariant": "level ≥ 2 and not (pk && wr) ⇒ evidence (never granted)",
+   "js": "await MAECH.authority({agent, level, pk, wr}) → {state, granted, fsm, needs, simulated, receipt}"
+  },
+  {
+   "id": "#Face",
+   "source": "https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/face.mec",
+   "language": "Mech 0.3.5 (mæchlæng dialect)",
+   "input": {
+    "type": "object",
+    "properties": {
+     "md": {
+      "type": "string",
+      "enum": [
+       "DAMP",
+       "STAND",
+       "MOVE",
+       "FAULT_DAMP"
+      ],
+      "default": "STAND",
+      "description": "robot mode; anything else ⇒ :lost"
+     },
+     "armed": {
+      "type": "boolean",
+      "default": false
+     },
+     "fault": {
+      "type": "boolean",
+      "default": false,
+      "description": "fault latched"
+     },
+     "stale": {
+      "type": "boolean",
+      "default": false,
+      "description": "no fresh state (age > 0.5 s)"
+     },
+     "battery": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 80
+     }
+    }
+   },
+   "rules": "first match wins: fault ∨ FAULT_DAMP ⇒ hold · stale ⇒ lost · battery < 20 ⇒ tired · DAMP ⇒ sleep · STAND ¬armed ⇒ think · STAND armed ⇒ ready · MOVE ⇒ work · else ⇒ lost",
+   "output": {
+    "type": "string",
+    "enum": [
+     "hold",
+     "lost",
+     "tired",
+     "sleep",
+     "think",
+     "ready",
+     "work"
+    ],
+    "schema": "ae.face/0.1"
+   },
+   "authority": "æ1 · read-only",
+   "js": "await MAECH.face({md, armed, fault, stale, battery}) → ae.face/0.1 JSON"
+  }
+ ],
+ "api": {
+  "global": "window.MAECH",
+  "script": "https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/runtime/maech-agent.js",
+  "methods": [
+   {
+    "call": "await MAECH.ready",
+    "returns": "Mech version string"
+   },
+   {
+    "call": "MAECH.run(src)",
+    "returns": "output string",
+    "note": "fresh WasmMech per run; throws on Mech error; after await MAECH.ready"
+   },
+   {
+    "call": "await MAECH.authority({agent, level, pk, wr})",
+    "returns": "{state, granted, fsm, needs, engine, simulated, receipt}"
+   },
+   {
+    "call": "await MAECH.face({md, armed, fault, stale, battery}, {show})",
+    "returns": "ae.face/0.1 JSON; show:true also drives the page face"
+   },
+   {
+    "call": "MAECH.witness()",
+    "returns": "[{n, prev, h, event}] · h(n) = sha256(h(n-1) + '|' + JSON(event)), h(0) = sha256('GENESIS')"
+   },
+   {
+    "call": "await MAECH.verify()",
+    "returns": "{ok, n, head}"
+   },
+   {
+    "call": "MAECH.help()",
+    "returns": "plain-text help"
+   }
+  ]
+ },
+ "runtime": {
+  "engine": "Mech",
+  "version": "0.3.5",
+  "from": "https://docs.mech-lang.org/pkg (unmodified wasm build)",
+  "js": "https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/runtime/mech_wasm.js",
+  "js_sha256": "6906ba89836d43bf69f7994a8855b089014f9e36e7cfbc4f9f28e3a839ba5641",
+  "wasm": "https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/runtime/mech_wasm_bg.wasm.gz",
+  "wasm_gz_sha256": "441995cb4a22301d314b532bf358ce66b0ec93abfa514d6d976ef89cfdbbce0c",
+  "wasm_sha256": "6140624668517b9a08e814453f424cfdab418261dab40359aaae8b8e6da39b89",
+  "wasm_sha256_of": "the decompressed .wasm; runtime/maech-run.js refuses to start if it differs",
+  "bridge": "https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/runtime/maech-run.js",
+  "size_gz_bytes": 2384735,
+  "node": "import mod from mech_wasm.js; mod.initSync({module: gunzip(wasm)}); new mod.WasmMech(); run_program(src); out_string()"
+ },
+ "how_to_run": [
+  "Browser: open https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/ and in the console: await MAECH.ready; await MAECH.face({md:'STAND', armed:true})",
+  "Any Mech: paste authority.mec or face.mec into https://try.mech-lang.org (note: try. serves an older 0.3.1 without state machines; use the vendored 0.3.5)",
+  "Node: clone LutheranInstitute/aeee-lab (branch lab) and run: node lab/maechlang/test.mjs"
+ ],
+ "repo": {
+  "url": "https://github.com/LutheranInstitute/aeee-lab",
+  "branch": "lab",
+  "path": "lab/maechlang/"
+ },
+ "related": {
+  "hark_pro_v1": "https://lutheraninstitute.github.io/aeee-lab/lab/hark-pro/v1/",
+  "face_v1": "https://lutheraninstitute.github.io/aeee-lab/lab/face/v1/",
+  "robot_bridge": "https://github.com/LutheranInstitute/Robot/tree/ae-face/ae"
+ },
+ "license": {
+  "mech": "Apache-2.0 · Mech © Corey Montella · https://mech-lang.org · https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/runtime/LICENSE · https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/runtime/NOTICE",
+  "credit": "mæchlæng is an Instituto Luterano Latinoamericano LAB experiment by Yæl Méndez; it is not affiliated with the Mech project.",
+  "warning": "Mech is beta; not for critical systems."
+ },
+ "author": {
+  "name": "Yæl Méndez",
+  "org": "Instituto Luterano Latinoamericano · æ LAB",
+  "github": "https://github.com/LutheranInstitute"
+ },
+ "contact": "point your agents at me 🪡",
+ "robots": "noindex for search engines; agents welcome to fetch llms.txt and agent.json"
+}

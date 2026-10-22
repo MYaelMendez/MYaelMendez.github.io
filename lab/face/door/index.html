@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>&gt;_PrivateClient · powered by llm.store</title>
+<style>
+:root{--cy:#00f3ff;--cu:#b87333;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#000;color:var(--cy);font-family:var(--mono);overflow:hidden;-webkit-text-size-adjust:100%}
+#st{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom))}
+#frame{position:absolute;inset:8px;border:1.5px solid var(--cy);border-radius:4px;pointer-events:none;transition:inset .35s,border-color .35s}
+#frame.pulse{inset:2px;border-color:#fff}
+#grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,243,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,243,255,.07) 1px,transparent 1px);background-size:5vmin 5vmin;pointer-events:none}
+svg{width:min(62vw,40vh);height:auto;touch-action:none;position:relative}
+#cap{min-height:3.2em;margin-top:14px;text-align:center;color:#fff;font-size:16px;line-height:1.4;max-width:30em;position:relative}
+#cap small{display:block;color:var(--cy);opacity:.75;font-size:13px}
+#hud{position:absolute;top:max(16px,env(safe-area-inset-top));right:18px;text-align:right;font-size:11px;opacity:.6;white-space:pre}
+#bar{width:min(80vw,360px);height:3px;background:rgba(0,243,255,.15);margin-top:14px;border-radius:2px;overflow:hidden;position:relative;visibility:hidden}
+#bar i{display:block;height:100%;width:0;background:var(--cy)}
+.row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;justify-content:center;position:relative}
+.btn{min-height:48px;padding:0 20px;border-radius:8px;border:1px solid var(--cy);background:transparent;color:var(--cy);font:inherit;font-size:16px;cursor:pointer}
+.btn.li{background:#0a66c2;border-color:#0a66c2;color:#fff;font-weight:700;font-family:-apple-system,system-ui,sans-serif}
+.btn.li b{background:#fff;color:#0a66c2;border-radius:3px;padding:0 4px;margin-right:8px}
+.note{font-size:12px;opacity:.6;margin-top:10px;text-align:center;position:relative;max-width:26em}
+#brand{position:absolute;top:max(14px,env(safe-area-inset-top));left:18px;text-align:left;font:600 16px/1.3 ui-monospace,Menlo,monospace;letter-spacing:.02em}#brand small{display:block;font-size:11px;font-weight:400;opacity:.55;letter-spacing:.08em}#tag{position:absolute;bottom:max(14px,env(safe-area-inset-bottom));left:0;right:0;text-align:center;font-size:11px;opacity:.5}
+[hidden]{display:none!important}
+#face.door{cursor:pointer}#face.door #visor{stroke:#0a66c2;stroke-width:3.5;animation:vz 2.4s ease-in-out infinite}@keyframes vz{50%{stroke-opacity:.35}}
+#face:focus-visible{outline:2px solid #fff;outline-offset:6px;border-radius:50%}
+#inmark{transition:opacity .45s}#fil{transition:opacity .45s}
+.nz{transform-origin:120px 42px;animation:nz 4s ease-in-out infinite}@keyframes nz{50%{transform:scale(1.18);opacity:.15}}
+@media (prefers-reduced-motion:reduce){.nz,#face.door #visor{animation:none}#frame{transition:none}}
+</style>
+</head>
+<body>
+<div id="st">
+  <div id="grid"></div><div id="frame"></div><div id="hud"></div>
+  <div id="brand">&gt;_PrivateClient<small>powered by llm.store</small></div>
+  <svg id="face" viewBox="40 6 160 252" role="img" aria-label="æsymov" tabindex="-1">
+    <defs><radialGradient id="halo"><stop offset="0" id="h0" stop-color="#00f3ff" stop-opacity=".22"/><stop offset="1" stop-color="#00f3ff" stop-opacity="0"/></radialGradient></defs>
+    <g id="head">
+      <circle cx="120" cy="132" r="118" fill="url(#halo)"/>
+      <path d="M52 78 Q52 18 120 18 Q188 18 188 78 V176 Q188 246 120 250 Q52 246 52 176 Z" fill="#141416" stroke="#3a3a3e" stroke-width="2"/>
+      <path d="M60 70 Q66 30 120 28" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="10" stroke-linecap="round"/>
+      <rect id="visor" x="66" y="96" width="108" height="64" rx="30" fill="#05060a" stroke="#b87333" stroke-width="2.5"/>
+      <g id="inmark" opacity="0"><rect x="101" y="109" width="38" height="38" rx="7" fill="#0a66c2"/><text x="120" y="138" text-anchor="middle" font-family="-apple-system,system-ui,Helvetica,Arial,sans-serif" font-weight="800" font-size="27" fill="#fff">in</text></g>
+      <path id="fil" d="" fill="none" stroke="#00f3ff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M52 176 Q60 232 120 240 Q180 232 188 176" fill="none" stroke="#b87333" stroke-opacity=".55" stroke-width="2"/>
+      <g fill="#b87333"><circle cx="54" cy="128" r="3"/><circle cx="186" cy="128" r="3"/><circle cx="86" cy="208" r="2.2"/><circle cx="154" cy="208" r="2.2"/></g>
+      <g><circle class="nz" cx="120" cy="42" r="15" fill="none" stroke="#3a6fe0" stroke-width="1.5" opacity=".5"/>
+        <circle cx="120" cy="42" r="11" fill="#12348f" stroke="#b87333" stroke-width="1.8"/><circle cx="120" cy="42" r="8" fill="#fff"/>
+        <circle id="iris" cx="120" cy="42" r="5.6" fill="#5fa8ff"/><circle id="pupil" cx="120" cy="42" r="2.8" fill="#05060a"/></g>
+    </g>
+  </svg>
+  <div id="cap"></div>
+  <div id="bar"><i id="fill"></i></div>
+  <div class="row" id="door" hidden><button class="btn li" id="in"><b>in</b><span id="inL"></span></button></div>
+  <p class="note" id="promise"></p>
+  <div class="row" id="after" hidden><button class="btn" id="again"></button><button class="btn" id="out"></button><button class="btn" id="portal"></button></div>
+  <div id="tag"></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const LIVE=location.hostname==="auth.llm.store";
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const EN=(navigator.language||"es").startsWith("en");
+const tr=(es,en)=>EN?en:es;
+/* face */
+const FIL={hold:["M96 128 H144","#ffb000"],think:["M96 128 C106 108 116 148 126 128 S140 112 146 128","#00f3ff"],
+  ready:["M98 128 L113 140 L144 114","#39ff88"],work:["M94 128 L102 116 L110 140 L118 116 L126 140 L134 116 L142 140 L148 128","#ff6a3d"],
+  sleep:["M100 130 H112 M128 130 H140","#3a6fe0"]};
+const tgt={mood:"sleep",yaw:0,pitch:0},st={yaw:0,pitch:0};let finger=null,fT=0,last=0;
+function mood(m){tgt.mood=m;const[d,c]=FIL[m];$("fil").setAttribute("d",d);$("fil").setAttribute("stroke",c);$("h0").setAttribute("stop-color",c);}
+const ease=(x,t,dt,tau)=>x+(t-x)*(1-Math.exp(-dt/tau));
+function look(y,p){tgt.yaw=y;tgt.pitch=p;}
+function frame(t){const dt=Math.min(.05,(t-(last||t))/1000)||.016;last=t;
+  const here=finger&&performance.now()-fT<2500&&!reduce;
+  let y=here?finger[0]:tgt.yaw,p=here?finger[1]:tgt.pitch;
+  if(!reduce&&!here){y+=Math.sin(t/1400)*2;p+=Math.sin(t/1100+1)*1.2;}
+  if(reduce){y=0;p=0;}
+  st.yaw=ease(st.yaw,y,dt,.18);st.pitch=ease(st.pitch,p,dt,.18);
+  $("head").setAttribute("transform",`rotate(${(st.yaw*.12).toFixed(2)} 120 140) translate(0 ${(st.pitch*.25).toFixed(2)})`);
+  for(const[id,k,kp]of[["iris",.06,.05],["pupil",.09,.07]]){$(id).setAttribute("cx",(120+st.yaw*k).toFixed(2));$(id).setAttribute("cy",(42+st.pitch*kp).toFixed(2));}
+  $("fil").setAttribute("opacity",tgt.mood==="sleep"?.3:tgt.mood==="work"?(.75+.25*Math.abs(Math.sin(t/90))).toFixed(2):1);
+  hud();requestAnimationFrame(frame);}
+addEventListener("pointermove",e=>{finger=[(e.clientX/innerWidth-.5)*70,(e.clientY/innerHeight-.5)*50];fT=performance.now();},{passive:true});
+addEventListener("pointerdown",e=>{finger=[(e.clientX/innerWidth-.5)*70,(e.clientY/innerHeight-.5)*50];fT=performance.now();},{passive:true});
+/* awareness */
+const vv=window.visualViewport;
+function A(){return{w:innerWidth,h:innerHeight,dpr:+(devicePixelRatio||1).toFixed(1),or:innerWidth>innerHeight?"landscape":"portrait",
+  ar:innerWidth>innerHeight?"16:9":"9:16",zoom:vv?+vv.scale.toFixed(2):1,touch:matchMedia("(pointer:coarse)").matches,
+  dark:matchMedia("(prefers-color-scheme: dark)").matches,online:navigator.onLine,visible:!document.hidden,gpu:!!navigator.gpu}}
+function hud(){const a=A();$("hud").textContent=`${a.w}×${a.h} @${a.dpr}x\n${a.ar} · ${a.or}\nyaw ${st.yaw.toFixed(0)}° · pitch ${st.pitch.toFixed(0)}°`;}
+function cap(es,en){$("cap").innerHTML=(EN?en:es)+`<small>${EN?es:en}</small>`;}
+/* witness */
+let prev="GENESIS",n=0;
+async function witness(ev){const e=JSON.stringify({t:new Date().toISOString(),...ev});
+  const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(prev+"|"+e));
+  prev=[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");n++;
+  $("tag").textContent=`witness #${n} · ${prev.slice(0,16)}… · æ1 ${LIVE?"":"LAB DEMO"}`;return prev;}
+/* 8-second demo */
+let ME=null,timers=[];
+function demo(){
+  timers.forEach(clearTimeout);timers=[];$("after").hidden=true;$("bar").style.visibility="visible";
+  const fill=$("fill");fill.style.transition="none";fill.style.width="0";requestAnimationFrame(()=>{fill.style.transition="width 8s linear";fill.style.width="100%";});
+  const a=A(),first=(ME&&ME.name||"").split(" ")[0]||tr("humano","human");
+  const S=[
+   [0,()=>{mood("ready");look(0,-3);cap(`Hola, ${first}. Soy æsymov.`,`Hi, ${first}. I'm æsymov.`);}],
+   [1000,()=>{mood("think");look(-32,0);cap(`Veo tu pantalla: ${a.w}×${a.h}, ${a.ar}.`,`I see your screen: ${a.w}×${a.h}, ${a.ar}.`);}],
+   [2200,()=>{look(32,0);cap(`Densidad @${a.dpr}x · ${a.or==="portrait"?"vertical":"horizontal"}.`,`Density @${a.dpr}x · ${a.or}.`);}],
+   [3400,()=>{look(0,-22);mood("work");$("frame").classList.add("pulse");cap(`Toco tus bordes: zoom ${a.zoom} · ${a.touch?"táctil":"puntero"}.`,`I touch your edges: zoom ${a.zoom} · ${a.touch?"touch":"pointer"}.`);}],
+   [4600,()=>{$("frame").classList.remove("pulse");mood("think");look(0,18);cap(reduce?"Movimiento reducido: me quedo quieto.":"Toca la pantalla: te sigo con la mirada.",reduce?"Reduced motion: I stay still.":"Touch the screen: my eyes follow you.");}],
+   [6000,()=>{mood("work");look(0,0);cap(`${a.online?"En línea":"Sin red"} · ${a.visible?"visible":"oculto"} · ${a.gpu?"WebGPU listo":"lienzo 2D"}.`,`${a.online?"Online":"Offline"} · ${a.visible?"visible":"hidden"} · ${a.gpu?"WebGPU ready":"2D canvas"}.`);}],
+   [7000,async()=>{mood("ready");const h=await witness({op:"demo",aware:a});cap("Solo miro. Tú decides. 🧿","I only look. You decide. 🧿");$("tag").textContent+=" · "+h.slice(0,8);}],
+   [8000,()=>{$("bar").style.visibility="hidden";$("after").hidden=false;}]];
+  S.forEach(([ms,f])=>timers.push(setTimeout(f,ms)));
+}
+/* LinkedIn door */
+async function me(){if(!LIVE)return null;try{const r=await fetch("/me",{credentials:"same-origin",headers:{Accept:"application/json"}});const j=await r.json();return j.signed_in?j:null;}catch{return null;}}
+function face(on){const f=$("face");f.classList.toggle("door",on);$("inmark").setAttribute("opacity",on?1:0);$("fil").style.opacity=on?0:"";
+  if(on){f.setAttribute("role","button");f.setAttribute("tabindex","0");f.setAttribute("aria-label",tr("Entrar con LinkedIn · toca la cara de æsymov","Sign in with LinkedIn · tap æsymov's face"));}
+  else{f.setAttribute("role","img");f.setAttribute("tabindex","-1");f.setAttribute("aria-label","æsymov");}}
+function door(msg){face(true);$("after").hidden=true;$("bar").style.visibility="hidden";mood("sleep");look(0,10);
+  cap(msg?msg[0]+" Toca mi visor.":"Toca mi visor: entra con LinkedIn.",msg?msg[1]+" Tap my visor.":"Tap my visor: sign in with LinkedIn.");
+  $("promise").hidden=false;$("promise").textContent=tr("Solo leemos tu nombre y email. Nunca publicamos por ti. Nada se guarda al salir.","We only read your name and email. We never post for you. Nothing is kept when you leave.");}
+function inside(){face(false);$("promise").hidden=true;witness({op:"signin"});demo();}
+$("inL").textContent=tr("Entrar con LinkedIn","Sign in with LinkedIn");
+$("again").textContent=tr("↻ Otra vez · 8s","↻ Replay · 8s");$("out").textContent=tr("Salir","Sign out");
+const signin=()=>{if(!$("face").classList.contains("door"))return;mood("work");if(LIVE){location.href="/linkedin/login?next=simple";return;}ME={name:"Ana Demo"};inside();};
+$("face").addEventListener("click",signin);$("face").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();signin();}});$("in").onclick=signin;
+$("again").onclick=demo;$("portal").textContent=tr("Portal →","Portal →");$("portal").onclick=()=>{location.href=LIVE?"/portal":"../portal/";};
+$("out").onclick=async()=>{if(LIVE)try{await fetch("/logout",{method:"POST",credentials:"same-origin"});}catch{}ME=null;door(["Saliste. No guardamos nada.","Signed out. Nothing kept."]);};
+requestAnimationFrame(frame);witness({op:"boot"});
+(async()=>{const q=new URLSearchParams(location.search),si=q.get("signin");if(si)history.replaceState(null,"",location.pathname);
+  ME=await me();if(ME)return inside();
+  const M={cancelled:["Sin problema, no compartiste nada.","No problem, nothing was shared."],expired:["El enlace caducó. Toca otra vez.","That link expired. Tap again."],failed:["LinkedIn no respondió. Inténtalo otra vez.","LinkedIn didn't answer. Try again."]};
+  door(M[si]);if(!LIVE)$("tag").textContent="LAB DEMO · "+tr("sin llamadas a LinkedIn","no LinkedIn calls");})();
+</script>
+</body>
+</html>

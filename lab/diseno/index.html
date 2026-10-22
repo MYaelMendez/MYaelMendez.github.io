@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Taller de diseño paramétrico · L:// · rhino3dm</title>
+<meta name="description" content="Laboratorio del Instituto: diseña con código en el navegador y exporta a Rhino (.3dm) con recibo SHA-256.">
+<style>
+:root{--void:#07080a;--ink:#e9e4d6;--dim:#9a968a;--gold:#D4AF37;--green:#5fbf7f;--line:#2a2b2e}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--void);color:var(--ink);font:16px/1.5 ui-monospace,"JetBrains Mono",SFMono-Regular,Menlo,monospace}
+a{color:var(--gold)}
+header,main,footer{max-width:1000px;margin:0 auto;padding:0 18px}
+header{padding-top:20px}
+.k{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+h1{font:800 clamp(28px,7vw,44px)/1.05 system-ui,-apple-system,"Helvetica Neue",sans-serif;text-transform:uppercase;margin:6px 0 8px}
+h1 b{color:var(--gold)}
+.lede{color:var(--dim);margin:0 0 12px;max-width:62ch}
+.wrap{display:grid;gap:12px}
+@media(min-width:820px){.wrap{grid-template-columns:1.4fr 1fr}}
+.stage{position:relative;border:1px solid var(--line);border-radius:14px;overflow:hidden;aspect-ratio:1/1;background:radial-gradient(circle at 50% 40%,#15161b 0,#07080a 75%)}
+.stage canvas{display:block;width:100%!important;height:100%!important;touch-action:none}
+.hud{position:absolute;left:10px;bottom:8px;font-size:11px;color:var(--dim);pointer-events:none}
+.box{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.chip{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:8px 12px;font:inherit;font-size:13px;min-height:40px;cursor:pointer}
+.chip[aria-pressed=true]{border-color:var(--gold);color:var(--gold)}
+label{display:block;font-size:13px;color:var(--dim);margin-top:8px}
+label output{float:right;color:var(--ink)}
+input[type=range]{width:100%;accent-color:#D4AF37;height:32px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.btn{border:1px solid var(--gold);background:var(--gold);color:#07080a;border-radius:10px;padding:10px 14px;font:inherit;font-weight:700;min-height:44px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--gold)}
+.btn:disabled{opacity:.4;cursor:wait}
+.receipt{font-size:12px;word-break:break-all;color:var(--dim);margin-top:10px}
+.receipt b{color:var(--green);font-weight:400}
+section{margin-top:22px}
+h3{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0 0 8px}
+ol{margin:0;padding-left:20px}
+li{margin:4px 0}
+pre{background:#0e0f12;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px;overflow:auto;max-height:180px}
+footer{color:var(--dim);font-size:13px;padding-bottom:30px;margin-top:22px}
+</style>
+</head>
+<body>
+<header>
+  <div class="k">L:// · Laboratorio · Diseño con código</div>
+  <h1>Taller <b>paramétrico</b></h1>
+  <p class="lede">No dibujamos la forma: escribimos la regla que la produce. Mueve los parámetros, mira la geometría y llévala a Rhino como .3dm. Cada exportación deja un recibo.</p>
+</header>
+<main>
+  <div class="wrap">
+    <div class="stage" id="stage"><div class="hud" id="hud">cargando rhino3dm…</div></div>
+    <div class="box">
+      <div class="presets" id="presets">
+        <button class="chip" data-p="torre" aria-pressed="true">Torre</button>
+        <button class="chip" data-p="florero" aria-pressed="false">Florero</button>
+        <button class="chip" data-p="columna" aria-pressed="false">Columna</button>
+      </div>
+      <div id="sliders"></div>
+      <div class="btns">
+        <button class="btn" id="exp" disabled>Exportar .3dm</button>
+        <button class="btn ghost" id="json">Copiar parámetros</button>
+      </div>
+      <div class="receipt" id="rcpt">Sin recibos todavía. La cadena nace en x0:y0:z0:æ0.</div>
+    </div>
+  </div>
+
+  <section class="box">
+    <h3>Retos de la clase</h3>
+    <ol>
+      <li>Diseña una torre de 24 pisos que gire exactamente 180° y exporta su .3dm.</li>
+      <li>Copia los parámetros, haz fork de este laboratorio y guárdalos en tu repo como <code>diseno/mi-forma.json</code>, con un commit propio.</li>
+      <li>Abre tu .3dm en <a href="https://www.rhino3d.com/" rel="noopener">Rhino</a> y cuéntanos qué cambiarías de la regla.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h3>La regla, en código</h3>
+<pre id="code">anillo(i) = polígono(lados, r(i), giro · i/pisos)
+r(i)     = r0 + (r1 − r0) · t  +  panza · sin(π·t)    t = i/pisos
+piel     = quads entre anillo(i) y anillo(i+1)
+pisos    = curvas NURBS cerradas por anillo  →  capa "pisos"</pre>
+  </section>
+</main>
+<footer>
+  <p>Hecho con <a href="https://github.com/mcneel/rhino3dm" rel="noopener">rhino3dm</a> (McNeel, MIT) y three.js. Sobre hombros de gigantes: este taller despierta el fork compute.rhino3d del Instituto. Nada sale de tu teléfono; no guardamos datos de alumnos.</p>
+  <p>La evidencia no es autoridad: la supervisión informa, el humano decide. · <a href="https://lutheraninstitute.github.io/conectoma/">Conectoma</a></p>
+</footer>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import rhino3dm from 'https://cdn.jsdelivr.net/npm/rhino3dm@8.17.0/rhino3dm.module.min.js';
+
+const SPEC=[['pisos','Pisos',4,48,1],['alto','Alto por piso (m)',2.5,6,0.1],['r0','Radio base (m)',2,20,0.5],['r1','Radio superior (m)',1,20,0.5],['panza','Panza (m)',-8,8,0.5],['giro','Giro total (°)',-360,360,5],['lados','Lados',3,12,1]];
+const PRESETS={torre:{pisos:24,alto:3.5,r0:10,r1:7,panza:0,giro:90,lados:4},florero:{pisos:30,alto:2.5,r0:6,r1:9,panza:5,giro:0,lados:12},columna:{pisos:16,alto:4,r0:5,r1:5,panza:-1.5,giro:360,lados:6}};
+let P={...PRESETS.torre};
+
+const sl=document.getElementById('sliders');
+sl.innerHTML=SPEC.map(([k,l,a,b,s])=>`<label for="${k}">${l}<output id="o_${k}"></output></label><input type="range" id="${k}" min="${a}" max="${b}" step="${s}">`).join('');
+function syncUI(){SPEC.forEach(([k])=>{document.getElementById(k).value=P[k];document.getElementById('o_'+k).textContent=P[k]})}
+sl.addEventListener('input',e=>{const k=e.target.id;P[k]=+e.target.value;document.getElementById('o_'+k).textContent=P[k];rebuild()});
+document.getElementById('presets').onclick=e=>{const b=e.target.closest('[data-p]');if(!b)return;P={...PRESETS[b.dataset.p]};[...e.currentTarget.children].forEach(c=>c.setAttribute('aria-pressed',c===b));syncUI();rebuild()};
+
+// La regla: anillos de vértices
+function rings(p){const R=[];for(let i=0;i<=p.pisos;i++){const t=i/p.pisos,r=p.r0+(p.r1-p.r0)*t+p.panza*Math.sin(Math.PI*t),g=p.giro*Math.PI/180*t,z=i*p.alto,ring=[];
+  for(let j=0;j<p.lados;j++){const a=g+j*2*Math.PI/p.lados;ring.push([r*Math.cos(a),r*Math.sin(a),z])}R.push(ring)}return R}
+
+// three.js
+const stage=document.getElementById('stage');
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));stage.prepend(renderer.domElement);
+const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(40,1,0.1,2000);cam.up.set(0,0,1);
+const ctl=new OrbitControls(cam,renderer.domElement);ctl.enableDamping=true;
+scene.add(new THREE.HemisphereLight(0xe9e4d6,0x07080a,1.1));const dl=new THREE.DirectionalLight(0xffffff,1.2);dl.position.set(40,-60,120);scene.add(dl);
+const grid=new THREE.GridHelper(80,16,0x2a2b2e,0x1a1b1e);grid.rotation.x=Math.PI/2;scene.add(grid);
+let group=new THREE.Group();scene.add(group);
+function rebuild(){scene.remove(group);group.traverse(o=>{o.geometry&&o.geometry.dispose()});group=new THREE.Group();
+  const R=rings(P),n=P.lados,pos=[],idx=[];R.forEach(r=>r.forEach(v=>pos.push(...v)));
+  for(let i=0;i<P.pisos;i++)for(let j=0;j<n;j++){const a=i*n+j,b=i*n+(j+1)%n,c=(i+1)*n+(j+1)%n,d=(i+1)*n+j;idx.push(a,b,c,a,c,d)}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();
+  group.add(new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x9a968a,roughness:.6,metalness:.1,side:THREE.DoubleSide,transparent:true,opacity:.55})));
+  R.forEach((r,i)=>{const pts=r.map(v=>new THREE.Vector3(...v));pts.push(pts[0].clone());group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:i%4===0?0xD4AF37:0x5d615e})))});
+  scene.add(group);const H=P.pisos*P.alto;ctl.target.set(0,0,H/2);if(!rebuild.done){cam.position.set(H*1.1,-H*1.3,H*0.9);rebuild.done=1}
+  document.getElementById('hud').textContent=`${P.pisos} pisos · ${H.toFixed(1)} m · ${P.lados} lados · giro ${P.giro}°`+(rh?' · rhino3dm listo':' · cargando rhino3dm…')}
+function size(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+new ResizeObserver(size).observe(stage);
+(function loop(){ctl.update();renderer.render(scene,cam);requestAnimationFrame(loop)})();
+
+// rhino3dm + recibos
+let rh=null;
+rhino3dm().then(m=>{rh=m;document.getElementById('exp').disabled=false;rebuild()}).catch(e=>{document.getElementById('hud').textContent='rhino3dm no cargó: '+e});
+const KEY='l-diseno-chain';
+async function sha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+function canon(o){return JSON.stringify(Object.keys(o).sort().reduce((a,k)=>(a[k]=o[k],a),{}))}
+function showChain(){const c=JSON.parse(localStorage.getItem(KEY)||'[]');if(!c.length)return;const l=c[c.length-1];
+  document.getElementById('rcpt').innerHTML=`Recibo #${c.length} · <b>${l.h.slice(0,8)}…${l.h.slice(-4)}</b> ← ${l.prev==='x0:y0:z0:æ0'?'x0:y0:z0:æ0':l.prev.slice(0,8)+'…'+l.prev.slice(-4)}<br>${l.file} · ${l.t}`}
+document.getElementById('exp').onclick=async()=>{
+  const c=JSON.parse(localStorage.getItem(KEY)||'[]'),prev=c.length?c[c.length-1].h:'x0:y0:z0:æ0',t=new Date().toISOString();
+  const h=await sha(prev+'|'+canon(P)+'|'+t);
+  const doc=new rh.File3dm(),R=rings(P),n=P.lados;
+  const L1=new rh.Layer();L1.name='piel';L1.color={r:154,g:150,b:138,a:255};doc.layers().add(L1);
+  const L2=new rh.Layer();L2.name='pisos';L2.color={r:212,g:175,b:55,a:255};doc.layers().add(L2);
+  const mesh=new rh.Mesh();R.forEach(r=>r.forEach(v=>mesh.vertices().add(v[0],v[1],v[2])));
+  for(let i=0;i<P.pisos;i++)for(let j=0;j<n;j++)mesh.faces().addQuadFace(i*n+j,i*n+(j+1)%n,(i+1)*n+(j+1)%n,(i+1)*n+j);
+  mesh.normals().computeNormals();mesh.compact();
+  const a1=new rh.ObjectAttributes();a1.layerIndex=0;a1.name='piel';doc.objects().add(mesh,a1);
+  R.forEach((r,i)=>{const pl=new rh.Polyline(n+1);r.forEach(v=>pl.add(v[0],v[1],v[2]));pl.add(r[0][0],r[0][1],r[0][2]);const a2=new rh.ObjectAttributes();a2.layerIndex=1;a2.name='piso '+i;doc.objects().add(pl.toNurbsCurve(),a2)});
+  doc.strings().set('ae.receipt',h);doc.strings().set('ae.prev',prev);doc.strings().set('ae.params',canon(P));doc.strings().set('ae.origin','L:// Taller paramétrico');
+  const file=`L-taller-${h.slice(0,8)}.3dm`,blob=new Blob([doc.toByteArray()],{type:'application/octet-stream'});
+  const u=URL.createObjectURL(blob),el=document.createElement('a');el.href=u;el.download=file;document.body.appendChild(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);
+  c.push({h,prev,t,file,params:{...P}});localStorage.setItem(KEY,JSON.stringify(c.slice(-50)));showChain()};
+document.getElementById('json').onclick=async()=>{const s=JSON.stringify({schema:'l.diseno/0.1',regla:'torre-parametrica',params:P},null,2);
+  try{await navigator.clipboard.writeText(s);document.getElementById('json').textContent='¡Copiado!'}catch(e){prompt('Copia tus parámetros:',s)}setTimeout(()=>document.getElementById('json').textContent='Copiar parámetros',1600)};
+syncUI();size();rebuild();showChain();
+</script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es" data-tt="noche">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Recibo de nivelación · Diplomado</title>
+<meta name="description" content="Recibo de nivelación del alumno: cada vez que subes de nivel, genéralo y envíalo a tu correo. Diplomado en Transformación Digital.">
+<style>
+html{--tv:#07060b;--tc:#100e17;--tg:#d4af37;--th:#ffd873;--ti:#ece3c6;--tn:#00ffaa;--tl:rgba(212,175,55,.25);--ts:#a99f86;--go:#d4af37;--goi:#07060b}
+html[data-tt="dia"]{--tv:#f6f1e3;--tc:#fffdf6;--tg:#9a7400;--th:#5e4500;--ti:#1c1a14;--tn:#007a52;--tl:rgba(70,52,10,.2);--ts:#5d5442;--go:#1c1a14;--goi:#ffd873}
+html[data-tt="latam"]{--tv:#032a33;--tc:#053e4a;--tg:#ffb703;--th:#ffd166;--ti:#fdf6e3;--tn:#06d6a0;--tl:rgba(72,202,228,.35);--ts:#bfe3e8;--go:#ff6b6b;--goi:#fffaf0}
+*{box-sizing:border-box}body{margin:0;background:var(--tv);color:var(--ti);font:17px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;padding:max(16px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+main{max-width:560px;margin:0 auto}
+.k{font:600 12px/1.4 ui-monospace,Menlo,monospace;letter-spacing:.16em;color:var(--tn);margin:0 0 6px;text-transform:uppercase}
+h1{font:800 26px/1.15 ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase;color:var(--th);margin:0 0 4px}
+.sub{color:var(--ts);margin:0 0 18px}
+.tt{display:flex;gap:6px;margin:0 0 18px}.tt button{flex:1;min-height:40px;border-radius:999px;border:1px solid var(--tl);background:transparent;color:var(--ti);font:600 13px ui-monospace,monospace}
+.tt button[aria-pressed="true"]{border-color:var(--tg);color:var(--th)}
+form,.card{background:var(--tc);border:1px solid var(--tl);border-radius:16px;padding:16px;margin-bottom:16px}
+label{display:block;font-weight:600;margin:12px 0 4px}label:first-child{margin-top:0}
+small{color:var(--ts);font-weight:400}
+input,select,textarea{width:100%;min-height:48px;padding:10px 12px;border-radius:12px;border:1px solid var(--tl);background:var(--tv);color:var(--ti);font:inherit}
+textarea{min-height:64px;resize:vertical}
+.lv{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.lv label{margin:0;text-align:center;border:1px solid var(--tl);border-radius:12px;padding:8px 2px;font:600 13px/1.25 ui-monospace,monospace;cursor:pointer}
+.lv input{position:absolute;opacity:0;pointer-events:none}.lv b{display:block;font-size:22px;color:var(--th)}
+.lv label:has(input:checked){border-color:var(--tg);box-shadow:0 0 0 2px var(--tg)}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:54px;margin-top:10px;border-radius:14px;border:1px solid var(--tl);background:transparent;color:var(--ti);font:600 17px -apple-system,system-ui,sans-serif;text-decoration:none;cursor:pointer}
+.btn--go{background:var(--go);color:var(--goi);border-color:var(--go)}
+pre{white-space:pre-wrap;word-break:break-word;margin:0;font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ti)}
+.rule{height:2px;margin:12px 0;background:repeating-linear-gradient(90deg,var(--tg) 0 10px,transparent 10px 16px);border:0}
+.note{font-size:14px;color:var(--ts)}.ok{color:var(--tn);font-weight:600;min-height:1.5em;margin:8px 0 0}
+#out{display:none}#out.on{display:block}
+</style>
+</head>
+<body>
+<main>
+<p class="k">ILL://Escuela_de_tecnologia · Diplomado</p>
+<h1>Recibo de nivelación</h1>
+<p class="sub">Cada vez que subes de nivel, genera tu recibo y envíalo a tu correo. Así llevas tu propio historial.</p>
+<div class="tt" role="group" aria-label="Tema"><button type="button" data-tt="noche">NOCHE</button><button type="button" data-tt="dia">DÍA</button><button type="button" data-tt="latam">LATAM</button></div>
+
+<form id="f" autocomplete="on">
+  <label for="nom">Tu nombre</label>
+  <input id="nom" name="name" autocomplete="name" required placeholder="Nombre y apellido">
+  <label for="mail">Tu correo <small>(a donde llega el recibo)</small></label>
+  <input id="mail" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="tu@correo.com">
+  <label>Venía del nivel</label>
+  <div class="lv">
+    <label><input type="radio" name="lv0" value="0"><b>0</b>Conversar</label>
+    <label><input type="radio" name="lv0" value="1"><b>1</b>Dirigir</label>
+    <label><input type="radio" name="lv0" value="2"><b>2</b>Delegar</label>
+    <label><input type="radio" name="lv0" value="3"><b>3</b>Publicar</label>
+  </div>
+  <label>Ahora estoy en el nivel</label>
+  <div class="lv">
+    <label><input type="radio" name="lv" value="0"><b>0</b>Conversar</label>
+    <label><input type="radio" name="lv" value="1"><b>1</b>Dirigir</label>
+    <label><input type="radio" name="lv" value="2"><b>2</b>Delegar</label>
+    <label><input type="radio" name="lv" value="3"><b>3</b>Publicar</label>
+  </div>
+  <label for="ses">Sesión o actividad</label>
+  <input id="ses" placeholder="Ej.: Nivelación Agéntica" value="Nivelación Agéntica">
+  <label for="p1">El agente propuso…</label>
+  <textarea id="p1" placeholder="Qué te entregó Hark Pro"></textarea>
+  <label for="p2">Yo comprobé…</label>
+  <textarea id="p2" placeholder="Qué revisaste o corregiste"></textarea>
+  <label for="p3">Yo decidí…</label>
+  <textarea id="p3" placeholder="Qué aceptaste, cambiaste o descartaste"></textarea>
+  <button class="btn btn--go" type="submit">Generar mi recibo de nivelación</button>
+  <p class="note">Nada se guarda en internet: el recibo se arma en tu celular y tú decides a dónde enviarlo.</p>
+</form>
+
+<section class="card" id="out" aria-live="polite">
+  <pre id="rc"></pre>
+  <hr class="rule">
+  <a class="btn btn--go" id="send" href="#">✉️ Enviar a mi correo</a>
+  <button class="btn" id="share" type="button">Compartir (WhatsApp, etc.)</button>
+  <button class="btn" id="copy" type="button">Copiar recibo</button>
+  <p class="ok" id="msg"></p>
+  <p class="note">Guárdalo en tu correo: cada recibo es una prueba de tu avance. También sirve como borrador de tu Bitácora de nivelación en Classroom.</p>
+</section>
+<section class="card" id="hist" style="display:none"><p class="k">Mis recibos en este celular</p><pre id="hl"></pre><button class="btn" id="hclr" type="button">Borrar historial de este celular</button></section>
+</main>
+<script>
+(function(){
+var r=document.documentElement,L=["noche","dia","latam"];
+function tt(t){if(L.indexOf(t)<0)t="noche";r.setAttribute("data-tt",t);try{localStorage.setItem("ill-tt",t)}catch(e){}
+[].forEach.call(document.querySelectorAll(".tt button"),function(b){b.setAttribute("aria-pressed",String(b.dataset.tt===t))})}
+var s="noche";try{s=localStorage.getItem("ill-tt")||"noche"}catch(e){}tt(s);
+[].forEach.call(document.querySelectorAll(".tt button"),function(b){b.onclick=function(){tt(b.dataset.tt)}});
+var $=function(i){return document.getElementById(i)},K="ill-recibo",KH="ill-recibos",N=["Conversar","Dirigir","Delegar","Publicar"];
+try{var sv=JSON.parse(localStorage.getItem(K)||"{}");["nom","mail","ses"].forEach(function(i){if(sv[i])$(i).value=sv[i]});
+if(sv.lv!=null){var x=document.querySelector('input[name=lv0][value="'+sv.lv+'"]');if(x)x.checked=true}}catch(e){}
+function H(){var a=[];try{a=JSON.parse(localStorage.getItem(KH)||"[]")}catch(e){}return a}
+function showH(){var a=H();$("hist").style.display=a.length?"block":"none";$("hl").textContent=a.map(function(x){return x.f+" · "+x.c+" · nivel "+x.de+" → "+x.a+" · "+x.s}).join("\n")}
+showH();$("hclr").onclick=function(){try{localStorage.removeItem(KH)}catch(e){}showH()};
+function code(t,ymd){var h=0;for(var i=0;i<t.length;i++){h=(h*31+t.charCodeAt(i))>>>0}return "ILL-"+ymd+"-"+h.toString(36).toUpperCase().slice(-5)}
+var TXT="";
+$("f").onsubmit=function(e){e.preventDefault();
+var lv=(document.querySelector("input[name=lv]:checked")||{}).value,lv0=(document.querySelector("input[name=lv0]:checked")||{}).value,d={nom:$("nom").value.trim(),mail:$("mail").value.trim(),lv:lv,ses:$("ses").value.trim()||"Nivelación Agéntica",p1:$("p1").value.trim(),p2:$("p2").value.trim(),p3:$("p3").value.trim()};
+try{localStorage.setItem(K,JSON.stringify({nom:d.nom,mail:d.mail,ses:d.ses,lv:lv}))}catch(e){}
+var now=new Date(),hora=now.toLocaleString("es-MX",{timeZone:"America/Chicago",dateStyle:"long",timeStyle:"short"}),fecha=now.toLocaleDateString("es-MX",{timeZone:"America/Chicago",dateStyle:"long"});
+var ymd=now.toLocaleDateString("en-CA",{timeZone:"America/Chicago"}).replace(/-/g,"").slice(2),C=code(d.nom.toLowerCase()+d.mail.toLowerCase()+lv0+lv+now.getTime(),ymd);
+var de=lv0!=null?lv0+" · "+N[+lv0]:"[sin indicar]",a=lv!=null?lv+" · "+N[+lv]:"[sin indicar]";
+try{var hh=H();hh.unshift({f:fecha,c:C,de:lv0!=null?lv0:"?",a:lv!=null?lv:"?",s:d.ses});localStorage.setItem(KH,JSON.stringify(hh.slice(0,30)))}catch(e){}showH();
+TXT=["RECIBO DE NIVELACIÓN · "+C,
+"Diplomado en Transformación Digital",
+"Instituto Luterano Latinoamericano · ILL://Escuela de Tecnología","",
+"Clase: APRENDER&ENSEÑAR el uso de la inteligencia artificial en lugares difíciles de alcanzar. 101",
+"Sesión: "+d.ses+" · "+fecha,"",
+"Alumno: "+d.nom,
+"Correo: "+d.mail,
+"Nivel: "+de+"  →  "+a,"",
+"Propuso: "+(d.p1||"[por completar]"),
+"Comprobé: "+(d.p2||"[por completar]"),
+"Decidí: "+(d.p3||"[por completar]"),"",
+"Generado: "+hora+" (hora del centro)",
+"Evidencia ≠ autoridad: la supervisión informa, el humano decide.",
+"Esto aprendí. Esto construí. Esto publiqué. Esto puedo enseñar."].join("\n");
+$("rc").textContent=TXT;$("out").classList.add("on");
+$("send").href="mailto:"+encodeURIComponent(d.mail)+"?subject="+encodeURIComponent("Recibo de nivelación · "+C+" · nivel "+(lv0!=null?lv0:"?")+" → "+(lv!=null?lv:"?"))+"&body="+encodeURIComponent(TXT);
+$("share").style.display=navigator.share?"flex":"none";$("msg").textContent="";
+$("out").scrollIntoView({behavior:"smooth"});};
+$("share").onclick=function(){navigator.share({title:"Recibo de nivelación",text:TXT}).catch(function(){})};
+$("copy").onclick=function(){(navigator.clipboard?navigator.clipboard.writeText(TXT):Promise.reject()).then(function(){$("msg").textContent="Copiado ✓"},function(){$("msg").textContent="Mantén presionado el recibo para copiarlo."})};
+})();
+</script>
+</body></html>

@@ -1,0 +1,22 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>legion · kænbæn · +æ://mesh</title>
+<style>:root{--bg:#050505;--ink:#e8e2d0;--dim:#9a927c;--gold:#D4AF37;--line:#2a251a;--ok:#7bbf6a;--warn:#d49238;--no:#c05a4a;--m:"JetBrains Mono",ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.5 var(--m);padding:14px}
+h1{color:var(--gold);font-size:18px;margin:0}.law{color:var(--dim);font-size:11px;margin:4px 0 12px}
+.node{border:1px solid var(--gold);border-radius:10px;padding:8px 12px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:6px 16px}
+.node b{color:var(--gold)}.cols{display:grid;grid-template-columns:repeat(5,minmax(200px,1fr));gap:10px;overflow-x:auto}
+.col{border:1px solid var(--line);border-radius:10px;padding:8px;min-height:120px}.col h2{font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 6px;color:var(--gold)}
+.c{border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin:6px 0}.c i{color:var(--dim);font-style:normal;font-size:10.5px;display:block}
+.review h2{color:var(--warn)}.blocked h2{color:var(--no)}.done h2{color:var(--ok)}a{color:var(--gold)}</style></head><body>
+<h1>legion · kænbæn</h1><div class="law" id="law"></div>
+<div class="node" id="node">cargando…</div>
+<div class="cols" id="cols"></div>
+<p class="law">Fuente: <a href="./board.json">board.json</a> · solo lectura · <a href="https://myaelmendez.github.io/mesh-agenti.html">+æ://mesh</a></p>
+<script>
+const COLS=["triage","todo","review","blocked","done"],esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+fetch("./board.json?"+Date.now()).then(r=>r.json()).then(b=>{
+document.getElementById("law").textContent=b.law;const n=b.node||{};
+document.getElementById("node").innerHTML=`<span><b>${esc(n.name)}</b></span><span>${esc(n.route)}</span><span>:${esc(n.port)} ${esc(n.runtime)}</span><span>agente: ${esc(n.agent)}</span><span class="law" style="margin:0">actualizado ${esc(b.updated)}</span>`;
+document.getElementById("cols").innerHTML=COLS.map(c=>`<div class="col ${c}"><h2>${c} · ${b.cards.filter(x=>x.col===c).length}</h2>${b.cards.filter(x=>x.col===c).map(x=>`<div class="c">${esc(x.title)}<i>${esc(x.id)} · ${esc(x.by)}${x.note?" · "+esc(x.note):""}</i></div>`).join("")}</div>`).join("");
+}).catch(()=>{document.getElementById("node").textContent="board.json no disponible"});
+</script></body></html>

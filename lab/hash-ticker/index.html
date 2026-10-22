@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>LAB · public hash ticker</title>
+<link rel="alternate" type="application/rss+xml" title="PrivateClient public hash feed" href="feed.xml">
+<style>
+:root{--bg:#05070a;--ink:#e6edf2;--mut:#7f8c97;--line:#18222c;--up:#39ff88;--dn:#ff4d5e;--gold:#D4AF37;--cy:#00f3ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 ui-monospace,"JetBrains Mono",Menlo,monospace}
+.tape{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#080b0f;overflow:hidden;white-space:nowrap;position:sticky;top:0}
+.run{display:inline-block;padding:12px 0;animation:m 40s linear infinite}
+.run span{margin:0 26px}.sym{color:var(--gold);font-weight:700}.ok{color:var(--up)}.bad{color:var(--dn)}.sim{color:var(--mut);font-size:11px}
+@keyframes m{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.run{animation:none;white-space:normal}}
+header,main{max-width:980px;margin:auto;padding:18px}
+h1{font:800 24px/1.1 system-ui,sans-serif;text-transform:uppercase;margin:6px 0}
+.tag{color:var(--cy);font-size:12px}.note{color:var(--mut);font-size:12.5px;border:1px dashed var(--line);border-radius:8px;padding:8px 10px;margin-top:10px}
+table{width:100%;border-collapse:collapse;margin-top:8px}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--mut);font-weight:400}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+button{min-height:44px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:#0d131a;color:var(--ink);font-family:inherit;font-size:13px;cursor:pointer}
+#log{white-space:pre-wrap;background:#070a0e;border:1px solid #111a22;border-radius:10px;padding:10px;font-size:12.5px;min-height:60px}
+a{color:var(--cy)}
+</style>
+</head>
+<body>
+<div class="tape" aria-label="ticker"><div class="run" id="run">cargando feed…</div></div>
+<header>
+<div class="tag">&gt;_æ: LAB · aeee-lab/lab/hash-ticker · DEMO</div>
+<h1>Public hash ticker</h1>
+<div>Aquí no cotizan precios, cotiza la evidencia. Cada línea es la cabeza de una cadena de recibos SHA-256. <b>El encoding es privado y el feed es público.</b></div>
+<div class="note">El contenido nunca se publica, solo su hash encadenado (hash = SHA-256(prev + SHA-256(contenido))). Cualquiera puede comprobar que los eslabones cuadran; solo quien tiene el contenido puede recalcularlos. Las cadenas NODE0, GOSPEL y DAO10 son simuladas (SIM). LI16 es real: son los 16 borradores de lab/linkedin-16. Investigación de PRIVATE CLIENT, no institucional. Feed: <a href="feed.xml">feed.xml</a> (RSS 2.0).</div>
+</header>
+<main>
+<table><thead><tr><th>Símbolo</th><th>Cadena</th><th>Recibos</th><th>Cabeza</th><th>Eslabones</th></tr></thead><tbody id="tb"></tbody></table>
+<div class="btns">
+<button id="vli">Verificar LI16 contra los borradores</button>
+<button id="tam">Simular alteración</button>
+<button id="rst">Restaurar</button>
+</div>
+<div id="log">Listo.</div>
+</main>
+<script>
+const NS='https://privateclient.ai/ns/receipt/0.1',G='0'.repeat(64);
+let chains={},orig=null;
+const hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+const sha=async s=>hex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)));
+const g=(it,t)=>it.getElementsByTagNameNS(NS,t)[0].textContent;
+function linkOK(c){let p=G;for(const r of c.items){if(r.prev!==p)return false;p=r.hash}return true}
+function draw(){
+ const rows=Object.entries(chains);
+ document.getElementById('tb').innerHTML=rows.map(([s,c])=>{const h=c.items.at(-1).hash,ok=linkOK(c);return`<tr><td class="sym">${s}</td><td>${c.name}${c.sim?' <span class="sim">SIM</span>':''}</td><td>${c.items.length}</td><td>${h.slice(0,8)}…${h.slice(-4)}</td><td class="${ok?'ok':'bad'}">${ok?'✓ cuadran':'✗ rota'}</td></tr>`}).join('');
+ const tick=rows.map(([s,c])=>{const h=c.items.at(-1).hash,ok=linkOK(c);return`<span><b class="sym">${s}</b> ${h.slice(0,4)}…${h.slice(-2)} <span class="${ok?'ok':'bad'}">${ok?'▲':'▼'} ${c.items.length}</span>${c.sim?' <span class="sim">SIM</span>':''}</span>`}).join('');
+ document.getElementById('run').innerHTML=tick+tick;
+}
+fetch('feed.xml').then(r=>r.text()).then(t=>{
+ const x=new DOMParser().parseFromString(t,'application/xml');
+ for(const it of x.getElementsByTagName('item')){const s=g(it,'symbol');(chains[s]??={name:it.getElementsByTagName('description')[0].textContent.replace(' · SIM',''),sim:g(it,'sim')==='true',items:[]}).items.push({seq:+g(it,'seq'),hash:g(it,'hash'),prev:g(it,'prev')})}
+ for(const c of Object.values(chains))c.items.sort((a,b)=>a.seq-b.seq);
+ orig=JSON.stringify(chains);draw();
+}).catch(e=>document.getElementById('run').textContent='no se pudo leer feed.xml');
+const log=m=>document.getElementById('log').textContent=m;
+document.getElementById('vli').onclick=async()=>{
+ log('Leyendo ../linkedin-16/ y recalculando…');
+ try{const h=await (await fetch('../linkedin-16/')).text();
+ const posts=JSON.parse(h.match(/<script id="posts" type="application\/json">([\s\S]*?)<\/script>/)[1]);
+ let p=G,out=[];for(let i=0;i<posts.length;i++){const hh=await sha(p+await sha(posts[i].t));const f=chains.LI16.items[i]?.hash;out.push(`#${i+1} ${hh.slice(0,10)} ${hh===f?'✓':'✗'}`);p=hh}
+ const ok=p===chains.LI16.items.at(-1).hash;log(out.join('\n')+`\n\n${ok?'✓ La cabeza LI16 coincide: el contenido es el que el feed prometió.':'✗ No coincide: el contenido cambió después de publicarse el hash.'}`)}catch(e){log('Error: '+e.message)}
+};
+document.getElementById('tam').onclick=()=>{const c=chains.GOSPEL;c.items[5].prev='f'.repeat(64);draw();log('Alteré el recibo GOSPEL #6 en tu navegador. El eslabón ya no cuadra y el ticker marca ▼ frente a todos.')};
+document.getElementById('rst').onclick=()=>{chains=JSON.parse(orig);draw();log('Restaurado desde el feed.')};
+</script>
+</body>
+</html>

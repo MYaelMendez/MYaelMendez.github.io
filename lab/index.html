@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<base href="../">
+<meta name="robots" content="noindex">
+<link rel="webmcp" href="/webmcp-tools.json">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>LAB · x0:y0:z0:æ0 · >_æææ://|||</title>
+<meta name="description" content="The origin of æ-space. x0:y0:z:0æ:0 — you are here. Every surface addressed in 4-space: x=category, y=item, z=depth, æ=authority (public→custody).">
+<link rel="canonical" href="https://myaelmendez.github.io/">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<link rel="apple-touch-icon" href="./icon.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://myaelmendez.github.io/">
+<meta property="og:title" content="x0:y0:z0:æ0 · æææ://">
+<meta property="og:description" content="The origin of æ-space. Every surface addressed in 4-space.">
+<meta property="og:image" content="https://myaelmendez.github.io/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@yaelmendez">
+<link rel="manifest" href="./surface-manifest.json" type="application/json">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-hi:#ffda83;--neon:#00ff9d;--cyan:#70dcff;--purple:#b98cff;--ink:#e8e6df;--muted:#6f6a5c;--frame:#0c0c0c;--line:rgba(212,175,55,.18)}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden;overflow-y:auto}
+#grid{position:fixed;inset:0;z-index:0}
+.scan{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(212,175,55,.025) 0 1px,transparent 1px 3px)}
+.vig{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 42%,transparent 30%,rgba(0,0,0,.72) 100%)}
+.wrap{position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;max-width:680px;margin:0 auto;padding:0 18px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:14px 0 12px;border-bottom:1px solid var(--line);font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+.bar .b1{color:var(--gold);font-weight:700;text-transform:none}
+.bar .live{display:flex;align-items:center;gap:6px;color:var(--neon)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+@media(max-width:520px){.bar .mid{display:none}}
+.core{flex:1 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px 0}
+.glyph{font-size:clamp(50px,16vw,92px);line-height:1;color:var(--gold);text-shadow:0 0 34px rgba(212,175,55,.5);font-family:'Orbitron';font-weight:900;animation:breathe 4s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.03)}}
+.coord{font-size:clamp(19px,6vw,32px);font-weight:700;letter-spacing:2px;white-space:nowrap}
+.coord .x,.coord .y,.coord .z{color:var(--neon)}
+.coord .a{color:var(--gold-hi);text-shadow:0 0 16px rgba(212,175,55,.5)}
+.coord .sep{color:var(--muted);opacity:.5}
+.coord .num{display:inline-block;min-width:.55em}
+.tag{font-size:10px;letter-spacing:2.5px;color:var(--muted);text-transform:uppercase;min-height:1.2em}
+.tag b{color:var(--gold)}
+.prompt{font-size:clamp(15px,4.4vw,19px);color:var(--gold);letter-spacing:1px}
+.prompt .blink{display:inline-block;width:9px;height:1.05em;background:var(--gold);vertical-align:-2px;margin-left:2px;animation:blink 1s step-end infinite}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+.log{width:100%;max-width:540px;border:1px solid var(--line);background:rgba(5,5,5,.55);padding:12px 14px;font-size:11px;line-height:1.7;color:var(--muted);text-align:left;min-height:118px;max-height:170px;overflow-y:auto;white-space:pre-wrap;word-break:break-word}
+.log .ok{color:var(--neon)}.log .g{color:var(--gold)}.log .c{color:var(--cyan)}
+.inrow{display:flex;width:100%;max-width:540px;border:1px solid var(--line);background:rgba(5,5,5,.7)}
+.inrow .p{color:var(--gold);padding:0 0 0 14px;display:flex;align-items:center;font-size:14px}
+#cmd{flex:1;min-width:0;background:transparent;border:none;outline:none;color:var(--ink);font-family:inherit;font-size:14px;padding:13px 10px;letter-spacing:.5px}
+#go{background:var(--gold);color:var(--void);border:none;font-family:'Orbitron';font-weight:700;font-size:11px;letter-spacing:1px;padding:0 20px;cursor:pointer;text-transform:uppercase}
+#go:hover{background:var(--gold-hi)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;padding-top:4px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.mesh{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;padding:6px 0 16px}
+@media(max-width:560px){.mesh{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:360px){.mesh{grid-template-columns:1fr}}
+.door{display:flex;flex-direction:column;gap:3px;padding:10px 11px;border:1px solid var(--line);border-left:2px solid var(--ac,var(--gold));background:rgba(212,175,55,.03);color:var(--ink);text-decoration:none;transition:all .18s;min-width:0}
+.door:hover{background:rgba(212,175,55,.09);transform:translateY(-2px);border-color:var(--ac,var(--gold))}
+.door .ax{font-size:8px;color:var(--ac,var(--cyan));letter-spacing:.5px}
+.door b{font-size:11px;color:var(--gold);letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.door small{font-size:9px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* live ticker — the coordinate collapses into a flowing agentic feed */
+.ticker{display:flex;align-items:center;gap:10px;width:100%;padding:9px 0;border-bottom:1px solid var(--line);font-size:9px;letter-spacing:.4px;overflow:hidden}
+.tlabel{display:inline-flex;align-items:center;gap:5px;color:var(--gold);font-weight:700;letter-spacing:1.6px;white-space:nowrap;text-transform:uppercase;flex:none}
+.tlabel .dot{width:5px;height:5px}
+.tmask{flex:1;overflow:hidden;position:relative;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+.tstream{display:inline-flex;white-space:nowrap;will-change:transform}
+.tgrp{display:inline-flex;gap:22px;padding-right:22px}
+.tm{color:var(--muted)}
+.tm.g{color:var(--gold)}.tm.ok{color:var(--neon)}.tm.c{color:var(--cyan)}.tm.p{color:var(--purple)}
+.tm.coord{color:var(--gold-hi);font-weight:700;text-shadow:0 0 10px rgba(212,175,55,.4);transition:text-shadow .25s}
+.tm.coord.flash{text-shadow:0 0 22px rgba(212,175,55,.95)}
+.td{color:var(--gold);opacity:.35}
+.coord{transition:transform .22s,opacity .22s}
+.coord.dip{transform:scale(.94);opacity:.66}
+.hint{font-size:9px;color:var(--muted);letter-spacing:1px;padding-bottom:14px;opacity:.7;text-align:center}
+
+/* æPICO · additive onboarding and agentic cockpit */
+.aeportal{width:100%;border:1px solid rgba(168,255,193,.34);border-radius:17px;background:linear-gradient(140deg,rgba(10,31,17,.97),rgba(5,13,9,.94));padding:16px;margin:0 0 18px;box-shadow:0 14px 50px #0007}
+.aeportal h2{font:700 clamp(18px,5vw,24px) system-ui,sans-serif;color:#b3ffc8;letter-spacing:-.03em;margin:6px 0}
+.aeportal p{font:12px/1.6 system-ui,sans-serif;color:#c1d9c8;margin:5px 0 12px}
+.aeportal .eyebrow{font:700 10px ui-monospace,monospace;color:#a8ffc1;letter-spacing:.12em}
+.aeportal .ae-marquee{overflow:hidden;white-space:nowrap;border-block:1px solid #335d40;padding:8px 0;margin-bottom:13px}
+.aeportal .ae-track{display:inline-block;white-space:nowrap;font:700 10px ui-monospace,monospace;color:#a8ffc1;animation:aeportal-scroll 22s linear infinite}
+@keyframes aeportal-scroll{to{transform:translateX(-50%)}}
+.aeportal .ae-doors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.aeportal .ae-link{display:flex;flex-direction:column;gap:4px;min-width:0;padding:12px;border:1px solid #3e6b49;border-radius:11px;background:#1a3423;text-decoration:none;transition:transform .18s,background .18s}
+.aeportal .ae-link:hover{transform:translateY(-2px);background:#254831}
+.aeportal .ae-link strong{font:700 13px system-ui,sans-serif;color:#f0fff4}
+.aeportal .ae-link small{font:11px/1.4 system-ui,sans-serif;color:#bedac5}
+.aeportal .ae-principal{font:700 11px system-ui,sans-serif;color:#a8ffc1;margin-top:12px;text-align:center}
+.aeportal a:focus-visible{outline:3px solid #ffd08c;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.aeportal *{animation:none!important;transition:none!important}.aeportal .ae-track{white-space:normal}}
+</style>
+</head>
+<body><div id="ae-lab" style="position:fixed;top:0;left:0;right:0;z-index:2147483647;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font:700 10px/1 ui-monospace,'JetBrains Mono',monospace;letter-spacing:.16em;padding:5px 8px;background:#B4FF2E;color:#050516"><span>LAB · æææ.com</span><a style="color:#050516" href="https://lutheraninstitute.github.io/bookstores/lab/ioa/">#ioa</a><a style="color:#050516" href="https://lutheraninstitute.github.io/bookstores/lab/partners/">$go partners</a><a style="color:#050516" href="lab/opc/">#opc 一人公司</a><a style="color:#050516" href="lab/env/">æ^æ^æ</a><a style="color:#050516" href="lab/ae.json">ae.json</a></div>
+<canvas id="grid"></canvas>
+<div class="scan"></div><div class="vig"></div>
+<div class="wrap">
+  <div class="bar">
+    <span class="b1">æææ:// · ORIGIN</span>
+    <span class="mid">LANGUAGE · IMPLEMENTATION · RUNTIME</span>
+    <span class="live"><span class="dot"></span><span id="meshstate">22 addresses</span></span>
+  </div>
+  <div class="ticker">
+    <span class="tlabel"><span class="dot"></span>æ://live</span>
+    <div class="tmask"><div class="tstream" id="tstream"></div></div>
+  </div>
+  <div class="core">
+    <div class="glyph">☺</div>
+    <div class="coord" id="coord">
+      <span class="x">x<span class="num" id="cx">0</span></span><span class="sep">:</span><span class="y">y<span class="num" id="cy">0</span></span><span class="sep">:</span><span class="z">z<span class="num" id="cz">0</span></span><span class="sep">:</span><span class="a">æ<span class="num" id="ca">0</span></span>
+    </div>
+    <div class="tag" id="where">you are here · the origin of æ-space</div>
+    <div class="prompt">&gt;_æææ://|||<span class="blink"></span></div>
+    <div class="log" id="log"></div>
+    <div class="inrow">
+      <span class="p">›</span>
+      <input id="cmd" placeholder="æ://bookstore · goto x9:y0:z0:æ0 · or type 'help'" autocomplete="off" spellcheck="false">
+      <button id="go">RUN</button>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--gold)"></i>æ0 public</span>
+      <span><i style="background:var(--cyan)"></i>æ1 published</span>
+      <span><i style="background:var(--neon)"></i>æ2 operator</span>
+      <span><i style="background:var(--purple)"></i>æ3 custody</span>
+    </div>
+  </div>
+
+  <section class="aeportal" aria-label="Agentic Environments onboarding">
+    <div class="ae-marquee" aria-label="Agentic environments symbolic ticker"><div class="ae-track">🫵 HUMAN://ROOT　 ⌘ CODEX://BUILD　 🦞 OPENCLAW://OPERATE　 📥 æQ://QUEUE　 📋 KÆNBÆN://REVIEW　 🧾 WITNESS://VERIFY　 🫵 HUMAN://ROOT　 ⌘ CODEX://BUILD　 🦞 OPENCLAW://OPERATE　 📥 æQ://QUEUE　 📋 KÆNBÆN://REVIEW　 🧾 WITNESS://VERIFY　</div></div>
+    <div class="eyebrow">#OSW · TWO ENTRANCES · ONE ENVIRONMENT</div>
+    <h2>$æ × $mcp · Welcome home</h2>
+    <p>Start with your intent. Explore agentic tools, create a forkable environment, and review every consequential action before execution. Independent prototype—not a connected agent control plane.</p>
+    <div class="ae-doors">
+      <a class="ae-link" href="./mcp/agents/"><strong>æ · Agentic Home</strong><small>⌘ Codex · 🦞 OpenClaw · intent composer</small></a>
+      <a class="ae-link" href="./mcp/"><strong>⌨️ $mcp · Keypad</strong><small>Discover · compose · human approval</small></a>
+      <a class="ae-link" href="./mcp/discover/"><strong>🔍 æPICO · Discover</strong><small>Nano emojis · capability labels · teleprompts</small></a>
+      <a class="ae-link" href="./mcp/kinetic/"><strong>✨ Kinetic Studio</strong><small>Tickers · color · breathing typography</small></a>
+    </div>
+    <div class="ae-principal">Many agents. One principal. 🫵</div>
+  </section>
+  <div class="mesh" id="mesh"></div>
+  <div class="hint">MOVE WITH WASD / ARROWS · ⌘K FOCUS · æ IS THE AUTHORITY AXIS YOU STEER BY</div>
+</div>
+<script src="ae-atlas.js"></script>
+<script>
+(function(){'use strict';
+var ATLAS=window.AE_ATLAS;
+var AXCOL=['#D4AF37','#70dcff','#00ff9d','#b98cff'];
+var AXNAME=['public','published','operator','custody'];
+var S={x:0,y:0,z:0,a:0};
+var $=function(id){return document.getElementById(id)};
+// ── live ticker: the coordinate collapses into a flowing agentic feed ──
+var TCOORD=['x0:y0:z0:æ0 · the origin','coord'];
+var TLOG=[], _lastCoord='';
+function tickGroup(){return [TCOORD].concat(TLOG).map(function(m){return '<span class="tm '+(m[1]||'')+'">'+m[0]+'</span>'}).join('<span class="td">·</span>')}
+function tickRender(){$('tstream').innerHTML='<span class="tgrp">'+tickGroup()+'</span><span class="td">·</span><span class="tgrp">'+tickGroup()+'</span>'}
+function tickPush(msg,cls){TLOG.push([msg,cls||'']);if(TLOG.length>16)TLOG.shift();tickRender()}
+function tickSetCoord(){
+  var hit=atCoord(), v=coordOf(S)+(hit?(' · '+hit.name):' · the origin');
+  if(v===_lastCoord)return; _lastCoord=v; TCOORD[0]=v; tickRender();
+  var cs=$('tstream').querySelectorAll('.tm.coord');
+  for(var i=0;i<cs.length;i++)cs[i].classList.add('flash');
+  setTimeout(function(){var c2=$('tstream').querySelectorAll('.tm.coord');for(var j=0;j<c2.length;j++)c2[j].classList.remove('flash')},320);
+}
+// ambient feed — STATIC fallback until the real mesh loads, then seeded from capability-manifest.json
+var AMB=[
+  ['x0:y0:z0:æ0 · the origin · you are here',''],
+  ['atlas synced · '+ATLAS.length+' addresses','c'],
+  ['væult chain · 10/10 links answer','ok'],
+  ['webmcp · 6 agent tools registered','ok'],
+  ['authority axis · public → custody','g'],
+  ['agents reference agents · #internetofagents','']
+];
+var _seeded=false;
+function seedAmb(M){
+  if(_seeded||!M||!M.capabilities)return; _seeded=true;
+  var s=[],AXC=['g','c','ok','p'];
+  M.capabilities.forEach(function(c){s.push([c.address+' · '+c.name+' · '+c.category,AXC[c.layer]||''])});
+  s.push(['homebase · '+String(M.homebase||'').replace(/^https?:\/\//,''),'c']);
+  s.push([M.count+' capabilities · one manifest · derived, never hand-written','g']);
+  s.push(['authority axis · public → published → operator → custody','g']);
+  s.push(['operator · '+(M.operator||''),'']);
+  AMB=s;
+}
+// pull the real mesh state — the ticker becomes the manifest's heartbeat
+fetch('capability-manifest.json',{cache:'no-cache'}).then(function(r){return r.json()}).then(seedAmb).catch(function(){});
+var _ai=0; function tickAmb(){var m=AMB[_ai++%AMB.length];tickPush(m[0],m[1])}
+function tickScroll(){var s=$('tstream'),pos=0;(function loop(){var half=s.scrollWidth/2;pos-=0.4;if(half>0&&-pos>=half)pos+=half;s.style.transform='translateX('+pos+'px)';requestAnimationFrame(loop)})()}
+
+function coordOf(s){return 'x'+s.x+':y'+s.y+':z'+s.z+':æ'+s.a}
+function atCoord(){for(var i=0;i<ATLAS.length;i++){var s=ATLAS[i];if(s.x===S.x&&s.y===S.y&&s.z===S.z&&s.a===S.a)return s}return null}
+function render(){
+  $('cx').textContent=(S.x>0?'+':'')+S.x;$('cy').textContent=(S.y>0?'+':'')+S.y;
+  $('cz').textContent=(S.z>0?'+':'')+S.z;$('ca').textContent=(S.a>0?'+':'')+S.a;
+  var hit=atCoord();
+  $('where').innerHTML=hit?('→ <b>'+hit.name+'</b> · '+AXNAME[hit.a]+' layer'):(S.x===0&&S.y===0&&S.z===0&&S.a===0?'you are here · the origin of æ-space':'offset from origin · x'+S.x+':y'+S.y+':z'+S.z+':æ'+S.a);
+  var ce=$('coord');ce.classList.add('dip');setTimeout(function(){ce.classList.remove('dip')},200);
+  tickSetCoord();
+}
+function setHash(){location.hash=coordOf(S)}
+function parseHash(){var m=location.hash.match(/x(-?\d+):y(-?\d+):z(-?\d+):æ(-?\d+)/);if(m){S.x=+m[1];S.y=+m[2];S.z=+m[3];S.a=+m[4]}}
+function log(t,cls){var el=$('log');el.innerHTML+='<span class="'+(cls||'')+'">'+t+'</span>\n';el.scrollTop=el.scrollHeight}
+function typeSeq(lines,i){if(i>=lines.length)return;var L=lines[i];log(L[0],L[1]);setTimeout(function(){typeSeq(lines,i+1)},L[2]||140)}
+function resolve(q){
+  q=(q||'').toLowerCase().replace(/^æ:\/\/|^æææ:\/\/|^ae:\/\/|^web\+æ:\/\//,'');
+  var cm=q.match(/^x?(-?\d+):y?(-?\d+):z?(-?\d+):æ?(-?\d+)$/);
+  if(cm){for(var i=0;i<ATLAS.length;i++){var s=ATLAS[i];if(s.x==cm[1]&&s.y==cm[2]&&s.z==cm[3]&&s.a==cm[4])return s}return null}
+  for(var j=0;j<ATLAS.length;j++){var t=ATLAS[j];if(t.id.indexOf(q)>=0||t.name.toLowerCase().indexOf(q)>=0||t.url.toLowerCase().indexOf(q)>=0||t.cat.indexOf(q)>=0)return t}
+  return null;
+}
+function buildMesh(){
+  var sorted=ATLAS.slice().sort(function(a,b){return a.a-b.a||a.x-b.x||a.y-b.y||a.z-b.z});
+  $('mesh').innerHTML=sorted.map(function(s){
+    return '<a class="door" style="--ac:'+AXCOL[s.a]+'" href="'+s.url+'" onclick="return travel(event,\''+s.id+'\')">'+
+      '<span class="ax">'+coordOf(s)+'</span><b>'+s.name+'</b><small>'+s.desc+'</small></a>';
+  }).join('');
+}
+function travel(ev,id){
+  var s=ATLAS.filter(function(x){return x.id===id})[0];if(!s)return true;
+  S={x:s.x,y:s.y,z:s.z,a:s.a};render();setHash();
+  log('  travel → '+coordOf(s)+'  '+s.name,'ok');
+  tickPush('travel → '+coordOf(s)+' · '+s.name,'ok');
+  ev.preventDefault();setTimeout(function(){location.href=s.url},420);return false;
+}
+function run(raw){
+  var c=(raw||'').trim();if(!c)return;log('> '+c,'g');
+  var low=c.toLowerCase();
+  if(low==='help'){log('  æ://<name>            — resolve + open a surface','c');log('  x1:y0:z0:æ0           — jump to a coordinate','c');log('  goto x9:y0:z0:æ0      — move the cursor','c');log('  origin                — return to x0:y0:z0:æ0','c');log('  atlas                 — list all 22 addresses','c');log('  scan | whoami | help','c')}
+  else if(low==='origin'){S={x:0,y:0,z:0,a:0};render();setHash();log('  returned to origin','ok');tickPush('returned to origin · x0:y0:z0:æ0','coord')}
+  else if(low==='atlas'||low==='ls'){ATLAS.slice().sort(function(a,b){return a.a-b.a}).forEach(function(s){log('  '+coordOf(s)+'  '+s.name,'')})}
+  else if(low==='scan'||low==='verify'){tickPush('scan · væult chain 10/10 links answer','ok');log('  væult chain ......... 10/10 links answer','ok');log('  custody→format→gate→authority→contract→dispatch→publish→delivery→adoption','c')}
+  else if(low==='whoami'){log('  x0:y0:z0:æ0 · one principal · sovereign','ok')}
+  else if(low.indexOf('goto')===0){var m=low.match(/x?(-?\d+):y?(-?\d+):z?(-?\d+):æ?(-?\d+)/);if(m){S.x=+m[1];S.y=+m[2];S.z=+m[3];S.a=+m[4];render();setHash();log('  moved to '+coordOf(S),'ok')}else log('  usage: goto x1:y0:z0:æ0','')}
+  else {var hit=resolve(c);if(hit){log('  resolve '+c+' → '+coordOf(hit)+'  '+hit.name,'ok');S={x:hit.x,y:hit.y,z:hit.z,a:hit.a};render();setHash();setTimeout(function(){location.href=hit.url},520)}else log('  no surface "'+c+'" — try \'atlas\' for the full map','')}
+}
+document.addEventListener('keydown',function(e){
+  var t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'))return;
+  var k=e.key.toLowerCase();
+  if(k==='a'||k==='arrowleft')S.x--;else if(k==='d'||k==='arrowright')S.x++;
+  else if(k==='w'||k==='arrowup')S.y++;else if(k==='s'||k==='arrowdown')S.y--;
+  else if(k==='q')S.z--;else if(k==='e')S.z++;else if(k==='z')S.a--;else if(k==='x')S.a++;
+  else if(k==='k'&&(e.metaKey||e.ctrlKey)){e.preventDefault();$('cmd').focus();return}else return;
+  e.preventDefault();render();setHash();
+});
+$('go').addEventListener('click',function(){run($('cmd').value);$('cmd').value=''});
+$('cmd').addEventListener('keydown',function(e){if(e.key==='Enter'){run($('cmd').value);$('cmd').value=''}});
+window.addEventListener('hashchange',function(){parseHash();render()});
+try{if(navigator.registerProtocolHandler){navigator.registerProtocolHandler('web+ae',location.origin+'/?q=%s')}}catch(e){}
+function drawGrid(){var c=$('grid'),x=c.getContext('2d');var dpr=Math.min(2,window.devicePixelRatio||1);function fit(){c.width=innerWidth*dpr;c.height=innerHeight*dpr;x.setTransform(dpr,0,0,dpr,0,0)}fit();window.addEventListener('resize',fit);
+ var t=0;function loop(){x.clearRect(0,0,innerWidth,innerHeight);var h=innerHeight,w=innerWidth,hy=h*0.46;x.strokeStyle='rgba(0,255,157,.06)';x.lineWidth=1;
+  for(var i=-12;i<=12;i++){x.beginPath();x.moveTo(w/2+i*46,hy);x.lineTo(w/2+i*220,h);x.stroke()}
+  for(var j=0;j<14;j++){var yy=hy+(h-hy)*(j/14)+(t%60)*0.4;x.beginPath();x.moveTo(0,yy);x.lineTo(w,yy);x.stroke()}
+  x.strokeStyle='rgba(212,175,55,.10)';x.beginPath();x.moveTo(w/2,0);x.lineTo(w/2,h);x.stroke();t+=0.4;requestAnimationFrame(loop)}loop()}
+var BOOT=[
+ ['æææ:// kernel · sovereign runtime','g',160],
+ ['> locking origin ................ OK','ok',180],
+ ['> x=0 y=0 z=0 æ=0 .............. LOCKED','ok',180],
+ ['> atlas loaded ................. '+ATLAS.length+' addresses','c',180],
+ ['> authority axis ............... public → custody','c',180],
+ ['> protocol æ:// ................ registered','ok',180],
+ ['> ready. type \'help\' or move with WASD','',140]
+];
+parseHash();render();buildMesh();drawGrid();typeSeq(BOOT,0);
+tickRender();tickScroll();for(var _s=0;_s<4;_s++)tickAmb();setInterval(tickAmb,4200);
+window.travel=travel;
+})();
+</script>
+<script src="webmcp.js"></script>
+</body>
+</html>

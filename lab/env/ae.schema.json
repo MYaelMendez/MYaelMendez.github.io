@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lutheraninstitute.github.io/aeee-lab/lab/env/ae.schema.json",
+  "title": "ae.manifest/0.1 · agentic environment",
+  "description": "One principal, many agents. Agents may read and propose; only the human principal holds authority.",
+  "type": "object",
+  "required": [
+    "schema",
+    "address",
+    "status",
+    "capabilities",
+    "checkout",
+    "authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "ae.manifest/0.1"
+    },
+    "principal": {
+      "type": "string",
+      "description": "The one human who decides."
+    },
+    "address": {
+      "type": "string",
+      "description": "x0:y0:z0:æ0 inside the environment's own namespace, e.g. æ^æ://#opc/handle/x0:y0:z0:æ0"
+    },
+    "status": {
+      "enum": [
+        "lab",
+        "live",
+        "retired"
+      ]
+    },
+    "name": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string",
+      "examples": [
+        "store",
+        "opc",
+        "site",
+        "class"
+      ]
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "checkout": {
+      "description": "'none', or how a human completes payment on the official site. Agents never pay.",
+      "anyOf": [
+        {
+          "const": "none"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    },
+    "authority": {
+      "type": "object",
+      "required": [
+        "agents_may",
+        "human_only"
+      ],
+      "properties": {
+        "agents_may": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "human_only": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "principal": {
+          "type": "string"
+        }
+      }
+    },
+    "network": {
+      "type": "string",
+      "format": "uri"
+    },
+    "provenance": {
+      "type": "object"
+    },
+    "aeqr": {
+      "type": "string"
+    }
+  },
+  "anyOf": [
+    {
+      "required": [
+        "principal"
+      ]
+    },
+    {
+      "properties": {
+        "authority": {
+          "required": [
+            "principal"
+          ]
+        }
+      }
+    }
+  ]
+}

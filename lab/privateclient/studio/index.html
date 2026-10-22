@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Template Studio · @yaelmendez · PC:// LAB</title>
+<style>
+:root{--bg:#000;--ink:#e9f6f7;--dim:#7d9a9e;--c:#00f3ff;--line:#12383b;--ok:#3ee08f;--no:#ff5a6a;--wait:#ffcf5c}
+:root[data-mode=day]{--bg:#f4efe3;--ink:#111;--dim:#5d5850;--c:#0a6f78;--line:#d6cfbf;--ok:#1d8a52;--no:#c3283a;--wait:#9a6a00}
+:root[data-mode=day] body{background-image:linear-gradient(rgba(17,17,17,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(17,17,17,.05) 1px,transparent 1px)}
+:root[data-mode=day] .panel{background:rgba(255,253,247,.92)}
+:root[data-mode=day] input,:root[data-mode=day] select,:root[data-mode=day] textarea{background:#fffdf7}
+:root[data-mode=day] .presets button,:root[data-mode=day] .seg button,:root[data-mode=day] .btn{background:#fffdf7}
+.mode{min-height:44px;min-width:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);font:600 13px ui-monospace,Menlo,monospace;cursor:pointer}
+.btn.primary{background:var(--c);color:var(--bg);border-color:var(--c)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.sub{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.sub ol{margin:6px 0 0;padding-left:18px;font-size:13px;color:var(--dim)}
+*{box-sizing:border-box}
+.stepsbar{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 4px;font-size:12px}
+.stepsbar span{border:1px solid var(--line);border-radius:999px;padding:4px 10px;color:var(--dim)}
+.stepsbar span.done{color:var(--ok);border-color:var(--ok)}.stepsbar span.now{color:var(--c);border-color:var(--c)}
+.choose h2{font:600 12px ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--c);margin:14px 0 0}
+.post{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.post h2,.sub h2{font:600 12px ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--c);margin:0 0 6px}
+.aic{display:flex;gap:8px;align-items:center;color:var(--ink);font-size:14px}.aic input{width:auto;min-height:0}
+.hold{position:relative;margin-top:10px;height:64px;border-radius:32px;border:1px solid var(--c);background:transparent;color:var(--ink);font:700 17px system-ui,sans-serif;overflow:hidden;width:100%;touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer}
+.hold i{position:absolute;inset:0;width:0;background:linear-gradient(90deg,transparent,var(--c))}.hold span{position:relative}.hold[disabled]{opacity:.45}
+.rc{margin-top:10px;font-size:12px;border:1px solid var(--ok);border-radius:12px;padding:10px;word-break:break-all}.rc b{color:var(--ok)}.rc a{color:var(--c)}
+.guide{position:fixed;right:16px;bottom:16px;z-index:9;display:flex;gap:12px;align-items:flex-end;max-width:360px;padding:12px 14px;border:1px solid var(--c);border-radius:18px;background:var(--bg);box-shadow:0 8px 30px rgba(0,0,0,.35)}
+.guide p{margin:4px 0 8px;font-size:14px}.guide b{font-size:12px;color:var(--c)}
+#geyes{transition:transform .35s}
+.hl{outline:2px solid var(--c);outline-offset:4px;border-radius:12px;transition:outline-color .3s}
+@media(prefers-reduced-motion:reduce){#geyes{transition:none}}
+@media(max-width:760px){.guide{left:12px;right:12px;max-width:none}}
+footer{padding-bottom:140px}html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+body{background-image:linear-gradient(rgba(0,243,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,243,255,.05) 1px,transparent 1px);background-size:40px 40px}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+.top{display:flex;justify-content:space-between;align-items:center;max-width:1240px;margin:0 auto;padding:14px 16px;font-size:13px;color:var(--dim)}
+.top a{color:var(--ink);font-weight:700;font-size:15px;text-decoration:none}
+.tag{border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:11px;letter-spacing:.08em;color:var(--c)}
+.head{max-width:1240px;margin:0 auto;padding:4px 16px 14px}
+h1{font:800 34px/1.05 system-ui,sans-serif;letter-spacing:-.01em;margin:6px 0;text-transform:uppercase}
+h1 em{font-style:normal;color:var(--c)}
+.lead{color:var(--dim);margin:0;max-width:720px}
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.presets button,.seg button{min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:#041214;color:var(--ink);font:600 14px system-ui,sans-serif;cursor:pointer}
+.presets button[aria-pressed=true],.seg button[aria-pressed=true]{border-color:var(--c);color:var(--c)}
+.grid{max-width:1240px;margin:0 auto;padding:0 16px 60px;display:grid;grid-template-columns:340px 1fr 340px;gap:18px;align-items:start}
+.panel{border:1px solid var(--line);border-radius:16px;background:rgba(3,16,18,.88);padding:14px}
+.panel h2{font:600 12px ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--c);margin:0 0 10px}
+label{display:block;font-size:12px;color:var(--dim);margin:10px 0 4px}
+input,select,textarea{width:100%;min-height:44px;background:#000;border:1px solid var(--line);border-radius:10px;color:var(--ink);font:14px system-ui,sans-serif;padding:8px 10px}
+input[type=color]{padding:4px;height:44px}
+textarea{min-height:110px;resize:vertical;line-height:1.45}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--c)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.stage{position:sticky;top:8px}
+canvas{width:100%;height:auto;border-radius:14px;display:block;box-shadow:0 0 0 1px var(--line)}
+.checks{list-style:none;margin:10px 0 0;padding:0;font:13px ui-monospace,Menlo,monospace}
+.checks li{padding:4px 0;border-top:1px solid var(--line)}
+.checks li.ok{color:var(--ok)}.checks li.no{color:var(--no)}.checks li.wait{color:var(--wait)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn{min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--c);background:#041214;color:var(--ink);font:600 14px system-ui,sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
+pre{white-space:pre-wrap;word-break:break-all;font-size:11.5px;color:var(--dim);margin:0;max-height:520px;overflow:auto}
+.sha{font:12px ui-monospace,Menlo,monospace;color:var(--ok);word-break:break-all;margin:0 0 8px}
+.note{font-size:12px;color:var(--dim);margin-top:8px}
+footer{max-width:1240px;margin:0 auto;padding:0 16px 40px;font-size:12px;color:var(--dim);text-align:center}footer a{color:var(--c)}
+@media(max-width:1100px){.grid{grid-template-columns:1fr 1fr}.right{grid-column:1/-1}}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.stage{position:static}}
+.gifopt{display:flex;gap:8px;align-items:center;font-size:13px;margin-top:10px;cursor:pointer}
+</style></head>
+<body>
+<div class="top"><a class="mono" href="../">&gt;_PrivateClient</a><span style="display:flex;gap:8px;align-items:center"><button class="mode" id="mode" type="button" aria-label="Day or night"></button><span class="tag mono" id="tagline">LAB · TEMPLATE STUDIO</span></span></div>
+<header class="head">
+ <h1>Your template is <em>your platform.</em></h1>
+ <p class="lead">Every domain can carry a template for its visitors. Design the card your words travel in: its look, its rules, its approvers. The template is a manifest with a hash, so every receipt can name the rules that were in force. Agents may draft; you approve and publish.</p>
+ <div class="stepsbar mono" id="stepsbar"><span data-s="1">1 Choose</span><span data-s="2">2 Design</span><span data-s="3">3 Rules</span><span data-s="4">4 Compose</span><span data-s="5">5 Approve &amp; post</span></div>
+ <section id="sec1" class="choose"><h2 class="mono">1 · Choose a template</h2>
+ <div class="presets" id="presets" aria-label="Templates"></div>
+ <label for="f-domain">Or a domain template for its visitors</label><select id="f-domain" style="max-width:340px"><option value="">Pick a domain…</option></select></section>
+</header>
+
+<div class="grid">
+<section class="panel" aria-label="Design" id="sec2">
+ <h2>2 · Design</h2>
+ <div class="row"><div><label for="f-name">Name</label><input id="f-name"></div><div><label for="f-handle">Handle</label><input id="f-handle"></div></div>
+ <label for="f-tagline">Tagline</label><input id="f-tagline">
+ <div class="row"><div><label for="f-color">Color</label><input id="f-color" type="color"></div>
+  <div><label for="f-crown">Crown</label><select id="f-crown"><option value="check">v| check</option><option value="sun">sun</option><option value="door">door</option><option value="moon">moon</option><option value="week">week ring</option><option value="qr">QR square</option><option value="prompt">&gt;_ prompt</option><option value="wave">sound wave</option><option value="molt">molt</option></select></div></div>
+ <label>Style</label>
+ <div class="seg" id="f-style"><button type="button" data-v="aggregate">Aggregate</button><button type="button" data-v="line">Line</button><button type="button" data-v="terminal">Terminal</button></div>
+ <label for="f-sig">Signature</label><input id="f-sig" class="mono">
+ <h2 style="margin-top:18px" id="sec3">3 · Rules</h2>
+ <div class="row"><div><label for="f-max">Max characters</label><input id="f-max" type="number" min="50" max="2800" step="50"></div>
+  <div><label for="f-appr">Human approvers</label><select id="f-appr"><option value="1">1</option><option value="2">2</option></select></div></div>
+ <label for="f-req">Required phrases (one per line)</label><textarea id="f-req" style="min-height:60px"></textarea>
+ <label for="f-ban">Banned words (comma separated)</label><input id="f-ban">
+ <p class="note">Approve and publish are locked to humans. No template can change that.</p>
+</section>
+
+<section class="stage" aria-label="Preview">
+ <div class="panel" id="sec4">
+  <h2>4 · Compose · preview, not signed</h2>
+  <canvas id="card" width="1080" height="1350" role="img" aria-label="Card preview"></canvas>
+  <label for="f-visitor" id="l-visitor">Your name (shown on the from line)</label><input id="f-visitor" placeholder="e.g. Ana R.">
+  <label for="f-words">Your words</label>
+  <textarea id="f-words" maxlength="3000"></textarea>
+  <ul class="checks" id="checks" aria-live="polite"></ul>
+  <div class="post" id="sec5">
+   <h2>5 · Approve &amp; post</h2>
+   <p class="note" id="p-who"></p>
+   <label class="aic"><input id="f-ai" type="checkbox"> An AI helped me draft this</label>
+   <div class="btns" id="p-acts">
+    <button class="btn primary" id="p-sign" type="button">Sign in with LinkedIn to post</button>
+    <button class="btn primary" id="p-review" type="button" hidden>Review for posting</button>
+    <label class="gifopt"><input type="checkbox" id="p-gif"> Animated card (GIF): words type in, then the stamp and æQR land</label>
+    <img id="p-gifprev" alt="Animated card preview" hidden style="width:100%;max-width:360px;border:1px solid currentColor;margin-top:8px">
+    <a class="btn primary" id="p-open" hidden>Post from privateclient.ai</a>
+   </div>
+   <button class="hold" id="p-hold" type="button" hidden><i id="p-fill"></i><span>Hold · I approve this message</span></button>
+   <div class="rc mono" id="p-rc" hidden></div>
+   <p class="note" id="p-msg" aria-live="polite"></p>
+  </div>
+ </div>
+</section>
+
+<section class="panel right" aria-label="Manifest">
+ <h2>Manifest · ae.template/0.1</h2>
+ <p class="sha" id="sha"></p>
+ <pre id="json" class="mono"></pre>
+ <div class="btns">
+  <button class="btn" id="dl-json" type="button">Download manifest</button>
+  <button class="btn" id="dl-png" type="button">Download preview</button>
+  <button class="btn" id="copy" type="button">Copy</button>
+ </div>
+ <div class="sub" id="sec6">
+  <h2>Share this template · submit for review</h2>
+  <label for="f-by">Submitted by</label><input id="f-by" placeholder="your name or handle">
+  <label><input id="f-own" type="checkbox" style="width:auto;min-height:0;margin-right:8px">I hold the rights to this name, look and wording.</label>
+  <div class="btns"><button class="btn primary" id="submit" type="button" disabled>Submit template</button></div>
+  <p class="note" id="sub-why"></p>
+  <ol><li>Opens a review issue on GitHub with this manifest and its hash, signed in as you.</li><li>Æsimov checks it; a human reviewer approves or asks for changes.</li><li>Only approved templates can be used on privateclient.ai.</li></ol>
+ </div>
+ <p class="note" id="savenote">Your draft is saved in this browser. Nothing is published from this page.</p>
+</section>
+</div>
+<aside class="guide" id="guide" aria-live="polite">
+ <svg viewBox="-40 -70 80 135" width="58" height="96" aria-hidden="true"><g id="gface" fill="none" stroke-linecap="round" stroke-width="2.4">
+  <path d="M-34-20Q-34-64 0-64Q34-64 34-20L34 26Q34 58 0 60Q-34 58-34 26Z"/><rect x="-26" y="-14" width="52" height="28" rx="14"/>
+  <g id="geyes" stroke-width="3.6"><path d="M-14 0H-6M6 0H14"/></g><path d="M-9 36Q0 42 9 36" stroke-width="2"/></g></svg>
+ <div><b class="mono" id="gname">Private_client_æsymov</b><p id="gsay"></p><button class="btn" id="ggo" type="button">Show me</button></div>
+</aside>
+<footer class="mono" id="foot">LAB DEMO · nothing is posted · <a href="../aesimov/">æsimov verifies templates</a> · <a href="../">PC:// LAB</a></footer>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s);
+const PRESETS={
+ yael:{id:"yaelmendez/signature",version:"1.0.0",domain:"yæl.com",brand:{name:"Yæl Méndez",handle:"@yaelmendez",tagline:"Make something agents want.",color:"#f2d16b",crown:"sun",style:"aggregate",signature:">_æ:"},
+  rules:{max_len:2800,required_phrases:[],banned_words:[]},approvers:1,
+  sample:"Every word I publish, I approved.\n\nMany agents. One principal. Point your agents at me 🪡 #opensourceware"},
+ pc:{id:"privateclient/default",version:"1.0.0",brand:{name:"Private Client",handle:"privateclient.ai",tagline:"Only what you meant to say.",color:"#00f3ff",crown:"check",style:"terminal",signature:"v|"},
+  rules:{max_len:2800,required_phrases:[],banned_words:[]},approvers:1,sample:"You write. I check. You approve."},
+ aestore:{id:"xn--6ca.store/visitor",version:"0.1.0",domain:"æ.store",brand:{name:"æ.store",handle:"æ.store",tagline:"Soværeign edition · weekly",color:"#3ddc84",crown:"week",style:"aggregate",signature:"æ"},
+  rules:{max_len:1500,required_phrases:[],banned_words:[]},approvers:1,sample:"What I'm building this week, in my own words."},
+ llmstore:{id:"llm.store/visitor",version:"0.1.0",domain:"llm.store",brand:{name:"llm.store",handle:"llm.store",tagline:"Soværeign edition · monthly",color:"#ffb020",crown:"moon",style:"aggregate",signature:">_llm"},
+  rules:{max_len:2800,required_phrases:[],banned_words:[]},approvers:1,sample:"The model I trusted this month, and why."},
+ aeee:{id:"xn--6caaa.com/visitor",version:"0.1.0",domain:"æææ.com",brand:{name:"æææ QR",handle:"æææ.com",tagline:"Soværeign edition · quarterly",color:"#4c9be8",crown:"qr",style:"terminal",signature:"æææ://"},
+  rules:{max_len:2000,required_phrases:[],banned_words:[]},approvers:1,sample:"Point your agents at me. This quarter's address is ready."},
+ despacho:{id:"despacho-ejemplo/asesores",version:"0.1.0",example:"ficticio, white-label",brand:{name:"Despacho Ejemplo",handle:"@despacho",tagline:"Asesores que firman lo que dicen.",color:"#3ddc84",crown:"door",style:"line",signature:"DE"},
+  rules:{max_len:1200,required_phrases:["No es asesoría financiera."],banned_words:["garantizado","sin riesgo"]},approvers:2,
+  sample:"Tres preguntas antes de invertir este trimestre. No es asesoría financiera."}
+};
+const DOMAINS={"xn--6ca.me": {"id": "xn--6ca.me/visitor", "version": "0.1.0", "domain": "æ.me", "brand": {"name": "æ.me", "handle": "æ.me", "tagline": "Me, the human principal.", "color": "#d4af37", "crown": "sun", "style": "aggregate", "signature": "æ.me"}, "rules": {"max_len": 1500, "required_phrases": [], "banned_words": []}, "approvers": 1, "sample": "I'm the one who signs. Agents only draft."}, "xn--6ca.net": {"id": "xn--6ca.net/visitor", "version": "0.1.0", "domain": "æ.net", "brand": {"name": "æ.net", "handle": "æ.net", "tagline": "The network of agentic environments.", "color": "#00c2a8", "crown": "qr", "style": "terminal", "signature": "æ.net"}, "rules": {"max_len": 1500, "required_phrases": [], "banned_words": []}, "approvers": 1, "sample": "My environment just joined the network."}, "xn--l-3fa.net": {"id": "xn--l-3fa.net/visitor", "version": "0.1.0", "domain": "æl.net", "brand": {"name": "æl.net", "handle": "æl.net", "tagline": "Agentic Electronic Language Netqorks.", "color": "#7cc4ff", "crown": "prompt", "style": "aggregate", "signature": "æl://"}, "rules": {"max_len": 1500, "required_phrases": [], "banned_words": []}, "approvers": 1, "sample": "Today I learned to speak to my agents in æl."}, "xn--sovreign-c0a.com": {"id": "xn--sovreign-c0a.com/visitor", "version": "0.1.0", "domain": "soværeign.com", "brand": {"name": "soværeign.com", "handle": "soværeign.com", "tagline": "Your environment. Your authority.", "color": "#d4af37", "crown": "door", "style": "aggregate", "signature": "æ://"}, "rules": {"max_len": 1500, "required_phrases": [], "banned_words": []}, "approvers": 1, "sample": "My compute, my rules, my receipt."}, "commandprompt.ai": {"id": "commandprompt.ai/visitor", "version": "0.1.0", "domain": "commandprompt.ai", "brand": {"name": "commandprompt.ai", "handle": "commandprompt.ai", "tagline": "Language is input. Intent is power.", "color": "#39ff88", "crown": "prompt", "style": "terminal", "signature": ">_"}, "rules": {"max_len": 1500, "required_phrases": [], "banned_words": []}, "approvers": 1, "sample": "One prompt, one plan, one human yes."}, "cli.llc": {"id": "cli.llc/visitor", "version": "0.1.0", "domain": "cli.llc", "brand": {"name": "cli.llc", "handle": "cli.llc", "tagline": "Cli in, llc out.", "color": "#ffcf5c", "crown": "prompt", "style": "terminal", "signature": ">_llc"}, "rules": {"max_len": 1500, "required_phrases": [], "banned_words": []}, "approvers": 1, "sample": "I typed my company into existence today."}, "daollc.ai": {"id": "daollc.ai/visitor", "version": "0.1.0", "domain": "daollc.ai", "brand": {"name": "daollc.ai", "handle": "daollc.ai", "tagline": "The organization. Agents propose, members decide.", "color": "#a78bfa", "crown": "check", "style": "aggregate", "signature": "HUMAN://"}, "rules": {"max_len": 1500, "required_phrases": [], "banned_words": []}, "approvers": 1, "sample": "Proposal 001: members decide, agents draft."}, "teologia.ai": {"id": "teologia.ai/visitor", "version": "0.1.0", "domain": "teologia.ai", "brand": {"name": "teologia.ai", "handle": "teologia.ai", "tagline": "The school. Por gracia es dado.", "color": "#c9a227", "crown": "sun", "style": "line", "signature": "teologia.ai"}, "rules": {"max_len": 1500, "required_phrases": [], "banned_words": []}, "approvers": 1, "sample": "Lo que aprendí esta semana, en mis palabras."}, "xn--teologa-ova.org": {"id": "xn--teologa-ova.org/visitor", "version": "0.1.0", "domain": "teología.org", "brand": {"name": "teología.org", "handle": "teología.org", "tagline": "Teología abierta, en comunidad.", "color": "#c9a227", "crown": "sun", "style": "line", "signature": "teología.org"}, "rules": {"max_len": 1500, "required_phrases": [], "banned_words": []}, "approvers": 1, "sample": "Una pregunta que me acompaña esta semana."}, "teologia.live": {"id": "teologia.live/visitor", "version": "0.1.0", "domain": "teologia.live", "brand": {"name": "teologia.live", "handle": "teologia.live", "tagline": "Clases en vivo, en comunidad.", "color": "#ff5a6a", "crown": "wave", "style": "aggregate", "signature": "● live"}, "rules": {"max_len": 1500, "required_phrases": [], "banned_words": []}, "approvers": 1, "sample": "Hoy en clase descubrí algo nuevo."}, "zacapa.ai": {"id": "zacapa.ai/visitor", "version": "0.1.0", "domain": "zacapa.ai", "brand": {"name": "zacapa.ai", "handle": "zacapa.ai", "tagline": "The place. A live pilot.", "color": "#e07a3a", "crown": "sun", "style": "line", "signature": "zacapa.ai"}, "rules": {"max_len": 1500, "required_phrases": [], "banned_words": []}, "approvers": 1, "sample": "What changed in our town this month."}, "neuromitosis.com": {"id": "neuromitosis.com/visitor", "version": "0.1.0", "domain": "neuromitosis.com", "brand": {"name": "neuromitosis.com", "handle": "neuromitosis.com", "tagline": "Ideas that divide and multiply.", "color": "#ff6ad5", "crown": "qr", "style": "terminal", "signature": "neuro://"}, "rules": {"max_len": 1500, "required_phrases": [], "banned_words": []}, "approvers": 1, "sample": "One idea I'm splitting into two today."}, "aipodcast.me": {"id": "aipodcast.me/visitor", "version": "0.1.0", "domain": "aipodcast.me", "brand": {"name": "aipodcast.me", "handle": "aipodcast.me", "tagline": "Your episode, in your words.", "color": "#ffb020", "crown": "wave", "style": "aggregate", "signature": "● rec"}, "rules": {"max_len": 1500, "required_phrases": [], "banned_words": []}, "approvers": 1, "sample": "This week's episode in one line."}, "iaamano.com": {"id": "iaamano.com/visitor", "version": "0.1.0", "domain": "iaamano.com", "brand": {"name": "iaamano.com", "handle": "iaamano.com", "tagline": "IA a mano. Hecho por personas.", "color": "#2fa84f", "crown": "check", "style": "line", "signature": "a mano"}, "rules": {"max_len": 1500, "required_phrases": [], "banned_words": []}, "approvers": 1, "sample": "Lo hice a mano, con ayuda de mis agentes."}, "molt.school": {"id": "molt.school/visitor", "version": "0.1.0", "domain": "molt.school", "brand": {"name": "molt.school", "handle": "molt.school", "tagline": "Learn by molting.", "color": "#ff7a45", "crown": "molt", "style": "aggregate", "signature": "🦞"}, "rules": {"max_len": 1500, "required_phrases": [], "banned_words": []}, "approvers": 1, "sample": "What I shed this week, and what grew back."}, "molt.earth": {"id": "molt.earth/visitor", "version": "0.1.0", "domain": "molt.earth", "brand": {"name": "molt.earth", "handle": "molt.earth", "tagline": "Molt, on Earth.", "color": "#3ddc84", "crown": "molt", "style": "line", "signature": "🦞"}, "rules": {"max_len": 1500, "required_phrases": [], "banned_words": []}, "approvers": 1, "sample": "A small change I made for the planet."}, "moltcontextprotocol.com": {"id": "moltcontextprotocol.com/visitor", "version": "0.1.0", "domain": "moltcontextprotocol.com", "brand": {"name": "moltcontextprotocol.com", "handle": "moltcontextprotocol.com", "tagline": "Context may propagate. Authority does not.", "color": "#ff7a45", "crown": "molt", "style": "terminal", "signature": "MCP://"}, "rules": {"max_len": 1500, "required_phrases": [], "banned_words": []}, "approvers": 1, "sample": "My context moved. My authority stayed."}, "moltcontextprotocol.net": {"id": "moltcontextprotocol.net/visitor", "version": "0.1.0", "domain": "moltcontextprotocol.net", "brand": {"name": "moltcontextprotocol.net", "handle": "moltcontextprotocol.net", "tagline": "The Molt Context Protocol network.", "color": "#ff7a45", "crown": "molt", "style": "terminal", "signature": "MCP://"}, "rules": {"max_len": 1500, "required_phrases": [], "banned_words": []}, "approvers": 1, "sample": "My agent joined the molt network."}, "moltcontextprotocol.org": {"id": "moltcontextprotocol.org/visitor", "version": "0.1.0", "domain": "moltcontextprotocol.org", "brand": {"name": "moltcontextprotocol.org", "handle": "moltcontextprotocol.org", "tagline": "The Molt Context Protocol, in the open.", "color": "#ff7a45", "crown": "molt", "style": "terminal", "signature": "MCP://"}, "rules": {"max_len": 1500, "required_phrases": [], "banned_words": []}, "approvers": 1, "sample": "Fork freely. Preserve attribution."}};
+Object.assign(PRESETS,DOMAINS);
+const LABELS={yael:"@yaelmendez · Yæl.com",pc:"Private Client",despacho:"Despacho Ejemplo · white-label"};
+let T=null, words="", VISITOR="";
+const hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+const sha=async t=>hex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)));
+
+/* manifest from the form */
+function manifest(){ return {schema:"ae.template/0.1",id:T.id,version:T.version,...(T.domain?{domain:T.domain,audience:"visitors",from:"from "+T.domain}:{}),...(T.example?{example:T.example}:{}),
+  brand:{...T.brand},slots:T.domain?["words","visitor"]:["words"],rules:{...T.rules},approvers:T.approvers,
+  agents_may:["draft"],human_only:["approve","publish"],receipt_names:["template","template_sha","text_sha","held_ms","at"]}; }
+
+function load(key){ if(typeof unseal==='function') unseal(); const p=JSON.parse(JSON.stringify(PRESETS[key])); T=p; words=p.sample;
+  const saved=localStorage.getItem('pc.studio.'+key); if(saved){ try{const s=JSON.parse(saved); T=s.t; words=s.w;}catch(e){} }
+  T._key=key; fill(); [...document.querySelectorAll('#presets button')].forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.k===key))); $('#f-domain').value=(PRESETS[key].domain&&key!=='yael')?key:''; update(); }
+function fill(){ const b=T.brand; $('#f-visitor').style.display=$('#l-visitor').style.display=/\/visitor$/.test(T.id)?'':'none'; $('#f-visitor').value=VISITOR; $('#f-name').value=b.name; $('#f-handle').value=b.handle; $('#f-tagline').value=b.tagline; $('#f-color').value=b.color;
+  $('#f-crown').value=b.crown; $('#f-sig').value=b.signature; $('#f-max').value=T.rules.max_len; $('#f-appr').value=String(T.approvers);
+  $('#f-req').value=T.rules.required_phrases.join('\n'); $('#f-ban').value=T.rules.banned_words.join(', '); $('#f-words').value=words;
+  [...document.querySelectorAll('#f-style button')].forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===b.style))); }
+function read(){ const b=T.brand; b.name=$('#f-name').value.trim()||'Untitled'; b.handle=$('#f-handle').value.trim(); b.tagline=$('#f-tagline').value.trim();
+  b.color=$('#f-color').value; b.crown=$('#f-crown').value; b.signature=$('#f-sig').value.trim();
+  T.rules.max_len=Math.max(50,Math.min(2800,parseInt($('#f-max').value)||2800)); T.approvers=parseInt($('#f-appr').value)||1;
+  T.rules.required_phrases=$('#f-req').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  T.rules.banned_words=$('#f-ban').value.split(',').map(s=>s.trim()).filter(Boolean); words=$('#f-words').value; VISITOR=$('#f-visitor').value.trim(); }
+
+/* the same rule engine æsimov runs */
+function checks(){ const t=words, r=T.rules, out=[];
+  if(!t.trim()) return [['wait','waiting for your words']];
+  out.push(t.length<=r.max_len?['ok',`${t.length} / ${r.max_len.toLocaleString('en-US')} characters`]:['no',`over ${r.max_len.toLocaleString('en-US')} characters`]);
+  r.required_phrases.forEach(x=>out.push(t.includes(x)?['ok',`has "${x}"`]:['no',`missing "${x}"`]));
+  r.banned_words.forEach(x=>{ if(t.toLowerCase().includes(x.toLowerCase())) out.push(['no',`"${x}" not allowed`]); });
+  const dbl=t.match(/\b(\w+)\s+\1\b/i); out.push(dbl?['no',`doubled word "${dbl[1]}"`]:['ok','no doubled words']);
+  out.push(['wait',`needs ${T.approvers} human hold${T.approvers>1?'s':''} to publish`]);
+  return out; }
+
+/* ── the card ── */
+const cv=$('#card'), g=cv.getContext('2d'), W=1080, H=1350;
+const SANS='system-ui,-apple-system,"Segoe UI",Roboto,sans-serif', MONO='ui-monospace,Menlo,Consolas,monospace';
+function wrap(text,maxW,font){ g.font=font; const lines=[]; for(const para of text.split('\n')){ if(!para.trim()){lines.push('');continue;}
+  let line=''; for(const w of para.split(/\s+/)){ const test=line?line+' '+w:w; if(g.measureText(test).width>maxW&&line){lines.push(line);line=w;} else line=test; } lines.push(line);} return lines; }
+function crown(x,y,s,col,kind){ g.save(); g.translate(x,y); g.scale(s,s); g.strokeStyle=col; g.fillStyle=col; g.lineWidth=2.4/s*s; g.lineCap='round'; g.lineJoin='round'; g.beginPath();
+  if(kind==='check'){g.moveTo(-14,-6);g.lineTo(-4,12);g.lineTo(6,-14);g.moveTo(14,-16);g.lineTo(14,14);g.stroke();}
+  else if(kind==='sun'){g.arc(0,0,7,0,7);g.stroke();for(let i=0;i<12;i++){const a=i*Math.PI/6;g.moveTo(Math.cos(a)*11,Math.sin(a)*11);g.lineTo(Math.cos(a)*16,Math.sin(a)*16);}g.stroke();}
+  else if(kind==='door'){g.rect(-10,-16,20,30);g.moveTo(5,0);g.lineTo(6,0);g.stroke();}
+  else if(kind==='moon'){g.arc(0,0,13,0.6,5.7);g.arc(6,0,10,5.2,1.1,true);g.closePath();g.stroke();}
+  else if(kind==='prompt'){g.moveTo(-14,-10);g.lineTo(-2,0);g.lineTo(-14,10);g.moveTo(2,12);g.lineTo(16,12);g.stroke();}
+  else if(kind==='wave'){g.moveTo(-16,0);g.lineTo(-16,0);[-16,-10,-4,2,8,14].forEach((x,i)=>{const h=[4,10,16,8,12,5][i];g.moveTo(x,-h);g.lineTo(x,h);});g.stroke();}
+  else if(kind==='molt'){g.arc(0,2,12,Math.PI*0.15,Math.PI*0.85,true);g.moveTo(-10,-6);g.lineTo(-16,-16);g.moveTo(10,-6);g.lineTo(16,-16);g.moveTo(-6,14);g.lineTo(-6,18);g.moveTo(6,14);g.lineTo(6,18);g.stroke();}
+  else if(kind==='qr'){g.rect(-15,-15,30,30);g.stroke();g.fillRect(-11,-11,8,8);g.fillRect(3,-11,8,8);g.fillRect(-11,3,8,8);g.fillRect(4,4,3,3);g.fillRect(8,8,3,3);}
+  else {for(let i=0;i<7;i++){const a=-Math.PI/2+i*2*Math.PI/7;g.beginPath();g.arc(Math.cos(a)*13,Math.sin(a)*13,3,0,7);i===new Date().getDay()?g.fill():g.stroke();}}
+  g.restore(); }
+function face(x,y,s,col){ g.save(); g.translate(x,y); g.scale(s,s); g.lineWidth=2.2; g.lineCap='round'; g.strokeStyle=col;
+  g.beginPath(); g.moveTo(-34,-20); g.quadraticCurveTo(-34,-64,0,-64); g.quadraticCurveTo(34,-64,34,-20); g.lineTo(34,26); g.quadraticCurveTo(34,58,0,60); g.quadraticCurveTo(-34,58,-34,26); g.closePath(); g.stroke();
+  g.beginPath(); g.roundRect(-26,-14,52,28,14); g.stroke(); g.lineWidth=3.4; g.beginPath(); g.moveTo(-14,0); g.lineTo(-6,0); g.moveTo(6,0); g.lineTo(14,0); g.stroke();
+  g.lineWidth=2; g.beginPath(); g.moveTo(-9,36); g.quadraticCurveTo(0,42,9,36); g.stroke(); g.restore(); }
+function squares(x,y,sz){ const C=['#f5c400','#2f6fd6','#2fa84f']; C.forEach((c,i)=>{g.fillStyle=c; g.fillRect(x,y+i*(sz+6),sz,sz);});
+  g.fillStyle='#111'; g.font=`700 ${sz*.62}px ${SANS}`; g.textAlign='center'; g.textBaseline='middle'; g.fillText('æ',x+sz/2,y+sz/2+2); g.textAlign='left'; g.textBaseline='alphabetic'; }
+function qr(x,y,s,seed,ink,paper){ g.fillStyle=paper; g.fillRect(x-8,y-8,s*9+16,s*9+16); let h=0; for(const ch of seed) h=(h*31+ch.charCodeAt(0))>>>0;
+  for(let r=0;r<9;r++)for(let c=0;c<9;c++){ const f=(r<3&&c<3)||(r<3&&c>5)||(r>5&&c<3); let on;
+    if(f){ const rr=r%6, cc=c%6; on=!(rr===1&&cc===1); } else { h=(h*1103515245+12345)>>>0; on=(h>>16)&1; }
+    if(on){g.fillStyle=ink; g.fillRect(x+c*s,y+r*s,s,s);} } }
+
+let MODE=localStorage.getItem('pc.studio.mode')||(matchMedia('(prefers-color-scheme: light)').matches?'day':'night');
+function tid(){ return T.domain&&/\/visitor$/.test(T.id)?T.domain+'/visitor':T.id; }
+function fromLine(){ if(VISITOR) return T.domain?`— ${VISITOR} · from ${T.domain}`:`— ${VISITOR}`; return T.domain&&T.domain!==T.brand.name?`— ${T.brand.name} · from ${T.domain}`:''; }
+let RID=null, QRROWS=null, AT=1;  /* AT: animation time 0→1; 1 = the still card */
+/* æGIF: tiny animated GIF89a encoder (shared 256-colour palette, LZW). frames: [{data:Uint8ClampedArray RGBA, delay:cs}] */
+function aeGIF(w,h,frames){
+  const hist=new Map(); const step=Math.max(1,Math.floor(frames.length/4));
+  for(let f=frames.length-1;f>=0;f-=step){ const d=frames[f].data; for(let i=0;i<d.length;i+=4*3){ const k=(d[i]>>3)<<10|(d[i+1]>>3)<<5|(d[i+2]>>3); hist.set(k,(hist.get(k)||0)+1);} }
+  const top=[...hist.entries()].sort((a,b)=>b[1]-a[1]).slice(0,256).map(e=>e[0]);
+  const pal=top.map(k=>[((k>>10)&31)*8+4,((k>>5)&31)*8+4,(k&31)*8+4]); while(pal.length<256) pal.push([0,0,0]);
+  const lut=new Uint8Array(32768); const exact=new Map(top.map((k,i)=>[k,i]));
+  for(let k=0;k<32768;k++){ if(exact.has(k)){lut[k]=exact.get(k);continue;} const r=((k>>10)&31)*8+4,g=((k>>5)&31)*8+4,b=(k&31)*8+4; let bi=0,bd=1e9;
+    for(let i=0;i<top.length;i++){ const p=pal[i],dd=(p[0]-r)**2*2+(p[1]-g)**2*4+(p[2]-b)**2*3; if(dd<bd){bd=dd;bi=i;} } lut[k]=bi; }
+  const out=[]; const B=b=>out.push(b&255), W16=v=>{B(v);B(v>>8)}, S=s=>{for(const c of s)B(c.charCodeAt(0))};
+  S('GIF89a'); W16(w); W16(h); B(0xF7); B(0); B(0); pal.forEach(p=>{B(p[0]);B(p[1]);B(p[2])});
+  S('\x21\xFF\x0BNETSCAPE2.0'); B(3); B(1); W16(0); B(0);
+  for(const fr of frames){ const d=fr.data, n=w*h, idx=new Uint8Array(n);
+    for(let i=0,j=0;i<n;i++,j+=4) idx[i]=lut[(d[j]>>3)<<10|(d[j+1]>>3)<<5|(d[j+2]>>3)];
+    B(0x21);B(0xF9);B(4);B(0);W16(fr.delay);B(0);B(0);
+    B(0x2C);W16(0);W16(0);W16(w);W16(h);B(0); B(8);
+    // LZW
+    const bytes=[]; let cur=0,bits=0; const emit=(code,size)=>{cur|=code<<bits;bits+=size;while(bits>=8){bytes.push(cur&255);cur>>=8;bits-=8;}};
+    const CLR=256,EOI=257; let size=9,next=258,dict=new Map(); emit(CLR,size); let pre=idx[0];
+    for(let i=1;i<n;i++){ const c=idx[i], key=pre<<8|c, v=dict.get(key);
+      if(v!==undefined){pre=v;continue;} emit(pre,size);
+      if(next<4096){ dict.set(key,next++); if(next>(1<<size)&&size<12) size++; } else { emit(CLR,size); dict=new Map(); size=9; next=258; }
+      pre=c; }
+    emit(pre,size); emit(EOI,size); if(bits>0) bytes.push(cur&255);
+    for(let i=0;i<bytes.length;i+=255){ const ch=bytes.slice(i,i+255); B(ch.length); for(const x of ch) B(x); } B(0); }
+  B(0x3B); return new Uint8Array(out); }
+
+function qrReal(x,y,size,ink,paper){ const n=QRROWS.length, m=Math.floor(size/(n+4)), q=m*2; g.fillStyle=paper; g.fillRect(x,y,m*n+2*q,m*n+2*q);
+  g.fillStyle=ink; QRROWS.forEach((row,r)=>{ for(let c=0;c<n;c++) if(row[c]==='1') g.fillRect(x+q+c*m,y+q+r*m,m,m); }); }
+function draw(){ const b=T.brand, col=b.color, st=b.style, night=MODE==='night';
+  const paper=st==='terminal'?(night?'#000':'#eef7f7'):(night?'#121110':'#f4efe3'), ink=st==='terminal'?(night?'#e9f6f7':'#04282b'):(night?'#f4efe3':'#111');
+  const band=night?'#000':'#111', sub=st==='terminal'?(night?'#7d9a9e':'#4c6a6e'):(night?'#a59f93':'#666');
+  g.clearRect(0,0,W,H); g.fillStyle=paper; g.fillRect(0,0,W,H);
+  if(st==='terminal'){ g.strokeStyle='rgba(0,243,255,.07)'; g.lineWidth=1; for(let i=0;i<W;i+=54){g.beginPath();g.moveTo(i,0);g.lineTo(i,H);g.stroke();} for(let j=0;j<H;j+=54){g.beginPath();g.moveTo(0,j);g.lineTo(W,j);g.stroke();} }
+  // header
+  if(st!=='terminal') squares(72,72,46); else { g.strokeStyle=col; g.lineWidth=3; g.strokeRect(72,72,46,46); g.fillStyle=col; g.font=`700 28px ${MONO}`; g.fillText('>_',78,105); }
+  const nm=/\./.test(b.name)?b.name:b.name.toUpperCase(); let ns=64; do{ g.font=`900 ${ns}px ${SANS}`; ns-=2; }while(g.measureText(nm).width>W-146-150&&ns>30); g.fillStyle=ink; g.fillText(nm,146,122);
+  g.fillStyle=st==='terminal'?col:sub; g.font=`500 30px ${MONO}`; g.fillText(b.handle===b.name&&T.domain?'visitor template':b.handle,148,166);
+  crown(W-104,104,1.6,st==='terminal'?col:ink,b.crown);
+  g.strokeStyle=ink; g.globalAlpha=.85; g.lineWidth=2; g.beginPath(); g.moveTo(72,236); g.lineTo(W-72,236); g.stroke(); g.globalAlpha=1;
+  // words
+  const bandTop=st==='line'?H-250:H-330; const avail=bandTop-430;
+  let size=104, lines; do{ lines=wrap(words||' ',W-144,`600 ${size}px ${SANS}`); size-=2; }while(lines.length*size*1.32>avail&&size>26); size+=2;
+  g.fillStyle=ink; g.font=`600 ${size}px ${SANS}`; const y0=236+44+size; let left=Math.ceil(lines.join('').length*Math.min(1,AT/.6)), cur=null;
+  lines.forEach((l,i)=>{ const part=l.slice(0,Math.max(0,left)), y=y0+i*size*1.32; if(part) g.fillText(part,72,y); if(cur===null&&left<=l.length) cur=[72+g.measureText(part).width+8,y]; left-=l.length; });
+  if(AT<.6&&cur&&Math.floor(AT*40)%2===0) g.fillRect(cur[0],cur[1]-size*.78,size*.09,size*.9);
+  const fy=y0+(lines.length-1)*size*1.32+size*.55+48, fl=AT>=.66?fromLine():''; if(fl&&fy<bandTop-80){ g.fillStyle=col==='#f4efe3'?ink:col; if(st!=='terminal'&&!night) g.fillStyle=ink; g.font=`600 30px ${MONO}`; g.fillText(fl,72,fy); }
+  if(b.tagline){ g.fillStyle=sub; g.font=`italic 400 28px ${SANS}`; g.fillText(b.tagline,72,bandTop-36); }
+  // band: the aggregate meets terminal here
+  if(st==='line'){ g.strokeStyle=ink; g.lineWidth=2; g.beginPath(); g.moveTo(72,bandTop); g.lineTo(W-72,bandTop); g.stroke();
+    g.fillStyle=ink; g.font=`700 30px ${MONO}`; g.fillText(AT<.8?'>_ checking…':'v| I APPROVED THIS MESSAGE',72,bandTop+70);
+    g.font=`400 24px ${MONO}`; g.fillStyle=sub; g.fillText(`${b.signature}  ·  ${tid()}@${T.version}  ·  ${RID?'receipt '+RID:'receipt pending'}`,72,bandTop+116);
+    if(AT<.86){} else if(QRROWS) qrReal(W-72-184,bandTop+16,184,'#111','#fff'); else qr(W-72-9*13,bandTop+40,13,T.id+words,ink,paper); }
+  else { g.fillStyle=band; g.fillRect(0,bandTop,W,H-bandTop);
+    if(st==='aggregate'){ g.strokeStyle='rgba(0,243,255,.08)'; g.lineWidth=1; for(let i=0;i<W;i+=54){g.beginPath();g.moveTo(i,bandTop);g.lineTo(i,H);g.stroke();} }
+    g.strokeStyle=col; g.lineWidth=3; g.beginPath(); g.moveTo(0,bandTop); g.lineTo(W,bandTop); g.stroke();
+    face(150,bandTop+165,1.55,col);
+    g.fillStyle=col; let vs=34; do{ g.font=`700 ${vs}px ${MONO}`; vs-=1; }while(g.measureText('v| I APPROVED THIS MESSAGE').width>W-72-(QRROWS?236:130)-260&&vs>20); g.fillText(AT<.8?'>_ checking…':'v| I APPROVED THIS MESSAGE',260,bandTop+120);
+    g.fillStyle='#e9f6f7'; g.font=`500 28px ${MONO}`; g.fillText(b.signature+'  '+b.handle,260,bandTop+172);
+    g.fillStyle='#7d9a9e'; g.font=`400 21px ${MONO}`; g.fillText(`${tid()}@${T.version}`,260,bandTop+216); g.fillText(`${T.approvers} human hold${T.approvers>1?'s':''} · ${RID?'receipt '+RID:'receipt pending'}`,260,bandTop+248);
+    if(AT<.86){} else if(QRROWS) qrReal(W-72-220,bandTop+56,220,'#000','#fff'); else qr(W-72-9*13,bandTop+90,13,T.id+words,'#000','#e9f6f7'); }
+  g.fillStyle=night?'#3a5a5e':'#8a8478'; g.font=`400 18px ${MONO}`; g.fillText(QRROWS?'SIGNED ONLY WHEN HELD · scan the æQR to verify · privateclient.ai/r/'+RID:(night?'NIGHT':'DAY')+' · PREVIEW · NOT SIGNED · æQR conceptual until issued',72,H-28); }
+
+let LAST={};
+async function gate(ck,m,txt){ const why=[]; if(ck.some(c=>c[0]==='no')) why.push('fix the red checks'); if(!$('#f-by').value.trim()) why.push('add who is submitting');
+  if(!$('#f-own').checked) why.push('confirm you hold the rights'); if(T.example) why.push('example templates are fictional and cannot be submitted');
+  $('#submit').disabled=why.length>0; $('#sub-why').textContent=why.length?'To submit: '+why.join(' · ')+'.':'Ready. Nothing is published until a human approves it.'; LAST={m,txt}; }
+function applyMode(){ document.documentElement.dataset.mode=MODE; $('#mode').textContent=MODE==='night'?'☾ night':'☀ day'; $('#mode').setAttribute('aria-pressed',String(MODE==='day')); }
+function direction(ck){ const r=s=>({s}), red=ck.find(c=>c[0]==='no');
+  if(!words.trim()) return {s:4,el:'#f-words',t:'Write your words in step 4. I check them as you type.'};
+  if(isVisitor()&&!VISITOR) return {s:4,el:'#f-visitor',t:`Add your name. The from line will read "— you · from ${T.domain}".`};
+  if(red) return {s:red[1].includes('characters')||red[1].includes('"')?4:3,el:'#checks',t:`One check is red: ${red[1]}. Fix the words, or change the rule in step 3.`};
+  if(T.example) return {s:1,el:'#presets',t:'This example is fictional. Pick @yaelmendez or a domain to submit.'};
+  if(T.approvers>1) return {s:3,el:'#f-appr',t:'This template needs 2 approvers. The studio posts with 1 for now; set it to 1 or submit the template.'};
+  if(!LIVE) return {s:5,el:'#p-open',t:'Checks are green. Posting happens on privateclient.ai; your draft comes with you.'};
+  if(!ME||!ME.can_post) return {s:5,el:'#p-sign',t:'Checks are green. Sign in with LinkedIn; you come straight back here.'};
+  if(!RID) return {s:5,el:'#p-review',t:'Review for posting. I reserve a receipt and put the real æQR on your card.'};
+  return {s:5,el:'#p-hold',t:'Read the card once more. Hold to approve; only your hold posts it.'}; }
+let GD=null;
+function guide(ck){ GD=direction(ck); $('#gsay').textContent=GD.t; $('#gface').setAttribute('stroke',T.brand.color);
+  document.querySelectorAll('#stepsbar span').forEach(x=>{const n=+x.dataset.s; x.className=n<GD.s?'done':n===GD.s?'now':'';});
+  const el=$(GD.el), g2=$('#guide'); if(el){ const a=el.getBoundingClientRect(), b=g2.getBoundingClientRect();
+    const dx=Math.max(-5,Math.min(5,(a.left+a.width/2-(b.left+30))/120)), dy=Math.max(-4,Math.min(4,(a.top+a.height/2-(b.top+40))/160));
+    $('#geyes').style.transform=`translate(${dx}px,${dy}px)`; } }
+addEventListener('scroll',()=>GD&&guide(checks()),{passive:true});
+/* ── 5 · approve & post, without leaving the studio ── */
+const LIVE=location.hostname==='privateclient.ai'; let ME=null, POSTING=false;
+const api=(path,b)=>fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(b||{})}).then(async r=>({status:r.status,...await r.json().catch(()=>({}))}));
+function isVisitor(){ return /\/visitor$/.test(T.id); }
+function draft(){ const {_key,...t}=T; return {k:T._key,t,w:words,v:VISITOR}; }
+function b64e(o){ return btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(o)))); }
+function b64d(x){ return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(x),c=>c.charCodeAt(0)))); }
+function unseal(){ RID=null; QRROWS=null; GIFB=null; $('#p-gifprev').hidden=true; $('#p-hold').hidden=true; }
+function paintPost(ck){ const red=ck.some(c=>c[0]==='no'), ok=!red&&words.trim()&&T.approvers===1&&(!isVisitor()||VISITOR);
+  $('#p-open').hidden=LIVE; $('#p-sign').hidden=!LIVE||!!(ME&&ME.can_post); $('#p-review').hidden=!LIVE||!(ME&&ME.can_post)||!!RID;
+  $('#p-review').disabled=!ok; $('#p-hold').hidden=!RID; $('#p-hold').disabled=!RID||POSTING;
+  $('#p-who').textContent=!LIVE?'LAB copy. Open the studio on privateclient.ai to post; your draft travels in the link.':ME&&ME.signed_in?`Signed in as ${ME.name}. Posts go to your own LinkedIn feed.`:'Sign in to post to your own LinkedIn feed. Nothing posts without your hold.';
+  if(!LIVE) $('#p-open').href='https://privateclient.ai/studio#d='+b64e(draft()); }
+$('#p-sign').onclick=()=>{ localStorage.setItem('pc.studio.draft',JSON.stringify(draft())); location.href='/linkedin/login?scope=publish&next=studio'; };
+$('#p-review').onclick=async()=>{ const ck=checks(); if(ck.some(c=>c[0]==='no')) return;
+  $('#p-review').disabled=true; $('#p-msg').textContent='Private Client is checking…';
+  const tsha=await sha(JSON.stringify(manifest(),null,1));
+  const r=await api('/prepare',{text:words.trim(),ai_assisted:$('#f-ai').checked,template:T.id+'@'+T.version,template_sha:tsha}).catch(()=>({status:0}));
+  if(r.status!==200){ $('#p-msg').textContent=r.error||(r.checks?r.checks.filter(c=>c.level==='stop').map(c=>c.en).join(' '):'Could not reach Private Client. Nothing was posted.'); $('#p-review').disabled=false; return; }
+  RID=r.rid; QRROWS=r.qr; const warn=(r.checks||[]).filter(c=>c.level==='warn').map(c=>'⚠ '+c.en);
+  $('#p-msg').textContent=(warn.length?warn.join(' '):'Checked.')+' Receipt '+RID+' reserved for 15 minutes.'; draw(); await buildGif(); paintPost(checks()); guide(checks()); };
+let h0=0, hraf=0; const HOLD=1200;
+function hstep(){ const p=Math.min(1,(performance.now()-h0)/HOLD); $('#p-fill').style.width=p*100+'%'; if(p<1) hraf=requestAnimationFrame(hstep); else postIt(performance.now()-h0); }
+function hdown(e){ if($('#p-hold').disabled||POSTING) return; e.preventDefault(); h0=performance.now(); hraf=requestAnimationFrame(hstep); navigator.vibrate&&navigator.vibrate(10); }
+function hup(){ if(POSTING) return; cancelAnimationFrame(hraf); $('#p-fill').style.width='0'; }
+$('#p-hold').addEventListener('pointerdown',hdown); ['pointerup','pointerleave','pointercancel'].forEach(ev=>$('#p-hold').addEventListener(ev,hup));
+$('#p-hold').onkeydown=e=>{ if((e.key==='Enter'||e.key===' ')&&!e.repeat) hdown(e); }; $('#p-hold').onkeyup=hup;
+let GIFB=null;
+function frames(){ const sc=document.createElement('canvas'); sc.width=720; sc.height=900; const sg=sc.getContext('2d'), out=[], N=30;
+  for(let f=0;f<=N;f++){ AT=f/N; draw(); sg.drawImage(cv,0,0,720,900); out.push({data:sg.getImageData(0,0,720,900).data,delay:f===N?400:(f>=24?14:7)}); }
+  AT=1; draw(); return out; }
+async function buildGif(){ GIFB=null; const im=$('#p-gifprev'); if(!$('#p-gif').checked){ im.hidden=true; return; }
+  $('#p-msg').textContent+=' Drawing the animated card…'; await new Promise(r=>setTimeout(r,30));
+  GIFB=aeGIF(720,900,frames()); if(GIFB.length>5e6){ GIFB=null; $('#p-msg').textContent+=' Too big for a GIF; the still card will post.'; return; }
+  im.src=URL.createObjectURL(new Blob([GIFB],{type:'image/gif'})); im.hidden=false; $('#p-msg').textContent=$('#p-msg').textContent.replace(' Drawing the animated card…',` Animated card ready (${(GIFB.length/1e6).toFixed(1)} MB).`); }
+function b64bytes(u8){ let s=''; for(let i=0;i<u8.length;i+=32768) s+=String.fromCharCode.apply(null,u8.subarray(i,i+32768)); return btoa(s); }
+$('#p-gif').onchange=()=>{ if(RID) buildGif(); };
+async function postIt(held){ POSTING=true; $('#p-hold').querySelector('span').textContent='Posting…'; draw();
+  const r=await api('/sign',{rid:RID,image:GIFB?'data:image/gif;base64,'+b64bytes(GIFB):cv.toDataURL('image/png'),alt:(words.trim().split('\n')[0]||T.brand.name).slice(0,200),held_ms:Math.round(held)}).catch(()=>({status:0}));
+  POSTING=false; $('#p-fill').style.width='0'; $('#p-hold').querySelector('span').textContent='Hold · I approve this message';
+  if(r.status!==200){ $('#p-msg').textContent='✕ '+(r.error||'Nothing was posted. Hold again.'); if(r.status===409) unseal(); paintPost(checks()); return; }
+  const rc=$('#p-rc'); rc.hidden=false; rc.innerHTML='';
+  [['Posted',new Date(r.t*1e3).toLocaleString()],['Receipt',r.rid],['Template',T.id+'@'+T.version],['Text SHA-256',r.text_sha],['Card SHA-256',r.card_sha||'—']].forEach(([k,v])=>{const d=document.createElement('div'); d.innerHTML='<b></b> '; d.firstChild.textContent=k; d.append(v); rc.appendChild(d);});
+  [[r.url,'Open your post'],[r.verify,'Verify receipt']].forEach(([u,t])=>{ if(!u) return; const a=document.createElement('a'); a.href=u; a.target='_blank'; a.rel='noopener'; a.textContent=t+' ↗'; const d=document.createElement('div'); d.appendChild(a); rc.appendChild(d); });
+  $('#p-msg').textContent='Done. Your words are on your feed; the card carries the receipt.'; unseal(); words=''; $('#f-words').value=''; update(); }
+async function boot(){ let d=null;
+  if(LIVE){ $('#tagline').textContent='TEMPLATE STUDIO'; $('#savenote').textContent='Your draft is saved in this browser. Only your hold posts, and only to your own feed.';
+    $('#foot').innerHTML='Only your hold posts · <a href="/">privateclient.ai</a> · <a href="https://lutheraninstitute.github.io/aeee-lab/lab/privateclient/aesimov/">æsimov verifies templates</a>'; document.querySelector('.top a').setAttribute('href','/'); }
+  if(location.hash.startsWith('#d=')){ try{ d=b64d(location.hash.slice(3)); }catch(e){} history.replaceState(null,'',location.pathname); }
+  if(!d&&LIVE){ try{ d=JSON.parse(localStorage.getItem('pc.studio.draft')||'null'); }catch(e){} }
+  localStorage.removeItem('pc.studio.draft');
+  if(d&&d.k&&PRESETS[d.k]){ localStorage.setItem('pc.studio.'+d.k,JSON.stringify({t:d.t,w:d.w})); VISITOR=d.v||''; load(d.k); } else load('yael');
+  const q=new URLSearchParams(location.search).get('signin'); if(q){ history.replaceState(null,'',location.pathname); if(q!=='ok') $('#p-msg').textContent='Sign-in '+q+'. Your draft is still here.'; }
+  if(LIVE){ ME=await fetch('/me',{credentials:'same-origin'}).then(r=>r.json()).catch(()=>null); } update(); }
+let tmr; async function update(){ read(); draw();
+  const ck=checks(); $('#checks').innerHTML=ck.map(([s,t])=>`<li class="${s}">${s==='ok'?'✓':s==='no'?'×':'…'} ${t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</li>`).join('');
+  const m=manifest(), txt=JSON.stringify(m,null,1); $('#json').textContent=txt; $('#sha').textContent='sha256 '+await sha(txt);
+  gate(ck,m,txt); paintPost(ck); guide(ck);
+  const {_key,...t}=T; localStorage.setItem('pc.studio.'+T._key,JSON.stringify({t:{...t},w:words}));
+  window.PC_STUDIO={manifest:m,checks:ck}; }
+const soon=()=>{ if(RID){ unseal(); $('#p-msg').textContent='You changed something, so review it again.'; } clearTimeout(tmr); tmr=setTimeout(update,120);};
+document.querySelectorAll('input,select,textarea').forEach(el=>el.addEventListener('input',soon));
+document.querySelectorAll('#f-style button').forEach(b=>b.addEventListener('click',()=>{T.brand.style=b.dataset.v; document.querySelectorAll('#f-style button').forEach(x=>x.setAttribute('aria-pressed',String(x===b))); update();}));
+Object.keys(LABELS).forEach(k=>{const b=document.createElement('button'); b.type='button'; b.dataset.k=k; b.textContent=LABELS[k]; b.onclick=()=>{VISITOR=''; load(k);}; $('#presets').appendChild(b);});
+const reset=document.createElement('button'); reset.type='button'; reset.textContent='Reset'; reset.onclick=()=>{localStorage.removeItem('pc.studio.'+T._key); load(T._key);}; $('#presets').appendChild(reset);
+const sel=$('#f-domain'); Object.keys(PRESETS).filter(k=>PRESETS[k].domain&&k!=='yael').forEach(k=>{const o=document.createElement('option'); o.value=k; o.textContent=PRESETS[k].domain; sel.appendChild(o);});
+sel.onchange=()=>{ if(sel.value){ VISITOR=''; load(sel.value);} };
+const save=(blob,name)=>{const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);};
+$('#dl-json').onclick=()=>save(new Blob([$('#json').textContent],{type:'application/json'}),T.id.replace('/','__')+'.ae.template.json');
+$('#dl-png').onclick=()=>cv.toBlob(b=>save(b,T.id.replace('/','__')+'-preview.png'));
+$('#copy').onclick=async()=>{try{await navigator.clipboard.writeText($('#json').textContent); $('#copy').textContent='Copied';}catch(e){$('#copy').textContent='Select the text';} setTimeout(()=>$('#copy').textContent='Copy',1500);};
+$('#mode').onclick=()=>{MODE=MODE==='night'?'day':'night'; localStorage.setItem('pc.studio.mode',MODE); applyMode(); draw();};
+$('#f-own').addEventListener('change',soon);
+$('#submit').onclick=async()=>{ if($('#submit').disabled) return; const h=await sha(LAST.txt);
+  const title=`template: ${T.id}@${T.version} (${T.brand.handle||T.brand.name})`;
+  const body=['### ae.template/0.1 submission','',`- template: \`${T.id}@${T.version}\``,`- sha256: \`${h}\``,`- submitted by: ${$('#f-by').value.trim()}`,'- rights: submitter confirms they hold the rights to this name, look and wording','- agents_may: draft · human_only: approve, publish','','```json',LAST.txt,'```','','_Sent from PC:// LAB Template Studio. A human reviewer approves; nothing is published by submitting._'].join('\n');
+  const url='https://github.com/LutheranInstitute/aeee-lab/issues/new?title='+encodeURIComponent(title)+'&body='+encodeURIComponent(body);
+  window.open(url,'_blank','noopener'); $('#sub-why').textContent=`Review issue opened for ${T.id}@${T.version} · sha256 ${h.slice(0,12)}…`; };
+$('#ggo').onclick=()=>{ const el=$(GD.el); if(!el) return; el.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});
+  el.classList.add('hl'); setTimeout(()=>el.classList.remove('hl'),1600); if(el.focus) el.focus({preventScroll:true}); };
+applyMode();
+boot();
+})();
+</script>
+</body></html>

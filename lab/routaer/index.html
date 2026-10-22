@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en" data-th="night"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>routær · mixture of agents, mixture of models · LAB</title>
+<style>
+:root{--bg:#07090d;--fl:#0f141c;--ink:#e9eef5;--dim:#8a96a8;--c:#00f3ff;--bd:#1d2733;--hold:#ff5a5a}
+html[data-th=day]{--bg:#f4efe3;--fl:#fffaf0;--ink:#151515;--dim:#5a554b;--c:#0a6f8a;--bd:#d6ccb6}
+html[data-th=agent]{--bg:#000;--fl:#050b05;--ink:#9dff9d;--dim:#4fae4f;--c:#3ddc84;--bd:#123512}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,sans-serif}
+main{max-width:760px;margin:0 auto;padding:14px 14px 70px}
+.top{display:flex;justify-content:space-between;align-items:center;font:600 13px ui-monospace,Menlo,monospace}
+button{font:inherit;color:inherit;background:none;border:1px solid var(--bd);border-radius:12px;min-height:44px;padding:0 12px;cursor:pointer}
+button[aria-pressed=true]{border-color:var(--c);color:var(--c)}
+.top button{min-height:36px;border-radius:999px;padding:0 9px}
+h1{font:800 clamp(30px,8vw,44px)/1 system-ui;margin:22px 0 6px}
+.sub{color:var(--dim);margin:0 0 18px}
+.k{font:600 12px ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--c);margin:26px 0 8px}
+.tasks{display:flex;flex-wrap:wrap;gap:8px}
+.lane{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:12px}
+.ag{border:1px solid var(--bd);background:var(--fl);border-radius:14px;padding:8px 4px;text-align:center;opacity:.6;transition:opacity .3s,border-color .3s}
+.ag.on{opacity:1;border-color:var(--c)}.ag.hold.on{border-color:var(--hold)}
+.ag pc-face{margin:0 auto;display:block}
+.ag b{display:block;font:700 12px ui-monospace,Menlo,monospace}.ag small{display:block;color:var(--dim);font-size:11px;line-height:1.3}
+.out{margin-top:12px;border:1px solid var(--bd);border-radius:14px;padding:12px;background:var(--fl);font:14px/1.6 ui-monospace,Menlo,monospace;white-space:pre-wrap;min-height:96px}
+#holdBtn{width:100%;margin-top:10px;border-color:var(--hold);color:var(--hold);font-weight:700;position:relative;overflow:hidden}
+#holdBtn i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--hold);opacity:.25}
+#holdBtn[disabled]{opacity:.3}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{border-bottom:1px solid var(--bd);padding:6px 4px;text-align:left;vertical-align:top}th{color:var(--dim);font-weight:600}
+.r{border-left:3px solid var(--c);padding-left:10px;margin:6px 0}
+pre{background:var(--fl);border:1px solid var(--bd);border-radius:12px;padding:10px;overflow:auto;font-size:12px;max-height:280px}
+@media(max-width:480px){.lane{grid-template-columns:repeat(3,1fr)}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<script src="../face/lang/pc-face.js"></script>
+</head><body><main>
+<div class="top"><span>æ:// routær · LAB</span><span><button data-t="night">🌙</button> <button data-t="day">☀️</button> <button data-t="agent">🤖</button></span></div>
+<h1>routær</h1>
+<p class="sub">Mixture of agents, mixture of models. Every task gets a route: which agent, which model, and where the human holds. The router proposes. You decide.</p>
+
+<div class="k">1 · pick a task</div>
+<div class="tasks" id="tasks"></div>
+
+<div class="k">2 · the route</div>
+<div class="lane" id="lane"></div>
+<div class="out" id="out" aria-live="polite">Pick a task to see its route.</div>
+<button id="holdBtn" disabled><i></i><span>🫵 hold to approve</span></button>
+
+<div class="k">routes</div>
+<table id="tbl"><thead><tr><th>task</th><th>agent → model</th><th>hold</th></tr></thead><tbody></tbody></table>
+
+<div class="k">rules</div>
+<div class="r">Human stays root. Publishing, paying and sending are human-only.</div>
+<div class="r">Local first: if the Tutor can answer on your device, nothing leaves it.</div>
+<div class="r">Evidence ≠ Authority. Every step leaves a receipt; no receipt, no route.</div>
+<div class="r">The face shows the state. It never decides.</div>
+
+<div class="k">for agents · ae.route/0.1</div>
+<pre id="json"></pre>
+<p class="sub" style="font-size:13px">DEMO · read-only · nothing here calls a model or posts anywhere. Proposal by Hark, not canon until Yæl signs.</p>
+</main>
+<script>
+const AGENTS={
+ human:{name:"Yæl",role:"root · decides",model:"human",color:"#f2d16b",glyph:"🫵",hold:true},
+ tutor:{name:"Tutor æ",role:"local · nothing leaves",model:"small model in browser (WebGPU)",color:"#3ddc84",glyph:">_"},
+ hark:{name:"Hark Pro",role:"prepares",model:"routed by Hark (cloud)",color:"#4c9be8",glyph:"æ"},
+ pc:{name:"Private Client",role:"checks",model:"rules · no LLM",color:"#00f3ff",crown:"pc"},
+ hermes:{name:"Hermes æ",role:"executes approved cards",model:"Hermes (Nous Research)",color:"#ffb020",glyph:"🪽"}
+};
+const ROUTES=[
+ {id:"learn",label:"📚 learn",task:"Answer a student's question",path:["tutor","hark"],hold:false,note:"Tutor answers on-device; escalates to Hark Pro only if it can't."},
+ {id:"research",label:"🔎 research",task:"Research and draft",path:["hark","human"],hold:true,note:"Hark Pro drafts with sources. You check names, dates, numbers."},
+ {id:"post",label:"✍️ post",task:"Publish a signed post",path:["human","pc","human"],hold:true,note:"You write. Private Client checks. You hold. It posts with a receipt."},
+ {id:"run",label:"⚙️ run",task:"Execute an approved card",path:["human","hermes","pc"],hold:true,note:"Hermes runs only cards you approved, then Private Client verifies the evidence."},
+ {id:"pay",label:"💳 pay / send",task:"Pay, send or sign",path:["hark","human"],hold:true,note:"Agents prepare. Only a human finishes."}
+];
+const $=s=>document.querySelector(s),lane=$("#lane"),out=$("#out"),hb=$("#holdBtn");
+lane.innerHTML=Object.entries(AGENTS).map(([k,a])=>`<div class="ag${a.hold?" hold":""}" id="ag-${k}"><pc-face mood="sleep" size="60" color="${a.color}" ${a.glyph?`glyph="${a.glyph}"`:`crown="${a.crown}"`} label="${a.name}"></pc-face><b>${a.name}</b><small>${a.role}</small><small>${a.model}</small></div>`).join("");
+$("#tasks").innerHTML=ROUTES.map(r=>`<button data-r="${r.id}">${r.label}</button>`).join("");
+$("#tbl tbody").innerHTML=ROUTES.map(r=>`<tr><td>${r.task}</td><td>${r.path.map(p=>AGENTS[p].name+" → "+AGENTS[p].model).join("<br>")}</td><td>${r.hold?"🫵 yes":"no"}</td></tr>`).join("");
+$("#json").textContent=JSON.stringify({schema:"ae.route/0.1",principle:"Human stays root · Evidence ≠ Authority",agents:AGENTS,routes:ROUTES.map(({label,...r})=>r)},null,1);
+const RM=matchMedia("(prefers-reduced-motion:reduce)").matches,wait=ms=>new Promise(r=>setTimeout(r,RM?0:ms));
+let run=0,cur=null;
+function face(k,m){const e=$("#ag-"+k);e.querySelector("pc-face").mood=m}
+function reset(){Object.keys(AGENTS).forEach(k=>{$("#ag-"+k).classList.remove("on");face(k,"sleep")})}
+async function route(id){
+ const my=++run,r=ROUTES.find(x=>x.id===id);cur=r;
+ document.querySelectorAll("[data-r]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.r===id));
+ reset();hb.disabled=true;let log=`route: ${r.task}\n`;out.textContent=log;
+ for(const [i,k] of r.path.entries()){
+  if(my!==run)return;const a=AGENTS[k];$("#ag-"+k).classList.add("on");
+  if(a.hold&&i===r.path.length-1){face(k,"stop");log+=`${i+1}. ${a.name} · waiting for your hold\n`;out.textContent=log+"\n"+r.note;hb.disabled=false;return}
+  face(k,"think");log+=`${i+1}. ${a.name} · ${a.model}\n`;out.textContent=log;await wait(700);
+  if(my!==run)return;face(k,"checking");await wait(500);if(my!==run)return;face(k,"ok");
+ }
+ out.textContent=log+"✓ done · receipt written\n\n"+r.note;
+}
+document.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>route(b.dataset.r));
+let t0=0,raf=0;const bar=hb.querySelector("i");
+function down(e){if(hb.disabled)return;e.preventDefault();t0=performance.now();tick()}
+function tick(){const p=Math.min(1,(performance.now()-t0)/1200);bar.style.width=p*100+"%";if(p<1){raf=requestAnimationFrame(tick)}else done()}
+function up(){cancelAnimationFrame(raf);if(!hb.disabled)bar.style.width="0"}
+function done(){hb.disabled=true;bar.style.width="0";const last=cur.path[cur.path.length-1];face(last,"ok");out.textContent+="\n\n🫵 held by human · ✓ receipt written (demo)"}
+hb.addEventListener("pointerdown",down);["pointerup","pointerleave","pointercancel"].forEach(ev=>hb.addEventListener(ev,up));
+hb.addEventListener("keydown",e=>{if((e.key===" "||e.key==="Enter")&&!e.repeat)down(e)});hb.addEventListener("keyup",up);
+function th(t){document.documentElement.dataset.th=t;document.querySelectorAll("[data-t]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===t));try{localStorage.setItem("pc_term_theme",t)}catch(e){}}
+document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>th(b.dataset.t));
+let T="night";try{T=localStorage.getItem("pc_term_theme")||"night"}catch(e){};th(["night","day","agent"].includes(T)?T:"night");
+</script></body></html>

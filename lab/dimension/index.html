@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>otra dimensión æ · la cara de una línea en 3D</title>
+<meta name="description" content="Lab: la cara æ æ æ de un solo trazo pasa de 2D a 3D: se envuelve en una esfera y gira. El espejo se vuelve plano; el triple, eje. #OpenSourceWare">
+<style>
+:root{--paper:#f4efe3;--ink:#141414;--blue:#2c5aa0;--gold:#d9a400}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.5 ui-monospace,Menlo,Consolas,monospace}
+main{max-width:1000px;margin:auto;padding:18px}h1{font:800 30px/1 "Arial Narrow",Impact,sans-serif;text-transform:uppercase;margin:0}
+.sub{opacity:.75;margin:4px 0 10px}.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}
+button{font:inherit;color:var(--ink);-webkit-appearance:none;appearance:none;border:1.5px solid var(--ink);background:var(--paper);padding:6px 10px;cursor:pointer;border-radius:0}
+button[aria-pressed=true]{background:var(--ink);color:var(--paper)}input[type=range]{width:200px;accent-color:var(--ink)}
+.stage{position:relative;border:1.5px solid var(--ink);aspect-ratio:16/10;touch-action:none;cursor:grab;background:
+ linear-gradient(rgba(44,90,160,.08) 1px,transparent 1px) 0 0/24px 24px,linear-gradient(90deg,rgba(44,90,160,.08) 1px,transparent 1px) 0 0/24px 24px,var(--paper)}
+svg{position:absolute;inset:0;width:100%;height:100%}.lab{position:absolute;font-size:11px;color:var(--blue)}
+.note{margin-top:14px;border-top:1.5px solid var(--ink);padding-top:8px;opacity:.85}
+</style></head><body><main>
+<h1>otra dimensión æ</h1>
+<div class="sub">&gt;_ x0:y0:<b>z0</b>:æ0 · la misma línea, ahora con profundidad</div>
+<div class="row" id="modes"></div>
+<div class="row"><label for="dim">dimensión</label><input id="dim" type="range" min="0" max="100" value="100"><span id="dv">3D</span>
+<button id="spin" aria-pressed="true">↻ girar</button><button id="plane" aria-pressed="true">plano / eje</button></div>
+<div class="stage" id="stage"><svg id="s" viewBox="-400 -250 800 500"><g id="wire"></g><g id="sym"></g><g id="g"></g></svg>
+<span class="lab" style="left:6px;top:4px" id="grp"></span><span class="lab" style="right:6px;bottom:4px">arrastra para girar · 1 trazo</span></div>
+<div class="note"><b>Idea:</b> en 2D la simetría es un <i>eje</i>; en 3D, el espejo se vuelve un <i>plano</i> y la rotación se vuelve un <i>eje</i> que atraviesa la cabeza.
+Desliza de 2D a 3D: la línea se envuelve en una esfera. Espejo (D₁) → un plano vertical. Triple (D₃) → un eje que sale de la cara, tres planos.
+<br>#OpenSourceWare · laboratorio · Evidence ≠ Authority.</div>
+</main><script>
+
+const AE=[[20,40],[30,32],[44,33],[50,42],[50,54],[34,52],[20,58],[18,70],[30,77],[44,74],[50,64],[50,55],[84,55],[82,40],[68,32],[56,40],[50,55],[54,70],[70,77],[86,70]];
+const W=800,H=450,CX=400,CY=225;
+const MODES={
+ tras:{n:'traslación',g:'T · æ → æ → æ'},
+ espejo:{n:'espejo',g:'D₁ · σ(x)=−x · eje vertical'},
+ rot:{n:'rotación',g:'C₂ · ρ(180°) · centro'},
+ doble:{n:'espejo doble',g:'D₂ · dos ejes + C₂'},
+ triple:{n:'espejo triple',g:'D₃ · tres ejes a 120° · æææ caleidoscopio'}
+};
+let mode='espejo',brk=0;
+const glyph=(x,y,s,sy=1)=>AE.map(([px,py])=>[x+(px-50)*s,y+(py-55)*s*sy]);
+const mir=p=>[2*CX-p[0],p[1]], rot=p=>[2*CX-p[0],2*CY-p[1]], flipY=p=>[p[0],2*CY-p[1]];
+function face(m,b){ // b: ruptura 0..1
+ const es=1.25,ms=1.6,ex=CX-230,ey=CY-55,my=CY+70;
+ const L=glyph(ex,ey,es); let R,M,acc;
+ // la ruptura actúa sobre el lado derecho: guiño + comisura
+ const wink=1-.85*b, lift=-28*b;
+ if(m==='tras'){R=glyph(CX+230,ey,es,wink);M=glyph(CX,my,ms).map(p=>[p[0],p[1]+(p[0]>CX?lift*(p[0]-CX)/80:0)]);}
+ const curve=p=>[p[0],p[1]+(p[0]>CX?lift*(p[0]-CX)/70:0)];
+ const ms2=ms*.75, half=glyph(CX-36*ms2,my,ms2); // termina en (86,70) → justo en el eje
+ if(m==='espejo'||m==='doble'){
+  R=L.map(mir).reverse().map(p=>[p[0],ey+(p[1]-ey)*wink]);
+  M=[...half,...half.map(mir).reverse()];
+  if(m==='doble'){const yb=half[half.length-1][1];M=[...M,...M.slice().reverse().map(p=>[p[0],2*yb-p[1]])];M.push([CX-40,my+75],[CX+60,my+80]);}
+  M=M.map(curve);
+ }
+ if(m==='rot'){
+  R=L.map(p=>[CX+230-(p[0]-ex),ey-(p[1]-ey)*wink]);
+  const pv=half[half.length-1];M=[...half,...half.map(p=>[2*pv[0]-p[0],2*pv[1]-p[1]]).reverse()].map(curve);
+ }
+ if(m==='triple'){
+  const s=1.05,hf=glyph(-36*s,0,s),e=hf[hf.length-1];const h2=hf.map(p=>[p[0]-e[0],p[1]-e[1]+18]);
+  const U=[...h2,...h2.map(p=>[-p[0],p[1]]).reverse()];
+  const put=(th,sq=1)=>{const a=(th-90)*Math.PI/180,r=125,cx=CX+r*Math.cos(th*Math.PI/180),cy=CY+10+r*Math.sin(th*Math.PI/180);
+   return U.map(([x,y])=>{y*=sq;return [cx+x*Math.cos(a)-y*Math.sin(a),cy+x*Math.sin(a)+y*Math.cos(a)]})};
+  const A=put(210),B=put(90).map(curve),C=put(330,wink);
+  return {all:[...A,...B,...C],mouth:B,li:A.length};
+ }
+ return {all:[...L,...M,...R],mouth:M,li:L.length};
+}
+
+
+const NS='http://www.w3.org/2000/svg';
+function sample(pts,n=10){const out=[];for(let i=0;i<pts.length-1;i++){const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2;
+ for(let k=0;k<n;k++){const t=k/n,t2=t*t,t3=t2*t;out.push([0,1].map(j=>.5*((2*p1[j])+(-p0[j]+p2[j])*t+(2*p0[j]-5*p1[j]+4*p2[j]-p3[j])*t2+(-p0[j]+3*p1[j]-3*p2[j]+p3[j])*t3)))}}
+ out.push(pts[pts.length-1]);return out}
+let dim=1,ry=-.5,rx=-.12,spin=true,showPlane=true,mouthStart=0,mouthEnd=0,P=[];
+const R=260;
+function build(){const F=face(mode,0);const all=F.all.map(p=>[p[0]-CX,p[1]-CY-(mode==='triple'?10:0)]);
+ const n=10;P=sample(all,n);mouthStart=F.li*n;mouthEnd=(F.li+F.mouth.length-1)*n;
+ const M=MODES[mode];document.getElementById('grp').textContent={triple:'D₃ → eje z + 3 planos',rot:'C₂ → eje z (giro 180°)',espejo:'D₁ → plano x=0'}[mode]}
+function to3(p){const [x,y]=p,s=dim;const a=x/R,b=y/R;
+ const X3=R*Math.sin(a)*Math.cos(b*.85),Y3=R*Math.sin(b*.85),Z3=R*Math.cos(a)*Math.cos(b*.85)-R;
+ return [x+(X3-x)*s,y+(Y3-y)*s,Z3*s]}
+function proj([x,y,z]){const cy=Math.cos(ry),sy=Math.sin(ry),cx=Math.cos(rx),sx=Math.sin(rx);z+=R*dim; // girar alrededor del centro de la esfera
+ let X=x*cy+z*sy, Z=-x*sy+z*cy; let Y=y*cx-Z*sx; Z=y*sx+Z*cx;
+ const f=.78*1400/(1400-Z);return [X*f,Y*f,Z]}
+function seg(g,pts,col,w,op){const p=document.createElementNS(NS,'polyline');p.setAttribute('points',pts.map(q=>q[0].toFixed(1)+','+q[1].toFixed(1)).join(' '));
+ p.setAttribute('fill','none');p.setAttribute('stroke',col);p.setAttribute('stroke-width',w);p.setAttribute('stroke-linecap','round');p.setAttribute('stroke-linejoin','round');p.setAttribute('stroke-opacity',op);g.appendChild(p)}
+function render(){const g=document.getElementById('g'),wire=document.getElementById('wire'),sym=document.getElementById('sym');g.innerHTML='';wire.innerHTML='';sym.innerHTML='';
+ // esfera de alambre (azul)
+ if(dim>.05){for(let k=-2;k<=2;k++){const pts=[];for(let t=0;t<=48;t++){const a=t/48*2*Math.PI,b=k*.35;pts.push(proj([R*Math.sin(a)*Math.cos(b)*dim,R*Math.sin(b)*dim,(R*Math.cos(a)*Math.cos(b)-R)*dim]))}seg(wire,pts,'#2c5aa0',1,.18*dim)}
+  for(let k=0;k<6;k++){const pts=[];for(let t=0;t<=36;t++){const b=(t/36-.5)*Math.PI,a=k*Math.PI/6;pts.push(proj([R*Math.sin(a)*Math.cos(b)*dim,R*Math.sin(b)*dim,(R*Math.cos(a)*Math.cos(b)-R)*dim]))}seg(wire,pts,'#2c5aa0',1,.12*dim)}}
+ // simetría: plano x=0 (D1) o eje z (D3)
+ if(showPlane){if(mode==='triple'||mode==='rot'){const a=proj([0,0,40]),b=proj([0,0,-2*R*Math.max(dim,.02)-40]);seg(sym,[a,b],'#2c5aa0',1.6,.8);
+   (mode==='rot'?[]:[90,210,330]).forEach(t=>{const r=t*Math.PI/180;const q=[[-1,0],[1,0]].map(([s])=>proj([s*220*Math.cos(r),s*220*Math.sin(r),0]));seg(sym,q,'#2c5aa0',1,.45)})}
+  else{const c=[[0,-200,0],[0,200,0],[0,200,-2*R*dim],[0,-200,-2*R*dim],[0,-200,0]].map(proj);seg(sym,c,'#2c5aa0',1.2,.55)}}
+ // la línea: un solo trazo, opacidad por profundidad
+ const Q=P.map(to3).map(proj);const chunk=6;
+ for(let i=0;i<Q.length-1;i+=chunk){const part=Q.slice(i,i+chunk+1);const z=part.reduce((s,q)=>s+q[2],0)/part.length;
+  const front=Math.max(.18,Math.min(1,1+z/(R*1.6)));const isM=i>=mouthStart&&i<mouthEnd;seg(g,part,isM?'#d9a400':'#141414',isM?4.6:3.4,dim<.05?1:front)}}
+const mb=document.getElementById('modes');[['espejo','espejo · D₁'],['triple','espejo triple · D₃'],['rot','rotación · C₂']].forEach(([k,n])=>{const b=document.createElement('button');b.textContent=n;b.dataset.k=k;b.onclick=()=>{mode=k;sync();build();render()};mb.appendChild(b)});
+function sync(){mb.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===mode))}
+const dimI=document.getElementById('dim');dimI.oninput=()=>{dim=dimI.value/100;document.getElementById('dv').textContent=dim<.02?'2D':dim>.98?'3D':(2+dim).toFixed(2)+'D';render()};
+document.getElementById('spin').onclick=e=>{spin=!spin;e.target.setAttribute('aria-pressed',spin)};
+document.getElementById('plane').onclick=e=>{showPlane=!showPlane;e.target.setAttribute('aria-pressed',showPlane);render()};
+let drag=null;const st=document.getElementById('stage');
+st.onpointerdown=e=>{drag=[e.clientX,e.clientY,ry,rx];st.setPointerCapture(e.pointerId)};
+st.onpointermove=e=>{if(!drag)return;ry=drag[2]+(e.clientX-drag[0])/180;rx=Math.max(-1.2,Math.min(1.2,drag[3]-(e.clientY-drag[1])/180));render()};
+st.onpointerup=()=>drag=null;
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;if(reduce){spin=false;document.getElementById('spin').setAttribute('aria-pressed',false)}
+let t0=performance.now();function loop(t){if(spin&&!drag){ry+=(t-t0)/2600;render()}t0=t;requestAnimationFrame(loop)}
+const q=new URLSearchParams(location.search);if(['espejo','triple','rot'].includes(q.get('m')))mode=q.get('m');if(q.get('d')){dimI.value=q.get('d');dimI.oninput()}
+sync();build();render();requestAnimationFrame(loop);
+</script></body></html>

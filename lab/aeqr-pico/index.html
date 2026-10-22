@@ -1,0 +1,94 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>æQR·pico 🛸💧 · red privada del Instituto · LAB</title>
+<meta name="description" content="æQR·pico: agente atómico experto en æQR. Laboratorio: entra con LinkedIn (simulado), el docente aprueba, recibes tu pase y tu propio æQR. Escanear nunca da autoridad.">
+<style>
+:root{--i:#111;--i2:#6b6b6b;--l:#e4e4e4;--m:ui-monospace,"SF Mono",Menlo,monospace}
+*{box-sizing:border-box}body{margin:0;background:#fff;color:var(--i);font:16px/1.5 system-ui,-apple-system,sans-serif}
+.w{max-width:620px;margin:auto;padding:24px 18px 60px}
+h1{font:600 24px/1.15 system-ui;margin:0 0 2px}.k{font:500 12px var(--m);color:var(--i2);letter-spacing:.3px;margin:0 0 6px}
+.sim{font:500 12px var(--m);border:1px dashed #999;border-radius:8px;padding:8px 10px;margin:12px 0 18px;color:#444}
+.st{border:1px solid var(--l);border-radius:12px;padding:14px;margin:0 0 14px}
+.st h2{font:600 15px var(--m);margin:0 0 8px;letter-spacing:.2px}
+.st.off{opacity:.38;pointer-events:none}
+button{font:600 15px system-ui;border:1.5px solid var(--i);background:var(--i);color:#fff;border-radius:8px;padding:10px 14px;margin:4px 6px 4px 0}
+button.g{background:#fff;color:var(--i)}
+input,select{font:16px system-ui;padding:10px;border:1px solid #bbb;border-radius:8px;width:100%;margin:4px 0}
+.qr{display:flex;gap:12px;align-items:center;margin:10px 0}.qr canvas{width:132px;height:132px;image-rendering:pixelated;border:1px solid var(--l);border-radius:6px;cursor:pointer;flex-shrink:0}
+.p{font:500 12px/1.45 var(--m);word-break:break-all;color:#333}
+.ok{color:#0a7d32;font-weight:600}.no{color:#b00020;font-weight:600}
+pre{font:12px/1.45 var(--m);background:#f6f6f6;border-radius:8px;padding:10px;overflow:auto;max-height:260px}
+.log{font:12px/1.5 var(--m);color:#444}.log div{border-top:1px solid var(--l);padding:5px 0}
+.ft{font:500 11px var(--m);color:var(--i2);text-align:center;margin-top:20px}
+.ln{color:#0a66c2}
+</style></head><body><div class="w">
+<p class="k">ℹ️NSTITUT⚪️ · LAB · aeee-lab</p>
+<h1>æQR·pico 🛸💧</h1>
+<p class="k">AGENTE ATÓMICO · EXPERTO EN æQR · RED PRIVADA DEL INSTITUTO</p>
+<p>Un acto, un æQR, un recibo. La puerta es un æQR, el pase es un æQR y tu trabajo vuelve como æQR. Escanear nunca da autoridad.</p>
+<div class="sim">SIMULACIÓN DE LABORATORIO: LinkedIn y Face ID están simulados y no se usa ninguna API. Nada sale de tu navegador. La versión real vivirá en node^0.</div>
+
+<div class="st" id="s1"><h2>① DOCENTE · abre la cohorte</h2>
+<input id="coh" value="Diplomado · martes 7 pm" aria-label="Nombre de cohorte">
+<select id="ttl"><option value="600">vence en 10 min</option><option value="86400" selected>vence en 1 día</option><option value="864000">vence en 10 días</option></select>
+<button id="b1">Emitir æQR de cohorte</button><div id="o1"></div></div>
+
+<div class="st off" id="s2"><h2>② ALUMNO · escanea y entra con LinkedIn</h2>
+<p class="p">Toca el æQR de la cohorte para «escanearlo». Se decodifica desde los píxeles.</p>
+<input id="nm" placeholder="Tu nombre visible (LinkedIn simulado)" aria-label="Nombre">
+<button id="b2" class="g"><span class="ln">in</span> Entrar con LinkedIn (simulado)</button><div id="o2"></div></div>
+
+<div class="st off" id="s3"><h2>③ DOCENTE · aprueba con Face ID</h2>
+<div id="o3p" class="p"></div>
+<button id="b3">Aprobar · firma Face ID (simulada)</button><button id="b3n" class="g">Rechazar</button><div id="o3"></div></div>
+
+<div class="st off" id="s4"><h2>④ ADENTRO · æQR·pico</h2>
+<button id="b4a">Crea mi æQR</button><button id="b4b" class="g">Entregar tarea</button><button id="b4c" class="g">Intentar pagar</button>
+<input id="tk" placeholder="Tarea: ej. Clase 3 · mi primer manifiesto" aria-label="Tarea">
+<div id="o4"></div></div>
+
+<div class="st"><h2>📟 TESTIGO · recibos encadenados</h2><div class="log" id="lg"><div>génesis · x0:y0:z0:æ0</div></div><button id="bv">Verificar cadena</button><button id="bt" class="g">Alterar un recibo (prueba)</button><div id="ov"></div></div>
+<p class="ft">Many agents. One principal. · Evidencia ≠ autoridad · <a href="manifest.json" style="color:inherit">manifest.json</a> · <a href="../pico/" style="color:inherit">⚪️ pico</a></p>
+</div>
+<script src="qrcode.min.js"></script><script src="jsQR.min.js"></script>
+<script>
+(function(){
+qrcode.stringToBytes=qrcode.stringToBytesFuncs["UTF-8"];
+var $=function(i){return document.getElementById(i)},prev="x0:y0:z0:æ0",n=0,S={};
+function hex(b){return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,"0")}).join("")}
+async function sha(s){return hex(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))}
+function rnd(k){var a=new Uint8Array(k);crypto.getRandomValues(a);return hex(a.buffer)}
+var CH=[];async function witness(act,obj){var rec={n:++n,act:act,obj:obj,prev:prev,t:Date.now()};var h=await sha(JSON.stringify(rec));CH.push({rec:rec,h:h});prev=h;var d=document.createElement("div");d.textContent="#"+n+" "+act+" · "+h.slice(0,16)+"…";$("lg").appendChild(d);return h}
+function draw(text){var q=qrcode(0,"M");q.addData(text);q.make();var c=q.getModuleCount(),s=4,m=4,cv=document.createElement("canvas");cv.width=cv.height=(c+2*m)*s;var x=cv.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,cv.width,cv.height);x.fillStyle="#111";for(var r=0;r<c;r++)for(var k=0;k<c;k++)if(q.isDark(r,k))x.fillRect((k+m)*s,(r+m)*s,s,s);return cv}
+function verify(cv,text){var x=cv.getContext("2d"),d=x.getImageData(0,0,cv.width,cv.height),r=jsQR(d.data,cv.width,cv.height);return {ok:!!r&&r.data===text,got:r?r.data:null}}
+function show(host,text,label,onTap){var cv=draw(text),v=verify(cv,text),w=document.createElement("div");w.className="qr";w.appendChild(cv);var p=document.createElement("div");p.className="p";p.innerHTML="<b></b><br><span></span><br>";p.querySelector("b").textContent=label;p.querySelector("span").textContent=text;var ok=document.createElement("span");ok.className=v.ok?"ok":"no";ok.textContent=v.ok?"✓ verificado desde píxeles (jsQR)":"✗ no decodifica";p.appendChild(ok);w.appendChild(p);if(onTap){cv.title="Tocar para escanear";cv.onclick=function(){var r=verify(cv,text);onTap(r.got)}}host.appendChild(w);return v.ok}
+function on(id){$(id).classList.remove("off")}
+function say(host,t,cls){var p=document.createElement("p");if(cls)p.className=cls;p.textContent=t;host.appendChild(p)}
+
+$("b1").onclick=async function(){var id=rnd(4),exp=Math.floor(Date.now()/1000)+(+$("ttl").value);S.coh={id:id,name:$("coh").value,exp:exp};
+ var t="æQR://L/c/"+id+"?exp="+exp;$("o1").innerHTML="";show($("o1"),t,"æQR de cohorte · "+S.coh.name,function(got){S.scanned=got;on("s2");$("o2").innerHTML="";say($("o2"),"Escaneado: "+got,"p")});
+ await witness("cohort.open",{id:id,exp:exp});};
+
+$("b2").onclick=async function(){if(!S.scanned){say($("o2"),"Primero toca el æQR de la cohorte.","no");return}
+ var m=/^æQR:\/\/L\/c\/([0-9a-f]+)\?exp=(\d+)$/.exec(S.scanned);if(!m||m[1]!==S.coh.id){say($("o2"),"æQR inválido.","no");return}
+ if(+m[2]<Date.now()/1000){say($("o2"),"Esta cohorte ya venció.","no");return}
+ var nm=$("nm").value.trim()||"Alumno de prueba";var sub=(await sha("linkedin-sim:"+nm+":"+rnd(8))).slice(0,12);
+ S.st={name:nm,sub:sub,status:"pendiente"};say($("o2"),"Identidad (æ0): "+nm+" · sub#"+sub+". Esperando a tu docente.","p");
+ $("o3p").textContent="Pendiente: "+nm+" · sub#"+sub+" · cohorte "+S.coh.name;on("s3");await witness("member.request",{sub:sub,c:S.coh.id});};
+
+$("b3n").onclick=async function(){S.st.status="rechazado";$("o3").innerHTML="";say($("o3"),"Rechazado. No se emite pase.","no");await witness("member.deny",{sub:S.st.sub})};
+$("b3").onclick=async function(){var act={act:"member.grant",sub:S.st.sub,c:S.coh.id,scope:"red.instituto",exp:S.coh.exp};var sig=(await sha("faceid-sim:"+JSON.stringify(act))).slice(0,16);
+ S.st.status="miembro";S.pass=rnd(6);var t="æQR://L/p/"+S.pass+"?s=red.instituto";$("o3").innerHTML="";
+ show($("o3"),t,"Pase de miembro · "+S.st.name);say($("o3"),"Firma (simulada): "+sig+"… El pase da acceso, nunca autoridad.","p");on("s4");await witness("member.grant",act);};
+
+$("b4a").onclick=async function(){var addr="L/"+S.coh.id+"/"+S.st.sub;var man={schema:"ae.manifest/0.1",id:addr,name:"Entorno de "+S.st.name,address:"x0:y0:z0:æ0@"+addr,surface:"lab",capabilities:["aprender","dibujar","entregar"],checkout:"none",authority:{agents_may:["leer","proponer","verificar"],human_only:["publicar","pagar","firmar","inscribir"]},provenance:{fork_of:"L://aeqr-pico",principal:"sub#"+S.st.sub,issued:new Date().toISOString()}};
+ man.hash=await sha(JSON.stringify(man));S.man=man;$("o4").innerHTML="";show($("o4"),"æQR://"+addr+"#"+man.hash.slice(0,12),"Tu æQR · resuelve a tu manifiesto");var pr=document.createElement("pre");pr.textContent=JSON.stringify(man,null,1);$("o4").appendChild(pr);
+ say($("o4"),"Es tuyo: tu namespace y tu x0:y0:z0:æ0. Nunca hereda la autoridad del Instituto.","p");await witness("aeqr.issue",{id:addr,h:man.hash.slice(0,16)});};
+$("b4b").onclick=async function(){if(!S.man){say($("o4"),"Primero crea tu æQR.","no");return}var t=$("tk").value.trim()||"Clase 3 · mi primer manifiesto";var h=await witness("work.submit",{by:S.st.sub,t:t,env:S.man.id});
+ show($("o4"),"æQR://"+S.man.id+"/r/"+h.slice(0,16),"Entrega · "+t);say($("o4"),"Tu docente la revisa; done lo decide una persona.","p")};
+$("b4c").onclick=async function(){say($("o4"),"No. Pagar es human_only: æQR·pico propone, tú decides fuera del agente.","no");await witness("refused.human_only",{act:"pay",by:"agent"})};
+$("bv").onclick=async function(){var o=$("ov");o.innerHTML="";if(!CH.length){say(o,"Cadena vacía: solo génesis.","p");return}var p="x0:y0:z0:æ0",bad=0;
+ for(var i=0;i<CH.length;i++){var c=CH[i],h=await sha(JSON.stringify(c.rec));if(c.rec.prev!==p||h!==c.h){bad=c.rec.n;break}p=c.h}
+ if(bad)say(o,"✗ Cadena rota en el recibo #"+bad+". Ese recibo o uno anterior fue alterado.","no");else say(o,"✓ "+CH.length+" recibos recalculados desde x0:y0:z0:æ0. Cadena íntegra · punta "+p.slice(0,16)+"…","ok")};
+$("bt").onclick=function(){var o=$("ov");o.innerHTML="";if(!CH.length){say(o,"Primero haz algún acto.","p");return}var c=CH[0];c.rec.obj=Object.assign({},c.rec.obj,{alterado:true});say(o,"Se alteró en silencio el recibo #"+c.rec.n+". Ahora toca Verificar cadena.","p")};
+})();
+</script></body></html>

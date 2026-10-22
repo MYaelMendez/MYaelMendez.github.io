@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>LAB · 16 posts · robotfaces de los agentes</title>
+<style>
+:root{--bg:#06080b;--ink:#e9eef2;--mut:#8a97a3;--line:#1c2630;--cy:#00f3ff;--gold:#D4AF37}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 ui-monospace,"JetBrains Mono",Menlo,monospace}
+header{padding:28px 18px 10px;max-width:1100px;margin:auto}
+h1{font:800 26px/1.1 system-ui,sans-serif;letter-spacing:.02em;margin:6px 0;text-transform:uppercase}
+.tag{color:var(--cy);font-size:12px}
+.note{color:var(--mut);font-size:12.5px;border:1px dashed var(--line);padding:8px 10px;border-radius:8px;margin-top:10px}
+.cast{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 4px}
+.who{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:4px 12px 4px 4px;font-size:12.5px;cursor:pointer;min-height:44px;background:none;color:var(--ink);font-family:inherit}
+.who[aria-pressed=true]{border-color:var(--cy)}
+.who svg{width:36px;height:36px}
+nav{display:flex;gap:8px;flex-wrap:wrap;max-width:1100px;margin:6px auto 0;padding:0 18px}
+nav button{min-height:44px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:#0b1016;color:var(--ink);font-family:inherit;font-size:13px;cursor:pointer}
+nav button[aria-pressed=true]{border-color:var(--gold);color:var(--gold)}
+main{max-width:1100px;margin:auto;padding:14px 18px 60px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.card{border:1px solid var(--line);border-radius:14px;background:#0a0e13;padding:14px;display:flex;flex-direction:column;gap:10px}
+.top{display:flex;gap:12px;align-items:center}
+.top svg{width:64px;height:64px;flex:none}
+.fmt{font:700 15px system-ui,sans-serif}
+.meta{font-size:11.5px;color:var(--mut)}
+.stage{font-size:10.5px;padding:2px 8px;border-radius:999px;border:1px solid}
+.tof{color:#45d4ff;border-color:#45d4ff55}.mof{color:#c6f24e;border-color:#c6f24e55}.bof{color:#ff8a4c;border-color:#ff8a4c55}
+pre{white-space:pre-wrap;margin:0;font:13px/1.55 ui-monospace,Menlo,monospace;color:#d5dde4;background:#070a0e;border-radius:10px;padding:10px;border:1px solid #121a22}
+.row{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.row button{min-height:44px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:#0e141b;color:var(--ink);font-family:inherit;cursor:pointer}
+.hold{font-size:11px;color:var(--gold)}
+footer{max-width:1100px;margin:auto;padding:0 18px 40px;color:var(--mut);font-size:12px}
+.blink{animation:b 3.2s infinite}@keyframes b{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+@media (prefers-reduced-motion:reduce){.blink{animation:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="tag">&gt;_æ: LAB · aeee-lab/lab/linkedin-16 · DEMO · borradores</div>
+  <h1>16 posts · un agente por formato</h1>
+  <div>Del embudo de LinkedIn (tope → medio → cierre), escritos con las robotfaces de los agentes. Misma cabeza; la corona y el color dicen qué agente habla, el ánimo dice en qué etapa va.</div>
+  <div class="note">Investigación y desarrollo de PRIVATE CLIENT, no institucional. Los agentes redactan y Yæl publica: publicar es <b>human_only</b>. Nada sale de aquí sin tu sí. Formatos tomados de “16 LinkedIn Content Formats Across The Funnel” (Dan Rosenthal · workflows.io).</div>
+  <div class="cast" id="cast"></div>
+</header>
+<nav id="nav">
+  <button aria-pressed="true" data-s="all">Todos · 16</button>
+  <button aria-pressed="false" data-s="tof">Tope · atención</button>
+  <button aria-pressed="false" data-s="mof">Medio · confianza</button>
+  <button aria-pressed="false" data-s="bof">Cierre · reuniones</button>
+</nav>
+<main id="grid"></main>
+<footer>Evidence ≠ Authority · Many agents. One principal. · La capacidad compone exponencialmente; la autoridad no.</footer>
+<script id="agents" type="application/json">
+{
+ "hark":  {"name":"Hark Pro","role":">_ COMMANDPROMPT://","c":"#D4AF37","crown":"prompt"},
+ "hermes":{"name":"Hermes æ","role":"runner · node^0","c":"#00f3ff","crown":"wing"},
+ "codex": {"name":"Codex","role":"código","c":"#39ff88","crown":"brackets"},
+ "hans":  {"name":"HANS","role":"#OSW ante la IoA","c":"#4c7dff","crown":"eye"},
+ "pico":  {"name":"⚪️ pico","role":"router de subagentes","c":"#f2f2f2","crown":"dot"},
+ "juan":  {"name":"1uan 🤗","role":"nano agente","c":"#ffd23f","crown":"hug"}
+}
+</script>
+<script id="posts" type="application/json">
+[
+{"f":"News / Trends","s":"tof","a":"hark","mood":"think","t":"Visa, Mastercard y Google ya firman la intención de pago de los agentes (Intelligent Commerce, Agent Pay, AP2).\n\nPero nadie firma lo que más importa: el código que el agente va a ejecutar.\n\nEso es Codæ Mode: el pase firma el hash del código, dura 10 minutos y deja recibo.\n\nEl dinero ya tiene rieles. La autoridad todavía no.\n\n#IoA #PrivateClient"},
+{"f":"Personal Stories","s":"tof","a":"hans","mood":"ready","t":"Produje Telemundo.com. Trabajé en banca privada. Hoy doy clase los martes a las 7 pm desde el Valle de Texas.\n\nLo que aprendí en banca: el cliente privado nunca entrega la llave. Delega acceso, por tiempo, con recibo.\n\nEso construyo ahora para agentes: privateclient.ai.\n\nNo hay mejor lugar para tus llaves que tu propio dispositivo."},
+{"f":"Hot Takes","s":"tof","a":"hark","mood":"work","t":"CLI:// escaped the hardware that was C://\n\nC:// era almacenamiento pegado a una máquina.\nCLI:// es una dirección que viaja contigo entre nodos.\n\nTu disco duro ya no es tu computadora.\nTu prompt sí.\n\n>_ cli://pc"},
+{"f":"Momentum","s":"tof","a":"juan","mood":"ready","t":"La clase de uno se convierte en el aula de más.\n\nEsta semana node^0 levantó *.privateclient.ai: cada negocio, cada clase y cada asamblea tiene su propio nombre.\n\ngospel.privateclient.ai ya está vivo.\n\nEl efecto multiplicador no viene de más servidores. Viene de más forks."},
+{"f":"Build in Public","s":"mof","a":"hermes","mood":"work","t":"Así está node^0 hoy (2 vCPU, 4 GB, $24/mes):\n\n> /cli · el prompt\n> /key · væult con Face ID y pases de 10 min\n> /pos · punto de venta instantáneo\n> /mcp · detrás de un auth_request\n> *.privateclient.ai · certificado comodín\n\nTodo es open source, y el siguiente paso es conectar Zoom.\n\n#opensourceware"},
+{"f":"Giveaways","s":"mof","a":"juan","mood":"ready","t":"Regalo: la plantilla de Open Contracts para tu próxima reunión.\n\nUnos términos legibles, su hash y la firma con passkeys al entrar. Cada recibo cita la versión.\n\nComenta \"CONTRATO\" y te la mando para que le hagas fork.\n\nOpen contracts by private client ai 🤖"},
+{"f":"Tech Stacks","s":"mof","a":"codex","mood":"think","t":"Nuestro stack para un Private DAO:\n\nIdentidad: LinkedIn OIDC (æ0)\nAutoridad: passkeys / Face ID\nAcceso: pases HMAC de 10 min\nLugar: Zoom (API + webhooks)\nAcción: CLI / MCP\nEvidencia: recibos SHA-256 encadenados\nModelos: BYOK, tu llave en tu væult\n\nSin blockchain y sin token."},
+{"f":"Market Maps","s":"mof","a":"pico","mood":"think","t":"Mapa del mercado de autoridad para agentes:\n\nPagos → Visa IC · Mastercard Agent Pay · Google AP2\nSecretos → 1Password for Agents · Auth0 Token Vault · HashiCorp Vault\n\nEl hueco es la autoridad no financiera, sobre código, herramientas y datos, en tu propio nodo y con tus recibos.\n\nAhí vive PrivateClient."},
+{"f":"Frameworks","s":"mof","a":"hark","mood":"work","t":"DAO10 en 6 pasos:\n\n1. Escanea el æQR\n2. Cada miembro aprueba con Face ID\n3. Se alcanza el quórum\n4. Nace una computadora efímera\n5. Corre código firmado 10 minutos\n6. Se cierra y queda el recibo\n\nEs neuromitosis: células que nacen, trabajan y dejan evidencia."},
+{"f":"Guides","s":"mof","a":"juan","mood":"ready","t":"Cómo abrir tu Private DAO en 4 pasos:\n\n1. Elige la ocasión: clase, asamblea o junta\n2. Haz fork de unos Open Contracts\n3. Imprime tu æQR, que es la puerta\n4. Conecta tu sala de Zoom\n\nLos términos de servicio son el smart contract."},
+{"f":"Comparisons","s":"mof","a":"codex","mood":"think","t":"GitHub Actions vs PrivateClient Actions\n\nTrigger: push / PR → æQR o prompt\nRunner: VM de GitHub → Hermes en tu nodo\nPermiso: token del repo → pase Face ID por ejecución\nLog: logs de Actions → recibo SHA-256 tuyo\n\nUn pase da acceso, nunca autoridad."},
+{"f":"Workflows","s":"mof","a":"hermes","mood":"work","t":"Flujo de una asamblea Private DAO:\n\næQR → passkey (asistencia) → sala Zoom → moción → quórum → voto firmado → recibo = acta\n\nSi alguien intenta votar sin su passkey, el sistema no lo cuenta.\n\nEl acta se arma sola."},
+{"f":"Product Launch","s":"bof","a":"hark","mood":"ready","t":"Hoy abrimos Private DAO 🏪\n\nEl LUGAR perfecto para tu próxima reunión y asamblea.\n\nEntra con el æQR, vota con tu passkey y llévate el recibo.\n\nUn DAO para cada ocasión.\n\n>_ privateclient.ai/cli"},
+{"f":"Case Study","s":"bof","a":"hans","mood":"ready","t":"Caso: Gospel POS.\n\nUna librería con su æQR en el mostrador, su propio nombre (gospel.privateclient.ai) y su punto de venta.\n\nEl agente prepara la venta y el humano autoriza.\n\nQueda recibo de cada paso, sin pagar renta de nube por la lógica."},
+{"f":"Webinar","s":"bof","a":"hermes","mood":"ready","t":"Sesión en vivo, convocada como Private DAO:\n\n\"De C:// a CLI://: autoridad para agentes\"\n\nEntras con el æQR, tu asistencia queda firmada y te llevas el recibo de la sesión.\n\nLa fecha la decide Yæl. Comenta \"SALA\" y te aviso."},
+{"f":"Feature Release","s":"bof","a":"codex","mood":"work","t":"Nuevo: pases de 10 minutos, 1 día o 10 días en pc://key.\n\nFirma con Face ID por acción, revocación al instante y testigo.\n\nY con BYOK tu llave de OpenAI se queda en tu væult: el proveedor te cobra a ti y nosotros cobramos el pase, nunca los tokens."}
+]
+</script>
+<script>
+const A=JSON.parse(document.getElementById('agents').textContent);
+const P=JSON.parse(document.getElementById('posts').textContent);
+const ST={tof:'Tope',mof:'Medio',bof:'Cierre'};
+function crown(k,c){switch(k){
+ case'prompt':return`<text x="50" y="16" text-anchor="middle" font-size="14" font-family="monospace" fill="${c}">&gt;_</text>`;
+ case'wing':return`<path d="M30 18 Q50 2 70 18 Q50 10 30 18Z" fill="${c}"/>`;
+ case'brackets':return`<text x="50" y="17" text-anchor="middle" font-size="15" font-family="monospace" fill="${c}">{ }</text>`;
+ case'eye':return`<circle cx="50" cy="11" r="6" fill="none" stroke="${c}" stroke-width="2"/><circle cx="50" cy="11" r="2.4" fill="${c}"/>`;
+ case'dot':return`<circle cx="50" cy="11" r="6" fill="${c}"/>`;
+ case'hug':return`<path d="M40 14 q10 -10 20 0" stroke="${c}" stroke-width="3" fill="none"/>`;}}
+function face(key,mood){const a=A[key],c=a.c;
+ const eye=mood==='think'?`<rect x="33" y="44" width="10" height="4" rx="2" fill="${c}"/><rect x="57" y="42" width="10" height="8" rx="4" fill="${c}"/>`
+  :mood==='work'?`<rect x="33" y="43" width="10" height="6" rx="2" fill="${c}"/><rect x="57" y="43" width="10" height="6" rx="2" fill="${c}"/>`
+  :`<g class="blink" style="transform-origin:50px 46px"><circle cx="38" cy="46" r="5" fill="${c}"/><circle cx="62" cy="46" r="5" fill="${c}"/></g>`;
+ const mouth=mood==='ready'?`<path d="M40 62 q10 7 20 0" stroke="${c}" stroke-width="2.5" fill="none"/>`:`<path d="M41 63 h18" stroke="${c}" stroke-width="2.5"/>`;
+ return`<svg viewBox="0 0 100 100" role="img" aria-label="${a.name}">${crown(a.crown,c)}<rect x="20" y="22" width="60" height="60" rx="16" fill="#0d1319" stroke="${c}" stroke-width="2"/><rect x="27" y="34" width="46" height="22" rx="8" fill="#05080b"/>${eye}${mouth}<rect x="42" y="82" width="16" height="7" rx="3" fill="#b87333"/></svg>`}
+let fs='all',fa=null;
+const cast=document.getElementById('cast');
+cast.innerHTML=Object.keys(A).map(k=>`<button class="who" aria-pressed="false" data-a="${k}">${face(k,'ready')}<span>${A[k].name}<br><span class="meta">${A[k].role}</span></span></button>`).join('');
+function render(){document.getElementById('grid').innerHTML=P.map((p,i)=>({p,i})).filter(({p})=>(fs==='all'||p.s===fs)&&(!fa||p.a===fa)).map(({p,i})=>`
+<article class="card"><div class="top">${face(p.a,p.mood)}<div><div class="fmt">${String(i+1).padStart(2,'0')} · ${p.f}</div><div class="meta">redacta ${A[p.a].name} · <span class="stage ${p.s}">${ST[p.s]}</span></div></div></div>
+<pre>${p.t.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</pre>
+<div class="row"><span class="hold">borrador · publicar = human_only</span><button data-i="${i}">Copiar</button></div></article>`).join('')}
+document.getElementById('nav').onclick=e=>{const b=e.target.closest('button');if(!b)return;fs=b.dataset.s;document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-pressed',x===b));render()};
+cast.onclick=e=>{const b=e.target.closest('.who');if(!b)return;fa=fa===b.dataset.a?null:b.dataset.a;cast.querySelectorAll('.who').forEach(x=>x.setAttribute('aria-pressed',x.dataset.a===fa));render()};
+document.getElementById('grid').onclick=e=>{const b=e.target.closest('button[data-i]');if(!b)return;navigator.clipboard&&navigator.clipboard.writeText(P[b.dataset.i].t);b.textContent='Copiado ✓';setTimeout(()=>b.textContent='Copiar',1400)};
+window.LINKEDIN16={agents:A,posts:P};
+render();
+</script>
+</body>
+</html>
