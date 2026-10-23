@@ -1,6 +1,6 @@
 # æ Studio · Glass Origins adaptation
 
-Status: intent prepared; Studio implementation not started.
+Status: local Studio workspace implemented and published as version 25. See the release receipt below; the original intent is preserved as design history.
 
 ## Human intent
 
@@ -74,3 +74,18 @@ Codex, OpenClaw and Hermes-agent can appear as distinct colored glass pieces. Th
 The baseline loop has 12 passing local Node contract/motion tests and [successful CI](https://github.com/MYaelMendez/MYaelMendez.github.io/actions/runs/40007702507) at `529907ce…`. Browser preview verified vector playback, scrubbing, three unfolded craft, descriptor inspection and rejection of a wrong version. The preview browser lacked WebGL. Those results cover the GitHub prototype, **not a Studio integration**. Studio source, browser behavior, shader execution, adapter operations and deployment have not been changed or verified by this intent save.
 
 Prepared using the æ Studio environment-preparation tool. Its output is a proposed draft with no authority grant and no execution started. The machine-readable companion records the same scope.
+
+
+## Studio implementation and release receipt — 2026-10-23
+
+The user clarified: “We need to build a new @æ Studio · Agentic Environments inside the animated webgl 💬. Webgl becomes the studio.” This supersedes the earlier intent-only scope for the Studio adaptation.
+
+- **Published:** existing æ Studio project, version **25**, public audience preserved. URL: https://yael-mendez.teologia-7508.chatgpt.site
+- **Source:** Site source repository commit `5d7ac674728b019a5fa3c40c830c6fbf57c436b1`; opened baseline was `0664b3e1cffeedbca479f7d6cb8eaeb1b8aec197`. Source helper pushed the exact source and packaged the corresponding production build.
+- **Saved version:** `appgprj_6ac66e0abdf88191a6117303da3b35db~appgver_57101ae2f7a48191838524afb0e0e1c5`.
+- **Deployment:** `appgdep_6adbb74adcc8819188d8977171e9b39f`, native status **succeeded**, with MCP retained. This is a native publication receipt; production browser behavior was not independently tested.
+- **Implemented:** `/glass.html` contains the existing same-origin Studio in a WebGL-backed glass conversation. Three accessible æ craft navigate the real local Compose, Work and Witness views. All tools and `/index.html` preserve the existing accounts, configuration and classic workspace. No duplicate Site or new account grants were created.
+- **Descriptor:** `ae.studio.glass@0.1.0`, explicitly derived from `ae.origins.glass@0.2.0`. The inspector validates its public descriptor and shows the actual local environment draft. The ambient motion is visual only.
+- **Local verification:** nine new Node tests passed; existing publisher, migration and Æmoji regressions passed; production build passed. Preview verified compose → actual local board card → actual local witness events, descriptor inspection, Spanish interface forwarding and root navigation into the glass. Fixed day-theme contrast and secure card-ID generation where `crypto.randomUUID` is unavailable.
+- **Limits:** preview browser lacked WebGL; CSS/SVG fallback and local workflow were verified. Shader execution, physical mobile devices, screen readers, cross-host synchronization and external agent execution remain unverified. Codex/OpenClaw/Hermes-agent were not bound by the shell. Local board progress remains human-set. Browser test input was not packaged into deployment assets.
+- **GitHub boundary:** this receipt and the prototype remain reviewable in PR #29. Publishing the existing Studio did not merge the GitHub Pages PR or deploy the GitHub Pages branch.
