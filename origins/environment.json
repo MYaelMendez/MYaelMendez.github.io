@@ -1,0 +1,30 @@
+{
+  "schema": "ae.origins.environment.v1",
+  "id": "ae.origins.glass",
+  "version": "0.2.0",
+  "name": "A conversation becomes an environment",
+  "kind": "visual_simulation",
+  "authority": {"principal": "human", "inherits": false, "grants": []},
+  "duration_seconds": 12,
+  "capabilities": [
+    {"id": "origins.playback", "kind": "browser_local", "available_here": true, "purpose": "Play, pause, replay and scrub the visual story"},
+    {"id": "origins.inspect", "kind": "browser_local", "available_here": true, "purpose": "Read this public environment descriptor"},
+    {"id": "text.inspect", "kind": "separate_implementation", "available_here": false, "purpose": "Local text analysis in the separate ae-cockpit workshop"},
+    {"id": "draft.compose", "kind": "separate_implementation", "available_here": false, "purpose": "Local unsent drafts in the separate ae-cockpit workshop"}
+  ],
+  "adapters": [
+    {"id": "codex", "label": "Codex", "status": "not_connected"},
+    {"id": "openclaw", "label": "OpenClaw", "status": "not_connected"},
+    {"id": "hermes-agent", "label": "Hermes-agent", "status": "not_connected"}
+  ],
+  "evidence": [
+    {"label": "Separate local primitives source", "url": "https://github.com/MYaelMendez/ae-cockpit/blob/69dafd7225bef18d8748884f6b26aeb868437741/aeaeae/primitives.mjs", "scope": "Source for the separate workshop; this animation does not execute it"},
+    {"label": "Separate workshop tests and demo CI", "url": "https://github.com/MYaelMendez/ae-cockpit/actions/runs/39994149461", "scope": "Evidence for that source revision, not for external adapters or this page"}
+  ],
+  "destinations": [
+    {"id": "homebase", "url": "https://myaelmendez.github.io/", "role": "public_map"},
+    {"id": "chat", "url": null, "role": "peer_destination", "binding": "host_supported_reference_required"},
+    {"id": "site", "url": "https://yael-mendez.teologia-7508.chatgpt.site/", "role": "peer_destination", "binding": "shared_loader_not_verified"}
+  ],
+  "handoff": {"optional": true, "private_context": false, "credentials": false, "authority": false}
+}

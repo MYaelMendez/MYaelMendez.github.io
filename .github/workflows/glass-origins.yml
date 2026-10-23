@@ -1,0 +1,22 @@
+name: Glass Origins checks
+on:
+  pull_request:
+    paths:
+      - origins/**
+      - tests/glass-origins.test.cjs
+      - .github/workflows/glass-origins.yml
+permissions:
+  contents: read
+jobs:
+  contracts-and-motion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Check descriptor boundaries and twelve-second motion
+        run: node --test tests/glass-origins.test.cjs

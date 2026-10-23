@@ -148,3 +148,41 @@ Request: diagnose PR #15 mergeability, test the read-only inspector as far as av
 **Unperformed tests / blockers:** The available execution container could not resolve `raw.githubusercontent.com` (DNS error), so it could not retrieve and host the GitHub head for a local browser test. No browser automation of a branch preview, live HTTP response, QR scan, screen-reader/accessibility audit, responsive layout, JS runtime behavior, or OpenAI Site source/deployment test was performed. The inspector has not been published to the public GitHub Pages branch. The original OpenAI Site does not yet consume this manifest; read-only integration is prepared on GitHub but not end-to-end across both destinations.
 
 **Release gate:** keep PR #15 draft and unmerged until browser tests and source review. Next bounded step: run the branch preview in an HTTP(S) browser, test valid/invalid manifest cases, and connect the original Site to the same public descriptor using its existing editor. No new site, permissions, or private-session transfer.
+
+
+## 12. Glass Origins bridge — 2026-10-23
+
+User request: evolve the uploaded twelve-second origin story into the glass speech-bubble/three-craft visual grammar and add a public environment inspector, bridging the existing homebase with the enhanced ontology.
+
+- Added an additive homepage link to `/origins/`; retained existing onboarding, destination choices, catalogs, coordinate atlas and interfaces.
+- Added `origins/index.html`, a standalone procedural WebGL background plus SVG glass/craft animation and read-only inspector. Exactly three æ dots unfold into craft and return on a twelve-second cycle. Pause, replay, scrub, reduced-motion start and vector fallback are present.
+- `origins/environment.json` and its embedded portable snapshot share `ae.origins.glass` version `0.2.0`. HTTP(S) inspection fetches the adjacent descriptor and rejects identity/version/authority changes or snapshot disagreement; portable file mode identifies its bundled snapshot without claiming network resolution.
+- This is a discovery/introduction slice, not a unified ontology migration or execution integration. Codex/OpenClaw/Hermes-agent are explicitly not connected. ae-cockpit local text tools are referenced as separate implementation evidence, unavailable in this page. No human identity is authenticated and no grants are issued.
+- Local Node validation: 12 production-code tests passed for descriptor agreement, wrong IDs/versions, inherited grants, forged capability claims, malformed records, HTTPS references, exact loop periodicity, three craft, finite bounded geometry, all six chapters and JavaScript syntax.
+- Browser preview: observed playback and scrubbing, three unfolded craft, descriptor resolution, external-connection labels, inspector Escape/focus return, and fail-closed behavior after temporarily serving a wrong descriptor version. Correct descriptor restored. The preview browser did not provide WebGL; the SVG fallback worked. Shader execution, physical mobile devices, screen readers, portable-file browser behavior and shared OpenAI Site loading remain unverified.
+- Added a contents-read-only PR workflow for the Node tests. Its actual run result must be inspected separately. No merge, deployment, Site replacement, Site source edit, external execution, credentials or session synchronization performed.
+
+## 13. æ Studio adaptation intent — 2026-10-23
+
+- User request: “Now let’s make the @æ Studio · Agentic Environments version. Save intent to repo.”
+- Saved `docs/intents/ae-studio-glass-origins.md` and its JSON companion on the existing Glass Origins review branch. They define the Studio narrative, descriptor relationship, explicit disconnected adapters, implementation order and acceptance checks.
+- The selected æ Studio preparation tool returned a proposed environment draft with no authorization and execution not started. It does not edit Site source.
+- Fresh Sites metadata confirmed the original project `appgprj_6ac66e0abdf88191a6117303da3b35db`, title æ Studio · Agentic Environments, active/public, latest version **24**, and live URL `https://yael-mendez.teologia-7508.chatgpt.site`. No private access data or credentials are included in the intent.
+- Glass Origins CI at `529907ce3af9cfcb57a27f4d80ac1e18f64ca57c` completed successfully: https://github.com/MYaelMendez/MYaelMendez.github.io/actions/runs/40007702507. This covers the Node tests for the prototype, not a Studio integration or shader/browser execution.
+- Studio implementation remains **not started**. No Site source was edited, no duplicate Site created, no merge/deployment performed and no external adapter connected. Next: inspect current editable Studio source and prepare a compatible story/inspector component while preserving peer destinations.
+
+
+
+## 14. Studio implementation and release receipt — 2026-10-23
+
+The user clarified: “We need to build a new @æ Studio · Agentic Environments inside the animated webgl 💬. Webgl becomes the studio.” This supersedes the earlier intent-only scope for the Studio adaptation.
+
+- **Published:** existing æ Studio project, version **25**, public audience preserved. URL: https://yael-mendez.teologia-7508.chatgpt.site
+- **Source:** Site source repository commit `5d7ac674728b019a5fa3c40c830c6fbf57c436b1`; opened baseline was `0664b3e1cffeedbca479f7d6cb8eaeb1b8aec197`. Source helper pushed the exact source and packaged the corresponding production build.
+- **Saved version:** `appgprj_6ac66e0abdf88191a6117303da3b35db~appgver_57101ae2f7a48191838524afb0e0e1c5`.
+- **Deployment:** `appgdep_6adbb74adcc8819188d8977171e9b39f`, native status **succeeded**, with MCP retained. This is a native publication receipt; production browser behavior was not independently tested.
+- **Implemented:** `/glass.html` contains the existing same-origin Studio in a WebGL-backed glass conversation. Three accessible æ craft navigate the real local Compose, Work and Witness views. All tools and `/index.html` preserve the existing accounts, configuration and classic workspace. No duplicate Site or new account grants were created.
+- **Descriptor:** `ae.studio.glass@0.1.0`, explicitly derived from `ae.origins.glass@0.2.0`. The inspector validates its public descriptor and shows the actual local environment draft. The ambient motion is visual only.
+- **Local verification:** nine new Node tests passed; existing publisher, migration and Æmoji regressions passed; production build passed. Preview verified compose → actual local board card → actual local witness events, descriptor inspection, Spanish interface forwarding and root navigation into the glass. Fixed day-theme contrast and secure card-ID generation where `crypto.randomUUID` is unavailable.
+- **Limits:** preview browser lacked WebGL; CSS/SVG fallback and local workflow were verified. Shader execution, physical mobile devices, screen readers, cross-host synchronization and external agent execution remain unverified. Codex/OpenClaw/Hermes-agent were not bound by the shell. Local board progress remains human-set. Browser test input was not packaged into deployment assets.
+- **GitHub boundary:** this receipt and the prototype remain reviewable in PR #29. Publishing the existing Studio did not merge the GitHub Pages PR or deploy the GitHub Pages branch.
