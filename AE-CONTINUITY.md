@@ -2,6 +2,8 @@
 
 Recorded: 2026-10-15. Purpose: preserve the user's decisions, recover the real Site identity, and continue existing work rather than rebuild disconnected demonstrations.
 
+**2026-10-20 design checkpoint:** Before changing carousel, drawer or widget composition, read [Full 9:16 recursive carousels and Mixture of Widgets](./docs/AE-MOW-916-RECURSIVE.md). See section 12 for the preservation record.
+
 **Project creator: Yael Méndez / MYaelMendez.**
 **Governing decision: chat and the OpenAI Site BOTH remain operating destinations.**
 **Invariant: Context may propagate; authority does not.**
@@ -148,3 +150,16 @@ Request: diagnose PR #15 mergeability, test the read-only inspector as far as av
 **Unperformed tests / blockers:** The available execution container could not resolve `raw.githubusercontent.com` (DNS error), so it could not retrieve and host the GitHub head for a local browser test. No browser automation of a branch preview, live HTTP response, QR scan, screen-reader/accessibility audit, responsive layout, JS runtime behavior, or OpenAI Site source/deployment test was performed. The inspector has not been published to the public GitHub Pages branch. The original OpenAI Site does not yet consume this manifest; read-only integration is prepared on GitHub but not end-to-end across both destinations.
 
 **Release gate:** keep PR #15 draft and unmerged until browser tests and source review. Next bounded step: run the branch preview in an HTTP(S) browser, test valid/invalid manifest cases, and connect the original Site to the same public descriptor using its existing editor. No new site, permissions, or private-session transfer.
+
+## 12. Preservation checkpoint — full 9:16 carousels, drawers and MoW — 2026-10-20
+
+The user explicitly requested saving these design decisions in the repository. The [architecture record](./docs/AE-MOW-916-RECURSIVE.md) was created at commit `3b3ad1713101e5aebee6b8404028983413cef735` on `docs/ae-mow-916-recursive-20261020` and read back successfully (blob `da9d11c22e1709e844043ad92167414bc9b06996`).
+
+- **Full 9:16 environments are first-class carousel scenes, not miniature cards or a restrictive layout.** Other viewports remain supported.
+- **Drawers contain recursively nested widgets.** Widgets can contain drawers, carousels, environments and other widgets; this is not a fixed one-way hierarchy.
+- **Mixture of Widgets (MoW) and nested mixtures (MoMoW)** combine heterogeneous capabilities with independent state, provenance and permission boundaries.
+- Preserve the exact origin `x0:y0:z0:æ:æ` and public-review `x0:y0:z:0:æ:æ:æ` notation. Coordinates, navigation, nesting and forking do not transfer authority.
+
+Affected source: the new architecture document and this continuity pointer. Existing `index.html`, widget implementations, the OpenAI Site and deployment settings were not changed. Verification covers saved documentation and its read-back, not a browser, runtime or integration test. This records the recovered design decisions; it is not a complete backup of the conversation or a claim that the recursive renderer has been implemented.
+
+Before implementation, inspect and reuse the existing components and use this record to prevent regression to static posters, thumbnail-only carousels or flattened widget trees. Keep publication separate from source preparation.
