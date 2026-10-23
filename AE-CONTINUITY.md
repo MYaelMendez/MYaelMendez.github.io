@@ -148,3 +148,17 @@ Request: diagnose PR #15 mergeability, test the read-only inspector as far as av
 **Unperformed tests / blockers:** The available execution container could not resolve `raw.githubusercontent.com` (DNS error), so it could not retrieve and host the GitHub head for a local browser test. No browser automation of a branch preview, live HTTP response, QR scan, screen-reader/accessibility audit, responsive layout, JS runtime behavior, or OpenAI Site source/deployment test was performed. The inspector has not been published to the public GitHub Pages branch. The original OpenAI Site does not yet consume this manifest; read-only integration is prepared on GitHub but not end-to-end across both destinations.
 
 **Release gate:** keep PR #15 draft and unmerged until browser tests and source review. Next bounded step: run the branch preview in an HTTP(S) browser, test valid/invalid manifest cases, and connect the original Site to the same public descriptor using its existing editor. No new site, permissions, or private-session transfer.
+
+
+## 12. Glass Origins bridge — 2026-10-23
+
+User request: evolve the uploaded twelve-second origin story into the glass speech-bubble/three-craft visual grammar and add a public environment inspector, bridging the existing homebase with the enhanced ontology.
+
+- Added an additive homepage link to `/origins/`; retained existing onboarding, destination choices, catalogs, coordinate atlas and interfaces.
+- Added `origins/index.html`, a standalone procedural WebGL background plus SVG glass/craft animation and read-only inspector. Exactly three æ dots unfold into craft and return on a twelve-second cycle. Pause, replay, scrub, reduced-motion start and vector fallback are present.
+- `origins/environment.json` and its embedded portable snapshot share `ae.origins.glass` version `0.2.0`. HTTP(S) inspection fetches the adjacent descriptor and rejects identity/version/authority changes or snapshot disagreement; portable file mode identifies its bundled snapshot without claiming network resolution.
+- This is a discovery/introduction slice, not a unified ontology migration or execution integration. Codex/OpenClaw/Hermes-agent are explicitly not connected. ae-cockpit local text tools are referenced as separate implementation evidence, unavailable in this page. No human identity is authenticated and no grants are issued.
+- Local Node validation: 12 production-code tests passed for descriptor agreement, wrong IDs/versions, inherited grants, forged capability claims, malformed records, HTTPS references, exact loop periodicity, three craft, finite bounded geometry, all six chapters and JavaScript syntax.
+- Browser preview: observed playback and scrubbing, three unfolded craft, descriptor resolution, external-connection labels, inspector Escape/focus return, and fail-closed behavior after temporarily serving a wrong descriptor version. Correct descriptor restored. The preview browser did not provide WebGL; the SVG fallback worked. Shader execution, physical mobile devices, screen readers, portable-file browser behavior and shared OpenAI Site loading remain unverified.
+- Added a contents-read-only PR workflow for the Node tests. Its actual run result must be inspected separately. No merge, deployment, Site replacement, Site source edit, external execution, credentials or session synchronization performed.
+
