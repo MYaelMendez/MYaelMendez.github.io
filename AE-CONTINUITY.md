@@ -148,3 +148,58 @@ Request: diagnose PR #15 mergeability, test the read-only inspector as far as av
 **Unperformed tests / blockers:** The available execution container could not resolve `raw.githubusercontent.com` (DNS error), so it could not retrieve and host the GitHub head for a local browser test. No browser automation of a branch preview, live HTTP response, QR scan, screen-reader/accessibility audit, responsive layout, JS runtime behavior, or OpenAI Site source/deployment test was performed. The inspector has not been published to the public GitHub Pages branch. The original OpenAI Site does not yet consume this manifest; read-only integration is prepared on GitHub but not end-to-end across both destinations.
 
 **Release gate:** keep PR #15 draft and unmerged until browser tests and source review. Next bounded step: run the branch preview in an HTTP(S) browser, test valid/invalid manifest cases, and connect the original Site to the same public descriptor using its existing editor. No new site, permissions, or private-session transfer.
+
+
+## $💬 skill clone · OpenAI / æ path · 2026-10-16
+
+- Created review branch `feat/openai-ae-child-chat` from `gh-pages`; added `openai/æ/index.html` as a mobile-first GitHub source landing for the proposed `/openai/æ/` route.
+- Added an extracted, text-based clone of the validated `child-chat` Skill under `openai/æ/child-chat/`: `SKILL.md`, `agents/openai.yaml`, and `references/state-contract.md`. The canonical symbolic entry is `$💬^($æ^$cli.llc)` with right-associative exponential composition.
+- The landing links to the Skill source and nonsecret state contract; it preserves `/openai/` and links to the **existing** OpenAI-hosted æ Studio as a separate destination. No duplicate OpenAI Site created.
+- Source review/read-back required for final verification. Branch and source creation do not imply GitHub Pages deployment, custom-domain DNS routing, active ChatGPT Skill installation, automatic nested sessions, or GitHub Actions execution.
+- Preserve the invariant: **Context may propagate; authority does not.**
+
+
+## CHAT^chat|site|@GitHub.io · 2026-10-16
+
+- Proposed explicit mode router `CHAT^chat|site|@GitHub.io`; `^` composes, `|` selects one surface. Do not interpret this as native ChatGPT mode switching or synchronized authentication.
+- Added `openai/æ/CHAT-MODES.md` and navigation links in `openai/æ/index.html` on PR #21. Chat remains a usable destination; Site points to original OpenAI monosite; @GitHub.io points to repository source, not an unverified Pages deployment.
+- Verification: GitHub source read-back pending for updated UI. No browser test, merge, GitHub Pages publication, site update, or cross-session sync performed.
+
+
+## Math power-tower rendering patch · 2026-10-16
+
+- User mobile screenshot showed raw LaTeX in a ChatGPT response. Native ChatGPT math rendering is not controlled by this repository.
+- Patched `openai/æ/index.html` on PR #21 to use nested accessible HTML/CSS superscripts `CHAT^(æ^CLI)` with fluid mobile sizing and an explicit right-associative accessibility label, avoiding reliance on MathJax/KaTeX or external runtime.
+- This fixes the GitHub-source representation only; it is **not** a patch to the native ChatGPT renderer or the existing OpenAI-hosted monosite.
+- Source read-back required; visual mobile browser and public deployment not verified.
+
+
+## Native^SVG power tower · 2026-10-16
+
+- Replaced the earlier CSS text superscript tower on `openai/æ/index.html` with responsive inline native SVG. The SVG includes title, description, viewBox, and a textual right-associative fallback `CHAT^(æ^CLI)`.
+- Purpose: avoid client-specific LaTeX parsing failures documented in the user's iPhone screenshot. This affects the GitHub-source landing, **not** the native ChatGPT renderer or existing OpenAI-hosted Site.
+- Source read-back verified SVG markup and accessibility labels. Browser rendering, Pages publication, and OpenAI Site update remain unverified.
+
+
+## Codex × Dots integration · 2026-10-16
+
+- Added `openai/æ/CODEX-DOTS.md` to PR #21, defining a bounded Codex engineering handoff plus optional ongoing Dots stewardship without grants inherited from the page.
+- Linked the integration contract and setup paths from `openai/æ/index.html`. Codex or Dots connection, Dots eligibility, task execution, and authenticated sharing are **not verified** by the repository additions.
+- The supported first vertical slice is: human authorizes narrow Codex repo inspection → tested diff and receipt → human review → optional dot follow-up where eligible → æSTATE/æQR³ handoff after actual publication and scan tests.
+- This preserves the original OpenAI Site, ChatGPT conversation and GitHub workstreams; source read-back and a real browser test remain separate milestones.
+
+
+## AGÆNTIC · Agentic^Electronic Nano Composer · 2026-10-16
+
+- User requested `site` surface, `compose` nano command, symbolic `CHAT^(æ^CLI)` and reviewable engineering continuation.
+- Added `openai/æ/agentic-electronic/index.html` on the existing PR #21 review branch. It uses responsive native inline SVG, surface and nano-command selectors, a local intent composer, a plain-text copyable handoff, and explicit links to the current ChatGPT entrance, original OpenAI-hosted Site and source PR.
+- Linked this page from `openai/æ/index.html` without removing prior tools. The page is static; the composer **prepares** prompts locally, never executes third-party operations or transfers private conversation state.
+- No merge, deployment, new OpenAI Site, Codex task, Dots agent, public QR, or external service invocation was authorized or performed. Browser tests and published URL remain pending; source-readback evidence will be recorded separately.
+
+
+## 🫵OS startup scene · 2026-10-16
+
+- Added `openai/æ/start/index.html` to existing draft PR #21. The name-first onboarding scene says 'Change the 🫵 to your name to start', includes accessible right-associative native SVG, editable personal display name, three explanatory steps, human-governed capability selection explanation and copyable startup command.
+- Designed with restrained ChatGPT-inspired neutral styling while displaying an explicit **independent project** disclaimer. It does not claim OpenAI endorsement or embed OpenAI marks.
+- Linked `./start/` from `openai/æ/index.html`; preserves the existing hosted æ Studio link and the agentic-electronic Nano Composer.
+- Site source remains in the GitHub **draft** branch. No original OpenAI Site edit, GitHub merge, Pages deploy, ChatGPT account linking, plugin activation or QR runtime has occurred. GitHub source readback is required; browser/mobile experience is not verified.
