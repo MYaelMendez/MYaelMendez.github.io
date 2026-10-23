@@ -1,5 +1,7 @@
 # Glass Origins · 0.2.0
 
+The proposed adaptation for the existing æ Studio is recorded in [the Studio intent](../docs/intents/ae-studio-glass-origins.md), with a [machine-readable companion](../docs/intents/ae-studio-glass-origins.json). It is prepared intent, not an implemented Studio release.
+
 Twelve-second procedural WebGL/SVG origin story: a conversation's three æ dots unfold into craft, explore within the glass boundary, and return. No image assets or third-party scripts are required. `index.html` is also a standalone downloadable file.
 
 The inspector uses the embedded public descriptor for portable `file:` viewing. Under HTTP(S), it fetches the adjacent `environment.json`, validates the identity/version/deny-by-default boundary, and requires exact semantic agreement with the embedded snapshot. A failed or mismatched descriptor produces an explicit unresolved state, not a successful inspection.

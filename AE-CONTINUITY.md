@@ -162,3 +162,12 @@ User request: evolve the uploaded twelve-second origin story into the glass spee
 - Browser preview: observed playback and scrubbing, three unfolded craft, descriptor resolution, external-connection labels, inspector Escape/focus return, and fail-closed behavior after temporarily serving a wrong descriptor version. Correct descriptor restored. The preview browser did not provide WebGL; the SVG fallback worked. Shader execution, physical mobile devices, screen readers, portable-file browser behavior and shared OpenAI Site loading remain unverified.
 - Added a contents-read-only PR workflow for the Node tests. Its actual run result must be inspected separately. No merge, deployment, Site replacement, Site source edit, external execution, credentials or session synchronization performed.
 
+## 13. æ Studio adaptation intent — 2026-10-23
+
+- User request: “Now let’s make the @æ Studio · Agentic Environments version. Save intent to repo.”
+- Saved `docs/intents/ae-studio-glass-origins.md` and its JSON companion on the existing Glass Origins review branch. They define the Studio narrative, descriptor relationship, explicit disconnected adapters, implementation order and acceptance checks.
+- The selected æ Studio preparation tool returned a proposed environment draft with no authorization and execution not started. It does not edit Site source.
+- Fresh Sites metadata confirmed the original project `appgprj_6ac66e0abdf88191a6117303da3b35db`, title æ Studio · Agentic Environments, active/public, latest version **24**, and live URL `https://yael-mendez.teologia-7508.chatgpt.site`. No private access data or credentials are included in the intent.
+- Glass Origins CI at `529907ce3af9cfcb57a27f4d80ac1e18f64ca57c` completed successfully: https://github.com/MYaelMendez/MYaelMendez.github.io/actions/runs/40007702507. This covers the Node tests for the prototype, not a Studio integration or shader/browser execution.
+- Studio implementation remains **not started**. No Site source was edited, no duplicate Site created, no merge/deployment performed and no external adapter connected. Next: inspect current editable Studio source and prepare a compatible story/inspector component while preserving peer destinations.
+
