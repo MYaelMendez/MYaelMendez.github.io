@@ -1,71 +1,36 @@
-/* æ:// WebMCP layer — feature-detected registration of the homebase capability surface.
-   Spec: W3C WebMCP. HTTPS / secure context required. Reads capability-manifest.json lazily.
-   Current shape: registerTool. Legacy shapes (provideTools/provideContext) also supported. */
-(function(){
-  'use strict';
-  var MC=null, shape='none';
-  try{
-    if(typeof navigator!=='undefined' && navigator.modelContext){MC=navigator.modelContext;}
-    else if(typeof document!=='undefined' && document.modelContext){MC=document.modelContext;}
-  }catch(e){}
-  if(MC){
-    if(typeof MC.registerTool==='function')shape='registerTool';
-    else if(typeof MC.provideTools==='function')shape='provideTools';
-    else if(typeof MC.provideContext==='function')shape='provideContext';
-  }
-  window.__aeWebmcp={available:!!MC,shape:shape,registered:false,tools:[]};
-  if(!MC)return;
-
-  var MANIFEST=null, CAPS=[], loadPromise=null;
-  function ensure(){
-    if(CAPS.length)return Promise.resolve();
-    if(!loadPromise){loadPromise=fetch('capability-manifest.json',{cache:'no-cache'})
-      .then(function(r){return r.json();})
-      .then(function(M){MANIFEST=M;CAPS=M.capabilities||[];})
-      .catch(function(e){console.warn('[æ://webmcp] manifest fetch failed',e);});}
-    return loadPromise;
-  }
-  function text(o){return {content:[{type:'text',text:(typeof o==='string')?o:JSON.stringify(o,null,2)}]};}
-  function fmt(c){return {address:c.address,name:c.name,id:c.id,url:c.url,category:c.category,layer:c.layer,layer_name:c.layer_name,capabilities:c.capabilities};}
-  function find(q){q=String(q||'').toLowerCase();return CAPS.filter(function(c){return c.id===q||c.name.toLowerCase()===q||c.address===q||c.id.indexOf(q)>=0||c.name.toLowerCase().indexOf(q)>=0;})[0];}
-
-  var TOOLS=[
-    {name:'list_capabilities',
-     description:'List every capability surface published at the æ:// homebase (myaelmendez.github.io). Returns {id,name,address,url,category,layer,layer_name,capabilities}. Optionally filter by authority layer (0 public, 1 published, 2 operator, 3 custody) or category.',
-     inputSchema:{type:'object',properties:{layer:{type:'number',description:'authority layer 0-3'},category:{type:'string',description:'category id, e.g. secrets'}},required:[]},
-     execute:function(a){a=a||{};return ensure().then(function(){return text(CAPS.filter(function(c){return (a.layer==null||c.layer===a.layer)&&(!a.category||c.category===a.category);}).map(fmt));});}},
-    {name:'find_capability',
-     description:'Discover æ:// capability surfaces by free-text query, matched against name, id, category, url and capability tags. Use to answer "does the homebase do X?".',
-     inputSchema:{type:'object',properties:{query:{type:'string',description:'search text, e.g. cuda or vault'}},required:['query']},
-     execute:function(a){var q=String((a&&a.query)||'').toLowerCase();return ensure().then(function(){return text(CAPS.filter(function(c){return c.id.indexOf(q)>=0||c.name.toLowerCase().indexOf(q)>=0||c.category.indexOf(q)>=0||c.url.toLowerCase().indexOf(q)>=0||(c.capabilities||[]).join(' ').indexOf(q)>=0;}).map(fmt));});}},
-    {name:'open_surface',
-     description:'Get the URL and address of a capability surface by id, name, or coordinate (x:y:z:æ). Navigates the page to it when same-origin.',
-     inputSchema:{type:'object',properties:{id:{type:'string',description:'surface id, name, or coordinate'}},required:['id']},
-     execute:function(a){return ensure().then(function(){var r=find(a&&a.id);if(!r)return text('no surface "'+((a&&a.id)||'')+'"');try{if(r.url&&r.url.charAt(0)==='/')location.href=r.url;}catch(e){}return text(fmt(r));});}},
-    {name:'resolve_address',
-     description:'Resolve a 4-space coordinate x:y:z:æ (x=category, y=item, z=depth, æ=authority) to the capability surface at that address.',
-     inputSchema:{type:'object',properties:{address:{type:'string',description:'e.g. x10:y0:z0:æ3'}},required:['address']},
-     execute:function(a){var m=String((a&&a.address)||'').match(/x?(-?\d+):y?(-?\d+):z?(-?\d+):æ?(-?\d+)/);if(!m)return Promise.resolve(text('bad address'));return ensure().then(function(){var r=CAPS.filter(function(c){var p=c.address.match(/x(-?\d+):y(-?\d+):z(-?\d+):æ(-?\d+)/);return p&&p[1]==m[1]&&p[2]==m[2]&&p[3]==m[3]&&p[4]==m[4];})[0];return text(r?fmt(r):'no surface at '+((a&&a.address)||''));});}},
-    {name:'get_manifest',
-     description:'Return the full æ:// capability manifest: homebase, operator, authority axis, and every capability surface.',
-     inputSchema:{type:'object',properties:{},required:[]},
-     execute:function(){return ensure().then(function(){return text(MANIFEST||{});});}},
-    {name:'verify_chain',
-     description:'Return the væult tool chain status — the nine links custody→format→gate→authority→contract→dispatch→publish→delivery→adoption.',
-     inputSchema:{type:'object',properties:{},required:[]},
-     execute:function(){return Promise.resolve(text({chain:'væult',links:['custody','format','gate','authority','contract','dispatch','publish','delivery','adoption'],status:'10/10',note:'a thing not checked back is not a thing'}));}}
-  ];
-
-  function register(){
-    try{
-      if(shape==='registerTool'){TOOLS.forEach(function(t){try{MC.registerTool(t);}catch(e){}});}
-      else if(shape==='provideTools'&&typeof MC.provideTools==='function'){MC.provideTools(TOOLS);}
-      else if(shape==='provideContext'&&typeof MC.provideContext==='function'){MC.provideContext({tools:TOOLS});}
-      window.__aeWebmcp.registered=true;
-      window.__aeWebmcp.tools=TOOLS.map(function(t){return t.name;});
-      console.log('[æ://webmcp] registered '+TOOLS.length+' tools via '+shape);
-    }catch(e){console.warn('[æ://webmcp] register failed',e);}
-  }
-  register();
-  ensure();
+/* Optional read-only WebMCP adapter. Draft API reference checked 2026-10-19:
+ * https://webmachinelearning.github.io/webmcp/ (2026-10-16 report).
+ * Native document.modelContext first; legacy navigator fallback, registerTool only.
+ * No server, plugin installation, authentication, execution or navigation implied.
+ */
+(function(){'use strict';
+var MC=null,locationName='none';
+try{if(document.modelContext&&typeof document.modelContext.registerTool==='function'){MC=document.modelContext;locationName='document';}else if(navigator.modelContext&&typeof navigator.modelContext.registerTool==='function'){MC=navigator.modelContext;locationName='navigator-compatibility';}}catch(_){}
+var status={available:!!MC,shape:MC?'registerTool':'none',location:locationName,registered:false,complete:false,tools:[],errors:[]};window.__aeWebmcp=status;if(!MC)return;
+var cache=null,inflight=null;
+function safeURL(value){if(window.AEOrigin)return window.AEOrigin.safeURL(value,location.href);try{if(typeof value!=='string'||value.length>1024||/[\u0000-\u0020\u007f\\]/.test(value)||/^\/\//.test(value))return null;var u=new URL(value,location.href);return u.protocol==='https:'&&!u.username&&!u.password?u.href:null;}catch(_){return null;}}
+function text(value,isError){return {isError:!!isError,content:[{type:'text',text:typeof value==='string'?value:JSON.stringify(value)}]};}
+function ensure(){
+ if(cache)return Promise.resolve(cache);if(inflight)return inflight;
+ var abort=new AbortController(),timer=setTimeout(function(){abort.abort();},10000);
+ inflight=fetch('./capability-manifest.json',{cache:'no-cache',credentials:'omit',referrerPolicy:'no-referrer',signal:abort.signal}).then(function(r){if(!r.ok)throw Error('Manifest request failed');return r.text();}).then(function(raw){
+ if(raw.length>200000)throw Error('Manifest too large');var m=JSON.parse(raw);if(!m||!Array.isArray(m.capabilities)||m.capabilities.length>2000)throw Error('Unsupported manifest');var ids=new Set();
+ var caps=m.capabilities.map(function(c){if(!c||['id','name','address','url','category'].some(function(k){return typeof c[k]!=='string'||c[k].length>1024;})||ids.has(c.id)||!safeURL(c.url)||!Number.isInteger(c.layer)||c.layer<0||c.layer>3)throw Error('Invalid capability record');ids.add(c.id);return {id:c.id,name:c.name,address:c.address,url:c.url,category:c.category,layer:c.layer,layer_name:typeof c.layer_name==='string'?c.layer_name:'',capabilities:Array.isArray(c.capabilities)?c.capabilities.filter(function(v){return typeof v==='string'&&v.length<256;}).slice(0,30):[],status:'source_description',authority:null};});
+ cache={capabilities:caps,count:caps.length,verification:'source_only',authority:null};return cache;
+ }).finally(function(){clearTimeout(timer);inflight=null;});return inflight;
+}
+function call(fn){return function(args){return ensure().then(function(m){return text(fn(args||{},m));}).catch(function(){return text({status:'unavailable',reason:'Manifest missing, invalid, or request failed. No result was verified.'},true);});};}
+function query(value){if(typeof value!=='string'||!value.trim()||value.length>256)throw Error('Invalid query');return value.trim().toLowerCase();}
+function find(q,m){return m.capabilities.find(function(c){return c.id.toLowerCase()===q||c.name.toLowerCase()===q||c.address.toLowerCase()===q;})||null;}
+var tools=[
+ {name:'list_capabilities',description:'Read public capability descriptions. Layers are navigation labels, not authority or verified execution.',inputSchema:{type:'object',properties:{layer:{type:'integer',minimum:0,maximum:3},category:{type:'string',maxLength:256}},additionalProperties:false},execute:call(function(a,m){return m.capabilities.filter(function(c){return (a.layer==null||c.layer===a.layer)&&(!a.category||c.category===a.category);});})},
+ {name:'find_capability',description:'Search public source descriptions; no installation or invocation occurs.',inputSchema:{type:'object',properties:{query:{type:'string',minLength:1,maxLength:256}},required:['query'],additionalProperties:false},execute:call(function(a,m){var q=query(a.query);return m.capabilities.filter(function(c){return [c.id,c.name,c.category,c.url].concat(c.capabilities).join(' ').toLowerCase().includes(q);});})},
+ {name:'open_surface',description:'Return a proposed surface URL for human selection. This tool does not navigate, authenticate, or execute.',inputSchema:{type:'object',properties:{id:{type:'string',minLength:1,maxLength:256}},required:['id'],additionalProperties:false},execute:call(function(a,m){var r=find(query(a.id),m);return r?{surface:r,navigation:'not_performed',authority:null}:{status:'not_found',authority:null};})},
+ {name:'resolve_address',description:'Resolve a numeric x:y:z:ae navigation coordinate to a public source record. No permission is granted.',inputSchema:{type:'object',properties:{address:{type:'string',maxLength:128}},required:['address'],additionalProperties:false},execute:call(function(a,m){var q=query(a.address);if(!/^x-?\d{1,3}:y-?\d{1,3}:z-?\d{1,3}:(?:\u00e6|ae)[0-3]$/.test(q))return {status:'invalid_address'};q=q.replace(/:ae([0-3])$/,':\u00e6$1');return find(q,m)||{status:'not_found'};})},
+ {name:'get_manifest',description:'Return the validated public capability projection, not private context or grants.',inputSchema:{type:'object',properties:{},additionalProperties:false},execute:call(function(a,m){return m;})},
+ {name:'verify_chain',description:'Report the chain definition and that no external verification is implemented here. Does not claim a successful chain.',inputSchema:{type:'object',properties:{},additionalProperties:false},execute:function(){return Promise.resolve(text({chain:'vaeult',links:['custody','format','gate','authority','contract','dispatch','publish','delivery','adoption'],status:'not_verified',checks_performed:0,external_success:false,authority:null}));}}
+];
+var lifetime=new AbortController();window.addEventListener('pagehide',function(){lifetime.abort();},{once:true});
+tools.forEach(function(t){t.annotations={readOnlyHint:true,untrustedContentHint:true,consequentialHint:false};try{MC.registerTool(t,{signal:lifetime.signal});status.tools.push(t.name);}catch(_){status.errors.push({tool:t.name,status:'registration_rejected'});}});
+status.registered=status.tools.length>0;status.complete=status.tools.length===tools.length;
 })();

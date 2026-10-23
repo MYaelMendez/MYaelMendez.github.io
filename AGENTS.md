@@ -13,3 +13,7 @@ Before changing the æ environment, read [AE-CONTINUITY.md](./AE-CONTINUITY.md) 
 - After substantive changes, update the continuity record with affected surfaces, source revisions, checks performed and remaining blockers. Keep unknowns explicit.
 
 Read more specific directory instructions when present. Keep commits reviewable and within the user's authorized scope. A request to save or prepare work does not authorize a merge, deployment, purchase, public submission or permission change.
+
+## Latest origin integration supplement
+
+Read [AE-ORIGIN-CHECKPOINT.md](./AE-ORIGIN-CHECKPOINT.md) with the original continuity record. It describes the origin/public review implementation, exact test limits, and remaining Site/publishing gates. Preserve private intention outside public exports; local preferences and symbolic coordinates never create authority.
