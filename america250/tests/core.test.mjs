@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {scenario,task,validateReceipt} from '../core.mjs';
+const assumptions={target:250000,activation:.5,retention:.6,sales:40000,margin:.6,operating:2000,compute:600};
+test('scenario separates revenue, profit and surplus',()=>assert.deepEqual(scenario(assumptions),{owners:75000,revenue:3000000000,grossProfit:1800000000,surplus:1605000000}));
+test('losses remain visible',()=>assert.ok(scenario({...assumptions,sales:0}).surplus<0));
+test('zero activation creates no operating revenue',()=>assert.equal(scenario({...assumptions,activation:0}).revenue,0));
+test('invalid assumptions rejected',()=>{for(const patch of [{margin:2},{target:NaN},{sales:Infinity},{compute:-1}])assert.throws(()=>scenario({...assumptions,...patch}));});
+test('task exports only bounded selected context',()=>{assert.deepEqual(Object.keys(task('Offer','build','Selected')),['schema','intent','role','selected_context']);assert.throws(()=>task('Offer','admin','Selected'));});
+const receipt={schema:'ae.america250.contribution.v1',status:'pending_human_review',grants:[],role:'build',intent:'Offer',task_hash:'a'.repeat(64),contribution:{summary:'Offer draft',artifact:'<script>never execute</script>',evidence:[]}};
+test('receipt content stays plain text and starts pending',()=>{const r=validateReceipt(receipt);assert.equal(r.review,'pending');assert.equal(r.artifact,receipt.contribution.artifact);});
+test('import cannot grant authority or inherit approval',()=>{assert.throws(()=>validateReceipt({...receipt,grants:['execute']}));assert.throws(()=>validateReceipt({...receipt,status:'approved'}));});
