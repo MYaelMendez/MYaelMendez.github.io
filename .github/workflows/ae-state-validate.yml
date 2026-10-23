@@ -1,0 +1,18 @@
+name: Validate æSTATE checkpoints
+on:
+  pull_request:
+    paths:
+      - 'aestate/**'
+      - '.github/workflows/ae-state-validate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Validate nonsecret checkpoint structure
+        run: python3 aestate/validate.py

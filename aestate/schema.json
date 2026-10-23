@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "æSTATE v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "created_on",
+    "environment",
+    "source",
+    "context",
+    "witness",
+    "next_action",
+    "authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "ae.state.v1"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "created_on": {
+      "type": "string",
+      "format": "date"
+    },
+    "environment": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "pull_request",
+        "observed_head"
+      ],
+      "properties": {
+        "repository": {
+          "type": "string"
+        },
+        "pull_request": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "observed_head": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "summary",
+        "blockers"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "proposed",
+            "prepared",
+            "blocked",
+            "verified"
+          ]
+        },
+        "summary": {
+          "type": "string"
+        },
+        "blockers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "witness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "url",
+        "verification_scope"
+      ],
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "verification_scope": {
+          "type": "string"
+        }
+      }
+    },
+    "next_action": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "inherits",
+        "requires_reauthorization"
+      ],
+      "properties": {
+        "inherits": {
+          "const": false
+        },
+        "requires_reauthorization": {
+          "const": true
+        }
+      }
+    }
+  }
+}
