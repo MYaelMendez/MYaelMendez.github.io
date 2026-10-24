@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#030812">
+<title>æ:// Calibración · Punto (1, 1, 1)</title>
+<meta name="description" content="Referencia visual XYZ: punto (1, 1, 1) en coordenadas locales, con proyección ortográfica y controles de vista.">
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#030812;color:#f1f6ff}*{box-sizing:border-box}body{margin:0}main{max-width:620px;margin:auto;padding:24px 18px max(24px,env(safe-area-inset-bottom))}header{margin-bottom:20px}.tag{font:12px monospace;letter-spacing:.12em;color:#5aeaff}h1{font-size:clamp(1.8rem,7vw,2.7rem);margin:12px 0;color:#ffbc63}p{color:#b3c1d5;line-height:1.6}figure{margin:0;background:radial-gradient(ellipse,#0a2134,#040b15);border:1px solid #385269;border-radius:20px;overflow:hidden}canvas{display:block;width:100%;aspect-ratio:1/1}figcaption{padding:14px 18px;font:14px monospace;line-height:1.6;border-top:1px solid #385269}.legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:18px}.x{color:#ffd16b}.y{color:#5aeaff}.z{color:#72f8ac}fieldset{border:1px solid #385269;border-radius:12px;margin:24px 0 16px;padding:16px}label{display:grid;grid-template-columns:1fr auto;gap:10px;margin:12px 0}input{grid-column:1/-1;width:100%;accent-color:#5aeaff}button{background:#12354a;border:1px solid #5aeaff;color:#f1f6ff;padding:12px 18px;border-radius:9px;font:inherit;cursor:pointer}a{color:#5aeaff}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #ffbc63;outline-offset:4px}footer{margin-top:26px;font:12px monospace;color:#b3c1d5;line-height:1.7}output{font-family:monospace}.note{font-size:.85rem}
+</style>
+</head>
+<body>
+<main>
+<header><div class="tag">æ:// · REFERENCIA LOCAL</div><h1>Un punto. Tres coordenadas.</h1><p>P = (1, 1, 1) · un paso sobre cada eje desde el origen.</p></header>
+<figure>
+<canvas id="scene" role="img" aria-label="Punto P en X igual a 1, Y igual a 1, Z igual a 1. Ejes positivos: X amarillo, Y cian, Z verde. Líneas de referencia entre el origen y el punto.">Referencia XYZ: origen (0, 0, 0), punto P (1, 1, 1).</canvas>
+<figcaption>P: x=1 · y=1 · z=1<br>O: (0, 0, 0) · distancia OP = √3 ≈ 1.732 unidades</figcaption>
+</figure>
+<div class="legend" aria-label="Colores de los ejes"><span class="x">X · amarillo</span><span class="y">Y · cian</span><span class="z">Z · verde</span></div>
+<fieldset><legend>Vista · el punto permanece fijo</legend>
+<label for="yaw">Giro horizontal <output id="yaw-value" for="yaw">35°</output><input id="yaw" type="range" min="-180" max="180" value="35"></label>
+<label for="pitch">Elevación <output id="pitch-value" for="pitch">25°</output><input id="pitch" type="range" min="-80" max="80" value="25"></label>
+<label for="zoom">Escala visual <output id="zoom-value" for="zoom">1.0×</output><input id="zoom" type="range" min="5" max="15" value="10"></label>
+<button type="button" id="reset">Restablecer vista</button>
+</fieldset>
+<p class="note">Proyección ortográfica. Ejes cartesianos de mano derecha: X lateral, Y vertical, Z profundidad. Las unidades son abstractas; el dibujo no mide distancias físicas ni verifica sensores.</p>
+<a href="./index.html">Volver a æ:// Portal Web</a>
+<footer>HUMAN://ROOT · página de referencia visual<br>Sin cámara, conexión a agentes ni almacenamiento de datos.</footer>
+</main>
+<script>
+(() => {
+  'use strict';
+  const canvas = document.getElementById('scene');
+  const ctx = canvas.getContext('2d');
+  const ids = ['yaw','pitch','zoom'];
+  const controls = Object.fromEntries(ids.map(id => [id,document.getElementById(id)]));
+  const colors = {x:'#ffd16b',y:'#5aeaff',z:'#72f8ac'};
+  function draw() {
+    for (const id of ids) document.getElementById(id+'-value').textContent = id==='zoom' ? (Number(controls[id].value)/10).toFixed(1)+'×' : controls[id].value+'°';
+    if (!ctx) return;
+    const size = canvas.getBoundingClientRect().width;
+    if (!size) return;
+    const dpr = Math.min(window.devicePixelRatio || 1,3);
+    canvas.width = Math.round(size*dpr); canvas.height = Math.round(size*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,size,size);
+    const a = Number(controls.yaw.value)*Math.PI/180;
+    const b = Number(controls.pitch.value)*Math.PI/180;
+    const scale = size*.105*Number(controls.zoom.value)/10;
+    function project([x,y,z]) {
+      const u = Math.cos(a)*x-Math.sin(a)*z;
+      const depth = Math.sin(a)*x+Math.cos(a)*z;
+      const v = Math.cos(b)*y-Math.sin(b)*depth;
+      return [size*.5+u*scale,size*.52-v*scale];
+    }
+    function line(p,q,color,width=1,dashed=false) {
+      const s=project(p),t=project(q);
+      ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=width;ctx.setLineDash(dashed?[5,5]:[]);ctx.moveTo(...s);ctx.lineTo(...t);ctx.stroke();ctx.setLineDash([]);
+    }
+    function label(p,text,color,dx=9,dy=-9) {
+      const s=project(p);ctx.font='13px monospace';ctx.fillStyle=color;ctx.fillText(text,s[0]+dx,s[1]+dy);
+    }
+    for(let i=-2;i<=2;i++) {line([i,0,-2],[i,0,2],'#26384b');line([-2,0,i],[2,0,i],'#26384b');}
+    line([-2,0,0],[2.7,0,0],colors.x,2);line([0,-1.4,0],[0,2.7,0],colors.y,2);line([0,0,-2],[0,0,2.7],colors.z,2);
+    label([2.7,0,0],'X',colors.x);label([0,2.7,0],'Y',colors.y);label([0,0,2.7],'Z',colors.z);
+    line([0,0,0],[1,0,0],colors.x,3);line([1,0,0],[1,1,0],colors.y,2,true);line([1,1,0],[1,1,1],colors.z,2,true);
+    line([0,0,0],[1,1,1],'#ffbc6380',1,true);
+    label([1,0,0],'x=1',colors.x);label([1,1,0],'y=1',colors.y);
+    const o=project([0,0,0]);ctx.beginPath();ctx.arc(...o,4,0,Math.PI*2);ctx.fillStyle='#f1f6ff';ctx.fill();label([0,0,0],'O','#b3c1d5',-20,20);
+    const p=project([1,1,1]);ctx.beginPath();ctx.arc(...p,15,0,Math.PI*2);ctx.fillStyle='#ffbc6320';ctx.fill();ctx.beginPath();ctx.arc(...p,6,0,Math.PI*2);ctx.fillStyle='#ffbc63';ctx.fill();label([1,1,1],'P (1,1,1)','#ffbc63',12,-14);
+  }
+  ids.forEach(id => controls[id].addEventListener('input',draw));
+  document.getElementById('reset').addEventListener('click',() => {controls.yaw.value='35';controls.pitch.value='25';controls.zoom.value='10';draw();});
+  if ('ResizeObserver' in window) new ResizeObserver(draw).observe(canvas); else window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
