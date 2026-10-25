@@ -1,0 +1,44 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>💡 æ · cara foco v2 · LAB</title>
+<style>
+html,body{margin:0;height:100%;background:#05060a;color:#D4AF37;font:12px "JetBrains Mono",monospace;display:grid;place-items:center}
+svg{width:min(80vw,46vh);height:auto;overflow:visible}
+#glass{transition:fill .6s,filter .6s}
+.ink{fill:none;stroke:#D4AF37;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+#fil{transition:d .5s}
+#hold #fil{animation:glitch .18s steps(2) infinite}
+@keyframes glitch{50%{transform:translateX(2px)}}
+#tag{position:fixed;bottom:12px;width:100%;text-align:center;opacity:.7;letter-spacing:.2em}
+</style></head><body>
+<svg viewBox="0 0 200 300" id="face">
+ <defs><radialGradient id="g"><stop offset="0" stop-color="var(--c)" stop-opacity=".55"/><stop offset="1" stop-color="var(--c)" stop-opacity="0"/></radialGradient></defs>
+ <circle cx="100" cy="105" r="110" fill="url(#g)" id="halo"/>
+ <path id="glass" class="ink" d="M70 200 C70 170 30 150 30 100 A70 70 0 1 1 170 100 C170 150 130 170 130 200 Z" style="fill:rgba(57,230,255,.04)"/>
+ <path class="ink" d="M72 212 H128 M74 224 H126 M76 236 H124 M84 248 Q100 262 116 248"/>
+ <path class="ink" d="M86 200 V180 M114 200 V180"/>
+ <path class="ink" d="M78 38 L66 12 M122 38 L134 12"/><circle class="ink" cx="64" cy="8" r="5"/><circle class="ink" cx="136" cy="8" r="5"/>
+ <path id="fil" class="ink" d=""/>
+</svg>
+<div id="tag">💡 æ · <span id="m">think</span> · read-only · Human stays root</div>
+<script>
+// 💡 cara foco · el filamento es una sola línea dorada (ojos + boca), anclada a los soportes.
+// Moods æ.face/0.1: hold > lost > tired > sleep > think > ready > work. Read-only, autoridad æ1.
+const F={ // una línea continua: soporte izq → ojo izq → ojo der → boca → soporte der
+ think:{c:"#39e6ff",d:"M86 180 L74 100 L100 118 L74 136 M106 138 L130 138 L114 180"},
+ ready:{c:"#7CFC9A",d:"M86 180 L70 92 Q78 78 86 92 Q100 70 114 92 Q122 78 130 92 L114 180 M78 128 Q100 150 122 128"},
+ work: {c:"#D4AF37",d:"M86 180 L70 95 L86 88 L114 88 L130 95 L114 180 M76 130 Q100 158 124 130"},
+ sleep:{c:"#4060ff",d:"M86 180 L70 100 Q78 106 86 100 Q100 104 114 100 Q122 106 130 100 L114 180 M88 138 Q100 142 112 138"},
+ tired:{c:"#ffb347",d:"M86 180 L70 98 Q78 92 86 98 Q100 96 114 98 Q122 92 130 98 L114 180 M82 142 Q100 132 118 142"},
+ lost: {c:"#888",   d:"M86 180 L74 92 L66 100 M74 100 L66 92 M86 96 Q100 110 114 96 L126 92 L134 100 M126 100 L134 92 L114 180 M84 140 Q92 132 100 140 Q108 148 116 140"},
+ hold: {c:"#ff3355",d:"M86 180 L66 90 L86 100 L100 88 L114 100 L134 90 L114 180 M78 140 L90 132 L100 142 L110 132 L122 140"}
+};
+const P=["hold","lost","tired","sleep","think","ready","work"];
+function set(m){if(!F[m])m="lost";document.body.id=m;document.getElementById("fil").setAttribute("d",F[m].d);
+ document.documentElement.style.setProperty("--c",F[m].c);document.getElementById("glass").style.fill=F[m].c+"14";document.getElementById("m").textContent=m}
+addEventListener("keydown",e=>{const i=+e.key;if(i>=1&&i<=7)set(P[i-1])});
+const src=new URLSearchParams(location.search).get("src");
+if(src)setInterval(async()=>{try{const j=await (await fetch(src,{cache:"no-store"})).json();
+ if(j.authority!=="æ1")return set("lost");set(j.mood||"lost")}catch(e){set("lost")}},500);
+set(new URLSearchParams(location.search).get("mood")||"think");
+</script></body></html>

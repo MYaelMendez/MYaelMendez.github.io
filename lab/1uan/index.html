@@ -1,0 +1,83 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent 1uan 🤗 · nano agente del establo · L://</title>
+<meta name="description" content="Agent 1uan: nano agente abierto del Instituto. Corre en tu navegador, sin llaves ni nube. Lee el mapa y te lleva a lo más nuevo. Propone; tú decides.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Agent 1uan","applicationCategory":"EducationalApplication","operatingSystem":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"publisher":{"@type":"Organization","name":"Instituto Luterano Latinoamericano","url":"https://lutheraninstitute.github.io/"}}</script>
+<style>
+:root{--p:#f4efe2;--i:#141414;--i2:#55524a;--y:#f2c92e;--b:#3468c4;--g:#40a05c;--m:ui-monospace,"SF Mono",Menlo,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--p);color:var(--i);font:16px/1.45 system-ui,-apple-system,sans-serif}
+.w{max-width:640px;margin:auto;padding:16px 16px 120px}
+h1{font:800 34px/1 "Helvetica Neue",Arial Narrow,sans-serif;letter-spacing:-.5px;margin:8px 0 2px;text-transform:uppercase}
+.sub{font:600 12px var(--m);color:var(--i2);margin:0 0 12px}
+.card{border:2px solid var(--i);border-radius:10px;background:#fff;padding:10px 12px;font:12px/1.5 var(--m);white-space:pre-wrap;margin:0 0 12px}
+.card summary{cursor:pointer;font-weight:700}
+.log{display:flex;flex-direction:column;gap:10px;margin:12px 0}
+.m{max-width:88%;padding:10px 12px;border-radius:14px;border:1.5px solid var(--i)}
+.a{background:#fff;align-self:flex-start}.u{background:var(--y);align-self:flex-end}
+.m b.w1{font:700 12px var(--m);display:block;margin-bottom:2px}
+.m a{display:block;margin-top:6px;color:var(--i);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chips button{font:600 13px var(--m);border:1.5px solid var(--i);background:#fff;border-radius:999px;padding:7px 11px;color:var(--i)}
+form{position:fixed;left:0;right:0;bottom:0;background:var(--p);border-top:2px solid var(--i);padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
+form div{max-width:640px;margin:auto;display:flex;gap:8px}
+input{flex:1;font:16px system-ui;padding:12px;border:2px solid var(--i);border-radius:10px;background:#fff}
+form button{font:700 16px var(--m);border:2px solid var(--i);background:var(--i);color:var(--p);border-radius:10px;padding:0 16px}
+.rule{font:600 11px var(--m);color:var(--i2);text-align:center;margin-top:14px}
+.stack{display:inline-flex;flex-direction:column;vertical-align:middle;margin-right:8px}.stack i{width:14px;height:10px;display:block}
+</style></head><body><div class="w">
+<p class="sub"><span class="stack"><i style="background:var(--y)"></i><i style="background:var(--b)"></i><i style="background:var(--g)"></i></span>L:// · ESTABLO DE AGENTES · LAB</p>
+<h1>Agent 1uan 🤗</h1>
+<p class="sub">nano agente · corre en tu navegador · sin llaves · sin nube · propone, tú decides</p>
+<details class="card"><summary>agent card</summary>---
+name: Agent 1uan
+emoji: 🤗
+type: nano-agent
+runtime: browser (sin modelo, sin red salvo /llms.txt)
+language: [es, en]
+license: MIT
+reads: /llms.txt · mapa EN VIVO
+agents_may: [leer, recomendar, compartir enlaces]
+human_only: [inscribirse, publicar, pagar, firmar]
+memory: ninguna (nada sale de tu equipo)
+inspired_by: Hugging Face cards & Spaces
+---
+Many agents. One principal. Tú decides.</details>
+<div class="log" id="log"></div>
+<div class="chips" id="chips"></div>
+<p class="rule">Evidencia ≠ autoridad · 1uan nunca inscribe, publica ni paga por ti.</p>
+</div>
+<form id="f"><div><input id="q" placeholder="Pregúntale a 1uan…" autocomplete="off" aria-label="Pregunta"><button>›</button></div></form>
+<script>
+(function(){
+var B="https://lutheraninstitute.github.io/";
+var NEW=[["Conectoma","Mide quién nos enseña con su código.",B+"conectoma/"],["Taller paramétrico","Diseña con código y exporta .3dm.",B+"aeee-lab/lab/diseno/"],["Instant POS","Tienda con æQR, dinero de práctica.",B+"aeee-lab/lab/instant-pos/"]];
+var log=document.getElementById("log"),q=document.getElementById("q");
+function say(who,txt,links){var d=document.createElement("div");d.className="m "+(who==="a"?"a":"u");
+ if(who==="a"){var h=document.createElement("b");h.className="w1";h.textContent="1uan 🤗";d.appendChild(h);}
+ var p=document.createElement("span");p.textContent=txt;d.appendChild(p);
+ (links||[]).forEach(function(l){var a=document.createElement("a");a.href=l[2]||l[1];a.textContent="→ "+l[0];a.rel="noopener";d.appendChild(a);});
+ log.appendChild(d);d.scrollIntoView({behavior:"smooth",block:"end"});}
+// read the live map from llms.txt so 1uan stays current
+fetch("/llms.txt",{cache:"no-store"}).then(function(r){return r.ok?r.text():""}).then(function(t){
+ var s=t.split(/^## /m).filter(function(x){return /^En vivo/i.test(x)})[0];if(!s)return;
+ var out=[];s.replace(/- \[([^\]]+)\]\(([^)]+)\):\s*([^\n]*)/g,function(_,n,u,d){out.push([n,d.split(".")[0]+".",u]);});
+ if(out.length)NEW=out;}).catch(function(){});
+var I=[
+ [/nuev|new|novedad|reciente|latest|qu[eé] hay/i,function(){say("a","Lo más nuevo del Instituto, en el orden del mapa: medir, diseñar, vender. Tú eliges por dónde entrar.",NEW.map(function(x){return [x[0]+" · "+x[1],x[2]];}));}],
+ [/empie|start|comienz|primera|begin|inscrib|clase|diplomado/i,function(){say("a","Empieza aquí: cuatro pasos desde tu celular. Las clases son los martes a las 7 pm, hora de Texas. Inscribirte lo haces tú; yo solo te muestro el camino.",[["Empieza aquí",B+"#s-empieza"],["Diplomado",B+"diplomado-agentico/"]]);}],
+ [/dise|rhino|3d|param|taller/i,function(){say("a","El Taller paramétrico corre en tu navegador: mueve los parámetros y exporta un .3dm real para Rhino.",[["Abrir el Taller",B+"aeee-lab/lab/diseno/"]]);}],
+ [/conect|fork|github|repos/i,function(){say("a","El Conectoma muestra los 44 forks del Instituto y los equipos que nos enseñan con su código.",[["Ver el Conectoma",B+"conectoma/"]]);}],
+ [/tienda|vend|pos|negocio|shop|store/i,function(){say("a","Instant POS: ponle nombre y menú y sale una tienda con su æQR. Es de práctica: el pago siempre lo decide una persona.",[["Abrir Instant POS",B+"aeee-lab/lab/instant-pos/"]]);}],
+ [/agente|agent|establo|hark|hermes|tutor/i,function(){say("a","En el establo hay cuatro: Hark Pro (alumnos), Hermes æ (ejecuta tarjetas aprobadas), Tutor æ (sin nube) y yo, 1uan, el más pequeño: solo te oriento.",[["Nuestros agentes",B+"#s-agentes"]]);}],
+ [/qui[eé]n|who|eres|hug|abrazo|1uan/i,function(){say("a","Soy 1uan 🤗, un nano agente abierto. No tengo modelo ni llaves; leo el mapa del Instituto y te propongo a dónde ir. Tú decides siempre.");}],
+ [/pag|compr|pay|firm|public|post/i,function(){say("a","Eso es human_only: pagar, firmar o publicar lo haces tú. Yo puedo mostrarte dónde, nunca hacerlo por ti.");}],
+ [/hola|hi|hello|buen/i,function(){say("a","¡Hola! 🤗 ¿Buscas lo más nuevo, empezar una clase o diseñar algo?");}]
+];
+function answer(t){for(var i=0;i<I.length;i++)if(I[i][0].test(t))return I[i][1]();
+ say("a","Todavía soy pequeño 🤗. Prueba con «qué hay nuevo», «empezar», «diseñar» o «tienda».");}
+var C=["¿Qué hay nuevo?","Quiero empezar","Diseñar en 3D","Mi tienda","¿Quién eres?"],ch=document.getElementById("chips");
+C.forEach(function(c){var b=document.createElement("button");b.type="button";b.textContent=c;b.onclick=function(){say("u",c);answer(c);};ch.appendChild(b);});
+document.getElementById("f").onsubmit=function(e){e.preventDefault();var t=q.value.trim();if(!t)return;say("u",t);q.value="";answer(t);};
+var hint=(location.hash||"").slice(1);
+say("a","¡Hola! Soy 1uan 🤗, el nano agente del establo. Te llevo a lo más nuevo del Instituto. Propongo; tú decides.");
+if(hint){say("u",decodeURIComponent(hint));answer(decodeURIComponent(hint));}
+})();
+</script></body></html>

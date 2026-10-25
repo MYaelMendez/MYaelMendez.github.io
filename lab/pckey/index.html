@@ -1,0 +1,69 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>pc://key · PrivateClient</title><meta name="robots" content="noindex">
+<style>
+:root{--g:#D4AF37;--bg:#0b0b0a;--ink:#efe6c8;--mut:#9a916f;--no:#e0664f;--ok:#7fbf7f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 ui-monospace,"JetBrains Mono",Menlo,monospace;padding:env(safe-area-inset-top) 18px 40px}
+main{max-width:460px;margin:0 auto}header{text-align:center;padding:22px 0 8px}
+header img{width:180px;height:180px;border-radius:50%;border:1px solid #6b5a1e}
+h1{font:700 22px/1.1 ui-monospace,Menlo,monospace;letter-spacing:.12em;color:var(--g);margin:14px 0 4px}
+.mut{color:var(--mut);font-size:13px}.ok{color:var(--ok)}.no{color:var(--no)}
+.card{border:1px solid #3a321a;border-radius:14px;padding:16px;margin:14px 0;background:#11100c}
+button{font:600 16px ui-monospace,Menlo,monospace;background:var(--g);color:#111;border:0;border-radius:12px;padding:14px 16px;width:100%;margin-top:10px}
+button.ghost{background:transparent;color:var(--g);border:1px solid #6b5a1e}button.sm{width:auto;padding:8px 12px;font-size:13px;margin:0 0 0 6px}
+input,textarea{width:100%;background:#0b0b0a;color:var(--ink);border:1px solid #3a321a;border-radius:10px;padding:12px;font:15px ui-monospace,Menlo,monospace;margin-top:6px}
+.row{display:flex;align-items:center;justify-content:space-between;border-top:1px solid #241f10;padding:10px 0}.row b{word-break:break-all}
+.sec{font-size:13px;word-break:break-all;color:var(--g);margin-top:6px}
+</style></head><body><main>
+<header><img src="tell.jpg" alt="Tell · pc://key"><h1>pc://key</h1><div class="mut">&gt;_ tu cara abre · tu llave decide · el servidor solo ve texto ilegible</div></header>
+<div id="st" class="card">…</div>
+<div id="vault"></div>
+<div class="card mut" id="ch"></div>
+<p class="mut">LinkedIn = quién eres (æ0). Face ID = qué se hace en tu nombre (æ2). Tu biometría nunca sale del dispositivo. Los secretos se cifran en tu dispositivo con AES-GCM usando una llave derivada de tu passkey (WebAuthn PRF); node^0 guarda solo el texto cifrado.</p>
+</main><script>
+const $=s=>document.querySelector(s);
+const B=x=>Uint8Array.from(atob(x.replace(/-/g,'+').replace(/_/g,'/')+'==='.slice((x.length+3)%4)),c=>c.charCodeAt(0));
+const E=b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let K=null,KID='';const enroll=new URLSearchParams(location.search).get('enroll');
+async function api(p,d){const r=await fetch('/key/api/'+p,d===undefined?{credentials:'same-origin'}:{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||r.status);return j}
+async function salt(){return new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('privateclient.ai/vault/v1')))}
+async function status(){
+  const s=await api('status');let h='';
+  if(!s.enrolled){h=enroll?`<p>Este node^0 aún no tiene dueño.</p><button onclick="register('iPhone')">🔐 Registrar mi Face ID</button>`:`<p class="no">Sin dueño registrado · se necesita el enlace de registro</p>`}
+  else if(!s.unlocked||!K){h=`<p>🔐 Dueño registrado · ${esc(s.devices.join(' · '))}</p><button onclick="unlock()">Abrir con Face ID</button>`}
+  else{h=`<p class="ok">✓ abierto · ${Math.round(s.expires_in/60)} min · llave ${KID}</p><button class="ghost" onclick="lock()">Cerrar</button><button class="ghost" onclick="register(prompt('Nombre del dispositivo de respaldo','Mac')||'respaldo')">+ Registrar otro dispositivo</button>`}
+  $('#st').innerHTML=h;if(s.unlocked&&K)vault();else $('#vault').innerHTML='';chain()}
+async function register(label){try{
+  const c=await api('begin',{kind:'reg',enroll});
+  const cr=await navigator.credentials.create({publicKey:{challenge:B(c.challenge),rp:{id:c.rpId,name:'PrivateClient'},user:{id:new TextEncoder().encode('owner'),name:'Dueño · privateclient.ai',displayName:'PrivateClient · dueño'},pubKeyCredParams:[{type:'public-key',alg:-7}],excludeCredentials:c.creds.map(id=>({type:'public-key',id:B(id)})),authenticatorSelection:{userVerification:'required',residentKey:'required'},attestation:'none',extensions:{prf:{}}}});
+  const prf=!!cr.getClientExtensionResults().prf?.enabled;
+  await api('register',{enroll,label,prf,clientDataJSON:E(cr.response.clientDataJSON),attestationObject:E(cr.response.attestationObject)});
+  if(enroll)history.replaceState(null,'',location.pathname);
+  $('#st').insertAdjacentHTML('afterbegin',`<p class="ok">✓ ${esc(label)} registrado${prf?'':' · <span class="no">sin PRF: este dispositivo no podrá abrir el væult</span>'}</p>`);setTimeout(status,1200)}catch(e){$('#st').insertAdjacentHTML('beforeend',`<p class="no">✗ ${esc(e.message||e)}</p>`)}}
+async function unlock(){try{
+  const c=await api('begin',{kind:'get'});
+  const a=await navigator.credentials.get({publicKey:{challenge:B(c.challenge),rpId:c.rpId,allowCredentials:c.creds.map(id=>({type:'public-key',id:B(id)})),userVerification:'required',extensions:{prf:{eval:{first:await salt()}}}}});
+  await api('unlock',{credId:E(a.rawId),clientDataJSON:E(a.response.clientDataJSON),authenticatorData:E(a.response.authenticatorData),signature:E(a.response.signature)});
+  const out=a.getClientExtensionResults().prf?.results?.first;
+  if(!out){K=null;$('#st').innerHTML='<p class="no">✗ Este dispositivo no entrega PRF. Por seguridad el væult no se abre sin él (no hay respaldo en el servidor).</p>';return}
+  const base=await crypto.subtle.importKey('raw',out,'HKDF',false,['deriveKey']);
+  K=await crypto.subtle.deriveKey({name:'HKDF',hash:'SHA-256',salt:new TextEncoder().encode('privateclient.ai'),info:new TextEncoder().encode('vault aes-gcm-256')},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+  KID=E(await crypto.subtle.digest('SHA-256',out)).slice(0,8);status()}catch(e){$('#st').insertAdjacentHTML('beforeend',`<p class="no">✗ ${esc(e.message||e)}</p>`)}}
+async function lock(){K=null;await api('lock',{}).catch(()=>{});status()}
+async function vault(){const {items}=await api('vault');const names=Object.keys(items).sort();
+  $('#vault').innerHTML=`<div class="card"><b>væult</b> <span class="mut">· ${names.length} secretos</span>
+  ${names.map(n=>`<div class="row"><b>${esc(n)}</b><span>${items[n].kid!==KID?'<span class="no mut">otra llave</span>':`<button class="sm ghost" data-n="${esc(n)}" onclick="reveal(this.dataset.n,this)">ver</button><button class="sm ghost" data-n="${esc(n)}" onclick="copy(this.dataset.n)">copiar</button>`}<button class="sm ghost" data-n="${esc(n)}" onclick="del(this.dataset.n)">✕</button></span></div><div class="sec" id="v-${esc(n)}"></div>`).join('')}
+  <label class="mut">Nombre (p. ej. OPENAI_API_KEY)</label><input id="nn" autocomplete="off" autocapitalize="off">
+  <label class="mut">Secreto</label><textarea id="nv" rows="3" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
+  <button onclick="put()">Cifrar en este dispositivo y guardar</button></div>`;window._items=items}
+async function dec(n){const it=window._items[n];return new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:B(it.iv),additionalData:new TextEncoder().encode(n)},K,B(it.ct)))}
+async function put(){const n=$('#nn').value.trim(),v=$('#nv').value;if(!n||!v)return;
+  const iv=crypto.getRandomValues(new Uint8Array(12));const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:new TextEncoder().encode(n)},K,new TextEncoder().encode(v));
+  try{await api('vault/put',{name:n,iv:E(iv),ct:E(ct),kid:KID});$('#nv').value='';vault();chain()}catch(e){alert(e.message)}}
+async function reveal(n,btn){const el=document.getElementById('v-'+n);if(el.textContent){el.textContent='';return}
+  try{el.textContent=await dec(n);api('vault/reveal',{name:n}).then(chain);setTimeout(()=>el.textContent='',20000)}catch(e){el.innerHTML='<span class="no">✗ no se pudo descifrar</span>'}}
+async function copy(n){try{await navigator.clipboard.writeText(await dec(n));api('vault/reveal',{name:n}).then(chain)}catch(e){alert('✗ '+e.message)}}
+async function del(n){if(!confirm('¿Borrar '+n+'?'))return;await api('vault/delete',{name:n});vault();chain()}
+async function chain(){try{const d=await api('chain');$('#ch').innerHTML=`📟 testigo ${d.intact?'<span class="ok">✓ intacto</span>':'<span class="no">✗ roto</span>'} · ${d.count} eventos<br>`+d.tail.slice(-6).reverse().map(r=>`${r.at.slice(5,16).replace('T',' ')} · ${esc(r.type)}${r.name?' · '+esc(r.name):''}${r.reason?' · '+esc(r.reason):''}`).join('<br>')}catch(e){}}
+status();
+</script></body></html>

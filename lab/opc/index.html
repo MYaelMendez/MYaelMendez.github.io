@@ -1,0 +1,139 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>&gt;_æ^æ:// #opc · 一人公司 · One-Person Company Portal</title><meta name="robots" content="noindex"><meta name="theme-color" content="#050516">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;height:100%;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden}
+svg{width:100%;height:100%;display:block}
+.g{fill:none;stroke:#D4AF37;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;animation:draw 2.4s cubic-bezier(.6,0,.2,1) forwards;filter:drop-shadow(0 0 4px rgba(212,175,55,.55))}
+@keyframes draw{to{stroke-dashoffset:0}}
+.leg path{fill:none;stroke:#00EAFF;stroke-width:3;stroke-linecap:round;opacity:0;animation:fade 1s 2.6s forwards}
+@keyframes fade{to{opacity:1}}
+.bob{animation:bob 6s ease-in-out infinite;transform-box:fill-box}
+@keyframes bob{0%,100%{transform:translate(0,0) rotate(-1.2deg)}50%{transform:translate(4px,-16px) rotate(1.2deg)}}
+.beam{fill:url(#bm);opacity:0;animation:beam 4.5s ease-in-out infinite;animation-fill-mode:both}
+@keyframes beam{0%,55%,100%{opacity:0}65%{opacity:.55}72%{opacity:.2}80%{opacity:.5}}
+.mesh{stroke:#9aa3c7;stroke-width:1.6;stroke-dasharray:3 9;opacity:.45;animation:flow 3s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-48}}
+.t{font-family:'Barlow Condensed',sans-serif;font-weight:800;fill:#D4AF37;letter-spacing:1px}
+.m{font-family:'JetBrains Mono',monospace}
+.cur{animation:blink 1.1s steps(1) infinite}@keyframes blink{50%{opacity:0}}
+.ground{fill:none;stroke:#D4AF37;stroke-width:2.4;stroke-dasharray:1;stroke-dashoffset:1;animation:draw 3s .2s ease forwards}
+.rise{opacity:0;animation:fade 1.2s forwards}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-iteration-count:1!important}}
+
+#stage{position:relative;height:100dvh;max-width:100vw;aspect-ratio:9/16}
+#scene{transform-origin:540px 70px;transition:transform 1.5s cubic-bezier(.7,0,.2,1),opacity 1.5s}
+.collapsed #scene{transform:scale(1,.012);opacity:.85}
+#tick{position:absolute;top:2.2%;left:0;right:0;opacity:0;transition:opacity .8s 1.3s;pointer-events:none}
+.collapsed #tick{opacity:1}
+#tick .ln{height:1px;margin:0 4%}.g1{background:#D4AF37;box-shadow:0 0 6px #D4AF37}.c1{background:#00EAFF;opacity:.7}
+#tick .tx{overflow:hidden;white-space:nowrap;font:400 clamp(9px,1.7vh,14px) 'JetBrains Mono',monospace;color:#D4AF37;padding:5px 0;mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+#tick .tx span{display:inline-block;animation:tk 28s linear infinite}
+@keyframes tk{to{transform:translateX(-100%)}}
+#core{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.2vh;opacity:0;pointer-events:none;transition:opacity 1s 1.6s}
+.collapsed #core{opacity:1;pointer-events:auto}
+.sym{font:700 clamp(54px,11vh,120px)/1 'JetBrains Mono',monospace;letter-spacing:-.02em;text-shadow:0 0 24px rgba(212,175,55,.35)}
+.sym .p{color:#B4FF2E}.sym .a{color:#D4AF37}.sym .c{color:#00EAFF}
+.cur2{font-style:normal;color:#B4FF2E;font-size:.55em;vertical-align:middle;animation:blink 1.1s steps(1) infinite}
+.sub{font:400 clamp(10px,1.6vh,14px) 'JetBrains Mono',monospace;color:#8f94aa;letter-spacing:.2em;text-transform:uppercase}
+#go{font:700 clamp(16px,2.6vh,22px) 'JetBrains Mono',monospace;color:#050516;background:#D4AF37;border:0;border-radius:999px;padding:1.1vh 3.6vh;cursor:pointer;box-shadow:0 0 0 1px #D4AF37,0 0 28px rgba(212,175,55,.45);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px rgba(212,175,55,.12),0 0 40px rgba(212,175,55,.6)}}
+#cmd{display:none;align-items:center;gap:8px;width:82%;border:1px solid rgba(86,94,255,.45);border-radius:10px;padding:10px 12px;background:rgba(11,12,29,.85);font:700 15px 'JetBrains Mono',monospace;color:#B4FF2E}
+#cmd input{flex:1;background:none;border:0;outline:0;color:#f5f6fa;font:400 14px 'JetBrains Mono',monospace;min-width:0}
+.open #go{display:none}.open #cmd{display:flex}
+#out{min-height:1.4em;width:82%;font:400 12px/1.5 'JetBrains Mono',monospace;color:#00EAFF;text-align:left}
+
+#btns{display:flex;flex-direction:column;gap:1.4vh;width:78%}
+#btns a{display:block;text-decoration:none;border-radius:14px;padding:1.4vh 2vh;font:700 clamp(16px,2.5vh,22px) 'JetBrains Mono',monospace;color:#050516;text-align:center;opacity:0;transform:translateY(12px);transition:opacity .6s,transform .6s}
+.collapsed #btns a{opacity:1;transform:none}
+#btns a small{display:block;font:400 clamp(9px,1.35vh,12px) 'JetBrains Mono',monospace;opacity:.75;margin-top:2px}
+#btns a.gold{background:#D4AF37;box-shadow:0 0 26px rgba(212,175,55,.4);animation:pulse 2.4s ease-in-out infinite}
+#btns a.cyan{background:none;color:#00EAFF;border:1px solid #00EAFF}
+#btns a.lime{background:none;color:#B4FF2E;border:1px solid #B4FF2E}
+.disc{font:400 clamp(8px,1.15vh,11px) 'JetBrains Mono',monospace;color:#65687c}
+
+.langs{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;width:86%}
+.langs button{background:none;border:1px solid rgba(86,94,255,.35);color:#8f94aa;font:700 10px 'JetBrains Mono',monospace;border-radius:6px;padding:2px 6px;cursor:pointer}
+.langs button.on{color:#D4AF37;border-color:#D4AF37}
+#hi{text-transform:none;letter-spacing:.04em;text-align:center;max-width:86%}
+.opc{font:800 13px/1 "JetBrains Mono",monospace;letter-spacing:.3em;color:#E8423F;border:1px solid #E8423F;padding:5px 10px;border-radius:4px;margin:6px 0}
+.tri{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;width:90%;margin:4px 0 2px}.tri span{font:700 11px/1.2 "JetBrains Mono",system-ui,sans-serif;padding:4px 8px;border-radius:999px;border:1px solid}.tri .c0{color:#D4AF37;border-color:#D4AF37}.tri .c1{color:#00EAFF;border-color:#00EAFF}.tri .c2{color:#B4FF2E;border-color:#B4FF2E}
+</style></head><body>
+<div id="stage"><svg viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Seven line-drawn flying saucers in a network over the words Make something agents want, >_æææ.com://#ioa">
+<defs><pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M60 0H0V60" fill="none" stroke="#1a2350" stroke-width="1"/></pattern>
+<linearGradient id="bm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00EAFF" stop-opacity=".7"/><stop offset="1" stop-color="#00EAFF" stop-opacity="0"/></linearGradient>
+<radialGradient id="vig" cx=".5" cy=".45" r=".75"><stop offset=".55" stop-color="#050516" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".85"/></radialGradient></defs>
+<rect width="1080" height="1920" fill="#050516"/><rect width="1080" height="1920" fill="url(#grid)" opacity=".6"/>
+<line x1="540" y1="0" x2="540" y2="1920" stroke="#24306a" stroke-width="1.2"/><line x1="0" y1="967" x2="1080" y2="967" stroke="#24306a" stroke-width="1.2"/>
+<g id="scene"><text class="t rise" x="540" y="300" text-anchor="middle" font-size="88" textLength="960" lengthAdjust="spacingAndGlyphs" style="animation-delay:.1s">MAKE SOMETHING AGENTS WANT.</text>
+<g><line class="mesh" x1="166" y1="1187" x2="489" y2="1119" style="animation-delay:0.00s"/><line class="mesh" x1="166" y1="1187" x2="433" y2="800" style="animation-delay:0.23s"/><line class="mesh" x1="166" y1="1187" x2="636" y2="987" style="animation-delay:0.46s"/><line class="mesh" x1="489" y1="1119" x2="636" y2="987" style="animation-delay:0.69s"/><line class="mesh" x1="489" y1="1119" x2="433" y2="800" style="animation-delay:0.92s"/><line class="mesh" x1="636" y1="987" x2="433" y2="800" style="animation-delay:1.15s"/><line class="mesh" x1="636" y1="987" x2="714" y2="646" style="animation-delay:1.38s"/><line class="mesh" x1="636" y1="987" x2="811" y2="811" style="animation-delay:1.61s"/><line class="mesh" x1="433" y1="800" x2="811" y2="811" style="animation-delay:1.84s"/><line class="mesh" x1="433" y1="800" x2="714" y2="646" style="animation-delay:2.07s"/><line class="mesh" x1="811" y1="811" x2="714" y2="646" style="animation-delay:2.30s"/><line class="mesh" x1="811" y1="811" x2="941" y2="516" style="animation-delay:2.53s"/><line class="mesh" x1="714" y1="646" x2="941" y2="516" style="animation-delay:2.76s"/><line class="mesh" x1="489" y1="1119" x2="811" y2="811" style="animation-delay:2.99s"/></g><g transform="translate(166 1167) scale(0.95)"><g class="bob" style="animation-delay:-0.0s;animation-duration:5s">
+<polygon class="beam" points="-26,30 26,30 60,170 -60,170" style="animation-delay:0.0s"/>
+<path class="g" pathLength="1" style="animation-delay:0.00s" d="M-46,-6 C-46,-62 46,-62 46,-6"/>
+<path class="g" pathLength="1" style="animation-delay:0.30s" d="M-110,4 C-110,-18 110,-18 112,4 C112,26 -96,30 -110,4 C-114,-6 -60,-14 0,-14"/>
+<path class="g" pathLength="1" style="animation-delay:0.60s" d="M-58,16 C-58,4 58,4 58,16 C58,28 -58,28 -58,16"/>
+<path class="g" pathLength="1" style="animation-delay:0.50s" d="M-40,-30 C-20,-36 10,-36 30,-32"/>
+<g class="leg"><path d="M-40,24 L-46,40 M-52,40 L-40,40"/><path d="M0,28 L0,44 M-6,44 L6,44"/><path d="M40,24 L46,40 M40,40 L52,40"/></g>
+</g></g><g transform="translate(489 1099) scale(1.0)"><g class="bob" style="animation-delay:-0.9s;animation-duration:6s">
+<polygon class="beam" points="-26,30 26,30 60,170 -60,170" style="animation-delay:0.4s"/>
+<path class="g" pathLength="1" style="animation-delay:0.35s" d="M-46,-6 C-46,-62 46,-62 46,-6"/>
+<path class="g" pathLength="1" style="animation-delay:0.65s" d="M-110,4 C-110,-18 110,-18 112,4 C112,26 -96,30 -110,4 C-114,-6 -60,-14 0,-14"/>
+<path class="g" pathLength="1" style="animation-delay:0.95s" d="M-58,16 C-58,4 58,4 58,16 C58,28 -58,28 -58,16"/>
+<path class="g" pathLength="1" style="animation-delay:0.85s" d="M-40,-30 C-20,-36 10,-36 30,-32"/>
+<g class="leg"><path d="M-40,24 L-46,40 M-52,40 L-40,40"/><path d="M0,28 L0,44 M-6,44 L6,44"/><path d="M40,24 L46,40 M40,40 L52,40"/></g>
+</g></g><g transform="translate(636 967) scale(1.05)"><g class="bob" style="animation-delay:-1.8s;animation-duration:7s">
+<polygon class="beam" points="-26,30 26,30 60,170 -60,170" style="animation-delay:0.8s"/>
+<path class="g" pathLength="1" style="animation-delay:0.70s" d="M-46,-6 C-46,-62 46,-62 46,-6"/>
+<path class="g" pathLength="1" style="animation-delay:1.00s" d="M-110,4 C-110,-18 110,-18 112,4 C112,26 -96,30 -110,4 C-114,-6 -60,-14 0,-14"/>
+<path class="g" pathLength="1" style="animation-delay:1.30s" d="M-58,16 C-58,4 58,4 58,16 C58,28 -58,28 -58,16"/>
+<path class="g" pathLength="1" style="animation-delay:1.20s" d="M-40,-30 C-20,-36 10,-36 30,-32"/>
+<g class="leg"><path d="M-40,24 L-46,40 M-52,40 L-40,40"/><path d="M0,28 L0,44 M-6,44 L6,44"/><path d="M40,24 L46,40 M40,40 L52,40"/></g>
+</g></g><g transform="translate(433 780) scale(0.95)"><g class="bob" style="animation-delay:-2.7s;animation-duration:5s">
+<polygon class="beam" points="-26,30 26,30 60,170 -60,170" style="animation-delay:1.2s"/>
+<path class="g" pathLength="1" style="animation-delay:1.05s" d="M-46,-6 C-46,-62 46,-62 46,-6"/>
+<path class="g" pathLength="1" style="animation-delay:1.35s" d="M-110,4 C-110,-18 110,-18 112,4 C112,26 -96,30 -110,4 C-114,-6 -60,-14 0,-14"/>
+<path class="g" pathLength="1" style="animation-delay:1.65s" d="M-58,16 C-58,4 58,4 58,16 C58,28 -58,28 -58,16"/>
+<path class="g" pathLength="1" style="animation-delay:1.55s" d="M-40,-30 C-20,-36 10,-36 30,-32"/>
+<g class="leg"><path d="M-40,24 L-46,40 M-52,40 L-40,40"/><path d="M0,28 L0,44 M-6,44 L6,44"/><path d="M40,24 L46,40 M40,40 L52,40"/></g>
+</g></g><g transform="translate(811 791) scale(1.0)"><g class="bob" style="animation-delay:-3.6s;animation-duration:6s">
+<polygon class="beam" points="-26,30 26,30 60,170 -60,170" style="animation-delay:1.6s"/>
+<path class="g" pathLength="1" style="animation-delay:1.40s" d="M-46,-6 C-46,-62 46,-62 46,-6"/>
+<path class="g" pathLength="1" style="animation-delay:1.70s" d="M-110,4 C-110,-18 110,-18 112,4 C112,26 -96,30 -110,4 C-114,-6 -60,-14 0,-14"/>
+<path class="g" pathLength="1" style="animation-delay:2.00s" d="M-58,16 C-58,4 58,4 58,16 C58,28 -58,28 -58,16"/>
+<path class="g" pathLength="1" style="animation-delay:1.90s" d="M-40,-30 C-20,-36 10,-36 30,-32"/>
+<g class="leg"><path d="M-40,24 L-46,40 M-52,40 L-40,40"/><path d="M0,28 L0,44 M-6,44 L6,44"/><path d="M40,24 L46,40 M40,40 L52,40"/></g>
+</g></g><g transform="translate(714 626) scale(1.05)"><g class="bob" style="animation-delay:-4.5s;animation-duration:7s">
+<polygon class="beam" points="-26,30 26,30 60,170 -60,170" style="animation-delay:2.0s"/>
+<path class="g" pathLength="1" style="animation-delay:1.75s" d="M-46,-6 C-46,-62 46,-62 46,-6"/>
+<path class="g" pathLength="1" style="animation-delay:2.05s" d="M-110,4 C-110,-18 110,-18 112,4 C112,26 -96,30 -110,4 C-114,-6 -60,-14 0,-14"/>
+<path class="g" pathLength="1" style="animation-delay:2.35s" d="M-58,16 C-58,4 58,4 58,16 C58,28 -58,28 -58,16"/>
+<path class="g" pathLength="1" style="animation-delay:2.25s" d="M-40,-30 C-20,-36 10,-36 30,-32"/>
+<g class="leg"><path d="M-40,24 L-46,40 M-52,40 L-40,40"/><path d="M0,28 L0,44 M-6,44 L6,44"/><path d="M40,24 L46,40 M40,40 L52,40"/></g>
+</g></g><g transform="translate(941 496) scale(0.95)"><g class="bob" style="animation-delay:-5.4s;animation-duration:5s">
+<polygon class="beam" points="-26,30 26,30 60,170 -60,170" style="animation-delay:2.4s"/>
+<path class="g" pathLength="1" style="animation-delay:2.10s" d="M-46,-6 C-46,-62 46,-62 46,-6"/>
+<path class="g" pathLength="1" style="animation-delay:2.40s" d="M-110,4 C-110,-18 110,-18 112,4 C112,26 -96,30 -110,4 C-114,-6 -60,-14 0,-14"/>
+<path class="g" pathLength="1" style="animation-delay:2.70s" d="M-58,16 C-58,4 58,4 58,16 C58,28 -58,28 -58,16"/>
+<path class="g" pathLength="1" style="animation-delay:2.60s" d="M-40,-30 C-20,-36 10,-36 30,-32"/>
+<g class="leg"><path d="M-40,24 L-46,40 M-52,40 L-40,40"/><path d="M0,28 L0,44 M-6,44 L6,44"/><path d="M40,24 L46,40 M40,40 L52,40"/></g>
+</g></g>
+<text class="m rise" x="540" y="1505" text-anchor="middle" font-size="80" font-weight="700" textLength="900" lengthAdjust="spacingAndGlyphs" style="animation-delay:3s"><tspan fill="#B4FF2E">&gt;_</tspan><tspan fill="#D4AF37">æ^æ://</tspan><tspan fill="#00EAFF">#opc</tspan></text>
+<text class="m rise" x="540" y="1590" text-anchor="middle" font-size="40" fill="#9aa0b8" style="animation-delay:3.4s">一人公司 · #ioa · #internetofagents</text>
+<path class="ground" pathLength="1" d="M0,1832 C180,1830 380,1826 470,1820 C510,1800 540,1796 560,1812 C600,1826 720,1822 820,1818 C860,1810 880,1812 900,1820 C960,1828 1020,1830 1080,1830"/>
+<text class="m rise" x="50" y="1890" font-size="30" fill="#8f94aa" style="animation-delay:3.8s">Yael Mendez · Sovereign private client command prompt <tspan fill="#B4FF2E">&gt;<tspan class="cur">_</tspan></tspan></text>
+</g><rect width="1080" height="1920" fill="url(#vig)" pointer-events="none"/>
+</svg>
+<div id="tick"><div class="ln g1"></div><div class="tx"><span>欢迎来到一人公司 · 超级个体 · 一个人 + 一群智能体 = 一家公司 · ONE-PERSON COMPANY · OPC · 让智能体为你工作 · 人类批准，智能体执行 · Make something agents want. · #opc · #ioa · #internetofagents · #startabusiness · Cli in, llc out · NOUS PORTAL · HARK PRO · &gt;_æ^æ:// · 🛸🛸🛸🛸🛸🛸🛸 · WELCOME · BIENVENIDOS · 歡迎 · 欢迎 · </span><span>欢迎来到一人公司 · 超级个体 · 一个人 + 一群智能体 = 一家公司 · ONE-PERSON COMPANY · OPC · 让智能体为你工作 · 人类批准，智能体执行 · Make something agents want. · #opc · #ioa · #internetofagents · #startabusiness · Cli in, llc out · NOUS PORTAL · HARK PRO · &gt;_æ^æ:// · 🛸🛸🛸🛸🛸🛸🛸 · WELCOME · BIENVENIDOS · 歡迎 · 欢迎 · </span></div><div class="ln c1"></div></div>
+<div id="core"><div class="sym"><b class="p">&gt;_</b><b class="a">æ</b><b class="c">:</b><i class="cur2">▌</i></div><div class="opc">一人公司 · OPC 门户</div><div class="sub" id="hi">Sovereign private client · $go</div><div class="tri" id="tri"></div><nav id="btns"></nav><a id="claim" href="claim/" style="display:block;margin:8px auto 0;width:86%;box-sizing:border-box;text-align:center;padding:12px;border-radius:12px;border:1px solid #E8423F;color:#E8423F;font:800 13px/1.2 'JetBrains Mono',monospace;text-decoration:none"></a><div class="disc" id="disc"></div><div class="langs" id="langs"></div></div>
+</div><script>
+var S=document.getElementById('stage'),P=[{"label": "#startabusiness", "sub": "Forma tu LLC con doola · Cli in, llc out", "url": "https://partnersps.doola.com/hhsoqhb23250", "color": "gold"}, {"label": "Nous Portal", "sub": "Hermes · modelos abiertos", "url": "https://portal.nousresearch.com/r/opensource", "color": "cyan"}, {"label": "Hark Pro", "sub": "Cómo usar Hark Pro · Diplomado", "url": "https://lutheraninstitute.github.io/diplomado-agentico/clases/m1-s2/", "color": "lime"}];
+var I={"zh": ["欢迎，超级个体。一个人，一群智能体，一家公司。", "注册美国 LLC（doola）· Cli in, llc out", "Hermes · 开放模型", "如何使用 Hark Pro · 课程", "含联盟与推荐链接", "你：唯一的负责人", "智能体：你的团队", "智能体提议，你来批准", "④ 认领你的一人公司地址 →"], "tw": ["歡迎，超級個體。一個人，一群智能體，一家公司。", "註冊美國 LLC（doola）· Cli in, llc out", "Hermes · 開放模型", "如何使用 Hark Pro · 課程", "含聯盟與推薦連結", "你：唯一的負責人", "智能體：你的團隊", "智能體提議，你來批准", "④ 認領你的一人公司地址 →"], "en": ["Welcome, super-individual. One person, many agents, one company.", "Form a US LLC with doola · Cli in, llc out", "Hermes · open models", "How to use Hark Pro · class", "Affiliate & referral links", "You: the one principal", "Agents: your team", "Agents propose, you approve", "④ Claim your one-person company address →"], "es": ["Bienvenido, superindividuo. Una persona, muchos agentes, una empresa.", "Forma tu LLC en EE. UU. con doola · Cli in, llc out", "Hermes · modelos abiertos", "Cómo usar Hark Pro · clase", "Enlaces de afiliado y referidos", "Tú: el único principal", "Agentes: tu equipo", "Los agentes proponen, tú apruebas", "④ Reclama tu dirección de empresa →"]},K=Object.keys(I);
+function pick(){var s=localStorage.opcL;if(s&&I[s])return s;var n=(navigator.languages||[navigator.language||'en']);for(var i=0;i<n.length;i++){var f=(n[i]||'').toLowerCase();if(/^zh-(tw|hk|mo)|hant/.test(f))return 'tw';var c=f.slice(0,2);if(I[c])return c}return 'zh'}
+function draw(l){var t=I[l];document.documentElement.lang=l==='tw'?'zh-Hant':l;
+document.getElementById('hi').textContent=t[0];document.getElementById('hi').dir=l==='ar'?'rtl':'ltr';
+document.getElementById('btns').innerHTML=P.map(function(p,i){return '<a class="'+p.color+'" target="_blank" rel="noopener sponsored" href="'+p.url+'" style="transition-delay:'+(1.9+i*.25)+'s">'+p.label+'<small dir="'+(l==='ar'?'rtl':'ltr')+'">'+t[i+1]+'</small></a>'}).join('');
+document.getElementById('disc').textContent=t[4];document.getElementById('claim').textContent=t[8];document.getElementById('tri').innerHTML=[5,6,7].map(function(k,j){return '<span class="c'+j+'">'+t[k]+'</span>'}).join('');
+document.getElementById('langs').innerHTML=K.map(function(k){return '<button data-l="'+k+'" class="'+(k===l?'on':'')+'">'+k.toUpperCase()+'</button>'}).join('')}
+document.getElementById('langs').onclick=function(e){var l=e.target.dataset.l;if(l){localStorage.opcL=l;draw(l)}};
+draw(pick());
+setTimeout(function(){S.classList.add('collapsed')},matchMedia('(prefers-reduced-motion:reduce)').matches?300:8200);
+</script></body></html>

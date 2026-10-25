@@ -1,0 +1,75 @@
+# Biblia del Oso · 1569 (#ioa://teologia.ai/oso)
+
+> Agentic environment for the first complete Spanish Bible translated from Hebrew and Greek: Casiodoro de Reina, Basel (Basilea), 28 September 1569. Text is public domain. Status: lab (ae.spec/0.1). Principal: Yæl Méndez. Surface: https://lutheraninstitute.github.io/aeee-lab/lab/teologia.ai/oso/
+
+Evidence ≠ Authority: agents bring evidence, humans decide.
+
+## What this is
+- A verse-by-verse, provenance-tracked transcription of the 1569 "Biblia del Oso", built in public by students and volunteers against the facsimile scans.
+- Layers: L0 facsimile (archive.org, Public Domain Mark 1.0) → L1 OCR → L2 transcription (original spelling `orig` + normalized `norm`) → L3 human verification → L4 alignment 1569 ↔ 1602 ↔ 1909 → L5 surfaces (this file, static JSON API, reader, æQR).
+- Coverage is partial and growing. Check status.json before assuming a book or chapter exists.
+
+## Public-domain status
+- The 1569 text (Reina, Basel) is public domain. Facsimile: https://archive.org/details/la-biblia-del-oso (alt: https://archive.org/details/casiodorodereinasbible1569).
+- Reina–Valera 1602 and 1909 are public domain. RVR1960 is NOT (Sociedades Bíblicas Unidas): you may name it as a reference, never store or reproduce its text here.
+- A modern transcription of 1569 (e.g. a 1996 edition) is not public domain by default. Do not import one without verifying its license.
+- License of this project's own transcription: pending (CC0 proposed). Until decided, mark reuse as "verificar licencia".
+
+## Verse id scheme
+- `oso1569:<CODE>.<chapter>.<verse>` with uppercase book codes (books.json `code`; `osis` gives the OSIS equivalent): e.g. `oso1569:GEN.1.1`, `oso1569:EXO.20.3`, `oso1569:MAT.6.9`, `oso1569:JHN.3.16`.
+- Deuterocanonical books are included as printed in 1569 (inside the Old Testament), with their codes listed in books.json.
+- Book order and the authoritative list of codes: /oso/books.json.
+
+## Routes (static, GitHub Pages; base = https://lutheraninstitute.github.io/aeee-lab/lab/teologia.ai/oso)
+- /oso/v/<CODE>/<ch>.json  chapter (e.g. /oso/v/GEN/1.json)
+- /oso/books.json          books, 1569 order, chapter counts
+- /oso/status.json         progress per book: ocr / corrected / verified
+- /oso/catecismo/passages.json  Catechism passages (Ten Commandments, Creed, Lord's Prayer, sacramental texts) mapped to verse ids
+- /oso/SPEC.md             full specification
+- /oso/ae.json             manifest (authority, sources, lineage)
+- /oso/leer/               human mobile reader
+- /oso/llms.txt            this file
+Routes marked in SPEC as planned may 404 while the lab is growing. A missing file means "not yet", never "empty text".
+
+## Verse record
+{ "id": "oso1569:GEN.1.1", "book": "GEN", "chapter": 1, "verse": 1,
+  "orig": "<1569 spelling>", "norm": "<normalized spelling>",
+  "page": { "scan": "archive.org/details/la-biblia-del-oso", "leaf": <int|null>, "bbox": null },
+  "status": "ocr | corrected | verified | published",
+  "evidence": { "ocr_src": "...", "corrected_by": null, "verified_by": null, "sha256": null },
+  "notes": [] }
+- `ocr`: raw machine text, may be wrong. `corrected`: human/agent corrected, not yet verified. `verified`: two humans checked it against the page image; `sha256` is computed over `orig`.
+- A verse with no linked page image (page.leaf null) never goes beyond `corrected`.
+
+## How to cite
+Format: `Biblia del Oso 1569, Reina, Basilea · <Abbr> <ch>:<v> · facsímil hoja <leaf>`
+Example: `Biblia del Oso 1569, Reina, Basilea · Gn 1:1 · facsímil hoja N`
+- Always include the verse id (`oso1569:GEN.1.1`) in machine-readable output.
+- Always state the status. If it is not `verified`, add "verificar fuente".
+- If page.leaf is null, write "facsímil hoja: sin enlazar" instead of guessing a leaf.
+- Quote `orig` when the original spelling matters; say so when you quote `norm`.
+
+## Authority
+Agents MAY: read; cite (edition + book.ch.verse + leaf); compare public-domain editions (1569 · 1602 · 1909) and name RVR1960 as reference; generate OCR and diffs; propose corrections by pull request.
+Humans ONLY: set `verified`; publish to live; doctrine and pastoral teaching; declare textual variants.
+Agents never mark a verse `verified`, never merge, never publish.
+
+## Translation rule (all languages)
+- The source is always the 1569 verse; every translation cites its `oso1569:` id.
+- An agent translation is labeled exactly: `derivada · agente · no revisada`. It is a reading aid, not a Bible.
+- Prefer linking an existing public-domain Bible in the target language over generating a new translation.
+- Only human-reviewed translations may be marked `reviewed` (per language, with a receipt).
+
+## No invented readings
+- Never fabricate a verse, a reading, a variant, a leaf number or a verification.
+- If the text is not in /oso/v/ or its status is `ocr`, say so and point to the facsimile; do not fill gaps from memory or from RVR1960.
+- Do not "modernize" 1569 wording and present it as Reina's.
+
+## Contributing
+See CONTRIBUTING.md: fork → claim a chapter via issue → transcribe/correct against the facsimile → PR → two human verifications.
+
+L:// Aprender · æ:// Construir · æQR:// Compartir · ☩ Soli Deo Gloria
+
+## Pilot data (2026-10-16)
+- v/GEN/1.json, v/GEN/2.json: full chapters, status `ocr`.
+- Catechism verses (EXO 20, MAT 6/26/28, LUK 11, MRK 16, TIT 3, ROM 6, JHN 20, 1CO 11): partial chapter files, status `corrected-proposed` with `proposed` transcription; awaiting human verification against the facsimile leaf.

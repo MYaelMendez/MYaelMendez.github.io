@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Instant POS · æQR</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<style>
+:root{--paper:#F4EFE4;--ink:#111;--blue:#2C64B4;--green:#2E8B57;--red:#C0392B;--amber:#D99A00;--y:#F2C94C}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 ui-monospace,Menlo,monospace}
+main{max-width:560px;margin:0 auto;padding:20px 18px 60px}
+.strip{background:var(--ink);color:var(--paper);font-size:11px;letter-spacing:.08em;padding:6px 12px;text-align:center}
+h1{font:900 34px/1 system-ui,sans-serif;text-transform:uppercase;letter-spacing:-1px;margin:18px 0 4px}
+h2{font:800 18px/1.1 system-ui,sans-serif;text-transform:uppercase;margin:26px 0 8px}
+.stack{display:inline-flex;flex-direction:column;gap:2px;vertical-align:middle;margin-right:8px}.stack i{width:10px;height:10px;display:block}
+.mut{color:#555}.card{border:1px solid var(--ink);padding:14px;margin:12px 0;background:#FBF8F1}
+label{display:block;font-size:12px;text-transform:uppercase;margin:10px 0 4px}
+input,textarea,select{width:100%;font:inherit;padding:10px;border:1.5px solid var(--ink);background:#fff}
+textarea{min-height:110px}
+button{font:700 14px system-ui,sans-serif;text-transform:uppercase;padding:12px 16px;border:2px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer;margin:10px 8px 0 0}
+button.ghost{background:transparent;color:var(--ink)}
+pre{white-space:pre-wrap;word-break:break-all;font-size:11px;max-height:240px;overflow:auto;background:#fff;border:1px solid #ccc;padding:8px}
+.ok{color:var(--green);font-weight:700}.no{color:var(--red);font-weight:700}.pend{color:var(--amber);font-weight:700;animation:p 1.2s infinite}
+@keyframes p{50%{opacity:.35}}
+#qr canvas{width:100%;max-width:300px;image-rendering:pixelated;border:1px solid var(--ink);background:#fff;padding:8px}
+.row{display:flex;justify-content:space-between;align-items:center;border-bottom:1px dashed #bbb;padding:8px 0}
+.row button{margin:0;padding:6px 10px}
+.badge{display:inline-block;border:1.5px solid var(--blue);color:var(--blue);padding:2px 8px;font-size:12px}
+@media print{.noprint,.strip{display:none}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="strip">LAB · SIMULACIÓN · DINERO DE PAPEL · NO ES UN PROCESADOR DE PAGOS</div>
+<main id="app"></main>
+<script>
+const $=s=>document.querySelector(s), app=$('#app');
+const b64u={enc:s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),
+  dec:s=>decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/'))))};
+const slug=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40)||'negocio';
+const money=n=>'$'+n.toFixed(2);
+async function sha(t){const h=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return[...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,'0')).join('')}
+const head=(t,s)=>`<h1><span class="stack"><i style="background:var(--y)"></i><i style="background:var(--blue)"></i><i style="background:var(--green)"></i></span>${t}</h1><p class="mut">${s}</p>`;
+
+function parseMenu(txt){return txt.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const m=l.match(/^(.*?)[\s\-–:·]*\$?\s*(\d+(?:[.,]\d{1,2})?)\s*$/);return m?{name:m[1].trim(),price:+m[2].replace(',','.')}:null}).filter(x=>x&&x.name&&x.price>0)}
+
+function manifest(name,kind,city,items,owner,plan,ads){const id=slug(name);return{
+  viewport:{ads:ads||[],modes:['phone','tv']},
+  plan:plan==='ae1'?{tier:'æ1',monthly_usd:19,fee_pct:'tbd',note:'suggested, not validated'}:{tier:'æ0',monthly_usd:0,fee_pct:'tbd',note:'free + per-sale fee via processor'},
+  schema:'ae.manifest/0.1',id:`instant-pos/${id}`,name,status:'lab',
+  address:`x0:y0:z0:æ1 · æ://pos/${id}`,surface:'instant-pos',
+  context:{kind,city},
+  capabilities:{menu:items.map(i=>({name:i.name,price_usd:i.price}))},
+  checkout:{mode:'real',processor:'mock (paper) · processor tbd',custody:'processor holds funds'},
+  authority:{agents_may:['resolve','read','verify','checkout.create'],human_only:['checkout.pay','refund.issue','publish','socio.grant']},
+  provenance:{generator:'lab/instant-pos',principal:owner?{provider:'linkedin (simulado)',sub:owner.sub,name:owner.name}:'merchant',created:new Date().toISOString()}}}
+
+// ---------- MAKE MODE ----------
+let me=JSON.parse(sessionStorage.getItem('ipos-me')||'null');
+function signin(){
+  app.innerHTML=head('Instant POS','¿Tienes LinkedIn? Bienvenido. Sales con tu tienda æQR.')+`
+  <div class="card">
+   <button id="li" style="background:#0A66C2;border-color:#0A66C2;width:100%" onclick="liForm()">in · Sign in with LinkedIn</button>
+   <p class="mut">Simulación del LAB. La versión real usa LinkedIn OIDC (openid profile email) con el secreto en el servidor, en auth.privateclient.ai.</p>
+   <div id="lf"></div></div>
+   <p class="mut">LinkedIn prueba quién eres (æ0). Publicar tu tienda es æ1. Cobrar dinero real requiere registrarte con un procesador de pagos; nosotros nunca custodiamos fondos.</p>`;
+}
+function liForm(){$('#lf').innerHTML=`<label>Nombre (como en LinkedIn)</label><input id="ln" placeholder="María López">
+  <label>Correo (solo se queda en esta sesión, nunca entra al æQR)</label><input id="le" placeholder="maria@ejemplo.com">
+  <button onclick="liOk()">Permitir · openid profile email</button>`}
+async function liOk(){const name=$('#ln').value.trim();if(!name)return;
+  const sub='sim-'+(await sha('linkedin:'+name.toLowerCase()+':'+($('#le').value||''))).slice(0,12);
+  me={name,sub,provider:'linkedin (simulado)'};sessionStorage.setItem('ipos-me',JSON.stringify(me));make()}
+function signout(){me=null;sessionStorage.removeItem('ipos-me');signin()}
+function make(){
+  if(!me)return signin();
+  app.innerHTML=head('Instant POS','Nombre + menú → manifiesto + æQR + cobro. Abierto en dos minutos.')+`
+  <p class="noprint"><span class="badge" style="border-color:#0A66C2;color:#0A66C2">in · ${me.name} · ${me.sub}</span> <a href="#" onclick="signout();return false" class="mut">salir</a></p>
+  <div class="card noprint">
+   <label>Nombre del negocio</label><input id="n" value="${(me.name.split(' ')[0]||'Mi')}'s Shop">
+   <label>Tipo</label><input id="k" value="taco truck">
+   <label>Ciudad</label><input id="c" value="Donna, TX">
+   <label>Anuncios para la pantalla · una línea cada uno (opcional)</label>
+   <textarea id="ad" style="min-height:70px">Martes 2x1 en al pastor
+Pide desde tu teléfono · escanea el æQR</textarea>
+   <label>Plan</label><select id="pl"><option value="ae0">æ0 · Libre · solo comisión por venta (por definir)</option><option value="ae1">æ1 · $19/mes (sugerido) · comisión por definir</option></select>
+   <label>Menú · una línea por producto: nombre precio</label>
+   <textarea id="m">Al pastor 2.50
+Barbacoa 3.00
+Quesadilla 6.00
+Horchata 3.50</textarea>
+   <button onclick="gen()">Generar æQR</button>
+  </div><div id="out"></div>
+  <h2>Directorio</h2><p class="mut">Publicar es human_only: abre un issue público y el steward lo aprueba. Ningún agente publica solo.</p><div id="dir"></div>`;
+  fetch('registry.json').then(r=>r.json()).then(d=>{$('#dir').innerHTML=d.shops.map(x=>`<div class="row"><span>${x.name}<br><span class="mut">${x.kind} · ${x.city} · ${x.status}</span></span><a href="${x.url}" target="_blank"><button class="ghost">abrir</button></a></div>`).join('')||'<p class="mut">vacío</p>'}).catch(()=>{});
+}
+function publish(name,url){const body=`Tienda: ${name}\nURL æQR: ${url}\n\nSolicito publicar esta tienda en el directorio de Instant POS (LAB). Entiendo que es una simulación con dinero de papel.`;
+  window.open('https://github.com/LutheranInstitute/aeee-lab/issues/new?labels=instant-pos-shop&title='+encodeURIComponent('instant-pos: '+name)+'&body='+encodeURIComponent(body),'_blank')}
+async function gen(){
+  const items=parseMenu($('#m').value); if(!items.length){$('#out').innerHTML='<p class="no">✗ menú vacío</p>';return}
+  const man=manifest($('#n').value.trim()||'Mi negocio',$('#k').value.trim(),$('#c').value.trim(),items,me,$('#pl').value);
+  const compact={n:man.name,k:man.context.kind,c:man.context.city,i:items.map(x=>[x.name,x.price]),o:me.name,p:me.sub,pl:$('#pl').value,a:$('#ad').value.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,6)};
+  const url=location.origin+location.pathname+'?m='+b64u.enc(JSON.stringify(compact));
+  const tvurl=url+'&view=tv';const qr=qrcode(0,'M');qr.addData(url,'Byte');qr.make();
+  const cell=6,size=qr.getModuleCount()*cell+cell*8,cv=document.createElement('canvas');cv.width=cv.height=size;
+  const g=cv.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,size,size);g.fillStyle='#111';
+  for(let r=0;r<qr.getModuleCount();r++)for(let c=0;c<qr.getModuleCount();c++)if(qr.isDark(r,c))g.fillRect(c*cell+cell*4,r*cell+cell*4,cell,cell);
+  const img=g.getImageData(0,0,size,size),dec=jsQR(img.data,size,size);
+  const pass=dec&&dec.data===url;
+  $('#out').innerHTML=`<h2>æQR · ${man.name}</h2><div id="qr"></div>
+   <p>${pass?'<span class="ok">✓ verificado</span> · decodificado de vuelta, bytes idénticos (jsQR)':'<span class="no">✗ no verificado</span> · el decodificador no coincide'}</p>
+   <p class="mut">El æQR lleva solo nombre, tipo, ciudad y menú; la tienda reconstruye el ae.json completo. Gate de producción: cv2 + pyzbar deben coincidir. Aquí: una sola verificación en el navegador.</p>
+   <p class="badge">${man.address}</p>
+   <div class="noprint"><button onclick="window.print()">Imprimir</button><a href="${url}" target="_blank"><button class="ghost">Abrir tienda</button></a><a href="${tvurl}" target="_blank"><button class="ghost">Viewport TV</button></a><button class="ghost" onclick="publish(${JSON.stringify(man.name).replace(/"/g,'&quot;')},'${url}')">Publicar en el directorio</button><button class="ghost" onclick='dl(${JSON.stringify(JSON.stringify(man,null,2))})'>Descargar ae.json</button></div>
+   <h2 class="noprint">ae.json</h2><pre class="noprint">${JSON.stringify(man,null,2).replace(/</g,'&lt;')}</pre>`;
+  $('#qr').appendChild(cv);
+  $('#qr').insertAdjacentHTML('afterend','<h2>Viewport æQR · para la pantalla</h2><p class="mut">Escanéalo con el teléfono y envíalo a la TV, o abre el enlace en el navegador de la smart TV. La pantalla muestra el menú, los anuncios y el æQR para pedir.</p><div id="tvqr"></div>');
+  $('#tvqr').appendChild(qrCanvas(tvurl,4));
+}
+function dl(t){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'application/json'}));a.download='ae.json';a.click()}
+
+function qrCanvas(text,cell){const q=qrcode(0,'M');q.addData(text,'Byte');q.make();const n=q.getModuleCount(),size=n*cell+cell*8,cv=document.createElement('canvas');cv.width=cv.height=size;const g=cv.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,size,size);g.fillStyle='#111';for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))g.fillRect(c*cell+cell*4,r*cell+cell*4,cell,cell);return cv}
+// ---------- VIEWPORT (TV) ----------
+function tv(){
+  document.querySelector('.strip').style.display='none';
+  const it=man.capabilities.menu,ads=(man.viewport&&man.viewport.ads)||[];
+  const order=location.origin+location.pathname+'?m='+new URLSearchParams(location.search).get('m');
+  document.body.style.cssText='margin:0;background:#111;color:#F4EFE4;overflow:hidden';
+  app.style.cssText='max-width:none;padding:0';
+  app.innerHTML=`<div style="height:100vh;display:grid;grid-template-columns:1.6fr 1fr;grid-template-rows:auto 1fr auto;gap:2vw;padding:3vw;box-sizing:border-box">
+   <div style="grid-column:1/3;display:flex;align-items:center;gap:1.5vw"><span style="display:flex;flex-direction:column;gap:.3vw">${['#F2C94C','#2C64B4','#2E8B57'].map(c=>`<i style="width:1.4vw;height:1.4vw;background:${c};display:block"></i>`).join('')}</span>
+     <span style="font:900 6vw/1 system-ui,sans-serif;text-transform:uppercase;letter-spacing:-.15vw">${man.name}</span><span style="margin-left:auto;font-size:1.4vw;opacity:.7">${man.context.kind||''} · ${man.context.city||''}</span></div>
+   <div id="tvmenu" style="font-size:3vw;line-height:1.25">${it.map((i,k)=>`<div id="tvi${k}" style="display:flex;justify-content:space-between;border-bottom:.15vw dashed #555;padding:.9vw 0;transition:all .4s"><span>${i.name}</span><b>${money(i.price_usd)}</b></div>`).join('')}</div>
+   <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1vw"><div id="tvq"></div><div style="font:800 2.2vw system-ui,sans-serif;text-transform:uppercase">Escanea para pedir</div><div style="font-size:1.2vw;opacity:.7">agentes preparan · tú apruebas</div></div>
+   <div id="tvad" style="grid-column:1/3;background:#F2C94C;color:#111;font:900 3.4vw/1.1 system-ui,sans-serif;text-transform:uppercase;padding:1.5vw 2vw;min-height:5vw;transition:opacity .5s">${ads[0]||'>_æ: pide desde tu teléfono'}</div></div>`;
+  const cv=qrCanvas(order,8);cv.style.cssText='width:24vw;max-width:46vh;image-rendering:pixelated;background:#fff;padding:1vw';$('#tvq').appendChild(cv);
+  let k=0,a=0;setInterval(()=>{it.forEach((_,j)=>{const e=$('#tvi'+j);e.style.color=j===k?'#F2C94C':'';e.style.paddingLeft=j===k?'1.2vw':'0'});k=(k+1)%it.length},3000);
+  if(ads.length>1)setInterval(()=>{const e=$('#tvad');e.style.opacity=0;setTimeout(()=>{a=(a+1)%ads.length;e.textContent=ads[a];e.style.opacity=1},500)},7000);
+  document.addEventListener('click',()=>document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen().catch(()=>{}),{once:true});
+}
+// ---------- STORE MODE ----------
+let man,cart={},preview=null,socio=null;
+const KEY=()=> 'ipos-chain-'+man.id;
+const chain=()=>JSON.parse(localStorage.getItem(KEY())||'[]');
+async function witness(ev){const{socio_token:_t,...ev0}=ev,c=chain(),prev=c.at(-1)?.hash||'GENESIS',body={...ev0,at:new Date().toISOString(),prev};const r={...body,hash:await sha(JSON.stringify(body))};c.push(r);localStorage.setItem(KEY(),JSON.stringify(c));await mirror(ev);return r}
+const SERVER=/(^|\.)privateclient\.ai$/.test(location.hostname);
+async function mirror(ev){if(!SERVER||!man)return;try{await fetch('/pos/api/witness',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({shop:man.id,ev})})}catch(e){}}
+async function serverLine(){if(!SERVER||!man)return'';try{const d=await (await fetch('/pos/api/chain?shop='+encodeURIComponent(man.id))).json();return` · <span class="${d.intact?'ok':'no'}">servidor node^0 ${d.intact?'✓':'✗'} ${d.count}</span>`}catch(e){return' · <span class="no">servidor sin conexión</span>'}}
+function store(){
+  const it=man.capabilities.menu;
+  const pr=man.provenance.principal;
+  app.innerHTML=head(man.name,`${man.context.kind||''} · ${man.context.city||''}`)+`<p class="badge">${man.address}</p>${pr&&pr.sub?` <p class="badge" style="border-color:#0A66C2;color:#0A66C2">in · dueño: ${pr.name} · ${pr.sub}</p>`:''}
+  <div id="ag"></div>
+  <div class="card">${it.map((i,k)=>`<div class="row"><span>${i.name}<br><span class="mut">${money(i.price_usd)}</span></span><span><button class="ghost" onclick="add(${k},-1)">−</button> <b id="q${k}">0</b> <button onclick="add(${k},1)">+</button></span></div>`).join('')}
+  <p>Total: <b id="tot">$0.00</b></p>
+  <button onclick="prep()">Agente: preparar cobro</button></div>
+  <div id="sb"></div>
+  <div id="pv"></div><h2>Recibos</h2><div id="rc"></div>
+  <details><summary>Socios en misión · solo el dueño de la tienda</summary>
+   <p class="mut">La tienda emite un æQR por socio. El socio vende; la tienda envía y sigue siendo el vendedor; el recibo divide la comisión. Emitir es human_only (æ2).</p>
+   <label>Nombre del socio</label><input id="sn" value="Iglesia (muestra)">
+   <label>Comisión %</label><input id="sr" type="number" value="10" min="1" max="50">
+   <label>Vigencia (días)</label><input id="sd" type="number" value="90" min="1" max="365">
+   <button class="ghost" onclick="grantSocio(false)">Agente intenta emitir</button> <button onclick="grantSocio(true)">Emitir æQR de socio (dueño)</button>
+   <div id="pk"></div><div id="so"></div></details>
+  <p class="mut">Escanear nunca da permiso. Agentes preparan; solo un humano paga. El procesador custodia los fondos. Plan ${man.plan?man.plan.tier:'æ0'}.</p>
+  <details><summary>Vista de agente · lo que lee cualquier agente</summary><pre>${JSON.stringify({ae:man,jsonld:ld()},null,2).replace(/</g,'&lt;')}</pre></details>`;
+  loadSocio();ownerUI();
+  ['ld','ae'].forEach(k=>{const el=document.createElement('script');el.type=k==='ld'?'application/ld+json':'application/ae+json';el.id='agent-'+k;el.textContent=JSON.stringify(k==='ld'?ld():man);document.head.appendChild(el)});
+  rc();
+}
+function ld(){const k=(man.context.kind||'').toLowerCase(),t=/libr|book|biblia/.test(k)?'BookStore':/food|truck|taco|ceviche|comida|restaur|café|cafe/.test(k)?'FoodEstablishment':'Store';return{'@context':'https://schema.org','@type':t,name:man.name,address:man.context.city,...(t==='FoodEstablishment'?{servesCuisine:man.context.kind}:{description:man.context.kind}),
+  [t==='FoodEstablishment'?'hasMenu':'hasOfferCatalog']:{'@type':t==='FoodEstablishment'?'Menu':'OfferCatalog',[t==='FoodEstablishment'?'hasMenuItem':'itemListElement']:man.capabilities.menu.map(i=>({'@type':t==='FoodEstablishment'?'MenuItem':'Product',name:i.name,offers:{'@type':'Offer',price:i.price_usd.toFixed(2),priceCurrency:'USD'}}))},
+  potentialAction:{'@type':'OrderAction',description:'Agents may prepare (checkout.create). Only the human buyer may pay (checkout.pay, human_only).'}}}
+const base=()=>location.origin+location.pathname+'?m='+new URLSearchParams(location.search).get('m');
+async function socioHash(t){return(await sha([man.id,t.n,t.r,t.x].join('|'))).slice(0,16)}
+async function grantSocio(human){
+  if(!human){await witness({type:'refused',action:'socio.grant',reason:'socio.grant is human_only (æ2)'});$('#so').innerHTML='<p class="no">✗ socio.grant es human_only</p>';return rc()}
+  const t={n:$('#sn').value.trim()||'Socio',r:Math.min(50,Math.max(1,+$('#sr').value||10)),x:Date.now()+(+$('#sd').value||90)*864e5};
+  let url,note;
+  if(SERVER){
+    try{const g=await passkeyGrant({n:t.n,r:t.r,d:+$('#sd').value||90});t.x=g.grant.x;t.r=g.grant.r;url=base()+'&s='+g.token;note='Firmado con tu passkey en node^0 · el servidor verifica cada comisión.'}
+    catch(e){$('#so').innerHTML=`<p class="no">✗ ${e.message||e}</p>`;return rc()}
+  }else{
+    t.h=await socioHash(t);url=base()+'&s='+b64u.enc(JSON.stringify(t));
+    await witness({type:'socio.grant',by:'owner',authority:'æ2',socio:t.n,rate_pct:t.r,expires:new Date(t.x).toISOString(),grant:t.h});
+    note='Firma simulada (hash). En privateclient.ai/pos la firma la hace la passkey del dueño.'}
+  $('#so').innerHTML=`<p class="ok">✓ ${t.n} · ${t.r}% · vence ${new Date(t.x).toLocaleDateString()}</p><div id="sq"></div><p><a href="${url}" target="_blank"><button class="ghost">Abrir tienda del socio</button></a></p><p class="mut">${note}</p>`;
+  const cv=qrCanvas(url,4);cv.style.maxWidth='100%';$('#sq').appendChild(cv);rc();
+}
+const B=x=>Uint8Array.from(atob(x.replace(/-/g,'+').replace(/_/g,'/')+'==='.slice((x.length+3)%4)),c=>c.charCodeAt(0));
+const E=b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+async function api(p,d){const r=await fetch('/pos/api/'+p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({shop:man.id,...d})});const j=await r.json();if(!r.ok&&j.error)throw new Error(j.error);return j}
+async function ownerUI(){if(!SERVER)return;const el=$('#pk');try{const d=await (await fetch('/pos/api/owner?shop='+encodeURIComponent(man.id))).json();
+  const en=new URLSearchParams(location.search).get('enroll');
+  if(d.passkey)el.innerHTML='<p class="ok">🔐 passkey del dueño activa · emitir pide tu huella o Face ID</p>';
+  else if(en)el.innerHTML='<p>Esta tienda aún no tiene dueño con passkey.</p><button onclick="enroll()">🔐 Registrar mi passkey de dueño</button>';
+  else el.innerHTML='<p class="no">Sin passkey de dueño · emitir está cerrado</p>'}catch(e){}}
+async function enroll(){const en=new URLSearchParams(location.search).get('enroll');try{
+  const c=await api('passkey/begin',{kind:'reg',enroll:en});
+  const cr=await navigator.credentials.create({publicKey:{challenge:B(c.challenge),rp:{id:c.rpId,name:'PrivateClient pc://pos'},user:{id:new TextEncoder().encode(man.id),name:man.name+' · dueño',displayName:man.name+' · dueño'},pubKeyCredParams:[{type:'public-key',alg:-7}],authenticatorSelection:{userVerification:'required',residentKey:'preferred'},attestation:'none'}});
+  await api('passkey/register',{enroll:en,clientDataJSON:E(cr.response.clientDataJSON),attestationObject:E(cr.response.attestationObject)});
+  history.replaceState(null,'',base());$('#pk').innerHTML='<p class="ok">🔐 passkey registrada · ya eres el dueño en node^0</p>';rc()}catch(e){$('#pk').insertAdjacentHTML('beforeend',`<p class="no">✗ ${e.message||e}</p>`)}}
+async function passkeyGrant(grant){
+  const c=await api('passkey/begin',{kind:'get'});
+  const a=await navigator.credentials.get({publicKey:{challenge:B(c.challenge),rpId:c.rpId,allowCredentials:[{type:'public-key',id:B(c.credId)}],userVerification:'required'}});
+  return api('socio/grant',{credId:E(a.rawId),clientDataJSON:E(a.response.clientDataJSON),authenticatorData:E(a.response.authenticatorData),signature:E(a.response.signature),grant})}
+async function loadSocio(){
+  const sp=new URLSearchParams(location.search).get('s');if(!sp)return;
+  if(SERVER&&sp.includes('.')){
+    try{const d=await api('socio/verify',{token:sp});
+      if(!d.ok){$('#sb').innerHTML=`<p class="no">✗ socio inválido · ${d.reason} · la venta sigue sin comisión</p>`;return rc()}
+      socio={n:d.grant.n,r:d.grant.r,h:d.grant.gid,x:d.grant.x,tok:sp};
+      $('#sb').innerHTML=`<div class="card" style="border-color:#2E8B57"><p class="ok">✓ Socio en misión: <b>${socio.n}</b> · ${socio.r}% · firmado con passkey · la tienda envía y es el vendedor</p></div>`;return}
+    catch(e){$('#sb').innerHTML='<p class="no">✗ servidor sin conexión · venta sin comisión</p>';return}}
+  let t;try{t=JSON.parse(b64u.dec(sp))}catch(e){t=null}
+  const bad=async why=>{await witness({type:'refused',action:'socio.attach',reason:why});$('#sb').innerHTML=`<p class="no">✗ socio inválido · ${why} · la venta sigue sin comisión</p>`;rc()};
+  if(!t)return bad('malformed');
+  if(await socioHash(t)!==t.h)return bad('grant_mismatch');
+  if(Date.now()>t.x)return bad('expired');
+  socio=t;$('#sb').innerHTML=`<div class="card" style="border-color:#2E8B57"><p class="ok">✓ Socio en misión: <b>${t.n}</b> · ${t.r}% · la tienda envía y es el vendedor</p></div>`;
+}
+function total(){return man.capabilities.menu.reduce((s,i,k)=>s+(cart[k]||0)*i.price_usd,0)}
+function add(k,d){cart[k]=Math.max(0,(cart[k]||0)+d);$('#q'+k).textContent=cart[k];$('#tot').textContent=money(total());preview=null;$('#pv').innerHTML=''}
+async function prep(){
+  const t=+total().toFixed(2);if(!t){$('#pv').innerHTML='<p class="no">✗ carrito vacío</p>';return}
+  const lines=man.capabilities.menu.map((i,k)=>cart[k]?{item:i.name,qty:cart[k],price:i.price_usd}:null).filter(Boolean);
+  preview={id:crypto.randomUUID(),lines,total:t,expires:Date.now()+120000,used:false};
+  await witness({type:'checkout.create',by:'agent',authority:'æ0',total:t});
+  $('#pv').innerHTML=`<div class="card"><p class="pend">● esperando al comprador</p>${lines.map(l=>`${l.qty} × ${l.item}`).join('<br>')}<p>Total <b>${money(t)}</b> · procesador: mock</p>
+  <button onclick="pay(false)" class="ghost">Agente intenta pagar</button><button onclick="pay(true)">Aprobar pago (humano)</button></div>`;rc();
+}
+async function pay(human){
+  if(!preview)return;
+  if(!human){await witness({type:'refused',action:'checkout.pay',reason:'checkout.pay is human_only'});$('#pv').insertAdjacentHTML('beforeend','<p class="no">✗ checkout.pay es human_only</p>');return rc()}
+  if(preview.used){await witness({type:'refused',action:'checkout.pay',reason:'single_use'});$('#pv').insertAdjacentHTML('beforeend','<p class="no">✗ single_use</p>');return rc()}
+  if(Date.now()>preview.expires){await witness({type:'refused',action:'checkout.pay',reason:'expired'});$('#pv').insertAdjacentHTML('beforeend','<p class="no">✗ expirado</p>');return rc()}
+  preview.used=true;
+  const split=socio?{socio:socio.n,grant:socio.h,rate_pct:socio.r,socio_usd:+(preview.total*socio.r/100).toFixed(2),store_usd:+(preview.total*(1-socio.r/100)).toFixed(2)}:null;
+  const r=await witness({type:'checkout.pay',by:'buyer',authority:'æ2',lines:preview.lines,total:preview.total,processor:'mock',custody:'processor',...(split?{split,...(socio.tok?{socio_token:socio.tok}:{})}:{})});
+  const cents=v=>Math.round(v*100);
+  const acp={id:'cs_'+preview.id.slice(0,12),status:'completed',currency:'usd',line_items:preview.lines.map((l,i)=>({id:'li_'+i,item:{id:slug(l.item),quantity:l.qty},base_amount:cents(l.price*l.qty),total:cents(l.price*l.qty)})),totals:[{type:'total',display_text:'Total',amount:cents(preview.total)}],payment_provider:{provider:'mock'}};
+  const ap2={mode:'human_present',payment_mandate:{payment_mandate_contents:{payment_mandate_id:preview.id,payment_details_total:{label:'Total',amount:{currency:'USD',value:preview.total}},merchant_agent:man.id,timestamp:r.at},user_authorization:'witness:'+r.hash}};
+  $('#pv').innerHTML=`<div class="card"><p class="ok">✓ pagado · ${money(preview.total)}</p><p class="mut">recibo ${r.hash.slice(0,16)}…</p>${split?`<p>Tienda ${money(split.store_usd)} · ${split.socio} ${money(split.socio_usd)} (${split.rate_pct}%)</p>`:''}
+   <details><summary>Puente de protocolos · con la forma de ACP y AP2 (no certificado)</summary><p class="mut">ACP · checkout session</p><pre>${JSON.stringify(acp,null,2)}</pre><p class="mut">AP2 · mandato con humano presente; la autorización es el recibo Witness</p><pre>${JSON.stringify(ap2,null,2)}</pre></details></div>`;
+  cart={};man.capabilities.menu.forEach((_,k)=>$('#q'+k).textContent=0);$('#tot').textContent='$0.00';rc();
+}
+async function verify(){let prev='GENESIS';for(const r of chain()){const{hash,...b}=r;if(b.prev!==prev||await sha(JSON.stringify(b))!==hash)return'<span class="no">✗ cadena rota</span>';prev=hash}return`<span class="ok">✓ cadena íntegra · ${chain().length}</span>`}
+async function rc(){const c=chain();$('#rc').innerHTML=(c.length?c.slice().reverse().map(r=>`<div class="row"><span>${r.type} · ${r.total!=null?money(r.total):r.reason||r.socio||''}${r.split?` · socio ${money(r.split.socio_usd)}`:''}</span><span class="mut">${r.hash.slice(0,10)}</span></div>`).join(''):'<p class="mut">sin recibos</p>')+`<p>${await verify()}${await serverLine()}</p>`}
+
+const m=new URLSearchParams(location.search).get('m');
+// ---------- 🤖 AGENTE DE MOSTRADOR (lab) ----------
+// La llave nunca vive en este código: se pide a pc://key (privateclient.ai). El dueño aprueba con Face ID/huella,
+// su teléfono la re-cifra solo para la llave efímera de esta pestaña. Vive en memoria; nunca en localStorage.
+// El agente solo prepara (checkout.create). Pagar sigue siendo human_only.
+const PCK='https://privateclient.ai/key/api/agent/request';let AG={key:null,until:0,rid:null,kp:null,pub:null};
+const eS=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const b64e=b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const b64d=s=>Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')+'==='.slice((s.length+3)%4)),c=>c.charCodeAt(0));
+function agentUI(){const live=AG.key&&Date.now()<AG.until;
+  $('#ag').innerHTML=`<div class="card" style="border-color:#111"><b>🤖 Agente de mostrador</b> <span class="mut">· ${live?'<span class="ok">despierto · '+Math.ceil((AG.until-Date.now())/60000)+' min</span>':'dormido'}</span>
+  <label class="mut">Dile qué buscas</label><input id="agq" placeholder="p. ej. una Biblia para regalar y una tarjeta" onkeydown="if(event.key==='Enter')askAgent()">
+  <button onclick="askAgent()">${live?'Preparar pedido':'Preguntar (simulado)'}</button> ${live?'':`<button class="ghost" onclick="wakeAgent()">Despertar con huella del dueño</button>`}
+  <div id="agw"></div><div id="agr"></div>
+  <p class="mut">El agente prepara; tú pagas. La llave se pide a pc://key y el dueño la libera con su huella. Sin llave, el agente es una simulación.</p></div>`}
+async function wakeAgent(){try{
+  AG.kp=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},false,['deriveBits']);AG.pub=await crypto.subtle.exportKey('raw',AG.kp.publicKey);
+  const r=await (await fetch(PCK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({agent:'Mostrador '+man.name.slice(0,28),name:'OPENAI_API_KEY',purpose:'agente de mostrador · '+man.name.slice(0,60),ttl:3600,pub:b64e(AG.pub)})})).json();
+  if(!r.ok)throw new Error(r.error||'pc://key');AG.rid=r.id;
+  $('#agw').innerHTML=`<div class="card"><p class="pend">● esperando al dueño · llave ${eS(r.key)}</p><img src="${r.qr}" alt="æQR para aprobar" style="width:180px;max-width:60%"><p class="mut">El dueño escanea con su teléfono (Chrome/Safari), desbloquea y firma. <a href="${r.approve_url}" target="_blank" rel="noopener">abrir aprobación</a></p></div>`;
+  await witness({type:'secret.request',by:'agent',name:'OPENAI_API_KEY',key:r.key});rc();pollAgent()}catch(e){$('#agw').innerHTML=`<p class="no">✗ ${eS(e.message||e)}</p>`}}
+async function pollAgent(){const t0=Date.now();while(Date.now()-t0<900000){await new Promise(z=>setTimeout(z,3000));
+  let d;try{d=await (await fetch(PCK+'?id='+AG.rid)).json()}catch(e){continue}
+  if(d.status==='denied'||d.status==='gone'||d.status==='delivered'&&!d.release){$('#agw').innerHTML='<p class="no">✗ no liberada ('+eS(d.status)+')</p>';return}
+  if(d.release){const R=d.release;const epk=await crypto.subtle.importKey('raw',b64d(R.epk),{name:'ECDH',namedCurve:'P-256'},false,[]);
+    const bits=await crypto.subtle.deriveBits({name:'ECDH',public:epk},AG.kp.privateKey,256);const base=await crypto.subtle.importKey('raw',bits,'HKDF',false,['deriveKey']);
+    const k=await crypto.subtle.deriveKey({name:'HKDF',hash:'SHA-256',salt:new TextEncoder().encode('privateclient.ai'),info:new TextEncoder().encode('secret release v1:'+AG.rid)},base,{name:'AES-GCM',length:256},false,['decrypt']);
+    AG.key=new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:b64d(R.iv),additionalData:new TextEncoder().encode('release:'+AG.rid+':OPENAI_API_KEY')},k,b64d(R.ct)));
+    AG.kp=null;AG.until=Date.now()+3600000;setTimeout(()=>{AG.key=null;agentUI()},3600000);
+    await witness({type:'secret.received',by:'agent',name:'OPENAI_API_KEY',ttl:3600});agentUI();$('#agw').innerHTML='<p class="ok">✓ despierto · firmado por el dueño · 60 min en memoria</p>';rc();return}}}
+function simAgent(q){const m=man.capabilities.menu,w=q.toLowerCase(),lines=[];
+  m.forEach((i,k)=>{const toks=i.name.toLowerCase().split(/[^a-záéíóúñü0-9]+/).filter(t=>t.length>3);if(toks.some(t=>w.includes(t)))lines.push({k,qty:(w.match(new RegExp('(\\d+)\\s*'+toks[0]))||[])[1]|0||1})});
+  return {lines,reply:lines.length?'(simulado) Te preparé lo que encontré en el menú.':'(simulado) No encontré eso en el menú. Prueba con un nombre del menú o despierta al agente.'}}
+async function askAgent(){const q=($('#agq').value||'').trim().slice(0,300);if(!q)return;$('#agr').innerHTML='<p class="pend">● pensando…</p>';
+  let out,real=AG.key&&Date.now()<AG.until;
+  try{if(real){const menu=man.capabilities.menu.map((i,k)=>({k,name:i.name,price_usd:i.price_usd}));
+    const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+AG.key},body:JSON.stringify({model:'gpt-4o-mini',temperature:0.2,max_tokens:300,response_format:{type:'json_object'},messages:[
+      {role:'system',content:'Eres el agente de mostrador de '+man.name+'. Solo puedes PREPARAR pedidos con artículos del menú (por k). Nunca cobras ni inventas artículos o precios. Responde JSON {"lines":[{"k":0,"qty":1}],"reply":"una frase cálida en español"}. Menú: '+JSON.stringify(menu)},
+      {role:'user',content:q}]})});
+    const d=await r.json();if(!r.ok)throw new Error(d.error&&d.error.message||r.status);out=JSON.parse(d.choices[0].message.content)}
+   else out=simAgent(q)}catch(e){$('#agr').innerHTML=`<p class="no">✗ ${eS(e.message||e)}</p>`;return}
+  const n=man.capabilities.menu.length;cart={};man.capabilities.menu.forEach((_,k)=>$('#q'+k).textContent=0);
+  (out.lines||[]).forEach(l=>{const k=l.k|0,qty=Math.min(20,Math.max(0,l.qty|0));if(k>=0&&k<n&&qty)cart[k]=(cart[k]||0)+qty});
+  Object.keys(cart).forEach(k=>$('#q'+k).textContent=cart[k]);$('#tot').textContent=money(total());
+  $('#agr').innerHTML=`<p>${real?'🤖':'🧪'} ${eS(out.reply||'')}</p>`;
+  await witness({type:'agent.suggest',by:'agent',real:!!real,items:Object.keys(cart).length});if(total())await prep();else rc()}
+
+if(m){try{const x=JSON.parse(b64u.dec(m));man=x.schema?x:manifest(x.n,x.k,x.c,x.i.map(([name,price])=>({name,price})),x.o?{name:x.o,sub:x.p}:null,x.pl,x.a);if(new URLSearchParams(location.search).get('view')==='tv'){tv();throw 'tv'}store();agentUI()}catch(e){if(e==='tv'){}else app.innerHTML='<p class="no">✗ manifiesto inválido</p>'}}else make();
+</script>
+</body>
+</html>

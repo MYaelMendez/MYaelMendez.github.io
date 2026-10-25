@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>æQR · PC:// LAB</title>
+<style>
+:root{--bg:#000;--ink:#e9f6f7;--dim:#7d9a9e;--c:#00f3ff;--line:#12383b;--ok:#3ee08f;--no:#ff6b6b}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+body{background-image:linear-gradient(rgba(0,243,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,243,255,.05) 1px,transparent 1px);background-size:40px 40px}
+main{max-width:620px;margin:0 auto;padding:20px 16px 64px}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--dim)}
+.top a{color:var(--ink);font-size:15px;font-weight:700;text-decoration:none}
+.tag{border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:11px;letter-spacing:.08em;color:var(--c)}
+h1{font-size:30px;line-height:1.15;margin:22px 0 6px}
+h2{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--c);margin:40px 0 12px;font-family:ui-monospace,Menlo,monospace}
+p.lead{color:var(--dim);margin:0}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:18px;font:13px ui-monospace,Menlo,monospace}
+.flow span{border:1px solid var(--line);border-radius:10px;padding:6px 10px}.flow i{color:var(--c);font-style:normal}
+.flow span.h{border-color:var(--c)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:520px){.two{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:rgba(3,16,18,.85)}
+.card b{display:block;margin-bottom:4px}.card p{margin:0;color:var(--dim);font-size:14px}
+.is b{color:var(--ok)}.isnt b{color:var(--no)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td{border-top:1px solid var(--line);padding:8px 6px;vertical-align:top}td:first-child{font-family:ui-monospace,Menlo,monospace;color:var(--c);white-space:nowrap}
+td:last-child{color:var(--dim)}
+.rule{display:grid;grid-template-columns:34px 1fr;gap:10px;margin-bottom:12px}
+.rule .n{font:700 22px ui-monospace,Menlo,monospace;color:var(--c)}
+.rule b{display:block}.rule p{margin:2px 0 0;color:var(--dim);font-size:14px}
+pre{white-space:pre-wrap;font-size:12px;color:var(--dim);border:1px dashed var(--line);border-radius:12px;padding:12px;margin:0}
+.now{border:1px solid var(--c);border-radius:18px;padding:16px;background:rgba(0,10,12,.7)}
+.now p{margin:0 0 10px;color:var(--dim);font-size:14px}
+.btn{display:inline-block;min-height:44px;line-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--c);color:var(--ink);text-decoration:none;font:600 14px system-ui,sans-serif;margin:4px 6px 0 0}
+footer{margin-top:44px;font-size:12px;color:var(--dim);text-align:center}footer a{color:var(--c)}
+</style></head>
+<body><main>
+<div class="top"><a class="mono" href="../">&gt;_PrivateClient</a><span class="tag mono">LAB · æQR</span></div>
+
+<h1>A QR is an address, not permission.</h1>
+<p class="lead">One discovery layer across many resources, without making every resource public. Integrity is proven by decoding the artifact back. Authority stays with the human.</p>
+<div class="flow"><span>scan</span><i>→</i><span>resolve</span><i>→</i><span>verify</span><i>→</i><span class="h">request authority</span><i>→</i><span>act</span></div>
+
+<h2>Now on every card</h2>
+<div class="now">
+ <p>Every Private Client card carries an æQR in its corner. People who scan it land on the receipt with a word check; agents get an ae.manifest with authority set to human only.</p>
+ <a class="btn" href="https://privateclient.ai/r/43f0b38325ed">Scan target: a real receipt</a><a class="btn" href="https://privateclient.ai/labs">pc://labs/</a>
+</div>
+
+<h2>What it is · what it isn't</h2>
+<div class="two">
+ <div class="card is"><b>It is</b><p>A registry of stable resource IDs → canonical routes + scope. A produce-and-verify gate with two real decoders. A deterministic audit → snapshot → compare → repair queue. An explicit, default-deny authority model.</p></div>
+ <div class="card isnt"><b>It isn't</b><p>A permission system. A renderer that trusts its own bytes. A claim that a fix landed. An implicit grant from scanning. A category placeholder pretending to be resolution.</p></div>
+</div>
+
+<h2>The two load-bearing rules</h2>
+<div class="rule"><span class="n">1</span><div><b>A QR that has not been decoded back is not a QR. It is a picture of one.</b><p>The gate decodes through two independent decoders. The rune magic æ: encodes fine and fails on scan, so transport magic is ASCII (ae:) and the æ identity lives in the payload.</p></div></div>
+<div class="rule"><span class="n">2</span><div><b>Scanning never grants execution.</b><p>resolve, read and verify are open. publish, execute and merge need an explicit, scoped capability. Planning a repair ("ready") is not proving it ("verified").</p></div></div>
+
+<h2>The pieces · ae/</h2>
+<table>
+ <tr><td>envelope.py</td><td>typed transport ae:1:&lt;type&gt;:&lt;b64url(json)&gt;, 8 types</td></tr>
+ <tr><td>supervision.py</td><td>spec → render → supervise → receipt or refuse; 9 measurable checks; cv2 and pyzbar must agree</td></tr>
+ <tr><td>registry.py</td><td>stable IDs → canonical routes + scope (public, local, private, hybrid)</td></tr>
+ <tr><td>orchard.py</td><td>audit → snapshot → compare → repair queue; planning ≠ verification</td></tr>
+ <tr><td>authority.py</td><td>scanning never grants execution; gated actions need a capability</td></tr>
+ <tr><td>cli.py</td><td>one command surface</td></tr>
+</table>
+
+<h2>Use</h2>
+<pre class="mono">aeqr registry --category threejs_scenes
+aeqr resolve html-surfaces-teologia-index
+# produce a QR only if it decodes back through two real decoders
+python -m ae.supervision produce secret '{"name":"K"}' --out k.png
+python -m ae.supervision selftest      # proves it REFUSES the rune class
+aeqr authority publish --id teologia-index   # denied
+aeqr authority read --id teologia-index      # allowed</pre>
+
+<h2>Scope model</h2>
+<table>
+ <tr><td>public</td><td>HTTPS route (pages, scenes, videos)</td></tr>
+ <tr><td>local</td><td>ae://local/… (agents, configs, logs, kanban)</td></tr>
+ <tr><td>hybrid</td><td>public surface, local runtime (widgets)</td></tr>
+ <tr><td>receipt</td><td>privateclient.ai/r/&lt;rid&gt;: public proof, no name, no email</td></tr>
+</table>
+
+<footer class="mono">source: <a href="https://github.com/MYaelMendez/aeqr">MYaelMendez/aeqr</a> · MIT · #opensourceware<br><a href="../">PC:// LAB</a></footer>
+</main></body></html>

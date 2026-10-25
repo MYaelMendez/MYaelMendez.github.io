@@ -1,0 +1,39 @@
+-- mæchlæng · #Authority · æ0–æ3 as a Mech state machine
+-- RUNS on the real Mech runtime (mech-wasm, reports Version 0.3.5), vendored in runtime/.
+-- Mech: mech-lang.org · Corey Montella · Apache-2.0 · beta. mæchlæng is not affiliated with Mech.
+-- Evidence ≠ Authority. Many agents. One principal. Human stays root.
+
+<authority> := :æ0 | :æ1 | :æ2 | :æ3
+<verdict> := :granted | :evidence
+
+agents := {"hark-pro", "hermes", "codex"}
+principal := "yæl"
+
+-- ⟦inputs⟧ the page rewrites these four lines on every Δ input, then re-runs the whole program
+agent := "hark-pro"
+req := 3u8
+pk := false
+wr := false
+-- ⟦/inputs⟧
+
+#Authority(req<u8>, pk<bool>, wr<bool>) ⇒ <verdict>
+  ├ :Context(req<u8>, pk<bool>, wr<bool>)
+  ├ :Evidence(req<u8>, pk<bool>, wr<bool>)
+  ├ :Waiting(req<u8>)
+  └ :Granted(level<u8>).
+
+#Authority(req, pk, wr) → :Context(req, pk, wr)
+  -- æ0 public, æ1 published: an agent may · æ2 operator, æ3 custody: needs the principal
+  :Context(r, pk, wr)
+    ├ r < 2u8 → :Granted(r)
+    └ r > 1u8 → :Evidence(r, pk, wr)
+  -- guard: principal passkey + Witness receipt; otherwise wait (no agent grants æ2/æ3)
+  :Evidence(r, pk, wr)
+    ├ pk && wr → :Granted(r)
+    └ * → :Waiting(r)
+  :Waiting(r) ⇒ :evidence
+  :Granted(l) ⇒ :granted.
+
+state := #Authority(req, pk, wr)
+out := {state: state, hi: req > 1u8, guard: pk && wr, known: agent ∈ agents}
+out

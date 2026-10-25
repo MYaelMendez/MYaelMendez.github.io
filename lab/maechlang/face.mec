@@ -1,0 +1,35 @@
+-- mæchlæng · #Face · Asimov face moods as a Mech state machine
+-- Same rules as LutheranInstitute/Robot (branch ae-face) ae/face.py · read-only · robot authority æ1.
+-- RUNS on the real Mech runtime (mech-wasm, reports Version 0.3.5), vendored in runtime/.
+-- Mech: mech-lang.org · Corey Montella · Apache-2.0 · beta. mæchlæng is not affiliated with Mech.
+-- Rules run top to bottom, so safety wins.
+
+<mood> := :hold | :lost | :tired | :sleep | :think | :ready | :work
+
+-- ⟦inputs⟧ the page rewrites these five lines on every Δ input, then re-runs the whole program
+md := "STAND"
+ar := false
+ft := false
+ag := 0.05
+sc := 80.0
+-- ⟦/inputs⟧
+
+#Face(md<string>, ar<bool>, ft<bool>, ag<f64>, sc<f64>) ⇒ <mood>
+  ├ :Read(md<string>, ar<bool>, ft<bool>, ag<f64>, sc<f64>)
+  └ :Show(m<mood>).
+
+#Face(md, ar, ft, ag, sc) → :Read(md, ar, ft, ag, sc)
+  -- first match wins: fault latched > no fresh state > battery low > mode; unknown mode ⇒ :lost
+  :Read(md, ar, ft, ag, sc)
+    ├ ft ∨ md ⩵ "FAULT_DAMP" → :Show(:hold)
+    ├ ag > 0.5 → :Show(:lost)
+    ├ sc < 20.0 → :Show(:tired)
+    ├ md ⩵ "DAMP" → :Show(:sleep)
+    ├ md ⩵ "STAND" && ¬ar → :Show(:think)
+    ├ md ⩵ "STAND" && ar → :Show(:ready)
+    ├ md ⩵ "MOVE" → :Show(:work)
+    └ * → :Show(:lost)
+  :Show(m) ⇒ m.
+
+mood := #Face(md, ar, ft, ag, sc)
+mood

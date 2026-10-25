@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#05060a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>æ æ æ · Asimov face · LAB</title>
+<meta name="description" content="æ æ æ: the face of the Asimov 1 robot. Reads ae.face/0.1, never controls the robot. LAB · #osw #ioa">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#05060a;--line:#D4AF37;--cy:#39e6ff;--hot:#ff3b6b;--txt:#ece6d2;--grid:rgba(57,230,255,.07);--glow:drop-shadow(0 0 6px rgba(212,175,55,.55)) drop-shadow(0 0 18px rgba(212,175,55,.25));--panel:rgba(5,6,10,.86);--bd:rgba(212,175,55,.45)}
+body[data-t=y],body[data-t=b],body[data-t=g]{--bg:#f4efe3;--line:#111;--txt:#111;--grid:rgba(17,17,17,.07);--glow:none;--panel:rgba(244,239,227,.94);--bd:#111;--hot:#d6202f}
+body[data-t=y]{--cy:#f2c230}body[data-t=b]{--cy:#2a5bd7}body[data-t=g]{--cy:#2e9e5b}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--txt);font:13px/1.4 "JetBrains Mono",ui-monospace,Menlo,monospace;-webkit-tap-highlight-color:transparent;user-select:none;transition:background .6s,color .6s}
+#bg{position:fixed;inset:0;pointer-events:none;background:linear-gradient(var(--grid) 1px,transparent 1px) 0 0/28px 28px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/28px 28px}
+#bg{background:
+ radial-gradient(60vmax 40vmax at 30% 40%,color-mix(in srgb,var(--line) 12%,transparent),transparent 70%),
+ radial-gradient(50vmax 40vmax at 90% 0%,color-mix(in srgb,var(--cy) 10%,transparent),transparent 70%),
+ linear-gradient(var(--grid) 1px,transparent 1px) 0 0/28px 28px,
+ linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/28px 28px}
+#bg::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(57,230,255,.025) 3px 4px)}
+body[data-t=y] #bg::after,body[data-t=b] #bg::after,body[data-t=g] #bg::after{display:none}
+
+#stage{position:fixed;inset:0 0 44px 0;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);align-items:center;padding:3vh 3vw 0}
+#faceWrap{display:grid;place-items:center;height:100%;min-height:0}
+#face{height:min(calc(100dvh - 70px),58vw);width:auto;max-width:100%;overflow:visible}
+#word{padding:0 2vw;min-width:0}
+@media (orientation:portrait){#stage{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;padding:7vh 4vw 2vh}#face{height:auto;width:min(92vw,62dvh)}#word{text-align:center;padding-bottom:1vh}}
+
+.lab{display:inline-block;border:1px solid var(--bd);color:var(--line);padding:2px 8px;font:700 11px/1.4 Orbitron,sans-serif;letter-spacing:.2em}
+#mw{font:900 clamp(44px,8.6vw,150px)/.95 Orbitron,"Arial Narrow",Impact,sans-serif;margin:.18em 0 .12em;color:var(--line);letter-spacing:.02em;white-space:nowrap;filter:var(--glow)}
+body[data-mood=hold] #mw{color:var(--hot)}
+#mw .ch{display:inline-block;will-change:transform}
+#means{font-size:clamp(13px,1.7vw,19px);margin:0;color:var(--txt);opacity:.9}
+#means b{color:var(--cy);font-weight:700}
+#srcline{margin-top:1.1em;color:var(--cy);font-size:12px;opacity:.85;white-space:pre-wrap}
+@media (orientation:portrait){#mw{font-size:clamp(44px,15vw,120px)}}
+
+/* the one line */
+#line{fill:none;stroke:var(--line);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;filter:var(--glow)}
+#line.draw{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 2.6s cubic-bezier(.6,.05,.25,1) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.split{fill:none;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+#pup circle{fill:var(--cy);filter:drop-shadow(0 0 6px var(--cy))}
+.pp{transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.crown{font:900 24px Orbitron,sans-serif;fill:var(--line);text-anchor:middle}
+svg *{transform-box:view-box}
+#rig,#rig *{transform-origin:200px 230px}
+
+/* overlays: shown by mood */
+.ov{opacity:0;transition:opacity .5s}
+body[data-mood=hold] .ov-hold,body[data-mood=lost] .ov-lost,body[data-mood=tired] .ov-tired,body[data-mood=sleep] .ov-sleep,body[data-mood=think] .ov-think,body[data-mood=ready] .ov-ready,body[data-mood=work] .ov-work{opacity:1}
+.ov text{font-family:Orbitron,sans-serif}
+.cyf{fill:var(--cy)}.cys{stroke:var(--cy);fill:none}.hotf{fill:var(--hot)}.lnf{fill:var(--line)}.lns{stroke:var(--line);fill:none}
+
+/* ── kinetic: motion = state ── */
+/* ready: breathe + halo + crown wave */
+body[data-mood=ready] #rig{animation:breathe 3.6s ease-in-out infinite}
+@keyframes breathe{50%{transform:scale(1.014)}}
+.ov-ready .halo{transform-origin:200px 230px;animation:halo 3.6s ease-in-out infinite}
+@keyframes halo{50%{transform:scale(1.03);opacity:.55}}
+body[data-mood=ready] .crown{animation:wave 2.4s ease-in-out infinite;animation-delay:calc(var(--i)*.18s)}
+@keyframes wave{30%{transform:translateY(-7px)}60%{transform:none}}
+body[data-mood=ready] #mw .ch{animation:lift 2.4s ease-in-out infinite;animation-delay:calc(var(--i)*.09s)}
+@keyframes lift{25%{transform:translateY(-.12em)}50%{transform:none}}
+body[data-mood=ready] .pm{animation:sacc 7s steps(1) infinite}
+@keyframes sacc{0%{transform:none}40%{transform:translate(3px,-1px)}62%{transform:translate(-2px,1px)}80%{transform:none}}
+
+/* work: bob + scan bar + marching crown + tracking pupils */
+body[data-mood=work] #rig{animation:bob .9s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px)}}
+.ov-work .bar{animation:scan 1.8s cubic-bezier(.45,0,.55,1) infinite alternate}
+@keyframes scan{from{transform:translateY(-110px)}to{transform:translateY(130px)}}
+.ov-work .tick{animation:march .6s linear infinite}
+@keyframes march{to{transform:translateX(30px)}}
+body[data-mood=work] .crown{animation:flash .9s steps(1) infinite;animation-delay:calc(var(--i)*.3s)}
+@keyframes flash{0%{fill:var(--cy)}33%{fill:var(--line)}}
+body[data-mood=work] #mw .ch{animation:push .9s ease-in-out infinite;animation-delay:calc(var(--i)*.06s)}
+@keyframes push{50%{transform:translateX(.06em) skewX(-8deg)}}
+body[data-mood=work] .pm{animation:track 1.1s ease-in-out infinite alternate}
+@keyframes track{from{transform:translateX(-7px)}to{transform:translateX(8px)}}
+
+/* think: tilt + orbiting dots + typing crown + pupils drift up */
+body[data-mood=think] #rig{animation:tilt 5s ease-in-out infinite}
+@keyframes tilt{0%,100%{transform:rotate(-1.6deg)}50%{transform:rotate(1.2deg)}}
+.ov-think circle{animation:dot 1.4s ease-in-out infinite;animation-delay:calc(var(--i)*.22s)}
+@keyframes dot{0%,100%{opacity:.2;transform:translateY(0)}40%{opacity:1;transform:translateY(-6px)}}
+body[data-mood=think] .crown{animation:type 1.8s steps(1) infinite;animation-delay:calc(var(--i)*.3s)}
+@keyframes type{0%{opacity:.25}30%{opacity:1}}
+body[data-mood=think] #mw .ch{animation:type 1.8s steps(1) infinite;animation-delay:calc(var(--i)*.15s)}
+body[data-mood=think] .pm{animation:muse 4.5s ease-in-out infinite}
+@keyframes muse{0%,100%{transform:none}50%{transform:translate(3px,-3px)}}
+
+/* lost: sway + radar sweep + scanning pupils + scattered letters */
+body[data-mood=lost] #rig{animation:sway 2.6s ease-in-out infinite}
+@keyframes sway{50%{transform:translateX(5px) rotate(.8deg)}}
+.ov-lost .sweep{transform-origin:200px 230px;animation:spin 2.2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+body[data-mood=lost] .pm{animation:search 1.7s ease-in-out infinite alternate}
+@keyframes search{from{transform:translateX(-13px)}to{transform:translateX(13px)}}
+body[data-mood=lost] .crown{animation:jit 1.3s ease-in-out infinite;animation-delay:calc(var(--i)*-.4s)}
+@keyframes jit{25%{transform:translate(-3px,2px)}50%{transform:translate(2px,-3px);opacity:.4}75%{transform:translate(3px,1px)}}
+body[data-mood=lost] #mw .ch{animation:jit 1.6s ease-in-out infinite;animation-delay:calc(var(--i)*-.27s)}
+.ov-lost .q{animation:type 1.2s steps(1) infinite}
+
+/* tired: sag + battery blink + drooping letters */
+body[data-mood=tired] #rig{animation:sag 6s ease-in-out infinite}
+@keyframes sag{50%{transform:translateY(5px) rotate(.8deg)}}
+.ov-tired .cell{animation:type 1.2s steps(1) infinite}
+body[data-mood=tired] .crown{opacity:.55;animation:droop 6s ease-in-out infinite;animation-delay:calc(var(--i)*.4s)}
+@keyframes droop{50%{transform:translateY(4px) rotate(4deg)}}
+body[data-mood=tired] #mw .ch{animation:droop 6s ease-in-out infinite;animation-delay:calc(var(--i)*.25s)}
+body[data-mood=tired] .pm{transform:translateY(2px)}
+
+/* sleep: slow breath + zzz drift + dim crown */
+body[data-mood=sleep] #rig{animation:breathe2 7s ease-in-out infinite}
+@keyframes breathe2{50%{transform:scale(1.025)}}
+.ov-sleep text{animation:zzz 4.2s ease-in infinite;animation-delay:calc(var(--i)*1.4s);opacity:0}
+@keyframes zzz{0%{opacity:0;transform:translate(0,0) scale(.6)}20%{opacity:.9}100%{opacity:0;transform:translate(14px,-40px) scale(1.2)}}
+body[data-mood=sleep] .crown{opacity:.35;animation:glow 7s ease-in-out infinite}
+@keyframes glow{50%{opacity:.75}}
+body[data-mood=sleep] #mw .ch{animation:float 7s ease-in-out infinite;animation-delay:calc(var(--i)*.5s);opacity:.7}
+@keyframes float{50%{transform:translateY(-.1em);opacity:.4}}
+
+/* hold: glitch. RGB split, slice flicker, jitter */
+body[data-mood=hold] #rig{animation:glitch 2.2s steps(1) infinite}
+@keyframes glitch{0%,100%{transform:none}8%{transform:translate(-4px,1px) skewX(4deg)}10%{transform:translate(3px,-2px)}12%{transform:none}55%{transform:translateX(5px) skewX(-6deg)}57%{transform:none}}
+body[data-mood=hold] .split{opacity:.6;animation:splitj .35s steps(2) infinite}
+body[data-mood=hold] .split.b{animation-direction:reverse}
+@keyframes splitj{0%{transform:translate(-5px,1px)}50%{transform:translate(4px,-2px)}100%{transform:translate(-2px,2px)}}
+.ov-hold rect{animation:slice 1.1s steps(1) infinite;animation-delay:calc(var(--i)*-.37s)}
+@keyframes slice{0%{opacity:0}20%{opacity:.8;transform:translateX(30px)}40%{opacity:0}70%{opacity:.6;transform:translateX(-40px)}}
+body[data-mood=hold] .crown{fill:var(--hot);animation:jit .4s steps(2) infinite}
+body[data-mood=hold] #mw .ch{animation:glitchch .8s steps(1) infinite;animation-delay:calc(var(--i)*-.13s)}
+@keyframes glitchch{0%{transform:none;text-shadow:none}30%{transform:translate(-.04em,.02em) skewX(12deg);text-shadow:-.05em 0 var(--cy),.05em 0 #f0f}60%{transform:none}}
+
+/* chrome */
+#ctl{position:fixed;top:max(10px,env(safe-area-inset-top));right:10px;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:min(92vw,560px);z-index:5;transition:opacity .5s}
+#ctl button,.sw{font:700 12px "JetBrains Mono",monospace;color:var(--txt);background:var(--panel);border:1px solid var(--bd);padding:7px 10px;cursor:pointer;border-radius:2px;min-height:34px}
+#ctl button.on{background:var(--line);color:var(--bg)}
+.sw{width:34px;padding:0;font-size:15px}
+#moods{display:flex;gap:4px}
+#moods button{padding:7px 7px}
+body.idle #ctl,body.idle #tl{opacity:0;pointer-events:none}
+#tl{position:fixed;top:max(12px,env(safe-area-inset-top));left:12px;z-index:5;transition:opacity .5s;color:var(--cy);font-size:12px}
+#tl .lab{margin-right:8px}
+
+footer{position:fixed;left:0;right:0;bottom:0;height:44px;padding:0 12px max(0px,env(safe-area-inset-bottom));display:flex;align-items:center;gap:14px;border-top:1px solid var(--bd);background:var(--panel);font-size:12px;white-space:nowrap;overflow:hidden}
+footer .m{font:900 13px Orbitron,sans-serif;color:var(--line)}
+footer .means{overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1 1 auto;opacity:.85}
+footer .bat{display:flex;align-items:center;gap:6px}
+footer .bat i{display:block;width:34px;height:12px;border:1px solid var(--bd);position:relative}
+footer .bat i::after{content:"";position:absolute;inset:1px auto 1px 1px;width:calc((100% - 2px)*var(--b,0));background:var(--cy)}
+footer .bat.low i::after{background:var(--hot)}
+footer .root{color:var(--cy)}footer .tags{color:var(--line);opacity:.8}
+@media (max-width:760px){footer .tags{display:none}footer{gap:10px;font-size:11px}}
+@media (max-width:520px){footer .means{display:none}}
+
+#mirror{position:fixed;z-index:9;right:10px;top:56px;width:min(440px,calc(100vw - 20px));max-height:calc(100dvh - 120px);overflow:auto;background:var(--panel);border:1px solid var(--bd);padding:14px;backdrop-filter:blur(8px);user-select:text}
+#mirror[hidden]{display:none}
+#mirror h2{font:900 15px Orbitron,sans-serif;margin:0 0 6px;color:var(--line);letter-spacing:.08em}
+#mirror p{margin:6px 0;opacity:.85}
+#mj{width:100%;height:190px;background:transparent;color:var(--txt);border:1px solid var(--bd);font:12px/1.45 "JetBrains Mono",monospace;padding:8px;resize:vertical}
+#mirror .row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+#mirror button{font:700 12px "JetBrains Mono",monospace;color:var(--txt);background:transparent;border:1px solid var(--bd);padding:7px 10px;cursor:pointer}
+#mirror button.go{background:var(--line);color:var(--bg)}
+#mout{margin-top:8px;white-space:pre-wrap;font-size:12px}
+#mout .e{color:var(--hot)}#mout .w{color:var(--cy)}#mout .k{color:var(--line)}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}#line.draw{stroke-dashoffset:0}.ov-sleep text{opacity:.8}}
+</style></head>
+<body data-t="u" data-mood="think">
+<div id="bg" aria-hidden="true"></div>
+<div id="tl"><span class="lab">LAB</span><span id="proto">&gt;_ ae.face/0.1</span></div>
+
+<main id="stage">
+ <section id="faceWrap">
+  <svg id="face" viewBox="0 0 400 420" role="img" aria-labelledby="facet">
+   <title id="facet">æ æ æ, the face of Asimov 1</title>
+   <defs>
+    <linearGradient id="sw" x1="0" x2="1"><stop offset="0" stop-color="#39e6ff" stop-opacity="0"/><stop offset="1" stop-color="#39e6ff" stop-opacity=".22"/></linearGradient>
+   </defs>
+   <!-- overlays: one per mood, shown by body[data-mood] -->
+   <g class="ov ov-ready"><circle class="halo cys" cx="200" cy="230" r="178" opacity=".35"/><circle class="cys" cx="200" cy="230" r="190" opacity=".18" stroke-dasharray="2 10"/>
+    <text x="200" y="414" text-anchor="middle" class="cyf" font-size="11" letter-spacing="3">ARMED · MOVE ALLOWED</text></g>
+   <g class="ov ov-work"><g class="bar"><rect x="16" y="222" width="368" height="2" class="cyf" opacity=".8"/><rect x="16" y="210" width="368" height="26" class="cyf" opacity=".07"/></g>
+    <g class="cys" stroke-width="2" opacity=".6"><g class="tick"><path d="M-20 404h18M10 404h18M40 404h18M70 404h18"/></g><g class="tick"><path d="M290 404h18M320 404h18M350 404h18M380 404h18"/></g></g></g>
+   <g class="ov ov-think"><circle class="cyf" cx="320" cy="104" r="5" style="--i:0"/><circle class="cyf" cx="340" cy="82" r="7" style="--i:1"/><circle class="cyf" cx="364" cy="56" r="10" style="--i:2"/></g>
+   <g class="ov ov-lost"><circle class="cys" cx="200" cy="230" r="172" stroke-dasharray="3 7" opacity=".5"/>
+    <g class="sweep"><path d="M200 230L372 230A172 172 0 0 0 349 144Z" fill="url(#sw)"/><path d="M200 230H372" class="cys" stroke-width="2" opacity=".7"/></g>
+    <text class="q cyf" x="356" y="78" text-anchor="end" font-size="18">? ? ?</text></g>
+   <g class="ov ov-tired" transform="translate(316 64)"><rect width="46" height="20" rx="3" class="lns" stroke-width="2"/><rect x="46" y="6" width="4" height="8" class="lnf"/><rect class="cell hotf" x="3" y="3" width="7" height="14"/></g>
+   <g class="ov ov-sleep"><text class="cyf" x="296" y="130" font-size="20" style="--i:0">z</text><text class="cyf" x="320" y="104" font-size="26" style="--i:1">z</text><text class="cyf" x="346" y="74" font-size="32" style="--i:2">Z</text></g>
+   <g class="ov ov-hold"><rect class="hotf" x="40" y="160" width="120" height="3" style="--i:0"/><rect class="hotf" x="250" y="276" width="110" height="2" style="--i:1"/><rect class="hotf" x="70" y="344" width="60" height="2" style="--i:2"/><rect class="cyf" x="220" y="120" width="90" height="2" style="--i:3"/>
+    <text x="200" y="414" text-anchor="middle" class="hotf" font-size="12" letter-spacing="3">⚠ HOLD · FAULT LATCHED</text></g>
+
+   <text class="crown" x="150" y="44" style="--i:0">æ</text><text class="crown" x="200" y="44" style="--i:1">æ</text><text class="crown" x="250" y="44" style="--i:2">æ</text>
+   <g id="rig" transform="translate(0 10)">
+    <use href="#line" class="split a" style="stroke:var(--cy)"/><use href="#line" class="split b" style="stroke:#ff2bd6"/>
+    <path id="line" pathLength="1" d="">
+     <animate id="morph" attributeName="d" begin="indefinite" dur="0.65s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines=".2 .8 .2 1"/>
+     <animate id="blink" attributeName="d" begin="indefinite" dur="0.24s" fill="remove" calcMode="spline" keyTimes="0;.45;1" keySplines=".4 0 .6 1;.4 0 .6 1"/>
+    </path>
+    <g id="pup"><g class="pp" id="ppr"><g class="pm"><circle id="pr" r="7"/></g></g><g class="pp" id="ppl"><g class="pm"><circle id="pl" r="7"/></g></g></g>
+   </g>
+  </svg>
+ </section>
+ <section id="word">
+  <span class="lab">æ æ æ · ASIMOV 1</span>
+  <h1 id="mw" aria-live="polite">:think</h1>
+  <p id="means">STAND, not armed yet</p>
+  <div id="srcline">&gt;_ demo</div>
+ </section>
+</main>
+
+<nav id="ctl" aria-label="controls">
+ <button id="bMirror" title="Mirror: paste ae.face/0.1 JSON (M)">🪞 Mirror</button>
+ <button id="bDemo" title="Demo: cycle the seven moods (D)">▶ Demo</button>
+ <span id="moods"></span>
+ <button class="sw" data-t="y" title="yellow">🟨</button><button class="sw" data-t="b" title="blue">🟦</button><button class="sw" data-t="g" title="green">🟩</button><button class="sw" data-t="u" title="holomesh">🛸</button><button class="sw" data-t="r" title="rotate themes">♻️</button>
+ <button id="bFs" class="sw" title="fullscreen (F)">⛶</button>
+</nav>
+
+<aside id="mirror" hidden aria-label="Mirror">
+ <h2>🪞 MIRROR · ae.face/0.1</h2>
+ <p>Paste a face JSON. The face draws it. Read-only: this page sends nothing to the robot. Authority æ1. Human stays root.</p>
+ <textarea id="mj" spellcheck="false" aria-label="ae.face/0.1 JSON"></textarea>
+ <div class="row"><button class="go" id="mGo">▶ Render</button><button id="mSample">sample</button><button id="mResume">↺ back to live</button><button id="mClose">✕</button></div>
+ <div id="mout"></div>
+</aside>
+
+<footer>
+ <span class="m" id="fm">:think</span>
+ <span class="means" id="fmeans">STAND, not armed</span>
+ <span class="bat" id="fbat"><i></i><span id="fbv">80%</span></span>
+ <span class="root">æ1 · read-only · Human stays root.</span>
+ <span class="tags">#osw #ioa #æææ</span>
+</footer>
+
+<script>
+/*CORE*/
+(function () {
+  "use strict";
+  const $ = id => document.getElementById(id), body = document.body;
+  const Q = new URLSearchParams(location.search);
+  const RM = matchMedia("(prefers-reduced-motion: reduce)");
+  const MAXAGE = parseFloat(Q.get("maxage")) > 0 ? parseFloat(Q.get("maxage")) : 0.5;
+  const DEMO_S = parseFloat(Q.get("demo")) > 0 ? parseFloat(Q.get("demo")) : 4;
+  const line = $("line"), morph = $("morph"), blinkA = $("blink");
+  let cur = null, curD = "", inputMode = "demo", demoTimer = null, demoIdx = 0, blinkTimer = null;
+  let state = demoState("think");
+
+  /* ── draw ── */
+  function setWord(m) {
+    const w = $("mw"); w.textContent = "";
+    (":" + m).split("").forEach((c, i) => { const s = document.createElement("span"); s.className = "ch"; s.style.setProperty("--i", i); s.textContent = c; w.appendChild(s); });
+  }
+  function placePupils(m) {
+    const [r, l, pr] = pupils(m);
+    $("ppr").style.transform = "translate(" + r[0] + "px," + r[1] + "px)";
+    $("ppl").style.transform = "translate(" + l[0] + "px," + l[1] + "px)";
+    $("pr").setAttribute("r", pr); $("pl").setAttribute("r", pr);
+  }
+  function show(m, j, note) {
+    if (ORDER.indexOf(m) < 0) m = "lost";
+    const d = facePath(m);
+    if (m !== cur) {
+      if (!curD || RM.matches || !morph.beginElement) { line.setAttribute("d", d); }
+      else { morph.setAttribute("values", curD + ";" + d); line.setAttribute("d", d); try { morph.beginElement(); } catch (e) {} }
+      curD = d; cur = m; body.dataset.mood = m; setWord(m); placePupils(m); scheduleBlink();
+    }
+    const means = (j && typeof j.means === "string" && j.means) || MEANS[m];
+    $("means").innerHTML = "";
+    const b = document.createElement("b"); b.textContent = SHORT[m]; $("means").appendChild(b);
+    $("means").appendChild(document.createTextNode(" · " + means));
+    $("fm").textContent = ":" + m; $("fmeans").textContent = means;
+    const bat = j && typeof j.battery === "number" ? j.battery : null;
+    $("fbv").textContent = bat == null ? "—" : Math.round(bat) + "%";
+    $("fbat").style.setProperty("--b", bat == null ? 0 : bat / 100);
+    $("fbat").classList.toggle("low", bat != null && bat < 20);
+    if (note != null) $("srcline").textContent = note;
+    document.querySelectorAll("#moods button").forEach(x => x.classList.toggle("on", inputMode === "demo" && x.dataset.m === m));
+  }
+  function drawOn() {
+    if (RM.matches) return;
+    line.classList.remove("draw"); void line.getBBox(); line.classList.add("draw");
+  }
+
+  /* ── blink: a real morph of the one line, only where eyes are open ── */
+  const BLINK = { ready: [3200, 5600], think: [2600, 5000], work: [3800, 6400], lost: [5000, 9000], tired: [1800, 3200] };
+  function scheduleBlink() {
+    clearTimeout(blinkTimer);
+    if (RM.matches || !BLINK[cur] || !blinkA.beginElement) return;
+    const [a, b] = BLINK[cur];
+    blinkTimer = setTimeout(() => {
+      const o = facePath(cur), c = facePath(cur, true);
+      blinkA.setAttribute("dur", cur === "tired" ? "0.7s" : "0.24s");
+      blinkA.setAttribute("values", o + ";" + c + ";" + o);
+      try { blinkA.beginElement(); } catch (e) {}
+      scheduleBlink();
+    }, a + Math.random() * (b - a));
+  }
+
+  /* ── input 1: ?src= poll every 500 ms ── */
+  const SRC = Q.get("src");
+  let lastGood = 0, inflight = null, polls = 0;
+  function poll() {
+    if (inputMode !== "src") return;
+    polls++;
+    if (inflight) return; // one request at a time; the 900 ms timeout and the watchdog cover a hung one
+    const ac = new AbortController(); inflight = ac;
+    const t0 = performance.now(), to = setTimeout(() => ac.abort(), 900);
+    fetch(SRC + (SRC.indexOf("?") < 0 ? "?" : "&") + "_=" + Date.now(), { cache: "no-store", signal: ac.signal })
+      .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(j => {
+        clearTimeout(to); inflight = null;
+        const v = validate(j);
+        if (!v.ok) throw new Error("invalid: " + v.err[0]);
+        const now = Date.now() / 1000, ts = parseTs(j), m = derive(j, now, MAXAGE);
+        lastGood = performance.now(); state = j;
+        let age = ts != null ? (now - ts) : null, skew = age != null && age < -2 ? "  ⚠ clock skew: robot ts is ahead" : "";
+        show(m, j, ">_ src ✓ " + Math.round(performance.now() - t0) + " ms" + (age != null ? " · state age " + Math.max(0, age).toFixed(2) + " s" : " · no ts") + skew + "\n" + SRC);
+      })
+      .catch(e => {
+        clearTimeout(to); if (inflight === ac) inflight = null;
+        if (inputMode !== "src") return;
+        show("lost", { battery: state && state.battery, means: MEANS.lost }, ">_ src ✗ " + (e.name === "AbortError" ? "timeout" : e.message) + " → :lost\n" + SRC);
+      });
+  }
+  function watchdog() { if (inputMode === "src" && lastGood && performance.now() - lastGood > 1500 && cur !== "lost") show("lost", { means: MEANS.lost, battery: state && state.battery }, ">_ src silent > 1.5 s → :lost\n" + SRC); }
+
+  /* ── input 2: 🪞 mirror (read-only) ── */
+  const SAMPLE = { schema: "ae.face/0.1", who: "asimov", authority: "æ1", mood: "think", means: "STAND, not armed", mode: "STAND", armed: false, battery: 80, stale: false };
+  $("mj").value = JSON.stringify(SAMPLE, null, 2);
+  function mirrorRender() {
+    const out = $("mout"); out.innerHTML = "";
+    const say = (cls, t) => { const d = document.createElement("div"); d.className = cls; d.textContent = t; out.appendChild(d); };
+    let j; try { j = JSON.parse($("mj").value); } catch (e) { say("e", "✗ not JSON: " + e.message); return; }
+    const v = validate(j);
+    v.err.forEach(t => say("e", "✗ " + t)); v.warn.forEach(t => say("w", "! " + t));
+    if (!v.ok) { say("e", "face unchanged"); return; }
+    stopDemo(); inputMode = "mirror"; modeButtons();
+    const m = derive(j, null, MAXAGE); // pasted, not live: ts age is not checked here
+    drawOn(); state = j; show(m, j, ">_ 🪞 mirror · pasted JSON, ts age not checked");
+    say("k", "✓ :" + m + (j.mood && j.mood !== m ? "  (reported :" + j.mood + ", safety rule shows :" + m + ")" : ""));
+  }
+  $("mGo").onclick = mirrorRender;
+  $("mSample").onclick = () => { const k = ORDER[Math.floor(Math.random() * ORDER.length)]; $("mj").value = JSON.stringify(demoState(k), null, 2); };
+  $("mClose").onclick = () => { $("mirror").hidden = true; $("bMirror").classList.remove("on"); };
+  $("mResume").onclick = () => { $("mout").textContent = ""; startLive(); };
+  $("bMirror").onclick = () => { const h = !$("mirror").hidden; $("mirror").hidden = h; $("bMirror").classList.toggle("on", !h); };
+
+  /* ── input 3: demo ── */
+  function stopDemo() { clearInterval(demoTimer); demoTimer = null; }
+  function demoStep(m) { state = demoState(m); show(m, state, ">_ demo · " + JSON.stringify(state)); }
+  function startDemo() {
+    stopDemo(); inputMode = "demo"; modeButtons();
+    demoStep(ORDER[demoIdx % 7]);
+    demoTimer = setInterval(() => { demoIdx = (demoIdx + 1) % 7; demoStep(ORDER[demoIdx]); }, DEMO_S * 1000);
+  }
+  function pick(m) { stopDemo(); inputMode = "demo"; modeButtons(); demoIdx = ORDER.indexOf(m); demoStep(m); }
+  function startLive() { if (SRC) { stopDemo(); inputMode = "src"; modeButtons(); poll(); } else startDemo(); }
+  function modeButtons() { $("bDemo").classList.toggle("on", inputMode === "demo" && !!demoTimer); $("proto").textContent = ">_ ae.face/0.1 · " + (inputMode === "src" ? "src" : inputMode === "mirror" ? "🪞 mirror" : "demo"); }
+  $("bDemo").onclick = () => { if (demoTimer) { stopDemo(); modeButtons(); } else startDemo(); };
+  const mb = $("moods");
+  ORDER.forEach((m, i) => { const b = document.createElement("button"); b.dataset.m = m; b.title = (i + 1) + " · :" + m; b.textContent = m; b.onclick = () => pick(m); mb.appendChild(b); });
+
+  /* ── themes 🟨🟦🟩🛸 ♻️ ── */
+  let rot = null; const TH = ["u", "y", "b", "g"];
+  function theme(t) {
+    clearInterval(rot); rot = null;
+    if (t === "r") { let k = Math.max(0, TH.indexOf(body.dataset.t)); rot = setInterval(() => { body.dataset.t = TH[++k % TH.length]; }, 6000); }
+    else body.dataset.t = t;
+    try { localStorage.aeFaceT = t; } catch (e) {}
+  }
+  document.querySelectorAll(".sw[data-t]").forEach(b => b.onclick = () => theme(b.dataset.t));
+  theme(Q.get("theme") || (function () { try { return localStorage.aeFaceT; } catch (e) { return null; } })() || "u");
+
+  /* ── kiosk: fullscreen, wake lock, auto-hide chrome, keys ── */
+  $("bFs").onclick = () => { const d = document; if (!d.fullscreenElement && d.documentElement.requestFullscreen) d.documentElement.requestFullscreen().catch(() => {}); else if (d.exitFullscreen) d.exitFullscreen().catch(() => {}); };
+  let wl = null; function wake() { if (navigator.wakeLock && !wl) navigator.wakeLock.request("screen").then(l => { wl = l; l.addEventListener("release", () => wl = null); }).catch(() => {}); }
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) wake(); });
+  let idleT = null; function poke() { body.classList.remove("idle"); clearTimeout(idleT); if (Q.get("hud") !== "1") idleT = setTimeout(() => { if ($("mirror").hidden) body.classList.add("idle"); }, 5000); wake(); }
+  ["pointerdown", "pointermove", "keydown"].forEach(e => addEventListener(e, poke, { passive: true }));
+  if (Q.get("hud") === "0") body.classList.add("idle"); else poke();
+  addEventListener("keydown", e => {
+    if (e.target && e.target.id === "mj") return;
+    const k = e.key.toLowerCase();
+    if (k >= "1" && k <= "7") pick(ORDER[+k - 1]);
+    else if (k === "m") $("bMirror").click(); else if (k === "d") $("bDemo").click(); else if (k === "f") $("bFs").click();
+    else if (k === "t") { const i = TH.indexOf(body.dataset.t); theme(TH[(i + 1) % TH.length]); }
+  });
+  RM.addEventListener && RM.addEventListener("change", scheduleBlink);
+
+  /* ── start: src > (mirror on demand) > demo ── */
+  const pinned = Q.get("mood");
+  if (SRC) { inputMode = "src"; show("lost", { battery: null }, ">_ src connecting…\n" + SRC); setInterval(poll, 500); setInterval(watchdog, 250); poll(); modeButtons(); }
+  else if (pinned && ORDER.indexOf(pinned) >= 0) pick(pinned);
+  else startDemo();
+  drawOn();
+})();
+</script>
+</body></html>
