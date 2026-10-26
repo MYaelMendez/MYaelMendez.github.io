@@ -18,6 +18,7 @@ export function mountPersonalization(doc=document,storage){
  if(storage===undefined)try{storage=globalThis.localStorage;}catch{}
  const $=id=>doc.getElementById(id);let profile=loadProfile(storage);
  const paint=()=>{
+  $('profile-output').textContent='';$('profile-export-view').hidden=true;
   $('brand-name').textContent=profile?.name||'æ Studio';
   $('brand-purpose').textContent=profile?.purpose||'Your identity. Your tools. Your environment.';
   $('brand-domain').textContent=profile?.domain||'';$('brand-domain').hidden=!profile?.domain;
