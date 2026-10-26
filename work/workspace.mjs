@@ -1,3 +1,4 @@
+import {mountPersonalization} from './personalize.mjs';
 import {createWorkspace} from './session.mjs';
 import {mountStore} from './store.mjs';
 import {mountGlass} from './webgl.mjs';
@@ -71,6 +72,7 @@ $('cancel').onclick=()=>act(async()=>{await session.cancel();$('notice').textCon
 $('export').onclick=()=>act(async()=>{saveJSON(await session.evidence());$('notice').textContent='Evidence exported with your selected text, local receipts, head and count. Keep it private when appropriate.';});
 mountGlass($('world'),$('motion'),$('render-status'));
 mountAppearance();
+mountPersonalization();
 mountStore().catch(e=>$('store-status').textContent=e.message);
 render().catch(e=>$('notice').textContent=e.message);
 setInterval(()=>{if(!busy)render().catch(e=>$('notice').textContent=e.message);},15000);
