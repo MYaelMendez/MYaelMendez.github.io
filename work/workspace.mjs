@@ -1,4 +1,4 @@
-import {mountPersonalization} from './personalize.mjs';
+import {mountPersonalization} from './personalize.mjs?v=20261026-osw2';
 import {createWorkspace} from './session.mjs';
 import {mountStore} from './store.mjs';
 import {mountGlass} from './webgl.mjs';
