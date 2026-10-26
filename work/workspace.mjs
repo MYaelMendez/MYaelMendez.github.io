@@ -1,3 +1,4 @@
+import {nextStep,starters} from './guidance.mjs?v=20261026-alive1';
 import {mountPersonalization} from './personalize.mjs?v=20261026-osw2';
 import {createWorkspace} from './session.mjs';
 import {mountStore} from './store.mjs';
@@ -5,6 +6,7 @@ import {mountGlass} from './webgl.mjs';
 import {mountAppearance,tickerItems,laneTicker} from './presentation.mjs';
 const $=id=>document.getElementById(id);
 const session=createWorkspace();
+let guideState=null;
 let active='build', busy=false, shownInput='', nested='task';
 const descriptions={build:['Build a draft','Format your selected brief into an unsent draft. No model generates text.'],inspect:['Inspect the text','Count the characters, words and lines in your selected input. No source verification or risk analysis is performed.'],review:['Review the contributions','Read the returned draft and text counts, then record your own judgment. This tool formats your notes; it does not evaluate them.']};
 const make=(tag,value,parent)=>{const el=document.createElement(tag);if(value!==undefined)el.textContent=value;if(parent)parent.append(el);return el;};
@@ -16,6 +18,11 @@ async function render(){
   const terminal=root&&['RETURNED','CANCELLED','EXPIRED'].includes(root.status);
   const selected=s.workspaces.find(l=>l.id===active), node=selected.node;
   const returned=s.workspaces.filter(l=>l.node?.status==='RETURNED');
+  guideState=nextStep(s);$('guide-title').textContent=guideState.title;$('guide-detail').textContent=guideState.detail;$('guide-next').textContent=guideState.label;$('guide-next').disabled=busy;
+  const latest=s.events.at(-1);$('guide-activity').textContent=latest?`Recorded here: ${latest.type.replaceAll('.',' ')} · ${s.events.length} events`:'Ready when you are · no work started';
+  for(const b of document.querySelectorAll('[data-starter]'))b.disabled=s.started||busy;
+  for(const b of document.querySelectorAll('[data-path-lane]')){const lane=s.workspaces.find(l=>l.id===b.dataset.pathLane),done=lane.node?.status==='RETURNED';b.dataset.returned=String(done);b.querySelector('span').textContent=done?'Returned':lane.node?lane.node.status.toLowerCase():'Open';b.setAttribute('aria-label',`${lane.label}: ${done?'returned contribution':lane.node?.status.toLowerCase()||'not started'}`);b.disabled=busy;}
+
   ticker('app-ticker',tickerItems(s));
   for(const l of s.workspaces)ticker('ticker-'+l.id,laneTicker(l));
   $('begin').disabled=s.started||busy;$('intent').readOnly=s.started;$('brief').readOnly=s.started;
@@ -50,6 +57,12 @@ async function render(){
   $('completion').textContent=root?.status==='RETURNED'?'Intent completed locally. No external action was performed.':terminal?`Intent ${root.status.toLowerCase()}. Reload to begin a new session.`:'Completion requires Build, Inspect and your review notes to return.';
   $('event-count').textContent=`(${s.events.length} events)`;$('ledger').textContent=s.events.length?s.events.map(e=>`${e.sequence}. ${e.type} · ${e.hash.slice(0,12)}`).join('\n'):'No events yet.';
 }
+function previewMaterial(){const text=$('intent').value.trim();$('material-preview').textContent=text?`Your intent: ${text} · ${$('brief').value.length} brief characters`:'Add an intent to begin.';}
+for(const id of ['intent','brief'])$(id).addEventListener('input',previewMaterial);
+document.querySelectorAll('[data-starter]').forEach(b=>b.onclick=()=>{const entry=starters[b.dataset.starter];if(!entry||$('intent').readOnly)return;$('intent').value=entry.intent;$('brief').value=entry.brief;previewMaterial();$('notice').textContent='Editable starting material selected. Review it before beginning; no task has run.';});
+$('guide-next').onclick=async()=>{if(busy||!guideState)return;if(guideState.lane){active=guideState.lane;nested='task';$('share').checked=false;await render();}const target=$(guideState.target);target.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});target.focus({preventScroll:true});};
+document.querySelectorAll('[data-path-lane]').forEach(b=>b.onclick=()=>{if(busy)return;active=b.dataset.pathLane;nested='output';render().then(()=>$('workspace').scrollIntoView({block:'start',behavior:'auto'})).catch(e=>$('notice').textContent=e.message);});
+previewMaterial();
 $('intent-form').addEventListener('submit',e=>{e.preventDefault();act(async()=>{await session.begin($('intent').value,$('brief').value);$('notice').textContent='Intent created in this tab. Select the brief explicitly for each contribution.';});});
 document.querySelectorAll('[data-lane]').forEach(b=>b.addEventListener('click',()=>{if(busy)return;active=b.dataset.lane;nested='task';$('share').checked=false;render().catch(e=>$('notice').textContent=e.message);}));
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{if(busy)return;nested=b.dataset.view;render().catch(e=>$('notice').textContent=e.message);}));
