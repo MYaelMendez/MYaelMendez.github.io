@@ -13,3 +13,14 @@ Before changing the æ environment, read [AE-CONTINUITY.md](./AE-CONTINUITY.md) 
 - After substantive changes, update the continuity record with affected surfaces, source revisions, checks performed and remaining blockers. Keep unknowns explicit.
 
 Read more specific directory instructions when present. Keep commits reviewable and within the user's authorized scope. A request to save or prepare work does not authorize a merge, deployment, purchase, public submission or permission change.
+
+## Bounded verification and recovery
+
+- Before starting, name the changed surface, completion condition and known blocker. Reuse the existing implementation; do not add another prototype to avoid an unresolved integration.
+- For an unchanged asynchronous deployment, default to at most three status checks over two minutes. If still pending, preserve its exact run ID, report pending and continue independent work. Resume observation of that run later; do not create another deployment merely to check it.
+- Stop observing terminal runs. Repeat a failed operation only after a relevant input, implementation or external state changed; explain that change. Never repeat a billable mutation whose outcome is uncertain without reconciliation.
+- For a UI change, perform one focused browser verification after deployment. If it reveals a defect, batch the repair and stylesheet/cache version update into one revision before redeploying. Recheck the affected behavior; broaden testing only for a new concern.
+- Provider rejection of a required budget or permission boundary is a blocker. Preserve the boundary, record the error and complete independent preparation; never retry with the protection removed.
+- Record source, tests, deployment and verified provider execution separately. A PR number counts an issue/PR identifier, not implementations, releases or product versions. A documentation-only checkpoint does not require re-running or re-deploying the application just to repeat an existing receipt.
+
+The current focused Codex checkpoint is [work/CODEX-WORKSHOP.md](./work/CODEX-WORKSHOP.md). Historical continuity entries remain dated records; use the focused checkpoint for the later Codex work.
