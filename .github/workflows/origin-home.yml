@@ -1,7 +1,7 @@
 name: Verify home and preserved origin
 on:
   pull_request:
-    paths: ['index.html', 'origin/**', 'work/**', 'tests/origin.test.mjs', 'tests/workspace.test.mjs', 'tests/presentation.test.mjs', 'tests/personalize.test.mjs', '.github/workflows/origin-home.yml']
+    paths: ['index.html', 'origin/**', 'work/**', 'tests/origin.test.mjs', 'tests/workspace.test.mjs', 'tests/presentation.test.mjs', 'tests/personalize.test.mjs', 'tests/guidance.test.mjs', '.github/workflows/origin-home.yml']
 permissions:
   contents: read
 jobs:
@@ -14,4 +14,4 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
-      - run: node --test tests/origin.test.mjs tests/workspace.test.mjs tests/presentation.test.mjs tests/personalize.test.mjs
+      - run: node --test tests/origin.test.mjs tests/workspace.test.mjs tests/presentation.test.mjs tests/personalize.test.mjs tests/guidance.test.mjs
