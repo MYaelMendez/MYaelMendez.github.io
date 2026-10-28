@@ -169,3 +169,12 @@ Request: diagnose PR #15 mergeability, test the read-only inspector as far as av
 - Added versioned source registry, category/search filters and external model/dataset/Space/index links. An explicit load button retrieves six public Hugging Face model cards; no intent, brief or credentials are sent. Metadata does not install a runtime or grant authority.
 - Verification before publication: all 17 local tests passed. Browser preview checked all theme choices, persisted Black across reload, category filtering, ticker pause, explicit context, approval, returned local output and receipt. Public Hugging Face request succeeded with six cards. Browser WebGL unavailable: static fallback tested; shader/mobile/screen-reader verification remains outstanding. No external inference, agent adapters or cross-host synchronization added. /origin/ and existing OpenAI Site unchanged.
 - Release commit, native CI and final Pages deployment evidence are reported after actual execution; this source record does not assert a future run succeeded.
+
+
+## 14. Exact chat widget source capture — 2026-10-26
+
+- User requested saving the displayed nested chat widget in a repository as inspectable evidence. Added `widgets/studio-work-here/` beside the existing homepage implementation; this is a captured chat companion, not a replacement for `/work/`.
+- `widget.html` preserves the original displayed fragment byte for byte. `manifest.json` records its SHA-256, identity, explicit local capability scope and absence of grants. `build.mjs` wraps those exact bytes as a standalone `index.html` without a new application implementation.
+- Local verification: `node build.mjs` and `node --test widget.test.mjs`; six tests passed using a minimal control fixture for integrity, standalone inclusion, approval/dependency gates, local output/events, invalidation, navigation/text rendering and absence of API calls. These are not browser, mobile, accessibility, CI or provider tests.
+- The fragment formats text, measures the draft and records a human review. It keeps state only while the rendered instance is open; it neither synchronizes between hosts nor runs external agents. Its historical Site connection note is dated October 25, not a live probe. Source integrity hashes and local events do not attest identity or independent execution.
+- Save/review only: this request does not merge or deploy, alter the root index or origin, change the existing OpenAI Site, expose credentials, or widen permissions. The original homepage and the peer-destination contract are preserved.
