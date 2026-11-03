@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10281f">
+<meta name="description" content="MoW Garden: full-scene carousels, drawers and recursive mixtures of local widgets. OpenAI adapter disabled until authorized.">
+<title>&aelig; Open Widgets / MoW Garden</title>
+<link rel="stylesheet" href="garden.css">
+<script type="module" src="garden.mjs"></script>
+</head>
+<body>
+<a class="skip" href="#carousel">Skip to environments</a>
+<header class="masthead">
+  <a class="wordmark" href="#carousel" aria-label="ae Studio home">&aelig;<span>STUDIO <small>AGENTIC ENVIRONMENTS</small></span></a>
+  <span class="release">OPEN WIDGETS <b>v0.1 / REVIEW</b></span>
+</header>
+<main>
+<section class="introduction">
+  <p class="eyebrow">OPEN SOVEREIGN &nbsp;/&nbsp; OUR WIDGETS. OUR WORLD.</p>
+  <h1>The world is <em>composable.</em> <span aria-hidden="true">&#127818;&#129449;</span></h1>
+  <p>Whole environments. Drawers of possibilities. Widgets within widgets.<br>Grow a little world; keep the human at its center.</p>
+</section>
+<div class="workspace">
+  <section class="scene-workspace" aria-labelledby="scenes-heading">
+    <div class="section-head"><h2 id="scenes-heading">Your environments</h2><span class="label">SWIPE / EXPLORE / NEST</span></div>
+    <div id="carousel" class="carousel" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Four full-scene environments"></div>
+    <nav class="scene-controls" aria-label="Scene navigation">
+      <button id="previous" type="button" aria-label="Previous environment">&#8592;</button>
+      <div id="scene-tabs" class="scene-tabs"></div>
+      <button id="next" type="button" aria-label="Next environment">&#8594;</button>
+      <span id="scene-counter" role="status">1 / 4</span>
+    </nav>
+    <p class="caption">9:16 is a native scene, not a limit. Focus any widget to enter its world.</p>
+  </section>
+  <aside class="control-panel" aria-labelledby="intention-heading">
+    <p class="eyebrow">&#10084;&#65039; HUMAN://ROOT</p>
+    <h2 id="intention-heading">What will you grow?</h2>
+    <p class="quiet">Models &#8594; Agents &#8594; Viewport code &#8594; Mixture of Widgets.</p>
+    <label for="intention">Your intention</label>
+    <textarea id="intention" maxlength="2000" placeholder="An orchard, a classroom, a place to build..." aria-describedby="privacy-note"></textarea>
+    <p id="privacy-note" class="caption">Only in this tab until you explicitly send it. Never included in a layout export. Do not enter credentials.</p>
+    <button id="seed" type="button" class="primary">&#127818; Prepare a local seed</button>
+    <div id="seed-output" class="readout" role="status">Local tools are ready. No model or agent has run.</div>
+    <details class="api-drawer">
+      <summary>OpenAI adapter <span id="adapter-badge">LOCKED</span></summary>
+      <p class="caption">Same-origin endpoint. Your OpenAI key stays on your server. This pilot ships with no sign-in provider and denies access by default.</p>
+      <button id="check-adapter" type="button">Check authorized session</button>
+      <p id="api-status" class="caption" role="status">Not checked. No API requests made.</p>
+      <label class="check"><input id="api-consent" type="checkbox" disabled> Send this intention to OpenAI once. API charges may apply.</label>
+      <button id="ask" type="button" disabled>Send approved intention</button>
+      <div id="ai-output" class="readout" aria-live="polite">No model output.</div>
+    </details>
+    <div class="small-actions"><button id="regrow" type="button" disabled>&#9851; Regrow last retired</button><button id="review" type="button">Review layout export</button></div>
+    <button id="clear-intention" type="button" class="text-button">Clear intention &amp; model output</button>
+    <details class="witness"><summary>Witness / local events</summary><pre id="events">No events.</pre></details>
+    <p id="feedback" role="status" class="caption">Compose. Nest. Adapt. Regenerate.</p>
+  </aside>
+</div>
+</main>
+<footer><span>Many widgets. Many agents. <strong>One human principal.</strong></span><span>Context may propagate; authority does not.</span></footer>
+<dialog id="focus-dialog" aria-labelledby="focus-title">
+  <header class="dialog-head"><h2 id="focus-title">Widget world</h2><button id="close-focus" type="button">Back to garden &#8599;</button></header>
+  <div id="focus-host"></div>
+</dialog>
+<dialog id="export-dialog" aria-labelledby="export-title">
+  <header class="dialog-head"><h2 id="export-title">Public layout review</h2><button id="close-export" type="button">Close</button></header>
+  <p>Structure only: no private notes, intention, model output, counters, credentials or grants. Downloading does not publish or deploy anything.</p>
+  <pre id="export-preview" tabindex="0"></pre>
+  <label class="check"><input id="export-consent" type="checkbox"> I reviewed this exact layout and approve a local draft download.</label>
+  <button id="download" type="button" disabled>Download reviewed JSON</button>
+</dialog>
+<noscript><p class="noscript">JavaScript is needed for local composition. No accounts are connected and nothing is sent without it.</p></noscript>
+</body>
+</html>
