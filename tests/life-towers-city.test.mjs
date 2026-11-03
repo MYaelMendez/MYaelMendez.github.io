@@ -11,3 +11,5 @@ test('read-only pilot has no privileged command dispatch',()=>{assert.ok(towers.
 test('city has deterministic 364-cell genome and fallback',()=>{assert.ok(city.includes('Uint8Array(364)'));assert.ok(city.includes('Float32Array(364*5)'));assert.ok(city.includes("function fallback(reason)"));assert.ok(city.includes("ctx2=canvas.getContext('2d')"));assert.ok(!city.includes('Math.random()'))});
 
 test('WebGPU creates an initial depth attachment before drawing',()=>{assert.ok(city.includes("depth=device.createTexture({size:[canvas.width,canvas.height]"));assert.ok(city.indexOf("depth=device.createTexture({size:[canvas.width,canvas.height]")<city.indexOf('requestAnimationFrame(frame)'))});
+
+test('existing Control links to tower workspace and isolated city laboratory',()=>{const control=readFileSync('ae/control/index.html','utf8');assert.ok(control.includes('href="towers/?tower=6"'));assert.ok(control.includes('href="city/"'));assert.ok(control.includes("entry.href='towers/?tower='"));assert.ok(control.includes("name==='BUSINESS'?'BU$INE$$':name"))});
