@@ -19,7 +19,11 @@ dialog{position:fixed;inset:0;width:min(82vw,calc(82svh*.5625),440px);height:min
 <section class="screen" data-screen="1" hidden><div class="row"><span class="caption" id="q-number"></span><span class="pill" data-t="interview"></span></div><div class="meter"><span id="progress"></span></div><h2 id="question" class="question-title"></h2><p id="q-help" class="question-help"></p><div class="question-field"><label for="answer" data-t="answer"></label><textarea id="answer" maxlength="600"></textarea></div><p class="small" data-t="short"></p><div class="row"><button class="btn" id="back-question" data-t="back"></button><button class="btn primary" id="next-question" data-t="next"></button></div></section>
 <section class="screen" data-screen="2" hidden><div class="row"><span class="caption">03 / <span data-t="review"></span></span><span class="pill" id="r-count"></span></div><p class="small" data-t="reviewHelp"></p><div class="review-card panel"><label id="r-label" for="r-value"></label><textarea id="r-value" readonly></textarea><div class="row"><button class="btn" id="r-prev">←</button><button class="btn" id="r-edit" data-t="edit"></button><button class="btn" id="r-next">→</button></div></div><label class="check"><input id="approved" type="checkbox"><span data-t="check"></span></label><div class="row"><button class="btn primary" id="download" data-t="download" disabled></button><button class="btn" id="copy" data-t="copy" disabled></button></div><div class="row"><a class="btn" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer" data-t="assistantOpen"></a><a class="btn" href="/ae/" data-t="environmentNext"></a></div><p class="small" data-t="pasteNext"></p><button class="btn" id="clear" data-t="clear"></button></section>
 <section class="screen" data-screen="3" hidden><div class="caption">04 / <span data-t="codes"></span></div><h2 data-t="codes"></h2><div class="codegrid"><div class="panel codecard"><b id="industry-label"></b><span class="pill" data-t="pending"></span><a id="industry-source" href="https://www.census.gov/naics/" target="_blank" rel="noopener noreferrer" data-t="source"></a></div><div class="panel codecard"><b id="tax-label"></b><span class="pill" data-t="pending"></span><a id="tax-source" href="https://www.irs.gov/forms-instructions" target="_blank" rel="noopener noreferrer" data-t="source"></a></div><div class="panel codecard"><b data-t="legal"></b><span class="pill" data-t="pending"></span><a id="legal-source" href="https://www.irs.gov/businesses/small-businesses-self-employed/limited-liability-company-llc" target="_blank" rel="noopener noreferrer" data-t="source"></a></div><div class="panel codecard"><b data-t="books"></b><span class="pill" data-t="pending"></span><span class="caption">INTERNAL / 0.1</span></div></div><p class="small" data-t="codesHelp"></p><button id="set-country" class="btn" data-t="country" hidden></button></section>
-<section class="screen" data-screen="4" hidden><div class="caption">05 / CLI.LLC → doola</div><h2 data-t="providerTitle"></h2><p data-t="providerSub"></p><div class="panel"><div class="partner">doola ↗</div><a class="btn orange" href="https://partnersps.doola.com/hhsoqhb23250" target="_blank" rel="noopener noreferrer" data-t="doola"></a></div><p class="small" data-t="affiliate"></p><a class="btn" href="https://app.doola.com/" target="_blank" rel="noopener noreferrer" data-t="fallback"></a><p class="small" data-t="fallbackNote"></p><div class="spacer"></div><p class="small bottom-note" data-t="boundary"></p></section>
+<section class="screen" data-screen="4" hidden><div class="caption">05 / CLI.LLC → doola</div><h2 data-t="providerTitle"></h2><p data-t="providerSub"></p><div class="panel"><div class="partner">doola ↗</div><a class="btn orange" href="https://partnersps.doola.com/hhsoqhb23250" target="_blank" rel="noopener noreferrer" data-t="doola"></a></div><div class="panel" id="doola-embed-entry" aria-labelledby="doola-embed-title" style="display:grid;gap:1.2cqh">
+<strong id="doola-embed-title">Formation inside this page · pilot</strong>
+<p class="small" id="doola-embed-status" role="status">Embedded onboarding is awaiting doola's partner-specific URL. Use the existing official referral link above.</p>
+<button type="button" class="btn" id="doola-embed-launch" disabled aria-describedby="doola-embed-status">Open doola onboarding here (not configured)</button>
+</div><p class="small" data-t="affiliate"></p><a class="btn" href="https://app.doola.com/" target="_blank" rel="noopener noreferrer" data-t="fallback"></a><p class="small" data-t="fallbackNote"></p><div class="spacer"></div><p class="small bottom-note" data-t="boundary"></p></section>
 </main><div class="ticker" id="ticker"><div class="tape"><div class="track"><span data-t="ticker"></span><span data-t="ticker" aria-hidden="true"></span></div></div><button id="ticker-toggle">Ⅱ</button></div><nav class="dock" aria-label="Steps"><button data-go="0" aria-current="step"><i>⌘</i><span data-t="own"></span></button><button data-go="1"><i>✎</i><span data-t="interview"></span></button><button data-go="2"><i>▤</i><span data-t="review"></span></button><button data-go="3"><i>⌗</i><span data-t="codes"></span></button><button data-go="4"><i>↗</i><span data-t="onboard"></span></button></nav><footer class="system-footer"><button id="brand-open" aria-label="Company colors and white-label notice">◈</button><span id="region-note"></span><button id="info">ⓘ</button></footer>
 </div><div class="notice" id="message" role="status" aria-live="polite" hidden></div><dialog id="modal"><div class="dialog-body"><h3 id="modal-title"></h3><p id="modal-text"></p><textarea id="handoff" readonly hidden></textarea><div class="spacer"></div><button class="btn primary" id="modal-close" data-t="close"></button></div></dialog><dialog id="brand-modal"><form class="dialog-body" id="brand-form"><h3 data-t="brandColors"></h3><label for="company-name" data-t="companyName"></label><input id="company-name" maxlength="50" type="text"><div class="row"><label><span data-t="primaryColor"></span><input id="company-primary" type="color"></label><label><span data-t="secondaryColor"></span><input id="company-secondary" type="color"></label></div><p class="small" data-t="providerRoles"></p><p class="small" data-t="whiteLabel"></p><a class="small" href="https://github.com/MYaelMendez/MYaelMendez.github.io" target="_blank" rel="noopener noreferrer">#opensourceware · Clone / fork ↗</a><a class="small" href="/skills/LICENSE.txt">MIT license · original portfolio files ↗</a><div class="spacer"></div><div class="row"><button class="btn" id="brand-reset" type="button" data-t="resetColors"></button><button class="btn primary" type="submit" data-t="saveColors"></button><button class="btn" id="brand-close" type="button" data-t="close"></button></div></form></dialog></article>
 <script>
@@ -67,4 +71,79 @@ el('brand-form').addEventListener('submit',event=>{event.preventDefault();compan
 el('brand-reset').addEventListener('click',()=>{companyBrand={};try{localStorage.removeItem('clillc-brand-v1');}catch{}render();el('brand-modal').close();});
 el('brand-close').addEventListener('click',()=>el('brand-modal').close());
 render();applyCompanyBrand();
+</script><style id="doola-referral-embed-css">
+.device[data-stage="4"] .screen[data-screen="4"]{overflow-y:auto;overscroll-behavior:contain;padding-bottom:2cqh;scrollbar-width:thin}
+.device[data-stage="4"] .screen[data-screen="4"] .spacer{flex:0 0 0}
+
+#doola-embed-dialog{width:min(1100px,96vw);max-width:none;height:min(920px,94dvh);max-height:none;padding:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--bg);color:var(--ink)}
+#doola-embed-dialog::backdrop{background:rgba(0,0,0,.8)}
+#doola-embed-dialog .embed-shell{display:flex;flex-direction:column;height:100%;gap:0}
+#doola-embed-dialog .embed-toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+#doola-embed-dialog .embed-toolbar p{margin:0;font:14px system-ui;line-height:1.5}
+#doola-embed-dialog .embed-toolbar a,#doola-embed-dialog .embed-toolbar button{font:14px system-ui;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px;min-height:44px}
+#doola-embed-frame-slot{min-height:0;flex:1;display:grid;place-items:center}
+#doola-embed-frame-slot iframe{width:100%;height:100%;border:0;background:#fff}
+@media(max-width:600px){#doola-embed-dialog{width:100vw;height:100dvh;max-height:none;border:0;border-radius:0}#doola-embed-dialog .embed-toolbar{padding:9px 12px}}
+</style>
+<script id="doola-embed-config" type="application/json">
+{"enabled":false,"environment":"production","url":"","approval":"Await partner-specific doola-provided iframe URL and explicit launch approval"}
+</script>
+<dialog id="doola-embed-dialog" aria-label="doola company formation">
+<div class="embed-shell">
+<div class="embed-toolbar"><p><strong>doola company formation</strong><br>Information entered below goes directly to doola, not this preparation page.</p>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<a id="doola-embed-open-tab" href="https://partnersps.doola.com/hhsoqhb23250" target="_blank" rel="noopener noreferrer">Open doola ↗</a>
+<button type="button" id="doola-embed-close">Close ✕</button>
+</div></div>
+<div id="doola-embed-frame-slot"><p>Loading authorized doola flow…</p></div>
+</div></dialog>
+<script id="doola-embed-controller">
+(()=>{
+"use strict";
+const configNode=document.getElementById("doola-embed-config");
+const launch=document.getElementById("doola-embed-launch");
+const status=document.getElementById("doola-embed-status");
+const dialog=document.getElementById("doola-embed-dialog");
+const slot=document.getElementById("doola-embed-frame-slot");
+const openTab=document.getElementById("doola-embed-open-tab");
+const referral="https://partnersps.doola.com/hhsoqhb23250";
+const valid=(config)=>{
+if(!config||config.enabled!==true||typeof config.url!=="string")return null;
+try{
+const url=new URL(config.url);
+if(url.protocol!=="https:"||url.username||url.password||url.hash)return null;
+const expected=config.environment==="sandbox"?"app.development.aws.doola.com":config.environment==="production"?"app.doola.com":null;
+if(!expected||url.hostname!==expected||url.port)return null;
+const path=url.pathname;
+const v1=/^\/embed\/partner\/[A-Za-z0-9_-]+\/?$/.test(path);
+const v2=path==="/embed"&&url.searchParams.has("partner_id");
+if(!v1&&!v2)return null;
+if(url.searchParams.get("partner_id")==="ACME"||url.href.includes("YOUR_UNIQUE_PARTNER_ID"))return null;
+if(url.searchParams.has("partner_id")&&!/^[A-Za-z0-9_-]+$/.test(url.searchParams.get("partner_id")))return null;
+return url.href;
+}catch{return null;}
+};
+let config=null,embedUrl=null;
+try{config=JSON.parse(configNode.textContent);embedUrl=valid(config)}catch{}
+if(embedUrl){
+launch.disabled=false;launch.textContent="Start doola formation on this page ↗";
+status.textContent="Doola partner-specific embed configured. Opening requires your selection.";
+launch.addEventListener("click",()=>{
+slot.replaceChildren();
+const frame=document.createElement("iframe");
+frame.title="doola company formation";frame.loading="eager";
+frame.referrerPolicy="strict-origin-when-cross-origin";
+frame.setAttribute("allow","clipboard-read; clipboard-write");
+frame.src=embedUrl;slot.append(frame);
+openTab.href=embedUrl;
+dialog.showModal();
+});
+}else{
+launch.disabled=true;
+status.textContent="Embedded formation is unavailable until doola supplies and verifies your unique partner URL. The existing affiliate handoff remains available.";
+}
+function close(){dialog.close();slot.replaceChildren();openTab.href=referral;}
+document.getElementById("doola-embed-close").addEventListener("click",close);
+dialog.addEventListener("close",()=>{slot.replaceChildren();openTab.href=referral});
+})();
 </script></body></html>
