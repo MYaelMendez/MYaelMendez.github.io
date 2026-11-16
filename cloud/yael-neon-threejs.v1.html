@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>@YÆL · æ Studio Neon</title><style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:#02051c;color:#dffaff;font-family:ui-monospace,Menlo,monospace;overflow:hidden}#stage{position:fixed;inset:0}#hud{position:fixed;bottom:max(18px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid #1a5471;background:#020918bb;backdrop-filter:blur(14px);border-radius:30px;white-space:nowrap}button{border:1px solid #2e7b98;background:#061a30;color:#bcf8ff;padding:9px 13px;border-radius:20px;cursor:pointer;font:inherit;font-size:11px}button:focus-visible{outline:2px solid #fff}#tag{position:fixed;top:max(18px,env(safe-area-inset-top));left:20px;font-size:11px;letter-spacing:.17em;color:#77c9e6}#tag strong{font-size:19px;color:white;display:block;letter-spacing:.04em;margin-bottom:4px}#hint{position:fixed;bottom:80px;width:100%;text-align:center;font-size:10px;letter-spacing:.13em;color:#5790b1;pointer-events:none}@media(max-width:440px){#hud{gap:5px;padding:7px}button{padding:9px 10px}}
+</style></head><body><div id="stage"></div><div id="tag"><strong>@YÆL</strong>æ STUDIO · CAST / 001</div><div id="hint">DRAG TO ORBIT · SCROLL TO ZOOM</div><div id="hud"><button id="spin">⟳ ORBIT ON</button><button id="pulse">✦ PULSE ON</button><button id="reset">↺ RESET</button></div>
+<svg id="paths" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" style="position:absolute;width:0;height:0;visibility:hidden" aria-hidden="true">
+<!-- all coordinates are drawn as real neon tube paths in 3D -->
+<path data-depth="0" d="M 84 36 Q 37 36 37 84 L 37 716 Q 37 761 85 761 L 515 761 Q 563 761 563 716 L 563 84 Q 563 36 515 36 Z"/>
+<!-- custom æ symbol, single continuous family of strokes -->
+<path d="M 129 164 C 157 104 256 100 275 155 C 293 204 251 254 193 254 C 140 254 116 222 142 191 C 166 162 230 167 275 168 C 310 168 336 167 362 167 C 432 167 453 127 419 108 C 390 90 337 99 317 138 C 296 182 302 238 356 250 C 398 259 433 241 457 217"/>
+<path d="M 124 168 C 171 149 234 147 274 151 L 450 151"/>
+<!-- hair silhouette -->
+<path d="M 144 421 Q 113 410 134 394 Q 109 389 141 372 Q 121 362 166 346 Q 183 317 228 320 Q 261 288 299 307 Q 333 290 359 316 Q 401 315 421 349 Q 449 348 457 387 Q 486 411 462 441 Q 485 462 458 481 Q 454 501 434 512"/>
+<path d="M 151 404 Q 183 400 205 369 Q 200 395 187 415 Q 219 401 246 368 Q 251 395 230 416 Q 263 408 287 376 Q 300 398 281 425"/>
+<path d="M 251 333 Q 286 326 309 343 M 309 316 Q 349 327 361 358 M 371 342 Q 406 366 407 395 M 420 379 Q 443 404 437 430"/>
+<!-- face and ear -->
+<path d="M 188 426 Q 168 441 165 470 L 150 490 Q 142 499 155 506 L 170 511 L 167 525 Q 164 535 178 536 Q 174 546 182 558 Q 192 574 226 568 Q 269 565 307 531 Q 323 511 336 474"/>
+<path d="M 335 461 Q 340 439 362 443 Q 383 450 374 477 Q 369 494 352 505 Q 345 509 339 499"/>
+<path d="M 344 478 Q 352 459 364 467 Q 357 470 354 484"/>
+<!-- eye and eyebrow -->
+<path d="M 190 455 Q 218 437 246 453 M 198 467 Q 217 455 236 467 Q 217 483 198 467 Z"/>
+<path d="M 214 460 Q 205 467 215 474 Q 226 472 222 463"/>
+<!-- nose and lips -->
+<path d="M 166 487 L 181 491 M 169 524 Q 189 530 206 522 M 182 541 Q 200 544 215 535"/>
+<!-- hoodie and shoulders -->
+<path d="M 227 570 Q 239 595 237 623 M 320 531 Q 328 564 346 585"/>
+<path d="M 232 600 Q 213 598 201 624 Q 179 628 172 661 Q 126 682 106 744 M 342 579 Q 381 572 416 596 Q 461 603 486 658 Q 504 700 513 744"/>
+<path d="M 225 611 Q 251 659 301 680 Q 339 632 392 608 M 190 648 Q 235 701 299 720 Q 378 657 425 625"/>
+<path d="M 159 745 Q 179 710 206 701 M 390 744 Q 408 713 450 695"/>
+</svg>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js';
+const stage=document.getElementById('stage');const scene=new THREE.Scene();scene.background=new THREE.Color(0x02051b);scene.fog=new THREE.FogExp2(0x02051b,.013);
+const camera=new THREE.PerspectiveCamera(37,innerWidth/innerHeight,.1,200);camera.position.set(0,0,29);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;stage.appendChild(renderer.domElement);
+const sign=new THREE.Group();scene.add(sign);const cyan=new THREE.Color('#00dfff');const core=new THREE.MeshBasicMaterial({color:0xc9ffff});const inner=new THREE.MeshBasicMaterial({color:cyan});const glow=new THREE.MeshBasicMaterial({color:0x005eff,transparent:true,opacity:.085,depthWrite:false,blending:THREE.AdditiveBlending});const blueGlow=new THREE.MeshBasicMaterial({color:0x00dfff,transparent:true,opacity:.065,depthWrite:false,blending:THREE.AdditiveBlending});
+function tube(points,r,material){const curve=new THREE.CatmullRomCurve3(points);const mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,Math.max(16,points.length*2),r,7,false),material);sign.add(mesh);return mesh}
+const paths=[...document.querySelectorAll('#paths path')];for(const p of paths){const len=p.getTotalLength(),n=Math.max(24,Math.ceil(len/4)),pts=[];for(let i=0;i<=n;i++){const v=p.getPointAtLength(len*i/n);pts.push(new THREE.Vector3((v.x-300)/54,(400-v.y)/54,Number(p.dataset.depth||0)))}tube(pts,.039,core);tube(pts,.07,inner);tube(pts,.17,blueGlow);tube(pts,.32,glow)}
+const plate=new THREE.Mesh(new THREE.BoxGeometry(10.6,14.4,.32),new THREE.MeshPhysicalMaterial({color:0x030c32,metalness:.3,roughness:.17,transparent:true,opacity:.94,clearcoat:1,clearcoatRoughness:.1}));plate.position.z=-.33;sign.add(plate);
+const back=new THREE.Mesh(new THREE.BoxGeometry(11.2,15,.25),new THREE.MeshStandardMaterial({color:0x020820,metalness:.65,roughness:.25}));back.position.z=-.57;sign.add(back);
+const light=new THREE.PointLight(0x008dff,45,30);light.position.set(0,0,3);scene.add(light);scene.add(new THREE.AmbientLight(0x2946b0,.7));
+const stars=new THREE.BufferGeometry(),arr=[];for(let i=0;i<360;i++){arr.push((Math.random()-.5)*85,(Math.random()-.5)*75,-10-Math.random()*40)}stars.setAttribute('position',new THREE.Float32BufferAttribute(arr,3));const particles=new THREE.Points(stars,new THREE.PointsMaterial({color:0x235cb9,size:.045,transparent:true,opacity:.6}));scene.add(particles);
+let orbit=true,pulse=true,drag=false,lastX=0,lastY=0,targetX=0,targetY=0,zoom=29;const spin=document.getElementById('spin'),puls=document.getElementById('pulse');spin.onclick=()=>{orbit=!orbit;spin.textContent=orbit?'⟳ ORBIT ON':'⟳ ORBIT OFF'};puls.onclick=()=>{pulse=!pulse;puls.textContent=pulse?'✦ PULSE ON':'✦ PULSE OFF'};document.getElementById('reset').onclick=()=>{targetX=targetY=0;zoom=29;orbit=true;pulse=true;spin.textContent='⟳ ORBIT ON';puls.textContent='✦ PULSE ON'};
+renderer.domElement.addEventListener('pointerdown',e=>{drag=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener('pointerup',()=>drag=false);renderer.domElement.addEventListener('pointermove',e=>{if(!drag)return;targetY=Math.max(-.8,Math.min(.8,targetY+(e.clientX-lastX)*.005));targetX=Math.max(-.4,Math.min(.4,targetX+(e.clientY-lastY)*.004));lastX=e.clientX;lastY=e.clientY});renderer.domElement.addEventListener('wheel',e=>{zoom=Math.max(19,Math.min(45,zoom+e.deltaY*.018))},{passive:true});
+let t=0;function animate(){requestAnimationFrame(animate);t+=.012;const auto=orbit?Math.sin(t*.22)*.16:0;sign.rotation.y+=(targetY+auto-sign.rotation.y)*.05;sign.rotation.x+=(targetX-sign.rotation.x)*.05;camera.position.z+=(zoom-camera.position.z)*.08;light.intensity=pulse?36+Math.sin(t*1.7)*8:40;particles.rotation.y+=.00009;renderer.render(scene,camera)}animate();
+function resize(){camera.aspect=innerWidth/innerHeight;camera.fov=innerWidth<650?51:37;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}window.addEventListener('resize',resize);resize();
+</script></body></html>

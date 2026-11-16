@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>æsymov · real CAD · Menlo Asimov-1</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0a0f; font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  #canvas-container { width: 100%; height: 100%; position: relative; }
+  canvas { display: block; }
+  .hud { position: absolute; bottom: 18px; left: 18px; color: #b4ff2e; font-size: 10px; letter-spacing: 0.06em; pointer-events: none; opacity: 0.85; }
+  .hud b { color: #00eaff; }
+  .title { position: absolute; top: 16px; left: 18px; color: #b4ff2e; font-size: 12px; letter-spacing: 0.12em; }
+  .title span { color: #ff00ff; }
+  .info { position: absolute; top: 16px; right: 18px; font-size: 9px; color: rgba(255,255,255,0.4); text-align: right; max-width: 260px; }
+  .loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #00eaff; font-size: 12px; }
+</style>
+</head>
+<body>
+<div id="canvas-container">
+  <div class="title">æsymov · <span>hologram</span></div>
+  <div class="info">Menlo Research Asimov-1<br>25 DOF · CERN-OHL-S-2.0<br>wireframe + red æ core</div>
+  <div class="loading" id="loading">Loading CAD meshes...</div>
+  <div class="hud">drag to orbit · scroll zoom · <b>real geometry</b></div>
+</div>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+
+const container = document.getElementById('canvas-container');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x02051c);
+scene.fog = new THREE.FogExp2(0x02051c, 0.02);
+
+const camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 0.1, 500);
+camera.position.set(0, 8, 18);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+container.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.4;
+controls.target.set(0, 5, 0);
+
+scene.add(new THREE.AmbientLight(0x404060, 0.3));
+const key = new THREE.DirectionalLight(0x00eaff, 0.8); key.position.set(10,15,10); scene.add(key);
+const rim = new THREE.DirectionalLight(0x00eaff, 0.6); rim.position.set(0,8,-12); scene.add(rim);
+const rim2 = new THREE.DirectionalLight(0xff00ff, 0.4); rim2.position.set(0,8,12); scene.add(rim2);
+const red = new THREE.PointLight(0xff2244, 1.0, 20); red.position.set(0, 8, 2); scene.add(red);
+
+// Circuit-board grid
+const grid = new THREE.GridHelper(40, 40, 0x1a3a5c, 0x0a1a2e);
+grid.position.y = 0;
+scene.add(grid);
+
+// Circuit traces (random lines on floor)
+const traceMat = new THREE.LineBasicMaterial({ color: 0x1a5a8c, transparent: true, opacity: 0.4 });
+for (let i = 0; i < 40; i++) {
+  const pts = [];
+  let x = (Math.random()-0.5)*30, z = (Math.random()-0.5)*30;
+  for (let j = 0; j < 4; j++) {
+    pts.push(new THREE.Vector3(x, 0.05, z));
+    if (Math.random() > 0.5) x += (Math.random()-0.5)*6; else z += (Math.random()-0.5)*6;
+  }
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), traceMat));
+}
+
+// Data nodes (floating dots)
+const nodeGeo = new THREE.BufferGeometry();
+const nodeCount = 100;
+const nodePos = new Float32Array(nodeCount * 3);
+for (let i = 0; i < nodeCount; i++) {
+  nodePos[i*3] = (Math.random()-0.5)*40;
+  nodePos[i*3+1] = Math.random()*15;
+  nodePos[i*3+2] = (Math.random()-0.5)*40;
+}
+nodeGeo.setAttribute('position', new THREE.BufferAttribute(nodePos, 3));
+scene.add(new THREE.Points(nodeGeo, new THREE.PointsMaterial({ color: 0x00eaff, size: 0.08, transparent: true, opacity: 0.6 })));
+
+// Reflective floor
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshStandardMaterial({ color: 0x02051c, roughness: 0.1, metalness: 0.9 }));
+floor.rotation.x = -Math.PI/2;
+floor.position.y = -0.01;
+scene.add(floor);
+
+const MESH_BASE = 'asimov-meshes/';
+
+// URDF data
+const URDF = {"links": {"pelvis_link": {"mesh": "pelvis_link.STL"}, "left_hip_pitch_link": {"mesh": "left_hip_pitch_link.STL"}, "left_hip_roll_link": {"mesh": "left_hip_roll_link.STL"}, "left_hip_yaw_link": {"mesh": "left_hip_yaw_link.STL"}, "left_knee_link": {"mesh": "left_knee_link.STL"}, "left_ankle_pitch_link": {"mesh": "left_ankle_pitch_link.STL"}, "left_ankle_roll_link": {"mesh": "left_ankle_roll_link.STL"}, "right_hip_pitch_link": {"mesh": "right_hip_pitch_link.STL"}, "right_hip_roll_link": {"mesh": "right_hip_roll_link.STL"}, "right_hip_yaw_link": {"mesh": "right_hip_yaw_link.STL"}, "right_knee_link": {"mesh": "right_knee_link.STL"}, "right_ankle_pitch_link": {"mesh": "right_ankle_pitch_link.STL"}, "right_ankle_roll_link": {"mesh": "right_ankle_roll_link.STL"}, "waist_yaw_link": {"mesh": "waist_yaw_link.STL"}, "neck_yaw_link": {"mesh": "neck_yaw_link.STL"}, "neck_pitch_link": {"mesh": "neck_pitch_link.STL"}, "right_shoulder_pitch_link": {"mesh": "right_shoulder_pitch_link.STL"}, "right_shoulder_roll_link": {"mesh": "right_shoulder_roll_link.STL"}, "right_shoulder_yaw_link": {"mesh": "right_shoulder_yaw_link.STL"}, "right_elbow_link": {"mesh": "right_elbow_link.STL"}, "right_wrist_yaw_link": {"mesh": "right_wrist_yaw_link.STL"}, "left_shoulder_pitch_link": {"mesh": "left_shoulder_pitch_link.STL"}, "left_shoulder_roll_link": {"mesh": "left_shoulder_roll_link.STL"}, "left_shoulder_yaw_link": {"mesh": "left_shoulder_yaw_link.STL"}, "left_elbow_link": {"mesh": "left_elbow_link.STL"}, "left_wrist_yaw_link": {"mesh": "left_wrist_yaw_link.STL"}}, "joints": [{"name": "left_hip_pitch_joint", "type": "revolute", "parent": "pelvis_link", "child": "left_hip_pitch_link", "xyz": [-0.0519919979, 0.06849986203, -0.044045], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, 1.0, 0.0]}, {"name": "left_hip_roll_joint", "type": "revolute", "parent": "left_hip_pitch_link", "child": "left_hip_roll_link", "xyz": [0.0422501, 0.04000027594, 0.0], "rpy": [0.0, 0.0, 0.0], "axis": [1.0, 0.0, 0.0]}, {"name": "left_hip_yaw_joint", "type": "revolute", "parent": "left_hip_roll_link", "child": "left_hip_yaw_link", "xyz": [-0.04225, 0.0, -0.052], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, 0.0, -1.0]}, {"name": "left_knee_joint", "type": "revolute", "parent": "left_hip_yaw_link", "child": "left_knee_link", "xyz": [0.0, 0.0, -0.19564], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, 1.0, 0.0]}, {"name": "left_ankle_pitch_joint", "type": "revolute", "parent": "left_knee_link", "child": "left_ankle_pitch_link", "xyz": [0.0, 0.0, -0.2946623361], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, 1.0, 0.0]}, {"name": "left_ankle_roll_joint", "type": "revolute", "parent": "left_ankle_pitch_link", "child": "left_ankle_roll_link", "xyz": [-0.0015, 0.0, -0.009999992], "rpy": [0.0, 0.0, 0.0], "axis": [-1.0, 0.0, 0.0]}, {"name": "right_hip_pitch_joint", "type": "revolute", "parent": "pelvis_link", "child": "right_hip_pitch_link", "xyz": [-0.0519919979, -0.06850013797, -0.044045], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, -1.0, 0.0]}, {"name": "right_hip_roll_joint", "type": "revolute", "parent": "right_hip_pitch_link", "child": "right_hip_roll_link", "xyz": [0.0422501, -0.04000027594, 0.0], "rpy": [0.0, 0.0, 0.0], "axis": [1.0, 0.0, 0.0]}, {"name": "right_hip_yaw_joint", "type": "revolute", "parent": "right_hip_roll_link", "child": "right_hip_yaw_link", "xyz": [-0.04225, 0.0, -0.052], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, 0.0, -1.0]}, {"name": "right_knee_joint", "type": "revolute", "parent": "right_hip_yaw_link", "child": "right_knee_link", "xyz": [0.0, 0.0, -0.19564], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, -1.0, 0.0]}, {"name": "right_ankle_pitch_joint", "type": "revolute", "parent": "right_knee_link", "child": "right_ankle_pitch_link", "xyz": [0.0, 0.0, -0.2946623361], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, -1.0, 0.0]}, {"name": "right_ankle_roll_joint", "type": "revolute", "parent": "right_ankle_pitch_link", "child": "right_ankle_roll_link", "xyz": [-0.0015, 0.0, -0.009999992], "rpy": [0.0, 0.0, 0.0], "axis": [-1.0, 0.0, 0.0]}, {"name": "waist_yaw_joint", "type": "revolute", "parent": "pelvis_link", "child": "waist_yaw_link", "xyz": [-0.0519919979, 0.0, 0.074755], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, 0.0, 1.0]}, {"name": "neck_yaw_joint", "type": "revolute", "parent": "waist_yaw_link", "child": "neck_yaw_link", "xyz": [-0.01659877455, 0.0, 0.37817729], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, 0.0, 1.0]}, {"name": "neck_pitch_joint", "type": "revolute", "parent": "neck_yaw_link", "child": "neck_pitch_link", "xyz": [0.0, 0.0, 0.03735], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, -1.0, 0.0]}, {"name": "right_shoulder_pitch_joint", "type": "revolute", "parent": "waist_yaw_link", "child": "right_shoulder_pitch_link", "xyz": [-0.02621282535, -0.0965, 0.2611404833], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, -1.0, 0.0]}, {"name": "right_shoulder_roll_joint", "type": "revolute", "parent": "right_shoulder_pitch_link", "child": "right_shoulder_roll_link", "xyz": [5e-05, -0.06535322324, 6.334135041e-05], "rpy": [0.0, 0.0, 0.0], "axis": [-1.0, 0.0, 0.0]}, {"name": "right_shoulder_yaw_joint", "type": "revolute", "parent": "right_shoulder_roll_link", "child": "right_shoulder_yaw_link", "xyz": [0.0, -0.0007840587182, -0.1289963672], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, -0.006078033456, -0.9999815286]}, {"name": "right_elbow_joint", "type": "revolute", "parent": "right_shoulder_yaw_link", "child": "right_elbow_link", "xyz": [0.0, 0.0004006795283, -0.09860555673], "rpy": [-0.06357995311, 1.483359028, -0.06939277108], "axis": [0.0, 0.9999815286, -0.006078033456]}, {"name": "right_wrist_yaw_joint", "type": "revolute", "parent": "right_elbow_link", "child": "right_wrist_yaw_link", "xyz": [0.106, -0.0009999815286, 0.0], "rpy": [0.0, 0.0, 0.0], "axis": [1.0, 0.0, 0.0]}, {"name": "left_shoulder_pitch_joint", "type": "revolute", "parent": "waist_yaw_link", "child": "left_shoulder_pitch_link", "xyz": [-0.02621282535, 0.0965, 0.2611404833], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, 1.0, 0.0]}, {"name": "left_shoulder_roll_joint", "type": "revolute", "parent": "left_shoulder_pitch_link", "child": "left_shoulder_roll_link", "xyz": [5e-05, 0.06535322324, 6.334135041e-05], "rpy": [0.0, 0.0, 0.0], "axis": [-1.0, 0.0, 0.0]}, {"name": "left_shoulder_yaw_joint", "type": "revolute", "parent": "left_shoulder_roll_link", "child": "left_shoulder_yaw_link", "xyz": [0.0, 0.0007840587182, -0.1289963672], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, 0.006078009292, -0.9999815287]}, {"name": "left_elbow_joint", "type": "revolute", "parent": "left_shoulder_yaw_link", "child": "left_elbow_link", "xyz": [0.0, -0.0004006795283, -0.09860555673], "rpy": [0.06360378094, 1.483388955, 0.06941669025], "axis": [0.0, -0.9999815286, -0.006078033456]}, {"name": "left_wrist_yaw_joint", "type": "revolute", "parent": "left_elbow_link", "child": "left_wrist_yaw_link", "xyz": [0.106, 0.0009999815286, 0.0], "rpy": [0.0, 0.0, 0.0], "axis": [1.0, 0.0, 0.0]}]};
+
+// Build link hierarchy
+const linkGroups = {};
+const linkMeshes = {};
+
+// Create root group
+const root = new THREE.Group();
+scene.add(root);
+
+// Create a group for each link
+for (const linkName of Object.keys(URDF.links)) {
+  const g = new THREE.Group();
+  g.name = linkName;
+  linkGroups[linkName] = g;
+}
+
+// Apply joint transforms: child group is child of parent group
+for (const joint of URDF.joints) {
+  const parent = linkGroups[joint.parent];
+  const child = linkGroups[joint.child];
+  if (!parent || !child) continue;
+  // Position from joint origin
+  child.position.set(joint.xyz[0], joint.xyz[1], joint.xyz[2]);
+  // Rotation from rpy (roll, pitch, yaw)
+  child.rotation.set(joint.rpy[0], joint.rpy[1], joint.rpy[2]);
+  parent.add(child);
+}
+
+// Root link (pelvis) is the root
+root.add(linkGroups['pelvis_link']);
+
+// Load STL meshes
+const loader = new STLLoader();
+let loaded = 0;
+const total = Object.keys(URDF.links).filter(k => URDF.links[k].mesh).length;
+
+for (const [linkName, linkData] of Object.entries(URDF.links)) {
+  if (!linkData.mesh) continue;
+  const url = MESH_BASE + linkData.mesh;
+  loader.load(url, (geometry) => {
+    // Holographic wireframe material
+    const material = new THREE.MeshBasicMaterial({ color: 0x00eaff, wireframe: true, transparent: true, opacity: 0.9 });
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    // Center geometry
+    geometry.computeBoundingBox();
+    const center = geometry.boundingBox.getCenter(new THREE.Vector3());
+    geometry.translate(-center.x, -center.y, -center.z);
+    linkGroups[linkName].add(mesh);
+    // Add solid dark fill underneath for depth
+    const fillMat = new THREE.MeshBasicMaterial({ color: 0x0a1a3c, transparent: true, opacity: 0.5 });
+    const fill = new THREE.Mesh(geometry, fillMat);
+    linkGroups[linkName].add(fill);
+    loaded++;
+    if (loaded === total) {
+      document.getElementById('loading').style.display = 'none';
+      // Add red æ emblem at chest
+      const emblem = new THREE.Mesh(
+        new THREE.TorusGeometry(0.8, 0.12, 8, 32),
+        new THREE.MeshStandardMaterial({ color: 0xff2244, emissive: 0xff2244, emissiveIntensity: 2.0 })
+      );
+      emblem.position.set(0, 8.2, 1.2);
+      linkGroups['waist_yaw_link'].add(emblem);
+      // Frame camera
+      const box = new THREE.Box3().setFromObject(root);
+      const size = box.getSize(new THREE.Vector3());
+      const center2 = box.getCenter(new THREE.Vector3());
+      controls.target.copy(center2);
+      camera.position.set(center2.x + size.x*0.8, center2.y + size.y*0.6, center2.z + size.z*1.2);
+      controls.update();
+    }
+  }, undefined, (err) => {
+    console.error('Failed to load', linkData.mesh, err);
+    loaded++;
+  });
+}
+
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+  root.position.y = Math.sin(t * 0.8) * 0.1;
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>
