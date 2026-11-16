@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asimov Simulator · Instruments</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 100%; height: 100%; overflow: hidden; font-family: 'JetBrains Mono', ui-monospace, monospace; background: #0a0a0f; color: #edfff6; }
+  .panel { position: absolute; padding: 16px; border: 1px solid #3a5a7a; border-radius: 8px; font-size: 11px; color: #edfff6; }
+  .left { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; }
+  .right { top: 50%; right: 50%; transform: translate(50%, -50%); width: 320px; }
+  .bottom { bottom: 20px; left: 50%; transform: translateX(-50%); width: 600px; }
+  h3 { font-size: 9px; letter-spacing: 0.12em; color: #00eaff; margin-bottom: 10px; text-transform: uppercase; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .card { background: rgba(10, 10, 24, 0.7); border: 1px solid rgba(0, 234, 255, 0.2); border-radius: 6px; padding: 10px; }
+  .card .label { font-size: 8px; letter-spacing: 0.1em; color: #b4ff2e; margin-bottom: 4px; }
+  .card .value { font-size: 14px; font-weight: 600; }
+  .card .unit { font-size: 8px; color: #00eaff; }
+  .wave { height: 40px; background: rgba(0, 234, 255, 0.05); border-radius: 4px; overflow: hidden; border: 1px solid rgba(0, 234, 255, 0.1); }
+  .wave-bar { height: 100%; background: linear-gradient(90deg, #00eaff, #ff00ff); border-radius: 4px; transition: width 0.1s; }
+  .spinner { display: flex; gap: 6px; align-items: center; margin-top: 8px; font-size: 9px; color: #b4ff2e; }
+  .spinner span { width: 8px; height: 8px; border-radius: 50%; background: #00eaff; animation: pulse 1s infinite; }
+  .spinner span:nth-child(2) { animation-delay: 0.2s; }
+  .spinner span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+</style>
+</head>
+<body>
+<div class="panel left">
+  <h3>⚡ Power</h3>
+  <div class="grid">
+    <div class="card"><div class="label">Dynamic</div><div class="value">0.0<span class="unit">kW</span></div></div>
+    <div class="card"><div class="label">Baseline</div><div class="value">12.0<span class="unit">kW</span></div></div>
+    <div class="card"><div class="label">Reactive</div><div class="value">4.2<span class="unit">kW</span></div></div>
+    <div class="card"><div class="label">Peak draw</div><div class="value">18.7<span class="unit">kW</span></div></div>
+    <div class="card"><div class="label">Efficiency</div><div class="value">87.2<span class="unit">%</span></div></div>
+    <div class="card"><div class="label">Thermal head</div><div class="value">68.4<span class="unit">°C</span></div></div>
+  </div>
+  <div class="spinner">
+    <span></span><span></span><span></span>
+    <span>Thermal sync: 94%</span>
+  </div>
+</div>
+
+<div class="panel right">
+  <h3>🔍 Joint readout</h3>
+  <div class="grid" style="grid-template-columns: 1fr 1fr 1fr;">
+    <div class="card"><div class="label">Lhip_pitch</div><div class="value" id="lp">0.00</div><div class="unit">rad</div></div>
+    <div class="card"><div class="label">Rhip_pitch</div><div class="value" id="rp">0.00</div><div class="unit">rad</div></div>
+    <div class="card"><div class="label">Lknee</div><div class="value" id="lk">0.00</div><div class="unit">rad</div></div>
+    <div class="card"><div class="label">Rknee</div><div class="value" id="rk">0.00</div><div class="unit">rad</div></div>
+    <div class="card"><div class="label">Lhip_roll</div><div class="value" id="lr">0.00</div><div class="unit">rad</div></div>
+    <div class="card"><div class="label">Rhip_roll</div><div class="value" id="rr">0.00</div><div class="unit">rad</div></div>
+  </div>
+</div>
+
+<div class="panel bottom">
+  <h3>📊 Waveform — joint torque</h3>
+  <div class="wave"><div class="wave-bar" id="wave" style="width:87%;"></div></div>
+  <div style="display: flex; justify-content: space-between; font-size: 9px; color: #b4ff2e; margin-top: 6px;">
+    <span>0 ms</span><span>500 ms</span><span>1s</span>
+  </div>
+</div>
+
+<script>
+// Live instrument readout synced to the simulator timeline
+const sensors = {
+  jointsActive: 0,
+  power: 12.0,
+  reaction: 18.5,
+  thermal: 42.0,
+  instability: 0.0,
+  torque: 0.0,
+};
+
+// Simulate live data
+setInterval(() => {
+  const t = performance.now() / 1000;
+  const angles = {
+    'left_hip_pitch_joint': Math.sin(t * 2.0) * 0.3,
+    'right_hip_pitch_joint': -Math.sin(t * 2.0) * 0.3,
+    'left_knee_joint': Math.sin(t * 2.0 - 1.0) * 0.5,
+    'right_knee_joint': -Math.sin(t * 2.0 - 1.0) * 0.5,
+    'left_hip_roll_joint': Math.sin(t * 1.2) * 0.1,
+    'right_hip_roll_joint': -Math.sin(t * 1.2) * 0.1,
+  };
+
+  // Update joint readouts
+  document.getElementById('lp').textContent = angles['left_hip_pitch_joint'].toFixed(3);
+  document.getElementById('rp').textContent = angles['right_hip_pitch_joint'].toFixed(3);
+  document.getElementById('lk').textContent = angles['left_knee_joint'].toFixed(3);
+  document.getElementById('rk').textContent = angles['right_knee_joint'].toFixed(3);
+  document.getElementById('lr').textContent = angles['left_hip_roll_joint'].toFixed(3);
+  document.getElementById('rr').textContent = angles['right_hip_roll_joint'].toFixed(3);
+
+  // Waveform
+  const wave = document.getElementById('wave');
+  const width = 87 + Math.sin(t * 10) * 13;
+  wave.style.width = width + '%';
+
+  // Power estimate from torque
+  const torque = angles['left_hip_pitch_joint'] * angles['left_knee_joint'] * 0.1 + 12;
+  document.querySelector('.panel.bottom .value').textContent = torque.toFixed(1) + ' kW';
+}, 100);
+</script>
+</body>
+</html>
