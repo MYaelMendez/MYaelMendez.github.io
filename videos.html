@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MY Videos — MYaelMendez.github.io</title>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --bg2: #0d0d1a;
+            --fg: #edfff6;
+            --fg2: #8899aa;
+            --accent: #00ff9f;
+            --accent2: #00ccff;
+            --muted: #556677;
+            --border: #1a2a3a;
+            --font: 'JetBrains Mono', monospace;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--fg);
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        header h1 {
+            color: var(--accent);
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+        header p {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+        .count {
+            color: var(--fg2);
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .filters label {
+            color: var(--fg2);
+            font-size: 0.85rem;
+        }
+        .filters select {
+            background: var(--bg2);
+            color: var(--fg);
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            font-family: var(--font);
+            font-size: 0.9rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .filters select:focus {
+            outline: 1px solid var(--accent);
+        }
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            gap: 16px;
+            padding: 10px 0;
+        }
+        .category {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--bg2);
+        }
+        .category-header {
+            padding: 12px 16px;
+            background: #111;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+        .category-header h3 {
+            color: var(--accent);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .category-header .count {
+            color: var(--muted);
+            font-size: 0.8rem;
+        }
+        .category-grid .category.show .category-body {
+            display: block;
+        }
+        .category-body {
+            display: none;
+            padding: 12px 16px;
+        }
+        .video-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            background: var(--bg);
+            transition: border-color 0.2s;
+        }
+        .video-item:hover {
+            border-color: var(--accent);
+        }
+        .video-item a {
+            flex: 1;
+            text-decoration: none;
+            color: var(--fg);
+            font-family: var(--font);
+            font-size: 0.85rem;
+            word-break: break-all;
+        }
+        .video-item a:hover {
+            color: var(--accent);
+        }
+        .video-item .size {
+            color: var(--muted);
+            font-size: 0.8rem;
+            white-space: nowrap;
+            padding-right: 10px;
+        }
+        .video-item .play-icon {
+            color: var(--accent);
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--muted);
+            font-size: 0.8rem;
+        }
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.3rem; }
+            .category-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>📼 MY Videos</h1>
+        <p>MYaelMendez.github.io — Cloud Repository Video Collection</p>
+        <p class="count" id="count">Loading...</p>
+    </header>
+
+    <main>
+        <div class="filters">
+            <select id="categoryFilter">
+                <option value="all">All Categories</option>
+                <option value="ai">AI / Neural</option>
+                <option value="industry">Industry 4.0</option>
+                <option value="religion">Theology</option>
+                <option value="agentic">Agentic Engineering</option>
+                <option value="brand">Brand / Marketing</option>
+                <option value="education">Education</option>
+            </select>
+        </div>
+
+        <div class="category-grid" id="grid">
+            <!-- Categories rendered by JavaScript -->
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>MYaelMendez.github.io — Cloud Repository</p>
+        <p>All files are public on GitHub: <a href="https://github.com/MYaelMendez/MYaelMendez.github.io" style="color:var(--accent);">github.com/MYaelMendez/MYaelMendez.github.io</a></p>
+        <p>Video format: MP4 · Audio format: MP3</p>
+    </footer>
+
+    <script>
+        // Category definitions
+        const categoryDefs = {
+            'ai': { label: '✨ AI / Neural', keywords: ['neuro', 'tech', 'ai', 'agent', 'bot', 'compute', 'llm'], color: '#00ff9f' },
+            'industry': { label: '🏭 Industry 4.0', keywords: ['fase', 'industry', 'shaders', 'engineering', 'power', 'energy'], color: '#00ccff' },
+            'religion': { label: '✝️ Theology', keywords: ['teologia', 'proverbios', 'salmo', 'isaias', 'mat', 'juan', 'genesis', 'apocalipsis', 'confession', 'catecismo', 'doctrina', 'reforma'], color: '#ff00ff' },
+            'agentic': { label: '🤖 Agentic Engineering', keywords: ['agent', 'capability', 'mesh', 'skill', 'command', 'workshop', 'studio'], color: '#ffcc00' },
+            'brand': { label: '💰 Brand / Marketing', keywords: ['brand', 'demo', 'marketing', 'business', 'startup', 'enterprise', 'private', 'private-client'], color: '#ff9f00' },
+            'education': { label: '📚 Education', keywords: ['cri', 'teologia', 'educational', 'learn', 'school'], color: '#888' }
+        };
+
+        const videoExtensions = ['.mp4', '.mov', '.webm'];
+
+        function categorize(filename) {
+            const lower = filename.toLowerCase();
+            for (const [cat, def] of Object.entries(categoryDefs)) {
+                if (def.keywords.some(k => lower.includes(k))) {
+                    return cat;
+                }
+            }
+            return 'other';
+        }
+
+        function getData() {
+            // Fetch video data from GitHub API
+            const url = 'https://api.github.com/repos/MYaelMendez/MYaelMendez.github.io/contents/?ref=gh-pages';
+            
+            fetch(url)
+                .then(r => r.json())
+                .then(root => {
+                    const videos = [];
+                    const queue = [{ items: root }];
+                    
+                    while (queue.length > 0) {
+                        const current = queue.shift();
+                        for (const item of current.items) {
+                            if (item.type === 'dir') {
+                                queue.push({ items: item });
+                            } else if (item.type === 'blob' && item.path.endsWith('.mp4')) {
+                                videos.push({
+                                    path: item.path,
+                                    size: item.size,
+                                    url: `https://github.com/MYaelMendez/MYaelMendez.github.io/blob/gh-pages/${item.path}`
+                                });
+                            }
+                        }
+                    }
+                    
+                    videos.sort((a, b) => b.size - a.size);
+                    render(categorizeVideos(videos));
+                })
+                .catch(err => {
+                    console.error('Error fetching data:', err);
+                    document.getElementById('count').textContent = 'Failed to load video data';
+                });
+        }
+
+        function categorizeVideos(videos) {
+            const categorized = {};
+            for (const cat of Object.keys(categoryDefs)) {
+                categorized[cat] = [];
+            }
+            categorized.other = [];
+            
+            for (const video of videos) {
+                const cat = categorize(video.path);
+                categorized[cat].push(video);
+            }
+            
+            for (const cat of Object.keys(categorized)) {
+                categorized[cat].sort((a, b) => b.size - a.size);
+            }
+            
+            return categorized;
+        }
+
+        function render(categorized) {
+            const grid = document.getElementById('grid');
+            const countEl = document.getElementById('count');
+            
+            let totalVideos = 0;
+            let totalSize = 0;
+            
+            grid.innerHTML = '';
+            
+            for (const [cat, def] of Object.entries(categoryDefs)) {
+                const items = categorized[cat] || [];
+                if (items.length === 0) continue;
+                
+                const col = document.createElement('div');
+                col.className = 'category';
+                
+                const totalSize = items.reduce((s, v) => s + v.size, 0);
+                totalVideos += items.length;
+                totalSize += totalSize;
+                
+                col.innerHTML = `
+                    <div class="category-header">
+                        <h3>${def.label}</h3>
+                        <span class="count">${items.length} videos · ${(totalSize/1024/1024).toFixed(1)} MB</span>
+                    </div>
+                    <div class="category-body">
+                        ${items.map(v => `
+                            <div class="video-item">
+                                <span class="play-icon">▶</span>
+                                <a href="https://github.com/MYaelMendez/MYaelMendez.github.io/blob/gh-pages/${v.path}" target="_blank">${v.path}</a>
+                                <span class="size">${(v.size/1024/1024).toFixed(1)} MB</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                grid.appendChild(col);
+            }
+            
+            // Show "no videos" message if empty
+            if (videos.length === 0) {
+                grid.innerHTML = '<div class="empty">No videos found.</div>';
+            }
+        }
+
+        // Initialize
+        getData();
+
+        // Category filter
+        const filterSelect = document.getElementById('categoryFilter');
+        filterSelect.addEventListener('change', function() {
+            const grid = document.getElementById('grid');
+            const categories = grid.querySelectorAll('.category');
+            const filter = filterSelect.value;
+            
+            for (const cat of categories) {
+                if (filter === 'all') {
+                    cat.classList.add('show');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
