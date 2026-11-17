@@ -159,7 +159,7 @@ html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'J
   <div class="bar">
     <span class="b1">æææ:// · ORIGIN</span>
     <span class="mid">LANGUAGE · IMPLEMENTATION · RUNTIME</span>
-    <span class="live"><span class="dot"></span><span id="meshstate">22 addresses</span></span>
+    <span class="live"><span class="dot"></span><span id="meshstate">43 addresses</span></span>
     <span class="theme-controls" style="display:inline-flex;gap:6px;align-items:center">
       <button id="theme-toggle" type="button" style="background:transparent;border:1px solid var(--line);color:var(--muted);font:inherit;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:4px 8px;cursor:pointer">◐ theme</button>
       <button id="env-toggle" type="button" style="background:transparent;border:1px solid var(--line);color:var(--muted);font:inherit;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:4px 8px;cursor:pointer">⬡ env</button>
@@ -320,7 +320,7 @@ function travel(ev,id){
 function run(raw){
   var c=(raw||'').trim();if(!c)return;log('> '+c,'g');
   var low=c.toLowerCase();
-  if(low==='help'){log('  æ://<name>            — resolve + open a surface','c');log('  x1:y0:z0:æ0           — jump to a coordinate','c');log('  goto x9:y0:z0:æ0      — move the cursor','c');log('  origin                — return to x0:y0:z0:æ0','c');log('  atlas                 — list all 22 addresses','c');log('  scan | whoami | help','c')}
+  if(low==='help'){log('  æ://<name>            — resolve + open a surface','c');log('  x1:y0:z0:æ0           — jump to a coordinate','c');log('  goto x9:y0:z0:æ0      — move the cursor','c');log('  origin                — return to x0:y0:z0:æ0','c');log('  atlas                 — list all addresses','c');log('  scan | whoami | help','c')}
   else if(low==='origin'){S={x:0,y:0,z:0,a:0};render();setHash();log('  returned to origin','ok');tickPush('returned to origin · x0:y0:z0:æ0','coord')}
   else if(low==='atlas'||low==='ls'){ATLAS.slice().sort(function(a,b){return a.a-b.a}).forEach(function(s){log('  '+coordOf(s)+'  '+s.name,'')})}
   else if(low==='scan'||low==='verify'){tickPush('scan · væult chain 10/10 links answer','ok');log('  væult chain ......... 10/10 links answer','ok');log('  custody→format→gate→authority→contract→dispatch→publish→delivery→adoption','c')}
