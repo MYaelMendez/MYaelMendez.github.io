@@ -1,0 +1,277 @@
+{
+  "agent": {
+    "success": true,
+    "result": {
+      "success": true,
+      "authority": "HUMAN://ROOT",
+      "agent": {
+        "name": "Asimov Agent",
+        "slug": "asimov-agent",
+        "authority": "HUMAN://ROOT",
+        "voice": "hermes-agent (M2)",
+        "body": "Asimov-1 (25 DOF)",
+        "runtime": "hermes-ae MoH orchestrator + official Asimov-1 MJCF/URDF + tiny-voca + MuJoCo + ONNX policy",
+        "receipt_action": "AGENT://ASIMOV",
+        "capabilities": [
+          "tts",
+          "video",
+          "vlc_control",
+          "physics",
+          "qpos_viewport",
+          "onnx_locomotion",
+          "viewport_dom",
+          "publish",
+          "receipts"
+        ],
+        "ops": [
+          "agent",
+          "agent_body",
+          "harnesses",
+          "harness",
+          "run_harness",
+          "policy_locomotion",
+          "policy_walk",
+          "viewport_dom",
+          "masterpiece"
+        ],
+        "homepage": "https://mobility.foundation/mobility/",
+        "fallback_homepage": "https://myaelmendez.github.io/mobility/"
+      },
+      "voice": {
+        "name": "hermes-agent",
+        "role": "build voice",
+        "body": "asimov-1",
+        "actor": "hermes-asimov",
+        "runtime": "tiny-voca M2 ONNX + official 25-DOF Asimov-1 CAD",
+        "use": "explains, demonstrates, executes, and returns receipts"
+      },
+      "body": {
+        "name": "Asimov-1",
+        "source": "menloresearch/asimov-1",
+        "dof": 25,
+        "links": 26,
+        "identity": "hermes-agent build body",
+        "authority": "HUMAN://ROOT"
+      },
+      "harnesses": [
+        "voice",
+        "ffmpeg",
+        "control",
+        "physics",
+        "viewport",
+        "robot",
+        "publish",
+        "course",
+        "ledger"
+      ],
+      "policy": {
+        "name": "Menlo/asimov1-locomotion-0818",
+        "sha256": "47f70691ecd5afda2933b2e6430d2375004c943552284172a2d7b28b84188a0c",
+        "verified": {
+          "duration_s": 12.0,
+          "policy_ticks": 600,
+          "physics_steps": 2400,
+          "base_x_m": 4.1868,
+          "com_x_m": 4.1743,
+          "min_z_m": 0.6125,
+          "fall": null,
+          "success": true,
+          "proof_video_sha256": "b72a430045a53f032274ea834881021cd2c4e43b1da2d475dadd39684b8db586"
+        }
+      },
+      "model_sha256": {
+        "physics": "2ffb79442d53473f1e85aeb8859fc46e8db07536fe7a72422084d9f2964969dd",
+        "policy_physics": "898f288360018a8d71d76a4f415fa97e3724053bd60b7fdf14da1908ad8a0828",
+        "urdf": "0cd39d5f2568138e2da7a3a4d393064dd382a8e3313fb6b0edcee7e67fdfb7a6"
+      },
+      "capabilities": {
+        "tts": true,
+        "video": true,
+        "physics": true,
+        "onnx_locomotion": true,
+        "qpos_viewport": true,
+        "viewport_dom": true,
+        "publish": true,
+        "receipts": true
+      },
+      "ledger": {
+        "success": true,
+        "count": 221,
+        "head": "49a582d875298b45b70ef2ab4bfb6aff4205a9c93792f2f10a054682c17d3d26"
+      },
+      "receipt_action": "AGENT://ASIMOV"
+    },
+    "receipt": "43ece81d3597cfdb957666e5c53b85d6322e23899bd87ba5c59c257940f4b06a"
+  },
+  "projection": {
+    "success": true,
+    "result": {
+      "success": true,
+      "authority": "HUMAN://ROOT",
+      "manifest": {
+        "name": "sovereign-projection",
+        "version": "1.0.0",
+        "authority": "HUMAN://ROOT",
+        "title": "Sovereign Projection",
+        "receipt_action": "PROJECTION://",
+        "definition": "A read-only public projection of governed capability. Not a new harness; a composition of viewport, robot, ffmpeg, and publish under the ledger.",
+        "first_principles": [
+          "HUMAN://ROOT is the only authority",
+          "A projection composes existing harnesses; it never becomes a new plugin",
+          "Live capture is pinned as hashed inputs; production replay is deterministic",
+          "Every build and publish writes a receipt to the one ledger",
+          "QC fails closed; aesthetic judgement stays human"
+        ],
+        "composition": [
+          "viewport",
+          "robot",
+          "ffmpeg",
+          "publish",
+          "ledger"
+        ],
+        "entrypoints": {
+          "verify": "ae({\"op\":\"projection\"})",
+          "render": "ae({\"op\":\"projection_render\",\"publish\":false})"
+        },
+        "inputs": [
+          "assets/sovereignty-resources.html",
+          "assets/sovereign-demo-*.png",
+          "assets/asimov-face-video.mp4"
+        ],
+        "outputs": [
+          "sovereign-resources-demo-916.mp4",
+          "sovereign-resources-demo-480.gif",
+          "receipt"
+        ],
+        "limits": [
+          "face states are displayed, not wired to a live approval gate",
+          "demo has no narration",
+          "custom-domain serving is user-side"
+        ],
+        "proof": {
+          "mp4_sha256": "c681282e5ff64cbdaf8a419d20da1ffdec3960ed3481d5862a950372d1e334f3",
+          "gif_sha256": "d54cb632111a0475c1f4e4da1b2ea95df912b30c3ab168a4a1e8b4328ed9bf4b",
+          "receipt": "4e0f2cb43bd11c62",
+          "duration_s": 12.0,
+          "resolution": "720x1280",
+          "fps": 24,
+          "verified": true
+        }
+      },
+      "assets": [
+        "asimov-face-9x16.gif",
+        "asimov-face-video-sm.gif",
+        "asimov-face-video.mp4",
+        "sovereign-demo-deep.png",
+        "sovereign-demo-mid.png",
+        "sovereign-demo-top.png",
+        "sovereign-resources-demo-480.gif",
+        "sovereign-resources-demo-916.mp4",
+        "sovereignty-resources.html"
+      ],
+      "receipt_action": "PROJECTION://"
+    },
+    "receipt": "28bbb8bcaea799f78acc7f225aca6a5daa50c6487e5017989f3ea7304367d3e1"
+  },
+  "harness": {
+    "success": true,
+    "result": {
+      "success": true,
+      "harness": {
+        "name": "robot",
+        "authority": "HUMAN://ROOT",
+        "runtime": "hermes-asimov / Asimov-1 (25-DOF)",
+        "inputs": [
+          "pose",
+          "gait_command"
+        ],
+        "outputs": [
+          "qpos",
+          "end_effector_states"
+        ],
+        "receipt_action": "ROBOT://POSE",
+        "fallback": "frozen rest pose with no locomotion; receipt records that the robot model was unavailable",
+        "description": "Drives the 25-DOF hermes-asimov Asimov-1 humanoid, from fixed-base physics capture to mocap-guided free walk solved by MuJoCo. Policy-driven gait is available through the ONNX locomotion harness.",
+        "identity": "hermes-agent build body",
+        "actor": "asimov-1",
+        "policy": "Menlo/asimov1-locomotion-0818 ONNX (78 obs → 23 actions, 50 Hz)"
+      },
+      "authority": "HUMAN://ROOT"
+    },
+    "receipt": "e5a305ac9f96cf873e174b6e1328c30ce4b0b07cb3cc500c6e12256108848685"
+  },
+  "ops": {
+    "success": true,
+    "result": {
+      "success": true,
+      "shortcuts": [
+        "ae_command",
+        "ae_status",
+        "chimera_sing",
+        "chimera_speak",
+        "face_states",
+        "gallery",
+        "nodes",
+        "physics",
+        "probe",
+        "render",
+        "robot_say",
+        "robot_status",
+        "robot_video",
+        "robot_voice",
+        "speak",
+        "studio",
+        "studio_publish",
+        "studio_status",
+        "studio_sync",
+        "studio_video",
+        "vlc",
+        "vlc_receipts",
+        "voices",
+        "witness"
+      ],
+      "local_ops": [
+        "asimov_agent",
+        "ffmpeg_demo",
+        "free_walk",
+        "masterpiece",
+        "policy_locomotion",
+        "policy_walk",
+        "projection_render",
+        "studio_video",
+        "viewport_dom"
+      ],
+      "local_funcs": [
+        "agent",
+        "agent_body",
+        "ffmpeg",
+        "gallery",
+        "harness",
+        "harnesses",
+        "physics",
+        "probe",
+        "projection",
+        "run_harness",
+        "speak",
+        "studio_sync",
+        "tts_receipts",
+        "tts_speak",
+        "tts_voices",
+        "voices",
+        "witness"
+      ],
+      "note": "use op=free_walk or studio_video for bundled pipelines; op=call reaches local legacy plugins"
+    },
+    "receipt": "db8f96f9586e4c76232203d3f3291348c00fc05548111312fe4d258cbf1bd7eb"
+  },
+  "verify": {
+    "success": true,
+    "result": {
+      "success": true,
+      "count": 225,
+      "head": "db8f96f9586e4c76232203d3f3291348c00fc05548111312fe4d258cbf1bd7eb",
+      "broken_at": null
+    },
+    "receipt": "13ae290debdaf21a8184ee04def8e4f869dce9f56220ba2e4180f971eaee09f8"
+  }
+}
