@@ -169,3 +169,13 @@ Request: diagnose PR #15 mergeability, test the read-only inspector as far as av
 - Added versioned source registry, category/search filters and external model/dataset/Space/index links. An explicit load button retrieves six public Hugging Face model cards; no intent, brief or credentials are sent. Metadata does not install a runtime or grant authority.
 - Verification before publication: all 17 local tests passed. Browser preview checked all theme choices, persisted Black across reload, category filtering, ticker pause, explicit context, approval, returned local output and receipt. Public Hugging Face request succeeded with six cards. Browser WebGL unavailable: static fallback tested; shader/mobile/screen-reader verification remains outstanding. No external inference, agent adapters or cross-host synchronization added. /origin/ and existing OpenAI Site unchanged.
 - Release commit, native CI and final Pages deployment evidence are reported after actual execution; this source record does not assert a future run succeeded.
+
+## 2026-11-03 · Life Towers v0.2 integration checkpoint (feature branch only)
+
+- Review branch: `feat/life-towers-business-city-v02`, draft PR #46 against `gh-pages`.
+- Preserved the original `/ae/control/` compiler and added explicit links to the selected `/ae/control/towers/?tower=N` workspace and separate `/ae/control/city/` laboratory. The currently selected floor still controls the existing local compiler; external execution is not implied.
+- Twelve tower entries now expose Principal, Environments, Agents, Orchestrate and Witness as bounded views. BU$INE$$ Tower 06 can inspect **public** OSW GitHub metadata and produce a local SHA-256 JSON receipt. A local hash is not an authenticated principal, provider confirmation or signed attestation.
+- Contribution City contains a deterministic 52×7 *user-painted simulation*, WebGPU/WGSL instance path and 2D fallback. This is not yet a verified live contribution ingest; native GPU helix, device/browser accessibility, and real GitHub data lineage remain pending.
+- Fixed initial depth texture allocation and added regression coverage. The focused CI workflow now watches the Control entrypoint and both new modules, with read-only permissions.
+- Known independent release blocker: Cloudflare `Workers Builds: hermes` failed on unchanged base `4c43d78a...` and on PRs #44/#46. Root cause cannot be inferred from GitHub status alone; source build logs require authorized Cloudflare access. See issue #47. Do not bypass this check or silently replace the GitHub Pages deployment.
+- The existing OpenAI-hosted æ Studio remains a distinct peer. No existing Site, account, payment, identity, or CI credential was modified.
