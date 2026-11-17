@@ -1,0 +1,168 @@
+{
+  "schema": "hermes-ae/ae-policy/v1",
+  "name": "æ Policy",
+  "version": "1.0.0",
+  "glyph": "æ",
+  "authority": "HUMAN://ROOT",
+  "principle": "authority not transferable · execution visible",
+  "scope": "Internet of Agents: machines, agents, robots, harnesses, surfaces, and commerce drafts",
+  "chain": [
+    "HUMAN://ROOT",
+    "æ",
+    "ae",
+    "harness",
+    "RECEIPT"
+  ],
+  "definitions": {
+    "draft": "Any task, claim, intent, QR, URL, listing, or agent message not signed by HUMAN://ROOT.",
+    "approval": "An explicit human-root decision bound to an action hash, scope, and expiry.",
+    "machine": "Any runtime, device, surface, robot, or harness that can observe or act.",
+    "receipt": "A hash-chained record that makes an action visible after it happens."
+  },
+  "rules": [
+    {
+      "id": "AUTH-001",
+      "statement": "HUMAN://ROOT is the only authority root.",
+      "applies_to": ["*"],
+      "enforcement": "deny"
+    },
+    {
+      "id": "AUTH-002",
+      "statement": "Agents may propose; they may not authorize.",
+      "applies_to": ["agent_message", "external_intent", "marketplace", "llm_agent"],
+      "enforcement": "require_approval"
+    },
+    {
+      "id": "AUTH-003",
+      "statement": "A QR is an address, not permission.",
+      "applies_to": ["qr", "url_discovery", "nfc", "discovery_link"],
+      "enforcement": "deny"
+    },
+    {
+      "id": "AUTH-004",
+      "statement": "Read-only observation is allowed with an identified actor and a receipt.",
+      "applies_to": ["read", "observe", "probe", "inspect", "verify"],
+      "enforcement": "allow"
+    },
+    {
+      "id": "ACT-001",
+      "statement": "Actuation requires human approval or an armed physical deadman.",
+      "applies_to": ["actuate", "teleop", "motion", "joint_command"],
+      "enforcement": "require_approval_or_deadman"
+    },
+    {
+      "id": "ACT-002",
+      "statement": "Commerce and payment actions are drafts until the human signs.",
+      "applies_to": ["commerce", "cart", "checkout", "payment", "purchase"],
+      "enforcement": "require_approval"
+    },
+    {
+      "id": "PUB-001",
+      "statement": "External publication requires human approval and produces a public receipt.",
+      "applies_to": ["publish", "upload", "post", "external_write"],
+      "enforcement": "require_approval"
+    },
+    {
+      "id": "EVID-001",
+      "statement": "Every allowed or denied decision writes a receipt to the unified ledger.",
+      "applies_to": ["*"],
+      "enforcement": "receipt_required"
+    },
+    {
+      "id": "FAIL-001",
+      "statement": "Unknown actions, missing actors, and expired approvals fail closed.",
+      "applies_to": ["*"],
+      "enforcement": "deny"
+    }
+  ],
+  "decision_matrix": {
+    "read": "allow",
+    "observe": "allow",
+    "probe": "allow",
+    "inspect": "allow",
+    "verify": "allow",
+    "speak": "allow",
+    "voice": "allow",
+    "teleop": "require_approval_or_deadman",
+    "actuate": "require_approval_or_deadman",
+    "motion": "require_approval_or_deadman",
+    "joint_command": "require_approval_or_deadman",
+    "commerce": "require_approval",
+    "cart": "require_approval",
+    "checkout": "require_approval",
+    "payment": "require_approval",
+    "purchase": "require_approval",
+    "publish": "require_approval",
+    "upload": "require_approval",
+    "post": "require_approval",
+    "external_write": "require_approval"
+  },
+  "privileged_actions": [
+    "teleop",
+    "actuate",
+    "motion",
+    "joint_command",
+    "commerce",
+    "cart",
+    "checkout",
+    "payment",
+    "purchase",
+    "publish",
+    "upload",
+    "post",
+    "external_write"
+  ],
+  "read_only_actions": [
+    "read",
+    "observe",
+    "probe",
+    "inspect",
+    "verify",
+    "speak",
+    "voice"
+  ],
+  "bindings": {
+    "hermes-ae": {
+      "role": "runtime and MoH router",
+      "obligation": "Enforce this policy before dispatch; receipt every decision."
+    },
+    "asimov-agent": {
+      "role": "embodied executor",
+      "obligation": "Act only through a governed harness with human-root approval or deadman."
+    },
+    "asimov-viewport": {
+      "role": "public projection surface",
+      "obligation": "Project state read-only; never mutate authority or actuation."
+    },
+    "commandprompt-ai": {
+      "role": "1:1 command glass",
+      "obligation": "Render prompts and receipts; do not sign for the human."
+    },
+    "privateclient-ai": {
+      "role": "approval gate",
+      "obligation": "Convert drafts into signed actions only through explicit human approval."
+    },
+    "pi500-teleop": {
+      "role": "keyboard fallback",
+      "obligation": "Motion requires arm plus deadman; every command is receipted."
+    },
+    "android-mcp": {
+      "role": "root-held phone transport",
+      "obligation": "Supply context and approval gestures; never become an authority root."
+    },
+    "llm-store": {
+      "role": "agentic commerce surface",
+      "obligation": "Carts and checkout are drafts until human signs; identity stays private."
+    }
+  },
+  "surfaces": {
+    "authority_footer": "HUMAN://ROOT → æ → RECEIPT",
+    "display_rule": "Every public surface must show the authority chain and state that authority is not transferable."
+  },
+  "revocation": {
+    "rule": "Any machine may be revoked by HUMAN://ROOT; revocation is effective when a REVOKE receipt is chained.",
+    "receipt_action": "POLICY://REVOKE"
+  },
+  "fail_closed": true,
+  "receipt_action": "POLICY://EVALUATE"
+}
