@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>æ · Voice Lab Recorder</title>
+<style>
+  :root { color-scheme: dark; --void:#040906; --line:#164d38; --green:#00ff9f; --cyan:#00ccff; --muted:#7d9c8c; --card:#07120d; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--void); color:#d6ffe9; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; padding:18px; line-height:1.5; }
+  header { display:flex; flex-wrap:wrap; gap:10px; align-items:baseline; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:12px; margin-bottom:16px; }
+  h1 { margin:0; font-size:20px; letter-spacing:.08em; color:var(--green); }
+  .chain { font-size:11px; color:var(--cyan); }
+  .grid { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr); gap:16px; align-items:start; }
+  .card { border:1px solid var(--line); background:var(--card); border-radius:6px; padding:14px; }
+  h2 { margin:0 0 10px; font-size:12px; letter-spacing:.14em; color:var(--muted); text-transform:uppercase; }
+  p { margin:0 0 12px; font-size:12px; color:#a9d9c2; }
+  button { font:inherit; font-size:12px; color:var(--green); background:transparent; border:1px solid var(--line); border-radius:4px; padding:8px 12px; cursor:pointer; margin:0 6px 6px 0; }
+  button:hover { background:#0c2218; }
+  button.primary { border-color:var(--green); background:#0b1f16; }
+  button:disabled { opacity:.4; cursor:not-allowed; }
+  textarea { width:100%; min-height:90px; resize:vertical; background:#030705; color:#d6ffe9; border:1px solid var(--line); border-radius:4px; padding:9px; font:inherit; font-size:12px; }
+  canvas { width:100%; height:120px; background:#000; border:1px solid var(--line); border-radius:4px; display:block; margin-top:10px; }
+  .status { color:var(--cyan); font-size:12px; min-height:20px; }
+  .warn { color:#ffcc66; }
+  .row { display:flex; flex-wrap:wrap; gap:8px; }
+  ol { font-size:12px; color:#a9d9c2; padding-left:20px; }
+  @media (max-width:820px){ .grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<header>
+  <h1>&gt;_æ: VOICE LAB / RECORD SOVÆREIGN REFERENCE</h1>
+  <div class="chain">HUMAN://ROOT → consent → VOICE://BIND → RECEIPT</div>
+</header>
+
+<div class="grid">
+  <section class="card">
+    <h2>1 · Record your reference</h2>
+    <p>Use a quiet room, a good mic, and a steady voice. Record <b>30–60 seconds</b>. The audio stays in this browser until you download it.</p>
+    <div class="row">
+      <button id="start" class="primary">Start recording</button>
+      <button id="stop" disabled>Stop</button>
+      <span id="timer" class="status">00:00</span>
+    </div>
+    <div id="status" class="status">Microphone not started.</div>
+    <canvas id="scope" width="900" height="160"></canvas>
+    <div class="row" style="margin-top:10px">
+      <button id="download-wav" disabled>Download WAV</button>
+      <button id="download-raw" disabled>Download raw recording</button>
+    </div>
+  </section>
+
+  <aside class="card">
+    <h2>2 · Exact transcript</h2>
+    <p>Read the text below exactly as written. After recording, edit this box to match what you actually said, then download it.</p>
+    <textarea id="transcript">I am Yæl Méndez. The human is the root. Agents execute only under approval. Every action leaves a receipt. Authority is not transferable. The robot is our digital twin.</textarea>
+    <button id="download-transcript">Download transcript.txt</button>
+
+    <h2 style="margin-top:16px">3 · Explicit consent</h2>
+    <p>This is the consent file required for <code>VOICE://BIND</code>. Edit only if needed, then download.</p>
+    <textarea id="consent">HUMAN://ROOT VOICE BINDING CONSENT
+
+I, Yæl Méndez, the human principal, explicitly consent to binding a synthetic voice clone for the compute layer human-twin / identity SOVÆREIGN, for local tinyVOICE / VoxMel synthesis only.
+
+Scope: consented cloning, local synthesis, and receipted publication of the one-person-company movement.
+Authority is not transferred. The clone never signs. I may revoke this consent at any time.
+
+Signed: HUMAN://ROOT / &gt;_æ:</textarea>
+    <button id="download-consent">Download consent.txt</button>
+  </aside>
+</div>
+
+<section class="card" style="margin-top:16px">
+  <h2>4 · Send back to Hermes</h2>
+  <ol>
+    <li>Download <b>WAV</b>, <b>transcript.txt</b>, and <b>consent.txt</b>.</li>
+    <li>Attach all three files in chat and say: <b>bind the soværeign voice</b>.</li>
+    <li>Hermes writes the <code>VOICE://BIND</code> receipt and prepares the Chinese ad audio.</li>
+  </ol>
+  <p class="warn">No audio is uploaded by this page. Downloading is the only way it leaves your browser.</p>
+</section>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const start = $('start'), stop = $('stop'), status = $('status'), timer = $('timer');
+  const canvas = $('scope'), ctx = canvas.getContext('2d');
+  let recorder = null, stream = null, chunks = [], startedAt = 0, tick = null, lastBlob = null, lastUrl = null;
+
+  function drawSilence(){
+    ctx.fillStyle='#000'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.strokeStyle='#164d38'; ctx.beginPath(); ctx.moveTo(0,canvas.height/2); ctx.lineTo(canvas.width,canvas.height/2); ctx.stroke();
+  }
+  function drawWave(buffer){
+    const data = buffer.getChannelData(0), step = Math.max(1, Math.floor(data.length / canvas.width));
+    ctx.fillStyle='#000'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.strokeStyle='#00ff9f'; ctx.beginPath();
+    for(let x=0;x<canvas.width;x++){
+      let peak=0; const base=x*step;
+      for(let j=0;j<step;j+=8){ const v=Math.abs(data[base+j]||0); if(v>peak) peak=v; }
+      const y=canvas.height/2 - peak*canvas.height*0.46;
+      if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+  function download(name, blob){
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  }
+  function textBlob(text){ return new Blob([text], {type:'text/plain;charset=utf-8'}); }
+
+  function encodeWav(buffer){
+    const ch=1, rate=buffer.sampleRate, len=buffer.length;
+    const bytes = 44 + len*2;
+    const ab = new ArrayBuffer(bytes), view = new DataView(ab);
+    const write = (off,s) => { for(let i=0;i<s.length;i++) view.setUint8(off+i, s.charCodeAt(i)); };
+    write(0,'RIFF'); view.setUint32(4, bytes-8, true); write(8,'WAVE');
+    write(12,'fmt '); view.setUint32(16,16,true); view.setUint16(20,1,true);
+    view.setUint16(22,ch,true); view.setUint32(24,rate,true);
+    view.setUint32(28,rate*ch*2,true); view.setUint16(32,ch*2,true); view.setUint16(34,16,true);
+    write(36,'data'); view.setUint32(40,len*2,true);
+    const src = buffer.getChannelData(0); let off=44;
+    for(let i=0;i<len;i++,off+=2){
+      let s=Math.max(-1,Math.min(1,src[i])); view.setInt16(off, s<0?s*0x8000:s*0x7fff, true);
+    }
+    return new Blob([ab], {type:'audio/wav'});
+  }
+
+  start.addEventListener('click', async () => {
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({audio:{
+        echoCancellation:false, noiseSuppression:false, autoGainControl:false
+      }});
+      const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : '';
+      recorder = new MediaRecorder(stream, mime ? {mimeType:mime} : undefined);
+      chunks=[];
+      recorder.ondataavailable = e => { if(e.data && e.data.size) chunks.push(e.data); };
+      recorder.onstop = async () => {
+        lastBlob = new Blob(chunks, {type: recorder.mimeType || 'audio/webm'});
+        $('download-raw').disabled = false;
+        status.textContent='Recording stopped. Decoding WAV…';
+        try{
+          const ac = new (window.AudioContext||window.webkitAudioContext)();
+          const decoded = await ac.decodeAudioData(await lastBlob.arrayBuffer());
+          drawWave(decoded);
+          lastUrl = URL.createObjectURL(encodeWav(decoded));
+          $('download-wav').disabled = false;
+          status.textContent='Ready. Download WAV, transcript, and consent.';
+        }catch(e){
+          drawSilence();
+          status.textContent='WAV conversion unavailable; download the raw recording instead.';
+        }
+        stream.getTracks().forEach(t=>t.stop());
+      };
+      recorder.start();
+      startedAt=Date.now(); start.disabled=true; stop.disabled=false;
+      status.textContent='Recording… read the transcript aloud.';
+      tick=setInterval(()=>{ const s=Math.floor((Date.now()-startedAt)/1000); timer.textContent=`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; },250);
+    }catch(e){
+      status.textContent='Microphone access failed: '+(e && e.message ? e.message : e);
+    }
+  });
+
+  stop.addEventListener('click', () => {
+    if(recorder && recorder.state!=='inactive') recorder.stop();
+    clearInterval(tick); start.disabled=false; stop.disabled=true;
+  });
+
+  $('download-wav').addEventListener('click', () => { if(lastUrl){ const a=document.createElement('a'); a.href=lastUrl; a.download='sovareign-reference.wav'; document.body.appendChild(a); a.click(); a.remove(); }});
+  $('download-raw').addEventListener('click', () => { if(lastBlob) download('sovareign-reference.webm', lastBlob); });
+  $('download-transcript').addEventListener('click', () => download('transcript.txt', textBlob($('transcript').value.trim()+'\n')));
+  $('download-consent').addEventListener('click', () => download('consent.txt', textBlob($('consent').value.trim()+'\n')));
+  drawSilence();
+})();
+</script>
+</body>
+</html>
