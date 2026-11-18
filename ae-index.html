@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>æ — ambient engineering · attention is all you need</title>
+<link rel="alternate" type="application/json" href="./ae-manifest.json">
+<meta name="description" content="æ — the ambient engineering surface. 25 Æmoji capabilities, 19 væMCP tools, sovereign voice, all receipted. An address is not a permission.">
+<style>
+  /* Gold-on-void: #D4AF37 on #050505. Sharp edges, scanlines, ambient mesh. */
+  :root{
+    --gold:#D4AF37;
+    --gold-dim:rgba(212,175,55,.28);
+    --gold-faint:rgba(212,175,55,.09);
+    --gold-mid:rgba(212,175,55,.55);
+    --void:#050505;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--void);color:var(--gold)}
+  body{font-family:'JetBrains Mono','Consolas','Monaco',monospace;min-height:100vh}
+  body::after{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:9;
+    background:repeating-linear-gradient(0deg,
+      transparent 0 2px, rgba(212,175,55,.030) 2px 4px);
+  }
+  #mesh{position:fixed;inset:0;z-index:0}
+  .wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:46px 22px 80px}
+
+  .kicker{font-size:.70rem;letter-spacing:.30em;text-transform:uppercase;
+          color:var(--gold-mid);margin:0 0 16px}
+  h1{font-family:'Orbitron','JetBrains Mono',monospace;
+     font-size:clamp(2.6rem,9vw,5rem);letter-spacing:.10em;margin:0 0 4px;line-height:.98}
+  .tag{font-size:.78rem;letter-spacing:.22em;color:var(--gold-mid);margin:0 0 10px}
+  .sub{font-size:.86rem;color:rgba(212,175,55,.62);margin:0 0 8px}
+  .law{font-size:.74rem;color:rgba(212,175,55,.45);margin:0 0 36px;
+       border-left:2px solid var(--gold-dim);padding-left:12px}
+  .rule{height:1px;background:var(--gold-dim);margin:0 0 32px}
+
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+         gap:12px;margin-bottom:34px}
+  .stat{border:1px solid var(--gold-dim);background:rgba(212,175,55,.04);padding:15px}
+  .stat .k{font-size:.60rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-mid)}
+  .stat .v{font-size:1.6rem;font-weight:700;margin-top:6px}
+
+  h2{font-size:.72rem;letter-spacing:.26em;text-transform:uppercase;
+     color:var(--gold-mid);margin:34px 0 12px;font-weight:400}
+
+  .constellation{display:flex;flex-wrap:wrap;gap:8px}
+  .cell{border:1px solid var(--gold-dim);background:rgba(212,175,55,.04);
+        padding:10px 12px;min-width:86px;text-align:center;transition:all .18s}
+  .cell:hover{border-color:var(--gold);background:rgba(212,175,55,.11)}
+  .cell .s{font-size:1.7rem;line-height:1}
+  .cell .p{font-size:.52rem;color:var(--gold-mid);margin-top:6px;word-break:break-all}
+  .cell .c{font-size:.52rem;color:rgba(212,175,55,.42);margin-top:3px}
+
+  .tools{display:flex;flex-wrap:wrap;gap:6px}
+  .tool{border:1px solid var(--gold-dim);background:rgba(212,175,55,.04);
+        padding:6px 9px;font-size:.62rem}
+  .tool.b{border-color:rgba(212,175,55,.16);color:rgba(212,175,55,.55)}
+
+  .mf{border:1px solid var(--gold-dim);background:rgba(212,175,55,.04);
+      padding:14px;font-size:.66rem;color:rgba(212,175,55,.62);line-height:1.7;
+      word-break:break-all}
+  .mf a{color:var(--gold)}
+
+  footer{margin-top:46px;font-size:.66rem;color:rgba(212,175,55,.34);
+         letter-spacing:.10em;line-height:1.9}
+</style>
+</head>
+<body>
+<canvas id="mesh"></canvas>
+<div class="wrap">
+
+  <p class="kicker">&gt;_æ: · ambient engineering</p>
+  <h1>ALL YOU NEED<br>IS ATTENTION</h1>
+  <p class="tag">#attentionisallyouneed · #ambientengineering</p>
+  <p class="sub">æ — one symbol, one verified capability, in any spoken language.</p>
+  <p class="law">An address is not a permission. Resolving never executes.</p>
+  <div class="rule"></div>
+
+  <div class="stats">
+    <div class="stat"><div class="k">Æmoji</div><div class="v" id="n-ae">—</div></div>
+    <div class="stat"><div class="k">væMCP tools</div><div class="v" id="n-tools">—</div></div>
+    <div class="stat"><div class="k">voice receipts</div><div class="v" id="n-rec">—</div></div>
+    <div class="stat"><div class="k">cloud calls</div><div class="v">0</div></div>
+  </div>
+
+  <h2>The constellation — 25 capabilities</h2>
+  <div class="constellation" id="constellation"></div>
+
+  <h2>væMCP — 19 tools (the execution surface)</h2>
+  <div class="tools" id="tools"></div>
+
+  <h2>Machine entry — what agents fetch</h2>
+  <div class="mf">
+    <strong style="color:var(--gold)">GET</strong>
+    <a href="./ae-manifest.json">https://myaelmendez.github.io/ae-manifest.json</a><br>
+    schema <span id="m-schema">ae.manifest/1</span> · <span id="m-bytes">—</span>
+    · deterministic · no auth · no tracking<br>
+    <span style="color:rgba(212,175,55,.42)">
+      The whole capability surface in ~4.7 KB. Typed, receipted, resolution-only.
+    </span>
+  </div>
+
+  <footer>
+    HUMAN://ROOT · soværeign voice (tiny-voca ONNX · CPU · 24 kHz)<br>
+    #opensourceware · open by default · human orchestrated · accessible at scale
+  </footer>
+</div>
+
+<script>
+// ── ambient mesh (canvas 2D, no deps) ────────────────────────────────────────
+(function () {
+  const c = document.getElementById('mesh')
+  const ctx = c.getContext('2d')
+  let W, H, pts = []
+  function resize() {
+    W = c.width = window.innerWidth
+    H = c.height = window.innerHeight
+    const n = Math.min(46, Math.round((W * H) / 34000))
+    pts = []
+    for (let i = 0; i < n; i++) {
+      pts.push({
+        x: Math.random() * W, y: Math.random() * H,
+        vx: (Math.random() - .5) * .16, vy: (Math.random() - .5) * .16
+      })
+    }
+  }
+  resize(); window.addEventListener('resize', resize)
+
+  function frame() {
+    ctx.clearRect(0, 0, W, H)
+    for (const p of pts) {
+      p.x += p.vx; p.y += p.vy
+      if (p.x < 0 || p.x > W) p.vx *= -1
+      if (p.y < 0 || p.y > H) p.vy *= -1
+    }
+    for (let i = 0; i < pts.length; i++) {
+      for (let j = i + 1; j < pts.length; j++) {
+        const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y
+        const d = Math.sqrt(dx * dx + dy * dy)
+        if (d < 150) {
+          ctx.strokeStyle = 'rgba(212,175,55,' + (0.055 * (1 - d / 150)).toFixed(3) + ')'
+          ctx.lineWidth = 1
+          ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y)
+          ctx.lineTo(pts[j].x, pts[j].y); ctx.stroke()
+        }
+      }
+    }
+    requestAnimationFrame(frame)
+  }
+  frame()
+})()
+
+// ── live data: fetch the manifest, never embed a stale copy ──────────────────
+fetch('./ae-manifest.json')
+  .then(r => r.json())
+  .then(m => {
+    document.getElementById('n-ae').textContent    = m.counts.aemoji
+    document.getElementById('n-tools').textContent = m.counts.vaemcp_tools
+    document.getElementById('n-rec').textContent   = m.counts.voice_receipts
+
+    const con = document.getElementById('constellation')
+    for (const s of m.aemoji) {
+      const d = document.createElement('div')
+      d.className = 'cell'
+      d.innerHTML =
+        '<div class="s">' + s.sym + '</div>' +
+        '<div class="p">' + (s.pn || '') + '</div>' +
+        '<div class="c">' + (s.cp || '') + '</div>'
+      d.title = (s.cap || '') + '  ·  ' + (s.cp || '')
+      con.appendChild(d)
+    }
+
+    const t = document.getElementById('tools')
+    for (const n of m.vaemcp.local) {
+      const d = document.createElement('span')
+      d.className = 'tool'; d.textContent = n; t.appendChild(d)
+    }
+    for (const n of m.vaemcp.bridge) {
+      const d = document.createElement('span')
+      d.className = 'tool b'; d.textContent = n; t.appendChild(d)
+    }
+  })
+  .catch(e => {
+    document.getElementById('constellation').textContent =
+      'manifest unreachable: ' + e.message
+  })
+</script>
+</body>
+</html>
