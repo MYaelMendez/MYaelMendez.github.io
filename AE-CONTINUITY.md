@@ -169,3 +169,59 @@ Request: diagnose PR #15 mergeability, test the read-only inspector as far as av
 - Added versioned source registry, category/search filters and external model/dataset/Space/index links. An explicit load button retrieves six public Hugging Face model cards; no intent, brief or credentials are sent. Metadata does not install a runtime or grant authority.
 - Verification before publication: all 17 local tests passed. Browser preview checked all theme choices, persisted Black across reload, category filtering, ticker pause, explicit context, approval, returned local output and receipt. Public Hugging Face request succeeded with six cards. Browser WebGL unavailable: static fallback tested; shader/mobile/screen-reader verification remains outstanding. No external inference, agent adapters or cross-host synchronization added. /origin/ and existing OpenAI Site unchanged.
 - Release commit, native CI and final Pages deployment evidence are reported after actual execution; this source record does not assert a future run succeeded.
+
+
+## 14. soværeign voice · OSW voice laboratory · æ ambient index — 2026-11-17/18
+
+- Source of the build contract for the next agent: the Hermes skill
+  `ae-target-application` (skills/sovereign/ae-target-application/SKILL.md).
+  It carries the target definition, the verified inventory, the build order,
+  the laws, and the environment pitfalls. Read it before changing the æ stack.
+
+Surfaces affected (all measured, none assumed):
+- `plugins/tiny-voca-voice/` — soværeign voice. tiny-voca ONNX on CPU, no
+  cloud, no API key. Roles bound: `nous`→F2 (Nous Research system),
+  `hermes`→M2 (build/narration). 4 tools registered, enabled.
+- `plugins/vaemcp-c2/` — 1 tool; reports the væMCP roster read back over
+  JSON-RPC (19 tools: 10 local + 9 `vscoder_*`).
+- `plugins/vaemcp-github/` — 1 tool; allowlisted git/gh. Mutating verbs
+  require `confirm=true`; unnamed verbs refuse with a structured refusal.
+- `C:/æ/virtual-mcp/server.py` — væMCP 0.3.0, 19 tools, now incl. `vs_speak`
+  (role-aware). Pins the native git interpreter path.
+- `C:/æ/agents/aelang.py` — æ-lang v0.1: tokenize/parse/evaluate, fail-closed.
+- `C:/æ/osw-voice-lab/` — laboratory (local HTTP surface, port 8137): role
+  picker, speed/pitch-shift/pitch-range, playback, receipt display.
+- `C:/æ/agents/kanban_push.py` — patched to pin the native git binary
+  (`C:/Program Files/Git/cmd/git.exe`); PATH git is the MSYS/UCRT build and
+  native Python cannot spawn it (WinError 5).
+
+Published to the truth surface (gh-pages, live, HTTP 200):
+- `sovaereign-voice.html`, `sovaereign-voice-916.mp4`
+- `ae-index.html` + `ae-manifest.json` (schema `ae.manifest/1`, ~4.4 KB —
+  the machine entry point agents fetch)
+- `osw-voice-lab.html`, `osw-voice-lab-916.mp4`
+
+Source revisions: gh-pages advanced ce9ed4c → f42535f → c950509 → bf2b5d6
+(all fast-forward via `kanban_push.py`; never force-pushed).
+
+Checks actually performed:
+- æ-lang: `🍊 -> ∞ -> ♾️` RESOLVED; `🍕` REFUSED and the pipeline closed.
+- Voice: both roles synthesized and played via the lab HTTP surface;
+  unknown role `villain` refused.
+- Video: 720×1280, 10.0 s, 300/300 frames unique; SupervisorVideo PASS
+  (luminancia 44.56, contraste 23.57, movimiento 1.661, 0 black frames).
+- Audio: muxed narration confirmed non-silent (peak 0.931, RMS 0.114,
+  speech 0.32 s → 8.47 s) — the first render was silent and was corrected.
+- Deploy: GitHub API used as the authoritative check; first CDN probe 404s
+  are lag, not failure. Re-checked to 200.
+
+Remaining blockers (explicit):
+- `gh` lacks the `workflow` scope → CI/workflow files are read-only. Human
+  step: `gh auth refresh -s workflow`. aeqr CI stays red on the missing
+  `hermes-fork/mech/qr_index.mec` until then.
+- tiny-voca is architecturally capped at 2 speakers (`"speakers":[F2,M2]`).
+  Asimov and private-client voices require a different engine; candidates
+  already owned: `hermes-voice-lab`, `chimera-vocal-synth`.
+- No CDP port on the Hermes desktop → pane rendering is UNVERIFIED. Only the
+  tools/endpoints/ESM were checked. Someone must look.
+- GitHub OAuth App / Sign-In not created; no client_id. Human step.
