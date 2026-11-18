@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>osw-voice-lab — soværeign voice laboratory</title>
+<style>
+  /* Gold-on-void: #D4AF37 on #050505. Sharp edges, scanlines. */
+  :root{
+    --gold:#D4AF37;
+    --gold-dim:rgba(212,175,55,.28);
+    --gold-mid:rgba(212,175,55,.55);
+    --void:#050505;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--void);color:var(--gold)}
+  body{font-family:'JetBrains Mono','Consolas','Monaco',monospace;min-height:100vh}
+  body::after{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:9;
+    background:repeating-linear-gradient(0deg,
+      transparent 0 2px, rgba(212,175,55,.030) 2px 4px);
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:38px 22px 70px}
+
+  .kicker{font-size:.70rem;letter-spacing:.30em;text-transform:uppercase;
+          color:var(--gold-mid);margin:0 0 12px}
+  h1{font-family:'Orbitron','JetBrains Mono',monospace;
+     font-size:clamp(1.9rem,5.5vw,3rem);letter-spacing:.10em;margin:0 0 6px}
+  .sub{font-size:.80rem;color:rgba(212,175,55,.60);margin:0 0 26px}
+  .rule{height:1px;background:var(--gold-dim);margin:0 0 26px}
+
+  .panel{border:1px solid var(--gold-dim);background:rgba(212,175,55,.04);
+         padding:16px;margin-bottom:16px}
+
+  .row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  label{font-size:.60rem;letter-spacing:.16em;text-transform:uppercase;
+        color:var(--gold-mid);min-width:92px}
+
+  .roles{display:flex;gap:10px;flex-wrap:wrap}
+  .role{border:1px solid var(--gold-dim);background:rgba(212,175,55,.04);
+        padding:10px 14px;cursor:pointer;min-width:150px}
+  .role.on{border-color:var(--gold);background:rgba(212,175,55,.11)}
+  .role .n{font-size:.92rem;font-weight:700}
+  .role .j{font-size:.58rem;color:var(--gold-mid);margin-top:4px}
+
+  textarea{
+    width:100%;background:transparent;color:var(--gold);
+    border:1px solid var(--gold-dim);padding:10px;font:inherit;
+    font-size:.80rem;resize:vertical;min-height:66px
+  }
+  textarea:focus{outline:none;border-color:var(--gold)}
+
+  input[type=range]{flex:1;accent-color:var(--gold);background:transparent}
+  .val{font-size:.66rem;color:var(--gold-mid);min-width:44px;text-align:right}
+
+  button{
+    background:var(--gold);color:#000;border:0;padding:10px 20px;
+    font:inherit;font-weight:700;letter-spacing:.10em;cursor:pointer
+  }
+  button:disabled{background:var(--gold-dim);color:rgba(0,0,0,.45);cursor:not-allowed}
+
+  .out{font-size:.68rem;line-height:1.85;word-break:break-all}
+  .out .k{color:var(--gold-mid);display:inline-block;min-width:104px}
+  .err{border:1px solid #8b3a3a;background:rgba(139,58,58,.10);
+       color:#e08b8b;padding:10px;font-size:.68rem;margin-bottom:12px}
+
+  table{width:100%;border-collapse:collapse;font-size:.64rem;margin-top:6px}
+  th,td{text-align:left;padding:6px 8px;border-bottom:1px solid rgba(212,175,55,.13)}
+  th{color:var(--gold-mid);text-transform:uppercase;letter-spacing:.1em;font-size:.56rem}
+
+  footer{margin-top:32px;font-size:.62rem;color:rgba(212,175,55,.34);letter-spacing:.1em}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="kicker">&gt;_æ: · #opensourceware</p>
+  <h1>OSW VOICE LAB</h1>
+  <p class="sub">soværeign voice — local · receipted · nothing leaves the machine</p>
+  <div class="rule"></div>
+
+  <div class="panel">
+    <div class="row"><label>Role</label></div>
+    <div class="roles" id="roles"></div>
+  </div>
+
+  <div class="panel">
+    <div class="row"><label>Utterance</label></div>
+    <textarea id="text">This is the OpenSourceWare voice laboratory. Two roles, real parameters, one receipt per line.</textarea>
+
+    <div class="row" style="margin-top:14px">
+      <label>speed</label>
+      <input type="range" id="speed" min="0.5" max="2" step="0.05" value="1">
+      <span class="val" id="speed-v">1.00</span>
+    </div>
+    <div class="row">
+      <label>pitch shift</label>
+      <input type="range" id="pitch" min="-12" max="12" step="0.5" value="0">
+      <span class="val" id="pitch-v">0.0</span>
+    </div>
+    <div class="row">
+      <label>pitch range</label>
+      <input type="range" id="range" min="0.5" max="2" step="0.05" value="1">
+      <span class="val" id="range-v">1.00</span>
+    </div>
+
+    <div class="row" style="margin-top:16px">
+      <button id="go">SPEAK</button>
+      <button id="go2" style="background:transparent;color:var(--gold);
+              border:1px solid var(--gold-dim)">SPEAK BOTH ROLES</button>
+    </div>
+  </div>
+
+  <div id="err"></div>
+
+  <div class="panel">
+    <div class="row"><label>Result</label></div>
+    <div class="out" id="out">—</div>
+  </div>
+
+  <div class="panel">
+    <div class="row"><label>TTS://SPEAK receipts</label></div>
+    <div id="receipts"></div>
+  </div>
+
+  <footer>
+    tiny-voca ONNX · CPU · 24 kHz · HUMAN://ROOT · #opensourceware
+  </footer>
+</div>
+
+<script>
+let role = 'hermes'
+let manifest = null
+
+function fmt(n, d) { return Number(n).toFixed(d) }
+
+function bind(id, vid, d) {
+  const el = document.getElementById(id), out = document.getElementById(vid)
+  out.textContent = fmt(el.value, d)
+  el.addEventListener('input', () => out.textContent = fmt(el.value, d))
+}
+bind('speed', 'speed-v', 2); bind('pitch', 'pitch-v', 1); bind('range', 'range-v', 2)
+
+function renderRoles() {
+  const box = document.getElementById('roles')
+  box.innerHTML = ''
+  const rs = (manifest && manifest.roles) || {hermes:{voice:'M2',label:'hermes-agent',job:'build'}}
+  for (const [k, v] of Object.entries(rs)) {
+    const d = document.createElement('div')
+    d.className = 'role' + (k === role ? ' on' : '')
+    d.innerHTML = '<div class="n">' + v.label + '</div>' +
+                  '<div class="j">' + v.voice + ' · ' + v.job + '</div>'
+    d.onclick = () => { role = k; renderRoles() }
+    box.appendChild(d)
+  }
+}
+
+function show(obj) {
+  const o = document.getElementById('out')
+  if (!obj) { o.textContent = '—'; return }
+  const rows = [
+    ['role', obj.role], ['voice', obj.voice],
+    ['duration', obj.duration_s ? obj.duration_s.toFixed(3) + 's' : '—'],
+    ['played', obj.played ? 'yes' : 'no'],
+    ['sha256', (obj.sha256 || '').slice(0, 40) + '…'],
+    ['receipt', (obj.receipt || '').slice(0, 40) + '…'],
+  ]
+  o.innerHTML = rows.map(r =>
+    '<div><span class="k">' + r[0] + '</span>' + (r[1] ?? '—') + '</div>').join('')
+}
+
+async function speak(r) {
+  const res = await fetch('/speak', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      text: document.getElementById('text').value,
+      role: r,
+      speed: parseFloat(document.getElementById('speed').value),
+      pitch_shift: parseFloat(document.getElementById('pitch').value),
+      pitch_range: parseFloat(document.getElementById('range').value),
+      play: true,
+    })
+  })
+  return res.json()
+}
+
+document.getElementById('go').onclick = async () => {
+  const b = document.getElementById('go'); b.disabled = true; b.textContent = '…'
+  document.getElementById('err').innerHTML = ''
+  try {
+    const r = await speak(role)
+    if (!r.ok) {
+      document.getElementById('err').innerHTML =
+        '<div class="err">' + (r.reason || r.error) + '</div>'
+    }
+    show(r); loadReceipts()
+  } finally { b.disabled = false; b.textContent = 'SPEAK' }
+}
+
+document.getElementById('go2').onclick = async () => {
+  const b = document.getElementById('go2'); b.disabled = true
+  document.getElementById('err').innerHTML = ''
+  try {
+    for (const r of ['nous', 'hermes']) {
+      const res = await speak(r)
+      if (!res.ok) {
+        document.getElementById('err').innerHTML =
+          '<div class="err">' + (res.reason || res.error) + '</div>'
+        break
+      }
+      show(res)
+    }
+    loadReceipts()
+  } finally { b.disabled = false }
+}
+
+async function loadReceipts() {
+  const r = await fetch('/receipts?limit=8').then(x => x.json())
+  const box = document.getElementById('receipts')
+  if (!r.receipts || !r.receipts.length) { box.textContent = 'none yet'; return }
+  let h = '<table><tr><th>voice</th><th>dur</th><th>hash</th></tr>'
+  for (const e of r.receipts.slice().reverse()) {
+    h += '<tr><td>' + (e.voice||'') + '</td><td>' +
+         (e.duration_s ? e.duration_s.toFixed(2)+'s' : '') + '</td><td>' +
+         (e.hash||'').slice(0,26) + '…</td></tr>'
+  }
+  box.innerHTML = h + '</table>'
+}
+
+fetch('/manifest').then(r => r.json()).then(m => {
+  manifest = m; renderRoles()
+  document.querySelector('.sub').textContent =
+    m.surface + ' — ' + m.engine + ' · ' + m.backend + ' · ' +
+    m.sample_rate + ' Hz · cloud calls ' + m.cloud_calls +
+    ' · ' + m.receipts + ' receipts'
+}).catch(e => {
+  document.getElementById('err').innerHTML =
+    '<div class="err">manifest unreachable: ' + e.message + '</div>'
+})
+
+renderRoles(); loadReceipts()
+</script>
+</body>
+</html>
