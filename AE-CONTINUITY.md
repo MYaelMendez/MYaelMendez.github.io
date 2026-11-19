@@ -225,3 +225,203 @@ Remaining blockers (explicit):
 - No CDP port on the Hermes desktop → pane rendering is UNVERIFIED. Only the
   tools/endpoints/ESM were checked. Someone must look.
 - GitHub OAuth App / Sign-In not created; no client_id. Human step.
+
+
+## 15. Voice determinism — root cause found and fixed — 2026-11-18
+
+Resume from §14 via the `ae-target-application` skill. Build-order audit:
+item 4 (voice lab A/B + determinism) was BUILT (`ab_determinism.py`) but had
+never been RUN — no receipts existed. Ran it; it measured a real failure;
+root-caused and fixed it. Items 1–3 remain open (grammar lives in the
+`aelang.py` v0.2 docstring, no standalone spec page; no æ-lang→envelope→væMCP
+compiler — `compiler.py` is the separate chat-recursive compiler; no
+conductor module).
+
+**Measured, in order:**
+- æ-lang gate: `🍊 -> ∞ -> ♾️` chains RESOLVED with hash-chained receipts;
+  `ghost` and `🍕` REFUSED fail-closed. PASS.
+- A/B (text "Many destinations. Many agents. One human principal."):
+  nous/F2 4.765 s, hermes/M2 4.125 s, stereo nous-L/hermes-R; CLI hashes
+  agree with lab hashes. PASS. Receipt `b8a49b82…` (scratch voice-ab chain).
+- Determinism, stock model: **MISMATCH in the PCM samples** (headers and
+  durations identical). Not a header artifact.
+- Root cause isolated by experiment, not inference: threads=1 still
+  mismatches (not thread order); graph scan (recursive incl. subgraphs)
+  found exactly ONE stochastic node, `RandomNormalLike`, no seed attr;
+  a minimal seeded `RandomNormalLike` model ALSO mismatches → **ONNX
+  Runtime's CPU kernel ignores the seed attribute**. Seed-patching the
+  graph therefore cannot fix it (tested: still MISMATCH).
+- Fix: split the graph at the random node — `front.onnx` (inputs → noise
+  shape template `/Mul_23_output_0`, deterministic) and `back.onnx` (noise
+  exposed as input → audio). Noise drawn with `numpy.random.default_rng(seed)`.
+  Original `model.onnx` NEVER modified (sha256 `fe6d9187…` before and after).
+
+**Verification of the fix (all executed):**
+- Same seed, two runs: PCM MATCH; different seed: differs (seed-sensitive);
+  audio non-silent (peak 0.757, RMS 0.105 on the probe utterance).
+- Permanent tool `C:/æ/osw-voice-lab/det_voice.py` (build + synth, WAV +
+  hash-chained `det_receipts.jsonl`): two INDEPENDENT process runs, same
+  text/voice/seed → identical file sha256 `2b561fdb…` and PCM sha256
+  `a5e48990…`; nous variant differs (4.064 s). Rebuilt the split from the
+  untouched source via `det_voice.py build` → same PCM hash again.
+- Split models live at `%LOCALAPPDATA%/hermes/tiny-voca/det/{front,back}.onnx`
+  (10.4 MB + 21.6 MB, additive; stock model untouched).
+
+**Boundaries:** determinism now holds for the seeded path only — stock
+`tiny_voca_voice.py` synthesis remains non-deterministic by design of the
+ORT kernel. No plugin file was edited; no push/deploy this slice (local
+tool + runtime assets only). Run lab scripts from an ASCII staging copy
+(`æ` in argv corrupts native subprocesses). Listening quality of the
+seeded variant vs stock: not A/B-listened by a human yet.
+
+**Next:** human listen of `det_hermes` vs stock; then build-order item 1
+(standalone æ-lang syntax spec page) and item 2 (æ-lang → `ae/envelope.py`
+→ væMCP compiler). Blockers from §14 unchanged (gh workflow scope, VoxMel
+provisioning, CDP pane render, OAuth client_id — all human steps).
+
+
+## 16. Build wave 1 — spec, compiler, bindings (subagents, verified) — 2026-11-18
+
+User authorized subagent builds. Three parallel leaves, all additive-only,
+all results RE-RUN BY THE PARENT (child self-reports were not trusted):
+
+- **Item 1 DONE — `C:/æ/agents/AE-LANG-SPEC.md`**: æ-lang v0.2 spec, one
+  page, grounded in the code. Parent re-ran the harness: **26/26 PASS**.
+  Documents classification order (query beats binding), address≠permission
+  refusals, six allowlisted builtins, receipt canonicalization, v0.1
+  `evaluate()` legacy view. Zero code/spec discrepancies; aelang.py and
+  the registry untouched.
+- **Item 2 DONE — `C:/æ/agents/ae_compile.py`**: æ-lang → `ae:1:route:`
+  envelopes (reuses `ae/envelope.py`; encode→decode-back AND byte-identical
+  re-encode verified before any invoke) → allowlisted builtins or væMCP
+  verbs gated by `ae.authority.Capability(action='execute', granted_by=human)`.
+  CompilingRuntime subclasses aelang.Runtime. Parent re-ran: **42/42 PASS**.
+  væMCP execution REFUSES by default (no human grant, no authenticated
+  adapter) — honest fail-closed; grant-present branch implemented but
+  unexercised. Correlation: run_id · pipeline_id · envelope_id · receipt · prev.
+- **Item 5 DONE — `C:/æ/aeqr/registry/capability-bindings.json` +
+  `C:/æ/agents/ae_bindings.py`**: 25/25 symbols covered — 10 bound
+  (8 pure builtins; 🧠→vscoder_plan, ⌨️→win_run human-grant-gated),
+  15 unbound with reasons. Pins registry sha256 `ba5042ce…`; deny-by-default,
+  non-inheriting; exact-scope human grants only. Parent re-ran: **50/50 PASS**,
+  `validate` CLI ok. Dispatch deliberately NOT wired ("conductor pending").
+
+**Discrepancy found at fan-in:** ae_compile's provisional VAEMCP_BINDINGS
+(🛸→vscoder_observe) contradicted the authoritative bindings (🛸 unbound).
+Reconciliation assigned to the conductor slice: capability-bindings.json
+becomes the single source of truth; double gate (registry-bound AND
+execution-allowlisted AND human-granted); win_run stays non-executable
+without explicit grant.
+
+**In flight:** item 3 — the conductor (`C:/æ/agents/conductor.py`): translate
+intent, arbitrate authority, fan out, fold N receipts into ONE truth receipt,
+hold a verifiable ledger; must regress all three suites above.
+
+No push/deploy this wave. Skill `ae-target-application` items 1 and 5 marked
+DONE by the leaves (item 2/3 status pending conductor verification).
+
+
+## 17. Build wave 2 — THE CONDUCTOR (verified) — build order COMPLETE — 2026-11-18
+
+`C:/æ/agents/conductor.py` (conductor/0.1, stdlib + ae modules only).
+Leaf hit one wrong-interpreter error (`onnxruntime` — bare python instead
+of `C:/gpu/Scripts/python.exe`); steered, recovered. Parent RE-RAN every
+suite independently:
+
+- conductor adversarial suite: **73/73 PASS** (fan-out 3→ONE truth receipt
+  with independent hash recomputation; 🍕 run REFUSED with honest partial
+  record; forged/non-human/wildcard/expired/wrong-scope grants all refused;
+  ledger tamper ⇒ chain break, corrupt ledger refuses BEFORE execution;
+  determinism identical truth hash; 🛸/win_run/🧠 refusals; queries
+  resolve-only).
+- `conductor.py selftest`: ALL ASSERTIONS PASSED.
+- compiler suite (reconciled): **48/48 PASS** (was 42; +6 reconciliation).
+- bindings suite: **50/50 PASS** · spec suite: **26/26 PASS** ·
+  aelang selftest + demo gate: PASS.
+
+**Reconciliation done:** ae_compile's provisional VAEMCP_BINDINGS removed;
+capability-bindings.json is the single routing truth via ae_bindings.
+Triple gate: registry-bound ∧ execution-allowlisted ∧ valid human
+Capability (exact scope equality — the leaf caught and fixed a real
+`covers()` wildcard trap mid-build). `vscoder_plan` added to the allowlist
+(grant-gated, read-only); **win_run permanently OFF — no grant can execute
+it** via this path. 🛸 now preflight-refused as unbound (no envelope).
+
+**Interface:** `conduct(source, grants=(), ledger_path=..., input_value='',
+max_workers=4)`; `verify_ledger / read_ledger / history`; CLI
+conduct/verify/history/selftest. Fan-in folds by SOURCE LINE, never
+completion order. Default ledger `C:/æ/logs/conductor-ledger.jsonl`
+(created on first real conduct; tests used scratch ledgers).
+
+**Build order status: ALL FIVE ITEMS DONE** (1 spec §16, 2 compiler §16,
+3 conductor §17, 4 voice determinism §15, 5 bindings §16).
+
+**Explicit remaining gaps:**
+- Real væMCP dispatch unexercised end-to-end: grant-present adapter path
+  reachable but no human grant exists; default DENY verified, valid-grant
+  acceptance proven at unit level only. First positive execution needs an
+  operator-issued Capability for `cap.emoji:1f9e0` (🧠 vscoder_plan).
+- capability-bindings.json 🛸 reason still says "conductor is not built
+  yet" — registry is human-owned; operator's call to refresh.
+- ae_bindings.BindingRuntime.execute still says "conductor pending"
+  (its 50 tests pin that string); conductor path supersedes it.
+- compile_source accepts ONE grant per compile; multi-capability pipelines
+  refuse honestly ("split the pipeline").
+- §14/§15 human blockers unchanged: gh workflow scope, voice listen,
+  VoxMel provisioning, CDP pane render, OAuth client_id.
+
+No push/deploy/network/secrets this wave. Next candidate slices: operator
+grant + first positive væMCP execution; publish the spec/conductor surfaces
+to github.io (needs authorization); PR #15 browser-test tail (§7–11).
+
+
+---
+
+## mp4:// — the media chain, named and verified (2026-11-19)
+
+**Scope of this entry:** media production only. No change to the ChatGPT cockpit,
+the OpenAI-hosted Site, PR #15, or any grant/authority surface. Those remain as
+recorded above; nothing here supersedes them.
+
+### Surfaces added
+- `film-studio.html` — the pipeline as a public feature; portfolio rendered from
+  live GitHub API facts (languages, size, license, last push). No invented claims.
+- `mp4-chain.json` — machine manifest, 10/10 links, self field points at the ASCII URL.
+- `mp4-reel-916.mp4` — 596/596 frames, 24.83 s, gate PASS, receipt 6e4be591…
+- `charging-bay-916.mp4` — 967/967 frames, 40.29 s, gate PASS, receipt 22c58141…
+- `charging-bay-world-916.mp4` — same picture, sound world added (see below).
+- Harnesses published: mp4_chain, sound_link, proof_sheet, charging_bay,
+  asimov_studio3, robot_face2, film_protocol, repo_film + two specs.
+
+### Checks performed (measured, not asserted)
+- `mp4_chain.py verify` imports every module and checks every declared verb: 10/10.
+- Frame integrity: `ffprobe -count_frames` against the PNG count. 967/967 and 596/596.
+- SupervisorVideo: charging bay lum 62.23 / contrast 69.90 / motion 5.218 / black 0;
+  reel lum 64.12 / motion 4.778 / black 0. Both PASS.
+- hermes-asimov plugin: 24 tests pass; validate clean; 18 tools registered.
+- Sound path: `torch: False` in the receipt — numpy only, no checkpoint, no GPU.
+
+### Defects found and fixed this wave
+- **Frame loss across four harnesses.** `-shortest` truncated video at AAC packet
+  boundaries; 967 rendered became 963 published, and mixture-of-robots lost 2.
+  Replaced with `apad=whole_dur` + `-t`. Older published films still carry the loss.
+- **The board misrepresented the film.** 360 px cells rendered faces at 11 px, so
+  expression collapsed to squares. Cells now 720×1280, matching the film exactly.
+- Front door lowercased filesystem paths (Windows tolerates, Linux does not).
+- Blanket ASCII staging broke modules resolving siblings via `__file__`.
+
+### Sound provenance and licence boundary
+`sound_link.py` drives MYaelMendez/Sound, a fork of **stdevMac/orb-audio**
+(Apache-2.0 code + planner weights; NOTICE carried upstream). The optional 9.1M
+`detail` model is **non-commercial and is never loaded**. Audio Specs are derived
+from the film's own scene timings, so impacts land on cuts by construction.
+Measured effect: near-silent 100 ms windows 22.3% → 0.0%.
+
+### Blockers / unknowns (explicit)
+- **Reproducibility unproven.** Everything ran on one Victus. No second-machine clone.
+- **End-user playback unverified.** Films serve HTTP 200 and play in local VLC; the
+  agent browser cannot initialise media (readyState 0 even for a 2 s testsrc clip),
+  so browser playback is NOT verified here. Do not read this entry as a browser test.
+- **No physical robot motion.** SimTransport is implemented and tested; no hardware.
+- Older films predating the frame fix have not been re-rendered.
+- The operator grant remains unbuilt by design; no agent can produce a signature.

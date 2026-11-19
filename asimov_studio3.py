@@ -282,7 +282,7 @@ def render(spec, out_path, wd):
         subprocess.run([str(FF/'ffmpeg.exe'),'-v','error','-y','-f','concat','-safe','0',
                         '-i',str(lst),'-ar','24000','-ac','1',str(track)], capture_output=True, timeout=600)
         subprocess.run([str(FF/'ffmpeg.exe'),'-v','error','-y','-i',str(silent),'-i',str(track),
-                        '-c:v','copy','-c:a','aac','-b:a','128k','-shortest',str(out_path)],
+                        '-c:v','copy','-filter:a',f'apad=whole_dur={total:.6f}','-c:a','aac','-b:a','128k','-t',f'{total:.6f}',str(out_path)],
                        capture_output=True, timeout=900)
     else:
         silent.replace(out_path)
