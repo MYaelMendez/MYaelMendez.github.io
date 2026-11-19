@@ -445,3 +445,16 @@ the OpenAI-hosted Site.
 
 Still open: the solo hermes hero is unpublished (needs a re-render with the
 warmup guard); the 52→26 mesh correction has not yet reached the older films.
+
+
+### hermes-hero-916.mp4 — first film through the fully corrected pipeline
+559/559 frames verified by `ffprobe -count_frames` against the PNG count, both
+before and after the audio mux. Gate PASS: lum 62.5, contrast 65.41, motion
+3.164, black 0. Receipt d97b62b44ac0fbce542282a1b137561ab60e80b711fce886d2378327f2b5b8d5.
+
+Carries every fix: warmup guard (correct frame 0), head-frame face anchoring,
+foreshortening, 0.150 m tablet, SS=4, lit-panel gradient, mouth caps, identity
+colour, and no `-shortest` frame loss. Sound world derived from its own scene
+cuts: 16 events, 3 layers, `torch: False`. Near-silent windows 0/233.
+
+Linked from the homepage. **Not a browser test** — VLC and HTTP only.
