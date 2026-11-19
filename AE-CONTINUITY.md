@@ -428,3 +428,20 @@ Measured effect: near-silent 100 ms windows 22.3% → 0.0%.
 - **No physical robot motion.** SimTransport is implemented and tested; no hardware.
 - Older films predating the frame fix have not been re-rendered.
 - The operator grant remains unbuilt by design; no agent can produce a signature.
+
+
+### Homepage refresh (2026-11-19, media scope only)
+`index.html` was dated 11-17 and claimed **Two voices** while the cast is five.
+Updated in place, reusing the existing `.card` / `.harnesses` / `.link`
+components — no rebuild, no new stylesheet, no change to the ChatGPT cockpit or
+the OpenAI-hosted Site.
+
+- Five voices with measured spectral centroids (2663 / 2906 / 3491 / 2363 / 1459 Hz).
+- New `mp4://` section: ten links, board marked as the human gate.
+- Links added: film-studio, FILM_RUNBOOK, mp4-chain.json, charging-bay-world, mp4-reel.
+- Meta description and lede corrected to five voices.
+- Verified: 4 sections balanced, 5 voice cards, every new link resolves to a file
+  present in the tree. **Not a browser test** — markup and file existence only.
+
+Still open: the solo hermes hero is unpublished (needs a re-render with the
+warmup guard); the 52→26 mesh correction has not yet reached the older films.
