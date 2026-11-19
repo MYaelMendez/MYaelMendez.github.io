@@ -500,3 +500,37 @@ hermes-hero (558/558, receipt 4a9031a8) and mp4-reel (594/594, receipt 7299e342)
 The reel took 4792 s — five bodies at ~2.6 s/frame, consistent with the measured
 cost model. Sound worlds re-derived from the new scene timings; `torch: False`
 on both. No published surface now carries the 52 claim.
+
+
+### rtx-asimov — a portable CUDA rasteriser (2026-11-19)
+New surface `rtx-asimov/`: three files, two pip deps, ffmpeg on PATH. No
+compiler, no C++, no engine, no vendored binaries, no credentials.
+
+**Why:** this Optimus laptop has no registered NVIDIA OpenGL ICD
+(`GL_RENDERER = Intel(R) UHD Graphics`; `nvoglv64.dll` exists only in the driver
+store). Every prior film rasterised on the iGPU. CUDA is unaffected, so the
+rasteriser runs on the RTX directly. Four levers to force OpenGL onto the
+discrete GPU were tried and failed (MUJOCO_GL egl/osmesa invalid on Windows,
+WGL_NV_gpu_affinity absent, GpuPreference registry ignored for OpenGL, nvapi
+DRS rc=-9 then access violation). The CUDA path needs none of them.
+
+**Correction of an earlier error:** the first RTX build consumed the actuated
+MJCF and rendered its `group=3` collision capsules/spheres as if they were the
+body — a hollow robot with proxy limbs. The authoritative geometry is
+`ffmpeg-asimov/urdf.json` (26 links -> STL, 25 joints), already in this repo, with
+forward kinematics in `render_free_walk.py`. Also: `pelvis_link.STL` was never
+missing; the MJCF names it `pelvis.STL`. Both earlier claims were wrong.
+
+**Measured:** 26 links, 25 joints, 1,007,041 triangles/frame, 31 ms raster on
+RTX 3050 (cc 8.6). Total ~330 ms/frame — CPU kinematics, NumPy transforms and PNG
+writes dominate, not the GPU.
+
+**Portability proven:** clean directory with HERMES_HOME and all operator
+variables unset; `fetch_model.py` pulled 26/26 meshes from
+**menloresearch/asimov-1 upstream**; frame f00004.png hashed
+`27628f6615e6cc6f0a0cff5e` — byte-identical to the operator-path render.
+
+**Honest limits, stated in the README:** ~31 fps for 1M triangles is SLOW for
+this GPU (hardware raster would be 500-2000 fps); the kernel has no culling,
+binning or hierarchical Z. One machine only. Linux/macOS paths written but
+unexercised. No shadows, floor or face screen.
