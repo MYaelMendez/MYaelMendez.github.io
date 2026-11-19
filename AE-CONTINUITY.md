@@ -550,3 +550,35 @@ unexercised. No shadows, floor or face screen.
   Superseded by the urdf.json path; not re-rendered yet.
 
 Neither is a browser test. VLC playback and HTTP only.
+
+
+## SESSION HANDOFF 2026-11-19 — read HANDOFF.md after a reload
+
+**The RTX unlock.** This Optimus laptop has no registered NVIDIA OpenGL ICD, so
+every film to date rasterised on Intel UHD. Chrome reaches the discrete GPU via
+ANGLE→D3D11 with `--force_high_performance_gpu` — verified
+`ANGLE (NVIDIA, RTX 3050, D3D11)`. CuPy CUDA raster is a second path (31 ms/frame,
+zero build deps, bit-deterministic). WebGL is the best: ~1–3 ms with shadows,
+PBR and MSAA. Four levers to force OpenGL onto the NVIDIA adapter all failed;
+the browser was the third path and needed no driver change.
+
+**The Asimov browser companion.** `window.asimov` exposes
+status/pose/setState/say/move/ledger, driven over CDP. `asimov_env.py` (:8162)
+feeds real GPU/RAM/receipt/render state every 4 s; the robot's expression follows
+the machine. `move()` returns require_approval ACT-001/AUTH-002. **It shows
+anything and grants nothing.** A desktop pane `Companion` iframe was added
+(418→477 lines, 340→420px) — parses, **never seen in the running app**.
+
+**Restore:** `C:\ægentssimov_up.cmd` starts 8161 scene, 8162 perception,
+9333 CDP, 8081 VLC. Published at `asimov-companion/`.
+
+**Pending, prioritised:** verify the pane renders; bundle the scene into the
+plugin so it needs no external server; render a full WebGL film (only 6 test
+frames exist); re-render the collision-proxy film with URDF geometry;
+second-machine reproduction; tests 24→60; the grant binding (operator decision).
+
+**Kaizen lessons recorded in the mp4-chain skill:** measure the thing not a
+proxy (a glob length is not a mesh count); read the repos before building (the
+correct urdf.json was here all session); a third path usually exists;
+assessment scale changes verdicts; fix the scene never the threshold; anchor
+string replaces on context.
