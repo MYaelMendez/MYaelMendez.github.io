@@ -458,3 +458,17 @@ colour, and no `-shortest` frame loss. Sound world derived from its own scene
 cuts: 16 events, 3 layers, `torch: False`. Near-silent windows 0/233.
 
 Linked from the homepage. **Not a browser test** — VLC and HTTP only.
+
+
+### wætz on the front page (2026-11-19)
+New homepage section with an embedded solo film, reusing the existing `.screen`
+and `.links` components. wætz was previously only a text card.
+
+`waetz-hero-916.mp4` — 531/531 frames verified by ffprobe against the PNG count.
+Gate PASS: lum 66.26, black 0. Receipt
+d81b15f2235ffbcb029d4b3a58f3e201e80123003ad03adb254a4a21adb68678.
+White identity (245,245,250) at 0.86 weight; sound world `room_cold`, 14 events,
+`torch: False`. Rendered 310 s solo through the fully corrected pipeline.
+
+Poster: the existing `waetz-boot-root.png`. **Not a browser test** — the agent
+browser cannot initialise media; markup, file existence and HTTP only.
