@@ -534,3 +534,19 @@ variables unset; `fetch_model.py` pulled 26/26 meshes from
 this GPU (hardware raster would be 500-2000 fps); the kernel has no culling,
 binning or hierarchical Z. One machine only. Linux/macOS paths written but
 unexercised. No shadows, floor or face screen.
+
+
+### RTX films published (2026-11-19)
+- `rtxmp4-raster-916.mp4` — **correct geometry.** 240/240 frames, 720x1280, 10 s.
+  26 CAD links from urdf.json, 1,007,041 triangles/frame, CuPy CUDA raster
+  68.9 ms/frame on RTX 3050, zero OpenGL. Gate PASS lum 26.52 motion 3.479
+  black 0, receipt ed0b01618dd0c23253812ea169c2e2d7…  Silent (no voice yet).
+  First film launched through `mp4://call receipt launch rtx`. v1 returned
+  WARN (motion 0.386); the gesture was strengthened, not the threshold lowered.
+- `rtx-hermes-collision-proxy-916.mp4` — **KNOWN DEFECT, kept as evidence.**
+  480 frames, 20 s, spoken M2, gate PASS. Rendered from the actuated MJCF
+  BEFORE the correction, so its torso and limbs are group=3 collision capsules,
+  not CAD. Named explicitly so it cannot be mistaken for a correct render.
+  Superseded by the urdf.json path; not re-rendered yet.
+
+Neither is a browser test. VLC playback and HTTP only.
