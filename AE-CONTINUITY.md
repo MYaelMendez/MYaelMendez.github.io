@@ -392,6 +392,9 @@ recorded above; nothing here supersedes them.
 - `charging-bay-world-916.mp4` — same picture, sound world added (see below).
 - Harnesses published: mp4_chain, sound_link, proof_sheet, charging_bay,
   asimov_studio3, robot_face2, film_protocol, repo_film + two specs.
+- `FILM_RUNBOOK.md` + `spec-film-template.json` — the complete ordered procedure
+  (environment → spec → board → render → verify → sound → VLC → publish), so the
+  method survives independently of any session. Also held in the mp4-chain skill.
 
 ### Checks performed (measured, not asserted)
 - `mp4_chain.py verify` imports every module and checks every declared verb: 10/10.
