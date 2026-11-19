@@ -483,11 +483,20 @@ files twice. Two live films spoke the false number aloud.
   4a9031a8f729b3e652c744b240f3c72df446d5523c3d139e3c319357d7b74330. Speech now
   says "Twenty six meshes from real CAD. Twenty five actuators."
 - `spec-hermes-hero.json` and `spec-mp4-reel.json` corrected on the surface.
-- `mp4-reel-916.mp4` re-render launched (five bodies, ~25 min); the published
-  copy still carries the false number until it lands. **Recorded as outstanding.**
+- `mp4-reel-916.mp4` re-rendered and republished: 594/594 frames, gate PASS,
+  receipt 7299e342344f4f6deeee7c564a1b9c2f329fd190c58654ab908054d85bde0b85.
+  Speech now says "Twenty six meshes. Five bodies." **No outstanding false count.**
 - `mesh_facts.py` added and published: counts unique case-insensitive stems so
   the number is measured, never hand-typed. Returns meshes 26, actuators 25.
 
 Root cause class: a count derived from a filesystem glob was trusted without
 checking the platform's case semantics. Same family as the frame-count and
 board-resolution errors — a proxy measured instead of the thing.
+
+
+### Mesh-count correction complete (2026-11-19)
+Both films that spoke the false number are re-rendered and live:
+hermes-hero (558/558, receipt 4a9031a8) and mp4-reel (594/594, receipt 7299e342).
+The reel took 4792 s — five bodies at ~2.6 s/frame, consistent with the measured
+cost model. Sound worlds re-derived from the new scene timings; `torch: False`
+on both. No published surface now carries the 52 claim.
