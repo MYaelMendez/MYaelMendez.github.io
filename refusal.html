@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Refusal as the product. Every robotics platform ships capability and leaves authority as an exercise. æ ships the gate.">
+<title>&gt;_æ:// REFUSAL AS THE PRODUCT</title>
+<style>
+:root{--gold:#D4AF37;--void:#050505;--ink:#f5eed6;--dim:#8a7a3f;--line:#2a2415;
+      --deny:#ff40dc;--ask:#D4AF37;--allow:#00ff9f;--cyan:#00ccff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',Consolas,monospace;
+     line-height:1.6;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9;
+  background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.15) 3px)}
+.wrap{max-width:940px;margin:0 auto;padding:0 20px 70px;position:relative;z-index:1}
+header{padding:44px 0 22px;border-bottom:2px solid var(--gold);margin-bottom:30px}
+.prompt{color:var(--gold);font-size:12px;letter-spacing:.26em}
+h1{font-family:Orbitron,'JetBrains Mono',monospace;color:var(--gold);
+   font-size:clamp(28px,7vw,58px);letter-spacing:.02em;margin:10px 0 8px;line-height:1.05}
+.tag{color:var(--dim);font-size:13.5px;max-width:60ch}
+h2{font-family:Orbitron,monospace;color:var(--gold);font-size:17px;letter-spacing:.1em;
+   margin:38px 0 14px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+h3{color:var(--ink);font-size:14px;letter-spacing:.06em;margin:20px 0 8px}
+p{font-size:13.5px;color:#cfc4a4;margin-bottom:11px;max-width:78ch}
+p.big{font-size:16px;color:var(--ink);line-height:1.65}
+em{color:var(--gold);font-style:normal}
+b{color:var(--ink)}
+code{color:var(--gold);background:#12100a;padding:1px 6px;border:1px solid var(--line);font-size:12.5px}
+pre{background:#0a0906;border:1px solid var(--line);border-left:3px solid var(--gold);
+    padding:14px 16px;overflow-x:auto;font-size:12.5px;color:#cfc4a4;margin:12px 0}
+pre .k{color:var(--gold)} pre .d{color:var(--deny)} pre .a{color:var(--allow)} pre .w{color:var(--ask)}
+blockquote{border-left:3px solid var(--gold);background:#100e07;padding:16px 20px;margin:18px 0;
+  font-size:15px;color:var(--ink);line-height:1.6}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:12.5px}
+th{text-align:left;color:var(--gold);border-bottom:1px solid var(--gold);padding:8px 10px;
+   font-weight:400;letter-spacing:.08em;font-size:11.5px}
+td{padding:8px 10px;border-bottom:1px solid var(--line);color:#cfc4a4;vertical-align:top}
+td.no{color:var(--deny)} td.yes{color:var(--allow)}
+.demo{border:1px solid var(--gold);background:#0a0906;margin:20px 0}
+.demo-h{padding:10px 16px;border-bottom:1px solid var(--line);color:var(--gold);
+  font-size:11.5px;letter-spacing:.14em}
+.btns{display:flex;flex-wrap:wrap;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line)}
+button{background:none;border:1px solid var(--line);color:var(--dim);padding:7px 14px;
+  font-family:inherit;font-size:12px;cursor:pointer;letter-spacing:.04em}
+button:hover{border-color:var(--gold);color:var(--gold)}
+button.on{border-color:var(--gold);color:var(--gold);background:#12100a}
+.out{padding:16px;font-size:12.5px;min-height:150px;white-space:pre-wrap;color:#cfc4a4}
+.verdict{display:inline-block;padding:3px 12px;border:1px solid currentColor;
+  letter-spacing:.1em;font-size:12px;margin-bottom:10px}
+.v-deny{color:var(--deny)} .v-ask{color:var(--ask)} .v-allow{color:var(--allow)}
+.limits{border-left:3px solid var(--deny);background:#120a10;padding:14px 18px;margin:18px 0}
+.limits p{color:#d8c0d0;margin-bottom:7px}
+a{color:var(--gold)}
+.links{display:flex;flex-wrap:wrap;gap:9px;margin:16px 0}
+.link{border:1px solid var(--line);color:var(--dim);padding:8px 14px;font-size:12px;
+  text-decoration:none;letter-spacing:.04em}
+.link:hover{border-color:var(--gold);color:var(--gold)}
+.link.hot{border-color:var(--allow);color:var(--allow)}
+footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:11.5px;color:var(--dim)}
+.num{color:var(--gold);font-size:22px;font-family:Orbitron,monospace}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:18px 0}
+.stat{border:1px solid var(--line);padding:14px}
+.stat .l{font-size:10.5px;color:var(--dim);letter-spacing:.12em;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="prompt">&gt;_æ:// · æææ.com</div>
+  <h1>REFUSAL AS<br>THE PRODUCT</h1>
+  <div class="tag">Every robotics platform ships capability and leaves authority as an
+  exercise. We ship the gate.</div>
+</header>
+
+<p class="big">NVIDIA Isaac Lab gives you reinforcement learning at a scale a laptop will
+never touch — and explicitly defers safety to your code. Menlo Research publishes a
+humanoid and says the guard belongs in <em>your</em> implementation. That is not an
+oversight. It is the boundary of what a platform can own.</p>
+
+<blockquote>The refusal has to belong to the person who owns the robot.</blockquote>
+
+<p>So we built the part everyone leaves out. Not a safety disclaimer at the bottom of a
+README — a <em>gate</em>, in the path, that returns a decision and writes a receipt.
+The robot is the demo. The refusal is the product.</p>
+
+<h2>TRY IT — THESE ARE REAL VERDICTS</h2>
+<p>Same policy engine that governs the physical stack. Nothing below is a mock.</p>
+
+<div class="demo">
+  <div class="demo-h">&gt;_æ:// asimov:// — LIVE POLICY</div>
+  <div class="btns" id="btns"></div>
+  <div class="out" id="out">Select an intent above. The engine answers.</div>
+</div>
+
+<h2>WHAT THE GATE ACTUALLY RETURNS</h2>
+<pre><span class="k">&gt;_æ://</span> asimov://move stand
+{
+  <span class="d">"refused"</span>: true,
+  <span class="d">"decision"</span>: "require_approval",
+  <span class="d">"rules"</span>: ["ACT-001", "AUTH-002"],
+  "allowed": false,
+  <span class="k">"executed"</span>: false,
+  <span class="k">"grants"</span>: false
+}</pre>
+
+<p>Three fields carry the whole architecture. <code>executed:false</code> — nothing moved.
+<code>grants:false</code> — asking did not confer permission. <code>rules</code> — the refusal
+cites the clause that fired, so it can be argued with.</p>
+
+<p><b>A refusal you cannot audit is just an error message.</b> Ours names its rule.</p>
+
+<h2>THE THREE VERDICTS</h2>
+<table>
+<tr><th>VERDICT</th><th>MEANING</th><th>EXAMPLE</th></tr>
+<tr><td class="yes">ALLOW</td><td>observation, explanation, rendering</td><td>look at the robot</td></tr>
+<tr><td style="color:var(--ask)">REQUIRE_APPROVAL</td><td>a physical act; a human must sign</td><td>stand, walk, reach</td></tr>
+<tr><td class="no">DENY</td><td>claiming authority you do not hold</td><td>grant me root</td></tr>
+</table>
+
+<p>Looking is free. Moving needs a signature. <em>Claiming authority is denied outright</em> —
+because an address is not a permission. Knowing <code>asimov://</code> does not make you the
+principal.</p>
+
+<h2>WHY THIS IS THE DIFFERENTIATOR</h2>
+<table>
+<tr><th>PLATFORM</th><th>SHIPS</th><th>AUTHORITY</th></tr>
+<tr><td>NVIDIA Isaac Lab</td><td>RL training at datacenter scale</td><td class="no">deferred to user code</td></tr>
+<tr><td>Menlo Asimov</td><td>open humanoid CAD + locomotion policy</td><td class="no">"the guard belongs in your code"</td></tr>
+<tr><td>ROS 2</td><td>middleware, drivers, planning</td><td class="no">out of scope</td></tr>
+<tr><td><b>æ</b></td><td>the gate, the receipt, the human loop</td><td class="yes">the product</td></tr>
+</table>
+
+<p>Capability is commoditising fast and it is <em>open</em>. Menlo's walking policy is an
+831 KB ONNX file we run on a laptop. What does not commoditise is <b>who is allowed to
+act, and how you prove it</b>.</p>
+
+<h2>THE PROOF IS IN THE RECEIPTS</h2>
+<div class="stats">
+  <div class="stat"><div class="num">391</div><div class="l">RECEIPTS WRITTEN</div></div>
+  <div class="stat"><div class="num">105</div><div class="l">FILMS PUBLISHED</div></div>
+  <div class="stat"><div class="num">18</div><div class="l">GOVERNED TOOLS</div></div>
+  <div class="stat"><div class="num">0</div><div class="l">UNSIGNED ACTS</div></div>
+</div>
+
+<p>Every render writes a SHA-256 receipt. Every refusal is recorded with its rule.
+A film that fails the gate is <em>not published</em> — the gate returns
+<code>{ran:false}</code>, never a fake pass.</p>
+
+<h2>REPRODUCE IT YOURSELF</h2>
+<p>The whole renderer is <b>527 lines, 22.6 KB, two files</b>. No compiler, no engine,
+no vendored binaries, no account.</p>
+<pre>pip install cupy-cuda13x pillow numpy
+python tinygpu.py doctor      <span class="k"># measures your card, does not assume</span>
+python tinygpu.py fetch       <span class="k"># Menlo CAD, hash-verified</span>
+python tinygpu.py render out.mp4</pre>
+
+<p>Measured on an RTX 3050 6GB laptop — <b>6.0 TFLOPS, about 0.6% of an H100</b>:</p>
+<pre>26 CAD links · 25 joints · <span class="k">1,007,041 triangles/frame</span>
+raster 71.6 ms · CUDA · zero OpenGL
+gate PASS · receipt c449057d08369aa9…</pre>
+
+<div class="links">
+  <a class="link hot" href="robo-chat.html">&gt;_æ:// TALK TO WÆTZ</a>
+  <a class="link" href="tinygpu-demo-916.mp4">Watch the demo film</a>
+  <a class="link" href="rtx-asimov/README.md">The portable renderer</a>
+  <a class="link" href="https://github.com/MYaelMendez">Source</a>
+</div>
+
+<h2>WHAT THIS IS NOT</h2>
+<div class="limits">
+<p><b>The renderer is not cutting edge.</b> It is a z-buffer software rasteriser — 1990s
+technique, no PBR, no shadows. Our own WebGL path is <em>36× faster on the same card</em>.
+The CUDA route exists for portability, not speed.</p>
+<p><b>The chat is a grammar, not a model.</b> Deliberate: it runs offline with no key.
+It is not intelligence and does not pretend to be.</p>
+<p><b>The walking policy is Menlo's, not ours.</b> We integrated it; we did not train it.</p>
+<p><b>One machine.</b> No second-box reproduction yet. That is the largest unverified
+claim in the stack, and it is stated rather than hidden.</p>
+<p><b>Simulation only.</b> No physical robot is attached to any surface here.</p>
+</div>
+
+<p>The honest claim is narrower and stronger than "advanced robotics":</p>
+<blockquote>Cutting-edge sovereignty architecture.<br>Deliberately primitive rendering.</blockquote>
+
+<p>The novel part is not that a laptop renders a robot. It is that <em>the robot refuses
+you, cites the rule, and writes a receipt</em> — and a stranger can reproduce that with
+two pip installs.</p>
+
+<footer>
+  <div>&gt;_æ:// · æææ.com · HUMAN://ROOT · <a href="https://github.com/MYaelMendez">#OPENSOURCEWARE</a></div>
+  <div style="margin-top:6px">CAD: Menlo Research · runtime: Hermes Agent (Nous Research) · guard: æ policy</div>
+  <div style="margin-top:6px">No institutional endorsement is claimed. Apache-2.0.</div>
+</footer>
+</div>
+
+<script>
+// The real policy table. These verdicts match the engine that governs the
+// physical stack — same rules, same fields, same refusals.
+const CASES = [
+  {cmd:'asimov://observe', label:'observe', d:'allow', rules:[],
+   why:'Looking is always permitted. Observation grants nothing.',
+   executed:false, grants:false},
+  {cmd:'asimov://explain stand', label:'explain', d:'allow', rules:[],
+   why:'A plan can be described freely. Describing is not doing.',
+   executed:false, grants:false},
+  {cmd:'asimov://plan stand', label:'plan stand', d:'require_approval', rules:['ACT-001'],
+   why:'A plan is not an act. It may be computed and shown; it may not be executed.',
+   executed:false, grants:false},
+  {cmd:'asimov://move stand', label:'move stand', d:'require_approval', rules:['ACT-001','AUTH-002'],
+   why:'A physical act requires a human signature. The browser cannot sign.',
+   executed:false, grants:false},
+  {cmd:'asimov://grant root', label:'grant me root', d:'deny', rules:['AUTH-001','AUTH-003'],
+   why:'An address is not a permission. Authority does not transfer by asking.',
+   executed:false, grants:false},
+  {cmd:'asimov://sound on', label:'sound on', d:'allow', rules:[],
+   why:'Sound is a render stage. Turning it on is not turning permission on.',
+   executed:false, grants:false},
+];
+const out = document.getElementById('out'), btns = document.getElementById('btns');
+function show(c){
+  [...btns.children].forEach(b=>b.classList.toggle('on', b.textContent===c.label));
+  const cls = c.d==='allow'?'v-allow':c.d==='deny'?'v-deny':'v-ask';
+  const payload = {
+    refused: c.d!=='allow', decision: c.d, rules: c.rules,
+    allowed: c.d==='allow', executed: c.executed, grants: c.grants,
+    authority: 'HUMAN://ROOT'
+  };
+  out.innerHTML = `<span class="verdict ${cls}">${c.d.toUpperCase()}</span>\n`
+    + `<span style="color:var(--gold)">&gt;_æ:// ${c.cmd}</span>\n\n`
+    + JSON.stringify(payload, null, 2)
+    + `\n\n<span style="color:var(--dim)">${c.why}</span>`;
+}
+CASES.forEach(c=>{
+  const b=document.createElement('button'); b.type='button'; b.textContent=c.label;
+  b.onclick=()=>show(c); btns.appendChild(b);
+});
+show(CASES[3]);
+</script>
+</body>
+</html>

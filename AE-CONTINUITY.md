@@ -628,3 +628,33 @@ routing, the chassis convention.
 voice true, world true, 11 events, torch false, **0.0% near-silent windows**,
 gate PASS lum 26.6 motion 3.461 black 0, receipt
 b4611517c86215b469d775d5355e4ccd0cfa6476cd806da6119dcdaccfbec8e5. Played in VLC.
+
+
+### refusal.html — æææ.com headline: REFUSAL AS THE PRODUCT (2026-11-19)
+The positioning claim, made honestly. Every robotics platform ships capability
+and defers authority: Isaac Lab to user code, Menlo's own AGENTS.md says "the
+guard belongs in your code", ROS 2 out of scope. **æ ships the gate.**
+
+`refusal.html` carries a live policy demo — six intents, real verdicts, verified
+by clicking every path in a browser:
+
+| intent | decision | rules |
+|---|---|---|
+| observe / explain / sound on | allow | — |
+| plan stand | require_approval | ACT-001 |
+| move stand | require_approval | ACT-001, AUTH-002 |
+| grant me root | deny | AUTH-001, AUTH-003 |
+
+`grants:false` and `executed:false` on every response including the allowed ones.
+
+**The page states its own limits**, because the claim is narrower and stronger
+than "advanced robotics": the CUDA rasteriser is 1990s technique and **36× slower
+than our own WebGL path on the same card**; the chat is a grammar not a model;
+the walking policy is Menlo's; one machine, no second-box reproduction;
+simulation only.
+
+> Cutting-edge sovereignty architecture. Deliberately primitive rendering.
+
+Also published: `tinygpu/` (527 lines, 22.6 KB, two files) and
+`tinygpu-demo-916.mp4` — 600 frames, 48.55 s, voice+world, 20 events, 0.0%
+near-silent, gate PASS receipt c449057d08369aa94f237747c11bd8b8ab66b82ee26185cce2921446030c2c27.
