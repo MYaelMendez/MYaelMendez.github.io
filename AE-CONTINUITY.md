@@ -607,3 +607,24 @@ running; otherwise an honest CSS face is the fallback, labelled as such.
 **Not a browser test of the 3D iframe** — the fallback path and the chat grammar
 were exercised; the local companion embed was not, since the public page cannot
 reach 127.0.0.1 on a visitor's machine. That is stated on the page.
+
+
+### asimov://sound on — the sound work rejoins the RTX path (2026-11-19)
+The RTX pivot **orphaned the audio**. `sound_link` was referenced zero times in
+either RTX harness: `rtxmp4-raster-916` shipped mute, `rtx-hermes-916` measured
+22.5% near-silent, while all four OpenGL films measured 0.0%. Voice and world
+were applied by hand to whichever film someone remembered.
+
+**Fix:** they are now a STAGE in `rtx_asimov.py` (`--scenes` / `--texture` /
+`--silent`), and the metadata records `audio:{voice,world,events,torch}` so a
+film cannot silently ship mute. Attention does not survive a pivot; stages do.
+
+**Addressable:** `asimov://sound on|off`, `asimov://sound texture <name>`,
+persisted to `asimov-sound.json`, `grants:false` on every response. The specific
+branch had to move BEFORE the general `asimov://` handler — longest-prefix
+routing, the chassis convention.
+
+**Verified:** `rtx-waetz-sound-916.mp4` — 200 frames, 24.15 s audio,
+voice true, world true, 11 events, torch false, **0.0% near-silent windows**,
+gate PASS lum 26.6 motion 3.461 black 0, receipt
+b4611517c86215b469d775d5355e4ccd0cfa6476cd806da6119dcdaccfbec8e5. Played in VLC.
