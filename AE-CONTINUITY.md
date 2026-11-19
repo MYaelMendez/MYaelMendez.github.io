@@ -472,3 +472,22 @@ White identity (245,245,250) at 0.86 weight; sound world `room_cold`, 14 events,
 
 Poster: the existing `waetz-boot-root.png`. **Not a browser test** — the agent
 browser cannot initialise media; markup, file existence and HTTP only.
+
+
+### Correction: 26 meshes, not 52 (2026-11-19)
+The "52 meshes" claim was **wrong and published in audio**. Windows glob is
+case-insensitive, so `glob('*.STL')` and `glob('*.stl')` returned the same 26
+files twice. Two live films spoke the false number aloud.
+
+- `hermes-hero-916.mp4` re-rendered: 558/558 frames, gate PASS, receipt
+  4a9031a8f729b3e652c744b240f3c72df446d5523c3d139e3c319357d7b74330. Speech now
+  says "Twenty six meshes from real CAD. Twenty five actuators."
+- `spec-hermes-hero.json` and `spec-mp4-reel.json` corrected on the surface.
+- `mp4-reel-916.mp4` re-render launched (five bodies, ~25 min); the published
+  copy still carries the false number until it lands. **Recorded as outstanding.**
+- `mesh_facts.py` added and published: counts unique case-insensitive stems so
+  the number is measured, never hand-typed. Returns meshes 26, actuators 25.
+
+Root cause class: a count derived from a filesystem glob was trusted without
+checking the platform's case semantics. Same family as the frame-count and
+board-resolution errors — a proxy measured instead of the thing.
