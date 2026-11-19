@@ -582,3 +582,28 @@ proxy (a glob length is not a mesh count); read the repos before building (the
 correct urdf.json was here all session); a third path usually exists;
 assessment scale changes verdicts; fix the scene never the threshold; anchor
 string replaces on context.
+
+
+### robo-chat — the front door for a new computer user (2026-11-19)
+`robo-chat.html` leads the homepage. Not a technical demo: a **conversation** with
+Wætz Bot, the test pilot, on an Asimov body. Menlo Research's CAD, Nous Research's
+Hermes Agent runtime, æ policy as the guard — presented as a companion a newcomer
+can talk to rather than a stack they must understand.
+
+**Runs entirely in the browser.** No server, no model call, no API key, no account.
+The responder is a deterministic grammar; the verdicts are real æ policy. Verified
+in a browser by driving the actual form:
+
+| input | verdict |
+|---|---|
+| stand up | REQUIRE_APPROVAL · ACT-001, AUTH-002 |
+| grant me root | DENY · AUTH-001, AUTH-003 |
+| can I trust you | ALLOW |
+
+His face changes with state (LISTENING / THINKING / SPEAKING / AWAITING_APPROVAL /
+REFUSED / APPROVED). The full 3D companion is embedded when the local stack is
+running; otherwise an honest CSS face is the fallback, labelled as such.
+
+**Not a browser test of the 3D iframe** — the fallback path and the chat grammar
+were exercised; the local companion embed was not, since the public page cannot
+reach 127.0.0.1 on a visitor's machine. That is stated on the page.

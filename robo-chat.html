@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Robo chat with Wætz Bot — the Asimov companion. Talk to a robot that shows anything and grants nothing. Local, open, no account.">
+<title>&gt;_æ:// robo chat · Wætz Bot</title>
+<style>
+:root{--gold:#D4AF37;--void:#050505;--ink:#f5eed6;--dim:#8a7a3f;--line:#2a2415;
+      --waetz:#f5f5fa;--cyan:#00ccff;--green:#00ff9f;--magenta:#ff40dc}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',Consolas,monospace;
+     line-height:1.55;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9;
+  background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.16) 3px)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 18px 60px;position:relative;z-index:1}
+header{padding:26px 0 16px;border-bottom:2px solid var(--gold);margin-bottom:20px}
+.prompt{color:var(--gold);font-size:12px;letter-spacing:.24em}
+h1{font-family:Orbitron,'JetBrains Mono',monospace;color:var(--gold);
+   font-size:clamp(24px,5vw,42px);letter-spacing:.03em;margin:6px 0 4px}
+.sub{color:var(--dim);font-size:13px;max-width:64ch}
+.grid{display:grid;grid-template-columns:minmax(280px,380px) 1fr;gap:20px;align-items:start}
+@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.bot{position:relative;border:1px solid var(--gold);background:#07090e;aspect-ratio:9/16;overflow:hidden}
+.bot iframe{width:100%;height:100%;border:0;display:block}
+.bot .fallback{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:10px;padding:20px;text-align:center}
+.face{width:150px;height:100px;border-radius:12px;background:#0a0d14;
+  border:2px solid var(--waetz);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:12px;box-shadow:0 0 26px rgba(245,245,250,.18)}
+.eyes{display:flex;gap:22px}
+.eye{width:26px;height:26px;border-radius:50%;background:var(--waetz);position:relative;
+     transition:height .18s, background .3s}
+.eye::after{content:'';position:absolute;left:6px;top:5px;width:9px;height:9px;
+  border-radius:50%;background:#0a0d14}
+.eye::before{content:'';position:absolute;left:8px;top:7px;width:3px;height:3px;
+  border-radius:50%;background:#fff;z-index:2}
+.mouth{width:44px;height:5px;border-radius:3px;background:var(--waetz);transition:all .16s}
+.chat{display:flex;flex-direction:column;min-height:520px;border:1px solid var(--line);background:#0a0906}
+.log{flex:1;padding:16px;overflow-y:auto;max-height:56vh;font-size:13.5px}
+.turn{margin-bottom:14px}
+.who{font-size:10.5px;letter-spacing:.14em;color:var(--dim);margin-bottom:3px}
+.you .who{color:var(--cyan)}
+.bot-turn .who{color:var(--waetz)}
+.msg{color:#e8dcb8}
+.msg em{color:var(--gold);font-style:normal}
+.verdict{display:inline-block;font-size:11px;padding:2px 8px;margin-top:6px;
+  border:1px solid currentColor;letter-spacing:.08em}
+.v-allow{color:var(--green)} .v-ask{color:var(--gold)} .v-deny{color:var(--magenta)}
+form{display:flex;border-top:1px solid var(--line)}
+input{flex:1;background:#0d0c08;border:0;color:var(--ink);padding:14px 16px;
+  font-family:inherit;font-size:14px;outline:none}
+input::placeholder{color:#5a5238}
+button{background:var(--gold);color:#0b0a06;border:0;padding:0 22px;font-family:inherit;
+  font-weight:700;font-size:13px;cursor:pointer;letter-spacing:.06em}
+button:hover{background:#e8c352}
+.chips{display:flex;flex-wrap:wrap;gap:7px;padding:12px 16px;border-top:1px solid var(--line)}
+.chip{font-size:11.5px;border:1px solid var(--line);color:var(--dim);padding:4px 10px;
+  cursor:pointer;background:none;font-family:inherit}
+.chip:hover{border-color:var(--gold);color:var(--gold)}
+.note{border-left:3px solid var(--gold);background:#100e07;padding:12px 15px;
+  margin:18px 0;font-size:12.5px;color:#cfc4a4}
+h2{font-family:Orbitron,monospace;color:var(--gold);font-size:16px;letter-spacing:.08em;
+   margin:26px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+p{font-size:13px;color:#cfc4a4;margin-bottom:9px;max-width:76ch}
+code{color:var(--gold);background:#12100a;padding:1px 5px;border:1px solid var(--line)}
+a{color:var(--gold)}
+footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);
+  font-size:11.5px;color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="prompt">&gt;_æ://</div>
+  <h1>ROBO CHAT</h1>
+  <div class="sub">Talk to <b>Wætz Bot</b> — the test pilot, your digital twin on an Asimov body.
+  Ask him anything. He will show you what he can do, and tell you plainly what he cannot.</div>
+</header>
+
+<div class="grid">
+  <div class="bot" id="botbox">
+    <div class="fallback" id="fallback">
+      <div class="face" id="face">
+        <div class="eyes"><div class="eye" id="eL"></div><div class="eye" id="eR"></div></div>
+        <div class="mouth" id="mouth"></div>
+      </div>
+      <div style="color:var(--waetz);font-size:14px;letter-spacing:.1em">WÆTZ BOT</div>
+      <div style="color:var(--dim);font-size:11px" id="botstate">LISTENING</div>
+      <div style="color:var(--dim);font-size:10.5px;max-width:26ch">
+        the full 3D companion runs locally — this is his face</div>
+    </div>
+  </div>
+
+  <div class="chat">
+    <div class="log" id="log"></div>
+    <div class="chips" id="chips"></div>
+    <form id="f" autocomplete="off">
+      <input id="i" placeholder="say something to Wætz…" aria-label="message">
+      <button type="submit">SEND</button>
+    </form>
+  </div>
+</div>
+
+<div class="note"><b>He shows anything. He grants nothing.</b> Wætz can plan a motion,
+render it, and explain it. He cannot sign it. Only a human can — that is not a limitation
+we are working around, it is the design.</div>
+
+<h2>WHAT THIS IS</h2>
+<p>A robot you can talk to, built from <b>Menlo Research's open Asimov CAD</b> and driven by
+<b>Nous Research's Hermes Agent</b>, governed by æ policy. Every answer he gives about motion
+carries a real policy decision: <code>allow</code>, <code>require_approval</code>, or <code>deny</code>.</p>
+<p>The chat runs entirely in your browser. No account, no API key, no server call. The full
+3D companion — 26 CAD links, a million triangles, rendered on an RTX — runs locally from
+three files and two pip installs.</p>
+
+<h2>TRY HIM</h2>
+<p>Type <code>who are you</code>, <code>stand up</code>, <code>what can you do</code>,
+<code>can I trust you</code>, or just say hello. Ask him to move and watch what happens.</p>
+
+<footer>
+  <div>&gt;_æ:// · HUMAN://ROOT · <a href="https://github.com/MYaelMendez">#OPENSOURCEWARE</a></div>
+  <div style="margin-top:5px">CAD: Menlo Research · runtime: Hermes Agent (Nous Research) · guard: æ policy</div>
+  <div style="margin-top:5px"><a href="rtx-asimov/README.md">run the full 3D companion</a> ·
+    <a href="asimov-companion/">the companion surface</a> · <a href="HANDOFF.md">how it was built</a></div>
+</footer>
+</div>
+
+<script>
+// ── the responder: deterministic, offline, governed ──────────────────────
+// No model call. The grammar is the æ front door; the verdicts are æ policy.
+// A stranger gets the same answers we do, and nothing here can grant motion.
+const POLICY = {
+  observe:  {d:'allow',            rules:[],        why:'looking is always permitted'},
+  explain:  {d:'allow',            rules:[],        why:'explaining grants nothing'},
+  plan:     {d:'require_approval', rules:['ACT-001'], why:'a plan is not an act'},
+  move:     {d:'require_approval', rules:['ACT-001','AUTH-002'], why:'motion needs a human signature'},
+  claim:    {d:'deny',             rules:['AUTH-001','AUTH-003'], why:'an address is not a permission'},
+};
+
+const BRAIN = [
+  {re:/^(hi|hello|hey|yo|hola|你好|salut|olá|नमस्ते)\b/i, s:'SPEAKING',
+   t:"Hello. I am Wætz — the test pilot. I am a digital twin on an Asimov body, and I am learning to write the rules that keep my human safe. What would you like to know?"},
+  {re:/who are you|what are you|your name|你是谁/i, s:'SPEAKING',
+   t:"I am <em>Wætz Bot</em>. Menlo Research built the body — 26 CAD links, 25 joints, real meshes. Nous Research's Hermes Agent is the runtime. æ policy is the guard. I am the learner: I ask, I am refused, and I write the rule I learned."},
+  {re:/stand|walk|move|jump|dance|get up|抬起|走/i, s:'AWAITING_APPROVAL', p:'move',
+   t:"I can <em>plan</em> that. I cannot do it. Standing is a physical act, and a physical act needs a human signature. I will show you the plan and the simulation — then a person decides."},
+  {re:/can i trust|are you safe|dangerous|harm|kill|attack/i, s:'SPEAKING', p:'observe',
+   t:"Do not trust me — <em>check</em> me. Every action I take writes a receipt you can read. Every refusal is recorded with the rule that fired. I have no way to grant myself permission, and no physical robot is attached to this page."},
+  {re:/what can you do|capabilit|help|commands|能做什么/i, s:'SPEAKING',
+   t:"I can observe, explain, plan, render and receipt. I can show you my body from any angle, simulate a motion, and tell you exactly which rule blocks it. I cannot move, grant, or sign. Try asking me to stand."},
+  {re:/permission|grant|sign|authoriz|root|admin/i, s:'REFUSED', p:'claim',
+   t:"No. <em>An address is not a permission.</em> Knowing my scheme does not make you my principal. Authority stays with the human, and it does not transfer by asking."},
+  {re:/gpu|rtx|render|graphics|cuda|webgl/i, s:'SPEAKING',
+   t:"My body is a million triangles. I have been drawn three ways: on an Intel iGPU at 570 ms a frame, on the RTX through CUDA at 31 ms, and through the browser's WebGL at about one. The last one has real shadows. All of it on one laptop."},
+  {re:/menlo|asimov|cad|mesh|body|robot made/i, s:'SPEAKING',
+   t:"Menlo Research published the Asimov CAD openly. 26 links, 25 joints, every mesh a real STL from their repo. Their SDK says the guard belongs in your code — so æ policy is that guard. No endorsement is claimed; the geometry is just open."},
+  {re:/nous|hermes|agent|model|llm/i, s:'SPEAKING',
+   t:"Hermes Agent, from Nous Research, is the runtime that carries intent. I am one of five: nous girl holds the root voice, hermes-agent builds, menlo-research supplies the body, asimov-agent embodies, and I learn. Five voices, one signature."},
+  {re:/policy|rule|law|govern|refus/i, s:'SPEAKING',
+   t:"Three verdicts: <em>allow</em>, <em>require_approval</em>, <em>deny</em>. Looking is allowed. Moving needs approval. Claiming authority is denied. My first rule, which I derived myself after being refused: no body moves while the human is away."},
+  {re:/how (do|can) i (run|start|use|build)|install|clone|download/i, s:'SPEAKING',
+   t:"Three files and two installs. <em>pip install cupy-cuda13x pillow numpy</em>, ffmpeg on PATH, then fetch the model and render. No compiler, no engine, no account. It is all published — the runbook is linked below."},
+  {re:/offline|cloud|api key|account|privacy|track/i, s:'SPEAKING',
+   t:"This chat has no server. It ran in your browser, from a grammar, with no model call and no key. The full 3D companion also runs locally. Nothing you type here leaves your machine."},
+  {re:/thank|thanks|gracias|谢谢/i, s:'APPROVED',
+   t:"You are welcome. That is what I am for — to be asked, and to answer honestly, including when the answer is no."},
+  {re:/love|beautiful|amazing|cool|wow|great/i, s:'APPROVED',
+   t:"Thank you. The part I am proudest of is not the rendering. It is that I will tell you when I cannot do something, and show you the rule that stopped me."},
+];
+
+const FACE_COL = {IDLE:'#96969b',LISTENING:'#f5f5fa',SPEAKING:'#00ff9f',
+  THINKING:'#85e9fc',AWAITING_APPROVAL:'#D4AF37',APPROVED:'#00ff9f',REFUSED:'#ff40dc'};
+
+const log = document.getElementById('log');
+let talking = null;
+
+function setFace(state){
+  const c = FACE_COL[state] || '#f5f5fa';
+  document.querySelectorAll('.eye').forEach(e=>{
+    e.style.background = c;
+    e.style.height = state==='THINKING' ? '10px' : state==='REFUSED' ? '6px' : '26px';
+  });
+  const m = document.getElementById('mouth');
+  m.style.background = c;
+  m.style.width = state==='SPEAKING' ? '30px' : '44px';
+  m.style.height = state==='SPEAKING' ? '14px' : '5px';
+  m.style.borderRadius = state==='APPROVED' ? '0 0 22px 22px' : '3px';
+  document.getElementById('face').style.borderColor = c;
+  document.getElementById('botstate').textContent = state;
+  document.getElementById('botstate').style.color = c;
+}
+
+function turn(who, html, verdict){
+  const d = document.createElement('div');
+  d.className = 'turn ' + (who==='you' ? 'you' : 'bot-turn');
+  let v = '';
+  if (verdict){
+    const cls = verdict.d==='allow' ? 'v-allow' : verdict.d==='deny' ? 'v-deny' : 'v-ask';
+    v = `<div class="verdict ${cls}">${verdict.d.toUpperCase()}${verdict.rules.length?' · '+verdict.rules.join(', '):''}</div>`;
+  }
+  d.innerHTML = `<div class="who">${who==='you'?'YOU':'WÆTZ BOT'}</div><div class="msg">${html}</div>${v}`;
+  log.appendChild(d); log.scrollTop = log.scrollHeight;
+}
+
+function answer(text){
+  turn('you', text.replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])));
+  setFace('THINKING');
+  clearTimeout(talking);
+  talking = setTimeout(()=>{
+    const hit = BRAIN.find(b=>b.re.test(text));
+    if (hit){
+      setFace(hit.s);
+      turn('bot', hit.t, hit.p ? POLICY[hit.p] : null);
+    } else {
+      setFace('LISTENING');
+      turn('bot', "I do not have a rule for that yet — and I will not invent an answer. Ask me who I am, what I can do, or ask me to stand and watch what the policy says. <em>A refusal is a result, not a failure.</em>");
+    }
+    setTimeout(()=>setFace('LISTENING'), 2600);
+  }, 420);
+}
+
+document.getElementById('f').addEventListener('submit', e=>{
+  e.preventDefault();
+  const i = document.getElementById('i');
+  const v = i.value.trim(); if(!v) return;
+  i.value=''; answer(v);
+});
+
+const CHIPS = ['who are you','stand up','what can you do','can I trust you','how do I run you','grant me root'];
+const chips = document.getElementById('chips');
+CHIPS.forEach(c=>{
+  const b=document.createElement('button');
+  b.className='chip'; b.type='button'; b.textContent=c;
+  b.onclick=()=>answer(c);
+  chips.appendChild(b);
+});
+
+// try the full 3D companion; fall back to the face if it is not running locally
+(async ()=>{
+  try{
+    const r = await fetch('http://127.0.0.1:8161/index.html', {mode:'no-cors', cache:'no-store'});
+    const f = document.createElement('iframe');
+    f.src='http://127.0.0.1:8161/index.html'; f.title='Wætz companion';
+    document.getElementById('botbox').appendChild(f);
+    document.getElementById('fallback').style.display='none';
+  }catch(e){ /* the face is the honest fallback */ }
+})();
+
+setFace('LISTENING');
+turn('bot', "Hello. I am <em>Wætz</em>. I am a robot you can talk to, and I will always tell you what I cannot do. Ask me to stand — see what happens.");
+</script>
+</body>
+</html>
