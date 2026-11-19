@@ -658,3 +658,34 @@ simulation only.
 Also published: `tinygpu/` (527 lines, 22.6 KB, two files) and
 `tinygpu-demo-916.mp4` — 600 frames, 48.55 s, voice+world, 20 events, 0.0%
 near-silent, gate PASS receipt c449057d08369aa94f237747c11bd8b8ab66b82ee26185cce2921446030c2c27.
+
+
+### asimov://walk — the loop closes: policy → physics → pixels → receipt (2026-11-19)
+The first film whose motion **emerged from control** rather than keyframes.
+tinyPython runs Menlo's ONNX policy against MuJoCo contact; tinyGPU draws the
+resulting qpos. Three siblings, one robot: voice (tiny-voca), pixels (tinyGPU),
+motion (tinyPython).
+
+```
+1712 frames · 71.33 s · 18,341,792 B
+1,007,041 triangles/frame · raster 30.1 ms · render 263.1 s
+locomotion.source policy · travel 7.8696 m · no fall
+audio voice+world · 22 events · torch false
+gate PASS · lum 23.16 · contrast 46.31 · motion 1.806 · black 0
+receipt 13d1b8b2d3250cb5e11058e9c54c368a0cba52e25418c82f189e7ce1fcd9f37b
+```
+
+**Defect found and fixed before publishing:** the first render's video ended at
+30 s while its audio ran to 71.34 s — 41 seconds of frozen frame under continuing
+narration. Cause: a hand-picked frame count. The harness now DERIVES frames from
+the voice track. Verified after the fix: video 71.333 s, audio 71.339 s,
+**delta 0.006 s**.
+
+**Two scene fixes, both measured:** the camera sat on the walking axis so the
+stride was foreshortened into the lens (moved side-on); and the gait is a
+**shuffle, not a stride** — 46° knee swing but 1.5 cm foot clearance. Nobody
+rewarded foot clearance, so the policy never learned to lift its feet. The film
+says this out loud in scene 05.
+
+Published: `asimov-walk-916.mp4`, `walk-trace.json`, `spec-walk-film.json`,
+`asimov-walk-receipt.json`, `tinypython/`, `WALK-LOOP.md`. 14 tests pass.
