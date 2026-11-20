@@ -785,7 +785,13 @@ Measured checks before publication:
 
 Boundary: `vscode://` is a review surface marker, not an executable grant.
 Opening the public page does not control VS Code, a browser, a robot, a shell,
-or a simulation. The integrated mobile preview reported no document overflow,
-but physical mobile and live GitHub Pages behavior are separate verification
-states. Live endpoint evidence is recorded only after the actual deployment
-response is observed.
+or a simulation. The integrated mobile preview reported no document overflow;
+physical mobile and accessibility testing remain unperformed.
+
+Deployment observed: publication commit `1fbf6b4` advanced `gh-pages` from
+`390a9c7`. Pages build `1386568137` completed with status `built` at
+2026-11-20T08:47:45Z. The public page, poster, and receipt all returned HTTP
+200. The deployed browser read-back observed the correct title, a loaded
+1080×1920 image, the five-node authority chain, receipt fetch 200, and matching
+client/scroll widths. Initial 404s occurred while the Pages build status was
+still `building`; they resolved after that build completed.
