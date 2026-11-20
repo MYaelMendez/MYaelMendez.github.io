@@ -689,3 +689,73 @@ says this out loud in scene 05.
 
 Published: `asimov-walk-916.mp4`, `walk-trace.json`, `spec-walk-film.json`,
 `asimov-walk-receipt.json`, `tinypython/`, `WALK-LOOP.md`. 14 tests pass.
+
+
+## VIDEO RESEARCH — the film is the paper (2026-11-19, late)
+
+The operator named what we were doing: *using video like science*. Audit found
+we were not keeping a lab notebook: **65 films published, 2 receipts persisted,
+ZERO gate records saved to disk.** Metrics were printed to a terminal and lost.
+
+`agents/video_research.py` gives every film the parts a paper has: abstract,
+methods (the spec), results (measured), data (the trace), limitations, and a
+citation whose DOI-equivalent is the SHA-256 of the delivered bytes.
+
+**`measurement_kind: re_measured`** — metrics are taken NOW from the delivered
+artifact and dated. Nothing is reconstructed from a lost render log. Lost data
+is a finding; inventing it would be the failure the chain exists to prevent.
+
+### The record immediately found two defective published films
+
+| film | video | audio | frozen frame |
+|---|---|---|---|
+| rtx-waetz-sound-916 | 8.33 s | 24.15 s | **15.82 s** |
+| tinygpu-demo-916 | 25.00 s | 48.55 s | **23.55 s** |
+
+Both carry the duration defect fixed later in the session. They were published
+before the fix and reported as passing. **They are still live and broken.**
+
+### Corpus state
+
+10 of 65 films recorded. 55 published without a record. The artifact finder is
+too strict — `spec-walk-film.json` survives but does not match the stem
+`asimov-walk`, so 9 of 10 records report methods unavailable when they exist.
+
+### Instrument caveat, recorded
+
+Motion reads 1.341 at analysis scale 180x320 against the SupervisorVideo gate's
+3.687 for the same film. Different instruments. `analysis_scale` is stored so
+they are never silently compared.
+
+## nano:// — tiny became a lesson
+
+The cast maps onto the learning loop: nous the objective, hermes the mechanism,
+menlo the prior, asimov the policy, **waetz the learner**. He asks, they answer,
+he closes. The student is on screen. Eight ML concepts, each with a
+demonstration MEASURED on this machine — including reward-hacking taught via
+the white-silhouette bug from this very session. The failure is the curriculum.
+
+## mod:// — mixture of devices, measured
+
+cpu://teknium 111.86 GFLOPS · gpu://teknium 198.60 GFLOPS · cloud://nous HTTP 200
+(reachability measured, capacity UNKNOWN — it is a hosted service) ·
+vps://backbone DECLARED · hardware://asimov DECLARED, a fundraising target.
+
+A declared device contributes ZERO to capacity. Plans respect divisibility:
+policy 8 shards, voice 8, film 1 (one GPU is one GPU), physics 1 (sequential),
+publish REFUSED (device declared).
+
+## The deadman switch
+
+cast.json declared `motion_requires: human_approval_or_armed_deadman` from the
+start. It was a string; now it is 20 passing tests. OpenCV Haar, zero ML, zero
+tokens. FAIL CLOSED on every path. **Presence removes ONE refusal, not both** —
+with a fresh heartbeat, move still returns require_approval ACT-001/AUTH-002.
+
+## tinyCUDA became a verifier
+
+The innovation is not the raster technique, it is what determinism enables:
+a byte-identical render is a gradeable assertion. `tinycuda grade` returns
+reward 1.0/0.0 with zero tokens. Two properties found by testing: a sub-pixel
+edit is invisible (reward now requires pixel match AND unchanged asset), and
+fit_camera normalises pose so the oracle grades SHAPE. 22 tests.
