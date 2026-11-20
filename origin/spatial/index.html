@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#050709">
+<title>ORIGIN v0.4 · Spatial Runtime · æ Studio</title>
+<style>
+:root{color-scheme:dark;--bg:#050709;--panel:#0b1214;--line:#294035;--text:#e8f9ef;--muted:#9cb6a8;--green:#3dff8a;--gold:#f4c66a}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+a{color:var(--green)}button{font:inherit;color:var(--text);background:#13251f;border:1px solid #3f6652;border-radius:8px;padding:10px;cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.shell{max-width:1050px;min-height:100dvh;margin:auto;display:flex;flex-direction:column}
+header{padding:15px 16px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center;justify-content:space-between}
+.headline{font-size:13px;letter-spacing:.06em}.headline b{color:var(--green)}.small{font-size:11px;color:var(--muted);line-height:1.6}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;flex:1;min-height:560px}
+.world{position:relative;min-height:560px;overflow:hidden;background:radial-gradient(ellipse at center,#10281b,#03070a 70%)}
+canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}canvas:active{cursor:grabbing}
+.overlay{pointer-events:none;position:absolute;top:12px;left:12px;font-size:11px;color:var(--green);text-shadow:0 1px 5px #000}
+.controls{position:absolute;bottom:12px;left:12px;right:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.controls button{background:#0b1816db;font-size:12px;min-width:44px;backdrop-filter:blur(6px)}
+aside{border-left:1px solid var(--line);background:var(--panel);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+aside h2{font-size:18px;line-height:1.25;margin:0;color:var(--green);overflow-wrap:anywhere}
+aside h3{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin:0}
+p{margin:0;line-height:1.6;font-size:12px} .info{display:grid;gap:6px;font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.info strong{color:var(--text)} .pill{border:1px solid var(--line);border-radius:999px;padding:5px 8px;font-size:10px;display:inline-block;color:var(--gold)}
+.link{display:inline-flex;justify-content:center;text-decoration:none;background:var(--green);color:#05130c;font-weight:800;border-radius:8px;padding:12px;min-height:44px}
+footer{padding:12px 16px;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}
+@media(max-width:740px){.layout{grid-template-columns:1fr}.world{height:min(74dvh,720px);min-height:440px}aside{border-left:0;border-top:1px solid var(--line)}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style></head><body><main class="shell">
+<header><div><div class="headline"><b>æ</b> STUDIO / ORIGIN v0.4</div><div class="small">Spatial Runtime · x0:y0:z0:æ0</div></div><a class="small" href="../">← Origin command</a></header>
+<div class="layout"><section class="world" aria-label="Interactive spatial atlas">
+<canvas id="view" aria-label="Perspective visualization of public atlas addresses. Use the list in the adjacent panel for an accessible alternative."></canvas>
+<div class="overlay" id="hud">ORIGIN · HUMAN://ROOT<br>Spatial representation · not geolocation</div>
+<div class="controls" aria-label="Navigation controls"><button id="left" aria-label="Rotate left">↶</button><button id="right" aria-label="Rotate right">↷</button><button id="near" aria-label="Zoom in">＋</button><button id="far" aria-label="Zoom out">－</button><button id="reset">⌂ Origin</button><button id="pause">Ⅱ Pause</button></div>
+</section><aside aria-live="polite"><h3>Selected address</h3><div id="detail"><h2>HUMAN://ROOT</h2><p>Select a spatial node to inspect its address and published entry point.</p></div>
+<div class="info"><span class="pill">READ-ONLY ATLAS VIEW</span><p>World geometry is illustrative. Address, label, and URL come from the existing public æ atlas. No account connection, capability invocation, or approval is performed here.</p></div>
+<label class="small" for="select">Keyboard-accessible destination</label><select id="select" style="font:inherit;background:#10201a;color:#e8f9ef;border:1px solid #496453;padding:12px;border-radius:8px;width:100%"></select>
+<a class="link" id="open" href="../">Return to origin</a>
+<div class="small">æ0 public · æ1 published · æ2 operator · æ3 custody. These are atlas classifications, not access grants.</div></aside></div>
+<footer>Many agents. One principal. · Context may propagate; authority does not. · <a href="../../ae-destinations.json">Destination contract</a></footer>
+</main>
+<script src="../../ae-atlas.js"></script><script>
+(()=>{'use strict';
+const canvas=document.getElementById('view'),ctx=canvas.getContext('2d'),list=document.getElementById('select'),detail=document.getElementById('detail'),open=document.getElementById('open');
+const ATLAS=Array.isArray(window.AE_ATLAS)?window.AE_ATLAS.filter(s=>Number.isFinite(s.x)&&Number.isFinite(s.y)&&Number.isFinite(s.z)&&Number.isInteger(s.a)&&s.a>=0&&s.a<=3):[];
+const levels=['public','published','operator','custody'],cols=['#f0cc76','#69d9ff','#3dff8a','#bc97ff'];
+let yaw=-.62,zoom=1,phase=0,selected=-1,paused=matchMedia('(prefers-reduced-motion: reduce)').matches,drag=null,projected=[],running=true;
+let w=0,h=0,dpr=1;
+function fit(){const r=canvas.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);w=Math.max(1,r.width);h=Math.max(1,r.height);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)}
+new ResizeObserver(fit).observe(canvas);fit();
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+const nodes=ATLAS.map((s,i)=>({s,i,x:s.x*.7-4.5+Math.sin(i*1.9)*.18,y:s.a*2.25,z:s.y*.8+s.z*.6+(i%3)*.22}));
+function project(x,y,z){let c=Math.cos(yaw),sn=Math.sin(yaw),xx=x*c-z*sn,zz=x*sn+z*c;let depth=16+zz*0.24;const p=Math.min(w,h)*.72*zoom/Math.max(6,depth);return {x:w*.5+xx*p,y:h*.73-(y-1.4)*p-z*.16*p,scale:p}}
+function line(a,b,color,width=1){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}
+function frame(){if(!running)return;if(!paused)phase+=.008;ctx.clearRect(0,0,w,h);
+const horizon=h*.46;let gradient=ctx.createLinearGradient(0,0,0,h);gradient.addColorStop(0,'#03090e');gradient.addColorStop(.65,'#0a2019');gradient.addColorStop(1,'#03070a');ctx.fillStyle=gradient;ctx.fillRect(0,0,w,h);
+for(let x=-12;x<=12;x++){const a=project(x,0,-8),b=project(x,0,15);line(a,b,'#174737',.8)}
+for(let z=-8;z<16;z+=2){line(project(-13,0,z),project(13,0,z),'#174737',.8)}
+projected=[];const sorted=nodes.map(n=>({...n,p:project(n.x,n.y,n.z)})).sort((a,b)=>a.p.scale-b.p.scale);
+for(const n of sorted){const p=n.p,base=project(n.x,0,n.z),size=Math.max(5,Math.min(30,p.scale*.24));line(base,p,n.s.a===3?'#8655bd55':'#3dff8a40',1);const active=n.i===selected;
+ctx.fillStyle=cols[n.s.a];ctx.globalAlpha=active?1:.67;ctx.fillRect(p.x-size/2,p.y-size/2,size,size);
+ctx.globalAlpha=1;ctx.strokeStyle=active?'#fff':'#204238';ctx.lineWidth=active?3:1;ctx.strokeRect(p.x-size/2,p.y-size/2,size,size);
+if(active){ctx.strokeStyle='#fff8';ctx.strokeRect(p.x-size,p.y-size,size*2,size*2)}
+if(size>9 || active){ctx.font='10px ui-monospace,monospace';ctx.fillStyle=active?'#fff':'#b4d8c3';ctx.fillText('x'+n.s.x+':y'+n.s.y+':z'+n.s.z+':æ'+n.s.a,p.x+size*.7,p.y-5)}
+projected.push({i:n.i,x:p.x,y:p.y,r:Math.max(16,size)})}
+const o=project(-4.5,0,0);ctx.strokeStyle='#f4c66a';ctx.beginPath();ctx.arc(o.x,o.y,7+Math.sin(phase)*1.5,0,Math.PI*2);ctx.stroke();
+requestAnimationFrame(frame)}
+function choose(i){selected=i;const n=nodes[i],s=n?.s;
+if(!s){detail.innerHTML='<h2>HUMAN://ROOT</h2><p>Origin is the human control reference. Select a node to inspect its address.</p>';open.href='../';open.textContent='Return to origin';list.value='';return}
+const coord='x'+s.x+':y'+s.y+':z'+s.z+':æ'+s.a;
+detail.innerHTML='<h2>'+esc(s.name)+'</h2><p>'+esc(s.desc)+'</p><div class="info"><div><strong>Address</strong> '+esc(coord)+'</div><div><strong>Layer</strong> '+esc(levels[s.a])+' (label only)</div><div><strong>Category</strong> '+esc(s.cat)+'</div><div><strong>Reported access</strong> '+esc(s.access||'unspecified')+'; not verified by this page</div></div>';
+const url=String(s.url||'');if(url.startsWith('/')&&!url.startsWith('//')){open.href=url;open.textContent='Open existing surface ↗';open.hidden=false}else if(/^https:\/\//.test(url)){open.href=url;open.textContent='Open external surface ↗';open.hidden=false}else{open.hidden=true}list.value=String(i)}
+for(const n of nodes){const opt=document.createElement('option');opt.value=String(n.i);opt.textContent=n.s.name+' · x'+n.s.x+':y'+n.s.y+':z'+n.s.z+':æ'+n.s.a;list.appendChild(opt)}
+list.insertAdjacentHTML('afterbegin','<option value="">HUMAN://ROOT · origin</option>');list.addEventListener('change',()=>choose(list.value===''?-1:Number(list.value)));
+canvas.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,moved:false,id:e.pointerId};canvas.setPointerCapture(e.pointerId)});
+canvas.addEventListener('pointermove',e=>{if(!drag)return;let dx=e.clientX-drag.x;if(Math.abs(dx)>3||Math.abs(e.clientY-drag.y)>3)drag.moved=true;if(drag.moved){yaw+=dx*.008;drag.x=e.clientX;drag.y=e.clientY}});
+canvas.addEventListener('pointerup',e=>{if(!drag)return;if(!drag.moved){const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;let hit=null,best=32;for(const p of projected){let d=Math.hypot(p.x-x,p.y-y);if(d<best){best=d;hit=p}}if(hit)choose(hit.i)}drag=null});
+canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.55,Math.min(2.2,zoom*(e.deltaY>0?.92:1.08)))},{passive:false});
+document.getElementById('left').onclick=()=>yaw-=.2;document.getElementById('right').onclick=()=>yaw+=.2;
+document.getElementById('near').onclick=()=>zoom=Math.min(2.2,zoom*1.16);document.getElementById('far').onclick=()=>zoom=Math.max(.55,zoom/1.16);
+document.getElementById('reset').onclick=()=>{yaw=-.62;zoom=1;choose(-1)};
+document.getElementById('pause').onclick=()=>{paused=!paused;document.getElementById('pause').textContent=paused?'▶ Resume':'Ⅱ Pause'};
+document.addEventListener('keydown',e=>{if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement?.tagName))return;if(e.key==='ArrowLeft')yaw-=.15;else if(e.key==='ArrowRight')yaw+=.15;else if(e.key==='Escape')choose(-1);else return;e.preventDefault()});
+window.addEventListener('pagehide',()=>running=false);
+choose(-1);if(!ctx){detail.textContent='Canvas unavailable. Select an atlas address using the destination list.'}else frame();
+})();
+</script></body></html>
