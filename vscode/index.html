@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#030708">
+  <meta name="description" content="The VS Code review surface for mobility.foundation. Verified 9:16 MuJoCo evidence under HUMAN://ROOT authority.">
+  <meta property="og:title" content="vscode:// — mobility.foundation">
+  <meta property="og:description" content="HUMAN://ROOT → vscode:// → hermes-agent → Asimov-1 → receipt">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://myaelmendez.github.io/vscode/mobility-foundation-916.png">
+  <link rel="canonical" href="https://myaelmendez.github.io/vscode/">
+  <title>vscode:// — mobility.foundation</title>
+  <style>
+    :root {
+      --bg: #030708;
+      --fg: #d9ffe9;
+      --green: #00ff9f;
+      --cyan: #00ccff;
+      --magenta: #ff00ff;
+      --muted: #7fbaa0;
+      --dim: #184a38;
+      --card: #06120d;
+      --mono: "JetBrains Mono", "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--bg);
+      color: var(--fg);
+      font: 15px/1.65 var(--mono);
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 8;
+      background: repeating-linear-gradient(0deg, rgba(0,255,159,.022) 0 1px, transparent 1px 4px);
+    }
+    a { color: var(--cyan); }
+    a:hover { color: var(--green); }
+    .masthead {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--dim);
+      color: var(--cyan);
+      font-size: 12px;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+    .hero {
+      position: relative;
+      min-height: 88vh;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      padding: 34px 20px 46px;
+      background:
+        radial-gradient(ellipse at 50% 45%, rgba(0,255,159,.11), transparent 42%),
+        linear-gradient(180deg, #030708, #04100c 68%, #030708);
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,255,159,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,159,.045) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(ellipse at center, #000 10%, transparent 78%);
+    }
+    .poster {
+      position: relative;
+      z-index: 1;
+      width: min(54vh, 540px);
+      height: auto;
+      border: 1px solid rgba(0,255,159,.32);
+      box-shadow: 0 0 70px rgba(0,255,159,.09);
+    }
+    .caption {
+      position: absolute;
+      z-index: 3;
+      left: 24px;
+      bottom: 18px;
+      max-width: 26rem;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .caption strong { color: var(--green); font-weight: 500; }
+    .evidence {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 54px 24px 84px;
+    }
+    h1, h2, p { margin-top: 0; }
+    h1 {
+      margin-bottom: 18px;
+      color: var(--green);
+      font-size: clamp(30px, 6vw, 70px);
+      line-height: 1.02;
+    }
+    h2 {
+      margin: 52px 0 14px;
+      color: var(--cyan);
+      font-size: 16px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .lede { max-width: 72ch; color: #a9d8c2; font-size: 17px; }
+    .chain {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin: 24px 0 0;
+    }
+    .node {
+      border: 1px solid var(--dim);
+      padding: 9px 12px;
+      background: #04100b;
+      color: var(--green);
+    }
+    .arrow { color: var(--magenta); }
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      margin-top: 20px;
+      background: var(--dim);
+      border: 1px solid var(--dim);
+    }
+    .fact { min-height: 130px; padding: 18px; background: var(--card); }
+    .fact b { display: block; color: var(--green); font-size: 25px; line-height: 1.15; }
+    .fact span { display: block; margin-top: 11px; color: var(--muted); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+    pre {
+      overflow-x: auto;
+      margin: 18px 0 0;
+      border: 1px solid var(--dim);
+      border-left: 3px solid var(--magenta);
+      padding: 15px 18px;
+      background: #04100b;
+      color: #9fe8c2;
+      font: inherit;
+    }
+    .links { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 24px; }
+    footer {
+      margin-top: 58px;
+      padding-top: 20px;
+      border-top: 1px solid var(--dim);
+      color: #6ea88c;
+      font-size: 12px;
+    }
+    @media (max-width: 720px) {
+      .masthead { padding: 15px 16px; font-size: 10px; }
+      .masthead span:last-child { text-align: right; }
+      .hero { min-height: 78vh; padding: 20px 12px 50px; }
+      .poster { width: min(78vw, 52vh); }
+      .caption { left: 16px; right: 16px; bottom: 12px; max-width: none; font-size: 10px; }
+      .evidence { padding: 42px 18px 62px; }
+      .facts { grid-template-columns: 1fr 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <header class="masthead">
+    <span>&gt;_æ: vscode://</span>
+    <span>mobility.foundation · review surface</span>
+  </header>
+
+  <main>
+    <section class="hero" aria-label="Mobility Foundation verified MuJoCo poster">
+      <img class="poster" src="mobility-foundation-916.png" width="1080" height="1920" alt="Determinism made visible: a MuJoCo robot proof with zero same-seed difference and a human-rooted authority chain">
+      <p class="caption"><strong>Verified 9:16 proof</strong> · 1080×1920 · MuJoCo 4.0.1 · render gate PASS</p>
+    </section>
+
+    <section class="evidence">
+      <h1>vscode:// is the review gate.</h1>
+      <p class="lede">The editor holds the local build, inspection, and publication surface for <b>mobility.foundation</b>. It converts a human intent into a measured artifact only after the current receipt, dimensions, and authority path verify.</p>
+
+      <div class="chain" aria-label="Authority chain">
+        <span class="node">HUMAN://ROOT</span><span class="arrow">→</span>
+        <span class="node">vscode://</span><span class="arrow">→</span>
+        <span class="node">hermes-agent</span><span class="arrow">→</span>
+        <span class="node">Asimov-1</span><span class="arrow">→</span>
+        <span class="node">RECEIPT</span>
+      </div>
+
+      <h2>Measured proof</h2>
+      <div class="facts">
+        <div class="fact"><b>0.0</b><span>same-seed max difference</span></div>
+        <div class="fact"><b>3.466389</b><span>different-seed divergence / rad</span></div>
+        <div class="fact"><b>2,014,082</b><span>triangles</span></div>
+        <div class="fact"><b>PASS</b><span>render gate</span></div>
+      </div>
+
+      <h2>Authority boundary</h2>
+      <pre>human_review_required: true
+publish_allowed: false until HUMAN://ROOT review
+vscode:// is a review surface, not a grant
+opening this page grants no robot, browser, or shell authority</pre>
+
+      <div class="links">
+        <a href="mobility-receipt.json">Mobility receipt ↓</a>
+        <a href="mobility-foundation-916.png">9:16 poster ↓</a>
+        <a href="../mobility/">mobility.foundation canonical</a>
+        <a href="../tinymujoco-receipt.json">tinyMUJOCO source receipt</a>
+        <a href="../tinymujoco-5s-916.mp4">five-second proof film</a>
+      </div>
+
+      <footer>
+        HUMAN://ROOT · review visible · execution bounded · receipts on every action.<br>
+        Published surface: <a href="https://myaelmendez.github.io/vscode/">myaelmendez.github.io/vscode/</a>
+      </footer>
+    </section>
+  </main>
+</body>
+</html>

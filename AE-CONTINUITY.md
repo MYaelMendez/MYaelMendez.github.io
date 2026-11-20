@@ -759,3 +759,33 @@ a byte-identical render is a gradeable assertion. `tinycuda grade` returns
 reward 1.0/0.0 with zero tokens. Two properties found by testing: a sub-pixel
 edit is invisible (reward now requires pixel match AND unchanged asset), and
 fit_camera normalises pose so the oracle grades SHAPE. 22 tests.
+
+## vscode:// — mobility review surface (2026-11-20)
+
+The user authorized publication of `myaelmendez.github.io/vscode/`. The public
+surface is additive and does not alter the existing chat, Site, studio, browser,
+or mobility execution paths.
+
+Affected source, based on `gh-pages` revision `390a9c7`:
+- `vscode/index.html` — static review page with the five-link authority chain,
+  measured tinyMUJOCO facts, explicit non-granting boundary, and download links.
+- `vscode/mobility-foundation-916.png` — 1080×1920 proof image.
+- `vscode/mobility-receipt.json` — machine-readable artifact, evidence, and
+  `HUMAN://ROOT` review record.
+
+Measured checks before publication:
+- Poster dimensions: 1080×1920; SHA-256
+  `995fa895c41c3160822992db2f876562a102218de48ec29fedca1902892de74a`.
+- Receipt parsed with schema `mobility.foundation/vscode-receipt/1` and the
+  exact chain `HUMAN://ROOT -> vscode:// -> hermes-agent -> Asimov-1 -> receipt`.
+- Local HTTP preview returned 200 for the page, PNG, and JSON receipt.
+- Browser read-back observed the page title, poster, authority chain, metrics,
+  boundary text, and all five local/source links. No script or external runtime
+  is required by this surface.
+
+Boundary: `vscode://` is a review surface marker, not an executable grant.
+Opening the public page does not control VS Code, a browser, a robot, a shell,
+or a simulation. The integrated mobile preview reported no document overflow,
+but physical mobile and live GitHub Pages behavior are separate verification
+states. Live endpoint evidence is recorded only after the actual deployment
+response is observed.
