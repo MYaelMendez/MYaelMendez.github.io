@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>æ:// DEMO · nuestras habilidades</title>
+<meta rel="canonical" href="https://myaelmendez.github.io/aipodcast_me/skills-demo.html">
+<meta name="description" content="Demostración real de las 53 habilidades del fleet: probes en vivo (QR, CRI) y receipts verificados (AEE, vídeo). Gold-on-void.">
+<meta property="og:title" content="æ:// DEMO · nuestras habilidades">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://myaelmendez.github.io/aipodcast_me/skills-demo.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-dim:#8a7022;--text:#e8e8e8;--dim:#8a7a4a;--panel:#0d0b07;--line:#2a2416;--cyan:#00e5ff;--neon:#39ff14;--red:#ff6b6b;--violet:#bf5af2}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--void);color:var(--text);font-family:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;min-height:100vh;line-height:1.5}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg,rgba(212,175,55,.035) 0 1px,transparent 1px 3px)}
+@keyframes breathe{0%,100%{opacity:.85}50%{opacity:1}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+@keyframes colorShift{0%{color:var(--gold)}33%{color:var(--cyan)}66%{color:var(--neon)}100%{color:var(--gold)}}
+@keyframes glow{0%,100%{box-shadow:0 0 8px var(--gold-dim)}50%{box-shadow:0 0 22px var(--gold)}}
+@keyframes qrBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes qrGlow{0%,100%{box-shadow:0 0 4px var(--gold-dim)}50%{box-shadow:0 0 16px var(--gold)}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:2rem 1.2rem 4rem}
+header{border-bottom:2px solid var(--gold);padding-bottom:1rem;margin-bottom:1.4rem}
+.eyebrow{font-size:clamp(.62rem,1.3vw,.78rem);letter-spacing:.35em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;animation:colorShift 7s ease infinite}
+h1{font-family:'Orbitron',sans-serif;font-size:clamp(1.5rem,4.5vw,2.8rem);font-weight:900;color:var(--gold);text-shadow:0 0 36px rgba(212,175,55,.18);animation:pulse 5s ease-in-out infinite}
+h1 .tag{font-size:.58rem;vertical-align:middle;background:var(--gold);color:var(--void);padding:.18rem .5rem;border-radius:2px;margin-left:.5rem;letter-spacing:.1em}
+.sub{color:var(--dim);font-size:clamp(.74rem,1.5vw,.88rem);margin-top:.6rem;max-width:720px;animation:breathe 6s ease-in-out infinite}
+h2{font-family:'Orbitron',sans-serif;font-size:.88rem;letter-spacing:.14em;color:var(--gold);border-left:4px solid var(--gold);padding-left:.6rem;margin:1.8rem 0 .7rem}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem 1.1rem;margin:.7rem 0;animation:fadeInUp .6s ease both}
+.panel.ok{border-left:4px solid var(--neon)}
+.panel.bad{border-left:4px solid var(--red)}
+.panel.warn{border-left:4px solid var(--gold)}
+.cap{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem 1.1rem;margin:.6rem 0;animation:fadeInUp .6s ease both}
+.cap h3{font-family:'Orbitron',sans-serif;font-size:.78rem;letter-spacing:.1em;color:var(--gold);margin-bottom:.5rem}
+.cap .big{font-family:'Orbitron',sans-serif;font-size:clamp(1.3rem,3.4vw,2rem);color:var(--gold)}
+.cap .lbl{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.cap .row{display:flex;justify-content:space-between;gap:.6rem;padding:.3rem 0;border-bottom:1px dashed var(--line);font-size:.76rem}
+.cap .row:last-child{border-bottom:0}
+.cap .row .k{color:var(--dim)}
+.cap .row .v{color:var(--gold);text-align:right;word-break:break-all}
+.ok-t{color:var(--neon)}
+.bad-t{color:var(--red)}
+.dim{color:var(--dim)}
+button{background:var(--gold);color:var(--void);border:0;font-family:'Orbitron',sans-serif;font-size:.66rem;letter-spacing:.1em;
+  padding:.5rem .9rem;border-radius:4px;cursor:pointer;text-transform:uppercase;transition:transform .2s,box-shadow .2s}
+button:hover{transform:translateY(-2px);box-shadow:0 0 18px var(--gold)}
+button:active{transform:translateY(0)}
+button:disabled{opacity:.5;cursor:default}
+code{background:#12100a;color:#ffd966;padding:.08rem .34rem;border-radius:2px;font-size:.76rem}
+pre{background:#000;border:1px solid var(--line);border-radius:6px;padding:.7rem .8rem;font-size:.72rem;color:#ffd966;
+  white-space:pre-wrap;word-break:break-all;margin-top:.6rem;max-height:240px;overflow:auto}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:.7rem}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.6rem}
+.inv{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.45rem}
+.inv .s{background:#0a0805;border:1px solid var(--line);border-radius:6px;padding:.45rem .55rem;font-size:.7rem;transition:border-color .3s,transform .3s}
+.inv .s:hover{border-color:var(--gold-dim);transform:translateY(-2px)}
+.inv .s .n{color:var(--gold);font-family:'Orbitron',sans-serif;font-size:.62rem;letter-spacing:.06em}
+.inv .s .m{color:var(--dim);font-size:.62rem;margin-top:.2rem}
+footer{margin-top:2.2rem;border-top:1px solid var(--line);padding-top:.9rem;font-size:.7rem;color:var(--dim)}
+#ae-qr-badge{position:fixed;bottom:16px;right:16px;z-index:99999;width:56px;height:56px;border:1px solid var(--gold);border-radius:8px;background:var(--void);padding:4px;display:block;text-decoration:none;transition:transform .25s,box-shadow .25s}
+#ae-qr-badge:hover{transform:scale(1.1);box-shadow:0 0 22px var(--gold)}
+#ae-qr-badge img{width:100%;height:100%;display:block;border-radius:4px}
+.ticker-wrap{width:100%;overflow:hidden;border-top:1px solid var(--gold-dim);border-bottom:1px solid var(--gold-dim);background:#080808;padding:8px 0;margin-top:20px}
+.ticker{display:inline-block;white-space:nowrap;animation:ticker 32s linear infinite}
+.ticker span{display:inline-block;padding:0 30px;color:var(--gold);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.ticker span.sep{color:#333}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">æ:// DEMO · MEDIDO, NO DECLARADO</div>
+    <h1>nuestras habilidades <span class="tag">53 SKILLS</span></h1>
+    <p class="sub">Cada tarjeta es una capacidad real con evidencia: <b>probes en vivo</b> contra los servicios locales y <b>receipts verificados</b> en disco. Lo que no se pudo ejecutar, se marca como tal.</p>
+  </header>
+
+  <h2>LIVE · PROBES EN VIVO</h2>
+  <div class="grid2">
+    <div class="cap">
+      <h3>QR · contrato escrow decodificado de un PNG</h3>
+      <div class="row"><span class="k">endpoint</span><span class="v"><code>127.0.0.1:3051</code></span></div>
+      <div class="row"><span class="k">contract hash</span><span class="v" id="qr-hash">—</span></div>
+      <div class="row"><span class="k">firmas / parties</span><span class="v" id="qr-sig">—</span></div>
+      <div class="row"><span class="k">terms</span><span class="v" id="qr-terms">—</span></div>
+      <div class="row"><span class="k">estado</span><span class="v" id="qr-state">—</span></div>
+      <div style="margin-top:.7rem"><button id="btn-qr" onclick="runQR()">re-run QR</button></div>
+    </div>
+    <div class="cap">
+      <h3>CRI · índice calculado en vivo</h3>
+      <div class="row"><span class="k">endpoint</span><span class="v"><code>127.0.0.1:3052</code></span></div>
+      <div class="row"><span class="k">cri_score</span><span class="v" id="cri-score">—</span></div>
+      <div class="row"><span class="k">componentes</span><span class="v" id="cri-comp">—</span></div>
+      <div class="row"><span class="k">coverage / freshness</span><span class="v" id="cri-cov">—</span></div>
+      <div class="row"><span class="k">estado</span><span class="v" id="cri-state">—</span></div>
+      <div style="margin-top:.7rem"><button id="btn-cri" onclick="runCRI()">re-run CRI</button></div>
+    </div>
+  </div>
+  <pre id="liveOut">los probes corren contra 127.0.0.1 — solo funcionan cuando esta pagina se sirve desde el nodo local. Si el puerto esta cerrado, se reporta el fallo. Nunca se simula.</pre>
+
+  <h2>EVIDENCIA · RECEIPTS VERIFICADOS EN DISCO</h2>
+  <div class="grid3">
+    <div class="cap ok">
+      <div class="lbl">AEE · RTL → SILICIO</div>
+      <div class="big">104.66 <span style="font-size:.5em">MHz</span></div>
+      <div class="row"><span class="k">SIM</span><span class="v ok-t">PASS · 5 frames bit-exact</span></div>
+      <div class="row"><span class="k">SYNTH</span><span class="v ok-t">PASS · 471 cells · 0 problems</span></div>
+      <div class="row"><span class="k">P&amp;R</span><span class="v ok-t">397/7680 LC (5%) · target 50 MHz</span></div>
+      <div class="row"><span class="k">toolchain</span><span class="v">yosys 0.69+190 · nextpnr-ice40 0.11.1</span></div>
+    </div>
+    <div class="cap ok">
+      <div class="lbl">VIDEO · SUPERVISION GATE</div>
+      <div class="big">3<span style="font-size:.5em"> PASS</span></div>
+      <div class="row"><span class="k">sovaereign_mesh</span><span class="v ok-t">lum 39.07 · mov 34.057 · 0 negros</span></div>
+      <div class="row"><span class="k">fleet-waves</span><span class="v ok-t">lum 26.73 · mov 4.742 · 0 negros</span></div>
+      <div class="row"><span class="k">fase20-hauge</span><span class="v ok-t">lum 27.93 · mov 5.093 · 0 negros</span></div>
+      <div class="row"><span class="k">formato</span><span class="v">1920×1080 · h264 · receipt SHA-256</span></div>
+    </div>
+    <div class="cap warn">
+      <div class="lbl">QR · GATE FAIL-CLOSED</div>
+      <div class="big" style="font-size:clamp(1rem,2.4vw,1.4rem)">REFUSA</div>
+      <div class="row"><span class="k">key/create</span><span class="v bad-t">supervision refused</span></div>
+      <div class="row"><span class="k">motivo</span><span class="v">no puede leer el PNG que genera</span></div>
+      <div class="row"><span class="k">contrato decode</span><span class="v ok-t">200 · hash + firma verificados</span></div>
+      <div class="row"><span class="k">lectura</span><span class="v">el gate SI lee; la escritura falla</span></div>
+    </div>
+  </div>
+
+  <h2>INVENTARIO · 53 SKILLS FIRMADOS</h2>
+  <div class="inv" id="invGrid"></div>
+
+  <h2>FILOSOFIA</h2>
+  <div class="panel">
+    <div class="row"><span class="k">regla</span><span class="v">lo que no se ejecutó, no se muestra como PASS</span></div>
+    <div class="row"><span class="k">gate</span><span class="v">fail-closed · si no puede verificar, se niega</span></div>
+    <div class="row"><span class="k">evidencia</span><span class="v">hash + firma + medida · nunca adjetivo</span></div>
+  </div>
+
+  <footer>
+    æ:// DEMO · 53 skills firmados por Yæl Méndez / HUMAN://ROOT · receipts en disco · probes locales.<br>
+    <a href="https://myaelmendez.github.io/aipodcast_me/cloud.html">cloud://</a> ·
+    <a href="https://myaelmendez.github.io/aipodcast_me/emoji-registry.html">emoji-registry</a> ·
+    <a href="https://myaelmendez.github.io/aipodcast_me/qr-widgets-gallery.html">qr-widgets</a> ·
+    <a href="https://github.com/MYaelMendez">MYaelMendez</a>
+  </footer>
+</div>
+
+<div class="ticker-wrap" role="marquee" aria-label="demo ticker">
+<div class="ticker">
+<span>æ:// DEMO</span><span class="sep">·</span>
+<span>53 SKILLS</span><span class="sep">·</span>
+<span>104.66 MHz REALES</span><span class="sep">·</span>
+<span>3 GATES PASS</span><span class="sep">·</span>
+<span>CONTRATO QR VERIFICADO</span><span class="sep">·</span>
+<span>FAIL-CLOSED</span><span class="sep">·</span>
+<span>æ:// DEMO</span><span class="sep">·</span>
+<span>53 SKILLS</span><span class="sep">·</span>
+<span>104.66 MHz REALES</span><span class="sep">·</span>
+<span>3 GATES PASS</span><span class="sep">·</span>
+<span>CONTRATO QR VERIFICADO</span><span class="sep">·</span>
+<span>FAIL-CLOSED</span><span class="sep">·</span>
+</div>
+</div>
+
+<a id="ae-qr-badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Fskills-demo.html" target="_blank" rel="noopener" aria-label="Verify this surface">
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=56x56&data=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Fskills-demo.html&bgcolor=050505&color=D4AF37" alt="QR verify" width="56" height="56">
+</a>
+
+<script>
+(function(){
+'use strict';
+var SKILLS = [{"name": "ae-as-skill", "version": "1.0.0", "author": "Yael Mendez", "size": 8761, "mt": "2026-10-04", "desc": "Use when working with the æ:// sovereign computing stack."}, {"name": "ae-cli", "version": "0.1.0", "author": "Yael Mendez (yaelmendez), Hermes Agent", "size": 4553, "mt": "2026-10-13", "desc": "æææ:// — Command Line Internet, all surfaces."}, {"name": "ae-target-application", "version": "1.0.0", "author": "HUMAN://ROOT", "size": 18552, "mt": "2026-11-20", "desc": "Complete the æ-lang target app — one symbol, one capability."}, {"name": "ae-web-gate", "version": "1.0.0", "author": "Yael Mendez", "size": 7112, "mt": "2026-10-10", "desc": "Use when gating an æ web surface with a vault file."}, {"name": "aertxrender", "version": "1.0.0", "author": "Yael Mendez (yaelmendez), Hermes Agent", "size": 30596, "mt": "2026-10-12", "desc": "æRTXrender — deterministic HTML→MP4 render harness with SupervisorVideo gate + SHA-256 rec"}, {"name": "agentic-mail", "version": "1.0.0", "author": "Yael Méndez × Hermes Agent", "size": 4232, "mt": "2026-10-04", "desc": "Use when building agentic electronic engineering mail."}, {"name": "cdp-capture", "version": "0.1.0", "author": "Yael Mendez (yaelmendez), Hermes Agent", "size": 8609, "mt": "2026-11-19", "desc": "CDP frame capture — render WebGL to MP4."}, {"name": "code-mode", "version": "0.3.0", "author": "Yael Mendez (MYaelMendez), Hermes Agent", "size": 18735, "mt": "2026-10-14", "desc": "Codæ Mode — agent code against the æ mesh DSL, fleet-wave scale."}, {"name": "cri-index", "version": "1.0.0", "author": "Yael Méndez × Hermes Agent", "size": 5885, "mt": "2026-10-09", "desc": "Use when building Consumer Redline Index."}, {"name": "cuda-video", "version": "0.1.0", "author": "Yael Mendez (yaelmendez), Hermes Agent", "size": 8223, "mt": "2026-11-21", "desc": "CUDAvidæo — GPU-native video pipeline, CuPy + NVENC."}, {"name": "emoji-film-context", "version": "0.1.0", "author": "Yael Mendez", "size": 4592, "mt": "2026-11-21", "desc": "Use when an emoji opens a film context (emoji_scene)."}, {"name": "fleet-waves", "version": "1.0.0", "author": "Yael Mendez", "size": 6491, "mt": "2026-10-21", "desc": "Fleet Waves prompt-to-storyboard pipeline."}, {"name": "fleet-waves-operating-sop", "version": "1.1.0", "author": "Yael Mendez x Hermes Agent", "size": 12894, "mt": "2026-11-18", "desc": "Use when multi-file task arises. One-shot fleet wave."}, {"name": "glocal-vision", "version": "0.1.0", "author": "Yael Mendez", "size": 5653, "mt": "2026-10-06", "desc": "Scan media with QR verification badges and periodic cron."}, {"name": "hermes-agent-watch", "version": "1.0.0", "author": "Yael Menendez", "size": 3262, "mt": "2026-11-21", "desc": "Probe a flakily-refusing VS Code agent before trusting its response."}, {"name": "hermes-desktop-plugins", "version": "0.1.0", "author": "Yael Mendez", "size": 47342, "mt": "2026-11-21", "desc": "Build Hermes desktop plugins with Python backend + ESM UI."}, {"name": "hermes-live-c2", "version": "1.0.0", "author": "Yael Mendez (MYaelMendez), Hermes Agent", "size": 22899, "mt": "2026-10-19", "desc": "Build a 3D Xbot operator with command & control channel."}, {"name": "internetofagents-demo", "version": "0.1.0", "author": "Yael Mendez", "size": 6113, "mt": "2026-10-05", "desc": "Create #internetofagents sovereign mesh demo with verified video production pipeline"}, {"name": "keeper", "version": "1.0.0", "author": "keeper (Yæl Méndez's æ:// stack)", "size": 11421, "mt": "2026-11-21", "desc": "Use when reporting system state or auditing the mesh."}, {"name": "llama-cpp-gpu", "version": "0.2.0", "author": "Yael Mendez (yaelmendez), Hermes Agent", "size": 5894, "mt": "2026-10-04", "desc": "Generate code with llama.cpp GPU offload on RTX 3050. Part of PC://INFERENCE layer."}, {"name": "llama-cpp-gpu-es", "version": "0.1.0", "author": "Yael Méndez × Hermes Agent", "size": 3880, "mt": "2026-10-13", "desc": "Inferencia local GGUF vía RTX 3050 con llama.cpp GPU backend."}, {"name": "mail-agent", "version": "1.0.0", "author": "Yael Méndez × Hermes Agent", "size": 3209, "mt": "2026-10-04", "desc": "Use when building agentic electronic engineering mail."}, {"name": "markdown-to-video", "version": "0.1.0", "author": "Yael Mendez (yaelmendez), Hermes Agent", "size": 4530, "mt": "2026-10-04", "desc": "Markdown → video, teleprompter script to MP4."}, {"name": "monaco-ae", "version": "0.1.0", "author": "Yael Méndez, Hermes Agent", "size": 8115, "mt": "2026-10-04", "desc": "Monaco editor with gold-on-void theme for VSCODER://."}, {"name": "mp4-factory", "version": "1.0.0", "author": "Yael Mendez (yaelmendez), Hermes Agent", "size": 28830, "mt": "2026-11-21", "desc": "MP4 Generative Factory — GPU-native video production pipeline. CuPy frame generation + CDP"}, {"name": "mujoco-robot-studio", "version": "1.0.0", "author": "HUMAN://ROOT", "size": 16951, "mt": "2026-11-20", "desc": "Render MuJoCo robot CAD to video — casts, cameras, faces."}, {"name": "pc-inference", "version": "0.1.0", "author": "Yael Mendez (yaelmendez), Hermes Agent", "size": 4431, "mt": "2026-10-04", "desc": "PC://INFERENCE — portable inference substrate."}, {"name": "pc-qr-api", "version": "0.1.0", "author": "Yael Mendez (yaelmendez), Hermes Agent", "size": 4942, "mt": "2026-10-04", "desc": "Create, sign, and verify QR contracts for PC:// authority."}, {"name": "pc-vision", "version": "0.1.0", "author": "Yael Mendez (yaelmendez), Hermes Agent", "size": 3813, "mt": "2026-10-04", "desc": "PC://VISION — native computer vision, zero ML."}, {"name": "plugin-sovereignty", "version": "1.0.0", "author": "Yael Mendez", "size": 10043, "mt": "2026-11-19", "desc": "Align any Hermes plugin to #opensourceware sovereignty."}, {"name": "prior-art-review", "version": "1.0.0", "author": "Yael Mendez", "size": 6558, "mt": "2026-10-06", "desc": "Adversarially verify novelty claims in research papers."}, {"name": "provenance-loop", "version": "1.0.0", "author": "HUMAN://ROOT", "size": 9737, "mt": "2026-11-21", "desc": "Use when sealing or teaching artifact provenance."}, {"name": "qr-envelope", "version": "1.0.0", "author": "Yael Mendez", "size": 7304, "mt": "2026-10-22", "desc": "Use when encoding/decoding any æ:// QR payload."}, {"name": "qr-mail-sms", "version": "1.0.0", "author": "Yael Mendez", "size": 5548, "mt": "2026-10-06", "desc": "Use when moving secrets over email or SMS."}, {"name": "qr-vision", "version": "0.1.0", "author": "Yael Mendez (yaelmendez), Hermes Agent", "size": 12609, "mt": "2026-10-13", "desc": "QR detection, generation, and verification with OpenCV."}, {"name": "render-mjs", "version": "1.1.0", "author": "Yael Mendez (yaelmendez), Hermes Agent", "size": 27975, "mt": "2026-11-18", "desc": "æRTXrender deterministic HTML→MP4 harness. Same input → same video byte-for-byte. Node 26 "}, {"name": "render-scripting", "version": "0.1.0", "author": "Yael Mendez (yaelmendez), Hermes Agent", "size": 31995, "mt": "2026-11-18", "desc": "JSON spec to deployed video via canvas, manim, and threejs."}, {"name": "resource-absorb-and-rename", "version": "1.0.0", "author": "Yael Mendez", "size": 7358, "mt": "2026-10-04", "desc": "Use when renaming resource X to Y across clones/bundles."}, {"name": "robot-protocol-stack", "version": "1.0.0", "author": "HUMAN://ROOT", "size": 17703, "mt": "2026-11-19", "desc": "Govern robot C2: asimov://, moh://, emoji front door."}, {"name": "rtl", "version": "0.1.0", "author": "Yael Mendez × Hermes Agent", "size": 4579, "mt": "2026-10-06", "desc": "Agentic Electronic: SPEC→RTL→SIM→SYNTH→P&R with gates."}, {"name": "rtx-3050", "version": "1.0.0", "author": "Yael Mendez", "size": 8440, "mt": "2026-10-05", "desc": "RTX 3050 6GB hardware reference — specs and limits."}, {"name": "rust-wasm-build", "version": "1.0.0", "author": "Yael Mendez", "size": 2510, "mt": "2026-10-14", "desc": "Build Rust projects targeting wasm32-unknown-unknown."}, {"name": "schoolofhermes", "version": "1.0.0", "author": "Yael Mendez (MYaelMendez), Hermes Agent", "size": 10532, "mt": "2026-10-14", "desc": "Use when learning or verifying Hermes CLI commands."}, {"name": "sovereign-browser-surface", "version": "1.0.0", "author": "Yael Mendez", "size": 41915, "mt": "2026-11-19", "desc": "Build sovereign gold-on-void HTML surfaces."}, {"name": "spanish-rae", "version": "1.0.0", "author": "Yael Mendez", "size": 3828, "mt": "2026-10-03", "desc": "Spanish per RAE — orthography and grammar."}, {"name": "supervisionvidaeo", "version": "1.0.0", "author": "Yael Mendez", "size": 11140, "mt": "2026-11-18", "desc": "Produce-and-verify video contract — refuses broken renders."}, {"name": "teknium-terminal-aesthetic", "version": "1.0.0", "author": "Yael Mendez", "size": 5723, "mt": "2026-10-06", "desc": "Use when building terminal-aesthetic web surfaces."}, {"name": "teologia-artifact-pipeline", "version": "1.0.0", "author": "Yael Mendez", "size": 9894, "mt": "2026-10-13", "desc": "Add canonical artifacts to teologia.ai."}, {"name": "tiny-voca-vscode-voice", "version": "1.0.0", "author": "HUMAN://ROOT", "size": 10081, "mt": "2026-11-17", "desc": "Install/repair local tiny-voca TTS for VS Code voice."}, {"name": "vaeult", "version": "1.1.0", "author": "Yael Mendez", "size": 9763, "mt": "2026-10-10", "desc": "Use when managing password-secured local secrets."}, {"name": "vaeult-render-pipeline", "version": "0.1.0", "author": "Yael Mendez", "size": 9001, "mt": "2026-11-21", "desc": "Video render pipeline, gate, deploy, curriculum, AEE cycle."}, {"name": "video-ae", "version": "0.2.0", "author": "Yael Mendez (yaelmendez), Hermes Agent", "size": 4607, "mt": "2026-10-04", "desc": "Vidæo — agentic video engineering, AEE cycle for video."}, {"name": "windows-taskbar", "version": "1.0.0", "author": "Yael Mendez (yaelmendez), Hermes Agent", "size": 10383, "mt": "2026-10-07", "desc": "Transform Windows taskbar into æ:// command surface."}];
+var grid=document.getElementById('invGrid');
+SKILLS.forEach(function(s,i){
+  var d=document.createElement('div');
+  d.className='s';
+  d.style.animationDelay=(i*0.012)+'s';
+  d.innerHTML='<div class="n">'+s.name+'</div><div class="m">v'+s.version+' · '+s.mt+'</div>';
+  grid.appendChild(d);
+});
+
+var out=document.getElementById('liveOut');
+var QR_PNG='C:\\æ\\secrets\\keys\\qr\\contract_20261004_052119.png';
+
+function hit(method,url,payload,ms){
+  var ctrl=new AbortController();
+  var to=setTimeout(function(){ctrl.abort();},ms||12000);
+  var opt={method:method,signal:ctrl.signal,cache:'no-store'};
+  if(payload){ opt.headers={'Content-Type':'application/json'}; opt.body=JSON.stringify(payload); }
+  return fetch(url,opt)
+    .then(function(r){ clearTimeout(to); return r.text().then(function(t){return {status:r.status,body:t};}); })
+    .catch(function(e){ clearTimeout(to); return {status:0,body:String(e)}; });
+}
+function set(id,txt,cls){ var e=document.getElementById(id); e.textContent=txt; e.className='v '+(cls||''); }
+
+window.runQR=function(){
+  var b=document.getElementById('btn-qr'); b.disabled=true;
+  set('qr-state','probando…');
+  hit('POST','http://127.0.0.1:3051/api/contract/qr-decode',{filepath:QR_PNG},15000).then(function(r){
+    b.disabled=false;
+    if(r.status!==200){ set('qr-state','HTTP '+r.status+' · '+(r.body||'').slice(0,70),'bad-t'); out.textContent='QR fallo: '+r.status+' '+r.body; return; }
+    var d; try{ d=JSON.parse(r.body); }catch(e){ set('qr-state','JSON invalido','bad-t'); return; }
+    var c=d.contract||{};
+    set('qr-hash',(c.hash||'—').slice(0,22)+'…','ok-t');
+    set('qr-sig',(c.signature?c.signature.slice(0,18)+'…':'—')+' · '+(c.parties?c.parties.length:0)+' parties');
+    set('qr-terms',(c.terms?c.terms.amount+' '+c.terms.currency:'—'));
+    set('qr-state','200 · contrato completo: '+(d.complete?'si':'no'),'ok-t');
+    out.textContent='QR 200\nhash   : '+c.hash+'\nsignedBy: '+c.signedBy+'\nparties: '+(c.parties||[]).length+'\nterms  : '+JSON.stringify(c.terms)+'\nactions: '+JSON.stringify(c.actions);
+  });
+};
+
+window.runCRI=function(){
+  var b=document.getElementById('btn-cri'); b.disabled=true;
+  set('cri-state','probando…');
+  hit('GET','http://127.0.0.1:3052/api/cri/current',null,12000).then(function(r){
+    b.disabled=false;
+    if(r.status!==200){ set('cri-state','HTTP '+r.status+' · '+(r.body||'').slice(0,70),'bad-t'); out.textContent='CRI fallo: '+r.status; return; }
+    var d; try{ d=JSON.parse(r.body); }catch(e){ set('cri-state','JSON invalido','bad-t'); return; }
+    set('cri-score',String(d.cri_score),'ok-t');
+    set('cri-comp',Object.keys(d.components||{}).length+' componentes');
+    set('cri-cov',(d.coverage??'?')+' / '+(d.freshness??'?'));
+    set('cri-state','200 · status '+d.status,'ok-t');
+    out.textContent='CRI 200\nscore    : '+d.cri_score+'\nas_of    : '+d.as_of+'\ncoverage : '+d.coverage+'\nfreshness: '+d.freshness+'\nstatus   : '+d.status;
+  });
+};
+
+console.log('[demo] '+SKILLS.length+' skills · probes listos');
+})();
+</script>
+</body>
+</html>
