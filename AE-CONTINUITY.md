@@ -1166,3 +1166,23 @@ Pushed through `kanban_push.py`.
 
 Not verified: browser playback; second-machine reproducibility; audio on
 32.1/32.3.
+
+
+## 33. The Governance-and-Provenance Laboratory — named (2026-11-21)
+
+The estate's research identity is formalized as a unit: **GPL**, the
+Governance-and-Provenance Laboratory. Charter: `C:/æ/gplab/CHARTER.md`.
+
+- Subject: any claim an agent makes about the world, and whether it can be
+  checked. Not the robot — the receipt.
+- Instruments: the `væult://` chain (9 links), the tiny-family oracles (pixel,
+  motion, bus, seam, time, ledger, plugin), the `asimov://` governed C2, and
+  SHA-256 receipt chains.
+- Rules: seven, including "a thing not checked back is not a thing",
+  "evidence ≠ authority", "fix the scene, never the threshold", and "every
+  run leaves the lab measurably better (proved/broke/change)".
+- Scorecard: above its weight on auditability, at its weight on deterministic
+  simulation, below its weight on hardware — a boundary, not a goal.
+
+This entry names a research identity. It grants no execution authority and
+changes no surface beyond the charter file and this record.
