@@ -1225,3 +1225,30 @@ bands dropped luminance below the floor and the gate refused: fix the scene
 source films' own HUD text: clear a lower third.
 **change** — a `proof09` brief is added to the film-production skill (size the
 voice first, warm the panels, clear the lower third, state provenance in-frame).
+
+
+## 35. PROOF/1 — the receipted film format, de novo (2026-11-21)
+
+The practice became a FORMAT. `proof/film/1` (spec `PROOF-1-FORMAT.md`, renderer
+`proof1.py`) encodes every measured innovation of the prior research:
+emoji-as-context, provenance-first source selection (sort by sha256),
+receipt-in-frame, voice sized to the picture, warm panels (never lower a
+threshold), a cleared lower third, and the gates declared in the spec itself.
+
+- Spec: `chain-09.proof.json` (the master). Container: `chain-09.mp4` +
+  `.receipt.json` + `.meta.json`.
+- Film: 9.000 s, 720x1280, 216 frames, 4,558,910 B.
+  sha256 `a98a0e391b07987d0e18d3bab137ed119621cff7fa0bcffaeeb18b562c3fe4c9`.
+- Gate PASS — luminance 23.12, contrast 38.36, motion 5.82, black 0.0%;
+  mux 9.0/9.0.
+- Spine: the NINE links of the `væult://` chain (custody, format, gate, authority,
+  contract, dispatch, publish, delivery, adoption) — one per second, each beat
+  labelled in-frame and citing its source's sha256.
+
+**proved** — a film format can carry the laboratory's rules as FIELDS, not as
+habits; the same spec + the same assets render the same bytes.
+**broke** — the format has no source-drift check: the renderer reads and burns a
+source's sha256 but does not refuse when a source no longer matches the spec's
+record. A film can therefore be rendered from a changed asset and still pass.
+**change** — add an optional `expected_sha256` to each beat; the renderer must
+refuse on mismatch. Until then, the receipt cites the spec, not the asset.
