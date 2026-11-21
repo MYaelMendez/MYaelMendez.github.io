@@ -1131,3 +1131,38 @@ Emoji context: the film carries the sov glyph (the diamond glyph is the
 film's centre-piece), gold #D4AF37 on void #050505.
 Not verified: browser playback; second-machine reproducibility; determinism
 re-run. No audio (the §26 open item stands).
+
+## 32. Fleet production run — three films, one receipted commit (2026-11-21)
+
+Three artifacts produced in parallel by two subagents (artifact-only scope: no
+git, no pushes, no continuity edits) and verified by the parent before publish.
+Pushed through `kanban_push.py`.
+
+### 32.1 `core-registry-916.mp4` (silent)
+- sha256 `73b126c2de50f5acd39eb05c5e175d82f254839a373574d905c3ca48f332361f`,
+  3,745,163 B, 720x1280, 996 frames, 41.5 s.
+- Gate PASS — luminance 22.55, contrast 28.73, motion 1.198, black 0.0%.
+- Source: `tinycudavideo/films/core-registry` (`emoji_scene.py` context hues).
+
+### 32.2 `core-registry-916-narrated.mp4` (first narrated film on this path)
+- sha256 `665dae8189198355a0fb5bb3ffa411d5099a0c37c210665067f422ba49061b02`,
+  5,586,533 B, 720x1280, 1216 frames, 50.667 s, h264_nvenc + aac.
+- Voice: `det_voice` M2 seed 916, 50.667 s, `pcm_sha256 ff2e9346…`, voice receipt
+  `263007af…`. The 996-frame picture is LOOPED x2 to cover the speech (cyclic
+  continuation, not a frozen tail).
+- Gate PASS — luminance 22.51, contrast 28.54, motion 1.47, black 0.0%; mux
+  within 0.15 s. Determinism re-run byte-identical, `grade` reward 1.0.
+- First film to exercise the picture/voice seam — the corpus's only measured
+  defect class (8.8% with audio, 0% silent).
+
+### 32.3 `mobility4d.mp4` (4D gait strobe)
+- sha256 `574e21badb31d093b255bad8f74454597ef604fe0db2b5ff369f045718f9cfd7`,
+  5,912,751 B, 720x1280, 288 frames, 12 s.
+- Render: `agents/mobility4d.py`, 14 ghosts baked once from the 480-frame
+  `walk-trace.json` → 14,098,574 tris in 5.2 s FK; raster 512 ms/frame;
+  163.5 s wall. Base travel **+7.8696 m** (THIS trace; the published proof is
+  +4.1868 m — do not conflate the two).
+- Gate PASS — luminance 20.9, contrast 42.88, motion 0.866, black 0.0%.
+
+Not verified: browser playback; second-machine reproducibility; audio on
+32.1/32.3.
