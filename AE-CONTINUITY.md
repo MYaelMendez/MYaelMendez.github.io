@@ -1027,5 +1027,31 @@ Open (explicit, no gate receipt written until actually run):
 - Menlo SDK not installed; SimTransport unimplemented; no robot hardware — asimov_exec stays dry-run.
 - Render budget is the live constraint (288 frames ≈ 100 s at 31 ms/frame).
 
+Open (explicit, no gate receipt written until actually run):
+- Audio track / voice on the 4D loop: not shipped (the 30 s loop has no audio).
+- Remaining 4D spec environments: only the holomesh path is grounded; "3 of 4 environments" is unverified.
+- Menlo SDK not installed; SimTransport unimplemented; no robot hardware — asimov_exec stays dry-run.
+- Render budget is the live constraint (288 frames ≈ 100 s at 31 ms/frame).
+
 No gate receipt written for this entry. Next bounded step: name the real 4D environment path and run the gate
 with a real receipt, then record the receipt hash into this file.
+
+## 27. 3-second gold film — produced & gated (2026-11-21)
+
+Sovereign render gate, executed end-to-end on the CuPy raster path (vidæo.py generate):
+
+- spec: C:/æ/site/aipodcast_me/spec-3s-gold.json — gold palette, 6000 particles, motion 0.03,
+  3.000 s @ 30 fps = 90 frames, 720×1280 (800×1280 menu canvas)
+- BUILD (GPU python): SPEC gate PASS (valid & bounded) → 90 frames rendered in 12.7 s, encoded 3.7 s
+  (h264_nvenc, cq 20, +faststart). VLC human pane opened successfully.
+- GATE (SupervisorVideo): PASS — luminance 70.22 (>20), contrast 26.35 (>8), motion 5.346 (>0.5), black 0.
+- SHA-256 receipt: aafc87a5e2ac0e7f1a9a253145aca670db97b4bb0e703404086a3b17831bb39f
+- File: C:/æ/site/aipodcast_me/3s-gold.mp4, 3,827,226 B (3.65 MB), mp4, h264_nvenc.
+
+Measurement (ffprobe): duration 3.000000 s, size 3,827,226 B, nb_frames 90.
+- Verified by real execution; no receipt written until the gate ran (honor code).
+
+Sequence the film out live (publish via kanban_push.py) when ready:
+  vidæo.py generate site/aipodcast_me/spec-3s-gold.json site/aipodcast_me/3s-gold.mp4
+  vidæo.py verify site/aipodcast_me/3s-gold.mp4
+  kanban_push.py push --task "deploy: 3s gold film" --branch gh-pages
