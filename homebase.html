@@ -78,6 +78,16 @@ body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',ui-mon
         <span class="badge violet" id="cat-videos">—</span>
       </div>
     </div>
+    <div class="panel" style="text-align:center">
+      <div class="label">film memory · verified</div>
+      <div class="value" id="mc-status">—</div>
+      <div class="sub" id="mc-detail">chain · films · drift</div>
+      <div class="row" style="justify-content:center">
+        <span class="badge gold" id="mc-chain">—</span>
+        <span class="badge cyan" id="mc-films">—</span>
+        <span class="badge violet" id="mc-drift">—</span>
+      </div>
+    </div>
   </div>
   <div class="bottom">
     <div class="controls">
@@ -231,6 +241,22 @@ fetch('./qr_inventory.json')
     document.getElementById('cat-detail').textContent = 'derived from qr_inventory.json';
   })
   .catch(() => { document.getElementById('cat-status').textContent = 'OFFLINE'; });
+
+// Film memory: DERIVED from tinyFILMMEMORY ledger via filmmemory-status.json.
+// RECOVERED IS NOT RE-MEASURED — the surface keeps the distinction explicit.
+fetch('./filmmemory-status.json')
+  .then(r => r.ok ? r.json() : null)
+  .then(d => {
+    const st = document.getElementById('mc-status');
+    if (!d || d.ok === false) { st.textContent = d && d.reason ? 'REFUSED' : 'OFFLINE'; return; }
+    st.textContent = d.chain_ok ? 'VERIFIED' : 'BROKEN';
+    document.getElementById('mc-chain').textContent = 'chain ' + d.chain_length;
+    document.getElementById('mc-films').textContent = d.films + ' films';
+    document.getElementById('mc-drift').textContent = d.drift.length + ' drift';
+    document.getElementById('mc-detail').textContent =
+      d.re_measured + ' re-measured · ' + d.recovered + ' recovered · ' + d.defects.length + ' defects · ' + d.chain_head.slice(0, 8);
+  })
+  .catch(() => { document.getElementById('mc-status').textContent = 'OFFLINE'; });
 
 const tooltip = document.getElementById('tooltip');
 renderer.domElement.addEventListener('mousemove', e => {
