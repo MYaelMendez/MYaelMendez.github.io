@@ -1184,5 +1184,44 @@ Governance-and-Provenance Laboratory. Charter: `C:/æ/gplab/CHARTER.md`.
 - Scorecard: above its weight on auditability, at its weight on deterministic
   simulation, below its weight on hardware — a boundary, not a goal.
 
-This entry names a research identity. It grants no execution authority and
-changes no surface beyond the charter file and this record.
+- sha256 `89426b7ba4277c2e3f878e121b849915ff7e4745826ca555065c915d1d50fd86`,
+  3,825,275 B, 720x1280, 90 frames, 3 s.
+
+- Render: GPU python (CuPy), 90 frames in 12.2 s, encoded 4.0 s (h264_nvenc,
+  +faststart). Spec: `C:/æ/threejs-curriculo/spec-microduck.json`.
+
+- Gate PASS — luminance 73.94, contrast 26.91, motion 5.327, black 0.0%.
+
+- Microduck (Pollen Robotics): 25 cm, ~800 g, 14 DOF, RK3566 SoC. 3D models
+  local at `C:/æ/agents/microduck_rl/src/mjlab_microduck/robot/microduck/`
+  (43 STL files, ~20 MuJoCo models: robot_walk.xml, robot_groundcontact.xml,
+  robot_groundcontact_rollers.xml, ball.xml, additional.xml, joints_properties.xml).
+
+Not verified: browser playback; second-machine reproducibility; audio.
+
+
+## 34. GPL run 01 — PROOF/09 (2026-11-21)
+
+The Governance-and-Provenance Laboratory's first run on its own rules: a
+9.000 s film composed from NINE of our own robotic media assets, each second
+sampling one asset chosen by sorting the estate on SHA-256, each second burning
+that source's hash into the frame. The robot is the subject; the receipt is the
+result.
+
+- Film: `proof-09.mp4`, 4,555,285 B, 720x1280, 216 frames, 9.000 s,
+  h264_nvenc + aac.
+  sha256 `3e7fba7e3ca6f2b15ff8463e9d9bbc47530915e5a1862f19fc7fa77dd40b4816`.
+- Gate PASS — luminance 22.93, motion 5.811, black 0.0%; mux 9.0/9.0, delta 0.0.
+- Provenance: the nine source films and their sha256 are in
+  `proof-09.meta.json` AND visible in the film itself (beat 01..09).
+- Voice: `det_voice` hermes seed 9, 8.629 s (padded to 9.0), deterministic.
+
+**proved** — a media estate can be recomposed deterministically from its own
+receipts, and the provenance is legible in the artefact, not only in a manifest.
+**broke** — (1) the narration ran long three times (50.67 / 9.75 / 9.6 s) before
+landing at 8.629 s: size the line before synthesising; (2) the cleared overlay
+bands dropped luminance below the floor and the gate refused: fix the scene
+(warmer panel), never the threshold; (3) the first layout collided with the
+source films' own HUD text: clear a lower third.
+**change** — a `proof09` brief is added to the film-production skill (size the
+voice first, warm the panels, clear the lower third, state provenance in-frame).
