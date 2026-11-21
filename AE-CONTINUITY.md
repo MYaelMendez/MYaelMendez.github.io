@@ -375,6 +375,197 @@ grant + first positive væMCP execution; publish the spec/conductor surfaces
 to github.io (needs authorization); PR #15 browser-test tail (§7–11).
 
 
+## 18. Asymptotic iteration — the speaking front door — 2026-11-18 (in flight)
+
+Operator directive: "innovate, iterate asymptotically." Asymptote defined:
+**a human names a capability → it resolves locally, asks authority,
+executes, leaves ONE truth receipt — spoken in a voice that reproduces
+bit-for-bit.** Distance metric: unbound symbols, uncomposed links,
+unverified claims. Each iteration must measurably reduce it.
+
+Iteration A (leaf, new-file-only): `ae_frontdoor.py` — `name <symbol>`
+resolves-only; `say "<æ-lang>"` conducts and SPEAKS the truth receipt via
+det_voice (fixed seed), chaining truth hash + pcm_sha256 into one receipt;
+`verify` reads back. The novel composition: a verdict both hash-verified
+AND bit-reproducible as audio.
+
+Iteration B (leaf, audit-only, scratch writes): 🎬/🎥 binding proposal
+against the REAL film chain (vidæo / mp4-chain / hermes-ae) — exact
+schema-conformant entries + ae_compile diff + test plan, grant-gated.
+Implementation lands next wave after the proposal is reviewed.
+
+File ownership enforced to keep the wave collision-free: A owns only its
+new file; B writes only scratch. Results and measured verification will be
+appended here when the leaves report.
+
+### Iteration A — VERIFIED (parent re-ran)
+
+`C:/æ/agents/ae_frontdoor.py` (ae-frontdoor/0.1, new file only):
+- `name <symbol>` → resolve-only manifest, zero execution/receipts.
+- `say "<æ-lang>" [--seed --voice --ledger]` → conduct() → deterministic
+  English narration of the ACTUAL report → det_voice WAV → ONE receipt
+  chaining truth_hash + pcm_sha256 (JSONL, genesis 0×64, canonical JSON).
+  Refused runs are spoken too — the refusal is part of the truth.
+- `verify <hash>` → recompute chain + receipt + re-hash WAV bytes on disk;
+  tamper fails closed; deleted WAV reports audio.checked:false honestly.
+
+Parent re-ran the suite: **35 PASS lines, 0 failures** (the two "FAIL"
+grep hits are the FAIL-CLOSED and TAMPER negative-test labels), plus
+`selftest` ALL ASSERTIONS PASSED. Leaf's own count: 31/31 checks.
+Key measured facts: independent processes, same seed → identical truth
+hash `775c0dfc…` AND identical pcm_sha256 `f9d4e98b…`; audio non-silent
+(peak 0.942, RMS 0.097, 5.419 s); 🍕 refusal spoken with zero invocations.
+Real run on default paths: `C:/æ/logs/frontdoor-receipts.jsonl` receipt
+`c9eff207…`, WAV `C:/æ/logs/frontdoor/fe6b58d36a4cfa93_hermes_seed42.wav`,
+verify read-back ok. Conductor + aelang selftests regress clean.
+
+**The innovation landed:** a verdict that is both hash-verified AND
+bit-reproducible as audio — truth you can hear, twice, identically.
+Positioned as the speaking counterpart of robo-chat.html/refusal.html
+(the browser front doors from the 2026-11-19 session, read via HANDOFF.md).
+
+Gaps: narration ASCII-sanitized (emoji reasons preserved verbatim in the
+receipt JSON, not pronounced); no symbol→English-name map yet; human
+listening gate pending (measured non-silent ≠ intelligibility-verified);
+positive væMCP dispatch still awaits an operator grant.
+
+### Iteration B — VERIFIED proposal (audit-only leaf, resumed after stall)
+
+Deliverables: `scratch/film-binding/film-binding-proposal.md` +
+`proposal.json` + `evidence.json`. Chosen: TWO bindings (🎬 cap.emoji:1f3ac,
+🎥 cap.emoji:1f3a5 — registry semantics force two ids, exact-scope grants,
+a 🎬 grant never covers 🎥) sharing ONE new READ-ONLY væMCP verb
+`film_verify` (+`film_status`): SupervisorVideo + ffprobe PER-STREAM A/V
+duration delta, tolerance 0.15 s (tinycudavideo.MUX_TOLERANCE_S), ASCII
+guard, interpreter guard, no render/publish/VLC/network. Rejected: vidæo
+CLI (schema change + can --publish), supervisionvidaeo.produce (NOT
+installed in C:/gpu — measured ModuleNotFoundError), hermes-ae pipelines
+(render+publish orchestrators; installed copies drift from repo truth).
+
+Evidence re-measured by the leaf: walk film verify PASS, receipt
+`13d1b8b2…` BYTE-IDENTICAL to the published receipt (deterministic gate);
+both defective films FAIL mux_match while PASSING pixels (video 8.333 s
+vs audio 24.149 s; 25.0 vs 48.555 s) — the seam check is load-bearing;
+mp4_chain 11/11 links, 116 films on the truth surface.
+
+**LOSS FOUND (parent-verified):** the scratch dirs holding the 48/50/26/73
+regression suites were PRUNED (scratch = ephemeral, 24h idle). Source
+modules survive in C:/æ/agents/; the full test code survives in the
+delegation transcripts (write_file payloads). Lesson generalized from
+tinyFILMMEMORY: **verification harnesses must live with the code, never
+in ephemeral scratch.** Apply wave dispatched (deleg_2ab7bbf9): STEP 0
+recover suites → durable `C:/æ/agents/tests/`, green BEFORE changes;
+then server.py → bindings → compiler in fail-closed order; T-F1..F8 with
+the two defective films as negative fixtures; 3× full regression.
+Positive dispatch stays stub-only (no human grant exists).
+
+
+## 19. Session 20260710_193818_b3c467 — diagnosed, NOT data corruption — 2026-11-20
+
+Operator reported the session "corrupted". Measured diagnosis:
+- History INTACT: 573 active messages via session FTS; **20,112 raw message
+  rows** in state.db (`messages WHERE session_id=…`). Title "VSCode ://",
+  source tui, started 2026-07-10.
+- 18 request dumps (Jul 11 → Nov 19) show the real failure: the session's
+  model routes died one by one — APIConnectionError ×3, **404 "This model
+  is no longer free… LongCat"** ×5, 429 ×3, 402 ×3 (tencent/hy4-preview),
+  400 "check the model name" ×2, and the latest two (Nov 19,
+  qwen/qwen4-max:free, 689/691 messages) → **403 PermissionDenied**.
+- Conclusion: a model-access/routing failure, not corrupted storage. The
+  same model works in the current session at smaller context; the 403 on
+  the 689-message payload is unexplained beyond the dump (possibly
+  payload-size/content related — NOT verified).
+- Recovery options (operator's call): re-pin the session to a live model
+  and/or compact before resume; the knowledge is also recoverable
+  read-only from state.db regardless.
+
+**The structural lesson → tinyFILMMEMORY.** Months of film work lived
+only in a session that cannot resume; the 2026-11-19 audit already found
+65 films published / 2 receipts persisted / 0 gate records on disk.
+Knowledge must not depend on a resumable session. Build dispatched:
+`C:/æ/tinyfilmmemory/tinyfilmmemory.py` — one file, stdlib, hash-chained:
+record (re_measured from delivered bytes, A/V-delta defect gate), recall,
+verify (chain + byte drift), audit (corpus coverage), rescue (read-only
+state.db extraction, measurement_kind=recovered — never upgraded to
+measured without the artifact). First rescue target: the trapped session
+itself. Results append when the leaf reports.
+
+### tinyFILMMEMORY — BUILT AND VERIFIED (parent, inline) — 2026-11-20
+
+The delegated leaf stalled twice on model-response timeouts (free tier)
+with zero output; parent built it inline instead. One file, stdlib +
+pinned ffprobe, `ae/film-memory/1` records compatible with
+video_research's paper schema. Ledger: `C:/æ/logs/filmmemory/ledger.jsonl`.
+
+Measured, all real runs (C:/gpu python):
+- selftest: record / citation-determinism / chain / tamper-fails /
+  byte-drift-detected — ALL PASS (lavfi fixture).
+- `record asimov-walk-916.mp4`: 1712 frames 720×1280, **A/V delta 0.006 s**
+  (the proven bar, reproduced), mux_match true; fuzzy finder fixed a tie
+  (trailing-token bonus) → spec-walk-film.json + walk-trace.json +
+  asimov-walk-receipt.json all located.
+- `record` both defective films: **DEFECT fires** — rtx-waetz-sound-916
+  delta 15.816 s, tinygpu-demo-916 delta 23.555 s (independent
+  re-measurement of the video_research findings).
+- `rescue 20260710_193818_b3c467` (read-only, mode=ro): **20,112 messages
+  scanned → 170 unique receipts, 560 film references, 500 gate-metric
+  lines recovered**, each with message-id evidence; db_unchanged=true
+  (row count before==after). Sidecar:
+  `C:/æ/logs/filmmemory/records/rescue-20260710_193818_b3c467.json`.
+  measurement_kind=recovered — never upgraded without the artifact.
+- `audit C:/æ/github-pages`: **133 films, 3 recorded, 130 unrecorded** —
+  the corpus gap, quantified. `verify`: chain length 5, 4 films re-hashed,
+  zero drift. `recall walk`: hits with defect flags.
+
+The trapped session's film memory is now durable outside the session.
+Remaining: record the 130 unrecorded films (batch, local); the github.io
+film-ledger surface (iteration 2 of the site plan, needs publish
+authorization); æ-path films measured via byte-identical ASCII copies
+(citation always of original bytes, hashed in-process).
+
+### The explainer film — first artifact sealed into its own ledger
+
+Operator: "tinyfilmmemory might be groundbreaking in the age of vision
+models" → thesis sharpened (unit of trust shifts from generator to
+re-measurable artifact) → explainer produced: `tfm-explainer-916.mp4`,
+61.458 s, 720×1280, 1475 frames, 7 scenes. Deterministic narration
+(hermes M2 seed 42 via det_voice), PIL motion graphics, facts read from
+the measured ledger/audit (never hardcoded). Gates: luminance 28.88,
+contrast 26.73, motion 2.279 native, black 0%, **mux delta 0.000 s**,
+SupervisorVideo PASS receipt `067cfb7f…`. Citation
+`æ://film/tfm-explainer-916 · sha256:30de1dc5…`, ledger receipt
+`f14cfe66…`. Harness + spec + RUNBOOK + deliverables durable at
+`C:/æ/tinyfilmmemory/explainer/`. board_approved:false (human gate);
+not published (awaits authorization). Two harness bugs caught by the
+board stage before full render; method doc records them.
+**Operator approved the explainer board** ("it passes my eye") —
+board_approved:true, HUMAN://ROOT, recorded in both meta copies.
+
+### tinyMuJoCo provenance + "A Walk Is a Contract" — 2026-11-20
+
+Operator directive: "æQR tinyfilmemory is revolutionary tinymujoco" →
+audit found tinyMuJoCo ALREADY BUILT (Nov 19: headless deterministic
+physics oracle, doctor/rollout/reference/grade/bench + tests) — not
+rebuilt. Missing piece was the composition: `C:/æ/tinymujoco/provenance.py`
+(seal/seal-walk/verify/qr/memory). Selftest 6/6 green: deterministic seal,
+re-simulation MATCH at zero tokens, QR scanned back via pyzbar, sim record
+joined the tinyFILMMEMORY ledger, policy walk sealed AND reproduced.
+
+Hero trace: 8 s scheduled walk (move→turn→stand, all segments obeyed),
+receipt `805b855be6c457ba…`, travel 1.0838 m, 400 ticks / 1600 steps,
+10.71× realtime; 698-byte æQR contract, scan-back equal; citation
+`æ://sim/805b855be6c457ba`.
+
+Film: `tinymujoco-contract-916.mp4`, 54.375 s, 1305 frames, 6 scenes.
+S1 rig = forward kinematics of the REAL trace (13 body links), not
+keyframes; S4 shows the SAME QR that scanned back. Gates: lum 34.7,
+contrast 38.49, motion 3.383 native, black 0%, mux Δ0.000 s,
+SupervisorVideo PASS `89be7a52…`. Citation
+`æ://film/tinymujoco-contract-916 · sha256:9bad37b1…`, ledger `a35a4cf0…`.
+Harness + RUNBOOK + deliverables: `C:/æ/tinymujoco/film/`.
+board_approved:false; not published (awaits authorization).
+
+
 ---
 
 ## mp4:// — the media chain, named and verified (2026-11-19)
@@ -795,3 +986,46 @@ Deployment observed: publication commit `1fbf6b4` advanced `gh-pages` from
 1080×1920 image, the five-node authority chain, receipt fetch 200, and matching
 client/scroll widths. Initial 404s occurred while the Pages build status was
 still `building`; they resolved after that build completed.
+fit_camera normalises pose so the oracle grades SHAPE. ## 26. Film production capability-state — 2026-11-20 (recorded from operator)
+
+Capability has moved from "studio would render, but the film never carried the motion" to "render and physics
+grade the same trajectory and agree once." The veracity of that claim is partially grounded in files this
+machine can read; the gaps below are RECORDED honestly rather than asserted.
+
+Grounded in repo (verified 2026-11-20, files on disk / tracked):
+- tinycuda/ — pixel grading, determinism. RESULT.md: 15 passed in 1.32s; asimov-walk-916 film 1712 frames,
+  raster 30.1 ms/frame, gate PASS receipt 13d1b8b2… (deep-scannable).
+- tinycudavideo/ — gate over corpus: asimov-dao-916 PASS lum 20.67 / motion 4.311; tinycan-916 PASS lum 26.39 /
+  motion 0.908; mobility-4d-916 PASS lum 20.9 / motion 1.313 (Nvenc API 13.0, ffmpeg 7.1).
+- tinygpu/ — 22.6 KB, two files, deterministic raster; RESULTS.md gate PASS receipt c449057d… (phantom demo, 600
+  frames, 48.55 s, voice+world).
+- tinymujoco/ — determinism made visible (agents/tinymujoco_film.py): phase A same-seed → byte-identical qpos
+  (one robot, no hand-keyframes); phase B different seed → bodies separate, separation = max-abs-diff number.
+  Film tinymujoco-contract-916.mp4: 54.375 s, 1305 frames, 6 scenes, gate PASS receipt 89be7a52….
+- agents/mobility4d.py — the whole walk as one 4D object (9:16, x y z t). Ghost poses drawn at once along the path;
+  pose nearest the moving time-slice solid, the rest dim by |t − slice|. FK cached once (frame-only colour rescale),
+  NOT recomputed per frame (30× slower if done).
+- site/aipodcast_me/holomesh.html — 5,740 B, live at https://myaelmendez.github.io/aipodcast_me/holomesh.html;
+  badge site/glocal-vision/qr-badges/holomesh-badge.png (890×890 PNG). The 4D HoloMesh4D / HoloEnvironment4D
+  implementation lives here, NOT in origin-msh.html.
+- Render path confirmed working: CuPy GPU raster (31 ms/frame) + NVENC ffmpeg 7.1 (driver 592.27 caps API 13.0;
+  ffmpeg 9.0.1 fails on API 13.1).
+
+Discrepancies found when grounding the capability-state text against the tree (did NOT record as verified):
+- asimov_1_policy_physics.xml does NOT exist in the repo (searched C:\æ). "nq=30 nv=29 nu=23" unverified.
+- tinymujoco.py does not exist; the file is agents/tinymujoco_film.py.
+- mobility4d.py lives at agents/mobility4d.py, not site/aipodcast_me/mobility4d.py.
+- origin-msh.html does not exist at github-pages/aipodcast_me/origin-msh.html. The 4D holomesh file is
+  site/aipodcast_me/holomesh.html (5,740 B). "One of 4 required environments" unverified until the real path is
+  named and a gate run is actually performed.
+- Render-budget figure (288 frames ≈ 100 s; 720×1280 ≈ 982 s studio) stated in the capability-state but NOT
+  re-measured here; recorded as a claim to verify before it drives scheduling.
+
+Open (explicit, no gate receipt written until actually run):
+- Audio track / voice on the 4D loop: not shipped (the 30 s loop has no audio).
+- Remaining 4D spec environments: only the holomesh path is grounded; "3 of 4 environments" is unverified.
+- Menlo SDK not installed; SimTransport unimplemented; no robot hardware — asimov_exec stays dry-run.
+- Render budget is the live constraint (288 frames ≈ 100 s at 31 ms/frame).
+
+No gate receipt written for this entry. Next bounded step: name the real 4D environment path and run the gate
+with a real receipt, then record the receipt hash into this file.
