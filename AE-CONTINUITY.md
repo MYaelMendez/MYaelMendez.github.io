@@ -1070,3 +1070,22 @@ Sequence the film out live (publish via kanban_push.py) when ready:
   vidæo.py generate site/aipodcast_me/spec-3s-gold.json site/aipodcast_me/3s-gold.mp4
   vidæo.py verify site/aipodcast_me/3s-gold.mp4
   kanban_push.py push --task "deploy: 3s gold film" --branch gh-pages
+
+
+## 29. holomesh-4d-916.mp4 — PUBLISHED (2026-11-21)
+
+§28's film, delivered to the truth surface. Artifact + receipt + this entry in
+one commit; pushed through `kanban_push.py` (never bare `git push`).
+
+- Film: `holomesh-4d-916.mp4` (root, beside the other films), 8,621,430 B,
+  720×1280, 240 frames, 10.0 s, h264_nvenc.
+- sha256 `6d8a00bf4a265db5db342b8eff2ca4a4fc634ac13b8d3fe1ae71aea0cf04b710`.
+- Gate: tinycudavideo PASS — luminance 22.85, contrast 41.74, motion 7.54,
+  black 0.0%; frozen tail 0.0 s.
+- Receipt: `holomesh-4d-916.receipt.json` (same directory).
+- Source: `agents/holomesh4d.py` renders the node set extracted from the live
+  `site/aipodcast_me/holomesh.html` (375 nodes / 1150 edges).
+- Emoji context: ♾️ → hue 163, drift.
+
+Not verified: browser playback; second-machine reproducibility; determinism
+re-run. No audio (the §26 open item stands).
