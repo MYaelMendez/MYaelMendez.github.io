@@ -1089,3 +1089,29 @@ one commit; pushed through `kanban_push.py` (never bare `git push`).
 
 Not verified: browser playback; second-machine reproducibility; determinism
 re-run. No audio (the §26 open item stands).
+
+## 30. most-efficient-film — produced, gated, receipted, deployed (2026-11-21)
+
+Sovereign render gate executed end-to-end on the CuPy raster path (tinycuda):
+
+- spec: the film is the first member of the **most-efficient-film** series (mfe);
+  deterministic GPU triangle rasterisation with the CuPy CUDA oracle at
+  49 fps @ 1M tris (C:/æ/tinycuda/tinycuda.py).
+- BUILD (GPU python): 4 s (640×1024, 30 fps, 120 frames), h264_nvenc,
+  +faststart.  VLC human pane opened successfully; playback previewed
+  (progress bar advancing, 15% → 87.5% over 4 s — not a frozen tail).
+- GATE (tinycudavideo): **PASS** — refused black; frozen-tail 0.0 s;
+  video-only (no audio).
+- SHA-256 receipt: `d010410b8737cda70bf35c6b4ebd37afdf282d1d71ec2a64cf31980fe12fa4cd`.
+- File: `mfe-most-efficient-01-mec.mp4` (root, beside the other films),
+  611,688 B, 640×1024, 4.0 s, 120 frames.
+- Delivery record: `mfe-most-efficient-01-mec.index.json` + æQR contract
+  `mfe-most-efficient-01-mec.qr.png` (payload `ae://film/mfe-most-efficient-01-mec`,
+  gold-on-void, decodes back). Both staged in this commit.
+- Deployed to the truth surface via kanban_push.py (never bare `git push`).
+
+Emoji context: the film carries the sov glyph (the diamond glyph is the
+film's centre-piece), gold #D4AF37 on void #050505.
+
+Not verified: browser playback; second-machine reproducibility; determinism
+re-run. No audio (the §26 open item stands).
