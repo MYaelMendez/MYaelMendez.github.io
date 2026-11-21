@@ -1031,26 +1031,6 @@ No gate receipt written for this entry. Next bounded step: name the real 4D envi
 with a real receipt, then record the receipt hash into this file.
 
 
-## 28. The 4D environment gate — RUN, receipted — 2026-11-21
-
-§26's bounded step, executed. The real 4D path is `agents/holomesh4d.py` — it
-renders the node set extracted from the live `site/aipodcast_me/holomesh.html`
-(375 nodes / 1150 edges) → PNG frames → `tinycudavideo produce` → gate.
-
-Measured (C:/gpu python, this session):
-- Render: 240 frames, 720×1280, 12,200 triangles, 12 ms/frame raster, 106 s wall.
-- Encode: NVENC ffmpeg 7.1, h264, 8,621,430 B, 10.0 s.
-- Gate (tinycudavideo, native 720×1280, 48 samples): **PASS** — luminance 22.85,
-  contrast 41.74, motion 7.54, black 0.0%; mux video 10.0 s, frozen tail 0.0 s.
-- Receipt: sha256 `6d8a00bf4a265db5db342b8eff2ca4a4fc634ac13b8d3fe1ae71aea0cf04b710`.
-- Artifact: `C:/æ/tinycudavideo/films/holomesh-4d/holomesh-4d-916.mp4`.
-
-Emoji context (first-class render input): ♾️ → hue 163, motion family drift.
-
-Explicit limits: single render — determinism NOT re-run this slice; no audio
-(the §26 open item stands); the other 3/4 spec environments remain unverified;
-not published (no deploy authorization).
-
 ## 27. 3-second gold film — produced & gated (2026-11-21)
 
 Sovereign render gate, executed end-to-end on the CuPy raster path (vidæo.py generate):
@@ -1071,6 +1051,26 @@ Sequence the film out live (publish via kanban_push.py) when ready:
   vidæo.py verify site/aipodcast_me/3s-gold.mp4
   kanban_push.py push --task "deploy: 3s gold film" --branch gh-pages
 
+
+## 28. The 4D environment gate — RUN, receipted — 2026-11-21
+
+§26's bounded step, executed. The real 4D path is `agents/holomesh4d.py` — it
+renders the node set extracted from the live `site/aipodcast_me/holomesh.html`
+(375 nodes / 1150 edges) → PNG frames → `tinycudavideo produce` → gate.
+
+Measured (C:/gpu python, this session):
+- Render: 240 frames, 720×1280, 12,200 triangles, 12 ms/frame raster, 106 s wall.
+- Encode: NVENC ffmpeg 7.1, h264, 8,621,430 B, 10.0 s.
+- Gate (tinycudavideo, native 720×1280, 48 samples): **PASS** — luminance 22.85,
+  contrast 41.74, motion 7.54, black 0.0%; mux video 10.0 s, frozen tail 0.0 s.
+- Receipt: sha256 `6d8a00bf4a265db5db342b8eff2ca4a4fc634ac13b8d3fe1ae71aea0cf04b710`.
+- Artifact: `C:/æ/tinycudavideo/films/holomesh-4d/holomesh-4d-916.mp4`.
+
+Emoji context (first-class render input): ♾️ → hue 163, motion family drift.
+
+Explicit limits: single render — determinism NOT re-run this slice; no audio
+(the §26 open item stands); the other 3/4 spec environments remain unverified;
+not published (no deploy authorization).
 
 ## 29. holomesh-4d-916.mp4 — PUBLISHED (2026-11-21)
 
