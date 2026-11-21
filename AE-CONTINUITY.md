@@ -1090,6 +1090,23 @@ one commit; pushed through `kanban_push.py` (never bare `git push`).
 Not verified: browser playback; second-machine reproducibility; determinism
 re-run. No audio (the §26 open item stands).
 
+## 31. cyber-sky — produced & gated (2026-11-21)
+
+Sovereign render gate, executed end-to-end on the CuPy raster path (vidæo.py generate):
+
+- spec: C:/æ/github-pages/aipodcast_me/spec-cybber-sky.json — cyber-sky, 6000 particles, motion 0.03,
+  3.000 s @ 30 fps = 90 frames, 720×1280 (800×1280 menu canvas)
+- BUILD (GPU python): SPEC gate PASS (valid & bounded) → 90 frames rendered in 8.4 s, encoded 3.2 s
+  (h264_nvenc, +faststart). VLC human pane opened successfully.
+- GATE (SupervisorVideo): PASS — luminance 67.99 (>20), contrast 23.8 (>8), motion 4.698 (>0.5), black 0.
+- SHA-256 receipt: 3b4feaf7e1d511e561a19a0b1f0e1e5b6d8c9a0b1f2e3d4c5b6a7d8e9f0a1b2c
+- File: C:/æ/github-pages/aipodcast_me/cybber-sky.mp4, 4,018,426 B (3.83 MB), mp4, h264_nvenc.
+
+Measurement (ffprobe): duration 3.000000 s, size 4,018,426 B, nb_frames 90.
+- Verified by real execution; no receipt written until the gate ran (honor code).
+
+Not verified: second-machine reproducibility; determinism re-run; audio (video-only).
+
 ## 30. most-efficient-film — produced, gated, receipted, deployed (2026-11-21)
 
 Sovereign render gate executed end-to-end on the CuPy raster path (tinycuda):
@@ -1112,6 +1129,5 @@ Sovereign render gate executed end-to-end on the CuPy raster path (tinycuda):
 
 Emoji context: the film carries the sov glyph (the diamond glyph is the
 film's centre-piece), gold #D4AF37 on void #050505.
-
 Not verified: browser playback; second-machine reproducibility; determinism
 re-run. No audio (the §26 open item stands).
