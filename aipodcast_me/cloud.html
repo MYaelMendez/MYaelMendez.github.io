@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>cloud:// · droplet broker · SOVEREIGN</title>
+<meta rel="canonical" href="https://myaelmendez.github.io/aipodcast_me/cloud.html">
+<meta name="description" content="cloud:// — the droplet broker scheme. Registered ops vs the backend that actually exists, measured live. Gold-on-void.">
+<meta property="og:title" content="cloud:// · droplet broker">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://myaelmendez.github.io/aipodcast_me/cloud.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-dim:#8a7022;--text:#e8e8e8;--dim:#8a7a4a;--panel:#0d0b07;--line:#2a2416;--cyan:#00e5ff;--neon:#39ff14;--red:#ff6b6b;--violet:#bf5af2}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--void);color:var(--text);font-family:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;min-height:100vh;line-height:1.5}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg,rgba(212,175,55,.035) 0 1px,transparent 1px 3px)}
+@keyframes breathe{0%,100%{opacity:.85}50%{opacity:1}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+@keyframes colorShift{0%{color:var(--gold)}33%{color:var(--cyan)}66%{color:var(--neon)}100%{color:var(--gold)}}
+@keyframes glow{0%,100%{box-shadow:0 0 8px var(--gold-dim)}50%{box-shadow:0 0 22px var(--gold)}}
+@keyframes qrBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes qrGlow{0%,100%{box-shadow:0 0 4px var(--gold-dim)}50%{box-shadow:0 0 16px var(--gold)}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.wrap{position:relative;z-index:1;max-width:1040px;margin:0 auto;padding:2rem 1.2rem 4rem}
+header{border-bottom:2px solid var(--gold);padding-bottom:1rem;margin-bottom:1.4rem}
+.eyebrow{font-size:clamp(.65rem,1.4vw,.8rem);letter-spacing:.35em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;animation:colorShift 7s ease infinite}
+h1{font-family:'Orbitron',sans-serif;font-size:clamp(1.6rem,5vw,3rem);font-weight:900;color:var(--gold);text-shadow:0 0 36px rgba(212,175,55,.18);animation:pulse 5s ease-in-out infinite}
+h1 .tag{font-size:.6rem;vertical-align:middle;background:var(--gold);color:var(--void);padding:.18rem .5rem;border-radius:2px;margin-left:.5rem;letter-spacing:.1em}
+.sub{color:var(--dim);font-size:clamp(.75rem,1.6vw,.9rem);margin-top:.6rem;max-width:700px;animation:breathe 6s ease-in-out infinite}
+h2{font-family:'Orbitron',sans-serif;font-size:.9rem;letter-spacing:.14em;color:var(--gold);border-left:4px solid var(--gold);padding-left:.6rem;margin:1.8rem 0 .7rem}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem 1.1rem;margin:.7rem 0;animation:fadeInUp .6s ease both}
+.panel.ok{border-left:4px solid var(--neon)}
+.panel.bad{border-left:4px solid var(--red)}
+.panel.warn{border-left:4px solid var(--gold)}
+table{width:100%;border-collapse:collapse;margin:.6rem 0;font-size:.8rem}
+th,td{border:1px solid var(--line);padding:.45rem .6rem;text-align:left;vertical-align:top}
+th{background:#12100a;color:var(--gold);letter-spacing:.08em;font-size:.7rem}
+code{background:#12100a;color:#ffd966;padding:.08rem .34rem;border-radius:2px;font-size:.78rem}
+.ok-t{color:var(--neon)}
+.bad-t{color:var(--red)}
+.dim{color:var(--dim)}
+button{background:var(--gold);color:var(--void);border:0;font-family:'Orbitron',sans-serif;font-size:.7rem;letter-spacing:.1em;
+  padding:.55rem 1rem;border-radius:4px;cursor:pointer;text-transform:uppercase;transition:transform .2s,box-shadow .2s}
+button:hover{transform:translateY(-2px);box-shadow:0 0 18px var(--gold)}
+button:active{transform:translateY(0)}
+pre{background:#000;border:1px solid var(--line);border-radius:6px;padding:.7rem .8rem;font-size:.74rem;color:#ffd966;
+  white-space:pre-wrap;word-break:break-all;margin-top:.6rem;max-height:260px;overflow:auto}
+.finding{display:flex;gap:.6rem;align-items:flex-start;padding:.55rem 0;border-bottom:1px dashed var(--line)}
+.finding:last-child{border-bottom:0}
+.finding .n{font-family:'Orbitron',sans-serif;color:var(--gold);font-size:.75rem;min-width:1.4rem}
+.rec{border:1px solid var(--gold-dim);background:linear-gradient(180deg,#0d0b07,#080604);border-radius:10px;padding:1rem 1.1rem;margin:.8rem 0}
+.rec .rt{font-family:'Orbitron',sans-serif;color:var(--gold);font-size:.8rem;letter-spacing:.1em;margin-bottom:.5rem}
+footer{margin-top:2.2rem;border-top:1px solid var(--line);padding-top:.9rem;font-size:.7rem;color:var(--dim)}
+#ae-qr-badge{position:fixed;bottom:16px;right:16px;z-index:99999;width:56px;height:56px;border:1px solid var(--gold);border-radius:8px;background:var(--void);padding:4px;display:block;text-decoration:none;transition:transform .25s,box-shadow .25s}
+#ae-qr-badge:hover{transform:scale(1.1);box-shadow:0 0 22px var(--gold)}
+#ae-qr-badge img{width:100%;height:100%;display:block;border-radius:4px}
+.ticker-wrap{width:100%;overflow:hidden;border-top:1px solid var(--gold-dim);border-bottom:1px solid var(--gold-dim);background:#080808;padding:8px 0;margin-top:20px}
+.ticker{display:inline-block;white-space:nowrap;animation:ticker 30s linear infinite}
+.ticker span{display:inline-block;padding:0 30px;color:var(--gold);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.ticker span.sep{color:#333}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.7rem}
+.kv{display:flex;justify-content:space-between;gap:.6rem;padding:.28rem 0;border-bottom:1px dashed var(--line);font-size:.76rem}
+.kv:last-child{border-bottom:0}
+.kv .k{color:var(--dim)}
+.kv .v{color:var(--gold);text-align:right;word-break:break-all}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">æ:// CONDUCTOR SCHEME · DROPLET BROKER</div>
+    <h1>cloud:// <span class="tag">SOVEREIGN</span></h1>
+    <p class="sub">One scheme, two meanings: <b>cloud://&lt;op&gt;</b> routes to the droplet broker; <b>cloud://nous</b> is the hosted inference device. This page measures what the backend actually answers — not what the dispatcher announces.</p>
+  </header>
+
+  <h2>LIVE PROBE</h2>
+  <div class="panel warn">
+    <div style="display:flex;gap:.8rem;align-items:center;flex-wrap:wrap;justify-content:space-between">
+      <div class="dim" style="font-size:.74rem">target <code>http://129.212.180.252:3000</code> · plain HTTP · no TLS</div>
+      <button id="probeBtn" onclick="runProbe()">probe now</button>
+    </div>
+    <div class="grid2" style="margin-top:.8rem">
+      <div>
+        <div class="kv"><span class="k">GET /</span><span class="v" id="r-root">—</span></div>
+        <div class="kv"><span class="k">/xrpc/ae.vps.status</span><span class="v" id="r-status">—</span></div>
+        <div class="kv"><span class="k">/xrpc/ae.vps.audit</span><span class="v" id="r-audit">—</span></div>
+      </div>
+      <div>
+        <div class="kv"><span class="k">attempts</span><span class="v" id="r-n">0</span></div>
+        <div class="kv"><span class="k">last run</span><span class="v" id="r-t">never</span></div>
+        <div class="kv"><span class="k">origin</span><span class="v">github.io → droplet</span></div>
+      </div>
+    </div>
+    <pre id="probeOut">press "probe now" — the fetch runs from your browser. CORS or a closed port will be reported honestly, never faked.</pre>
+  </div>
+
+  <h2>REGISTERED OPS vs BACKEND REAL</h2>
+  <div class="panel">
+    <table>
+      <thead><tr><th>cloud:// op</th><th>announced by conductor</th><th>backend route</th><th>measured</th></tr></thead>
+      <tbody id="opsBody"></tbody>
+    </table>
+    <div class="dim" style="font-size:.7rem;margin-top:.5rem">4 de 7 ops anunciadas devuelven <code>404</code>. El contrato miente.</div>
+  </div>
+
+  <h2>WHAT THE BACKEND ACTUALLY EXPOSES</h2>
+  <div class="grid2">
+    <div class="panel ok">
+      <div class="dim" style="font-size:.7rem;letter-spacing:.1em;margin-bottom:.4rem">RUTAS REALES · /opt/aevps/vps_node.py</div>
+      <div class="kv"><span class="k">status</span><span class="v ok-t">200</span></div>
+      <div class="kv"><span class="k">audit</span><span class="v ok-t">200</span></div>
+      <div class="kv"><span class="k">markets</span><span class="v ok-t">exists</span></div>
+      <div class="kv"><span class="k">rtx</span><span class="v ok-t">exists</span></div>
+      <div class="kv"><span class="k">record</span><span class="v ok-t">POST · signed</span></div>
+      <div class="kv"><span class="k">route</span><span class="v ok-t">exists</span></div>
+    </div>
+    <div class="panel bad">
+      <div class="dim" style="font-size:.7rem;letter-spacing:.1em;margin-bottom:.4rem">AUDIT PAYLOAD (GET abierto)</div>
+      <div class="kv"><span class="k">ledger</span><span class="v">50</span></div>
+      <div class="kv"><span class="k">posts</span><span class="v">42</span></div>
+      <div class="kv"><span class="k">ledgerEvent</span><span class="v">50</span></div>
+      <div class="kv"><span class="k">social#post</span><span class="v">42</span></div>
+      <div class="kv"><span class="k">meshPeer</span><span class="v">1</span></div>
+      <div class="kv"><span class="k">sovereignState</span><span class="v">1</span></div>
+    </div>
+  </div>
+
+  <h2>FINDINGS</h2>
+  <div class="panel warn">
+    <div class="finding"><span class="n">01</span><div><b>Contrato desalineado.</b> 4 de 7 ops del conductor no existen en el backend (<span class="bad-t">ledger · posts · deploy · gateway</span> → 404).</div></div>
+    <div class="finding"><span class="n">02</span><div><b>El broker público está caído.</b> Puerto 3000: <span class="bad-t">connection timed out</span> desde fuera, pese a <code>ufw ALLOW 3000</code> y a que dentro responde <code>{"vps":"up"}</code>. 22/80/443 sí accesibles.</div></div>
+    <div class="finding"><span class="n">03</span><div><b>HTTP plano.</b> <code>cloud://</code> va por <code>http://</code> sin TLS. nginx ya sirve 443 con Certbot para privateclient.ai · daollc.ai · llm.store · pcnames.</div></div>
+    <div class="finding"><span class="n">04</span><div><b>Auth asimétrica y de juguete.</b> <code>record</code> verifica firma, pero es <b>HMAC-SHA256 stand-in, no ed25519</b>. <code>status/audit/markets</code> son GET sin gate. Y el conductor <b>no firma</b>: haría GET a un endpoint POST.</div></div>
+    <div class="finding"><span class="n">05</span><div><b>Doble significado.</b> <code>cloud://nous</code> (device de inferencia) colisiona con <code>cloud://&lt;op&gt;</code> (ops del droplet).</div></div>
+  </div>
+
+  <h2>RECOMMENDATION</h2>
+  <div class="rec">
+    <div class="rt">ONE PRECISE RECOMMENDATION</div>
+    <div style="font-size:.82rem;line-height:1.6">
+      Que <code>cloud://</code> sea un <b>espejo honesto del backend</b>: recortar <code>_CLOUD_OPS</code> a las rutas que existen (<span class="ok-t">status · audit · markets · rtx · record · route</span>) y enrutar el broker por <b>nginx en 443 con <code>auth_request</code></b>, reusando el patrón <code>/_mcpauth</code> que ya protege <code>/mcp</code>.
+    </div>
+    <div class="dim" style="font-size:.74rem;margin-top:.6rem">Mata las 4 ops fantasma de un golpe, sube TLS donde hoy hay HTTP plano, y no crea infraestructura nueva — reutiliza el gate ya probado en el droplet.</div>
+  </div>
+
+  <footer>
+    cloud:// · read-only inspection. No changes executed on the droplet. No credentials exposed.<br>
+    <a href="https://myaelmendez.github.io/aipodcast_me/qr-widgets-gallery.html">qr-widgets-gallery</a> ·
+    <a href="https://myaelmendez.github.io/aipodcast_me/emoji-registry.html">emoji-registry</a> ·
+    <a href="https://github.com/MYaelMendez">MYaelMendez</a>
+  </footer>
+</div>
+
+<div class="ticker-wrap" role="marquee" aria-label="cloud ticker">
+<div class="ticker">
+<span>cloud:// BROKER</span><span class="sep">·</span>
+<span>4 OPS FANTASMA</span><span class="sep">·</span>
+<span>HTTP PLANO</span><span class="sep">·</span>
+<span>HMAC STAND-IN · NO ED25519</span><span class="sep">·</span>
+<span>MEASURED, NOT ANNOUNCED</span><span class="sep">·</span>
+<span>cloud:// BROKER</span><span class="sep">·</span>
+<span>4 OPS FANTASMA</span><span class="sep">·</span>
+<span>HTTP PLANO</span><span class="sep">·</span>
+<span>HMAC STAND-IN · NO ED25519</span><span class="sep">·</span>
+<span>MEASURED, NOT ANNOUNCED</span><span class="sep">·</span>
+</div>
+</div>
+
+<a id="ae-qr-badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Fcloud.html" target="_blank" rel="noopener" aria-label="Verify this surface">
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=56x56&data=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Fcloud.html&bgcolor=050505&color=D4AF37" alt="QR verify" width="56" height="56">
+</a>
+
+<script>
+(function(){
+'use strict';
+var DROPLET='http://129.212.180.252:3000';
+
+var OPS=[
+ {op:'status', route:'/xrpc/ae.vps.status', exists:true,  note:'broker health + record counts'},
+ {op:'audit',  route:'/xrpc/ae.vps.audit',  exists:true,  note:'ledger + posts + records'},
+ {op:'ledger', route:null, exists:false, note:'404 — no implementado'},
+ {op:'posts',  route:null, exists:false, note:'404 — no implementado'},
+ {op:'deploy', route:null, exists:false, note:'404 — no implementado'},
+ {op:'gateway',route:null, exists:false, note:'404 — no implementado'},
+ {op:'record', route:'/xrpc/ae.vps.record', exists:true, note:'POST · requiere firma'}
+];
+var tb=document.getElementById('opsBody');
+OPS.forEach(function(o,i){
+  var tr=document.createElement('tr');
+  tr.style.animationDelay=(i*0.05)+'s';
+  var state = o.exists ? '<span class="ok-t">EXISTE</span>' : '<span class="bad-t">404</span>';
+  var route = o.route ? '<code>'+o.route+'</code>' : '<span class="dim">—</span>';
+  tr.innerHTML='<td><code>cloud://'+o.op+'</code></td><td>'+o.note+'</td><td>'+route+'</td><td>'+state+'</td>';
+  tb.appendChild(tr);
+});
+
+var n=0, out=document.getElementById('probeOut');
+function set(id,txt,cls){ var e=document.getElementById(id); e.textContent=txt; e.className='v '+(cls||''); }
+
+function probe(){
+  n++;
+  document.getElementById('r-n').textContent=String(n);
+  document.getElementById('r-t').textContent=new Date().toISOString().slice(11,19)+'Z';
+  set('r-root','probing…'); set('r-status','probing…'); set('r-audit','probing…');
+  out.textContent='probing '+DROPLET+' …';
+
+  function hit(path){
+    var ctrl=new AbortController();
+    var to=setTimeout(function(){ctrl.abort();},8000);
+    return fetch(path,{signal:ctrl.signal,cache:'no-store'})
+      .then(function(r){ clearTimeout(to); return r.text().then(function(t){return {status:r.status, body:t};}); })
+      .catch(function(e){ clearTimeout(to); return {status:0, body:String(e)}; });
+  }
+
+  return hit(DROPLET+'/').then(function(root){
+    if(root.status===200){
+      set('r-root','200 · '+(root.body||'').slice(0,60),'ok-t');
+    } else {
+      set('r-root','HTTP '+root.status+' · '+(root.body||'').slice(0,90),'bad-t');
+    }
+    return hit(DROPLET+'/xrpc/ae.vps.status').then(function(st){
+      if(st.status===200){
+        var one=st.body.replace(/\s+/g,' ').slice(0,110);
+        set('r-status','200 · '+one,'ok-t');
+        return hit(DROPLET+'/xrpc/ae.vps.audit').then(function(au){
+          if(au.status===200){ set('r-audit','200 · '+(au.body||'').replace(/\s+/g,' ').slice(0,110),'ok-t'); }
+          else { set('r-audit','HTTP '+au.status,'bad-t'); }
+          out.textContent='LIVE RESULT\nroot   : '+root.status+'\nstatus : '+st.status+'\naudit  : '+au.status+'\n\nSi root = 0 y el texto es "Failed to fetch" o "Aborted", el puerto 3000 no es alcanzable desde este origen (CORS o firewall). Reportado, no simulado.';
+        });
+      }
+      set('r-status','HTTP '+st.status+' · '+(st.body||'').slice(0,90),'bad-t');
+      set('r-audit','skipped','dim');
+      out.textContent='LIVE RESULT\nroot   : '+root.status+'\nstatus : '+st.status+'\n\nEl broker no responde desde github.io. Causa probable: puerto 3000 cerrado al exterior o CORS. No se simula un fallback.';
+    });
+  });
+}
+
+window.runProbe=function(){ out.textContent='probing…'; probe(); };
+console.log('[cloud] scheme surface · '+OPS.length+' ops · '+OPS.filter(function(o){return !o.exists;}).length+' fantasma');
+})();
+</script>
+</body>
+</html>
