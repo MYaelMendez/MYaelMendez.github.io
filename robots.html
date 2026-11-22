@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>robot:// — the fleet index</title>
+<meta name="description" content="robot:// — one governed address space for every robot. The roster, the standard interface, and each robot's coverage, generated from robots/index.json.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--green:#00ff9f;--cyan:#00ccff;--magenta:#ff2d78;
+ --ink:#e8e8e8;--dim:#8fa89c;--mut:#6f8579;--line:rgba(212,175,55,.2)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',ui-monospace,monospace;min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:
+ radial-gradient(900px 600px at 50% 18%,rgba(212,175,55,.09),transparent 62%)}
+.wrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:clamp(16px,3vw,40px)}
+.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-bottom:14px;
+ border-bottom:1px solid var(--line);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mut)}
+.top b{color:var(--gold)}
+.kicker{font-size:.66rem;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin-top:22px}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(1.5rem,4.6vw,2.8rem);
+ color:var(--gold);letter-spacing:-.01em;line-height:1;margin-top:10px}
+h1 .p{color:var(--magenta)}
+.sub{color:var(--dim);font-size:clamp(.78rem,1.5vw,.92rem);line-height:1.6;margin-top:12px;max-width:700px}
+.rule{border:1px solid rgba(212,175,55,.3);border-left:2px solid var(--gold);
+ padding:11px 14px;margin-top:16px;background:rgba(212,175,55,.05);
+ color:var(--dim);font-size:.78rem;line-height:1.6}
+.rule b{color:var(--gold)}
+h2{font-family:'Orbitron',sans-serif;font-weight:700;font-size:clamp(.88rem,2.1vw,1.15rem);
+ color:var(--green);letter-spacing:.06em;margin:30px 0 12px;display:flex;align-items:center;gap:12px}
+h2::after{content:"";flex:1;height:1px;background:var(--line)}
+.matrix{border:1px solid var(--line);overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:clamp(.68rem,1.4vw,.82rem);min-width:720px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--gold);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:.64rem}
+td.robot{font-family:'Orbitron',sans-serif;color:var(--green);font-weight:700}
+td .dim{color:var(--mut)}
+.yes{color:var(--green)} .no{color:var(--magenta)} .na{color:var(--mut)}
+tr.mesh td{color:var(--mut)} tr.mesh td.robot{color:var(--magenta)}
+.cats{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px}
+.cat{border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:.7rem;color:var(--dim)}
+.cat b{color:var(--cyan)}
+.note{margin-top:14px;color:var(--mut);font-size:.7rem;line-height:1.6;max-width:820px}
+.note b{color:var(--gold)}
+footer{margin-top:30px;padding-top:14px;border-top:1px solid var(--line);color:var(--mut);
+ font-size:.7rem;letter-spacing:.08em;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+a{color:var(--green)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span><b>robot://</b> · THE FLEET INDEX</span><span id="gen">loading…</span></div>
+
+  <p class="kicker">one governed address space · one development contract</p>
+  <h1><span class="p">robot://</span> the fleet index</h1>
+  <p class="sub">Every robot in the estate, measured against one standard interface.
+    Whatever is built for one robot is provided for all — a missing verb is a named
+    refusal, never a crash.</p>
+  <p class="rule"><b>The rule.</b> An address is not a permission. Motion needs approval or an
+    armed deadman. Every dialect writes its own ledger; <span style="color:var(--gold)">robot://</span>
+    adds the fleet receipt on every route.</p>
+
+  <h2>roster × standard interface</h2>
+  <div class="matrix"><table id="mx">
+    <thead><tr><th>robot</th><th>category</th><th>verbs</th><th>transports</th>
+      <th>status</th><th>verbs</th><th>plan</th><th>sim</th><th>exec</th><th>receipt</th><th>ledger</th></tr></thead>
+    <tbody id="tb"></tbody>
+  </table></div>
+  <p class="note"><b>Declared, not measured.</b> <span id="ck"></span></p>
+
+  <h2>categories</h2>
+  <div class="cats" id="cats"></div>
+
+  <p class="note" id="gaps"></p>
+
+  <div class="top" style="margin-top:26px;padding-top:14px">
+    <span><a href="index.html">← the hub</a> · <a href="robots/index.json">robots/index.json</a></span>
+    <span id="count"></span>
+  </div>
+  <footer><span>robot:// · generated from robots/index.json</span><span>#HERMIPHICATIONISINEVITABLE</span></footer>
+</div>
+<script>
+const CAT = {};
+fetch('robots/index.json').then(r=>r.json()).then(d=>{
+  document.getElementById('gen').textContent = 'generated ' + (d.generated||'').replace('T',' ').slice(0,19) + ' UTC';
+  document.getElementById('count').textContent = d.count + ' robots · ' + d.roster.length + ' indexed';
+  document.getElementById('ck').textContent = d.coverage_kind || '';
+  const cats = d.categories || {};
+  for (const [c, list] of Object.entries(cats)) for (const r of list) CAT[r] = c;
+  const tb = document.getElementById('tb');
+  for (const name of d.roster) {
+    const r = d.robots[name] || {};
+    const p = r.provides || {};
+    const cell = v => v ? '<td class="yes">✓</td>' : '<td class="na">·</td>';
+    const tr = document.createElement('tr');
+    if (!r.present) tr.className = 'mesh';
+    const cat = CAT[name] || (r.present ? '—' : 'mesh only');
+    const verbs = r.verbs ? r.verbs + ' <span class="dim">(' + Object.keys(r.verb_classes||{}).join('/') + ')</span>' : '<span class="dim">0</span>';
+    const tr2 = r.transports && r.transports.length ? r.transports.join(' · ') : '<span class="dim">—</span>';
+    tr.innerHTML = `<td class="robot">${name}</td><td class="dim">${cat}</td><td>${verbs}</td>
+      <td class="dim">${tr2}</td>${cell(p.status)}${cell(p.verbs)}${cell(p.plan)}${cell(p.sim)}${cell(p.exec)}${cell(p.receipt)}${cell(p.ledger)}`;
+    tb.appendChild(tr);
+  }
+  document.getElementById('cats').innerHTML = Object.entries(cats).map(([c,l]) =>
+    `<span class="cat"><b>${c}</b> ${l.length ? l.join(' · ') : '<span class="dim">— named, nothing on disk</span>'}</span>`).join('');
+  const mesh = d.roster.filter(n => !(d.robots[n]||{}).present);
+  const unreg = d.unregistered_dialects || [];
+  document.getElementById('gaps').innerHTML =
+    `<b>Gaps, named.</b> ${mesh.length ? mesh.join(', ') + ' — mesh only: no dialect, no policy, no ledger.' : 'none.'}
+     ${unreg.length ? 'Unregistered dialect modules on disk: ' + unreg.join(', ') + '.' : ''}
+     ${(cats.phone||[]).length===0 ? 'phone — named, nothing built.' : ''}
+     ${(cats.drone||[]).length===0 ? 'drone — named, nothing built.' : ''}`;
+}).catch(e => {
+  document.getElementById('gen').textContent = 'index failed: ' + e;
+});
+</script>
+</body>
+</html>
