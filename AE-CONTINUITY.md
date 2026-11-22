@@ -1377,3 +1377,29 @@ failed honestly; the tests were corrected to the real API (append-built chains,
 drift keyed on kind='film'), not the API bent to the test.
 **change** — the three oracles are tested; ORACLES/09 can be re-cut so the
 zeroes become 15 / 9 / 6.
+
+
+## 41. tinyPOLICY — mobility.foundation command and control (2026-11-21)
+
+The command layer above the tiny family, named and tested. It composes
+tinypython (policy + physics + deadman) and the governed `asimov://` verb
+surface; it invents no motion.
+
+- Domain mobility.foundation, schema mobility.foundation/c2/1, authority
+  HUMAN://ROOT.
+- 14 verbs in 5 classes: read, plan, simulate, control, motion.
+- Motion verbs (stand, walk, set_velocity) need presence AND a human signature;
+  `exec` refuses with ACT-001 / AUTH-002 / DEAD-001.
+- The ledger is a hash chain over DECISIONS (plan, gate, exec, presence,
+  verify), not over intent.
+- 11 tests; doctor reports policy sha `47f70691…88a0c`, MuJoCo 4.0.1, CPU only.
+
+**proved** — the governance primitives already existed in tinypython (sense,
+arm, disarm, presence, deadman_gate); tinyPOLICY names and ledgers them rather
+than reinventing them. `exec stand` refuses with three rules; `gate simulate`
+allows.
+**broke** — two tests assumed `exec` was a verb and `presence` was a rule code;
+the surface says otherwise (exec is the protocol action; the rules are ACT-001
+/ AUTH-002 / DEAD-001). Tests corrected to the code.
+**change** — mobility.foundation now has a tested C2; point it at a trace and
+cite its ledger like any other receipt.
