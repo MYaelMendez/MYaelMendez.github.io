@@ -2049,3 +2049,83 @@ nodes. The surface is the authority; the HQ reports 20.
 daemon timed out on the visual check, so the page is verified structurally
 (curl: 200, 20 rooms) rather than pixel-verified.
 **change** - every future estate surface can be generated from the measured one.
+
+## 61. microduck:// — the governed SDK, same shape as asimov:// (2026-11-22)
+
+The question was why Asimov's official SDK got a governed wrapper and Microduck's
+did not. It can — the seam already exists. `duck_control::io::RobotIo` is the one
+place a simulator is allowed, and `scripts/duck-sim` runs the **same daemons, same
+50 Hz loop, same `robotctl`** with the body in MuJoCo (`docs/design/simulation.md`).
+So the wrapper adds no wire synonyms: every verb is the daemon's own method name.
+
+```
+HUMAN://ROOT → æ POLICY → microduck:// → duckctl / robotctl → RECEIPT
+```
+
+- `agents/microduck_protocol.py` — `microduck://status|verbs|plan|exec|sim|grant`.
+  22 verbs (14 read, 8 motion, 6 high-power). Transports: `ble`, `udp`, `webrtc`
+  (all official) + `sim` (the official `duck-sim` twin). Authority `HUMAN://ROOT`,
+  hash-chained receipt ledger at `~/.hermes/microduck-protocol.jsonl`.
+- `agents/microduck_bridge.py` — loopback JSON bridge on `127.0.0.1:8163`
+  (`/api/status|verbs|plan|exec|sim|grant`, plus the console at `/console`).
+- `github-pages/threejs-curriculo/microduck-console.html` — operator console
+  (gold-on-void): transports, the 22 verbs, plan/sim/exec/grant, verdict + receipt.
+- `agents/microduck_up.cmd` — restores the stack (bridge :8163, viewer :8123,
+  Chrome on the RTX, VLC :8081), mirroring `asimov_up.cmd`.
+
+Measured, not declared:
+
+```
+microduck://verbs                    → 22 verbs, chain valid
+microduck://plan robot.move (auto)   → require_approval, allowed false
+microduck://sim  robot.move          → allow (sim transport)
+microduck://exec robot.move          → dry-run (MICRODUCK_LIVE unset)
+microduck://grant robot.stop         → grants false, reports the approval shape
+microduck://frobnicate              → refused, unknown route
+ledger: 7 receipts, hash chain verified prev→hash
+browser: console renders 22 verbs; click robot.move → plan → require_approval
+         with receipt 1a233364… whose prev links 40984ea5…
+```
+
+**proved** - the governed layer is real and exercised end to end, and the gate
+refuses motion without an armed approval.
+**broke** - `duckctl` and `robotctl` are not installed on this host, and
+`scripts/duck-sim` is a `#!/bin/sh` harness that cannot run under this Windows
+bash (`[WinError 5]`). So every live transport is **absent, and the protocol says
+so** rather than reporting a pass. The sim twin needs WSL/Linux or a macOS host.
+**change** - any Pollen robot with an official daemon + IPC now has a template:
+wrap the daemon's own verbs, add the gate and the receipt, expose `sim`.
+
+
+
+## 62. The gateway, corrected against the authoritative inventory (2026-11-22)
+
+The operator supplied the real 11-domain inventory with expiries. My earlier
+gateway was built from AGENTS.md + my own probes - it listed a DIFFERENT 11
+(only llm.store and æl.net overlapped). Corrected on both index.html and
+tinyhq.html. §61 was taken concurrently by the microduck work.
+
+ALL 11 PUNYCODES ROUND-TRIP VERIFIED (compute, never recall); the unknown one
+is `xn--wtz-yla.com` = **wætz.com**.
+
+```
+llm.store                301 -> myaelmendez.github.io     exp 2027-11-29
+moltcontextprotocol.com  301 -> myaelmendez.github.io     exp 2027-02-09
+moltcontextprotocol.net  200 served                        exp 2027-02-09
+moltcontextprotocol.org  301 -> xn--6ca.store (DEAD)       exp 2027-02-09
+iaamano.com/.org/.net    301 -> xn--6ca.store (DEAD)       exp 2027-08-26
+æl.app                   200 served                        exp 2027-07-13
+æl.net                   200 served                        exp 2027-07-13
+wætz.com                 301 -> https://Cli.llc            exp 2029-10-25
+æ.store                  NO RESPONSE (intended primary)    exp 2029-07-20
+```
+
+**THE FINDING: the estate has a DEAD PRIMARY.** `æ.store` does not resolve, and
+**four domains redirect to it** (iaamano.com/.org/.net, moltcontextprotocol.org).
+Every visitor to those four lands nowhere.
+
+**proved** - the gateway now matches the operator's inventory, with expiries.
+**broke** - the previous gateway was wrong in 9 of 11 entries; it was built from
+a doc list, not the register.
+**change** - the hub names the dead primary instead of implying the estate is
+whole.
