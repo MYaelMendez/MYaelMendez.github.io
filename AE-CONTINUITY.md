@@ -1904,3 +1904,26 @@ was restored from HEAD, so it is byte-identical to before. The surface-shape
 manifest this builder would emit is therefore not published; the atlas and the
 code-mode index are two different indices and their counts (45 vs 41) are not
 expected to match.
+
+
+## 57. The post, iterated (2026-11-22)
+
+Second pass on `the-film-is-an-instrument.html`:
+
+- **CORRECTION/01** added to the films (sha `79e04323...`), with its receipt.
+- **Two retractions, on the record** — the camera-follow cancellation, and the
+  world-frame-vs-body-frame verdict error. Both published, neither dropped.
+- **06 What to build next** — the recommendation, ranked by leverage and linked
+  to `ROBOTICS.md`: (1) the heterogeneous mixture, (2) the 65-scenario bench,
+  (3) a real authority. 'What is not true' becomes 07.
+- tinyLAB row made honest: 13 in the self-study, 13/13 suites, **17 tiny*
+  packages** in the estate (the earlier row undercounted the family).
+
+blob `d1eadd91f038e072cd66385a040905a94036ebc5`, 16,508 B, live 200, bytes equal.
+
+**proved** - the surface now carries the whole arc INCLUDING the retractions,
+and points at the next development instead of stopping at the achievement.
+**broke** - the first three live fetches returned the previous size (14,614);
+the blob was authoritative, the CDN lagged. Re-checked until equal.
+**change** - the post is a living document: it corrects itself and names the
+next build.
