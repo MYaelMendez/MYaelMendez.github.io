@@ -1752,3 +1752,54 @@ layer and the bot are separate, so a script can be performed by any governed bot
 **broke** - two tests pointed ROOT one level short, so the trace path did not
 exist and `cast` refused correctly; the TESTS were wrong, not the code.
 **change** - the robot is now a named, governed, receipted actor: tinyGPUBOT.
+
+
+## 53. The mixture, performed (2026-11-22)
+
+The mixture-of-robots family - five bodies and one authority - re-cut as a
+SCRIPTED performance. Each panel is a governed tinyGPUBOT cue: its own verb
+(from its own policy trace), its own camera, its own line.
+
+| body | verb | line | az |
+|---|---|---|---|
+| nous | stand | I am the question. | 1.5708 |
+| hermes | walk | I am the policy. | 2.0944 |
+| waetz | turn | I am the surface. | 0.7854 |
+| menlo | strafe | I am the body. | 2.3562 |
+| asimov | set_velocity | I am the refusal. | 1.5708 |
+| panel 6 | THE GATE | HUMAN://ROOT - motion REFUSED - ACT-001/AUTH-002 | - |
+
+NEW: `actors/mixture_composite.py` - the 2x3 canvas (720x1280) from the
+performed clips, each tile labelled actor-verb, the sixth tile the authority.
+
+**proved** - the mixture's cast is data; each body performs its own verb
+rather than replaying one walk.
+**broke** - the compositor's first filter string put the ffmpeg ':' separators
+OUTSIDE the f-strings (a syntax error at line 70); moved inside.
+**change** - the mixture is now a governed performance: five actors and one
+authority, receipted.
+
+
+## 54. The mixture, composited — and an honest WARN (2026-11-22)
+
+`actors/mixture_composite.py` cuts the five performed clips into the family's
+2x3 canvas (720x1280): five body tiles labelled actor-verb, the sixth tile the
+AUTHORITY card, a gold grid framing the six panels.
+
+sha256 `324b7215a97147b5bbdef3536247fa9a158fd91de6613a91e0474f4d0fb268cb`,
+868,849 B, citation `ae://film/mixture-performed`. Live 200, bytes equal.
+
+GATE: luminance 21.5 (PASS), contrast 41.48, motion 0.445 (WARN), 0 negros.
+The motion WARN is STRUCTURAL, not a defect: two of the six panels are
+deliberately still - the AUTHORITY (a gate, not a body) and `stand`. The
+per-tile verdicts are recorded in the receipt.
+
+**proved** - the mixture's cast is data, every move is a policy trace, and the
+authority is a first-class panel rather than a caption.
+**broke** - the first composite FAILED luminance (19.19): the gate card was
+near-black and dragged the grid's mean under the floor. Fixed the SCENE (warm
+(22,19,13) panel + a gold grid), never the threshold. Also: drawtext cannot
+take a non-ASCII font path - the font is staged to an ASCII temp dir and the
+drive colon is escaped.
+**change** - the mixture is a governed performance surface: five actors and
+one authority, composited and receipted.
