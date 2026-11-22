@@ -2608,3 +2608,73 @@ into the intent rail and syncs the panel; 404s = `favicon.ico` only.
 `tools/build_capabilities.py`; discovery reads it as one index among several.
 
 **deploy** — pushed to `gh-pages` via `kanban_push.py`; the github.io CDN lags.
+
+## 66. robot:// — all robots in ONE MuJoCo environment, 9:16 (2026-11-22)
+
+`agents/robot_env_film.py` — the three bodies in a single physics world, rendered
+to one 9:16 film. Not three panels, not three renders: **one `MjSpec`, three
+models attached at their own anchors, one seeded control sequence, one trace.**
+
+```
+one world: nbody 64 · ngeom 307 · nq 125 · nu 23
+  asimov    x -0.62  y 0.00   1.25 m tall   26 mesh geoms    1,007,041 tris   0 actuators
+  reachy    x 0.06   y -1.15  0.39 m tall  173 mesh geoms      940,986 tris   9 actuators
+  microduck x 0.66   y -0.80  0.26 m tall   81 mesh geoms      980,836 tris  14 actuators
+camera eye (0,-5.6,1.05) → target (0,-0.35,0.42) · 720×1280 · 24 fps
+```
+
+Two defects found and fixed, both of the "silently wrong" kind:
+
+1. **`geom_size` is not a scale.** For a mesh geom MuJoCo stores the AABB
+   half-extents there; multiplying vertices by it collapses the model. Mesh
+   vertices are already in model units.
+2. **Vendor scenes ship furniture.** reachy's `minimal.xml` carries `table`,
+   `duck`, `apple`, `croissant`. Rendering every prefixed geom drew the table
+   and cropped the duck. `_robot_roots` now picks each robot's own root as the
+   child of world with the largest mesh subtree, and only that subtree is drawn.
+
+Render path is the estate's proven one: MuJoCo supplies per-frame geometry
+(`geom_xpos`/`geom_xmat` + mesh vertices), **tinyCUDA's CuPy raster** supplies
+pixels. No OpenGL — this Optimus laptop has no registered NVIDIA ICD, so
+MuJoCo's own renderer is unusable here.
+
+Tests (`agents/test_robot_env_film.py`, 6/6): one world holds three bodies,
+roots are the robots and not the furniture, props never render, every robot
+contributes triangles, **the trace is byte-identical for a seed and differs for
+another**, and staging repairs asimov's broken `meshdir`.
+
+Measured:
+```
+test film  12 frames → 720x1280 · 0.5 s · 84,909 B · sha256 0f69f3e8a5e48905…
+still      frame 8: title, subtitle, frame counter, three labels legible,
+           all three bodies inside the frame, no props
+tests      6/6 in 4.4 s
+```
+
+
+---
+
+## 2026-11-22 — æC2: agent card + URL invocation (the machine surface)
+
+**source** — `.well-known/agent-card.json` (new, generated) · `tools/build_agent_card.py`
+(new builder with `--check`) · `.well-known/webmcp.json` (`agent_card` pointer) ·
+`ae/control/index-live.html` (`?intent=` deep link, `#agent-chip`, placeholder, rail
+summary ordering) · `ae/control/discover.js` (`window.aeReady`).
+
+**What agents get now.** Agents do not read a human console; they fetch
+`.well-known/agent-card.json` — 51 capabilities, 41 tools, 221 skills, 8 schemes,
+3 nodes, 51 addresses, the endpoints, the `?intent=` invocation contract, the authority
+gates and the receipt schema. It is **derived**: the builder reads the real indexes, so
+`--check` is a freshness gate rather than a claim.
+
+**Invocation.** `index-live.html?intent=find%20asimov` runs the same `dispatch()` as the
+form. Two ordering bugs found by measurement, both fixed: the deep-link dispatch ran
+before `discover.js` existed (now waits for `window.load`), and the `find` summary was
+logged before its list and pushed out by the rail's 12-entry cap (now logged after).
+
+**tests** — `browser_exec`: `#agent-chip` = `AGENT CARD · 51 CAPS · 41 TOOLS ·
+221 SKILLS`; `?intent=find asimov` → title `æC2 · find asimov`, rail
+`⌘ find "asimov" · 19 matches`, panel 19 hits; 404s none.
+
+**deploy** — pushed via `kanban_push.py`; `raw.githubusercontent.com` serves the card,
+the github.io CDN lagged (re-check before reporting 404).
