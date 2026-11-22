@@ -1432,3 +1432,36 @@ tinyONNX: inspect / contract / run / grade / compare / ledger. 10 tests.
 **broke** - the first run crashed on a duplicated argparse subparser; fixed by
 registering each subparser once.
 **change** - 'test them all' is now a contract check first: 2 of 5 run, 3 refuse.
+
+
+## 43. tinyVISION — supervision for the robot policy (2026-11-21)
+
+The instrument we use on our films, pointed at the policy. A policy trace
+becomes a film of the real CAD (rtx_asimov, CUDA); the film is supervised and
+tracked; the visual trajectory is compared with the physics trace that made it.
+
+    trace -> render -> film -> supervise + track -> compare
+
+MEASURED on the 0818 policy film (288 frames):
+
+| stage | result |
+|---|---|
+| supervise | PASS - luminancia 23.04, contraste 46.46, movimiento 1.83, 0 negros |
+| track | 1 coherent blob over 288 frames (dx 23 px, dy 10 px) |
+| agree | ok - coherent + direction_ok, implied px/m 24.0 |
+
+THE FINDING: a raw motion detector fragments (227 tracks) because the render
+palette carries a gold HUD band and a blue floor. A palette-aware colour
+detector isolates the robot; aspect and position filters reject the HUD and
+floor. Pixels and metres stay separate units - the scale is reported, never
+invented.
+
+tinyVISION: render / supervise / track / agree / ledger. 7 tests.
+
+**proved** - the supervision we already trust on films grades the policy's
+picture, and the picture agrees with the physics.
+**broke** - the first track used DetectorMovimiento and returned 227 tracks;
+the `caja` field does not exist (it is `xyxy`); the renderer needs CuPy
+(C:/gpu/Scripts/python.exe) and --model-dir tinygpu/model.
+**change** - the policy now has a visual instrument: a trace that claims
+success while the film shows a frozen body would be caught.
