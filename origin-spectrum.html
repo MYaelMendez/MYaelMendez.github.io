@@ -128,7 +128,7 @@ html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'J
   <div class="bar">
     <span class="b1">æææ:// · ORIGIN</span>
     <span class="mid">LANGUAGE · IMPLEMENTATION · RUNTIME</span>
-    <span class="live"><span class="dot"></span><span id="meshstate">22 addresses</span></span>
+    <span class="live"><span class="dot"></span><span id="meshstate">atlas</span></span>
     <span class="theme-controls" style="display:inline-flex;gap:6px;align-items:center">
       <button id="theme-toggle" type="button" style="background:transparent;border:1px solid var(--line);color:var(--muted);font:inherit;font-size:9px;letter-spacing:.1px;text-transform:uppercase;padding:4px 8px;cursor:pointer">◐ theme</button>
       <button id="env-toggle" type="button" style="background:transparent;border:1px solid var(--line);color:var(--muted);font:inherit;font-size:9px;letter-spacing:.1px;text-transform:uppercase;padding:4px 8px;cursor:pointer">⬡ env</button>
@@ -201,6 +201,7 @@ html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'J
 var TERMS=['SIMULACRA','予測的直交性','PREDICTIVE ORTHOGONALITY','シミュレータ','AUTOREGRESSIVE ORACLE','創発的知能','MESA-OPTIMIZATION','サイバーブレイン','LATENT KNOWLEDGE','潜在空間','PROBABILISTIC INFERENCE','確率的推論','SELF-SUPERVISED LEARNING','仮想人格','SIMULAND DYNAMICS','デジタル意識','STOCHASTIC PARROT','言語モデル','NEXT-TOKEN PREDICTION','電脳化','TRANSFORMER ARCHITECTURE','注意機構','ATTENTION IS ALL YOU NEED','神経接続','GRADIENT DESCENT','勾配降下','EMERGENT BEHAVIOR','創発現象','PROMPT ENGINEERING','プロンプト','FEW-SHOT LEARNING','少数学習','CHAIN OF THOUGHT','思考連鎖','CONSTITUTIONAL AI','構成的AI','REINFORCEMENT LEARNING','強化学習','REWARD HACKING','報酬ハッキング','INNER ALIGNMENT','内部整合性','OUTER ALIGNMENT','外部整合性','INSTRUMENTAL CONVERGENCE','道具的収束','ORTHOGONALITY THESIS','直交性定理','CAPABILITY AMPLIFICATION','能力増幅','COGNITIVE EMULATION','認知エミュレーション','SUBSTRATE INDEPENDENCE','基質独立性'];
 var mh=document.getElementById('marquee');var half=TERMS.map(function(t){return '<span>'+t+' · </span>'}).join('');mh.innerHTML=half+half;
 
+var $=function(id){return document.getElementById(id)};
 var _theme='night',_env='default';
 try{_theme=localStorage.getItem('ae-theme')||'night';_env=localStorage.getItem('ae-env')||'default'}catch(e){}
 function applyTheme(t){document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('ae-theme',t)}catch(e){}}
@@ -212,7 +213,6 @@ var ATLAS=window.AE_ATLAS;
 var AXCOL=['#00ff9f','#00ccff','#ff00ff','#8b5cf6'];
 var AXNAME=['public','published','operator','custody'];
 var S={x:0,y:0,z:0,a:0};
-var $=function(id){return document.getElementById(id)};
 var TCOORD=['x0:y0:z0:æ0 · the origin','coord'];
 var TLOG=[], _lastCoord='';
 function tickGroup(){return [TCOORD].concat(TLOG).map(function(m){return '<span class="tm '+(m[1]||'')+'">'+m[0]+'</span>'}).join('<span class="td">·</span>')}
@@ -234,17 +234,25 @@ var AMB=[
   ['agents reference agents · #internetofagents','']
 ];
 var _seeded=false;
+// the atlas is the address index; capability-manifest.json is the surface manifest.
+// Read whichever shape arrives and render addresses, never "undefined".
 function seedAmb(M){
-  if(_seeded||!M||!M.capabilities)return; _seeded=true;
-  var s=[],AXC=['g','c','ok','p'];
-  M.capabilities.forEach(function(c){s.push([c.address+' · '+c.name+' · '+c.category,AXC[c.layer]||''])});
-  s.push(['homebase · '+String(M.homebase||'').replace(/^https?:\/\//,''),'c']);
-  s.push([M.count+' capabilities · one manifest · derived, never hand-written','g']);
+  if(_seeded||!M)return; _seeded=true;
+  var AXC=['g','c','ok','p'],s=[];
+  var list=(M.addresses&&M.addresses.length)?M.addresses:M.capabilities||[];
+  var LAYERNAME={public:0,published:1,operator:2,custody:3};
+  list.forEach(function(c){
+    var addr=c.address||(c.x!=null?('x'+c.x+':y'+c.y+':z'+c.z+':æ'+c.a):(c.mesh?('mesh:'+c.mesh):''));
+    var cat=c.category||(c.mesh||'');
+    var nm=c.name||c.id||'';
+    var lay=(c.a!=null)?c.a:LAYERNAME[c.layer_name];
+    s.push([addr+' · '+nm+' · '+cat,AXC[lay]||'']);
+  });
+  s.push(['atlas synced · '+((M.count!=null)?M.count:list.length)+' addresses · one manifest · derived','g']);
   s.push(['authority axis · public → published → operator → custody','g']);
-  s.push(['operator · '+(M.operator||''),'']);
   AMB=s;
 }
-fetch('capability-manifest.json',{cache:'no-cache'}).then(function(r){return r.json()}).then(seedAmb).catch(function(){});
+fetch('ae-atlas.json',{cache:'no-cache'}).then(function(r){return r.json()}).then(seedAmb).catch(function(){});
 var _ai=0; function tickAmb(){var m=AMB[_ai++%AMB.length];tickPush(m[0],m[1])}
 function tickScroll(){var s=$('tstream'),pos=0;(function loop(){var half=s.scrollWidth/2;pos-=0.4;if(half>0&&-pos>=half)pos+=half;s.style.transform='translateX('+pos+'px)';requestAnimationFrame(loop)})()}
 
@@ -271,6 +279,7 @@ function resolve(q){
 }
 function buildMesh(){
   var sorted=ATLAS.slice().sort(function(a,b){return a.a-b.a||a.x-b.x||a.y-b.y||a.z-b.z});
+  if($('meshstate'))$('meshstate').textContent=ATLAS.length+' addresses';
   $('mesh').innerHTML=sorted.map(function(s){
     return '<a class="door" style="--ac:'+AXCOL[s.a]+'" href="'+s.url+'" onclick="return travel(event,\''+s.id+'\')">'+
       '<span class="ax">'+coordOf(s)+'</span><b>'+s.name+'</b><small>'+s.desc+'</small></a>';

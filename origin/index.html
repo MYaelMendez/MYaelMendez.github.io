@@ -275,7 +275,7 @@ function tickSetCoord(){
 var AMB=[
   ['x0:y0:z0:æ0 · the origin · you are here',''],
   ['atlas synced · '+ATLAS.length+' addresses','c'],
-  ['væult chain · 10/10 links answer','ok'],
+  ['væult chain · 11/11 links answer','ok'],
   ['webmcp · 6 agent tools registered','ok'],
   ['tiny* · 20 instruments · 18 green · 2 not green','ok'],
   ['tinyCUDA · deterministic CuPy raster · RTX 3050','c'],
@@ -350,7 +350,7 @@ function run(raw){
   if(low==='help'){log('  æ://<name>            — resolve + open a surface','c');log('  x1:y0:z0:æ0           — jump to a coordinate','c');log('  goto x9:y0:z0:æ0      — move the cursor','c');log('  origin                — return to x0:y0:z0:æ0','c');log('  atlas                 — list all addresses','c');log('  scan | whoami | help','c')}
   else if(low==='origin'){S={x:0,y:0,z:0,a:0};render();setHash();log('  returned to origin','ok');tickPush('returned to origin · x0:y0:z0:æ0','coord')}
   else if(low==='atlas'||low==='ls'){ATLAS.slice().sort(function(a,b){return a.a-b.a}).forEach(function(s){log('  '+coordOf(s)+'  '+s.name,'')})}
-  else if(low==='scan'||low==='verify'){tickPush('scan · væult chain 10/10 links answer','ok');log('  væult chain ......... 10/10 links answer','ok');log('  custody→format→gate→authority→contract→dispatch→publish→delivery→adoption','c')}
+  else if(low==='scan'||low==='verify'){tickPush('scan · væult chain 11/11 links answer','ok');log('  væult chain ......... 11/11 links answer','ok');log('  custody→format→gate→authority→contract→dispatch→publish→delivery→adoption','c')}
   else if(low==='whoami'){log('  x0:y0:z0:æ0 · one principal · sovereign','ok')}
   else if(low.indexOf('goto')===0){var m=low.match(/x?(-?\d+):y?(-?\d+):z?(-?\d+):æ?(-?\d+)/);if(m){S.x=+m[1];S.y=+m[2];S.z=+m[3];S.a=+m[4];render();setHash();log('  moved to '+coordOf(S),'ok')}else log('  usage: goto x1:y0:z0:æ0','')}
   else {var hit=resolve(c);if(hit){log('  resolve '+c+' → '+coordOf(hit)+'  '+hit.name,'ok');S={x:hit.x,y:hit.y,z:hit.z,a:hit.a};render();setHash();setTimeout(function(){location.href=hit.url},520)}else log('  no surface "'+c+'" — try \'atlas\' for the full map','')}

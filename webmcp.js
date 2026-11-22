@@ -51,9 +51,9 @@
      inputSchema:{type:'object',properties:{},required:[]},
      execute:function(){return ensure().then(function(){return text(MANIFEST||{});});}},
     {name:'verify_chain',
-     description:'Return the væult tool chain status — the nine links custody→format→gate→authority→contract→dispatch→publish→delivery→adoption.',
+     description:'Return the væult tool chain status — the eleven links vault→envelope→supervision→signing→pledge→kanban→push→alias→teach→transport→sms.',
      inputSchema:{type:'object',properties:{},required:[]},
-     execute:function(){return Promise.resolve(text({chain:'væult',links:['custody','format','gate','authority','contract','dispatch','publish','delivery','adoption'],status:'10/10',note:'a thing not checked back is not a thing'}));}}
+     execute:function(){return Promise.resolve(text({chain:'væult',links:['vault','envelope','supervision','signing','pledge','kanban','push','alias','teach','transport','sms'],status:'11/11',note:'a thing not checked back is not a thing — verify with: python C:/æ/agents/væult_chain.py verify'}));}}
   ];
 
   function register(){

@@ -1932,6 +1932,41 @@ real coordinates (`x5:y0:z0:æ0 · SOVEREIGN STATE`); terminal `æ://ae-c2-conso
 
 **deploy** — pushed to `gh-pages` via `kanban_push.py`; the github.io CDN lags.
 
+---
+
+## 2026-11-22 — debt closure: variants alive, manifest ownership, chain count
+
+**source** — `origin-spectrum.html` + `origin-teknium.html` (declared `$` before first use —
+both threw `$ is not a function` at startup and rendered **zero doors**; the fix already
+existed in `origin/index.html`); `#meshstate` set from `ATLAS.length` in both; ambient feed
+seeded from `ae-atlas.json` (shape-tolerant `seedAmb`) in both; `webmcp.js` (`verify_chain`
+now reports 11 links / `11/11`); `capability-manifest.json` **regenerated to the surface
+shape** (45 → 51 capabilities) with the previous tool index preserved verbatim as
+`code-mode-tools.json`; `surface-manifest.json` (+`tiny` category, +6 tiny* surfaces) so the
+builder reproduces the live atlas exactly.
+
+**Why** — three debts: (1) two origin variants were dead pages; (2) `capability-manifest.json`
+had been overwritten by the code-mode tool index, but **both** in-repo consumers (`code.html`,
+`webmcp.js`) read the surface shape (`layer`, `category`, `capabilities`, `address`) — so the
+terminal and the WebMCP tools were degraded; (3) the væult chain claim said `10/10` while
+`væult_chain.py verify` measures **11/11 healthy**.
+
+**Not superseded** — the builder output and the code-mode index are now **two files**, not a
+contested one: `capability-manifest.json` (surfaces, what `webmcp.js`/`code.html` read) and
+`code-mode-tools.json` (the archived tool index). The atlas is byte-identical to before
+(`git diff -- ae-atlas.js` empty).
+
+**tests** — `browser_exec` on a local server: origin / spectrum / teknium all report
+`meshstate = 51 addresses`, 51 doors, live ☺ (`typeof window.aeGlyph === 'object'`), **0**
+ticker entries containing `undefined`; `code.html` shows `51 caps · live`; the console ticker
+reads `MANIFEST 51 CAPABILITIES`; `væult_chain.py verify` → `11/11 healthy`.
+
+**blockers / honest notes** — `origin-teknium.html` was **never committed** (untracked) though
+`qr_inventory.json` and `robotics.json` reference it; it is committed here together with the
+fix. `origin-spectrum.html` already carried `11/11` but was still dead at startup. The
+preserved display string `webmcp · 6 agent tools registered` remains display text (the six
+tools are defined in `webmcp.js`, but registration is browser-gated on `navigator.modelContext`).
+
 
 ## 57. The post, iterated (2026-11-22)
 
@@ -2129,3 +2164,76 @@ Every visitor to those four lands nowhere.
 a doc list, not the register.
 **change** - the hub names the dead primary instead of implying the estate is
 whole.
+
+
+## 63. Provenance stills, a GIF audit, and two self-corrections (2026-11-22)
+
+The operator asked for an image of "agentic ontology", then for a GIF, then to
+look into tinyMuJoCo, then to learn the origin surface as a skill. Every artifact
+was drawn from a measured source rather than generated; the session's sharpest
+result was a **retraction**, recorded here before it can be repeated.
+
+### What was built (all under `mp4-factory/`)
+
+- `agentic_ontology_still.py` → `agentic_ontology_9x16.png` — deterministic
+  576×1024 (ratio 0.5625). The nine categories and their roles come verbatim
+  from `brain_index.py`'s `ONTOLOGY` + `CATEGORY_META`. IHDR verified; glyph read
+  back by vision as a legible `æ`; no crop or overlap.
+- `agentic_ontology_gif.py` → `agentic_ontology.gif` — 60 frames, loop 0,
+  1.65 MB. Same taxonomy, a travelling pulse over nodes and OSW stages.
+- `github_io_atlas_gif.py` → `github_io_atlas.gif` — 72 frames, loop 0,
+  2.19 MB. Parses `ae-atlas.js` at runtime; every label/coordinate is the site's
+  real data. Sweeps the four authority layers then reveals the x15 Asimov lane.
+- `tests/test_gifs.py` — 10 passed, 1 skipped (`TENOR_API_KEY` not set). Pins the
+  renderer's determinism (byte-identical pixels for same frame), that frames
+  actually differ, the 9-category drift guard, the encoded GIF contract, and the
+  `gif-search` skill's real curl/jq/Tenor surface + frontmatter hardlines.
+  Mutation-checked: injecting a bogus 10th category makes the drift test FAIL.
+
+The `ae-origin` skill was **extended, not duplicated**: preserved-commit
+provenance (`7befaf5d…`), the compatibility changes, the x15 lane, exact header
+copy, and a sharpened pitfall quoting the page's own "independent prototype" line.
+
+### tinyMuJoCo — AUDIT, not build (the build is Nov 19–20 work)
+
+Re-run on this host with `C:/gpu/Scripts/python.exe`:
+```
+doctor            → ok:true · mujoco 4.0.1 · numpy 2.2.6 · headless · no GL/display
+pytest            → 21 passed in 1.82s
+sim ledger        → 3 sealed records, chain VALID, head 16bd1805ff3f…
+film              → 11,069,417 B · sha256 9bad37b1…d31519d4a (matches citation)
+gate              → lum 34.7 · contrast 38.49 · motion 3.383 · mux delta 0.000 s
+                    · SupervisorVideo PASS · board_approved:false
+```
+Liabilities named, not fixed: no `README.md` in `tinymujoco/`; `provenance.py`,
+`film/` and `traces/` are **untracked**; the human gate is still false; the film
+is not published. The RUNBOOK lives at `tinymujoco/film/RUNBOOK.md` and the film
+at `tinymujoco/film/deliverables/` — my first check looked one directory too high.
+
+### The retractions (why this section exists)
+
+1. I first reported "no AE-CONTINUITY entry" for tinymujoco after grepping
+   `C:/æ/AE-CONTINUITY.md` — **that file does not exist**. The record lives at
+   `github-pages/AE-CONTINUITY.md` (2131 lines). The absence I reported was an
+   artifact of my own wrong path, not a missing entry.
+2. I reported "45 addresses, the page says 44" as a finding. Re-checking during
+   the write-up showed the atlas had moved to **51** committed entries
+   (`8ef7289`, the x16 tiny estate) and the page no longer hardcodes a count —
+   it uses `ATLAS.length`. The "45 vs 44" was a **transient read during
+   concurrent editing**, not a durable defect. Do not repeat it as a finding.
+   There is also an uncommitted edit in `origin/index.html` (10/10 → 11/11
+   væult claim) that is NOT mine and must not be attributed to this session.
+3. The first `github_io_atlas.gif` render silently collapsed from 72 requested
+   frames to 17 — PIL deduplicates identical frames. Fixed with a continuous
+   scan line + progress bar; re-verified at 72 distinct, advancing frames.
+
+**proved** - the ontology taxonomy renders deterministically to still + GIF; the
+tinyMuJoCo claims (doctor, 21 tests, ledger chain, film hash) survive a re-run;
+the GIF tests would catch real drift.
+**broke** - two of my own claims were wrong (file path; transient count), and a
+GIF collapsed to 17 frames before the continuous-motion fix. All three were
+found and corrected in-session rather than shipped.
+**change** - a still/GIF may now be drawn from a live manifest instead of a
+prompt; the rule is read the artifact at render time, never repeat a count from
+a doc. Nothing in this section was committed or pushed — the record itself is
+the artifact.
