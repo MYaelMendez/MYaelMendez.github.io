@@ -1868,3 +1868,39 @@ verdict, and the honest outcome is 'no retirement'.
 **broke** - my own published finding was the bug. The film retracts it.
 **change** - tinypython's per-segment verdict is body-frame; the 'body-frame
 finding' becomes the 'body-frame VERDICT finding'.
+
+---
+
+## 2026-11-22 — æC2 console enters the atlas; manifest↔atlas reconciled
+
+**source** — `surface-manifest.json` (categories +sovereign +control +asimov;
+surfaces +ae-c2-console +12 Asimov entries, each carrying an explicit `layer`);
+`tools/build_capabilities.py` (`authority()` now honours an explicit `layer`
+0–3 before the heuristic); derived `ae-atlas.json` + `ae-atlas.js` regenerated
+(44 → 45 addresses); `ae/control/index-live.html` (chip born at its own
+coordinate, `x14:y0:z0:æ0`).
+
+**Why** — the console had no address, and the live atlas had drifted from the
+manifest: the Asimov lane (x15, 12 addresses) and the `sovereign` category
+(ÆQR, x13) existed only in the derived files, added by hand in `3bb4234` /
+`ce9ed4c`. A naive `build_capabilities.py` run would have deleted 12 live
+addresses (44 → 32).
+
+**Not superseded** — this entry does not retract any prior atlas or surface
+record. The Asimov lane keeps x15 y0–y11 and ÆQR keeps x13; **no address moved
+and none was lost** (verified: LOST=[], COORD CHANGED=[]).
+
+**tests** — `ae-atlas.js` 45 addresses, no duplicate coordinates, x1–x15
+contiguous; console present at x14:y0:z0:æ0; origin renders 45 doors with the
+console door and 12 Asimov doors; the console chip reads x14:y0:z0:æ0 and
+resolves `æ://ae-c2-console`.
+
+**deploy** — pushed to `gh-pages` via `kanban_push.py`; the github.io CDN lags.
+
+**blockers / honest notes** — `capability-manifest.json` is NOT this builder's
+output: commit `6f02ccb` replaced it with the code-mode tool index
+(`doc/hash/line/mesh/name/sig`, 41 entries). The builder was run and that file
+was restored from HEAD, so it is byte-identical to before. The surface-shape
+manifest this builder would emit is therefore not published; the atlas and the
+code-mode index are two different indices and their counts (45 vs 41) are not
+expected to match.

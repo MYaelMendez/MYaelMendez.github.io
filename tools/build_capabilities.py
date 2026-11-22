@@ -13,6 +13,7 @@ cats = [c["id"] for c in sm["categories"]]
 
 def x_of(cat): return (cats.index(cat) + 1) if cat in cats else len(cats) + 1
 def authority(s):
+    if "layer" in s: return max(0, min(3, int(s["layer"])))
     cat = s.get("category", "")
     if cat == "secrets" or s.get("auth") == "passphrase": return 3
     if cat == "privateclient" or s.get("agent_access") == "write": return 2
