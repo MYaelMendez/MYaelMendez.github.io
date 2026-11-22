@@ -16,21 +16,30 @@ from pathlib import Path
 import numpy as np
 
 
-def stl_to_bin(p: Path, dest: Path):
+def stl_to_bin(p: Path, dest: Path, grid: float = 0.0):
     b = p.read_bytes()
     n = struct.unpack('<I', b[80:84])[0]
     raw = np.frombuffer(b, dtype=np.uint8, count=n * 50, offset=84).reshape(n, 50)
     rec = raw[:, :48].copy().view('<f4').reshape(n, 12)
     tri = rec.reshape(n, 4, 3)
-    nrm = tri[:, 0, :].astype(np.float32)
     pos = tri[:, 1:, :].reshape(-1, 3).astype(np.float32)
+    if grid and grid > 0:
+        # vertex clustering: quantize to a grid, drop the triangles that
+        # collapse. Deterministic, and the alternative (keeping every k-th
+        # triangle) punches holes in a closed surface.
+        q = np.round(pos / grid, 0)
+        uniq, inv = np.unique(q, axis=0, return_inverse=True)
+        t = inv.reshape(-1, 3)
+        keep = (t[:, 0] != t[:, 1]) & (t[:, 1] != t[:, 2]) & (t[:, 0] != t[:, 2])
+        pos = (uniq.astype(np.float32) * grid)[t[keep]].reshape(-1, 3)
+    # normals from the FINAL triangles — never carry source normals through a
+    # simplification, they would describe geometry that no longer exists
+    v0, v1, v2 = pos[0::3], pos[1::3], pos[2::3]
+    nrm = np.cross(v1 - v0, v2 - v0)
     ln = np.linalg.norm(nrm, axis=1, keepdims=True)
     nrm = np.divide(nrm, ln, out=np.zeros_like(nrm), where=ln > 1e-9)
     nrm = np.repeat(nrm, 3, axis=0)              # flat per-vertex normals
     tris = len(pos) // 3
-    # NO decimation. Keeping every k-th triangle punches holes in a closed
-    # surface — the result reads as shattered geometry, not a lighter model.
-    # Full resolution: the GPU has 6 GB and these are static buffers.
     inter = np.empty((len(pos), 6), np.float32)
     inter[:, :3] = pos
     inter[:, 3:] = nrm
@@ -42,6 +51,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--model', default='./model')
     ap.add_argument('--out', default='./scene')
+    ap.add_argument('--grid', type=float, default=0.0,
+                    help='vertex-clustering grid in metres; 0 = full resolution')
     a = ap.parse_args()
     model, out = Path(a.model).resolve(), Path(a.out).resolve()
     (out / 'mesh').mkdir(parents=True, exist_ok=True)
@@ -61,7 +72,7 @@ def main():
                 print(f'  MISSING {name}: {fn}')
                 continue
             src = cand[0]
-        nv, tris, k = stl_to_bin(src, out / 'mesh' / f'{name}.bin')
+        nv, tris, k = stl_to_bin(src, out / 'mesh' / f'{name}.bin', a.grid)
         links[name] = {'bin': f'mesh/{name}.bin', 'vertices': nv,
                        'source_triangles': tris, 'decimation': k}
         total_v += nv

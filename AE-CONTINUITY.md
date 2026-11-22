@@ -1668,3 +1668,29 @@ fa734705 -> 957daa02 between calls); and the boot write was swallowed by a
 renderer-not-ready throw inside setState. Both fixed.
 **change** - the companion is DOM-aware; the same read works on any surface,
 so the next step is injecting it over CDP rather than only on its own page.
+
+
+## 50. The companion's CAD was missing — now it renders (2026-11-22)
+
+Found while verifying DOM awareness: the live companion loaded NO CAD. Its
+`load()` fetches `./scene/manifest.json` + one `.bin` per link, and no `scene/`
+directory existed anywhere in the estate — so the surface had never shown the
+robot on github.io, only the header and the HUD.
+
+THE FIX: `webgl_prep.py --grid` — deterministic vertex clustering (quantize to
+a grid, drop the triangles that collapse; normals recomputed from the final
+geometry). Full resolution would be ~72 MB of buffers.
+
+MEASURED:
+    grid 0.008   259,332 verts   6.1 MB   <- shipped
+    grid 0.004   567,471 verts    14 MB
+    grid 0.002 1,054,119 verts    25 MB
+
+Verified in the browser: 26 links, 25 joints, bounding box z 0..1.2617, and
+the humanoid renders in the canvas (faceted head, segmented torso).
+
+**proved** - the companion is a working surface again: CAD + DOM awareness.
+**broke** - the page was silently dead for as long as it has been published;
+nothing in the repo recorded that `scene/` was missing.
+**change** - a web-sized CAD (6.1 MB) now ships with the surface, and the
+simplification is a parameter with the trade-off measured.
