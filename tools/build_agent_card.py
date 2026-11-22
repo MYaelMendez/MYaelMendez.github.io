@@ -27,6 +27,10 @@ def build():
     mesh = load("skill-guide/capability-mesh.json")
     atlas = load("ae-atlas.json")
     sm = load("surface-manifest.json")
+    try:
+        cm = json.loads((ROOT / "code.json").read_text(encoding="utf-8"))
+    except Exception:
+        cm = {"dsl": [], "counts": {}}
 
     skills = [
         {"id": s.get("name", ""), "category": s.get("cat", ""), "tier": s.get("tier", ""),
@@ -70,6 +74,8 @@ def build():
             "discover": f"{HOME}/ae/control/index-live.html#discover",
             "manifest": f"{HOME}/capability-manifest.json",
             "webmcp": f"{HOME}/.well-known/webmcp.json",
+            "code_mode": f"{HOME}/code.html",
+            "code_json": f"{HOME}/code.json",
             "did": f"{HOME}/.well-known/did.json",
             "skills": f"{HOME}/.well-known/skills/index.json",
         },
@@ -86,6 +92,19 @@ def build():
             "verbs": ["find <query>", "atlas", "ls", "goto <coord>", "æ://<name>",
                       "origin", "help"],
             "note": "Resolving an address navigates; it never executes. Every verb is read-only.",
+        },
+        "code_mode": {
+            "surface": f"{HOME}/code.html",
+            "data": f"{HOME}/code.json",
+            "schema": "ae.code-mode/1",
+            "verbs": [v.get("name", "") for v in cm.get("dsl", [])],
+            "invocation": {
+                "kind": "url",
+                "example": f"{HOME}/code.html?cmd=%C3%A6.find('cuda')",
+                "note": "?cmd=<expr> runs on load; pipes compose (find(q) | open).",
+            },
+            "counts": cm.get("counts", {}),
+            "note": "Terminal I/O over the mesh — one fetch (code.json), no scraping.",
         },
         "capabilities": [
             {"id": c.get("id", ""), "name": c.get("name", ""), "address": c.get("address", ""),
@@ -121,7 +140,7 @@ def build():
         },
         "generated_from": sorted([
             "capability-manifest.json", "code-mode-tools.json", "skill-guide/capability-mesh.json",
-            "ae-atlas.json", "surface-manifest.json",
+            "ae-atlas.json", "surface-manifest.json", "code.json",
         ]),
     }
 

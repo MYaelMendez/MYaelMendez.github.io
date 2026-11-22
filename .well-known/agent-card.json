@@ -19,6 +19,8 @@
     "discover": "https://myaelmendez.github.io/ae/control/index-live.html#discover",
     "manifest": "https://myaelmendez.github.io/capability-manifest.json",
     "webmcp": "https://myaelmendez.github.io/.well-known/webmcp.json",
+    "code_mode": "https://myaelmendez.github.io/code.html",
+    "code_json": "https://myaelmendez.github.io/code.json",
     "did": "https://myaelmendez.github.io/.well-known/did.json",
     "skills": "https://myaelmendez.github.io/.well-known/skills/index.json"
   },
@@ -48,6 +50,36 @@
       "help"
     ],
     "note": "Resolving an address navigates; it never executes. Every verb is read-only."
+  },
+  "code_mode": {
+    "surface": "https://myaelmendez.github.io/code.html",
+    "data": "https://myaelmendez.github.io/code.json",
+    "schema": "ae.code-mode/1",
+    "verbs": [
+      "æ.manifest",
+      "æ.find",
+      "æ.path",
+      "æ.open",
+      "æ.help",
+      "æ.stats",
+      "æ.chain",
+      "æ.capabilities",
+      "æ.tree",
+      "æ.module",
+      "æ.grep"
+    ],
+    "invocation": {
+      "kind": "url",
+      "example": "https://myaelmendez.github.io/code.html?cmd=%C3%A6.find('cuda')",
+      "note": "?cmd=<expr> runs on load; pipes compose (find(q) | open)."
+    },
+    "counts": {
+      "dsl": 11,
+      "capabilities": 51,
+      "modules": 246,
+      "tools": 41
+    },
+    "note": "Terminal I/O over the mesh — one fetch (code.json), no scraping."
   },
   "capabilities": [
     {
@@ -2761,6 +2793,7 @@
     "ae-atlas.json",
     "capability-manifest.json",
     "code-mode-tools.json",
+    "code.json",
     "skill-guide/capability-mesh.json",
     "surface-manifest.json"
   ]

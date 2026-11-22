@@ -187,14 +187,15 @@ function load(M){
   $('ct').textContent=CAPS.length+' caps · live';
   return true;
 }
+function started(){boot();var _cm=new URLSearchParams(location.search).get('cmd');if(_cm){$('cmd').value=_cm;setTimeout(function(){run(_cm);$('cmd').value=''},250)}}
 $('go').addEventListener('click',function(){run($('cmd').value);$('cmd').value=''});
 $('cmd').addEventListener('keydown',function(e){if(e.key==='Enter'){run($('cmd').value);$('cmd').value=''}});
 document.addEventListener('keydown',function(e){if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();$('cmd').focus()}});
 var CODEBASE=null;
 fetch('codebase.json',{cache:'no-cache'}).then(function(r){return r.json()}).then(function(B){CODEBASE=B}).catch(function(){});
 fetch('capability-manifest.json',{cache:'no-cache'}).then(function(r){return r.json()}).then(function(M){
-  if(load(M)){boot()}else{out('<span class="e">manifest empty — cached fallback in use</span>');boot()}
-}).catch(function(){out('<span class="e">manifest unreachable — cached fallback in use</span>');boot()});
+  if(load(M)){started()}else{out('<span class="e">manifest empty — cached fallback in use</span>');started()}
+}).catch(function(){out('<span class="e">manifest unreachable — cached fallback in use</span>');started()});
 })();
 </script>
 <script src="webmcp.js"></script>
