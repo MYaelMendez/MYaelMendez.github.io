@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>tiny* kænbæn · la familia, medida</title>
+<meta name="description" content="13 de 21 instrumentos tiny* en verde. Tablero derivado de los doctors reales, no declarado.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--text:#e8e8e8;--mut:#a89e80;--line:rgba(212,175,55,.24);--neon:#39ff14;--red:#ff6b6b;--amber:#ffd166}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--void);color:var(--text);font-family:'JetBrains Mono',ui-monospace,monospace;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+ background:repeating-linear-gradient(0deg,rgba(212,175,55,.03) 0 1px,transparent 1px 4px)}
+.wrap{position:relative;z-index:1;max-width:1500px;margin:0 auto;padding:clamp(14px,2.4vw,30px)}
+header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:.66rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold)}
+h1{font-family:Orbitron,sans-serif;font-weight:900;font-size:clamp(2rem,5vw,3.2rem);color:var(--gold);margin-top:8px;line-height:.95}
+.sub{color:var(--mut);font-size:.78rem;margin-top:10px;max-width:640px;line-height:1.6}
+.score{text-align:right;font-family:Orbitron,sans-serif;color:var(--gold);font-size:clamp(1.8rem,4vw,3rem);font-weight:900}
+.score small{display:block;font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.2em;color:var(--mut);font-weight:400;margin-top:6px}
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px;align-items:start}
+@media(max-width:900px){.board{grid-template-columns:1fr}}
+.lane{border:1px solid var(--line);border-radius:14px;background:rgba(9,8,4,.7);padding:14px;min-height:180px}
+.lane header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px dashed var(--line);padding-bottom:10px;margin-bottom:12px}
+.lane h2{font-family:Orbitron,sans-serif;font-size:.72rem;letter-spacing:.18em;color:var(--gold)}
+.lane.flaky h2{color:var(--amber)} .lane.refused h2{color:var(--red)}
+.cnt{font-family:Orbitron,sans-serif;font-size:1.3rem;font-weight:900;color:var(--gold)}
+.lane.flaky .cnt{color:var(--amber)} .lane.refused .cnt{color:var(--red)}
+.stack{display:flex;flex-direction:column;gap:10px}
+.card{border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:9px;padding:11px 13px;background:rgba(0,0,0,.45)}
+.card.flaky{border-left-color:var(--amber)} .card.refused{border-left-color:var(--red)}
+.top{display:flex;justify-content:space-between;align-items:center}
+.num{font-size:.6rem;color:var(--mut);letter-spacing:.14em}
+.badge{font-size:.56rem;letter-spacing:.14em;padding:3px 7px;border:1px solid currentColor;border-radius:999px;color:var(--gold)}
+.badge.flaky{color:var(--amber)} .badge.refused{color:var(--red)}
+.card h3{font-family:Orbitron,sans-serif;font-size:.86rem;color:var(--text);margin:6px 0 2px}
+.role{font-size:.66rem;color:var(--mut);margin-bottom:8px;min-height:1.1em}
+.kv{display:flex;justify-content:space-between;gap:10px;font-size:.63rem;padding:4px 0;border-top:1px dashed rgba(212,175,55,.12)}
+.kv .k{color:var(--mut);flex:0 0 58px} .kv .v{color:var(--gold);text-align:right;word-break:break-word}
+.recibo{display:inline-block;margin-top:9px;font-size:.62rem;color:var(--gold);text-decoration:none;border-bottom:1px solid var(--line)}
+.recibo:hover{color:#fff}
+.empty{font-size:.7rem;color:var(--mut);border:1px dashed var(--line);border-radius:8px;padding:16px;text-align:center}
+footer{margin-top:22px;padding-top:14px;border-top:1px solid var(--line);font-size:.64rem;color:var(--mut);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+code{color:#ffd966}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">æ:// tiny* · kænbæn</div>
+      <h1>tiny*kænbæn</h1>
+      <p class="sub">Cada tarjeta es un instrumento. Cada carril es un veredicto real de <code>tiny_family.py</code>. Ningún estado fue escrito a mano: los doctors corrieron en esta máquina.</p>
+    </div>
+    <div class="score">13/21<small>13 limpios · 7 con desacuerdo · 1 negativa</small></div>
+  </header>
+  <div class="board"><section class="lane ok">
+  <header><h2>VERDE · verificado</h2><span class="cnt">13</span></header>
+  <div class="stack"><article class="card ok" data-name="tinyvision">
+  <div class="top"><span class="num">04</span><span class="badge ok">OK</span></div>
+  <h3>tinyvision</h3>
+  <div class="role">supervision del film de la politica</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">video</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:ok 1.34s · python.exe:ok 1.77s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article><article class="card ok" data-name="tinyffmpeg">
+  <div class="top"><span class="num">05</span><span class="badge ok">OK</span></div>
+  <h3>tinyffmpeg</h3>
+  <div class="role">gobierna los builds de FFmpeg</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">codecs</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:ok 1.4s · python.exe:ok 1.57s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article><article class="card ok" data-name="tinyqr">
+  <div class="top"><span class="num">06</span><span class="badge ok">OK</span></div>
+  <h3>tinyqr</h3>
+  <div class="role">el chip: firma de extremo a extremo</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">identity</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:ok 3.1s · python.exe:ok 4.43s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article><article class="card ok" data-name="tinypolicy">
+  <div class="top"><span class="num">10</span><span class="badge ok">OK</span></div>
+  <h3>tinypolicy</h3>
+  <div class="role">su C2</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">policy</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:ok 1.73s · python.exe:ok 1.4s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article><article class="card ok" data-name="tinyonnx">
+  <div class="top"><span class="num">11</span><span class="badge ok">OK</span></div>
+  <h3>tinyonnx</h3>
+  <div class="role">el oracle ONNX</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">policy</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:ok 1.34s · python.exe:ok 1.32s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article><article class="card ok" data-name="tinycan">
+  <div class="top"><span class="num">12</span><span class="badge ok">OK</span></div>
+  <h3>tinycan</h3>
+  <div class="role">el bus del robot</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">bus</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:ok 0.33s · python.exe:ok 0.44s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article><article class="card ok" data-name="tinycontinuum">
+  <div class="top"><span class="num">14</span><span class="badge ok">OK</span></div>
+  <h3>tinycontinuum</h3>
+  <div class="role">el tiempo y sus frames</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">time</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:ok 0.38s · python.exe:ok 0.41s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article><article class="card ok" data-name="tinyfilmmemory">
+  <div class="top"><span class="num">15</span><span class="badge ok">OK</span></div>
+  <h3>tinyfilmmemory</h3>
+  <div class="role">la memoria del film</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">memory</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:ok 0.43s · python.exe:ok 0.45s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article><article class="card ok" data-name="tinylab">
+  <div class="top"><span class="num">16</span><span class="badge ok">OK</span></div>
+  <h3>tinylab</h3>
+  <div class="role">el auto-estudio de la familia</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">lab</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:ok 34.84s · python.exe:ok 38.58s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article><article class="card ok" data-name="tinyplugin">
+  <div class="top"><span class="num">17</span><span class="badge ok">OK</span></div>
+  <h3>tinyplugin</h3>
+  <div class="role">fallos de instalacion, a la vista</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">plugin</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:ok 0.37s · python.exe:ok 0.4s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article><article class="card ok" data-name="tinyrepofilm">
+  <div class="top"><span class="num">18</span><span class="badge ok">OK</span></div>
+  <h3>tinyrepofilm</h3>
+  <div class="role">un repo, org o usuario -&gt; pelicula sellada</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">film</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:ok 0.81s · python.exe:ok 0.83s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article><article class="card ok" data-name="tinyvoca">
+  <div class="top"><span class="num">19</span><span class="badge ok">OK</span></div>
+  <h3>tinyvoca</h3>
+  <div class="role">la voz local que narra los films</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">voice</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:ok 0.44s · python.exe:ok 0.41s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article><article class="card ok" data-name="tinySVG">
+  <div class="top"><span class="num">21</span><span class="badge ok">OK</span></div>
+  <h3>tinySVG</h3>
+  <div class="role">el viewBox no es la pantalla: escala y solapes</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">geometry</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:ok 1.7s · python.exe:ok 0.92s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article></div>
+</section><section class="lane flaky">
+  <header><h2>AMARILLO · desacuerdo</h2><span class="cnt">7</span></header>
+  <div class="stack"><article class="card flaky" data-name="tinycuda">
+  <div class="top"><span class="num">01</span><span class="badge flaky">FLAKY</span></div>
+  <h3>tinycuda</h3>
+  <div class="role">raster determinista en una libreta GPU</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">pixels</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:ok 3.15s · python.exe:NO 0.86s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article><article class="card flaky" data-name="tinygpu">
+  <div class="top"><span class="num">02</span><span class="badge flaky">FLAKY</span></div>
+  <h3>tinygpu</h3>
+  <div class="role">renderer de robot con CAD real</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">pixels</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:ok 2.42s · python.exe:NO 1.09s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article><article class="card flaky" data-name="tinycudavideo">
+  <div class="top"><span class="num">03</span><span class="badge flaky">FLAKY</span></div>
+  <h3>tinycudavideo</h3>
+  <div class="role">el seam: frames -&gt; pelicula</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">video</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:ok 2.25s · python.exe:NO 1.15s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article><article class="card flaky" data-name="tinymujoco">
+  <div class="top"><span class="num">07</span><span class="badge flaky">FLAKY</span></div>
+  <h3>tinymujoco</h3>
+  <div class="role">fisica y movimiento</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">motion</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:ok 2.25s · python.exe:NO 2.03s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article><article class="card flaky" data-name="tinyasimov">
+  <div class="top"><span class="num">08</span><span class="badge flaky">FLAKY</span></div>
+  <h3>tinyasimov</h3>
+  <div class="role">el cuerpo: C2 con gates</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">motion</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:ok 14.86s · python.exe:NO 3.32s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article><article class="card flaky" data-name="tinypython">
+  <div class="top"><span class="num">09</span><span class="badge flaky">FLAKY</span></div>
+  <h3>tinypython</h3>
+  <div class="role">la politica que camina</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">policy</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:ok 1.68s · python.exe:NO 1.18s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article><article class="card flaky" data-name="tinygpugbot">
+  <div class="top"><span class="num">13</span><span class="badge flaky">FLAKY</span></div>
+  <h3>tinygpugbot</h3>
+  <div class="role">actores con cues, desde trazas</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">actors</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:ok 2.4s · python.exe:NO 0.42s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article></div>
+</section><section class="lane refused">
+  <header><h2>ROJO · negativa</h2><span class="cnt">1</span></header>
+  <div class="stack"><article class="card refused" data-name="tinyae">
+  <div class="top"><span class="num">20</span><span class="badge refused">REFUSED</span></div>
+  <h3>tinyae</h3>
+  <div class="role">la familia measure-and-refuse, un solo prefijo</div>
+  <div class="kv"><span class="k">dominio</span><span class="v">protocol</span></div>
+  <div class="kv"><span class="k">doctors</span><span class="v">python.exe:NO 0.73s · python.exe:NO 1.22s</span></div>
+  <div class="kv"><span class="k">motivo</span><span class="v">todos los interpreters respondieron ok</span></div>
+  <a class="recibo" href="https://myaelmendez.github.io/tiny.html" target="_blank" rel="noopener">ver recibo en tiny* →</a>
+</article></div>
+</section></div>
+  <footer>
+    <span>fuente: <code>tiny.html</code> · sha256 <code>b91e1c63a6615ec3</code> · generado 2026-11-22T17:52:08+00:00</span>
+    <span><a href="https://myaelmendez.github.io/tiny.html" style="color:var(--gold);text-decoration:none">← volver a la constelación tiny*</a></span>
+  </footer>
+</div>
+</body>
+</html>

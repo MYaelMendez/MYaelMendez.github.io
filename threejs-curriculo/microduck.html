@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Microduck · 3D Model</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #050505; font-family: 'JetBrains Mono', monospace; }
+    canvas { display: block; }
+
+    .overlay {
+      position: fixed; z-index: 10; color: #D4AF37;
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+      pointer-events: none;
+    }
+
+    .title {
+      top: 24px; left: 24px; font-family: 'Orbitron', sans-serif;
+      font-size: 18px; font-weight: 700; letter-spacing: 0.15em;
+    }
+    .title span { color: #FFD700; }
+
+    .subtitle {
+      top: 55px; left: 24px; font-size: 11px;
+      color: rgba(212, 175, 55, 0.7); letter-spacing: 0.1em;
+    }
+
+    .info-panel {
+      bottom: 24px; left: 24px; font-size: 11px;
+      line-height: 1.8; color: rgba(212, 175, 55, 0.8);
+    }
+    .info-panel .label { color: #FFD700; font-weight: 700; }
+    .info-panel .value { color: #D4AF37; }
+
+    .controls-hint {
+      bottom: 24px; right: 24px; text-align: right;
+      font-size: 10px; color: rgba(212, 175, 55, 0.5);
+      letter-spacing: 0.05em;
+    }
+
+    .loading {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      font-family: 'Orbitron', sans-serif; font-size: 16px; color: #D4AF37;
+      z-index: 20; text-shadow: 0 0 20px rgba(212, 175, 55, 0.8);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .corner-decoration {
+      position: fixed; width: 40px; height: 40px;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      pointer-events: none;
+    }
+    .corner-tl { top: 12px; left: 12px; border-right: none; border-bottom: none; }
+    .corner-tr { top: 12px; right: 12px; border-left: none; border-bottom: none; }
+    .corner-bl { bottom: 12px; left: 12px; border-right: none; border-top: none; }
+    .corner-br { bottom: 12px; right: 12px; border-left: none; border-top: none; }
+  </style>
+</head>
+<body>
+  <div class="loading" id="loading">Loading Microduck...</div>
+
+  <div class="overlay title">Micro<span>DUCK</span> · 3D Model</div>
+  <div class="overlay subtitle">Pollen Robotics · Open Source Humanoid</div>
+
+  <div class="overlay info-panel" id="info-panel" style="display: none;">
+    <div><span class="label">DIMENSIONS</span> <span class="value">25 cm</span></div>
+    <div><span class="label">WEIGHT</span> <span class="value">~800 g</span></div>
+    <div><span class="label">DOF</span> <span class="value">14</span></div>
+    <div><span class="label">BRAIN</span> <span class="value">RK3566 SoC</span></div>
+    <div><span class="label">LICENSE</span> <span class="value">Open Source</span></div>
+  </div>
+
+  <div class="overlay controls-hint">
+    Drag to rotate · Scroll to zoom · Right-drag to pan
+  </div>
+
+  <div class="corner-decoration corner-tl"></div>
+  <div class="corner-decoration corner-tr"></div>
+  <div class="corner-decoration corner-bl"></div>
+  <div class="corner-decoration corner-br"></div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three.module.js",
+      "three/addons/": "./vendor/addons/"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+    // Scene setup
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x050505);
+
+    // Camera
+    const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(2, 1.5, 3);
+
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    document.body.appendChild(renderer.domElement);
+
+    // Controls
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.target.set(0, 0.15, 0);
+    controls.minDistance = 1;
+    controls.maxDistance = 10;
+    controls.update();
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0x404060, 0.5);
+    scene.add(ambientLight);
+
+    const keyLight = new THREE.DirectionalLight(0xD4AF37, 3.0);
+    keyLight.position.set(5, 10, 5);
+    scene.add(keyLight);
+
+    const rimLight = new THREE.DirectionalLight(0xD4AF37, 1.5);
+    rimLight.position.set(-5, 5, -5);
+    scene.add(rimLight);
+
+    const fillLight = new THREE.DirectionalLight(0x00EAFF, 0.8);
+    fillLight.position.set(0, -2, 5);
+    scene.add(fillLight);
+
+    const pointLight = new THREE.PointLight(0xD4AF37, 2.0, 20);
+    pointLight.position.set(0, 2, 3);
+    scene.add(pointLight);
+
+    // Ground plane with grid
+    const gridHelper = new THREE.GridHelper(10, 20, 0xD4AF37, 0x1a1a1a);
+    gridHelper.material.opacity = 0.3;
+    gridHelper.material.transparent = true;
+    scene.add(gridHelper);
+
+    // Load model
+    const loader = new GLTFLoader();
+    let model;
+
+    loader.load(
+      './assets/microduck.glb',
+      (gltf) => {
+        model = gltf.scene;
+        model.scale.set(0.8, 0.8, 0.8);
+
+        // Center the model
+        const box = new THREE.Box3().setFromObject(model);
+        const center = box.getCenter(new THREE.Vector3());
+        const offset = new THREE.Vector3(-center.x, -center.y + 0.15, -center.z);
+        model.position.add(offset);
+
+        scene.add(model);
+
+        // Hide loading text
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('info-panel').style.display = 'block';
+
+        // Add subtle particle background
+        const particleCount = 200;
+        const particleGeo = new THREE.BufferGeometry();
+        const particlePos = new Float32Array(particleCount * 3);
+        for (let i = 0; i < particleCount * 3; i++) {
+          particlePos[i] = (Math.random() - 0.5) * 20;
+        }
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePos, 3));
+        const particleMat = new THREE.PointsMaterial({
+          color: 0xD4AF37,
+          size: 0.03,
+          transparent: true,
+          opacity: 0.4,
+          sizeAttenuation: true
+        });
+        const particles = new THREE.Points(particleGeo, particleMat);
+        scene.add(particles);
+
+        // Animation loop
+        function animate() {
+          requestAnimationFrame(animate);
+          controls.update();
+
+          // Subtle model animation
+          if (model) {
+            const time = Date.now() * 0.001;
+            model.rotation.y += 0.002;
+            model.position.y = 0.15 + Math.sin(time * 2) * 0.02;
+          }
+
+          // Rotate particles slowly
+          particles.rotation.y += 0.001;
+
+          renderer.render(scene, camera);
+        }
+        animate();
+      },
+      undefined,
+      (error) => {
+        console.error('Error loading model:', error);
+        document.getElementById('loading').textContent = 'Failed to load model';
+        document.getElementById('loading').style.color = '#ff4444';
+      }
+    );
+
+    // Handle resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>

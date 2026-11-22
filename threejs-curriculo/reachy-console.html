@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>reachy:// — operator console</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; background:#050505; color:#D4AF37;
+    font-family:'JetBrains Mono',monospace; font-size:13px; }
+  body { display:grid; grid-template-rows:auto 1fr; height:100vh; overflow:hidden; }
+  header { padding:14px 20px; border-bottom:1px solid rgba(212,175,55,.25);
+    display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+  header h1 { font-family:'Orbitron',sans-serif; font-size:16px; letter-spacing:.14em; }
+  header h1 span { color:#FFD700; }
+  header .chain { font-size:10px; color:rgba(212,175,55,.55); letter-spacing:.04em; }
+  main { display:grid; grid-template-columns: 400px 1fr; min-height:0; }
+  aside { border-right:1px solid rgba(212,175,55,.18); padding:14px; overflow-y:auto; }
+  section { padding:14px; overflow-y:auto; }
+  h2 { font-family:'Orbitron',sans-serif; font-size:11px; letter-spacing:.12em;
+    color:#FFD700; margin:14px 0 8px; text-transform:uppercase; }
+  h2:first-child { margin-top:0; }
+  .transport { padding:6px 0; border-bottom:1px dashed rgba(212,175,55,.12); }
+  .transport b { color:#FFD700; }
+  .transport .req { color:rgba(212,175,55,.5); font-size:11px; }
+  .verb { display:flex; justify-content:space-between; gap:8px; padding:5px 8px;
+    border:1px solid rgba(212,175,55,.15); margin-bottom:4px; cursor:pointer;
+    background:rgba(212,175,55,.03); }
+  .verb:hover { background:rgba(212,175,55,.12); border-color:#D4AF37; }
+  .verb.active { background:rgba(212,175,55,.18); border-color:#FFD700; }
+  .verb .name { color:#FFD700; }
+  .verb .cls { font-size:10px; color:rgba(212,175,55,.55); }
+  .verb.motion { border-left:2px solid #D4AF37; }
+  .verb.safety { border-left:2px solid #ff5555; }
+  .verb.read { border-left:2px solid #00EAFF; }
+  .row { display:flex; gap:8px; margin:10px 0; flex-wrap:wrap; }
+  button { font-family:'JetBrains Mono',monospace; font-size:12px; cursor:pointer;
+    background:transparent; color:#D4AF37; border:1px solid #D4AF37; padding:7px 12px;
+    letter-spacing:.06em; }
+  button:hover { background:#D4AF37; color:#050505; }
+  button.danger { border-color:#ff5555; color:#ff5555; }
+  button.danger:hover { background:#ff5555; color:#050505; }
+  select { font-family:'JetBrains Mono',monospace; font-size:12px; background:#050505;
+    color:#D4AF37; border:1px solid rgba(212,175,55,.4); padding:6px; }
+  pre { background:rgba(0,0,0,.5); border:1px solid rgba(212,175,55,.2);
+    padding:12px; white-space:pre-wrap; word-break:break-word; font-size:11px;
+    line-height:1.6; color:#D4AF37; }
+  .verdict { font-family:'Orbitron',sans-serif; font-size:12px; letter-spacing:.1em;
+    padding:8px 10px; margin-bottom:10px; border:1px solid; }
+  .verdict.allow { color:#33ff88; border-color:#33ff88; }
+  .verdict.require_approval, .verdict.route, .verdict.refuse { color:#ff5555; border-color:#ff5555; }
+  .verdict.dry-run { color:#FFD700; border-color:#FFD700; }
+  .muted { color:rgba(212,175,55,.5); font-size:11px; }
+  .receipt { color:#00EAFF; font-size:11px; word-break:break-all; }
+  .missing { color:#ff5555; }
+</style>
+</head>
+<body>
+<header>
+  <h1>reachy<span>://</span> console</h1>
+  <div class="chain">HUMAN://ROOT → æ POLICY → reachy:// → reachy_mini.ReachyMini → RECEIPT</div>
+  <div class="muted" id="sdkline"></div>
+</header>
+<main>
+  <aside>
+    <h2>Transports</h2>
+    <div id="transports"></div>
+    <h2>Verbs</h2>
+    <div id="verbs"></div>
+  </aside>
+  <section>
+    <h2>Plan</h2>
+    <div class="row">
+      <select id="transport">
+        <option value="auto">auto</option>
+        <option value="daemon">daemon (real robot)</option>
+        <option value="sim">sim (mockup daemon)</option>
+        <option value="mujoco">mujoco (physics daemon)</option>
+      </select>
+    </div>
+    <div class="row">
+      <button id="plan">plan</button>
+      <button id="sim">sim</button>
+      <button id="exec">exec</button>
+      <button id="grant" class="danger">grant (report only)</button>
+    </div>
+    <div id="verdict"></div>
+    <pre id="out">Select a verb, then plan it. Nothing executes without REACHY_LIVE=1.</pre>
+  </section>
+</main>
+<script>
+const API = (location.port === '8164') ? '' : 'http://127.0.0.1:8164';
+let state = null, current = null;
+
+async function get(path) {
+  const r = await fetch(API + path);
+  return r.json();
+}
+async function post(path, body) {
+  const r = await fetch(API + path, {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  });
+  return r.json();
+}
+
+function render() {
+  if (!state) return;
+  const t = document.getElementById('transports');
+  t.innerHTML = Object.entries(state.transports).map(([k, v]) =>
+    `<div class="transport"><b>${k}</b> — ${v.official ? 'official' : 'æ addition'}<br>
+     <span class="req">${v.requires}</span>${v.note ? '<br><span class="req">'+v.note+'</span>' : ''}</div>`
+  ).join('');
+  const sdk = state.sdk;
+  const d = state.daemon || {};
+  const daemonLabel = d.method === 'port'
+    ? (d.port_8000_open ? 'port 8000 open' : 'port 8000 closed')
+    : ((d.daemons || []).length ? 'running' : 'none');
+  document.getElementById('sdkline').innerHTML =
+    `reachy_mini: <span class="${sdk.reachable ? '' : 'missing'}">${sdk.reachable ? sdk.version : 'not installed'}</span>` +
+    ` · daemon: <span class="${String(daemonLabel).startsWith('port 8000 open') || daemonLabel === 'running' ? '' : 'missing'}">${daemonLabel}</span>` +
+    ` · live: <span class="missing">false</span>`;
+  const v = state._verbs;
+  document.getElementById('verbs').innerHTML = Object.entries(v.verbs).map(([name, m]) =>
+    `<div class="verb ${m.class}" data-verb="${name}">
+       <span class="name">${name}</span><span class="cls">${m.class}</span>
+     </div>`).join('');
+  document.querySelectorAll('.verb').forEach(el =>
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.verb').forEach(x => x.classList.remove('active'));
+      el.classList.add('active');
+      current = el.dataset.verb;
+    }));
+}
+
+function show(r) {
+  const v = document.getElementById('verdict');
+  const cls = r.decision || (r.grants === false ? 'grant' : 'allow');
+  const label = r.refused ? 'REFUSED' : (r.decision || (r.grants === false ? 'REPORTS SHAPE — GRANTS NOTHING' : 'ALLOWED'));
+  v.innerHTML = `<div class="verdict ${cls}">${label}</div>` +
+    (r.reason ? `<div class="muted" style="margin-bottom:10px">${r.reason}</div>` : '') +
+    (r.receipt ? `<div class="receipt">receipt ${r.receipt.hash}<br>prev ${r.receipt.prev}</div>` : '');
+  document.getElementById('out').textContent = JSON.stringify(r, null, 2);
+}
+
+async function init() {
+  const [status, verbs] = await Promise.all([get('/api/status'), get('/api/verbs')]);
+  status._verbs = verbs;
+  state = status;
+  render();
+}
+document.getElementById('plan').addEventListener('click', async () => {
+  if (!current) return;
+  show(await post('/api/plan', {verb: current, transport: document.getElementById('transport').value}));
+});
+document.getElementById('sim').addEventListener('click', async () => {
+  if (!current) return;
+  show(await post('/api/sim', {verb: current}));
+});
+document.getElementById('exec').addEventListener('click', async () => {
+  if (!current) return;
+  show(await post('/api/exec', {verb: current}));
+});
+document.getElementById('grant').addEventListener('click', async () => {
+  if (!current) return;
+  show(await post('/api/grant', {verb: current}));
+});
+init().catch(e => {
+  document.getElementById('out').textContent = 'bridge unreachable: ' + e +
+    '\n\nStart it:  cd C:/æ/reachy_mini && uv sync --python 3.12   then   python C:/æ/agents/reachy_bridge.py';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>æ:// STUDIO — the studios, the shots, the saved gait</title>
+<meta name="description" content="Interactive WebGL browser for the æ studios: the real Asimov CAD playing the SAVED gait through the URDF, every camera shot, every state, every renderer — with a live spec and receipt.">
+<style>
+  :root{ --gold:#D4AF37; --gold-dim:#8a7433; --void:#050505; --ink:#e8e6df;
+         --dim:#8a8470; --cyan:#00ccff; --ok:#00ff9f; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--void);color:var(--ink);
+    font-family:'JetBrains Mono','Fira Code',ui-monospace,monospace;overflow:hidden}
+  #view{position:fixed;inset:0}
+  canvas{display:block}
+  .hud{position:fixed;pointer-events:none;z-index:5}
+  .panel{pointer-events:auto;background:rgba(8,8,10,.84);border:1px solid #1c1a12;
+    border-left:2px solid var(--gold);backdrop-filter:blur(6px);
+    padding:10px 12px;border-radius:2px}
+  #hdr{top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:baseline;
+    padding:12px 18px;border-left:none;border-bottom:1px solid #1c1a12;
+    background:linear-gradient(180deg,rgba(5,5,5,.94),rgba(5,5,5,.55))}
+  #hdr h1{font-size:15px;letter-spacing:.28em;color:var(--gold);font-weight:600}
+  #hdr .tag{font-size:10px;letter-spacing:.14em;color:var(--dim)}
+  #hdr .sha{font-size:10px;color:var(--gold-dim);letter-spacing:.06em;max-width:44vw;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rail{position:fixed;top:54px;bottom:14px;width:214px;overflow-y:auto;
+    display:flex;flex-direction:column;gap:6px;padding:0 12px}
+  #railL{left:0}#railR{right:0}
+  .rail h2{font-size:10px;letter-spacing:.24em;color:var(--gold);margin:6px 0 4px;
+    border-bottom:1px solid #1c1a12;padding-bottom:5px}
+  .btn{pointer-events:auto;text-align:left;background:#0d0d10;border:1px solid #1c1a12;
+    color:var(--ink);font:inherit;font-size:11px;padding:7px 9px;cursor:pointer;
+    border-radius:2px;letter-spacing:.04em;transition:.12s}
+  .btn:hover{border-color:var(--gold);color:var(--gold)}
+  .btn.on{background:#141208;border-color:var(--gold);color:var(--gold)}
+  .btn small{display:block;color:var(--dim);font-size:9px;margin-top:2px}
+  .btn .bad{color:#ff3b47}.btn .ok{color:var(--ok)}
+  #spec{left:50%;transform:translateX(-50%);bottom:14px;width:min(780px,58vw);
+    max-height:36vh;overflow:auto}
+  #spec pre{font-size:10px;line-height:1.5;color:#b9b4a4;white-space:pre-wrap;
+    word-break:break-word;margin-top:6px}
+  #spec .k{color:var(--gold)}#spec .s{color:var(--cyan)}
+  #gait{top:54px;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:.14em;
+    color:var(--gold);background:rgba(8,8,10,.8);border:1px solid #1c1a12;
+    border-top:2px solid var(--gold);padding:6px 12px}
+  #gait b{color:var(--ok)}
+  #toast{top:50%;left:50%;transform:translate(-50%,-50%);font-size:11px;
+    letter-spacing:.18em;color:var(--gold);background:rgba(5,5,5,.9);
+    border:1px solid var(--gold);padding:10px 16px;opacity:0;transition:.25s}
+  #foot{bottom:0;left:0;right:0;text-align:center;font-size:9px;letter-spacing:.2em;
+    color:var(--dim);padding:5px;border-left:none;background:rgba(5,5,5,.8)}
+  .scan{position:fixed;inset:0;pointer-events:none;z-index:3;
+    background:repeating-linear-gradient(0deg,rgba(212,175,55,.028) 0 1px,transparent 1px 3px)}
+  @media(max-width:900px){#spec{display:none}.rail{width:150px}#hdr .sha{display:none}}
+</style>
+</head>
+<body>
+<div id="view"></div>
+<div class="scan"></div>
+
+<div class="hud" id="hdr">
+  <h1>æ:// STUDIO</h1>
+  <div class="tag">THE STUDIOS · THE SHOTS · THE SAVED GAIT</div>
+  <div class="sha" id="hdrSha">receipt —</div>
+</div>
+
+<div class="hud" id="gait">GAIT · <b id="gaitState">loading…</b> · <span id="gaitT">0.00/0.00s</span></div>
+
+<div class="hud rail" id="railL">
+  <h2>CAMERA SHOTS</h2><div id="cams"></div>
+  <h2 style="margin-top:12px">STATES</h2><div id="states"></div>
+</div>
+
+<div class="hud rail" id="railR">
+  <h2>STUDIOS</h2><div id="studios"></div>
+  <h2 style="margin-top:12px">CAST</h2><div id="cast"></div>
+</div>
+
+<div class="hud panel" id="spec">
+  <div style="font-size:10px;letter-spacing:.2em;color:var(--gold)">
+    SPEC · <span id="specName">asimov_studio</span> · <span id="specSha">—</span>
+  </div>
+  <pre id="specBody"></pre>
+</div>
+
+<div class="hud" id="toast"></div>
+<div class="hud" id="foot">HUMAN://ROOT · EVIDENCE ≠ AUTHORITY · THE GAIT IS A PLAN, NOT A COMMAND TO A BODY</div>
+
+<script type="importmap">{ "imports": { "three": "./assets/vendor/three.module.js" } }</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from './assets/vendor/GLTFLoader.js';
+
+const CAMS = [
+  {n:'front',        az:180, el:-3,  d:3.0, look:0.70},
+  {n:'three_quarter',az:155, el:-4,  d:3.0, look:0.70},
+  {n:'side',         az:90,  el:-3,  d:3.0, look:0.70},
+  {n:'back',         az:0,   el:-3,  d:3.0, look:0.70},
+  {n:'low',          az:180, el:-14, d:2.8, look:0.55},
+  {n:'high',         az:180, el:16,  d:3.2, look:0.80},
+  {n:'close',        az:180, el:-2,  d:1.9, look:1.02},
+  {n:'orbit',        az:180, el:-3,  d:3.0, look:0.70, orbit:22},
+  {n:'face',         az:180, el:-2,  d:0.62,look:1.30, track:true},
+  {n:'pilot',        az:180, el:-2,  d:1.55,look:0.95, track:'waetz'}
+];
+const STATES = [
+  ['IDLE',[150,150,155],0,0], ['LISTENING',[0,204,255],0,0],
+  ['SPEAKING',[0,255,159],0,-0.08], ['THINKING',[133,233,252],0.18,-0.04],
+  ['AWAITING_APPROVAL',[212,175,55],0.38,0.06], ['APPROVED',[0,255,159],0,-0.10],
+  ['REFUSED',[255,0,255],-0.62,0.20], ['ERROR',[255,59,71],-0.30,0.24]
+];
+const STUDIOS = [
+  ['asimov_studio v1','1 body · spec-driven · NVENC · gate','PROVEN',''],
+  ['asimov_studio2 v2','2 bodies · dialogue · 8 shots','BUILT','dark: lum 11.08'],
+  ['asimov_studio3 v3','5 bodies · face cam · 9 shots','BUILT','~12 s/frame'],
+  ['rtx_studio','CUDA raster, no OpenGL','BUILT',''],
+  ['asimov_pet','9 states × 6 frames, 192×208','BUILT',''],
+  ['tinyasimov','walk + voice + gate + receipt','BUILT',''],
+  ['proof1','receipted montage (PROOF/1)','PROVEN',''],
+  ['videolab','telemetry-driven scene','BUILT',''],
+  ['æRTXrender','HTML → MP4 via CDP','PROVEN','']
+];
+const CAST = [['nous','F2 · magenta'],['hermes','M2 · cyan'],['waetz','white · the learner'],
+              ['menlo','orange'],['asimov','green']];
+
+const view = document.getElementById('view');
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth, innerHeight);
+view.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x050505);
+scene.fog = new THREE.Fog(0x050505, 7, 20);
+const camera = new THREE.PerspectiveCamera(42, innerWidth/innerHeight, 0.05, 100);
+
+scene.add(new THREE.HemisphereLight(0x3a3420, 0x050505, 1.2));
+const key = new THREE.DirectionalLight(0xd4af37, 1.6); key.position.set(2.5,3,4); scene.add(key);
+const rim = new THREE.DirectionalLight(0x00ccff, 0.8); rim.position.set(-3,1.5,-2); scene.add(rim);
+const grid = new THREE.GridHelper(8, 32, 0x2a2410, 0x14120c); scene.add(grid);
+
+function quatFromMat3(m){
+  const t=m[0][0]+m[1][1]+m[2][2]; let q;
+  if(t>0){const s=Math.sqrt(t+1)*2;q=[(m[2][1]-m[1][2])/s,(m[0][2]-m[2][0])/s,(m[1][0]-m[0][1])/s,s/4];}
+  else if(m[0][0]>m[1][1]&&m[0][0]>m[2][2]){const s=Math.sqrt(1+m[0][0]-m[1][1]-m[2][2])*2;
+    q=[s/4,(m[0][1]+m[1][0])/s,(m[0][2]+m[2][0])/s,(m[2][1]-m[1][2])/s];}
+  else if(m[1][1]>m[2][2]){const s=Math.sqrt(1+m[1][1]-m[0][0]-m[2][2])*2;
+    q=[(m[0][1]+m[1][0])/s,s/4,(m[1][2]+m[2][1])/s,(m[0][2]-m[2][0])/s];}
+  else {const s=Math.sqrt(1+m[2][2]-m[0][0]-m[1][1])*2;
+    q=[(m[0][2]+m[2][0])/s,(m[1][2]+m[2][1])/s,s/4,(m[1][0]-m[0][1])/s];}
+  return new THREE.Quaternion(q[0],q[1],q[2],q[3]);
+}
+function rpyQuat(rpy){
+  const [x,y,z]=rpy, c=Math.cos, s=Math.sin;
+  const qx=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),x);
+  const qy=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),y);
+  const qz=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),z);
+  return qz.multiply(qy).multiply(qx);            // Rz @ Ry @ Rx
+}
+
+let links={}, joints=[], gait=null, policySha='—';
+window.addEventListener('error', e => { window.__err = String(e.message); });
+new GLTFLoader().load('./assets/gltf/asimov-web.glb', (g) => {
+  window.__glb = g;
+  const root = g.scene || (g.scenes && g.scenes[0]);
+  const nm = []; root.traverse(o => { if (o.isMesh) nm.push(o.name||'<noname>'); });
+  window.__meshNames = nm;
+  let bad = null;
+  root.traverse(o => {
+    if (o.isMesh && /_link$/.test(o.name||'')){
+      try {
+        o.material = new THREE.MeshStandardMaterial({color:0x9a9a92, metalness:0.85,
+          roughness:0.34, emissive:0x000000});
+        o.matrixAutoUpdate = false;
+        links[o.name] = o; scene.add(o);
+      } catch(err) { bad = String(err); window.__err = bad; }
+    }
+  });
+  window.__placed = Object.keys(links).length;
+  toast('ASIMOV · ' + Object.keys(links).length + '/' + nm.length + ' LINKS' + (bad?' ERR':''));
+}, undefined, (e) => {
+  window.__err = 'LOADFAIL ' + (e && e.message ? e.message : String(e)) +
+    ' status=' + (e && e.target ? e.target.status : '?') +
+    ' type=' + (e && e.type ? e.type : '?');
+  toast('GLB LOAD FAILED'); });
+fetch('./asimov-urdf.json').then(r=>r.json()).then(u=>{
+  joints = u.joints; return fetch('./asimov-gait.json');
+}).then(r=>r.json()).then(g=>{
+  gait = g; policySha = g.policy_sha256;
+  document.getElementById('gaitState').textContent =
+    g.joint_names.length + ' JOINTS · ' + g.qpos.length + ' FRAMES · ' + g.duration_s + 's · ' +
+    (g.success ? 'SUCCESS' : 'FAIL');
+  toast('SAVED GAIT · policy ' + g.policy.slice(0,28) + '…');
+  renderSpec();
+}).catch(()=>{ document.getElementById('gaitState').textContent='LOAD FAILED';
+  toast('GAIT LOAD FAILED'); });
+
+const rootLink = 'pelvis_link';
+function place(frame){
+  if (!gait || !joints.length) return;
+  const q = gait.qpos[frame], base = gait.base[frame];
+  const world = {};
+  world[rootLink] = {p:new THREE.Vector3(base[0],base[1],base[2]),
+                     q:new THREE.Quaternion(base[3],base[4],base[5],base[6])};
+  for (let d=0; d<16; d++){
+    let moved = false;
+    for (const j of joints){
+      if (world[j.parent] && !world[j.child]){
+        const idx = gait.joint_names.indexOf(j.name);
+        const a = idx >= 0 ? q[7+idx] : 0;
+        const p = world[j.parent].p.clone()
+          .add(new THREE.Vector3(j.xyz[0],j.xyz[1],j.xyz[2])
+               .applyQuaternion(world[j.parent].q));
+        const qq = world[j.parent].q.clone().multiply(rpyQuat(j.rpy))
+          .multiply(new THREE.Quaternion().setFromAxisAngle(
+            new THREE.Vector3(j.axis[0],j.axis[1],j.axis[2]).normalize(), a));
+        world[j.child] = {p, q:qq}; moved = true;
+      }
+    }
+    if (!moved) break;
+  }
+  for (const name of Object.keys(links)){
+    const w = world[name]; if (!w) continue;
+    links[name].matrix.compose(w.p, w.q, new THREE.Vector3(1,1,1));
+  }
+}
+
+let cam={...CAMS[0]}, anim=null, orbiting=false;
+const cur={az:180,el:-3,d:3.0,look:0.70};
+function goTo(c){ cam={...c}; orbiting=!!c.orbit;
+  anim={from:{...cur},to:{az:c.az,el:c.el,d:c.d,look:c.look},t:0};
+  document.querySelectorAll('#cams .btn').forEach(b=>b.classList.toggle('on',b.dataset.n===c.n)); }
+function placeCam(){
+  const az=THREE.MathUtils.degToRad(cur.az), el=THREE.MathUtils.degToRad(cur.el);
+  const t=new THREE.Vector3(0,0,cur.look);
+  camera.position.set(t.x+cur.d*Math.cos(el)*Math.cos(az),
+                      t.y+cur.d*Math.cos(el)*Math.sin(az),
+                      t.z+cur.d*Math.sin(el));
+  camera.lookAt(t);
+}
+let state=STATES[0];
+function setState(s){ state=s;
+  const [r,g,b]=s[1].map(v=>v/255);
+  Object.values(links).forEach(o=>o.material.emissive.setRGB(r*.5,g*.5,b*.5));
+  document.querySelectorAll('#states .btn').forEach(b=>b.classList.toggle('on',b.dataset.n===s[0]));
+  renderSpec(); }
+
+const camsEl=document.getElementById('cams');
+CAMS.forEach(c=>{ const b=document.createElement('button'); b.className='btn'; b.dataset.n=c.n;
+  b.innerHTML=c.n+'<small>az '+c.az+' · el '+c.el+' · d '+c.d+(c.orbit?' · orbit':'')+(c.track?' · track':'')+'</small>';
+  b.onclick=()=>{goTo(c);renderSpec();}; camsEl.appendChild(b); });
+const stEl=document.getElementById('states');
+STATES.forEach(s=>{ const b=document.createElement('button'); b.className='btn'; b.dataset.n=s[0];
+  const hex='#'+s[1].map(v=>v.toString(16).padStart(2,'0')).join('');
+  b.innerHTML=s[0]+'<small>yaw '+s[2]+' · pitch '+s[3]+' · '+hex+'</small>';
+  b.onclick=()=>setState(s); stEl.appendChild(b); });
+const studEl=document.getElementById('studios'); let studio='asimov_studio';
+STUDIOS.forEach(s=>{ const b=document.createElement('button'); b.className='btn';
+  b.innerHTML=s[0]+'<small>'+s[1]+' · <span class="'+(s[2]==='PROVEN'?'ok':'bad')+'">'+s[2]+'</span>'+(s[3]?' · <span class=bad>'+s[3]+'</span>':'')+'</small>';
+  b.onclick=()=>{studio=s[0].split(' ')[0];
+    document.querySelectorAll('#studios .btn').forEach(x=>x.classList.toggle('on',x===b)); renderSpec();};
+  if (s[0].startsWith('asimov_studio v1')) b.classList.add('on');
+  studEl.appendChild(b); });
+const castEl=document.getElementById('cast');
+CAST.forEach(c=>{ const b=document.createElement('button'); b.className='btn';
+  b.innerHTML=c[0]+'<small>'+c[1]+'</small>'; castEl.appendChild(b); });
+
+async function sha256(t){ const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
+function buildSpec(){ return {
+  schema:'ae/studio-spec/1', studio, title:studio, generated:new Date().toISOString(),
+  camera:{name:cam.n, az:+cur.az.toFixed(2), el:+cur.el.toFixed(2), distance:+cur.d.toFixed(2), look:+cur.look.toFixed(2)},
+  state:{name:state[0], rgb:state[1], yaw:state[2], pitch:state[3]},
+  gait:{policy:gait?gait.policy:null, policy_sha256:policySha, frames:gait?gait.qpos.length:0,
+        duration_s:gait?gait.duration_s:0, success:gait?gait.success:null},
+  assets:{body:'assets/gltf/asimov-web.glb', urdf:'asimov-urdf.json', gait:'asimov-gait.json', tris:281943, links:26},
+  authority:'HUMAN://ROOT', note:'a spec is a plan, not an act' }; }
+async function renderSpec(){ const s=buildSpec(), txt=JSON.stringify(s,null,2);
+  document.getElementById('specName').textContent=studio;
+  document.getElementById('specBody').innerHTML=txt.replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/"([^"]+)":/g,'<span class="s">"$1"</span>:')
+    .replace(/: ("[^"]*"|\d+|true|false|null)/g,': <span class="k">$1</span>');
+  const h=await sha256(txt);
+  document.getElementById('specSha').textContent=h.slice(0,16)+'…';
+  document.getElementById('hdrSha').textContent='receipt sha256 '+h; }
+
+const clock=new THREE.Clock();
+function tick(){
+  requestAnimationFrame(tick);
+  const dt=clock.getDelta(), t=clock.elapsedTime;
+  if (anim){ anim.t=Math.min(1,anim.t+dt*2.2);
+    const k=1-Math.pow(1-anim.t,3);
+    for (const p of ['az','el','d','look']) cur[p]=anim.from[p]+(anim.to[p]-anim.from[p])*k;
+    if (anim.t>=1) anim=null; }
+  if (orbiting) cur.az+=dt*22;
+  if (gait){
+    const f=Math.floor((t % gait.duration_s) * gait.fps) % gait.qpos.length;
+    place(f);
+    document.getElementById('gaitT').textContent=(f/gait.fps).toFixed(2)+'/'+gait.duration_s+'s';
+  }
+  placeCam();
+  renderer.render(scene,camera);
+}
+addEventListener('resize',()=>{ camera.aspect=innerWidth/innerHeight;
+  camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); });
+window.__st = {scene, links, gait, camera, THREE, cur, place};
+placeCam(); setState(STATES[0]); goTo(CAMS[0]); tick();
+let toastTimer; function toast(m){ const e=document.getElementById('toast');
+  e.textContent=m; e.style.opacity=1; clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>e.style.opacity=0,2400); }
+</script>
+</body>
+</html>

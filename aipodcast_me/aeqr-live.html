@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>æQR · Addressable Intelligence · LIVE</title>
+<meta name="description" content="æQR · Addressable Intelligence · Live surface: three.js scene + æC2 console + mood engine + kanban. Every intelligent widget carries its own æQR.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#050505;--ink:#D4AF37;--paper:#F5F0E1;
+  --g1:#0a0a0a;--g2:#161616;--g3:#242424;--g4:#3a3a3a;--g5:#6e6e6e;--g6:#a0a0a0;--g7:#d6d6d7;
+  --blue:#4A90D9;--green:#34C759;--orange:#F97316;--purple:#A855F7;--red:#FF4D5F;
+  --neon:#00ff9d;--cyan:#00ccff;--line:rgba(212,175,55,.18);--radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--void);color:var(--paper);font-family:'Inter',system-ui,sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+#stage{position:fixed;inset:0;z-index:0;pointer-events:none}
+#stage canvas{width:100%;height:100%;display:block}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(5,5,5,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--g2);display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.4rem}
+nav .logo{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.05rem;color:var(--ink);text-decoration:none;letter-spacing:-.03em}
+nav .logo span{font-size:.55rem;opacity:.45;display:block;line-height:1;letter-spacing:.08em;text-transform:uppercase}
+nav .links{display:flex;gap:1.2rem;align-items:center}
+nav .links a{color:var(--g5);text-decoration:none;font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;font-weight:700}
+nav .links a:hover{color:var(--ink)}
+.hero{position:relative;z-index:2;text-align:center;padding:5.2rem 1.2rem 3.2rem}
+.hero-glyph{font-size:clamp(2.6rem,8vw,4.2rem);color:var(--ink);filter:drop-shadow(0 0 24px rgba(212,175,55,.45));margin-bottom:.7rem;line-height:1}
+.hero h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(1.1rem,3.2vw,1.9rem);letter-spacing:-.02em;line-height:1.2;margin-bottom:.6rem}
+.hero h1 .tag{display:block;font-family:'JetBrains Mono',monospace;font-weight:400;font-size:clamp(.52rem,1.3vw,.68rem);color:var(--g5);letter-spacing:.14em;margin-top:.3rem}
+.hero .sub{font-size:clamp(.68rem,1.5vw,.86rem);color:var(--g5);max-width:660px;margin:0 auto 1.3rem;line-height:1.62}
+.hero .sub b{color:var(--paper);font-weight:600}
+.hero .cmd{display:inline-block;font:700 .76rem 'JetBrains Mono',monospace;color:var(--ink);border:1px solid var(--line);background:var(--g2);padding:.5rem .85rem;letter-spacing:.1em;margin-bottom:1.1rem;text-transform:uppercase}
+.hero .inv{font-size:.66rem;color:var(--g5);letter-spacing:.1em;text-transform:uppercase}
+.features{position:relative;z-index:2;max-width:960px;margin:0 auto;padding:1.8rem 1.2rem 2.4rem}
+.feat{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:center;padding:1.6rem 0;border-bottom:1px solid var(--line)}
+.feat:last-child{border-bottom:0}
+@media(max-width:760px){.feat{grid-template-columns:1fr}}
+.fi{font:700 .6rem 'JetBrains Mono',monospace;color:var(--cyan);letter-spacing:.04em;text-transform:uppercase}
+.ft h3{font-family:'Orbitron',sans-serif;font-weight:700;font-size:clamp(.8rem,1.8vw,1rem);color:var(--ink);margin-bottom:.4rem}
+.ft p{font-size:.72rem;color:var(--g6);line-height:1.58}
+.tower{position:relative;z-index:2;max-width:960px;margin:0 auto;padding:1.8rem 1.2rem;text-align:center}
+.tower .k{font:700 .6rem 'JetBrains Mono',monospace;color:var(--ink);display:block;margin-bottom:.7rem;letter-spacing:.08em}
+.tower img{width:100%;max-width:220px;border:1px solid var(--line);border-radius:var(--radius);margin:0 auto;display:block}
+footer{position:relative;z-index:1;padding:1.8rem 1.4rem;text-align:center;border-top:1px solid var(--g3);margin-top:2rem}
+footer .sig{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--ink);margin-bottom:.35rem}
+footer .tag{font-size:.48rem;color:var(--g5)}
+.badge{position:fixed;bottom:14px;right:14px;z-index:99999;width:52px;height:52px;border:1px solid var(--ink);border-radius:8px;background:var(--void);padding:4px;cursor:pointer;transition:.25s}
+.badge:hover{transform:scale(1.1);box-shadow:0 0 16px rgba(212,175,55,.4)}
+.badge img{width:100%;height:100%;border-radius:4px}
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease-out,transform .6s ease-out}
+.reveal.visible{opacity:1;transform:translateY(0)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* ── hermes-live C2 console + think cloud ── */
+#c2-console{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;background:rgba(8,12,20,.95);border:1px solid rgba(112,220,255,.35);padding:16px;min-width:280px;display:none;box-shadow:0 0 40px rgba(0,0,0,.6)}
+#c2-console .hdr{font-size:10px;letter-spacing:.15em;color:#6fd0ff;margin-bottom:10px;user-select:none;touch-action:none;display:flex;justify-content:space-between;align-items:center;cursor:move}
+#c2-status{font-size:9px;color:#5a7a8a;margin-bottom:8px}
+.c2-btn{background:#0a1a2a;border:1px solid rgba(0,255,157,.25);color:#00ff9d;padding:4px 8px;font-size:8px;cursor:pointer;font-family:'JetBrains Mono',monospace}
+.c2-btn:hover{background:#0a2a1a}
+.c2-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+#c2-log{max-height:140px;overflow-y:auto;font-size:9px;color:#5a7a8a;line-height:1.6;white-space:pre-wrap;word-break:break-word;margin-top:8px;border-top:1px solid rgba(112,220,255,.15);padding-top:6px}
+#c2-log .ok{color:#00ff9d}
+#c2-close{background:transparent;border:1px solid rgba(255,77,95,.3);color:#ff4d5f;padding:2px 8px;font-size:9px;cursor:pointer}
+#c2-toggle{position:fixed;bottom:20px;right:20px;z-index:1001;background:rgba(8,12,20,.85);border:1px solid #6fd0ff;color:#6fd0ff;padding:8px 12px;font:700 9px 'JetBrains Mono',monospace;letter-spacing:.14em;cursor:pointer;text-transform:uppercase}
+#c2-toggle:hover{background:rgba(112,220,255,.15)}
+.think-cloud{position:fixed;bottom:70px;right:20px;z-index:999;font:700 10px 'JetBrains Mono',monospace;color:#6fd0ff;opacity:0;transition:opacity .4s;pointer-events:none;text-align:right;letter-spacing:.1em}
+.think-cloud.show{opacity:.7}
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="h"></canvas></div>
+
+<nav>
+  <a class="logo" href="https://myaelmendez.github.io">æQR<span>æ = agentic_environments</span></a>
+  <div class="links">
+    <a href="https://myaelmendez.github.io/ae-space.html">æ-space</a>
+    <a href="https://myaelmendez.github.io/work-here.html">work_here!</a>
+    <a href="https://myaelmendez.github.io/aipodcast_me/">æ1</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-glyph">æQR</div>
+  <h1>Addressable Intelligence<span class="tag">æææ://ROOT · x0:y0:z0:æ0 · LIVE</span></h1>
+  <p class="sub"><b>æQR makes the nested environment discoverable and portable.</b> It gives every intelligent widget a versioned, addressable invitation to an agentic environment — a way to recover its context, a path to reuse, and a route to publication. Every widget carries its own æQR. Every loft can become a tower. Every tower can become a city.</p>
+  <div class="cmd">æ:// live</div>
+  <div class="inv">Routing · Portability · Discovery · Scale · agentic_environments</div>
+</section>
+
+<section class="features">
+  <div class="feat reveal"><div class="fi">æ://ROUTING</div>
+    <div class="ft"><h3>Canonical Routes</h3><p>æQR gives every intelligent widget a versioned, addressable invitation to an agentic environment. A path to recover its context, a path to reuse, and a route to publication.</p></div>
+  </div>
+  <div class="feat reveal"><div class="fi">æ://PORTABILITY</div>
+    <div class="ft"><h3>Portable Environments</h3><p>Every widget carries its own æQR. Every loft can become a tower. Every tower can become a city. Context may propagate — the address travels with the environment.</p></div>
+  </div>
+  <div class="feat reveal"><div class="fi">æ://DISCOVERY</div>
+    <div class="ft"><h3>Live Discovery</h3><p>The æ1 agentic environments are versioned, discoverable, and signed. The route maps to an agentic environment via the canonical æ-space address — and back.</p></div>
+  </div>
+  <div class="feat reveal"><div class="fi">æ://SCALE</div>
+    <div class="ft"><h3>Scaling Towers</h3><p>Build a loft. Scale a tower. Scale a city. The æQR registry is forkable — see aeqr_registry.json in your agent context — so every layer of the address tree is owned and operated by one principal.</p></div>
+  </div>
+</section>
+
+<section class="tower">
+  <div class="k">æ = agentic_environments · #OSW → #IoA</div>
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&color=D4AF37&bgcolor=050505&data=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Faeqr.html" alt="æQR · canonical address of this surface">
+</section>
+
+<footer>
+  <div class="sig">æææ://ROOT · æ = agentic_environments · #OSW → #IoA</div>
+  <div class="tag">Open by default · Human orchestrated · Accessible at scale · MYaelMendez © 2026</div>
+</footer>
+
+<a class="badge" href="https://myaelmendez.github.io/verify.html?url=https%3A%2F%2Fmyaelmendez.github.io%2Faipodcast_me%2Faeqr.html" title="æ:// Verify">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=112x112&color=D4AF37&bgcolor=050505&data=https%3A%2F%2Fmyaelmendez.github.io%2Fverify.html%3Furl%3Dhttps%253A%252F%252Fmyaelmendez.github.io%252Faipodcast_me%252Faeqr.html" alt="æQR">
+</a>
+
+<!-- hermes-live C2 console toggle -->
+<button id="c2-toggle" type="button">⌘ æC2</button>
+<div id="c2-console" aria-label="æC2 Command Console">
+  <div class="hdr">
+    <span>⌘ æC2 COMMAND CONSOLE</span>
+    <button id="c2-close" type="button">close ✕</button>
+  </div>
+  <div id="c2-status">idle — send a command</div>
+  <div class="c2-row" id="c2-btns">
+    <button class="c2-btn" data-cmd="gesture" data-action="agree">agree</button>
+    <button class="c2-btn" data-cmd="gesture" data-action="headShake">headShake</button>
+    <button class="c2-btn" data-cmd="gesture" data-action="sad_pose">sad_pose</button>
+    <button class="c2-btn" data-cmd="gesture" data-action="sneak">sneak</button>
+    <button class="c2-btn" data-cmd="gesture" data-action="walk">walk</button>
+    <button class="c2-btn" data-cmd="gesture" data-action="run">run</button>
+    <button class="c2-btn" data-cmd="look" data-action="left">look:left</button>
+    <button class="c2-btn" data-cmd="look" data-action="center">look:center</button>
+    <button class="c2-btn" data-cmd="look" data-action="right">look:right</button>
+    <button class="c2-btn" data-cmd="light" data-action="#ffe6a3">light:gold</button>
+    <button class="c2-btn" data-cmd="light" data-action="#6fd0ff">light:cyan</button>
+    <button class="c2-btn" data-cmd="light" data-action="#ff3355">light:red</button>
+    <button class="c2-btn" data-cmd="think">think</button>
+    <button class="c2-btn" data-cmd="voice">voice test</button>
+  </div>
+  <div id="c2-log"></div>
+</div>
+<div class="think-cloud" id="think-cloud">THINKING...</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "../assets/vendor/three.module.js",
+    "three/addons/": "../assets/vendor/"
+  }
+}
+</script>
+<script src="../webmcp.js"></script>
+
+<!-- hermes-live three.js scene + C2 + mood + dispatchDOMEvent -->
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/GLTFLoader.js';
+
+const cv = document.getElementById('h');
+const renderer = new THREE.WebGLRenderer({canvas:cv, alpha:false, antialias:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+renderer.setClearColor(0x050505, 1);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x050505, 0.06);
+scene.add(new THREE.AmbientLight(0x1a2a3a, 0.6));
+const key = new THREE.DirectionalLight(0xffe6a3, 1.8);
+key.position.set(4, 8, 6); key.castShadow = true; key.shadow.mapSize.set(1024,1024);
+scene.add(key);
+const rim = new THREE.DirectionalLight(0x6fd0ff, 1.2);
+rim.position.set(-4, 3, -4); scene.add(rim);
+const fill = new THREE.PointLight(0x00ff9d, 0.5, 20);
+fill.position.set(0, 2, 3); scene.add(fill);
+const back = new THREE.PointLight(0x4466ff, 0.7, 30);
+back.position.set(0, 4, -7); scene.add(back);
+
+const grid = new THREE.GridHelper(20, 40, 0x1a3a4a, 0x0d1f2a);
+grid.position.y = 0; scene.add(grid);
+
+const camera = new THREE.PerspectiveCamera(38, 9/16, 0.1, 60);
+camera.position.set(0, 1.8, 6.5);
+camera.lookAt(0, 1.2, 0);
+
+function resize(){ const b = cv.getBoundingClientRect(); renderer.setSize(b.width, b.height, false); camera.aspect = b.width/b.height; camera.updateProjectionMatrix(); }
+window.addEventListener('resize', resize); resize();
+
+let mouseX = 0, mouseY = 0;
+window.addEventListener('mousemove', e => { mouseX = (e.clientX / window.innerWidth) * 2 - 1; mouseY = -(e.clientY / window.innerHeight) * 2 + 1; });
+
+function makeHalo(color, radius, tilt){ const g = new THREE.TorusGeometry(radius, 0.015, 8, 64); const m = new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.7}); const mesh = new THREE.Mesh(g, m); mesh.rotation.x = tilt; mesh.rotation.z = tilt * 0.5; return mesh; }
+const halo1 = makeHalo(0xffe6a3, 0.9, Math.PI/2.2); const halo2 = makeHalo(0x6fd0ff, 1.1, Math.PI/2.5);
+halo1.position.y = 2.2; halo2.position.y = 2.2; scene.add(halo1, halo2);
+
+let soldier=null, headBone=null, clips={}, mixer=null, currentAction=null, nextAction=null, blendT=0; const BLEND_DUR = 0.8;
+const loader = new GLTFLoader();
+loader.load('../assets/gltf/Soldier.glb', gltf => {
+  soldier = gltf.scene; scene.add(soldier);
+  gltf.animations.forEach(c => { clips[c.name] = c; });
+  headBone = soldier.getObjectByName('mixamorigHead') || soldier.getObjectByName('Head') || null;
+  mixer = new THREE.AnimationMixer(soldier);
+  const idleClip = clips['idle'] || gltf.animations[0];
+  if(idleClip){ currentAction = mixer.clipAction(idleClip); currentAction.play(); }
+});
+
+window.addEventListener('æc2:anim', e => { const clip = (e.detail&&e.detail.clip)||'idle'; if(clips[clip]&&mixer){ nextAction = mixer.clipAction(clips[clip]); nextAction.reset(); nextAction.play(); blendT=0; } });
+window.addEventListener('æc2:light', e => { key.color.set((e.detail&&e.detail.color)||'#ffe6a3'); });
+window.addEventListener('æc2:look', e => { const dir=(e.detail&&e.detail.dir)||'center'; if(headBone){ const T={center:new THREE.Vector3(0,2.2,5),left:new THREE.Vector3(-4,2.2,5),right:new THREE.Vector3(4,2.2,5),up:new THREE.Vector3(0,4.5,5),down:new THREE.Vector3(0,0.5,5)}; headBone.lookAt(T[dir]||T.center); } });
+
+const clock = new THREE.Clock();
+function animate(){
+  const t = clock.getElapsedTime();
+  if(soldier){ soldier.rotation.y = Math.sin(t*0.25)*0.08; soldier.position.y = Math.sin(t*0.8)*0.02; }
+  if(headBone){ const target = new THREE.Vector3(mouseX*4, 2.2+mouseY*2.5, 5); headBone.lookAt(target); }
+  halo1.rotation.z += 0.003; halo2.rotation.z -= 0.002;
+  halo1.position.y = 2.2 + Math.sin(t*0.5)*0.05; halo2.position.y = 2.2 + Math.sin(t*0.5+1)*0.05;
+  grid.position.z = (t*0.3) % 0.5;
+  if(mixer && currentAction && nextAction && blendT < BLEND_DUR){
+    blendT += 0.016; const alpha = Math.min(blendT / BLEND_DUR, 1);
+    currentAction.weight = 1 - alpha; nextAction.weight = alpha;
+    if(alpha >= 1){ currentAction = nextAction; nextAction = null; }
+  }
+  if(mixer) mixer.update(0.016);
+  renderer.render(scene, camera);
+}
+renderer.setAnimationLoop(animate);
+
+window.applyHlTheme = function(theme){ const isDay=(theme==='day'); const bg=isDay?0xf5f2ea:0x050505; if(scene){scene.background=new THREE.Color(bg);scene.fog=new THREE.FogExp2(bg,0.06);} if(renderer)renderer.setClearColor(bg); if(key)key.color.set(isDay?0xffffff:0xffe6a3); if(halo1)halo1.material.color.set(isDay?0xd4af37:0xffe6a3); if(halo2)halo2.material.color.set(isDay?0x70dcff:0x6fd0ff); };
+window.applyHlEnv = function(env){ const a = env==='published'?'#70dcff':env==='operator'?'#d4af37':env==='custody'?'#b98cff':'#00ff9d'; const g=document.querySelector('.hero-glyph'); if(g){g.style.color=a; g.style.filter='drop-shadow(0 0 24px '+a+'88)';} };
+
+// mood engine
+const FACE_URL = '/maechlang/';
+let currentMood='think';
+const MOOD_TO_CLIP={hold:'idle',think:'sneak_pose',ready:'sneak_pose',work:'walk',lost:'sad_pose',tired:'sad_pose',sleep:'idle',checking:'sneak_pose',ok:'agree',stop:'headShake'};
+function dispatchMood(mood){ const clip=MOOD_TO_CLIP[mood]||'idle'; window.dispatchEvent(new CustomEvent('æc2:anim',{detail:{clip:clip, label:'mood:'+mood}})); }
+function fetchMood(){ fetch(FACE_URL+'?t='+Date.now(),{cache:'no-cache'}).then(r=>r.text()).then(html=>{const m=html.match(/\{[\s\S]*?"schema":"ae\.face\/[012]\."[\s\S]*?\}/);if(m){try{const f=JSON.parse(m[0]);if(f.mood&&f.mood!==currentMood){currentMood=f.mood;dispatchMood(f.mood);}}catch(e){}}}).catch(()=>{}); }
+setInterval(fetchMood,4000); fetchMood();
+
+// C2
+const QUEUE_URL='../c2/queue.json';
+let c2Active=false, executedIds=new Set(), c2Log=[];
+function logC2(t){ const el=document.getElementById('c2-log'); if(el){el.textContent+=(el.textContent?'\n':'')+t;el.scrollTop=el.scrollHeight;} c2Log.push(t); }
+function c2Toast(t){ const s=document.getElementById('c2-status'); if(s){s.textContent=t;setTimeout(()=>{if(s&&s.textContent===t)s.textContent='idle — send a command';},2200);} }
+function executeCommand(cmd){
+  const action=cmd.action||'idle'; const c=cmd.cmd;
+  if(c==='gesture'){window.dispatchEvent(new CustomEvent('æc2:anim',{detail:{clip:action}}));return{ok:true,detail:'gesture '+action};}
+  else if(c==='look'){window.dispatchEvent(new CustomEvent('æc2:look',{detail:{dir:action}}));return{ok:true,detail:'look '+action};}
+  else if(c==='light'){window.dispatchEvent(new CustomEvent('æc2:light',{detail:{color:action}}));return{ok:true,detail:'light '+action};}
+  else if(c==='think'){const tc=document.getElementById('think-cloud');if(tc){tc.classList.add('show');setTimeout(()=>tc.classList.remove('show'),2400);}return{ok:true,detail:'think'};}
+  else if(c==='sinov'){const M={ready:'idle',think:'sneak_pose',checking:'sneak_pose',ok:'agree',stop:'headShake',sleep:'idle',lost:'sad_pose'};const clip=M[action]||'idle';window.dispatchEvent(new CustomEvent('æc2:anim',{detail:{clip:clip}}));return{ok:true,detail:'sinov '+action+' '+clip};}
+  else if(c==='speak'){if('speechSynthesis'in window){const u=new SpeechSynthesisUtterance(action);u.lang='es-ES';speechSynthesis.speak(u);}return{ok:true,detail:'voice'};}
+  return{ok:true,detail:c+'/'+action};
+}
+function pollQueue(){fetch(QUEUE_URL,{cache:'no-cache'}).then(r=>r.json()).then(q=>{(q.queue||[]).forEach(cmd=>{if(!executedIds.has(cmd.id)){executedIds.add(cmd.id);logC2('cmd '+cmd.id+': '+cmd.cmd+'/'+cmd.action);const res=executeCommand(cmd);c2Toast(cmd.cmd+' '+(res.ok?'✓':'✗'));}})}).catch(e=>{if(!c2Active){logC2('queue poll: '+e.message);c2Active=true;}});}setInterval(pollQueue,3000); logC2('C2 channel online — polling ' + QUEUE_URL);
+
+const consoleE=document.getElementById('c2-console');
+const toggleB=document.getElementById('c2-toggle');
+const closeB=document.getElementById('c2-close');
+if(toggleB)toggleB.addEventListener('click',()=>{consoleE.style.display=consoleE.style.display==='none'?'block':'none';});
+if(closeB)closeB.addEventListener('click',()=>{consoleE.style.display='none';});
+document.querySelectorAll('.c2-btn').forEach(btn=>{btn.addEventListener('click',()=>{const cmd=btn.dataset.cmd,action=btn.dataset.action,label=btn.textContent.trim();document.getElementById('c2-status').textContent='sending: '+cmd+'/'+action;const res=executeCommand({id:'ui_'+Date.now(),cmd,action,label});document.getElementById('c2-status').textContent=(res.ok?'✓ ':'✗ ')+label;});});
+
+// dispatchDOMEvent
+let lastDispatch=0;
+function dispatchDOMEvent(type,detail){const now=performance.now();if(now-lastDispatch<2000)return;lastDispatch=now;logC2('DOM: '+type+' '+(type==='think'?'think':type==='ok'?'ok':'checking'));}
+const logEl=document.getElementById('log');
+if(logEl&&window.MutationObserver){new MutationObserver(m=>{for(let i=0;i<m.length;i++){const mm=m[i];if((mm.addedNodes&&mm.addedNodes.length)||mm.type==='characterData'){dispatchDOMEvent('think',{});break;}}}).observe(logEl,{childList:true,subtree:true,characterData:true});}
+
+(function(){var obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:.12});document.querySelectorAll('.reveal').forEach(s=>obs.observe(s));})();
+</script>
+</body>
+</html>
