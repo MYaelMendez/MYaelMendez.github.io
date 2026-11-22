@@ -145,6 +145,36 @@ footer a{color:var(--gold);text-decoration:none}
   </section>
 
   <section>
+    <h2>DEMO <span>GENERATIVA</span></h2>
+    <p class="lead">La misma geometría que tinySVG deriva, pintada con cuatro lenguajes
+    de diseño. <b>Regenerar</b> cambia la semilla: todo lo que ves es SVG declarativo,
+    y la tipografía sigue en el suelo de 12 px porque el viewBox lo sigue decidiendo
+    el instrumento.</p>
+    <div class="lab">
+      <div class="row">
+        <label>técnica</label>
+        <select id="gt" style="background:#0a0905;color:#7bdff2;border:1px solid rgba(123,223,242,.4);
+              border-radius:6px;padding:6px 10px;font-family:inherit;font-size:.78rem">
+          <option value="clean">clean — la constelación base</option>
+          <option value="naive">naive — trazo tembloroso (2026)</option>
+          <option value="iso">isometric — nodos como cubos</option>
+          <option value="mesh">mesh — gradiente multipunto</option>
+          <option value="warp">warp — ruido procedural</option>
+        </select>
+        <button id="reg" style="background:transparent;color:var(--gold);border:1px solid var(--gold);
+              border-radius:6px;padding:6px 14px;font-family:inherit;font-size:.78rem;cursor:pointer">
+          ⟳ regenerar</button>
+        <div class="val" id="seedv">semilla 1</div>
+      </div>
+      <div class="kv"><span class="k">viewBox</span><span class="v" id="g-vb">—</span></div>
+      <div class="kv"><span class="k">tipografía efectiva</span><span class="v" id="g-px">—</span></div>
+      <div class="kv"><span class="k">dictamen tinySVG</span><span class="v" id="g-vd">—</span></div>
+    </div>
+    <div class="demo" style="margin-top:12px"><svg id="gen" viewBox="0 0 1590 1034"
+      role="img" aria-label="constelacion generativa"></svg></div>
+  </section>
+
+  <section>
     <h2>EL LABORATORIO DE <span>FILTROS</span></h2>
     <p class="lead">Cuatro técnicas que la plataforma lleva años teniendo y casi nadie
     usa: <b>feTurbulence</b> genera ruido Perlin procedural y <b>feDisplacementMap</b>
@@ -310,6 +340,72 @@ function drawFilters() {
 }
 ['ff','bf','sc','sd','hz'].forEach(id =>
   document.getElementById(id).addEventListener('input', drawFilters));
+
+// ── demo generativa ─────────────────────────────────────────────────────
+let SEED = 1;
+const rnd = () => (SEED = (SEED * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+function wob(x, amt) { return x + (rnd() - .5) * amt; }
+function isoCube(x, y, r) {
+  const h = r * .866;
+  const t = `M${x} ${y - r} L${x + h} ${y - r/2} L${x + h} ${y + r/2} L${x} ${y + r} L${x - h} ${y + r/2} L${x - h} ${y - r/2} Z`;
+  return `<path d="${t}" fill="rgba(212,175,55,.10)" stroke="#D4AF37" stroke-width="2"/>` +
+    `<path d="M${x} ${y - r} L${x + h} ${y - r/2} L${x} ${y} Z" fill="rgba(123,223,242,.18)"/>` +
+    `<path d="M${x} ${y} L${x + h} ${y - r/2} L${x + h} ${y + r/2} Z" fill="rgba(191,90,242,.18)"/>` +
+    `<path d="M${x} ${y - r} L${x - h} ${y - r/2} L${x} ${y} Z" fill="rgba(212,175,55,.14)"/>`;
+}
+function drawGen() {
+  const kind = document.getElementById('gt').value;
+  SEED = 1 + Math.floor(rnd() * 1e6);
+  document.getElementById('seedv').textContent = 'semilla ' + SEED;
+  const rw = 707, font = 27;
+  const vw = viewBoxFor(rw), vh = Math.round(vw * .65);
+  const px = font * (rw / vw);
+  const svg = document.getElementById('gen');
+  svg.setAttribute('viewBox', '0 0 ' + vw + ' ' + vh);
+  document.getElementById('g-vb').textContent = vw + ' × ' + vh;
+  const pxEl = document.getElementById('g-px');
+  pxEl.textContent = px.toFixed(1) + ' px';
+  pxEl.className = 'v ' + (px >= FLOOR ? 'ok' : 'bad');
+  const vd = document.getElementById('g-vd');
+  vd.textContent = px >= FLOOR ? 'PUBLICABLE' : 'REFUSADO';
+  vd.className = 'v ' + (px >= FLOOR ? 'ok' : 'bad');
+
+  const n = 20, nodeR = 58, hubR = Math.round(nodeR * 2.2);
+  const pts = positions(n, vw, vh, nodeR, hubR);
+  let out = '';
+  if (kind === 'mesh' || kind === 'warp')
+    out += '<rect width="100%" height="100%" fill="url(#mg1)"/>'
+         + '<rect width="100%" height="100%" fill="url(#mg2)"/>'
+         + '<rect width="100%" height="100%" fill="url(#mg3)" opacity=".8"/>';
+  if (kind === 'warp') out += `<rect width="100%" height="100%" filter="url(#f-warp)" opacity=".35"/>`;
+  out += `<circle cx="${vw/2}" cy="${vh/2}" r="${hubR}" fill="none" stroke="rgba(212,175,55,.28)"/>`;
+  pts.forEach(([x, y], i) => {
+    const col = ['#D4AF37','#00e5ff','#39ff14','#ff4d6d','#bf5af2'][i % 5];
+    if (kind === 'naive') {
+      // hand-drawn wobble: the 2026 trend — a line that is not a line
+      let d = `M${wob(x, 9)} ${wob(y, 9)}`;
+      for (let k = 1; k <= 5; k++) {
+        const t = k / 5;
+        d += ` L${wob(x + (vw/2 - x) * t, 12)} ${wob(y + (vh/2 - y) * t, 12)}`;
+      }
+      out += `<path d="${d}" fill="none" stroke="${col}" stroke-width="2" stroke-opacity=".55"/>`;
+    } else if (kind === 'clean' || kind === 'mesh' || kind === 'warp') {
+      out += `<line x1="${x.toFixed(1)}" y1="${y.toFixed(1)}" x2="${vw/2}" y2="${vh/2}" stroke="${col}" stroke-opacity=".16"/>`;
+    }
+    if (kind === 'iso') out += isoCube(x, y, nodeR);
+    else out += `<g transform="translate(${x.toFixed(1)},${y.toFixed(1)})">`
+      + `<circle r="${nodeR}" fill="rgba(5,5,5,.72)" stroke="${col}" stroke-width="2.2"/>`
+      + `<text y="9" text-anchor="middle" fill="#e8e8e8" font-size="${font}" `
+      + `font-family="monospace">n${i}</text></g>`;
+    if (kind === 'iso')
+      out += `<text x="${x.toFixed(1)}" y="${(y + nodeR + 34).toFixed(1)}" text-anchor="middle" `
+        + `fill="${col}" font-size="19" font-family="monospace">n${i}</text>`;
+  });
+  svg.innerHTML = out;
+}
+document.getElementById('gt').addEventListener('input', drawGen);
+document.getElementById('reg').addEventListener('click', drawGen);
+drawGen();
 </script>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
