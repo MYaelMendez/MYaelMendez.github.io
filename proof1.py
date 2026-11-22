@@ -55,13 +55,21 @@ def duration(p: Path) -> float:
 
 def resolve_sources(spec: dict) -> list[dict]:
     b = spec['beats']
-    assets = sorted(Path(b['sources_dir']).glob(b['glob']), key=sha256_file)
-    if len(assets) < b['count']:
-        raise SystemExit(f"need {b['count']} sources, found {len(assets)}")
+    d = Path(b['sources_dir'])
+    if b.get('sources'):
+        assets = [d / n for n in b['sources']]
+        missing = [p.name for p in assets if not p.exists()]
+        if missing:
+            raise SystemExit(f'sources missing: {missing}')
+    else:
+        assets = sorted(d.glob(b['glob']), key=sha256_file)
+        if len(assets) < b['count']:
+            raise SystemExit(f"need {b['count']} sources, found {len(assets)}")
+        assets = assets[:b['count']]
     out = []
     labels = b.get('labels', [])
     expected = b.get('expected', [])
-    for i, p in enumerate(assets[:b['count']]):
+    for i, p in enumerate(assets):
         s = sha256_file(p)
         if i < len(expected) and expected[i].get('sha256') not in (None, s):
             raise SystemExit(
@@ -145,7 +153,7 @@ def overlay(img, spec, beat, total, src_name, src_sha, fi, n_per, label=None):
 
     d.text((52, band_top + 104), o.get('footer', 'GPL'), font=f_tiny, fill=DIM)
     d.text((52, band_top + 146),
-           f'asset {beat:02d}/{total:02d} · checked back · sha256',
+           f'asset {beat:02d}/{total:02d} · checked back · sha256[:32]',
            font=f_tiny, fill=GOLD)
     return img
 

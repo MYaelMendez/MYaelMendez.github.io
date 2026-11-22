@@ -1252,3 +1252,29 @@ source's sha256 but does not refuse when a source no longer matches the spec's
 record. A film can therefore be rendered from a changed asset and still pass.
 **change** — add an optional `expected_sha256` to each beat; the renderer must
 refuse on mismatch. Until then, the receipt cites the spec, not the asset.
+
+
+## 36. ORACLES/09 — the instrument panel (2026-11-21)
+
+`proof/film/1` instance 2, and the first proof about the laboratory itself:
+nine beats, one per oracle, each labelled with that oracle's test count.
+
+- Film `oracles-09.mp4`: 9.000 s, 720x1280, 216 frames, 4,368,533 B.
+  sha256 `26322b5e796fe5fd9ec79ee5082180d1df27c2c88f7eb533cee7fc0a2802f3da`.
+  Gate PASS — luminance 28.1, motion 6.411, black 0.0%.
+- Spine (test counts): tinycuda 22, tinymujoco 21, tinycan 18, tinycudavideo 22,
+  tinycontinuum 0, tinyfilmmemory 0, tinyplugin 0, tinygpu 15, tinypython 30 —
+  128 tests total, three zeroes shown rather than hidden.
+- Format extension: `beats.sources` (explicit list) alongside `glob`.
+- CHAIN/09 re-rendered under the same rule: sha256
+  `e834786663a8f060558a6156f77742e86d72f80eccf27c4e85243e4edc7080cc`.
+
+**proved** — a proof can make the apparatus its subject, and the panel's gaps are
+legible in-frame: the format behaved as designed.
+**broke** — the in-frame digest was labelled `sha256` while showing 32 hex (a
+truncation); the hash was right, the label was wrong.
+**change** — footer now `sha256[:32]`; format law 4 states the truncation;
+CHAIN/09 re-rendered so the live artefact matches the rule.
+
+Not verified: browser playback; whether the three 0-test oracles should be
+tested next (recorded as the obvious follow-up).

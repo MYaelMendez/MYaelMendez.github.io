@@ -67,7 +67,9 @@ research programme. A film made in it is a **proof**.
 2. Every source is cited **in-frame**, not only in the manifest.
 3. A gate refusal is repaired in the spec (warmer panel, shorter voice, fewer
    beats) — never by lowering a threshold.
-4. A proof without its receipt is not a proof.
+4. A proof without its receipt is not a proof. The in-frame digest is the first
+   32 hex of the sha256 (128 bits — the width 720 can carry); the full 64 hex
+   lives in the receipt. Never label a truncation as the whole hash.
 5. **A source that no longer matches the spec's `expected` sha256 refuses to
    render.** The format does not silently re-source.
 6. A run that uses the format appends **proved / broke / change** to the skill's
