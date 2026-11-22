@@ -1538,3 +1538,26 @@ mux delta 0.0, citation `ae://film/verbs-09`. Live 200, bytes re-hashed equal.
 against an 8.6 s max); the renderer refused each time, correctly. Sized to the
 picture at ~0.43 s/word.
 **change** - the verb surface is now a film, not a table.
+
+
+## 46. The post — "The film is an instrument" (2026-11-22)
+
+Published a post on the truth surface: the improvement, stated plainly.
+
+    https://myaelmendez.github.io/the-film-is-an-instrument.html
+    blob 6310eae70bb5343e0953a750a2870dc749674630 - 11,251 B
+    live 200, bytes re-hashed equal (4d9451ac...)
+
+It carries the loop, the measured table (tinyONNX / tinyVISION / tinyLAB /
+tinyPOLICY / VERBS-09), the nine verbs done and refused, the body-frame finding,
+both films inline, and an explicit 'What is not true' section: we did not train
+the policy, did not write the renderer or the supervision engine, no robot
+moved, the loop closes on process not physics, and the 65-scenario bench is
+unpulled.
+
+**proved** - the improvement is publishable as a surface, not a claim: every
+number on the page is one we measured this session and can re-derive.
+**broke** - the first live check returned 200 with size_download 0 (a curl
+artifact); the real bytes were 11,251 and matched.
+**change** - the estate now has a post that states the method and its limits in
+the same page.
