@@ -1954,3 +1954,36 @@ and points at the next development instead of stopping at the achievement.
 the blob was authoritative, the CDN lagged. Re-checked until equal.
 **change** - the post is a living document: it corrects itself and names the
 next build.
+
+
+## 58. MORPHOLOGIES/01 — bodies, not costumes (2026-11-22)
+
+The heterogeneous fleet, first cut. Three real morphologies, each from its own
+GLB, rendered as a turntable on a new surface (`morphologies.html`, three.js +
+GLTFLoader, captured over CDP).
+
+| body | source | state | lit |
+|---|---|---|---|
+| asimov | asimov-web.glb | HAS A POLICY - walks | 15.8% |
+| xbot | Xbot.glb | DECLARED - no policy | 13.7% |
+| soldier | Soldier.glb | DECLARED - no policy | 8.0% |
+
+Only one of the three has a policy. The other two are DECLARED and WAITING -
+that is the honest fleet.
+
+sha256 `1ca9d621cb92a3024131673d50eda478fbb8a3618bbb953290e5c498c21ae334`,
+578,976 B, gate PASS (lum 24.57, mov 0.682, black 0.0), 3 beats x 3 s.
+
+TWO FINDINGS:
+- `fleet.html` is the DEVICE mixture (MoD), not robots. Name collision avoided;
+  the new surface is `morphologies.html`.
+- `kira.glb` is Draco-compressed and no decoder is vendored -> it refuses to
+  load. Xbot/Soldier/asimov-web load fine. kira stays OPEN until a decoder is
+  vendored.
+
+**proved** - three different bodies render and are graded; the mixture is no
+longer one silhouette.
+**broke** - the first capture returned LOAD FAILED (Draco); diagnosed by reading
+the GLB JSON chunk (`KHR_draco_mesh_compression`).
+**change** - the cast can now be heterogeneous; the next cut adds the missing
+bodies and the missing policies.
