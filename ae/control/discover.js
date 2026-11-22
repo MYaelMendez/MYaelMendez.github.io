@@ -85,11 +85,11 @@
     return out;
   }
 
-  function build() {
+  var ready = Promise.all(FILES.map(fetchJson)).then(function () {
     index = flatten();
     renderCounts();
-    render(document.getElementById('discover-q').value);
-  }
+  });
+  window.aeReady = ready;
 
   function counts() {
     var by = {};
@@ -139,7 +139,7 @@
   function mount() {
     var input = document.getElementById('discover-q');
     if (input) input.addEventListener('input', function () { render(input.value); });
-    Promise.all(FILES.map(fetchJson)).then(build);
+    ready.then(function () { render(document.getElementById('discover-q').value); });
     window.aeFind = search;
     window.aeDiscover = render;
     window.aeIndexCounts = function () { return counts(); };
