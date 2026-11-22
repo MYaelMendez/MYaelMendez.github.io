@@ -2267,3 +2267,23 @@ Live: 200, 25,117 B, bytes equal.
   phishing-shaped, but it is still a published secret form.
 - The broker is a background process; it will not survive a reboot.
 - Export writes plaintext; the gate covers it, but the buttons remain.
+
+
+## 65. The origin, modernized (2026-11-22)
+
+`index.html` stops being a 2024 link list and becomes the estate landing.
+
+- Hero: "One estate. Every domain. One authority." + a **measured line**
+  (20 rooms / 139 films / 212 surfaces / 2 retractions / 0 hardware moved),
+  every figure backed by `robotics.json` or `tinyhq.html` - not asserted.
+  (An earlier "200 tests" was removed: no source measures a test count.)
+- **Four doors** router under the hero: tinyHQ / the laboratory / the domains /
+  the archive. One capability per door.
+
+Live: 200, 30,323 B, bytes equal, 4 doors present.
+
+**proved** - the landing opens with what is true and routes by capability.
+**broke** - the hero still named the pre-laboratory mixture; the measured line
+  first draft cited a number nothing measures.
+**change** - the hub is now a router, and the estate's gaps are on the front
+page rather than in a footnote.
