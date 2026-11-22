@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>morphologies:// — five bodies, one authority</title>
+<style>
+  html,body{margin:0;background:#050505;height:100%;overflow:hidden}
+  #view{display:block;width:720px;height:1280px}
+  #lbl{position:absolute;left:0;right:0;bottom:26px;text-align:center;
+       font:700 15px 'JetBrains Mono',monospace;color:#D4AF37;letter-spacing:.22em}
+  #sta{position:absolute;left:0;right:0;top:22px;text-align:center;
+       font:12px 'JetBrains Mono',monospace;color:#6f6a5c;letter-spacing:.16em}
+</style>
+</head>
+<body>
+<canvas id="view" width="720" height="1280"></canvas>
+<div id="lbl"></div>
+<div id="sta"></div>
+<script type="importmap">
+{"imports":{"three":"./assets/vendor/three.module.js","three/webgpu":"./assets/vendor/three.module.js"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from './assets/vendor/GLTFLoader.js';
+
+const q = new URLSearchParams(location.search);
+const GLB = q.get('glb') || 'assets/gltf/asimov-web.glb';
+const NAME = q.get('name') || GLB.split('/').pop();
+const STATE = q.get('state') || 'DECLARED';
+
+const W = 720, H = 1280;
+const renderer = new THREE.WebGLRenderer({canvas: document.getElementById('view'), antialias:true});
+renderer.setPixelRatio(1); renderer.setSize(W, H, false);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x050505);
+scene.fog = new THREE.Fog(0x050505, 6, 16);
+const camera = new THREE.PerspectiveCamera(38, W/H, 0.05, 80);
+
+scene.add(new THREE.HemisphereLight(0xfff2cc, 0x0a0a0a, 0.55));
+const key = new THREE.DirectionalLight(0xffe9b0, 2.1);
+key.position.set(2.5, 3.5, 4); key.castShadow = true;
+key.shadow.mapSize.set(1024,1024);
+key.shadow.camera.near=0.1; key.shadow.camera.far=24;
+key.shadow.camera.left=-3; key.shadow.camera.right=3;
+key.shadow.camera.top=3; key.shadow.camera.bottom=-3;
+scene.add(key);
+const rim = new THREE.DirectionalLight(0x00ccff, 0.9); rim.position.set(-3,1.5,-2.5); scene.add(rim);
+
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(40,40),
+  new THREE.MeshStandardMaterial({color:0x14110b, roughness:.92, metalness:.05}));
+floor.rotation.x = -Math.PI/2; floor.receiveShadow = true; scene.add(floor);
+const grid = new THREE.GridHelper(12, 24, 0xD4AF37, 0x2a2416);
+grid.position.y = 0.001; grid.material.transparent = true; grid.material.opacity = .35; scene.add(grid);
+
+let root = null, box = null;
+function place(){
+  if(!root) return;
+  const c = box.getCenter(new THREE.Vector3());
+  const span = (box.max.y - box.min.y) || 1;
+  const dist = span * 1.5;
+  camera.position.set(dist*0.42, c.y + span*0.22, dist*0.91);
+  camera.lookAt(c.x, c.y, c.z);
+  root.position.set(-c.x, -box.min.y, -c.z);
+}
+window.__info = () => box ? {name:NAME, state:STATE,
+  span:+((box.max.y-box.min.y).toFixed(3)), tris:renderer.info.render.triangles} : null;
+
+new GLTFLoader().load(GLB, (g) => {
+  root = g.scene;
+  root.traverse(o => { if(o.isMesh){ o.castShadow = true; o.receiveShadow = true;
+    o.material = new THREE.MeshStandardMaterial({color:0x9aa0a8, roughness:.42, metalness:.72}); }});
+  box = new THREE.Box3().setFromObject(root);
+  document.getElementById('lbl').textContent = NAME;
+  document.getElementById('sta').textContent = STATE;
+  place(); renderer.render(scene, camera);
+}, undefined, (e) => { document.getElementById('sta').textContent = 'LOAD FAILED'; console.error(e); });
+
+window.__renderFrame = function(i, total){
+  if(!root) return false;
+  const t = i / Math.max(1, total-1);
+  root.rotation.y = t * Math.PI * 2;
+  renderer.render(scene, camera);
+  return true;
+};
+</script>
+</body>
+</html>
