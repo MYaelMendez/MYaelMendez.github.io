@@ -2415,3 +2415,16 @@ component mounts without a runtime error. Needs one operator reload/click.
 **change** — the non-ASCII staging rule is now load-bearing in a second place:
 any MuJoCo-backed surface on this estate must stage `C:\æ\...` models to an
 ASCII path. Applied conditionally (ASCII models run in place).
+
+## 2026-11-22 · byte-receipt (source local, intentional)
+
+`vidæo/vidæo.py` gate_verify now emits `byte_receipt = sha256(whole MP4)` in
+addition to the historical sampled-frame `receipt`. Proven by sabotage: one
+metadata byte flip left `receipt=da1150d7…` identical while `byte_receipt`
+changed `d5218249… → 9a6b86cb…`. `vidæo/tests/test_byte_receipt.py`: 3/3 pass.
+The original receipt is untouched, so every sealed film still verifies.
+
+**Deploy state:** none — `vidæo/` is intentionally in `.gitignore` (local
+toolchain), so this gate is source-local by design. Do not `-f` it into the
+public repo. Continuity records it here so the next agent knows the guard
+exists locally even though GitHub does not carry it.
