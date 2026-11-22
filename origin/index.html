@@ -227,16 +227,16 @@ html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'J
 
   <section class="aeportal" aria-label="tiny* sovereign instruments">
     <div class="ae-marquee" aria-label="tiny* family ticker"><div class="ae-track">🛰️ TINY* · LA FAMILIA　 🏢 TINYHQ · 20 ROOMS　 🧬 TINYÆ · MEASURE-AND-REFUSE　 ⚡ TINYCUDA · RASTER DETERMINISTA　 🎞️ TINYCUDAVIDEO　 🤖 TINYASIMOV · C2 GATES　 🦆 TINYGPUGbot　 🧠 TINYONNX　 📦 TINYREPOFILM　 🎙️ TINYVOCA　 🛰️ TINY* · LA FAMILIA　 🏢 TINYHQ · 20 ROOMS　 🧬 TINYÆ · MEASURE-AND-REFUSE　 ⚡ TINYCUDA · RASTER DETERMINISTA　 🎞️ TINYCUDAVIDEO　 🤖 TINYASIMOV · C2 GATES　 🦆 TINYGPUGbot　 🧠 TINYONNX　 📦 TINYREPOFILM　 🎙️ TINYVOCA　</div></div>
-    <div class="eyebrow">#OSW · ONE PREFIX · TWENTY INSTRUMENTS</div>
+    <div class="eyebrow" id="tiny-eyebrow">#OSW · ONE PREFIX · TWENTY INSTRUMENTS</div>
     <h2>tiny* · the sovereign family</h2>
-    <p>Twenty instruments, one prefix. Each measures and refuses: the doctor runs, and the result is on the door. <b>18 green · 2 not green</b> — measured, not declared.</p>
+    <p id="tiny-lede">Twenty instruments, one prefix. Each measures and refuses: the doctor runs, and the result is on the door. <b id="tiny-kpi">18 green · 2 not green</b> — measured, not declared.</p>
     <div class="ae-doors">
-      <a class="ae-link" href="./tiny.html"><strong>🛰️ tiny* · la familia</strong><small>el constellation completo · 20 members</small></a>
-      <a class="ae-link" href="./tinyhq.html"><strong>🏢 tinyHQ</strong><small>20 rooms · one capability each · doctors run</small></a>
+      <a class="ae-link" href="./tiny.html"><strong>🛰️ tiny* · la familia</strong><small id="tiny-members">el constellation completo · 20 members</small></a>
+      <a class="ae-link" href="./tinyhq.html"><strong>🏢 tinyHQ</strong><small id="tiny-rooms">20 rooms · one capability each · doctors run</small></a>
       <a class="ae-link" href="./tinyae.html"><strong>🧬 tinyæ</strong><small>the instrument family · measure-and-refuse</small></a>
-      <a class="ae-link" href="./tinyae-registry.json"><strong>📊 tinyæ registry</strong><small>18 green · 2 not green · derived 2026-11-22</small></a>
+      <a class="ae-link" href="./tinyae-registry.json"><strong>📊 tinyæ registry</strong><small id="tiny-reg">18 green · 2 not green · derived 2026-11-22</small></a>
     </div>
-    <div class="ae-principal">tiny* — measured, not declared · 18/20 green</div>
+    <div class="ae-principal" id="tiny-principal">tiny* — measured, not declared · 18/20 green</div>
   </section>
   <div class="mesh" id="mesh"></div>
   <div class="hint">MOVE WITH WASD / ARROWS · ⌘K FOCUS · æ IS THE AUTHORITY AXIS YOU STEER BY</div>
@@ -277,7 +277,6 @@ var AMB=[
   ['atlas synced · '+ATLAS.length+' addresses','c'],
   ['væult chain · 11/11 links answer','ok'],
   ['webmcp · 6 agent tools registered','ok'],
-  ['tiny* · 20 instruments · 18 green · 2 not green','ok'],
   ['tinyCUDA · deterministic CuPy raster · RTX 3050','c'],
   ['tinyHQ · 20 rooms · generated from tiny.html',''],
   ['authority axis · public → custody','g'],
@@ -299,12 +298,27 @@ function seedAmb(M){
     s.push([addr+' · '+nm+' · '+cat,AXC[lay]||'']);
   });
   s.push(['atlas synced · '+((M.count!=null)?M.count:list.length)+' addresses · one manifest · derived','g']);
-  s.push(['tiny* · 20 instruments · 18 green · 2 not green','ok']);
   s.push(['tinyCUDA · deterministic CuPy raster · RTX 3050','c']);
   s.push(['authority axis · public → published → operator → custody','g']);
   AMB=s;
 }
 fetch('ae-atlas.json',{cache:'no-cache'}).then(function(r){return r.json()}).then(seedAmb).catch(function(){});
+// the tiny* registry is the measured source: families / green / not_green.
+// Same contract as the atlas above — render whatever arrives, never a frozen number.
+function seedTiny(d){
+  if(!d||!d.families)return;
+  var f=d.families, g=d.green||0, n=d.not_green||0;
+  var put=function(id,txt){var e=document.getElementById(id);if(e)e.textContent=txt;};
+  put('tiny-kpi', g+' green · '+n+' not green');
+  put('tiny-eyebrow', '#OSW · ONE PREFIX · '+f+' INSTRUMENTS');
+  put('tiny-members', 'el constellation completo · '+f+' members');
+  put('tiny-rooms', f+' rooms · one capability each · doctors run');
+  put('tiny-reg', g+' green · '+n+' not green · derived '+String(d.derived_at||'').slice(0,10));
+  var p=document.getElementById('tiny-principal');
+  if(p)p.textContent='tiny* — measured, not declared · '+g+'/'+f+' green';
+  tickPush('tiny* · '+f+' instruments · '+g+' green · '+n+' not green','ok');
+}
+fetch('tinyae-registry.json',{cache:'no-cache'}).then(function(r){return r.json()}).then(seedTiny).catch(function(){});
 var _ai=0; function tickAmb(){var m=AMB[_ai++%AMB.length];tickPush(m[0],m[1])}
 function tickScroll(){var s=$('tstream'),pos=0;(function loop(){var half=s.scrollWidth/2;pos-=0.4;if(half>0&&-pos>=half)pos+=half;s.style.transform='translateX('+pos+'px)';requestAnimationFrame(loop)})()}
 
