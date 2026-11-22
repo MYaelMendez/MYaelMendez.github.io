@@ -1561,3 +1561,41 @@ number on the page is one we measured this session and can re-derive.
 artifact); the real bytes were 11,251 and matched.
 **change** - the estate now has a post that states the method and its limits in
 the same page.
+
+
+## 47. The camera fix — the film becomes a teacher (2026-11-22)
+
+Mirror neurons: humans learn by observing. A film meant to teach must carry the
+MOTION. Ours did not.
+
+THE DEFECT (rtx_asimov.py):
+
+    root[0,3] = 0.0   # camera tracks; the walk is in the legs
+    root[1,3] = 0.0
+
+The camera follows the body, so the film showed the GAIT and erased the PATH.
+tinyVISION measured 21 px of visual displacement against 3.118 m of physics.
+That was not agreement - it was CANCELLATION. The earlier `agree` claim ('the
+picture agrees with the physics') was overstated and is retracted here.
+
+THE FIX: `--free-root` - keep the base translation, hold the camera on the
+path's midpoint, pull back so the walk stays framed.
+
+MEASURED (walk, 9 s, 3.118 m):
+
+    camera tracks   21 px   (path erased)
+    free root      589 px   1 track - 216 frames - 189 px/m
+
+The film now carries the traversal, so the inverse (film -> path) becomes
+possible. The mirror loop is: trace -> film -> path -> compare.
+
+THE IMAGE: poster-916.png - 1080x1920 (9:16), gold on void, deterministic
+(PIL, no ML), sha256 `ec1abcea31868f5437792c24df0b10b2321d83d424c210533b3dbacff08ca2eb`.
+
+**proved** - the traversal is in the picture, and the number that proves it
+(21 -> 589 px) is measured, not asserted.
+**broke** - the free-root camera pulled back far enough that the accent blob fell
+under the tracker's area_min (2000); at 300 it tracks 1 blob over 216 frames.
+A detection floor is a parameter, not a constant.
+**change** - the film is a teacher of trajectory. The next instrument is the
+inverse: film -> path.
