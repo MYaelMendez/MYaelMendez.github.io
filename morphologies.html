@@ -22,11 +22,16 @@
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from './assets/vendor/GLTFLoader.js';
+import { DRACOLoader } from './assets/vendor/DRACOLoader.js';
 
 const q = new URLSearchParams(location.search);
 const GLB = q.get('glb') || 'assets/gltf/asimov-web.glb';
 const NAME = q.get('name') || GLB.split('/').pop();
 const STATE = q.get('state') || 'DECLARED';
+
+// kira.glb is Draco-compressed; the decoder is vendored, never fetched.
+const draco = new DRACOLoader().setDecoderPath('./assets/vendor/draco/');
+const loader = new GLTFLoader().setDRACOLoader(draco);
 
 const W = 720, H = 1280;
 const renderer = new THREE.WebGLRenderer({canvas: document.getElementById('view'), antialias:true});
@@ -66,7 +71,7 @@ function place(){
 window.__info = () => box ? {name:NAME, state:STATE,
   span:+((box.max.y-box.min.y).toFixed(3)), tris:renderer.info.render.triangles} : null;
 
-new GLTFLoader().load(GLB, (g) => {
+loader.load(GLB, (g) => {
   root = g.scene;
   root.traverse(o => { if(o.isMesh){ o.castShadow = true; o.receiveShadow = true;
     o.material = new THREE.MeshStandardMaterial({color:0x9aa0a8, roughness:.42, metalness:.72}); }});
