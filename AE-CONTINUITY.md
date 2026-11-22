@@ -2678,3 +2678,29 @@ logged before its list and pushed out by the rail's 12-entry cap (now logged aft
 
 **deploy** — pushed via `kanban_push.py`; `raw.githubusercontent.com` serves the card,
 the github.io CDN lagged (re-check before reporting 404).
+
+
+---
+
+## 2026-11-22 — code-mode as a machine surface (code.json + URL invocation)
+
+**source** — `code.json` (new, generated) · `tools/build_code_json.py` (new builder with
+`--check`) · `code.html` (`?cmd=<expr>` runs on load via `started()`) ·
+`tools/build_agent_card.py` (`code_mode` block) · `.well-known/agent-card.json` (regenerated) ·
+`ae/control/index-live.html` (intent route forwards `æ.*` / `find(` to code-mode).
+
+**Why.** Agents love code-mode because it is composable, but it only existed as an HTML
+terminal — unusable without scraping. `code.json` is the same DSL as **one parseable
+fetch**: 11 DSL verbs (derived from code.html's own help block, so they cannot drift),
+51 capabilities with addresses, 246 modules, 41 mesh tools, runtime. `code.html?cmd=`
+makes it invocable by URL; the console forwards `æ.*` there instead of reimplementing it.
+
+**tests** — `browser_exec`: `code.html?cmd=æ.find('asimov')` runs on load; console
+`æ.find('cuda')` logs `⌘ code-mode → …` and lands on `/code.html?cmd=…`; 404s none.
+CDN `curl` of `code.json` → 200, and filtering it locally returns 12 `asimov` hits with
+addresses. `--check` on both builders → `FRESH`.
+
+**Not superseded** — `code.json` is a snapshot; regenerate with `tools/build_code_json.py`
+after any index change (`--check` is the gate).
+
+**deploy** — pushed via `kanban_push.py`; API verified, CDN caught up after ~2.5 min.
