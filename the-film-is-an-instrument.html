@@ -108,6 +108,12 @@ read back as the next instruction.</p>
       <td class="n">14 verbs · motion refused <b>ACT-001/AUTH-002/DEAD-001</b></td></tr>
   <tr><td class="k">VERBS/09</td><td class="s">each mobility verb, done or refused</td>
       <td class="n">5 proven · 4 governed · <b>1 body-frame finding</b></td></tr>
+  <tr><td class="k">tinyGPUBOT</td><td class="s">the scriptable actor — cast, verb, line, camera</td>
+      <td class="n">3 cues · motion is the policy's · <b>nothing keyed</b></td></tr>
+  <tr><td class="k">asimov pet</td><td class="s">the mascot, receipted and gait-faithful</td>
+      <td class="n">two runs byte-identical · <b>sha256 1963ee54…</b></td></tr>
+  <tr><td class="k">companion</td><td class="s">DOM awareness + a web-sized CAD</td>
+      <td class="n">reads its own page · 6.1 MB scene · 26 links</td></tr>
 </table>
 
 <h2><span class="n">03</span>The verbs, done and refused</h2>
@@ -133,6 +139,14 @@ verdict marks it disobeyed; the end-to-end verifier, reading only the final stat
 the same trace <code>ok</code>. Two instruments, two verdicts. The per-segment one is the
 honest one, and the instrument now says so.</div>
 
+<div class="note"><b>A correction, on the record.</b> The first films did not carry the
+traversal. The renderer pinned the root (<code>root[0,3] = root[1,3] = 0</code>) and the
+camera <i>followed</i> the body, so the picture showed the <b>gait</b> and erased the
+<b>path</b> — 21 px of visual displacement against 3.118 m of physics. That was read as
+agreement; it was <b>cancellation</b>. A <code>--free-root</code> mode now holds the camera
+on the path: <b>21 px → 589 px</b>, one track, 216 frames, 189 px/m. A film meant to teach
+must carry the motion, not merely show a body.</div>
+
 <h2><span class="n">04</span>The films</h2>
 <figure>
   <video controls preload="metadata" playsinline>
@@ -148,10 +162,40 @@ honest one, and the instrument now says so.</div>
   <figcaption><b>LOOP/09</b> — the loop, closed · gate PASS · lum 26.84 · mov 4.676 ·
     <span class="hash">sha256 2c3edd20eb4a509f23167999b2455770cb23e3d8ffbb7764d46e85cfb17b5983</span></figcaption>
 </figure>
+<figure>
+  <video controls preload="metadata" playsinline>
+    <source src="actor-01.mp4" type="video/mp4">
+  </video>
+  <figcaption><b>ACTOR/01</b> — the robot as a scriptable actor: three cues, three verbs,
+    three cameras, three lines · gate PASS · lum 26.26 ·
+    <span class="hash">sha256 2f51ffb7168a71fe0446a6e5e0d82250f2dd6eb864dd966e2d7174c0124cd4b1</span></figcaption>
+</figure>
+<figure>
+  <video controls preload="metadata" playsinline>
+    <source src="mixture-performed.mp4" type="video/mp4">
+  </video>
+  <figcaption><b>MIXTURE OF ROBOTS, performed</b> — five governed actors and one authority in
+    the 2×3 canvas · lum 21.5 · motion WARN (structural) ·
+    <span class="hash">sha256 324b7215a97147b5bbdef3536247fa9a158fd91de6613a91e0474f4d0fb268cb</span></figcaption>
+</figure>
 <p>Each beat burns its source's hash into the frame; the full hash lives in the receipt.
 The citation is the hash of the delivered bytes, not of the source.</p>
 
-<h2><span class="n">05</span>What is not true</h2>
+<h2><span class="n">05</span>The actor</h2>
+<p>The robot is a performer you <b>script</b>, not a model you re-render. A screenplay
+(<code>actor/script/1</code>) names the cast, and each cue names the actor, the <b>verb</b>
+(one of its own policy traces), the <b>line</b>, and the <b>camera</b>. The compiler renders
+each cue and cuts it into the film.</p>
+<div class="loop">
+  <code>cast</code><i>→</i><code>cue · verb</code><i>→</i><code>trace → render</code><i>→</i>
+  <code>line + camera</code><i>→</i><code>cut</code><i>→</i><code>receipt</code>
+</div>
+<p>The rule that makes it an actor rather than an animation: <b>a bot's motion is its
+policy's.</b> A verb with no trace is refused, never invented. And the <b>cast is data</b> —
+a second actor is a <code>cast</code> entry and a set of traces, not a code change. The
+mixture-of-robots surface now runs five of them under one authority.</p>
+
+<h2><span class="n">06</span>What is not true</h2>
 <ul>
   <li><b>We did not train the policy.</b> Menlo did — Isaac Lab, PPO + AMP. We run it.</li>
   <li><b>We did not write the renderer, the supervision engine, or Roboflow Supervision.</b>
@@ -160,6 +204,9 @@ The citation is the hash of the delivered bytes, not of the source.</p>
       stays dry-run; the Menlo SDK is not installed and there is no hardware.</li>
   <li><b>The loop closes on process, not physics.</b> The laboratory's <code>change</code>
       is a brief for the next run — not a retrained gait.</li>
+  <li><b>We did not model the robot.</b> The CAD is Menlo's, and it is
+      <b>CERN-OHL-S-2.0</b> — an atlas rendered from it inherits those terms. Our
+      generators are MIT; the rendered derivative is not.</li>
   <li><b>One command on one checkpoint.</b> The 65-scenario locomotion bench is unpulled;
       "it walks" is not yet "it walks under push".</li>
 </ul>
@@ -169,7 +216,8 @@ The citation is the hash of the delivered bytes, not of the source.</p>
   <div class="h" style="margin-top:8px">
     verbs-09 67b61520f5604cd5c1e06343e046c0fdd4ce03ad67e2f03f5cb6eaa0f3004f2a ·
     loop-09 2c3edd20eb4a509f23167999b2455770cb23e3d8ffbb7764d46e85cfb17b5983 ·
-    policy-12s 8e41474c4ebdc68d522e72416b81720dee61d5875df07e328a19f41abd9b2dc8
+    actor-01 2f51ffb7168a71fe0446a6e5e0d82250f2dd6eb864dd966e2d7174c0124cd4b1 ·
+    mixture-performed 324b7215a97147b5bbdef3536247fa9a158fd91de6613a91e0474f4d0fb268cb
   </div>
   <div style="margin-top:10px">#hermiphicationisinevitable</div>
 </footer>
