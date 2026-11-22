@@ -1,5 +1,9 @@
 # æ · Project continuity and integration checkpoint
 
+> **Charter: [PURPOSE.md](./PURPOSE.md)** · surface: [purpose.html](./purpose.html).
+> This file is the *record* — what was decided and what was verified. The charter is the *reason*.
+> Where they disagree, the charter wins and this record is corrected.
+
 Recorded: 2026-10-15. Purpose: preserve the user's decisions, recover the real Site identity, and continue existing work rather than rebuild disconnected demonstrations.
 
 **Project creator: Yael Méndez / MYaelMendez.**

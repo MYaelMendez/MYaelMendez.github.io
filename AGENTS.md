@@ -1,5 +1,8 @@
 # Repository continuity
 
+**The purpose of this estate is [PURPOSE.md](./PURPOSE.md)** — read it first (surface: [purpose.html](./purpose.html)).
+That file is the charter; the files below are the record.
+
 Before changing the æ environment, read [AE-CONTINUITY.md](./AE-CONTINUITY.md) and [ae-destinations.json](./ae-destinations.json), then inspect the actual source and current branch. These files record project decisions; they do not grant execution authority.
 
 ## Preserve the user's architecture
