@@ -1694,3 +1694,61 @@ the humanoid renders in the canvas (faceted head, segmented torso).
 nothing in the repo recorded that `scene/` was missing.
 **change** - a web-sized CAD (6.1 MB) now ships with the surface, and the
 simplification is a parameter with the trade-off measured.
+
+
+## 51. actor:// — the robots are actors (2026-11-22)
+
+A screenplay that drives the robots: cast + cues. Each cue names the actor, the
+VERB (a policy trace), the LINE, and the CAMERA. The compiler renders each cue
+from the actor's OWN policy trace at the scripted camera, then cuts the cues
+into a PROOF/1 film whose beats carry the actor, the verb and the line.
+
+    actor/script/1   cast[] {id, model, traces{verb: path}}
+                    cues[] {t, actor, verb, line, camera{az, el, dist}}
+
+NEW ON THE RENDERER: `--az/--el/--dist` (a FIXED camera, no sway) and
+`--free-root` (the traversal is in the picture), so a script can place a camera.
+
+THE FIRST SCRIPT: ACTOR/01 - one actor, three cues:
+
+| t | verb | line | camera |
+|---|---|---|---|
+| 0.0 | stand | I am the actor. | az 1.5708 el 0.15 dist 3.0 |
+| 3.0 | walk | Every step is a policy. | az 2.0944 el 0.18 dist 3.4 |
+| 6.0 | turn | Every word is scripted. | az 1.5708 el 0.22 dist 3.2 |
+
+9 s, three clips, three beats; each line is burned into its beat and spoken
+in the narration. Every move is still the policy's — nothing is keyed.
+
+**proved** - a script drives the actor's move, word and camera; the motion is
+the policy's, not a pose.
+**broke** - `--dry` first demanded the clips exist; a dry run validates the
+script and must not render. Fixed.
+**change** - the cast is data: add an actor by adding a cast entry and traces.
+
+
+## 52. tinyGPUBOT — the actor instrument (2026-11-22)
+
+The bot that binds the pieces: a name, a cast, a set of policy verbs, a voice,
+and a ledger of its performances.
+
+    tinyGPUBOT doctor      renderer, film format, actor_script, voice,
+                           supervision, interpreter, CUDA - all measured
+    tinyGPUBOT cast        resolve the cast: unknown actor / unknown verb /
+                           missing trace / bad schema all REFUSE
+    tinyGPUBOT perform     cues -> clips -> PROOF/1 film -> receipt
+    tinyGPUBOT ledger      the hash chain of performances
+
+RULE 5 (the one that matters): a bot's motion is its POLICY's. tinyGPUBOT never
+keys a pose; a verb with no trace is refused, not invented.
+
+ACTOR/01 performed through it: 3 cues, 9 s, gate PASS (lum 26.26, mov 0.82,
+black 0.0), 709,686 B, sha256
+`2f51ffb7168a71fe0446a6e5e0d82250f2dd6eb864dd966e2d7174c0124cd4b1`,
+citation `ae://film/actor-01`. Live 200, bytes equal.
+
+**proved** - the cast is data and the performance is receipted; the actor
+layer and the bot are separate, so a script can be performed by any governed bot.
+**broke** - two tests pointed ROOT one level short, so the trace path did not
+exist and `cast` refused correctly; the TESTS were wrong, not the code.
+**change** - the robot is now a named, governed, receipted actor: tinyGPUBOT.
