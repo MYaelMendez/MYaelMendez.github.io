@@ -139,7 +139,7 @@
   function mount() {
     var input = document.getElementById('discover-q');
     if (input) input.addEventListener('input', function () { render(input.value); });
-    ready.then(function () { render(document.getElementById('discover-q').value); });
+    ready.then(function () { render(document.getElementById('discover-q').value); if (window.aeRenderProvenance) window.aeRenderProvenance(); });
     window.aeFind = search;
     window.aeDiscover = render;
     window.aeIndexCounts = function () { return counts(); };
