@@ -309,7 +309,10 @@ function renderGaps(){
     (mesh.length?mesh.join(', ')+' — mesh only: no dialect, no policy.':'')+
     (named.length?' <span class="m">'+named.join(', ')+'</span> — in a category, absent from the roster.':'')+
     (unreg.length?' Unregistered dialect modules on disk: '+unreg.join(', ')+'.':'')+
-    '<br><b>Declared, not measured.</b> '+(INDEX.coverage_kind||'');
+    '<br><b>Declared, not measured.</b> '+(INDEX.coverage_kind||'')+
+    '<br><b>Measured evidence.</b> '+ROSTER.filter(function(n){var e=(INDEX.robots[n]||{}).evidence;return e&&e.module}).map(function(n){
+      var e=INDEX.robots[n].evidence;return n+' → '+e.module+' ('+e.module_bytes+' B, verb-table '+(e.verb_table_present?'present':'absent')+')';
+    }).join(' · ');
 }
 function renderAll(){
   renderLegend();renderIface();renderMesh();renderGaps();
