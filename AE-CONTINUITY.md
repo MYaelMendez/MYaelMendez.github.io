@@ -2576,3 +2576,35 @@ containers mount content with **zero 404s**; after a compile the receipt panel s
 `sha256 af0d8eb5…`, `cost Σ11.3`, 8 workstream rows.
 
 **deploy** — pushed to `gh-pages` via `kanban_push.py`; the github.io CDN lags.
+
+
+---
+
+## 2026-11-22 — æC2 console: RESOURCES discovery over the whole estate
+
+**source** — `ae/control/discover.js` (new) + `ae/control/index-live.html`
+(`⌘ RESOURCES` panel, `#discover-q`/`#discover-counts`/`#discover-results`, `find <q>`
+route in the intent box, CSS for `.hits`/`.hit`).
+
+**What it answers** — "is this surface where an agent finds every resource?" Before, the
+console searched only the atlas (52 addresses) while the estate already shipped six
+indexes nobody queried. Now one query hits all of them: atlas (52) · modules
+(`codebase.json`, 246) · surfaces (`qr_inventory.json`: 341 html, 49 python agents, 8
+threejs scenes, 97 videos, 17 widgets, 7 kanban, 6 configs, 3 logs) · tools
+(`code-mode-tools.json`, 41) · skills + schemes (`capability-mesh.json`, 221 + 8) ·
+surface manifests (100).
+
+**API for agents** — `window.aeFind(q)`, `window.aeIndexCounts()`,
+`window.aeIndexMeta()` (total, per-category counts, failed index names) and
+`window.aeDiscover(q)` to drive the panel. Honest: `discover-sub` reports
+`n resources · k/6 indexes` and names any index that failed.
+
+**tests** — `browser_exec`: `sub` = `1196 resources · 6/6 indexes`, `failed: []`;
+`find kanban` / `find asimov` / `find teologia` return cross-index hits with paths and
+`↗` links; `find zzzznada` → `0 matches`; the intent box route logs `[cat] name path`
+into the intent rail and syncs the panel; 404s = `favicon.ico` only.
+
+**Not superseded** — `capability-manifest.json` is not the output of
+`tools/build_capabilities.py`; discovery reads it as one index among several.
+
+**deploy** — pushed to `gh-pages` via `kanban_push.py`; the github.io CDN lags.
