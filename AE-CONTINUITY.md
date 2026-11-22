@@ -1905,6 +1905,33 @@ manifest this builder would emit is therefore not published; the atlas and the
 code-mode index are two different indices and their counts (45 vs 41) are not
 expected to match.
 
+---
+
+## 2026-11-22 — origin/ iterated: live mesh count + address-sourced ticker
+
+**source** — `origin/index.html` (`#meshstate` now set from `ATLAS.length` in
+`buildMesh()` instead of a hard-coded `44 addresses`; the ambient feed seeds from
+`ae-atlas.json` via a shape-tolerant `seedAmb()` that renders coordinates from
+`x/y/z/a`, falling back to the code-mode `mesh` field — never `undefined`);
+`origin/README.md` (records the iteration, since its "no other application logic
+is rewritten" line was no longer true).
+
+**Why** — `capability-manifest.json` is the code-mode tool index, so the old
+`c.address + ' · ' + c.name + ' · ' + c.category` produced `undefined` strings in
+the ticker; and the header count was frozen at the 2026-10 atlas size.
+
+**Not superseded** — the origin stays the preserved former root homepage; no
+visual language, coordinate or terminal command changed. `væult chain · 10/10` and
+`webmcp · 6 agent tools` remain preserved display strings (see the `ae-origin`
+skill: do not read them as verified claims).
+
+**tests** — `browser_exec`: `#meshstate` = `45 addresses`; 45 doors; console door
+`x14:y0:z0:æ0 æC2 LIVE`; zero ticker entries containing `undefined`; ticker shows
+real coordinates (`x5:y0:z0:æ0 · SOVEREIGN STATE`); terminal `æ://ae-c2-console`
+→ `x+14:y0:z0:æ0` and `where` = `→ æC2 LIVE · public layer`.
+
+**deploy** — pushed to `gh-pages` via `kanban_push.py`; the github.io CDN lags.
+
 
 ## 57. The post, iterated (2026-11-22)
 

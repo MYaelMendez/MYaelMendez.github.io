@@ -159,7 +159,7 @@ html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'J
   <div class="bar">
     <span class="b1">æææ:// · ORIGIN</span>
     <span class="mid">LANGUAGE · IMPLEMENTATION · RUNTIME</span>
-    <span class="live"><span class="dot"></span><span id="meshstate">44 addresses</span></span>
+    <span class="live"><span class="dot"></span><span id="meshstate">atlas</span></span>
     <span class="theme-controls" style="display:inline-flex;gap:6px;align-items:center">
       <button id="theme-toggle" type="button" style="background:transparent;border:1px solid var(--line);color:var(--muted);font:inherit;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:4px 8px;cursor:pointer">◐ theme</button>
       <button id="env-toggle" type="button" style="background:transparent;border:1px solid var(--line);color:var(--muted);font:inherit;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:4px 8px;cursor:pointer">⬡ env</button>
@@ -257,7 +257,7 @@ function tickSetCoord(){
   for(var i=0;i<cs.length;i++)cs[i].classList.add('flash');
   setTimeout(function(){var c2=$('tstream').querySelectorAll('.tm.coord');for(var j=0;j<c2.length;j++)c2[j].classList.remove('flash')},320);
 }
-// ambient feed — STATIC fallback until the real mesh loads, then seeded from capability-manifest.json
+// ambient feed — STATIC fallback until the real atlas loads
 var AMB=[
   ['x0:y0:z0:æ0 · the origin · you are here',''],
   ['atlas synced · '+ATLAS.length+' addresses','c'],
@@ -267,18 +267,25 @@ var AMB=[
   ['agents reference agents · #internetofagents','']
 ];
 var _seeded=false;
+// the atlas is the address index; capability-manifest.json is the code-mode tool index.
+// Read whichever shape arrives and render addresses, never "undefined".
 function seedAmb(M){
-  if(_seeded||!M||!M.capabilities)return; _seeded=true;
-  var s=[],AXC=['g','c','ok','p'];
-  M.capabilities.forEach(function(c){s.push([c.address+' · '+c.name+' · '+c.category,AXC[c.layer]||''])});
-  s.push(['homebase · '+String(M.homebase||'').replace(/^https?:\/\//,''),'c']);
-  s.push([M.count+' capabilities · one manifest · derived, never hand-written','g']);
+  if(_seeded||!M)return; _seeded=true;
+  var AXC=['g','c','ok','p'],s=[];
+  var list=(M.addresses&&M.addresses.length)?M.addresses:M.capabilities||[];
+  var LAYERNAME={public:0,published:1,operator:2,custody:3};
+  list.forEach(function(c){
+    var addr=c.address||(c.x!=null?('x'+c.x+':y'+c.y+':z'+c.z+':æ'+c.a):(c.mesh?('mesh:'+c.mesh):''));
+    var cat=c.category||(c.mesh||'');
+    var nm=c.name||c.id||'';
+    var lay=(c.a!=null)?c.a:LAYERNAME[c.layer_name];
+    s.push([addr+' · '+nm+' · '+cat,AXC[lay]||'']);
+  });
+  s.push(['atlas synced · '+((M.count!=null)?M.count:list.length)+' addresses · one manifest · derived','g']);
   s.push(['authority axis · public → published → operator → custody','g']);
-  s.push(['operator · '+(M.operator||''),'']);
   AMB=s;
 }
-// pull the real mesh state — the ticker becomes the manifest's heartbeat
-fetch('capability-manifest.json',{cache:'no-cache'}).then(function(r){return r.json()}).then(seedAmb).catch(function(){});
+fetch('ae-atlas.json',{cache:'no-cache'}).then(function(r){return r.json()}).then(seedAmb).catch(function(){});
 var _ai=0; function tickAmb(){var m=AMB[_ai++%AMB.length];tickPush(m[0],m[1])}
 function tickScroll(){var s=$('tstream'),pos=0;(function loop(){var half=s.scrollWidth/2;pos-=0.4;if(half>0&&-pos>=half)pos+=half;s.style.transform='translateX('+pos+'px)';requestAnimationFrame(loop)})()}
 
@@ -305,6 +312,7 @@ function resolve(q){
 }
 function buildMesh(){
   var sorted=ATLAS.slice().sort(function(a,b){return a.a-b.a||a.x-b.x||a.y-b.y||a.z-b.z});
+  if($('meshstate'))$('meshstate').textContent=ATLAS.length+' addresses';
   $('mesh').innerHTML=sorted.map(function(s){
     return '<a class="door" style="--ac:'+AXCOL[s.a]+'" href="'+s.url+'" onclick="return travel(event,\''+s.id+'\')">'+
       '<span class="ax">'+coordOf(s)+'</span><b>'+s.name+'</b><small>'+s.desc+'</small></a>';
