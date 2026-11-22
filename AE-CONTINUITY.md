@@ -1803,3 +1803,31 @@ take a non-ASCII font path - the font is staged to an ASCII temp dir and the
 drive colon is escaped.
 **change** - the mixture is a governed performance surface: five actors and
 one authority, composited and receipted.
+
+
+## 55. The post, updated (2026-11-22)
+
+`the-film-is-an-instrument.html` now carries the whole arc, not just the first
+half. Six sections: the loop, Measured, the verbs, the films, **the actor**,
+what is not true.
+
+WHAT WAS ADDED:
+- Measured: tinyGPUBOT, the asimov pet (two runs byte-identical), the companion
+  (DOM awareness + 6.1 MB web CAD).
+- A correction, on the record: the first films did not carry the traversal
+  (camera followed the body) - 21 px vs 3.118 m was CANCELLATION, not
+  agreement. `--free-root` gives 21 -> 589 px.
+- The films: ACTOR/01 and MIXTURE OF ROBOTS, performed, with their hashes.
+- 05 The actor: cast + cue -> verb -> trace -> render -> line + camera -> cut
+  -> receipt; the cast is data.
+- What is not true: the CAD is CERN-OHL-S-2.0; a rendered atlas inherits it.
+
+blob `850b52579d90c30c704b34fd41e57e370e480ac0`, 14,508 B, live 200.
+Verified in the browser: 6 sections, 4 films, correction + actor + licence
+all present.
+
+**proved** - the published post and the estate agree; the correction is on the
+record rather than quietly dropped.
+**broke** - the first live fetch returned the OLD bytes (11,359) for three
+checks; the blob was authoritative, the CDN lagged. Re-checked until equal.
+**change** - the surface now tells the whole story, including the retraction.
