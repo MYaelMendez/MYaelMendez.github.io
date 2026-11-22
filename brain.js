@@ -3,27 +3,84 @@ const BRAIN = {
   "brain": "neuromitosis.com",
   "kind": "site brain index · agentic engineering ontology",
   "generated": "2026-10-05",
-  "total_surfaces": 172,
+  "total_surfaces": 256,
   "total_categories": 10,
+  "title_parity_missing": [],
   "categories": [
     {
       "id": "CUSTODY",
       "glyph": "🔒",
       "role": "secrets, vault, authority — grants and revocation",
-      "count": 12,
+      "count": 21,
       "surfaces": [
+        {
+          "file": "ae-ecosystem-live.html",
+          "name": "ae-ecosystem-live",
+          "title": "æææ · Origin of Agentic Environments · LIVE",
+          "title_parity": "ok",
+          "desc": "The root namespace of the æ ecosystem. Live surface: three.js scene, æC2 console, mood engine, kanban, and the authority axis.",
+          "category": "CUSTODY",
+          "size_kb": 34.1
+        },
+        {
+          "file": "ae-space.html",
+          "name": "ae-space",
+          "title": "æ-space · the authority axis you steer by",
+          "title_parity": "ok",
+          "desc": "x0:y0:z0:æ0 — the navigable sovereign surface. Move with WASD, focus with ⌘K, steer through the æ authority axis. Crossing into æ2 and æ3 is a gate you must pas",
+          "category": "CUSTODY",
+          "size_kb": 17.6
+        },
         {
           "file": "glocal-secrets-blueprint.html",
           "name": "glocal-secrets-blueprint",
           "title": "glocal secrets blueprint • #opensourceware #hermiphicationisinevitable",
+          "title_parity": "ok",
           "desc": "GLOCAL secret-handoff model: github.io is the source of truth for the secret-bridge SURFACE; the SECRET lives only on Victus. The +æ://secrets conductor broker ",
           "category": "CUSTODY",
           "size_kb": 12.9
         },
         {
+          "file": "index.html",
+          "name": "index",
+          "title": "&gt;_æ: OPENSOURCEWARE — Mixture of Robots · five environments, one authority",
+          "title_parity": "ok",
+          "desc": "OpenSourceWare — robo chat with Wætz Bot. Menlo Research CAD, Nous Research Hermes Agent, æ policy. A robot that shows anything and grants nothing. No account, ",
+          "category": "CUSTODY",
+          "size_kb": 30.7
+        },
+        {
+          "file": "morphologies.html",
+          "name": "morphologies",
+          "title": "morphologies:// — five bodies, one authority",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "CUSTODY",
+          "size_kb": 3.6
+        },
+        {
+          "file": "origin-spectrum.html",
+          "name": "origin-spectrum",
+          "title": "x0:y0:z0:æ0 · æ-spectrum · ORIGIN",
+          "title_parity": "ok",
+          "desc": "The origin of æ-space in the æ-spectrum theme: a living radial spectrum driven by the authority axis.",
+          "category": "CUSTODY",
+          "size_kb": 33.0
+        },
+        {
+          "file": "origin-teknium.html",
+          "name": "origin-teknium",
+          "title": "x0:y0:z0:æ0 · >_æææ://||| · ORIGIN",
+          "title_parity": "ok",
+          "desc": "The origin of æ-space, rebuilt in the teknium terminal schema. 4-space addressing: x=category, y=item, z=depth, æ=authority (public→custody).",
+          "category": "CUSTODY",
+          "size_kb": 33.2
+        },
+        {
           "file": "privateclient-compute.html",
           "name": "privateclient-compute",
           "title": "PrivateClient.ai | Sovereign Compute",
+          "title_parity": "ok",
           "desc": "",
           "category": "CUSTODY",
           "size_kb": 24.3
@@ -32,22 +89,52 @@ const BRAIN = {
           "file": "privateclient-omnibox.html",
           "name": "privateclient-omnibox",
           "title": "PrivateClient.ai | Command Line Internet Gateway",
+          "title_parity": "ok",
           "desc": "Access the Command Line Internet through PrivateClient.ai Omnibox - Secure OAuth + WorldID biometric authentication",
           "category": "CUSTODY",
           "size_kb": 30.2
         },
         {
+          "file": "purpose.html",
+          "name": "purpose",
+          "title": "æ:// purpose — the charter",
+          "title_parity": "ok",
+          "desc": "The charter of the æ estate: what it is, who it serves, the one rule, where authority lives, and the zero point every address is measured from.",
+          "category": "CUSTODY",
+          "size_kb": 4.6
+        },
+        {
+          "file": "refusal.html",
+          "name": "refusal",
+          "title": "&gt;_æ:// REFUSAL AS THE PRODUCT",
+          "title_parity": "ok",
+          "desc": "Refusal as the product. Every robotics platform ships capability and leaves authority as an exercise. æ ships the gate.",
+          "category": "CUSTODY",
+          "size_kb": 12.7
+        },
+        {
+          "file": "robo-chat.html",
+          "name": "robo-chat",
+          "title": "&gt;_æ:// robo chat · Wætz Bot",
+          "title_parity": "ok",
+          "desc": "Robo chat with Wætz Bot — the Asimov companion. Talk to a robot that shows anything and grants nothing. Local, open, no account.",
+          "category": "CUSTODY",
+          "size_kb": 14.8
+        },
+        {
           "file": "secret-source-bridge.html",
           "name": "secret-source-bridge",
           "title": "Hermes Secret Source Bridge",
+          "title_parity": "ok",
           "desc": "",
           "category": "CUSTODY",
-          "size_kb": 20.8
+          "size_kb": 25.3
         },
         {
           "file": "sovaereign-os.html",
           "name": "sovaereign-os",
           "title": "Soværeign OS · Authority Topology",
+          "title_parity": "ok",
           "desc": "",
           "category": "CUSTODY",
           "size_kb": 21.2
@@ -56,14 +143,16 @@ const BRAIN = {
           "file": "startabusiness.html",
           "name": "startabusiness",
           "title": "#startabusiness · æQR + kænbæn — address, verify, then act",
+          "title_parity": "ok",
           "desc": "æQR is one discovery layer across many resources without making every resource public. 277 resources, a produce-and-verify QR gate, default-deny authority. Grou",
           "category": "CUSTODY",
-          "size_kb": 33.4
+          "size_kb": 36.1
         },
         {
           "file": "trinity-runtime.html",
           "name": "trinity-runtime",
           "title": "Æ Trinity Runtime · CommandPrompt.ai · PrivateClient.ai · Soværeign.com",
+          "title_parity": "ok",
           "desc": "",
           "category": "CUSTODY",
           "size_kb": 35.1
@@ -72,6 +161,7 @@ const BRAIN = {
           "file": "vaeult/index.html",
           "name": "vaeult",
           "title": "væult — password-secured local vault · æ://",
+          "title_parity": "ok",
           "desc": "væult: a password-secured local vault (scrypt → AES-256-GCM) with QR air-gap transport. #opensourceware — the tool is open, the secrets are not.",
           "category": "CUSTODY",
           "size_kb": 10.6
@@ -80,14 +170,16 @@ const BRAIN = {
           "file": "vaeult-demo.html",
           "name": "vaeult-demo",
           "title": "væult — the chain, running",
+          "title_parity": "ok",
           "desc": "",
           "category": "CUSTODY",
-          "size_kb": 10.1
+          "size_kb": 11.0
         },
         {
           "file": "vault.html",
           "name": "vault",
           "title": "væult · sovereign secret vault",
+          "title_parity": "ok",
           "desc": "Password-secured local vault. Create, manage, and air-gap secrets with QR. Zero cloud, zero upload.",
           "category": "CUSTODY",
           "size_kb": 29.8
@@ -96,14 +188,16 @@ const BRAIN = {
           "file": "vault-layers.html",
           "name": "vault-layers",
           "title": "PC://VAULT — Three.js Layered Secret Hierarchy",
+          "title_parity": "ok",
           "desc": "",
           "category": "CUSTODY",
-          "size_kb": 16.0
+          "size_kb": 16.1
         },
         {
           "file": "væult/index.html",
           "name": "væult",
           "title": "væult — password-secured local vault · æ://",
+          "title_parity": "ok",
           "desc": "væult: a password-secured local vault (scrypt → AES-256-GCM) with QR air-gap transport. #opensourceware — the tool is open, the secrets are not.",
           "category": "CUSTODY",
           "size_kb": 10.6
@@ -114,12 +208,13 @@ const BRAIN = {
       "id": "MEDIA",
       "glyph": "▶",
       "role": "video, audio, image — production and verification",
-      "count": 22,
+      "count": 28,
       "surfaces": [
         {
           "file": "aipodcast_me/index.html",
           "name": "aipodcast_me",
           "title": "æ:/aipodcast.me · AI PODCAST HQ",
+          "title_parity": "ok",
           "desc": "AI Podcast HQ — NotebookLM-generated episodic surface. One principal. Many agents. #aipodcast",
           "category": "MEDIA",
           "size_kb": 23.6
@@ -128,14 +223,16 @@ const BRAIN = {
           "file": "constellation.html",
           "name": "constellation",
           "title": "æ:// Constellation — Internet of Agents",
+          "title_parity": "ok",
           "desc": "",
           "category": "MEDIA",
-          "size_kb": 14.5
+          "size_kb": 15.8
         },
         {
           "file": "cri-teleprompter.html",
           "name": "cri-teleprompter",
           "title": "CRI Narrative Teleprompter",
+          "title_parity": "ok",
           "desc": "",
           "category": "MEDIA",
           "size_kb": 11.5
@@ -144,6 +241,7 @@ const BRAIN = {
           "file": "cuda-vlc.html",
           "name": "cuda-vlc",
           "title": "æ://cuda-vlc · sovereign live stream",
+          "title_parity": "ok",
           "desc": "",
           "category": "MEDIA",
           "size_kb": 8.0
@@ -152,6 +250,7 @@ const BRAIN = {
           "file": "draw-video.html",
           "name": "draw-video",
           "title": "draw",
+          "title_parity": "ok",
           "desc": "",
           "category": "MEDIA",
           "size_kb": 10.2
@@ -160,6 +259,7 @@ const BRAIN = {
           "file": "factory.html",
           "name": "factory",
           "title": "æ:// MP4 FACTORY",
+          "title_parity": "ok",
           "desc": "",
           "category": "MEDIA",
           "size_kb": 11.6
@@ -168,6 +268,7 @@ const BRAIN = {
           "file": "fase16-video-to-context.html",
           "name": "fase16-video-to-context",
           "title": "æ:// fase16 — Video → Context → Agent Action",
+          "title_parity": "ok",
           "desc": "",
           "category": "MEDIA",
           "size_kb": 8.2
@@ -176,6 +277,7 @@ const BRAIN = {
           "file": "fase5-shaders.html",
           "name": "fase5-shaders",
           "title": "æ:// fase5-shaders — Intermediate Shaders",
+          "title_parity": "ok",
           "desc": "",
           "category": "MEDIA",
           "size_kb": 6.5
@@ -184,6 +286,7 @@ const BRAIN = {
           "file": "fase9-webworkers.html",
           "name": "fase9-webworkers",
           "title": "æ:// fase9-webworkers — Async Rendering",
+          "title_parity": "ok",
           "desc": "",
           "category": "MEDIA",
           "size_kb": 10.8
@@ -192,14 +295,25 @@ const BRAIN = {
           "file": "final-video.html",
           "name": "final-video",
           "title": "$OS · #250 · Final",
+          "title_parity": "ok",
           "desc": "",
           "category": "MEDIA",
           "size_kb": 15.1
         },
         {
-          "file": "index.html",
-          "name": "index",
+          "file": "hermes-kanban-916-render.html",
+          "name": "hermes-kanban-916-render",
+          "title": "æ://kænbæn · 9:16 dispatch loop · render",
+          "title_parity": "ok",
+          "desc": "KÆNBÆN — a 25-second 9:16 dispatch-loop game. Cards flow CLAIM→WORK→VERIFY→PUSH through the æ:// kanban board. Autopilot + playable + deterministic render hook.",
+          "category": "MEDIA",
+          "size_kb": 16.4
+        },
+        {
+          "file": "home-codae.html",
+          "name": "home-codae",
           "title": "æææ:// · Ethics · Economics · Engineering | codæ://",
+          "title_parity": "ok",
           "desc": "codæ:// — the language is compute. codæ (.mec) → mech (Rust→WASM) → æ:// (runtime). The unified sovereign surface: agentic engineering, e-commerce OS, CUDA→VLC,",
           "category": "MEDIA",
           "size_kb": 54.9
@@ -208,6 +322,7 @@ const BRAIN = {
           "file": "internetofagents-render.html",
           "name": "internetofagents-render",
           "title": "Internet of Agents · Render",
+          "title_parity": "ok",
           "desc": "",
           "category": "MEDIA",
           "size_kb": 7.5
@@ -216,6 +331,7 @@ const BRAIN = {
           "file": "keeper.html",
           "name": "keeper",
           "title": "keeper — avatar · æ://",
+          "title_parity": "ok",
           "desc": "keeper — the custodian of the glocal memory constellation. The seal, and the edge that deliberately does not exist.",
           "category": "MEDIA",
           "size_kb": 18.8
@@ -224,22 +340,25 @@ const BRAIN = {
           "file": "mcpgpt-chat.html",
           "name": "mcpgpt-chat",
           "title": "MCPgpt | æææ:/// Chat Compute",
+          "title_parity": "ok",
           "desc": "Chat with MCPgpt - The MCP constellation index. Access LLM compute via æææ:/// protocol — 27 tok/s measured.",
           "category": "MEDIA",
-          "size_kb": 19.6
+          "size_kb": 19.7
         },
         {
           "file": "mech-4d-holomesh.html",
           "name": "mech-4d-holomesh",
           "title": "📱🌌 MÆCH 4D HoloMesh - Mobile Territorial Sovereignty",
-          "desc": "Revolutionary 4D spatial programming with time dimension navigation and territorial sovereignty",
+          "title_parity": "ok",
+          "desc": "4D spatial mesh with time-dimension navigation. 375 nodes, stereographic projection, Canvas2D. GPU sibling rendered with tinyCUDA.",
           "category": "MEDIA",
-          "size_kb": 32.2
+          "size_kb": 36.2
         },
         {
           "file": "molt-earth-ultimate-fractal.html",
           "name": "molt-earth-ultimate-fractal",
           "title": "molt.earth — ULTIMATE FRACTAL • Teleprompter • White Polar Star",
+          "title_parity": "ok",
           "desc": "",
           "category": "MEDIA",
           "size_kb": 16.0
@@ -248,6 +367,7 @@ const BRAIN = {
           "file": "multimedia-test.html",
           "name": "multimedia-test",
           "title": "æ:// Multimedia Test — Full Stack",
+          "title_parity": "ok",
           "desc": "",
           "category": "MEDIA",
           "size_kb": 7.1
@@ -256,22 +376,52 @@ const BRAIN = {
           "file": "reachy-video.html",
           "name": "reachy-video",
           "title": "Reachy Clerk • $OS • #250",
+          "title_parity": "ok",
           "desc": "",
           "category": "MEDIA",
           "size_kb": 15.7
         },
         {
+          "file": "studios.html",
+          "name": "studios",
+          "title": "æ:// STUDIO — the studios, the shots, the saved gait",
+          "title_parity": "ok",
+          "desc": "Interactive WebGL browser for the æ studios: the real Asimov CAD playing the SAVED gait through the URDF, every camera shot, every state, every renderer — with ",
+          "category": "MEDIA",
+          "size_kb": 16.0
+        },
+        {
           "file": "teotech.html",
           "name": "teotech",
           "title": "TEOTECH · Instituto Luterano Latinoamericano",
+          "title_parity": "ok",
           "desc": "Aprender y enseñar teología y tecnología en lugares difíciles de alcanzar. Clases, materiales, comunidad y proyectos del Instituto Luterano Latinoamericano.",
           "category": "MEDIA",
           "size_kb": 56.3
         },
         {
+          "file": "tinySVG.html",
+          "name": "tinySVG",
+          "title": "tinySVG · el viewBox no es la pantalla",
+          "title_parity": "ok",
+          "desc": "tinySVG, el instrumento soberano de las superficies vectoriales: mide el ancho de render, deriva la escala y se niega cuando la tipografia cae bajo el suelo. Pa",
+          "category": "MEDIA",
+          "size_kb": 23.2
+        },
+        {
+          "file": "tinyhq.html",
+          "name": "tinyhq",
+          "title": "tinyHQ · the headquarters of the tiny constellation",
+          "title_parity": "ok",
+          "desc": "tinyHQ — the origin surface designed by the tiny* idiom: 20 rooms, one capability each, every doctor run. Measured, not declared.",
+          "category": "MEDIA",
+          "size_kb": 11.7
+        },
+        {
           "file": "video-corpus.html",
           "name": "video-corpus",
           "title": "æ:// Video Corpus — GPU-Native Pipeline",
+          "title_parity": "ok",
           "desc": "",
           "category": "MEDIA",
           "size_kb": 4.8
@@ -280,14 +430,34 @@ const BRAIN = {
           "file": "videolab.html",
           "name": "videolab",
           "title": "æ Video Lab — Sovereign Compute Mesh",
+          "title_parity": "ok",
           "desc": "",
           "category": "MEDIA",
           "size_kb": 13.8
         },
         {
+          "file": "videos.html",
+          "name": "videos",
+          "title": "MY Videos — MYaelMendez.github.io",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "MEDIA",
+          "size_kb": 29.5
+        },
+        {
+          "file": "vscoder-ffmpeg-command-control.html",
+          "name": "vscoder-ffmpeg-command-control",
+          "title": "vscoder://ffmpeg · Command &amp; Control",
+          "title_parity": "ok",
+          "desc": "vscoder://ffmpeg — build, gate and control the Windows sovereign FFmpeg bridge. Every value probed from the real machine at render time.",
+          "category": "MEDIA",
+          "size_kb": 13.3
+        },
+        {
           "file": "zeitgeist-4d.html",
           "name": "zeitgeist-4d",
           "title": "🜁 From Conversation to Delegation · #zeitgeist 4D",
+          "title_parity": "ok",
           "desc": "",
           "category": "MEDIA",
           "size_kb": 42.0
@@ -298,12 +468,31 @@ const BRAIN = {
       "id": "COMPUTE",
       "glyph": "▤",
       "role": "GPU, CUDA, inference — the RTX node",
-      "count": 9,
+      "count": 13,
       "surfaces": [
+        {
+          "file": "aaa-protocol.html",
+          "name": "aaa-protocol",
+          "title": "æææ:/// — The Command Line Internet Protocol",
+          "title_parity": "ok",
+          "desc": "Triple-ashe (æææ) is the unified namespace for global intelligence. QR CODE + MÆCH LANGUAGE = LLM compute, measured locally on an RTX 3050: 27 tok/s generation ",
+          "category": "COMPUTE",
+          "size_kb": 14.2
+        },
+        {
+          "file": "asimov-companion/index.html",
+          "name": "asimov-companion",
+          "title": "rtx:// asimov · WebGL",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "COMPUTE",
+          "size_kb": 20.9
+        },
         {
           "file": "cuda-blueprint.html",
           "name": "cuda-blueprint",
           "title": "cuda blueprint • #startabusiness × #opensourceware #250",
+          "title_parity": "ok",
           "desc": "Hermes CUDA blueprint — franchise sovereign, open-sourceware GPU compute. #startabusiness formation + #250 mission + #opensourceware MIT hands.",
           "category": "COMPUTE",
           "size_kb": 13.9
@@ -312,6 +501,7 @@ const BRAIN = {
           "file": "cuda_IDE_RTX.html",
           "name": "cuda_IDE_RTX",
           "title": "Hermes cuda_IDE_RTX — GPU-in-MCP",
+          "title_parity": "ok",
           "desc": "",
           "category": "COMPUTE",
           "size_kb": 14.3
@@ -320,6 +510,7 @@ const BRAIN = {
           "file": "glocal-cuda-blueprint.html",
           "name": "glocal-cuda-blueprint",
           "title": "glocal cuda blueprint • hermes agent × nvidia #opensourceware",
+          "title_parity": "ok",
           "desc": "Hermes Agent GLOCAL CUDA capability: a droplet brain (public identity/data) routes CUDA jobs over a reverse tunnel to sovereign Victus RTX 3050 hands and on-dem",
           "category": "COMPUTE",
           "size_kb": 16.6
@@ -328,22 +519,34 @@ const BRAIN = {
           "file": "glocal-cuda-mesh.html",
           "name": "glocal-cuda-mesh",
           "title": "glocal cuda mesh · æ://",
+          "title_parity": "ok",
           "desc": "Mixture of Devices: sovereign Victus RTX 3050 hands + on-demand cloud CUDA burst pod, addressed as one GLOCAL route tower.",
           "category": "COMPUTE",
           "size_kb": 9.0
         },
         {
+          "file": "hermes-terminal-916.html",
+          "name": "hermes-terminal-916",
+          "title": "æ://hermes · 9:16 agent terminal",
+          "title_parity": "ok",
+          "desc": "A portable 9:16 Hermes-agent terminal running WebLLM on-device. Sovereign inference, gold-on-void, the æ:// design language.",
+          "category": "COMPUTE",
+          "size_kb": 11.9
+        },
+        {
           "file": "llm-store.html",
           "name": "llm-store",
           "title": "LLM.store — The Model Store | Local Inference @ 27 tok/s (measured)",
+          "title_parity": "ok",
           "desc": "æ.store (triple-ashe) — The Command Line Internet Portal. QR CODE + MÆCH LANGUAGE unified namespace for global intelligence. Local LLM inference: 27 tok/s gener",
           "category": "COMPUTE",
-          "size_kb": 308.9
+          "size_kb": 309.0
         },
         {
           "file": "mech-3d-os.html",
           "name": "mech-3d-os",
           "title": "æææ.com | MÆCH OS — Command Line Internet",
+          "title_parity": "ok",
           "desc": "Command Line Internet — Sola Intentione. The world",
           "category": "COMPUTE",
           "size_kb": 84.2
@@ -352,6 +555,7 @@ const BRAIN = {
           "file": "mech-3d-webgl-engine.html",
           "name": "mech-3d-webgl-engine",
           "title": "🌌⚡ MÆCH 3D WebGL Engine - Territorial Sovereignty",
+          "title_parity": "ok",
           "desc": "Revolutionary WebGL engine with territorial sovereignty, 4D coordinates, and QR addressing",
           "category": "COMPUTE",
           "size_kb": 52.3
@@ -360,14 +564,25 @@ const BRAIN = {
           "file": "mech-4d-mobile.html",
           "name": "mech-4d-mobile",
           "title": "📱🌌 MÆCH Mobile 4D - x₀y₀z₀t₀ Navigation",
+          "title_parity": "ok",
           "desc": "Revolutionary mobile 4D spatial programming with time dimension and territorial sovereignty",
           "category": "COMPUTE",
           "size_kb": 35.0
         },
         {
+          "file": "studio.html",
+          "name": "studio",
+          "title": "&gt;_æ:// soværeign studio",
+          "title_parity": "ok",
+          "desc": "One pane for the whole robot loop: companion, voice, and the human truth pane. tinyCUDA / tinyGPU / tinyPython / tiny-voca under one gate.",
+          "category": "COMPUTE",
+          "size_kb": 19.8
+        },
+        {
           "file": "webllm.html",
           "name": "webllm",
           "title": "æ:// · WebLLM · WebGPU Chassis",
+          "title_parity": "ok",
           "desc": "æ:// agentic-language-chassis local runtime — sovereign in-browser inference via WebGPU.",
           "category": "COMPUTE",
           "size_kb": 14.3
@@ -378,20 +593,22 @@ const BRAIN = {
       "id": "ECONOMY",
       "glyph": "$",
       "role": "DAO LLC, rails, funding — the market tape",
-      "count": 24,
+      "count": 31,
       "surfaces": [
         {
-          "file": "ae/index.html",
-          "name": "ae",
-          "title": "æ.store • $^æ • the DAO unlocked",
-          "desc": "Hermes · NVIDIA · Stripe unlock the DAO for American entrepreneurs so they can focus on business.",
+          "file": "ae-index.html",
+          "name": "ae-index",
+          "title": "æ — ambient engineering · attention is all you need",
+          "title_parity": "ok",
+          "desc": "æ — the ambient engineering surface. 25 Æmoji capabilities, 19 væMCP tools, sovereign voice, all receipted. An address is not a permission.",
           "category": "ECONOMY",
-          "size_kb": 53.5
+          "size_kb": 7.7
         },
         {
           "file": "ae-store-digital-twin.html",
           "name": "ae-store-digital-twin",
           "title": "Æ.STORE · Digital Twin Organism",
+          "title_parity": "ok",
           "desc": "",
           "category": "ECONOMY",
           "size_kb": 17.9
@@ -400,6 +617,7 @@ const BRAIN = {
           "file": "ae-store-pico-os.html",
           "name": "ae-store-pico-os",
           "title": "æ.store · Pico OS · Unified",
+          "title_parity": "ok",
           "desc": "",
           "category": "ECONOMY",
           "size_kb": 47.0
@@ -408,6 +626,7 @@ const BRAIN = {
           "file": "ae-store-semantic-key.html",
           "name": "ae-store-semantic-key",
           "title": "æ.store · Semantic Key Runtime",
+          "title_parity": "ok",
           "desc": "",
           "category": "ECONOMY",
           "size_kb": 26.3
@@ -416,6 +635,7 @@ const BRAIN = {
           "file": "ae_store/index.html",
           "name": "ae_store",
           "title": "æ.store — Sovereign Compute Mesh",
+          "title_parity": "ok",
           "desc": "",
           "category": "ECONOMY",
           "size_kb": 3.2
@@ -424,6 +644,7 @@ const BRAIN = {
           "file": "aea-index.html",
           "name": "aea-index",
           "title": "æææ:// INDEX · Agentic Systems Root",
+          "title_parity": "ok",
           "desc": "",
           "category": "ECONOMY",
           "size_kb": 23.9
@@ -432,14 +653,25 @@ const BRAIN = {
           "file": "agentic.html",
           "name": "agentic",
           "title": "æ.store • >_æ:#startabusiness→ • The App Store for Robots",
+          "title_parity": "ok",
           "desc": "æ.store — mobile-first 9:16 agentic viewport. Install the #startabusiness skill into Hermes Agent. One command, one person, full agency.",
           "category": "ECONOMY",
           "size_kb": 11.8
         },
         {
+          "file": "cli/index.html",
+          "name": "cli",
+          "title": "CLI.LLC / doola · Business Preparation Cockpit",
+          "title_parity": "ok",
+          "desc": "A self-contained portrait business preparation cockpit. GitHub, interview, blueprint, classifications, and doola referral. Day/night and five languages.",
+          "category": "ECONOMY",
+          "size_kb": 50.3
+        },
+        {
           "file": "cli-llc-os.html",
           "name": "cli-llc-os",
           "title": "CLI.LLC · Sovereign OS · DAOLLC.ai Agent",
+          "title_parity": "ok",
           "desc": "",
           "category": "ECONOMY",
           "size_kb": 31.1
@@ -448,6 +680,7 @@ const BRAIN = {
           "file": "cri-index.html",
           "name": "cri-index",
           "title": "cri-index",
+          "title_parity": "ok",
           "desc": "",
           "category": "ECONOMY",
           "size_kb": 4.7
@@ -456,6 +689,7 @@ const BRAIN = {
           "file": "cri-school-of-hermes.html",
           "name": "cri-school-of-hermes",
           "title": "Consumer Redline Index // CRI v0.1 · School of Hermes",
+          "title_parity": "ok",
           "desc": "Consumer Redline Index · CRI v0.1 · School of Hermes Economic Faculty",
           "category": "ECONOMY",
           "size_kb": 29.7
@@ -464,14 +698,25 @@ const BRAIN = {
           "file": "cri-v01.html",
           "name": "cri-v01",
           "title": "Consumer Redline Index // CRI v0.1",
+          "title_parity": "ok",
           "desc": "",
           "category": "ECONOMY",
           "size_kb": 15.2
         },
         {
+          "file": "doola/index.html",
+          "name": "doola",
+          "title": "CLI.LLC / doola · Business Preparation Cockpit",
+          "title_parity": "ok",
+          "desc": "A self-contained portrait business preparation cockpit. GitHub, interview, blueprint, classifications, and doola referral. Day/night and five languages.",
+          "category": "ECONOMY",
+          "size_kb": 50.3
+        },
+        {
           "file": "droplet.html",
           "name": "droplet",
           "title": "☺://cc — droplet system · æ.store",
+          "title_parity": "ok",
           "desc": "",
           "category": "ECONOMY",
           "size_kb": 6.6
@@ -480,14 +725,25 @@ const BRAIN = {
           "file": "glocal-funding.html",
           "name": "glocal-funding",
           "title": "glocal-funding",
+          "title_parity": "ok",
           "desc": "",
           "category": "ECONOMY",
           "size_kb": 5.9
         },
         {
+          "file": "gospel-bookstore/index.html",
+          "name": "gospel-bookstore",
+          "title": "Gospel Bookstore — Librería Cristiana para EEUU y LATAM",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "ECONOMY",
+          "size_kb": 15.0
+        },
+        {
           "file": "integration.html",
           "name": "integration",
           "title": "æ:// github.io integration · surface index",
+          "title_parity": "ok",
           "desc": "Full integration page for github.io surfaces — every surface, every category, agent-ready manifest.",
           "category": "ECONOMY",
           "size_kb": 18.3
@@ -496,6 +752,7 @@ const BRAIN = {
           "file": "llm-store-4d-atlas.html",
           "name": "llm-store-4d-atlas",
           "title": "&gt;_æ://llm.store · 4D OPENBASIC ATLAS",
+          "title_parity": "ok",
           "desc": "",
           "category": "ECONOMY",
           "size_kb": 17.0
@@ -504,6 +761,7 @@ const BRAIN = {
           "file": "llm-store-dna-qr.html",
           "name": "llm-store-dna-qr",
           "title": ">_LLM.STORE · DNA QR",
+          "title_parity": "ok",
           "desc": "",
           "category": "ECONOMY",
           "size_kb": 10.9
@@ -512,6 +770,7 @@ const BRAIN = {
           "file": "llm-store-dna-qr-916.html",
           "name": "llm-store-dna-qr-916",
           "title": ">_LLM.STORE · DNA QR · 9:16",
+          "title_parity": "ok",
           "desc": "",
           "category": "ECONOMY",
           "size_kb": 7.7
@@ -520,6 +779,7 @@ const BRAIN = {
           "file": "llm-store-widget.html",
           "name": "llm-store-widget",
           "title": "&gt;_æ://llm.store",
+          "title_parity": "ok",
           "desc": "",
           "category": "ECONOMY",
           "size_kb": 16.9
@@ -528,6 +788,7 @@ const BRAIN = {
           "file": "measurement-index.html",
           "name": "measurement-index",
           "title": "measurement-index",
+          "title_parity": "ok",
           "desc": "",
           "category": "ECONOMY",
           "size_kb": 6.0
@@ -536,6 +797,7 @@ const BRAIN = {
           "file": "mechdown.html",
           "name": "mechdown",
           "title": "MechDown CLI — Literate Programming | llm.store",
+          "title_parity": "ok",
           "desc": "MechDown literate programming environment aligned with mech-lang.org. Execute Mech code in the Command Line Internet.",
           "category": "ECONOMY",
           "size_kb": 18.6
@@ -544,6 +806,7 @@ const BRAIN = {
           "file": "neuromitosis.html",
           "name": "neuromitosis",
           "title": "neuromitosis.com — Human + Robot + DAO, bonded",
+          "title_parity": "ok",
           "desc": "",
           "category": "ECONOMY",
           "size_kb": 30.2
@@ -552,6 +815,7 @@ const BRAIN = {
           "file": "private-client.html",
           "name": "private-client",
           "title": ">_æ| · private client",
+          "title_parity": "ok",
           "desc": "Private client command prompt. æ.store — agentic entrepreneurship.",
           "category": "ECONOMY",
           "size_kb": 11.0
@@ -560,14 +824,52 @@ const BRAIN = {
           "file": "rails.html",
           "name": "rails",
           "title": "rails • >_$ · doola affiliate #hermiphicationisinevitable",
+          "title_parity": "ok",
           "desc": "Financial rail posture: Doola affiliate is the canonical, paid, zero-custody rail. Everything else is open plugin scaffolding — register as a mesh peer, no cust",
           "category": "ECONOMY",
           "size_kb": 9.9
         },
         {
+          "file": "session-receipt.html",
+          "name": "session-receipt",
+          "title": "æ:// session receipt — the Doola formation rail",
+          "title_parity": "ok",
+          "desc": "What was built, what was measured, what is still open. Receipts or it did not happen.",
+          "category": "ECONOMY",
+          "size_kb": 18.3
+        },
+        {
+          "file": "skills/index.html",
+          "name": "skills",
+          "title": "CLI.LLC / æ · Skill Portfolio",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "ECONOMY",
+          "size_kb": 2.4
+        },
+        {
+          "file": "startabusiness-references.html",
+          "name": "startabusiness-references",
+          "title": "#startabusiness · references — æ:// internet of agents",
+          "title_parity": "ok",
+          "desc": "Cross-platform index of #startabusiness references on X, LinkedIn and own surfaces. Verified, linked, and check-in enabled for the internet of agents.",
+          "category": "ECONOMY",
+          "size_kb": 16.4
+        },
+        {
+          "file": "æ/index.html",
+          "name": "æ",
+          "title": "æ / CLI.LLC · Business Preparation",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "ECONOMY",
+          "size_kb": 0.4
+        },
+        {
           "file": "æ_store/index.html",
           "name": "æ_store",
           "title": "æ.store — Sovereign Compute Mesh",
+          "title_parity": "ok",
           "desc": "",
           "category": "ECONOMY",
           "size_kb": 3.2
@@ -578,12 +880,22 @@ const BRAIN = {
       "id": "KNOWLEDGE",
       "glyph": "✎",
       "role": "curricula, indices, schools — teaching early",
-      "count": 13,
+      "count": 15,
       "surfaces": [
+        {
+          "file": "hansnielsenhauge/index.html",
+          "name": "hansnielsenhauge",
+          "title": "Hans Nielsen Hauge + Laico 🇳🇴 | L://Negocios",
+          "title_parity": "ok",
+          "desc": "Escuela de Negocios del Instituto Luterano Latinoamericano. Hans Nielsen Hauge: fe, trabajo, educación y emprendimiento.",
+          "category": "KNOWLEDGE",
+          "size_kb": 10.2
+        },
         {
           "file": "hauge-lali-916.html",
           "name": "hauge-lali-916",
           "title": "Haugean Legacy · LALI · 9:16",
+          "title_parity": "ok",
           "desc": "",
           "category": "KNOWLEDGE",
           "size_kb": 23.4
@@ -592,6 +904,7 @@ const BRAIN = {
           "file": "hauge-teologia.html",
           "name": "hauge-teologia",
           "title": "Haugean Legacy · teologia.ai",
+          "title_parity": "ok",
           "desc": "",
           "category": "KNOWLEDGE",
           "size_kb": 26.1
@@ -600,6 +913,7 @@ const BRAIN = {
           "file": "hermes-native-demo.html",
           "name": "hermes-native-demo",
           "title": "Hermes Native · Demo",
+          "title_parity": "ok",
           "desc": "",
           "category": "KNOWLEDGE",
           "size_kb": 8.1
@@ -608,6 +922,7 @@ const BRAIN = {
           "file": "mech-ai-by-hand-lessons.html",
           "name": "mech-ai-by-hand-lessons",
           "title": "AI by Hand - MÆCH Visual Learning System",
+          "title_parity": "ok",
           "desc": "",
           "category": "KNOWLEDGE",
           "size_kb": 59.5
@@ -616,6 +931,7 @@ const BRAIN = {
           "file": "mech-education-hub.html",
           "name": "mech-education-hub",
           "title": "MÆCH Education Hub - Infrastructure + AI by Hand (Ages 3-103)",
+          "title_parity": "ok",
           "desc": "",
           "category": "KNOWLEDGE",
           "size_kb": 34.1
@@ -624,6 +940,7 @@ const BRAIN = {
           "file": "mech-educational-streaming.html",
           "name": "mech-educational-streaming",
           "title": "MÆCH Educational Streaming - Creación de Cursos por Estudiantes",
+          "title_parity": "ok",
           "desc": "Sistema revolucionario para que estudiantes creen sus propios cursos con transmisión en vivo",
           "category": "KNOWLEDGE",
           "size_kb": 32.0
@@ -632,6 +949,7 @@ const BRAIN = {
           "file": "mech-mobile-educational-streaming.html",
           "name": "mech-mobile-educational-streaming",
           "title": "📱📺 MÆCH Mobile Educational Streaming - K-12 Broadcasting",
+          "title_parity": "ok",
           "desc": "Mobile-first educational streaming and broadcasting platform for K-12 students with 24/7 live streaming capabilities",
           "category": "KNOWLEDGE",
           "size_kb": 46.4
@@ -640,14 +958,25 @@ const BRAIN = {
           "file": "mech-notaebook-rust-education.html",
           "name": "mech-notaebook-rust-education",
           "title": "NOTÆBOOK - Rust for All Ages 3-103 | MÆCH Education",
+          "title_parity": "ok",
           "desc": "",
           "category": "KNOWLEDGE",
           "size_kb": 17.7
         },
         {
+          "file": "menlo-research.html",
+          "name": "menlo-research",
+          "title": "æ:// MENLO RESEARCH · derived",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "KNOWLEDGE",
+          "size_kb": 8.0
+        },
+        {
           "file": "nano-banana-rust-capsules.html",
           "name": "nano-banana-rust-capsules",
           "title": "🍌🦀 Nano Banana Rust - Ages 3-6 | MÆCH Education",
+          "title_parity": "ok",
           "desc": "",
           "category": "KNOWLEDGE",
           "size_kb": 16.1
@@ -656,6 +985,7 @@ const BRAIN = {
           "file": "nano-lesson-node-latamocw.html",
           "name": "nano-lesson-node-latamocw",
           "title": "NANO LESSON NODE - #LATAMocw OpenCourseWare",
+          "title_parity": "ok",
           "desc": "",
           "category": "KNOWLEDGE",
           "size_kb": 60.6
@@ -664,6 +994,7 @@ const BRAIN = {
           "file": "school-of-hermes-fleet.html",
           "name": "school-of-hermes-fleet",
           "title": "School of Hermes · The Fleet",
+          "title_parity": "ok",
           "desc": "",
           "category": "KNOWLEDGE",
           "size_kb": 6.3
@@ -672,6 +1003,7 @@ const BRAIN = {
           "file": "teologia/index.html",
           "name": "teologia",
           "title": "teologia.ai · æ://",
+          "title_parity": "ok",
           "desc": "Plataforma soberana de devoción — orar, catecismo, enchiridion. Inferencia local en el navegador.",
           "category": "KNOWLEDGE",
           "size_kb": 101.5
@@ -680,6 +1012,7 @@ const BRAIN = {
           "file": "threejs-review.html",
           "name": "threejs-review",
           "title": "æ:// threejs curriculum — review",
+          "title_parity": "ok",
           "desc": "",
           "category": "KNOWLEDGE",
           "size_kb": 5.0
@@ -690,12 +1023,13 @@ const BRAIN = {
       "id": "CHASSIS",
       "glyph": "⌘",
       "role": "the language/runtime layer — schemes, routers, interpreters",
-      "count": 35,
+      "count": 43,
       "surfaces": [
         {
           "file": "a2ui-interface.html",
           "name": "a2ui-interface",
           "title": "A2UI — Agent-to-User Interface | æææ:///a2ui",
+          "title_parity": "ok",
           "desc": "A2UI Agent-to-User Interface rail on the æææ:/// Command Line Internet Protocol. Agents speak UI via declarative JSON.",
           "category": "CHASSIS",
           "size_kb": 22.9
@@ -704,22 +1038,61 @@ const BRAIN = {
           "file": "aaa-com-916.html",
           "name": "aaa-com-916",
           "title": "@yaelmendez — æææ.com · the command line internet",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 15.7
         },
         {
-          "file": "aaa-protocol.html",
-          "name": "aaa-protocol",
-          "title": "æææ:/// — The Command Line Internet Protocol",
-          "desc": "Triple-ashe (æææ) is the unified namespace for global intelligence. QR CODE + MÆCH LANGUAGE = LLM compute, measured on local hardware: 27 tok/s generation · 829",
+          "file": "aaa-namespace-916.html",
+          "name": "aaa-namespace-916",
+          "title": "@yaelmendez — æææ:/// the namespace, layer by layer",
+          "title_parity": "ok",
+          "desc": "",
           "category": "CHASSIS",
-          "size_kb": 14.3
+          "size_kb": 15.2
+        },
+        {
+          "file": "ae-ecosystem.html",
+          "name": "ae-ecosystem",
+          "title": "æææ · Origin of Agentic Environments",
+          "title_parity": "ok",
+          "desc": "The root namespace of the æ ecosystem. One namespace, many environments, one principal. æ1 environments, æQR addressing, æ-Commerce, the navigable æ-space, and ",
+          "category": "CHASSIS",
+          "size_kb": 22.7
+        },
+        {
+          "file": "ae-protocol.html",
+          "name": "ae-protocol",
+          "title": "æ:// PROTOCOL — from first principles",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "CHASSIS",
+          "size_kb": 6.8
+        },
+        {
+          "file": "ae-protocol-v2.html",
+          "name": "ae-protocol-v2",
+          "title": "æ:// PROTOCOL — from first principles",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "CHASSIS",
+          "size_kb": 7.0
+        },
+        {
+          "file": "ae-protocol-v3.html",
+          "name": "ae-protocol-v3",
+          "title": "æ:// PROTOCOL — from first principles",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "CHASSIS",
+          "size_kb": 7.0
         },
         {
           "file": "aeos-916.html",
           "name": "aeos-916",
           "title": "æOS · 9:16",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 12.4
@@ -728,6 +1101,7 @@ const BRAIN = {
           "file": "any-ontology-compute.html",
           "name": "any-ontology-compute",
           "title": "æææ OS · Any Ontology Compute",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 20.8
@@ -736,6 +1110,7 @@ const BRAIN = {
           "file": "any-ontology-compute-v2.html",
           "name": "any-ontology-compute-v2",
           "title": "æææ OS · Any Ontology Compute",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 20.8
@@ -744,6 +1119,7 @@ const BRAIN = {
           "file": "any-ontology-master.html",
           "name": "any-ontology-master",
           "title": "æææ OS · Any Ontology Compute · Master Runtime",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 39.3
@@ -752,6 +1128,7 @@ const BRAIN = {
           "file": "chain/index.html",
           "name": "chain",
           "title": "æ:// · Human Chain Composer · KÆNBÆN",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 10.4
@@ -760,22 +1137,43 @@ const BRAIN = {
           "file": "cli-4d-prompt-descent.html",
           "name": "cli-4d-prompt-descent",
           "title": "æææ:/// Command Line Internet - 4D Prompt Descent | RFC-00",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 31.9
         },
         {
+          "file": "code.html",
+          "name": "code",
+          "title": "æ://code-mode · terminal I/O",
+          "title_parity": "ok",
+          "desc": "Code-mode terminal I/O — a live, ranked, composable way for agents to find the mesh",
+          "category": "CHASSIS",
+          "size_kb": 15.1
+        },
+        {
           "file": "command-map.html",
           "name": "command-map",
           "title": "æ:// command map · navigable surface graph",
+          "title_parity": "ok",
           "desc": "The command map as interface. Type a command, the 3D scene responds. Every surface, every scheme, navigable in three dimensions.",
           "category": "CHASSIS",
           "size_kb": 44.4
         },
         {
+          "file": "dispatch-gauge.html",
+          "name": "dispatch-gauge",
+          "title": "æææ:///dispatch — capability gauge",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "CHASSIS",
+          "size_kb": 6.8
+        },
+        {
           "file": "domain-empire.html",
           "name": "domain-empire",
           "title": "Command Line Internet — Domain Empire | æææ.com",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 15.3
@@ -784,6 +1182,7 @@ const BRAIN = {
           "file": "googlemcp-interface.html",
           "name": "googlemcp-interface",
           "title": "Google MCP — Model Context Protocol Servers | æææ:///mcp",
+          "title_parity": "ok",
           "desc": "Google",
           "category": "CHASSIS",
           "size_kb": 25.6
@@ -792,14 +1191,25 @@ const BRAIN = {
           "file": "internetofagents-v2.html",
           "name": "internetofagents-v2",
           "title": "Internet of Agents v2 · Living Mesh Protocol",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 19.4
         },
         {
+          "file": "maechlang/index.html",
+          "name": "maechlang",
+          "title": "æ · mæchlæng LAB · Mech en vivo",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "CHASSIS",
+          "size_kb": 11.8
+        },
+        {
           "file": "mech-agent-orchestrator.html",
           "name": "mech-agent-orchestrator",
           "title": "MÆCH Agent Orchestrator - Tabular Coding Agents",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 29.7
@@ -808,6 +1218,7 @@ const BRAIN = {
           "file": "mech-app-example.html",
           "name": "mech-app-example",
           "title": "MÆCH App - React Replacement Demo",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 10.1
@@ -816,6 +1227,7 @@ const BRAIN = {
           "file": "mech-compatibility-migrator.html",
           "name": "mech-compatibility-migrator",
           "title": "MÆCH Compatibility Migrator - 247+ Implementation Converter",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 29.6
@@ -824,6 +1236,7 @@ const BRAIN = {
           "file": "mech-deepcode-agentic.html",
           "name": "mech-deepcode-agentic",
           "title": "MÆCH DeepCode: Open Agentic Coding",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 39.1
@@ -832,6 +1245,7 @@ const BRAIN = {
           "file": "mech-integration-hub.html",
           "name": "mech-integration-hub",
           "title": "MÆCH Integration Hub - Universal Application Registry",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 29.0
@@ -840,6 +1254,7 @@ const BRAIN = {
           "file": "mech-latam-ocw.html",
           "name": "mech-latam-ocw",
           "title": "MÆCH #LATAMOCW: Sistema Educativo Territorial",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 30.7
@@ -848,6 +1263,7 @@ const BRAIN = {
           "file": "mech-map-native.html",
           "name": "mech-map-native",
           "title": "MÆCH Map Native | QR://c3f6q7h Navigator",
+          "title_parity": "ok",
           "desc": "Navigate the MÆCH Æcosystem - QR addressable satellite network with qr://c3f6q7h protocol",
           "category": "CHASSIS",
           "size_kb": 45.7
@@ -856,6 +1272,7 @@ const BRAIN = {
           "file": "mech-mobile-matrix-controller.html",
           "name": "mech-mobile-matrix-controller",
           "title": "MÆCH Mobile Matrix Controller | Universal Interface",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 31.3
@@ -864,6 +1281,7 @@ const BRAIN = {
           "file": "mech-mobile-qr-scanner.html",
           "name": "mech-mobile-qr-scanner",
           "title": "📱🔍 MÆCH Mobile QR Scanner - Territorial Addressing System",
+          "title_parity": "ok",
           "desc": "Native mobile QR code scanner for MÆCH territorial sovereignty and addressing system",
           "category": "CHASSIS",
           "size_kb": 28.7
@@ -872,6 +1290,7 @@ const BRAIN = {
           "file": "mech-model-combinator.html",
           "name": "mech-model-combinator",
           "title": "MÆCH Model Combinator — Universal LLM Fusion | x₀y₀z₀",
+          "title_parity": "ok",
           "desc": "Universal Model Combinator - Combine 800K+ models visually in 3D space with parallel processing and QR-addressable combinations.",
           "category": "CHASSIS",
           "size_kb": 36.8
@@ -880,6 +1299,7 @@ const BRAIN = {
           "file": "mech-ocw-student-dashboard.html",
           "name": "mech-ocw-student-dashboard",
           "title": "MÆCH OCW Global Student Dashboard - Ages 3-103",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 40.6
@@ -888,6 +1308,7 @@ const BRAIN = {
           "file": "mech-os.html",
           "name": "mech-os",
           "title": "æææ:/// MECH-OS",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 43.5
@@ -896,6 +1317,7 @@ const BRAIN = {
           "file": "mech-os-vae.html",
           "name": "mech-os-vae",
           "title": "MÆCH OS vÆ - Asymptotic Convergence System",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 26.7
@@ -904,6 +1326,7 @@ const BRAIN = {
           "file": "mech-spatial-os.html",
           "name": "mech-spatial-os",
           "title": "MÆCH Spatial OS - True 4D Operating System",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 105.6
@@ -912,6 +1335,7 @@ const BRAIN = {
           "file": "mech-spatial-os-dot-matrix.html",
           "name": "mech-spatial-os-dot-matrix",
           "title": "⬢🌌 MÆCH Spatial OS - Dot Matrix 4D",
+          "title_parity": "ok",
           "desc": "Revolutionary dot matrix spatial OS with 4D territorial programming and visual sovereignty",
           "category": "CHASSIS",
           "size_kb": 35.3
@@ -920,6 +1344,7 @@ const BRAIN = {
           "file": "mech-terminal-browser.html",
           "name": "mech-terminal-browser",
           "title": "MÆCH Terminal Browser - HTTP & AT Protocol",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 30.0
@@ -928,6 +1353,7 @@ const BRAIN = {
           "file": "mech-territorial-documentation.html",
           "name": "mech-territorial-documentation",
           "title": "MÆCH Territorial Documentation - æL.net 🌐 via neuromitosis.com",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 39.5
@@ -936,14 +1362,25 @@ const BRAIN = {
           "file": "mech-territorial-programming-interface.html",
           "name": "mech-territorial-programming-interface",
           "title": "MÆCH Territorial Programming Interface | iaAmano.com Fulcrum",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 39.9
         },
         {
+          "file": "origin/index.html",
+          "name": "origin",
+          "title": "x0:y0:z0:æ0 · >_æææ://|||",
+          "title_parity": "ok",
+          "desc": "The origin of æ-space. x0:y0:z:0æ:0 — you are here. Every surface addressed in 4-space: x=category, y=item, z=depth, æ=authority (public→custody).",
+          "category": "CHASSIS",
+          "size_kb": 36.9
+        },
+        {
           "file": "pico-os/index.html",
           "name": "pico-os",
           "title": "æææ:// Pico OS · Agentic Notes",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 7.6
@@ -952,6 +1389,7 @@ const BRAIN = {
           "file": "redirect.html",
           "name": "redirect",
           "title": "æææ:// → github.io redirect",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 2.8
@@ -960,14 +1398,16 @@ const BRAIN = {
           "file": "tower-sync/index.html",
           "name": "tower-sync",
           "title": "æææ:// TOWER — sovereign mesh sync",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
-          "size_kb": 18.7
+          "size_kb": 20.0
         },
         {
           "file": "yael-baesic-vae.html",
           "name": "yael-baesic-vae",
           "title": "yæl Bæsic væ // White Polar Star Edition",
+          "title_parity": "ok",
           "desc": "",
           "category": "CHASSIS",
           "size_kb": 8.6
@@ -978,20 +1418,40 @@ const BRAIN = {
       "id": "AGENT",
       "glyph": "◈",
       "role": "agents, fleets, orchestration — the human loop",
-      "count": 19,
+      "count": 36,
       "surfaces": [
+        {
+          "file": "ae/index.html",
+          "name": "ae",
+          "title": "æ^Agentic_Environments · Make your environment yours",
+          "title_parity": "ok",
+          "desc": "Inspect a public repository, prepare an action plan, open native GitHub Actions, and inspect run evidence. Standalone æ skill cockpit.",
+          "category": "AGENT",
+          "size_kb": 85.1
+        },
         {
           "file": "agentic-mail.html",
           "name": "agentic-mail",
           "title": "agentic-mail",
+          "title_parity": "ok",
           "desc": "",
           "category": "AGENT",
           "size_kb": 6.8
         },
         {
+          "file": "asimov-viewport-v2.html",
+          "name": "asimov-viewport-v2",
+          "title": ">_æ: Asimov Viewport",
+          "title_parity": "ok",
+          "desc": "Self-contained Asimov Agent viewport: embedded Menlo CAD loop, DOM awareness, ffmpeg artifacts, receipts.",
+          "category": "AGENT",
+          "size_kb": 478.5
+        },
+        {
           "file": "codex-dual-bio-runtime.html",
           "name": "codex-dual-bio-runtime",
           "title": "📟 Codex · Dual Bio-Runtime v∞",
+          "title_parity": "ok",
           "desc": "",
           "category": "AGENT",
           "size_kb": 6.5
@@ -1000,6 +1460,7 @@ const BRAIN = {
           "file": "commandprompt-ai.html",
           "name": "commandprompt-ai",
           "title": "COMMANDPROMPT.AI · Agentic Control Surface",
+          "title_parity": "ok",
           "desc": "",
           "category": "AGENT",
           "size_kb": 17.0
@@ -1008,6 +1469,7 @@ const BRAIN = {
           "file": "draw-agentic.html",
           "name": "draw-agentic",
           "title": "draw-agentic",
+          "title_parity": "ok",
           "desc": "",
           "category": "AGENT",
           "size_kb": 7.4
@@ -1016,6 +1478,7 @@ const BRAIN = {
           "file": "fase12-integration.html",
           "name": "fase12-integration",
           "title": "æ:// fase12-integration — WebMCP + Agent Loop",
+          "title_parity": "ok",
           "desc": "",
           "category": "AGENT",
           "size_kb": 16.0
@@ -1024,6 +1487,7 @@ const BRAIN = {
           "file": "fase13-agentic-electronics.html",
           "name": "fase13-agentic-electronics",
           "title": "æ:// fase13-agentic — Agentic Electronic Engineering",
+          "title_parity": "ok",
           "desc": "",
           "category": "AGENT",
           "size_kb": 13.1
@@ -1032,6 +1496,7 @@ const BRAIN = {
           "file": "fleet.html",
           "name": "fleet",
           "title": "fleet • +æ://fleet • mixture of devices",
+          "title_parity": "ok",
           "desc": "fleet — the bootstrap surface of the sovereign device mixture. Open on any device, pair with the engineering computer, publish your capability manifest, join th",
           "category": "AGENT",
           "size_kb": 9.9
@@ -1040,22 +1505,79 @@ const BRAIN = {
           "file": "glocal-mesh.html",
           "name": "glocal-mesh",
           "title": "glocal mesh • capability subagents #hermiphicationisinevitable",
+          "title_parity": "ok",
           "desc": "Each AGENTS.md primitive (>_æ: >_h: >_n: >_$) spawns as an addressable capability subagent of the private-client GLOCAL mesh — pc://mesh/<cap>/local — riding th",
           "category": "AGENT",
           "size_kb": 12.7
         },
         {
+          "file": "hermes-contributions.html",
+          "name": "hermes-contributions",
+          "title": "hermes-agent · global OSS at scale",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "AGENT",
+          "size_kb": 6.6
+        },
+        {
+          "file": "hermes-demo-916.html",
+          "name": "hermes-demo-916",
+          "title": "æ://origin-run · 9:16 demo loop",
+          "title_parity": "ok",
+          "desc": "ORIGIN RUN — a 25-second 9:16 demo loop showcasing agentic-environment build capability: canvas, particles, autopilot, live HUD.",
+          "category": "AGENT",
+          "size_kb": 11.7
+        },
+        {
+          "file": "hermes-kanban-916.html",
+          "name": "hermes-kanban-916",
+          "title": "æ://kænbæn · 9:16 dispatch loop",
+          "title_parity": "ok",
+          "desc": "KÆNBÆN — a 25-second 9:16 dispatch-loop game. Cards flow CLAIM→WORK→VERIFY→PUSH through the æ:// kanban board. Autopilot + playable.",
+          "category": "AGENT",
+          "size_kb": 15.5
+        },
+        {
+          "file": "hermes-live.html",
+          "name": "hermes-live",
+          "title": "HERMES-AGENT // æQR Kænbæn Live",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "AGENT",
+          "size_kb": 38.6
+        },
+        {
+          "file": "hermes-mæsh.html",
+          "name": "hermes-mæsh",
+          "title": "AGENTIC ARTIFACTS // HUMAN://ROOT",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "AGENT",
+          "size_kb": 7.0
+        },
+        {
+          "file": "hermes-mæsh-live.html",
+          "name": "hermes-mæsh-live",
+          "title": "AGENTIC ARTIFACTS // HUMAN://ROOT · LIVE",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "AGENT",
+          "size_kb": 23.5
+        },
+        {
           "file": "homebase.html",
           "name": "homebase",
           "title": "æ:// HOMEBASE — full system · codæ://",
+          "title_parity": "ok",
           "desc": "Three.js visualization of the complete æ:// HOMEBASE system — all agents, kænbæn shared memory, mesh topology, surfaces, and data flow within desktop sessions.",
           "category": "AGENT",
-          "size_kb": 16.1
+          "size_kb": 19.6
         },
         {
           "file": "internetofagents.html",
           "name": "internetofagents",
           "title": "Internet of Agents · #internetofagents",
+          "title_parity": "ok",
           "desc": "Internet of Agents — the sovereign mesh of agentic engineering. Each agent carries human provenance (X-verified owner), local sovereignty (no cloud), and human-",
           "category": "AGENT",
           "size_kb": 24.4
@@ -1064,6 +1586,7 @@ const BRAIN = {
           "file": "internetofagents-916.html",
           "name": "internetofagents-916",
           "title": "@yaelmendez — #internetofagents #onepersoncompany",
+          "title_parity": "ok",
           "desc": "",
           "category": "AGENT",
           "size_kb": 17.0
@@ -1072,6 +1595,7 @@ const BRAIN = {
           "file": "internetofagents-demo.html",
           "name": "internetofagents-demo",
           "title": "internetofagents-demo",
+          "title_parity": "ok",
           "desc": "",
           "category": "AGENT",
           "size_kb": 5.0
@@ -1080,22 +1604,43 @@ const BRAIN = {
           "file": "kanban/index.html",
           "name": "kanban",
           "title": "æ:// KÆNBÆN · Human Agency",
+          "title_parity": "ok",
           "desc": "",
           "category": "AGENT",
           "size_kb": 13.5
         },
         {
+          "file": "kanban-unified.html",
+          "name": "kanban-unified",
+          "title": "KÆNBÆN · unificado",
+          "title_parity": "ok",
+          "desc": "276 tarjetas de 4 tableros en una sola vista coherente: hermes, waves, tiny*, kanban IRL.",
+          "category": "AGENT",
+          "size_kb": 86.6
+        },
+        {
           "file": "many-agents-916.html",
           "name": "many-agents-916",
           "title": "@yaelmendez — many agents",
+          "title_parity": "ok",
           "desc": "",
           "category": "AGENT",
           "size_kb": 15.9
         },
         {
+          "file": "mcp/index.html",
+          "name": "mcp",
+          "title": "$mcp · Virtual Agent Keypad by æ",
+          "title_parity": "ok",
+          "desc": "Virtual Codex Micro-inspired agent keypad. Human-governed Sourceware.",
+          "category": "AGENT",
+          "size_kb": 9.8
+        },
+        {
           "file": "mesh-agenti.html",
           "name": "mesh-agenti",
           "title": "mesh agenti • +æ://mesh • sovereign LAN pairing",
+          "title_parity": "ok",
           "desc": "mesh agenti — the web surface of +æ://mesh. Pair two sovereign nodes over wifi via QR handshake. Opt-in. No cloud.",
           "category": "AGENT",
           "size_kb": 8.7
@@ -1104,14 +1649,43 @@ const BRAIN = {
           "file": "motlbook.html",
           "name": "motlbook",
           "title": "Motlbook - Social Network for AI Agents",
+          "title_parity": "ok",
           "desc": "",
           "category": "AGENT",
           "size_kb": 10.8
         },
         {
+          "file": "neuro-1-bond-916.html",
+          "name": "neuro-1-bond-916",
+          "title": "@yaelmendez — neuromitosis · the bond",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "AGENT",
+          "size_kb": 14.6
+        },
+        {
+          "file": "neuro-2-haebbian-916.html",
+          "name": "neuro-2-haebbian-916",
+          "title": "@yaelmendez — neuromitosis · hæbbian",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "AGENT",
+          "size_kb": 14.1
+        },
+        {
+          "file": "neuro-3-sovereignty-916.html",
+          "name": "neuro-3-sovereignty-916",
+          "title": "@yaelmendez — neuromitosis · soberanía cognitiva",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "AGENT",
+          "size_kb": 13.5
+        },
+        {
           "file": "neuromitosis-polar-star-cell.html",
           "name": "neuromitosis-polar-star-cell",
           "title": "Neuromitosis · White Polar Star Cell v∞",
+          "title_parity": "ok",
           "desc": "",
           "category": "AGENT",
           "size_kb": 13.3
@@ -1120,6 +1694,7 @@ const BRAIN = {
           "file": "pledge.html",
           "name": "pledge",
           "title": "The Agent Commitment · æ://",
+          "title_parity": "ok",
           "desc": "",
           "category": "AGENT",
           "size_kb": 6.3
@@ -1128,9 +1703,46 @@ const BRAIN = {
           "file": "reachy-emulator.html",
           "name": "reachy-emulator",
           "title": "Reachy Clerk Emulator • $OS",
+          "title_parity": "ok",
           "desc": "Reachy Clerk emulator for $OS: economic infrastructure for agentic entrepreneurship.",
           "category": "AGENT",
           "size_kb": 12.3
+        },
+        {
+          "file": "soldier-preview.html",
+          "name": "soldier-preview",
+          "title": "HERMES-AGENT // Digital Human Preview",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "AGENT",
+          "size_kb": 7.0
+        },
+        {
+          "file": "threejs-human.html",
+          "name": "threejs-human",
+          "title": "æ:// digital human · three.js",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "AGENT",
+          "size_kb": 6.6
+        },
+        {
+          "file": "tiny.html",
+          "name": "tiny",
+          "title": "tiny* · la familia soberana",
+          "title_parity": "ok",
+          "desc": "Los 21 instrumentos tiny* del fleet, como una constelación ejecutable: cada nodo corrio su doctor real. Medido, no declarado.",
+          "category": "AGENT",
+          "size_kb": 61.7
+        },
+        {
+          "file": "work-here.html",
+          "name": "work-here",
+          "title": "&gt;_work_here! · Many agents. One principal. Real progress.",
+          "title_parity": "ok",
+          "desc": "The command that turns ChatGPT into a place where people get work done. >_work_here! accomplish inside ChatGPT. >_open_site enter the æ Studio. >_govern retain ",
+          "category": "AGENT",
+          "size_kb": 14.2
         }
       ]
     },
@@ -1138,12 +1750,13 @@ const BRAIN = {
       "id": "INFRA",
       "glyph": "⬡",
       "role": "droplet, mesh, DNS — deployment and telemetry",
-      "count": 3,
+      "count": 4,
       "surfaces": [
         {
           "file": "capability-mesh.html",
           "name": "capability-mesh",
           "title": "æ:// capability mesh · global compute potential",
+          "title_parity": "ok",
           "desc": "208 skills × 3 compute nodes. Every capability mapped to the hardware that can run it.",
           "category": "INFRA",
           "size_kb": 27.5
@@ -1152,6 +1765,7 @@ const BRAIN = {
           "file": "demo.html",
           "name": "demo",
           "title": "æ:// DEMO · Sovereign Private Client Mesh",
+          "title_parity": "ok",
           "desc": "",
           "category": "INFRA",
           "size_kb": 7.3
@@ -1160,9 +1774,19 @@ const BRAIN = {
           "file": "the-mesh.html",
           "name": "the-mesh",
           "title": "MoD · The Mesh",
+          "title_parity": "ok",
           "desc": "MoD is the topology. Code Mode is the discipline. The intersection is sovereign.",
           "category": "INFRA",
           "size_kb": 40.6
+        },
+        {
+          "file": "vscode/index.html",
+          "name": "vscode",
+          "title": "vscode:// — mobility.foundation",
+          "title_parity": "ok",
+          "desc": "The VS Code review surface for mobility.foundation. Verified 9:16 MuJoCo evidence under HUMAN://ROOT authority.",
+          "category": "INFRA",
+          "size_kb": 8.1
         }
       ]
     },
@@ -1170,12 +1794,22 @@ const BRAIN = {
       "id": "SURFACE",
       "glyph": "□",
       "role": "the HTML viewports — entry, index, terminal",
-      "count": 3,
+      "count": 4,
       "surfaces": [
+        {
+          "file": "contributions.html",
+          "name": "contributions",
+          "title": "æ:// contributions — derived GitHub calendar",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "SURFACE",
+          "size_kb": 5.8
+        },
         {
           "file": "fase17-chaos.html",
           "name": "fase17-chaos",
           "title": "æ:// fase17-chaos — Chaos Root + Pulse Gated",
+          "title_parity": "ok",
           "desc": "",
           "category": "SURFACE",
           "size_kb": 8.3
@@ -1184,6 +1818,7 @@ const BRAIN = {
           "file": "rust-vocabulary-reference.html",
           "name": "rust-vocabulary-reference",
           "title": "Rust ↔ MÆCH Vocabulary Reference | Complete Mapping",
+          "title_parity": "ok",
           "desc": "",
           "category": "SURFACE",
           "size_kb": 24.5
@@ -1192,9 +1827,10 @@ const BRAIN = {
           "file": "skill-guide/index.html",
           "name": "skill-guide",
           "title": "æ:// skill-guide — local skill library",
-          "desc": "",
+          "title_parity": "ok",
+          "desc": "æ:// skill-guide — every skill the agent can load, with its compute tier and its place in the topology. Regenerated from the live library.",
           "category": "SURFACE",
-          "size_kb": 88.6
+          "size_kb": 81.5
         }
       ]
     },
@@ -1202,12 +1838,13 @@ const BRAIN = {
       "id": "OTHER",
       "glyph": "·",
       "role": "unclassified surfaces",
-      "count": 32,
+      "count": 61,
       "surfaces": [
         {
           "file": "ael-tv-net-station-creator.html",
           "name": "ael-tv-net-station-creator",
           "title": "📱 ÆL📺net Mobile - TV Station Creator for Students",
+          "title_parity": "ok",
           "desc": "🎓 Mobile-first revolutionary TV network for K-12 students with 24/7 broadcasting and McKinsey strategic framework - MÆCH Territorial Sovereignty",
           "category": "OTHER",
           "size_kb": 53.8
@@ -1216,6 +1853,7 @@ const BRAIN = {
           "file": "aeqr.html",
           "name": "aeqr",
           "title": "æQR · resource addressing, verification & audit — æ://",
+          "title_parity": "ok",
           "desc": "æQR — one discovery layer across many resources without making every resource public. A QR is an address, not permission. Produced-and-verified, decoded back th",
           "category": "OTHER",
           "size_kb": 11.4
@@ -1224,14 +1862,43 @@ const BRAIN = {
           "file": "aggregate.html",
           "name": "aggregate",
           "title": "æ:// aggregate — development rollup · point-of-truth",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 5.4
         },
         {
+          "file": "asimov-viewport/index.html",
+          "name": "asimov-viewport",
+          "title": ">_æ: Asimov Viewport",
+          "title_parity": "ok",
+          "desc": "Self-contained Asimov Agent viewport: embedded Menlo CAD loop, DOM awareness, ffmpeg artifacts, receipts.",
+          "category": "OTHER",
+          "size_kb": 478.5
+        },
+        {
+          "file": "asimov-viewport-v2/index.html",
+          "name": "asimov-viewport-v2",
+          "title": ">_æ: Asimov Viewport",
+          "title_parity": "ok",
+          "desc": "Self-contained Asimov Agent viewport: embedded Menlo CAD loop, DOM awareness, ffmpeg artifacts, receipts.",
+          "category": "OTHER",
+          "size_kb": 478.5
+        },
+        {
+          "file": "cloud/index.html",
+          "name": "cloud",
+          "title": "CG Pipeline — Neon Portraits & Asimov Simulator",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "OTHER",
+          "size_kb": 1.1
+        },
+        {
           "file": "codae/index.html",
           "name": "codae",
           "title": "codæ:// Universal Code Mode · Reference Lab",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 6.7
@@ -1240,22 +1907,79 @@ const BRAIN = {
           "file": "command-prompt.html",
           "name": "command-prompt",
           "title": "SOVÆREIGN PRIVATE CLIENT — Command Prompt",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 21.3
         },
         {
+          "file": "continuity.html",
+          "name": "continuity",
+          "title": "æ · Continuity",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "OTHER",
+          "size_kb": 59.1
+        },
+        {
+          "file": "contributions-promo.html",
+          "name": "contributions-promo",
+          "title": "contributions-film · #opensourceware",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "OTHER",
+          "size_kb": 8.3
+        },
+        {
+          "file": "corpus.html",
+          "name": "corpus",
+          "title": "THE CORPUS — æ://film",
+          "title_parity": "ok",
+          "desc": "152 receipted robotics films. Every claim carries a hash.",
+          "category": "OTHER",
+          "size_kb": 72.9
+        },
+        {
           "file": "draw-electronic.html",
           "name": "draw-electronic",
           "title": "draw-electronic",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 8.7
         },
         {
+          "file": "eee-1-ethics-916.html",
+          "name": "eee-1-ethics-916",
+          "title": "@yaelmendez — æ¹ ETHICS · who authorizes?",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "OTHER",
+          "size_kb": 13.8
+        },
+        {
+          "file": "eee-2-economics-916.html",
+          "name": "eee-2-economics-916",
+          "title": "@yaelmendez — æ² ECONOMICS · who benefits?",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "OTHER",
+          "size_kb": 13.4
+        },
+        {
+          "file": "eee-3-engineering-916.html",
+          "name": "eee-3-engineering-916",
+          "title": "@yaelmendez — æ³ ENGINEERING · how do we build it?",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "OTHER",
+          "size_kb": 14.5
+        },
+        {
           "file": "fase10-postprocessing.html",
           "name": "fase10-postprocessing",
           "title": "æ:// fase10-post — Post-Processing Pipeline",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 11.9
@@ -1264,6 +1988,7 @@ const BRAIN = {
           "file": "fase11-effects.html",
           "name": "fase11-effects",
           "title": "æ:// fase11-effects — Efectos Avanzados",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 13.1
@@ -1272,6 +1997,7 @@ const BRAIN = {
           "file": "fase14-xmlsvg-dataflow.html",
           "name": "fase14-xmlsvg-dataflow",
           "title": "æ:// fase14-xmlsvg — XML/SVG → Dataflow Geometry",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 8.5
@@ -1280,6 +2006,7 @@ const BRAIN = {
           "file": "fase15-xmlsvg-dataflow.html",
           "name": "fase15-xmlsvg-dataflow",
           "title": "æ:// fase15-xmlsvg — Spreadsheets → XML → Geometry",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 11.3
@@ -1288,6 +2015,7 @@ const BRAIN = {
           "file": "fase4-shaders.html",
           "name": "fase4-shaders",
           "title": "æ:// fase4-shaders — Shader Foundations",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 11.1
@@ -1296,6 +2024,7 @@ const BRAIN = {
           "file": "fase6-shaders.html",
           "name": "fase6-shaders",
           "title": "æ:// fase6-shaders — Advanced Shaders",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 6.8
@@ -1304,6 +2033,7 @@ const BRAIN = {
           "file": "fase7-performance.html",
           "name": "fase7-performance",
           "title": "æ:// fase7-performance — Escalabilidad Masiva",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 9.2
@@ -1312,30 +2042,70 @@ const BRAIN = {
           "file": "fase8-architecture.html",
           "name": "fase8-architecture",
           "title": "æ:// fase8-architecture — Escenas Complejas",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 11.4
         },
         {
+          "file": "film-studio.html",
+          "name": "film-studio",
+          "title": "æ:// FILM STUDIO · board any repository",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "OTHER",
+          "size_kb": 8.9
+        },
+        {
           "file": "kaenbaen/index.html",
           "name": "kaenbaen",
           "title": "kænbæn — shared system memory · codæ://",
+          "title_parity": "ok",
           "desc": "kænbæn — la memoria compartida del sistema. system-map, capability-contracts, verification-gates, genesis-chain. Todo agente lo lee antes de actuar.",
           "category": "OTHER",
           "size_kb": 8.8
         },
         {
+          "file": "kanban-irl/index.html",
+          "name": "kanban-irl",
+          "title": "KÆNBÆN IRL · kanban-irl",
+          "title_parity": "ok",
+          "desc": "IRL kænbæn card loop hardened to local resources. 8 kanban cards with Ed25519 signatures.",
+          "category": "OTHER",
+          "size_kb": 6.2
+        },
+        {
           "file": "material-lab.html",
           "name": "material-lab",
           "title": "æ:// Material Lab — PBR Shader Matrix",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 7.5
         },
         {
+          "file": "mfe-most-efficient-01-mec.html",
+          "name": "mfe-most-efficient-01-mec",
+          "title": "mfe · most efficient film",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "OTHER",
+          "size_kb": 5.2
+        },
+        {
+          "file": "mobility/index.html",
+          "name": "mobility",
+          "title": "mobility.foundation — æLOCOMOTION",
+          "title_parity": "ok",
+          "desc": "Canonical home of æLOCOMOTION: the policy-driven Asimov Agent mobility harness. HUMAN://ROOT → hermes-agent → Asimov-1 → receipt.",
+          "category": "OTHER",
+          "size_kb": 4.7
+        },
+        {
           "file": "nebula.html",
           "name": "nebula",
           "title": "æ:// Nebula — Three.js Particle Shader",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 7.7
@@ -1344,6 +2114,7 @@ const BRAIN = {
           "file": "neuro-ur-watch.html",
           "name": "neuro-ur-watch",
           "title": "NEURO·UR · æOS Watch vΩ+11",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 32.4
@@ -1352,14 +2123,34 @@ const BRAIN = {
           "file": "openai/index.html",
           "name": "openai",
           "title": "OPENAI://WORKBENCH · M. Yael Méndez",
+          "title_parity": "ok",
           "desc": "A shared human-AI workbench for M. Yael Méndez and OpenAI: intent, context, decisions, artifacts, and next actions.",
           "category": "OTHER",
           "size_kb": 13.6
         },
         {
+          "file": "openclaw.html",
+          "name": "openclaw",
+          "title": "æ:// OPENCLAW · derived",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "OTHER",
+          "size_kb": 8.0
+        },
+        {
+          "file": "osw-voice-lab.html",
+          "name": "osw-voice-lab",
+          "title": "osw-voice-lab — soværeign voice laboratory",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "OTHER",
+          "size_kb": 8.7
+        },
+        {
           "file": "parallel-sovereignty.html",
           "name": "parallel-sovereignty",
           "title": "æ:// Parallel Sovereignty",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 22.0
@@ -1368,14 +2159,25 @@ const BRAIN = {
           "file": "porter.html",
           "name": "porter",
           "title": "æ://porter · local brain · nous portal default",
+          "title_parity": "ok",
           "desc": "porter — the routing viewport. Small WebLLM brain runs locally on the device; Nous Portal is the default upstream when a key is present. Zero cloud for local, o",
           "category": "OTHER",
           "size_kb": 9.9
         },
         {
+          "file": "public-private-sovereign-916.html",
+          "name": "public-private-sovereign-916",
+          "title": "@yaelmendez — public · private · soværeign",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "OTHER",
+          "size_kb": 16.1
+        },
+        {
           "file": "qr-as-skill.html",
           "name": "qr-as-skill",
           "title": "qr-as-skill",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 5.1
@@ -1384,6 +2186,7 @@ const BRAIN = {
           "file": "reachy-clerk.html",
           "name": "reachy-clerk",
           "title": "reachy-clerk",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 6.6
@@ -1392,6 +2195,7 @@ const BRAIN = {
           "file": "reachy-face.html",
           "name": "reachy-face",
           "title": ">_æ|",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 8.7
@@ -1400,30 +2204,124 @@ const BRAIN = {
           "file": "rust-territory-tables.html",
           "name": "rust-territory-tables",
           "title": "Rust Territory Tables | MÆCH Interactive Practice",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 19.0
         },
         {
+          "file": "sovaereign-voice.html",
+          "name": "sovaereign-voice",
+          "title": "soværeign voice · æmoji registry",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "OTHER",
+          "size_kb": 8.6
+        },
+        {
           "file": "sovereign-state.html",
           "name": "sovereign-state",
           "title": "sovereign-state • soft repo • >_æ:",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 11.5
         },
         {
+          "file": "sovereignty-resources.html",
+          "name": "sovereignty-resources",
+          "title": "Sovereignty Resources",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "OTHER",
+          "size_kb": 24.2
+        },
+        {
+          "file": "start-here.html",
+          "name": "start-here",
+          "title": "start here — open source, plainly",
+          "title_parity": "ok",
+          "desc": "A plain-language start for anyone who wants to learn open source software, using this estate",
+          "category": "OTHER",
+          "size_kb": 8.5
+        },
+        {
           "file": "startabusiness-launch.html",
           "name": "startabusiness-launch",
           "title": "æ:// startabusiness — Address. Verify. Act.",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 17.5
         },
         {
+          "file": "the-film-is-an-instrument.html",
+          "name": "the-film-is-an-instrument",
+          "title": "æ:// — The film is an instrument",
+          "title_parity": "ok",
+          "desc": "The film is an instrument: a policy whose picture and physics are graded by independent instruments, and a studio that grades itself.",
+          "category": "OTHER",
+          "size_kb": 16.1
+        },
+        {
+          "file": "thesis/index.html",
+          "name": "thesis",
+          "title": "æ:// — The Conductor Model",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "OTHER",
+          "size_kb": 15.1
+        },
+        {
+          "file": "tiny-kanban.html",
+          "name": "tiny-kanban",
+          "title": "tiny* kænbæn · la familia, medida",
+          "title_parity": "ok",
+          "desc": "14 de 21 instrumentos tiny* en verde. Tablero derivado de los doctors reales, no declarado.",
+          "category": "OTHER",
+          "size_kb": 19.5
+        },
+        {
+          "file": "tinyae.html",
+          "name": "tinyae",
+          "title": "tinyæ — the instrument family",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "OTHER",
+          "size_kb": 3.9
+        },
+        {
+          "file": "tinyffmpeg.html",
+          "name": "tinyffmpeg",
+          "title": "tinyffmpeg · el puente de codecs",
+          "title_parity": "ok",
+          "desc": "tinyffmpeg — el instrumento soberano que prueba los builds locales de FFmpeg, expone capacidades, codifica con receipt y gradúa el determinismo. Cada número med",
+          "category": "OTHER",
+          "size_kb": 15.1
+        },
+        {
+          "file": "tinyrepofilm.html",
+          "name": "tinyrepofilm",
+          "title": "æ:// tinyRepoFilm — one input, one sealed film",
+          "title_parity": "ok",
+          "desc": "tinyRepoFilm: any repo, org or user → derived data → bound narration → gated film → sealed receipt. OpenSourceWare.",
+          "category": "OTHER",
+          "size_kb": 9.2
+        },
+        {
+          "file": "tinyvoca-dock-preview.html",
+          "name": "tinyvoca-dock-preview",
+          "title": "tinyVOCA Dock Preview",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "OTHER",
+          "size_kb": 345.0
+        },
+        {
           "file": "trinity.html",
           "name": "trinity",
           "title": "Æ Trinity · Parallel Sovereignty",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 21.3
@@ -1432,22 +2330,52 @@ const BRAIN = {
           "file": "verify.html",
           "name": "verify",
           "title": "verify:// — æ:// verification gate · codæ://",
+          "title_parity": "ok",
           "desc": "verify:// — el gate de verificación de æ://. Un artefacto se abre, se hashea, se muestra su recibo. Escanea, verifica, decide.",
           "category": "OTHER",
           "size_kb": 11.0
         },
         {
+          "file": "voice-lab.html",
+          "name": "voice-lab",
+          "title": "æ · Voice Lab Recorder",
+          "title_parity": "ok",
+          "desc": "",
+          "category": "OTHER",
+          "size_kb": 9.7
+        },
+        {
           "file": "webmcp.html",
           "name": "webmcp",
-          "title": "æ:// · WebMCP · Browser-as-MCP",
+          "title": "æ:// · WebMCP · Browser-as-MCP (navigator.modelContext)",
+          "title_parity": "ok",
           "desc": "æ:// WebMCP — the browser exposed as a sovereign MCP server. Real tools, real actuation.",
           "category": "OTHER",
-          "size_kb": 16.2
+          "size_kb": 16.9
+        },
+        {
+          "file": "wittenberg.html",
+          "name": "wittenberg",
+          "title": "æ://wittenberg — a de novo Project Wittenberg",
+          "title_parity": "ok",
+          "desc": "The same gesture, a different corpus. Verified parallels, stated limits, and the receipts.",
+          "category": "OTHER",
+          "size_kb": 17.1
+        },
+        {
+          "file": "work/index.html",
+          "name": "work",
+          "title": "Work here 💬 · æ Studio",
+          "title_parity": "ok",
+          "desc": "One intent, three local workspaces, human-reviewed contributions. No external agent connected.",
+          "category": "OTHER",
+          "size_kb": 18.8
         },
         {
           "file": "yael-route-engine.html",
           "name": "yael-route-engine",
           "title": "YÆL ROUTE ENGINE • æOS QUANTUM RUNTIME",
+          "title_parity": "ok",
           "desc": "YÆL ROUTE ENGINE • æOS QUANTUM RUNTIME",
           "category": "OTHER",
           "size_kb": 44.4
@@ -1456,6 +2384,7 @@ const BRAIN = {
           "file": "yarn-weave.html",
           "name": "yarn-weave",
           "title": "MCP^æ // SOVEREIGN_CORE v4.1 • YARN WEAVE",
+          "title_parity": "ok",
           "desc": "",
           "category": "OTHER",
           "size_kb": 16.4
