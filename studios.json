@@ -1,0 +1,67 @@
+{
+  "schema": "ae/studios-cameras/1",
+  "recorded": "2026-11-21",
+  "authority": "HUMAN://ROOT",
+  "studios": [
+    {"id": "asimov_studio", "v": 1, "entry": "agents/asimov_studio.py --spec S --out F",
+     "renders": "asimov CAD body, spec-driven, tinyVOCA voice, NVENC, SupervisorVideo gate",
+     "cast": 1, "status": "PROVEN", "evidence": "renders 444f/18.5s; gate PASS lum 62.35; live asimov-studio-model-916"},
+    {"id": "asimov_studio2", "v": 2, "entry": "agents/asimov_studio2.py --spec S --out F [--verify]",
+     "renders": "one or two bodies, dialogue, camera presets", "cast": 2,
+     "status": "BUILT", "defect": "output too dark: live asimov-studio-v2-916 lum 11.08 (floor 20)"},
+    {"id": "asimov_studio3", "v": 3, "entry": "agents/asimov_studio3.py --spec S --out F [--verify]",
+     "renders": "five bodies, per-actor voices, face camera + face tablet", "cast": 5,
+     "status": "BUILT", "defect": "~12 s/frame; 51 frames in 600 s"},
+    {"id": "rtx_studio", "entry": "agents/rtx_studio.py --spec S --out F",
+     "renders": "whole asimov on RTX via CuPy RawKernels (no OpenGL)", "cast": 1, "status": "BUILT"},
+    {"id": "asimov_pet", "entry": "agents/asimov_pet.py --model-dir D --out F",
+     "renders": "CAD pet atlas, 9 states x 6 frames, 192x208", "cast": 1, "status": "BUILT"},
+    {"id": "tinyasimov", "entry": "tinyasimov/tinyasimov.py film out.mp4",
+     "renders": "walk + voice + gate + receipt", "cast": 1, "status": "BUILT"},
+    {"id": "proof1", "entry": "proof/proof1.py <name>.proof.json",
+     "renders": "receipted montage from our own media assets", "cast": 0, "status": "PROVEN",
+     "evidence": "CHAIN/09, ORACLES/09"},
+    {"id": "videolab", "entry": "videolab/render.py render <scene>",
+     "renders": "telemetry-driven scene, mesh-addressable", "cast": 0, "status": "BUILT"},
+    {"id": "aertxrender", "entry": "store/mp4-factory-app/render.mjs",
+     "renders": "HTML surface to MP4 via Chrome CDP", "cast": 0, "status": "PROVEN"}
+  ],
+  "cameras": {
+    "asimov_studio_v1": {"type": "free", "params": {"distance": 2.35, "elevation": -4, "azimuth": 104, "sway": 8}},
+    "asimov_studio2": [
+      {"name": "front", "az": 180, "el": -3, "dist": 3.0, "look": 0.70},
+      {"name": "three_quarter", "az": 155, "el": -4, "dist": 3.0, "look": 0.70},
+      {"name": "side", "az": 90, "el": -3, "dist": 3.0, "look": 0.70},
+      {"name": "back", "az": 0, "el": -3, "dist": 3.0, "look": 0.70},
+      {"name": "low", "az": 180, "el": -14, "dist": 2.8, "look": 0.55},
+      {"name": "high", "az": 180, "el": 16, "dist": 3.2, "look": 0.80},
+      {"name": "close", "az": 180, "el": -2, "dist": 1.9, "look": 1.02},
+      {"name": "orbit", "az": 180, "el": -3, "dist": 3.0, "look": 0.70, "orbit": 22}
+    ],
+    "asimov_studio3": [
+      {"name": "front", "az": 180, "el": -3, "look": 0.70},
+      {"name": "three_quarter", "az": 155, "el": -4, "look": 0.70},
+      {"name": "side", "az": 90, "el": -3, "look": 0.70},
+      {"name": "back", "az": 0, "el": -3, "look": 0.70},
+      {"name": "low", "az": 180, "el": -14, "look": 0.55},
+      {"name": "high", "az": 180, "el": 16, "look": 0.80},
+      {"name": "orbit", "az": 180, "el": -3, "look": 0.70, "orbit": 20},
+      {"name": "face", "az": 180, "el": -2, "look": 0.03, "dist": 0.62, "track": true},
+      {"name": "pilot", "az": 180, "el": -2, "look": 0.30, "dist": 1.55, "track": "waetz"}
+    ],
+    "dist_by_cast": {"solo": 2.35, "pair": 3.0, "five": 4.8},
+    "rtx_studio": {"azimuth": 0, "sway": 4, "distance": 2.5, "lookat_z": 0.95, "fov": 45},
+    "emoji_scene": {"az": "from emoji seed", "el": "from emoji seed", "dist": 5.6, "fov": 42,
+                    "motion_families": ["orbit", "pulse", "drift", "spin"]}
+  },
+  "states": ["IDLE", "LISTENING", "SPEAKING", "THINKING", "AWAITING_APPROVAL",
+             "APPROVED", "REFUSED", "ERROR"],
+  "pet_states": ["idle", "running-right", "running-left", "waving", "jumping",
+                 "failed", "waiting", "running", "review"],
+  "cast": {"nous": "F2 magenta", "hermes": "M2 cyan", "waetz": "white centre, the learner",
+           "menlo": "orange", "asimov": "green"},
+  "known_defects": [
+    "asimov-studio-v2-916.mp4 is live and fails the gate (lum 11.08)",
+    "asimov_studio3 renders at ~12 s/frame"
+  ]
+}

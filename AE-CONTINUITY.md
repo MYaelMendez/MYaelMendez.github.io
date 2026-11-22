@@ -1278,3 +1278,26 @@ CHAIN/09 re-rendered so the live artefact matches the rule.
 
 Not verified: browser playback; whether the three 0-test oracles should be
 tested next (recorded as the obvious follow-up).
+
+
+## 37. Studios and camera shots — the resource inventory (2026-11-21)
+
+Every renderer and every camera the estate can actually call, with the real
+names and parameters from the code. Published as `STUDIOS-AND-CAMERAS.md` and
+the machine-readable `studios.json`.
+
+- Studios: asimov_studio v1/v2/v3, rtx_studio, asimov_pet, tinyasimov, proof1
+  (PROOF/1), videolab, æRTXrender.
+- Cameras: v1 free (distance/elevation/azimuth/sway); v2 8 presets; v3 9 presets
+  (+ face, pilot); rtx_studio spec params; emoji_scene emoji-addressed camera.
+- States (8) and pet rows (9); cast (5) with their voices.
+
+**proved** — the camera and state vocabularies are finite and nameable; a film
+can be specified without inventing a shot.
+**broke** — the inventory itself exposes two live defects: v2's output is too
+dark (live film lum 11.08) and v3 runs at ~12 s/frame.
+**change** — the inventory is now a published resource; choosing a studio is a
+lookup, not a recollection.
+
+Follow-up recorded: brighten v2's scene defaults, and decide whether v3 is
+worth its render budget.
