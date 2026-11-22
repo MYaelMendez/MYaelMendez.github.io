@@ -2428,3 +2428,21 @@ The original receipt is untouched, so every sealed film still verifies.
 toolchain), so this gate is source-local by design. Do not `-f` it into the
 public repo. Continuity records it here so the next agent knows the guard
 exists locally even though GitHub does not carry it.
+
+## 2026-11-22 — fanin deploy confirmed + ASCII manifest fix
+
+**Deploy.** Commit `180af0f` pushed via `kanban_push.py`, task `t_27e40fc7`,
+branch `gh-pages`, `rev-list origin...HEAD = 0 0`. Pages build `built`. Live:
+`truth.json`, `kanban-unified.html`, `tiny-kanban.html`, `agents/fanin.py`,
+`agents/kanban_unified.py` all HTTP 200; live `truth.json` = **BLOCKED**,
+receipt `4ccd4b699ebb3ddf`, `tiny: 5 doctor(s) flaky`. No DB was written by
+fanin; the push record is on the board.
+
+**Defect found after deploy.** `github.io/væult-chain.json` (rune path) is not
+the public manifest — the ASCII alias `vaeult-chain.json` is, and it still
+served the old 11-link version (`generated 2026-10-10`). Both files are now
+written from one `manifest()` call so both carry 12/12 and the same fanin link.
+
+**Remaining.** `site/` clone still does not mirror these artifacts. `truth.json`
+is a verified claim, not an authorization — every publish still needs a human
+push.
