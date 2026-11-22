@@ -1831,3 +1831,40 @@ record rather than quietly dropped.
 **broke** - the first live fetch returned the OLD bytes (11,359) for three
 checks; the blob was authoritative, the CDN lagged. Re-checked until equal.
 **change** - the surface now tells the whole story, including the retraction.
+
+
+## 56. CORRECTION/01 — the disobedience was ours (2026-11-22)
+
+The film that changes the simulation's VERDICT. And it retracts a published claim.
+
+THE CLAIM (VERBS/09, 045, the post): the velocity command is body-frame, so a
+'vy' strafe after a turn drives the body backward and the segment DISOBEYS
+(dx -0.6126). True about the MOTION. Wrong about the VERDICT.
+
+MEASURED - both runnable policies on the SAME schedule (walk, turn, strafe):
+
+| policy | schedule | verdict (old) | verdict (body-frame) |
+|---|---|---|---|
+| 0818 | old | move T, turn T, move F | 3/3 obey, success=True |
+| 26-09-24 | old | move T, turn T, move F | 3/3 obey, success=True |
+| 0818 | new (turn first) | move F, move T | 3/3 obey, success=True |
+| 26-09-24 | new (turn first) | move F, move T | 3/3 obey, success=True |
+
+The walk after a turn moves +0.989 in WORLD y. The old verdict read that as a
+disobedience - it compared WORLD axes against a BODY-FRAME command.
+
+THE FIX (tinypython.py): rotate the measured world displacement into the body
+frame at the segment's start, then compare.
+
+CONSEQUENCE: NO checkpoint retires. The policies were right; the instrument was
+wrong. The earlier 'segment 3 disobeys' is RETRACTED, and the post's finding
+callout is amended.
+
+THE FILM: CORRECTION/01, nine beats, each burning its source hash, the verdict
+numbers in the labels, the retraction as the last beat.
+
+**proved** - the grading instrument had a frame bug; fixing it changes every
+verdict, and the honest outcome is 'no retirement'.
+**broke** - my own published finding was the bug. The film retracts it.
+**change** - tinypython's per-segment verdict is body-frame; the 'body-frame
+finding' becomes the 'body-frame VERDICT finding'.

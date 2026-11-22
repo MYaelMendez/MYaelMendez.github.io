@@ -107,7 +107,7 @@ read back as the next instruction.</p>
   <tr><td class="k">tinyPOLICY</td><td class="s">the command-and-control of mobility</td>
       <td class="n">14 verbs · motion refused <b>ACT-001/AUTH-002/DEAD-001</b></td></tr>
   <tr><td class="k">VERBS/09</td><td class="s">each mobility verb, done or refused</td>
-      <td class="n">5 proven · 4 governed · <b>1 body-frame finding</b></td></tr>
+      <td class="n">5 proven · 4 governed · <b>1 verdict-frame finding, corrected</b></td></tr>
   <tr><td class="k">tinyGPUBOT</td><td class="s">the scriptable actor — cast, verb, line, camera</td>
       <td class="n">3 cues · motion is the policy's · <b>nothing keyed</b></td></tr>
   <tr><td class="k">asimov pet</td><td class="s">the mascot, receipted and gait-faithful</td>
@@ -125,19 +125,20 @@ refused is still a verb — it is declared, gated, and never executed.</p>
   <tr><td class="k">walk</td><td class="s">vx 0.4</td><td class="n">+3.118 m · min_z 0.613</td><td><span class="pill ok">PROVEN</span></td></tr>
   <tr><td class="k">turn</td><td class="s">wz 0.8</td><td class="n">heading change · min_z 0.612</td><td><span class="pill ok">PROVEN</span></td></tr>
   <tr><td class="k">strafe</td><td class="s">vy 0.3</td><td class="n">+0.253 m · min_z 0.612</td><td><span class="pill ok">PROVEN</span></td></tr>
-  <tr><td class="k">set_velocity</td><td class="s">3-segment schedule</td><td class="n">segment 3 <b>disobeys</b></td><td><span class="pill ok">PROVEN</span></td></tr>
+  <tr><td class="k">set_velocity</td><td class="s">3-segment schedule</td><td class="n">3/3 segments <b>obey</b> (body-frame verdict)</td><td><span class="pill ok">PROVEN</span></td></tr>
   <tr><td class="k">damp</td><td class="s">—</td><td class="n">declared · never executed</td><td><span class="pill err">REFUSED</span></td></tr>
   <tr><td class="k">balance</td><td class="s">—</td><td class="n">declared · never executed</td><td><span class="pill err">REFUSED</span></td></tr>
   <tr><td class="k">trajectory</td><td class="s">—</td><td class="n">declared · never executed</td><td><span class="pill err">REFUSED</span></td></tr>
   <tr><td class="k">set_joints</td><td class="s">—</td><td class="n">declared · never executed</td><td><span class="pill err">REFUSED</span></td></tr>
 </table>
 
-<div class="note"><b>The finding.</b> The velocity command is <b>body-frame</b>. After a
-0.8 rad/s turn, a <code>vy = 0.3</code> strafe drove the body <b>backwards 0.61 m</b>
-(dx −0.6126, dy +0.045) — the axes rotate with the heading. The trace's per-segment
-verdict marks it disobeyed; the end-to-end verifier, reading only the final state, calls
-the same trace <code>ok</code>. Two instruments, two verdicts. The per-segment one is the
-honest one, and the instrument now says so.</div>
+<div class="note"><b>The finding — corrected.</b> The velocity command is
+<b>body-frame</b>: after a 0.8 rad/s turn a <code>vy = 0.3</code> strafe moves the
+body along its <i>new</i> heading — 0.61 m in world −x. We first read that as a
+disobedience, because the per-segment verdict compared <b>world</b> axes against a
+<b>body-frame</b> command. Rotating the measured displacement into the body frame,
+<b>every segment obeys, on both runnable policies</b>. The policy was right; the
+instrument was wrong. The retraction is <code>CORRECTION/01</code>.</div>
 
 <div class="note"><b>A correction, on the record.</b> The first films did not carry the
 traversal. The renderer pinned the root (<code>root[0,3] = root[1,3] = 0</code>) and the
