@@ -4,116 +4,458 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>robot:// — the fleet index</title>
-<meta name="description" content="robot:// — one governed address space for every robot. The roster, the standard interface, and each robot's coverage, generated from robots/index.json.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<meta name="description" content="robot:// — one governed address space for every robot. The roster, the seven-verb standard interface, and each robot's measured coverage, live from robots/index.json.">
+<link rel="canonical" href="https://myaelmendez.github.io/robots.html">
+<link rel="icon" href="./favicon.svg">
 <style>
-:root{--void:#050505;--gold:#D4AF37;--green:#00ff9f;--cyan:#00ccff;--magenta:#ff2d78;
- --ink:#e8e8e8;--dim:#8fa89c;--mut:#6f8579;--line:rgba(212,175,55,.2)}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',ui-monospace,monospace;min-height:100vh;overflow-x:hidden}
-body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:
- radial-gradient(900px 600px at 50% 18%,rgba(212,175,55,.09),transparent 62%)}
-.wrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:clamp(16px,3vw,40px)}
-.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-bottom:14px;
- border-bottom:1px solid var(--line);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mut)}
-.top b{color:var(--gold)}
-.kicker{font-size:.66rem;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin-top:22px}
-h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(1.5rem,4.6vw,2.8rem);
- color:var(--gold);letter-spacing:-.01em;line-height:1;margin-top:10px}
-h1 .p{color:var(--magenta)}
-.sub{color:var(--dim);font-size:clamp(.78rem,1.5vw,.92rem);line-height:1.6;margin-top:12px;max-width:700px}
-.rule{border:1px solid rgba(212,175,55,.3);border-left:2px solid var(--gold);
- padding:11px 14px;margin-top:16px;background:rgba(212,175,55,.05);
- color:var(--dim);font-size:.78rem;line-height:1.6}
+:root{--void:#050505;--gold:#D4AF37;--gold-hi:#ffda83;--neon:#00ff9d;--cyan:#70dcff;--purple:#b98cff;
+--magenta:#ff2d78;--ink:#e8e6df;--muted:#6f6a5c;--frame:#0c0c0c;--line:rgba(212,175,55,.18);
+--grid-neon:rgba(0,255,157,.06);--grid-gold:rgba(212,175,55,.10);--grid-center:rgba(212,175,55,.10)}
+:root[data-theme="day"]{--void:#f5f2ea;--ink:#1a1a1a;--muted:#6f6a5c;--frame:#e8e6df;
+--line:rgba(0,0,0,.12);--grid-neon:rgba(0,0,0,.04);--grid-gold:rgba(180,150,80,.08);--grid-center:rgba(180,150,80,.10)}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
+#grid{position:fixed;inset:0;z-index:0}
+.scan{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(212,175,55,.025) 0 1px,transparent 1px 3px)}
+.vig{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 42%,transparent 30%,rgba(0,0,0,.72) 100%)}
+.wrap{position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;max-width:760px;margin:0 auto;padding:0 18px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:14px 0 12px;
+ border-bottom:1px solid var(--line);font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+.bar .b1{color:var(--gold);font-weight:700;text-transform:none}
+.bar .live{display:flex;align-items:center;gap:6px;color:var(--neon)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.bar button{background:transparent;border:1px solid var(--line);color:var(--muted);font:inherit;font-size:9px;
+ letter-spacing:1px;text-transform:uppercase;padding:4px 8px;cursor:pointer}
+.bar button:hover{color:var(--gold);border-color:var(--gold)}
+.ticker{display:flex;align-items:center;gap:10px;width:100%;padding:9px 0;border-bottom:1px solid var(--line);
+ font-size:9px;letter-spacing:.4px;overflow:hidden}
+.tlabel{display:inline-flex;align-items:center;gap:5px;color:var(--gold);font-weight:700;letter-spacing:1.6px;
+ white-space:nowrap;text-transform:uppercase;flex:none}
+.tlabel .dot{width:5px;height:5px}
+.tmask{flex:1;overflow:hidden;position:relative;
+ -webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);
+ mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+.tstream{display:inline-flex;white-space:nowrap;will-change:transform}
+.tgrp{display:inline-flex;gap:22px;padding-right:22px}
+.tm{color:var(--muted)}.tm.g{color:var(--gold)}.tm.ok{color:var(--neon)}.tm.c{color:var(--cyan)}.tm.m{color:var(--magenta)}
+.tm.coord{color:var(--gold-hi);font-weight:700;text-shadow:0 0 10px rgba(212,175,55,.4)}
+.td{color:var(--gold);opacity:.35}
+.core{flex:1 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:14px;
+ text-align:center;padding:22px 0}
+.glyph{position:relative;width:clamp(64px,16vw,96px);height:clamp(64px,16vw,96px);animation:breathe 4s ease-in-out infinite;cursor:pointer}
+.glyph .face{width:100%;height:100%;display:block;overflow:visible;filter:drop-shadow(0 0 16px rgba(212,175,55,.5))}
+.face .ring{fill:none;stroke:var(--gold);stroke-width:4;opacity:.95}
+.face .halo{fill:none;stroke:var(--gold);stroke-width:1;opacity:.3;stroke-dasharray:2 6;transform-box:fill-box;
+ transform-origin:center;animation:halo 26s linear infinite}
+@keyframes halo{to{transform:rotate(360deg)}}
+.face .eye{transition:transform .12s ease-out}
+.face .pupil{fill:var(--gold);transform-box:fill-box;transform-origin:center;animation:blink 5.6s infinite}
+@keyframes blink{0%,91%,100%{transform:scaleY(1)}94%,96%{transform:scaleY(.1)}}
+.face .ant{stroke:var(--gold);stroke-width:3;stroke-linecap:round}
+.face .antdot{fill:var(--magenta);animation:pulse 2.4s infinite}
+.face .mouth{fill:none;stroke:var(--gold);stroke-width:3;stroke-linecap:round}
+@keyframes breathe{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.03)}}
+@media(prefers-reduced-motion:reduce){.glyph{animation:none}.face .halo,.face .pupil,.face .antdot{animation:none}}
+.coord{font-size:clamp(19px,5.6vw,30px);font-weight:700;letter-spacing:2px;white-space:nowrap;transition:transform .22s,opacity .22s}
+.coord.dip{transform:scale(.94);opacity:.66}
+.coord .r{color:var(--gold)}.coord .sep{color:var(--muted);opacity:.5}
+.coord .v{color:var(--neon)}.coord .a{color:var(--gold-hi);text-shadow:0 0 16px rgba(212,175,55,.5)}
+.tag{font-size:10px;letter-spacing:2.5px;color:var(--muted);text-transform:uppercase;min-height:1.2em}
+.tag b{color:var(--gold)}
+.rule{border:1px solid rgba(212,175,55,.3);border-left:2px solid var(--gold);padding:11px 14px;
+ background:rgba(212,175,55,.05);color:var(--muted);font-size:.76rem;line-height:1.65;text-align:left;width:100%}
 .rule b{color:var(--gold)}
-h2{font-family:'Orbitron',sans-serif;font-weight:700;font-size:clamp(.88rem,2.1vw,1.15rem);
- color:var(--green);letter-spacing:.06em;margin:30px 0 12px;display:flex;align-items:center;gap:12px}
-h2::after{content:"";flex:1;height:1px;background:var(--line)}
-.matrix{border:1px solid var(--line);overflow-x:auto}
-table{border-collapse:collapse;width:100%;font-size:clamp(.68rem,1.4vw,.82rem);min-width:720px}
-th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
-th{color:var(--gold);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:.64rem}
-td.robot{font-family:'Orbitron',sans-serif;color:var(--green);font-weight:700}
-td .dim{color:var(--mut)}
-.yes{color:var(--green)} .no{color:var(--magenta)} .na{color:var(--mut)}
-tr.mesh td{color:var(--mut)} tr.mesh td.robot{color:var(--magenta)}
-.cats{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px}
-.cat{border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:.7rem;color:var(--dim)}
-.cat b{color:var(--cyan)}
-.note{margin-top:14px;color:var(--mut);font-size:.7rem;line-height:1.6;max-width:820px}
+.log{width:100%;max-width:620px;border:1px solid var(--line);background:rgba(5,5,5,.55);padding:12px 14px;
+ font-size:11px;line-height:1.7;color:var(--muted);text-align:left;min-height:126px;max-height:190px;overflow-y:auto;
+ white-space:pre-wrap;word-break:break-word}
+.log .ok{color:var(--neon)}.log .g{color:var(--gold)}.log .c{color:var(--cyan)}.log .m{color:var(--magenta)}
+.console{width:100%;max-width:620px;display:flex;align-items:center;gap:12px}
+.inrow{display:flex;width:100%;border:1px solid var(--line);background:rgba(5,5,5,.7)}
+.inrow .p{color:var(--gold);padding:0 0 0 14px;display:flex;align-items:center;font-size:14px}
+#cmd{flex:1;min-width:0;background:transparent;border:none;outline:none;color:var(--ink);font-family:inherit;
+ font-size:13px;padding:13px 10px;letter-spacing:.5px}
+#go{background:var(--gold);color:var(--void);border:none;font-weight:700;font-size:11px;letter-spacing:1px;
+ padding:0 20px;cursor:pointer;text-transform:uppercase;align-self:stretch}
+#go:hover{background:var(--gold-hi)}
+.legend{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;font-size:9px;letter-spacing:1px;
+ color:var(--muted);text-transform:uppercase;padding-top:2px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.legend b{color:var(--gold);font-weight:400}
+.panel{width:100%;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.015);
+ padding:16px;margin-top:6px;text-align:left}
+.panel .eyebrow{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.panel h2{font-size:15px;color:var(--ink);letter-spacing:.02em;margin:0 0 10px;font-weight:700}
+.verb{display:grid;grid-template-columns:78px 1fr;gap:10px;padding:9px 0;border-top:1px dashed var(--line);align-items:baseline}
+.verb:first-of-type{border-top:none}
+.verb .vn{font-size:11px;color:var(--gold);font-weight:700;letter-spacing:.06em}
+.verb .vd{font-size:11px;color:var(--muted);line-height:1.55}
+.verb .vd b{color:var(--ink);font-weight:400}
+.verb .cov{display:flex;gap:4px;margin-top:5px;align-items:center;flex-wrap:wrap}
+.pip{width:16px;height:5px;border-radius:3px;background:var(--line);display:inline-block;transition:all .18s}
+.pip.on{background:var(--neon);box-shadow:0 0 7px rgba(0,255,157,.5)}
+.pip.off{background:var(--magenta);opacity:.5}
+.verb.active{background:rgba(212,175,55,.06);border-radius:8px;padding-left:8px;padding-right:8px;
+ outline:1px solid rgba(212,175,55,.25)}
+.verb .who{font-size:9px;color:var(--muted);margin-left:6px;letter-spacing:.4px}
+.mesh{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;padding:14px 0 8px}
+@media(max-width:620px){.mesh{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:400px){.mesh{grid-template-columns:1fr}}
+.door{display:flex;flex-direction:column;gap:4px;padding:11px;border:1px solid var(--line);
+ border-left:2px solid var(--ac,var(--gold));background:rgba(212,175,55,.03);color:var(--ink);
+ text-decoration:none;transition:all .18s;min-width:0;cursor:pointer;text-align:left;font:inherit}
+.door:hover{background:rgba(212,175,55,.09);transform:translateY(-2px);border-color:var(--ac,var(--gold))}
+.door .ax{font-size:8px;color:var(--ac,var(--cyan));letter-spacing:.3px;word-break:break-all}
+.door b{font-size:12px;color:var(--gold);letter-spacing:.3px}
+.door .small{font-size:9px;color:var(--muted);line-height:1.45}
+.door .dots{display:flex;gap:3px;margin-top:3px;align-items:center}
+.door .dots u{width:9px;height:9px;border-radius:50%;background:var(--line);text-decoration:none;transition:all .18s}
+.door .dots u.on{background:var(--neon);box-shadow:0 0 6px rgba(0,255,157,.55)}
+.door .dots u.off{background:var(--magenta);opacity:.45}
+.door .dots em{font-size:8px;color:var(--muted);font-style:normal;margin-left:auto;letter-spacing:.5px}
+.door.meshonly{opacity:.62;border-left-color:var(--magenta)}
+.door.meshonly b{color:var(--magenta)}
+.door.sel{outline:2px solid var(--gold);outline-offset:1px}
+.note{margin-top:10px;color:var(--muted);font-size:11px;line-height:1.7;max-width:820px;text-align:left;width:100%}
 .note b{color:var(--gold)}
-footer{margin-top:30px;padding-top:14px;border-top:1px solid var(--line);color:var(--mut);
- font-size:.7rem;letter-spacing:.08em;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
-a{color:var(--green)}
+.note .m{color:var(--magenta)}
+.hint{font-size:9px;color:var(--muted);letter-spacing:1px;padding-bottom:16px;opacity:.7;text-align:center}
+footer{margin-top:8px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);
+ font-size:10px;letter-spacing:.08em;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+footer a{color:var(--gold)}
+:root[data-theme="day"] .log{background:rgba(255,255,255,.72)}
+:root[data-theme="day"] .inrow{background:rgba(255,255,255,.85)}
+:root[data-theme="day"] .panel{background:rgba(0,0,0,.02)}
+:root[data-theme="day"] .door{background:rgba(0,0,0,.02)}
+:root[data-theme="day"] .door:hover{background:rgba(0,0,0,.05)}
+:root[data-theme="day"] .scan{background:repeating-linear-gradient(0deg,rgba(0,0,0,.02) 0 1px,transparent 1px 3px)}
+:root[data-theme="day"] .vig{background:radial-gradient(ellipse at 50% 42%,transparent 45%,rgba(180,160,120,.16) 100%)}
 </style>
 </head>
 <body>
+<canvas id="grid"></canvas>
+<div class="scan"></div><div class="vig"></div>
 <div class="wrap">
-  <div class="top"><span><b>robot://</b> · THE FLEET INDEX</span><span id="gen">loading…</span></div>
+  <div class="bar">
+    <span class="b1">robot:// · THE FLEET INDEX</span>
+    <span class="live"><span class="dot"></span><span id="meshstate">index loading</span></span>
+    <span><button id="theme-toggle" type="button">◐ theme</button></span>
+  </div>
+  <div class="ticker">
+    <span class="tlabel"><span class="dot"></span>robot://live</span>
+    <div class="tmask"><div class="tstream" id="tstream"></div></div>
+  </div>
 
-  <p class="kicker">one governed address space · one development contract</p>
-  <h1><span class="p">robot://</span> the fleet index</h1>
-  <p class="sub">Every robot in the estate, measured against one standard interface.
-    Whatever is built for one robot is provided for all — a missing verb is a named
-    refusal, never a crash.</p>
-  <p class="rule"><b>The rule.</b> An address is not a permission. Motion needs approval or an
-    armed deadman. Every dialect writes its own ledger; <span style="color:var(--gold)">robot://</span>
-    adds the fleet receipt on every route.</p>
+  <div class="core">
+    <div class="glyph" id="glyph" title="robot:// · the fleet · tap to acknowledge" role="button" tabindex="0" aria-label="robot:// fleet mark">
+      <svg class="face" viewBox="0 0 100 100" aria-hidden="true">
+        <circle class="halo" cx="50" cy="54" r="47"/>
+        <line class="ant" x1="50" y1="6" x2="50" y2="20"/>
+        <circle class="antdot" cx="50" cy="6" r="3.4"/>
+        <rect class="ring" x="24" y="22" width="52" height="46" rx="10"/>
+        <g class="eye" id="eyeL"><circle class="pupil" cx="38" cy="40" r="5.4"/></g>
+        <g class="eye" id="eyeR"><circle class="pupil" cx="62" cy="40" r="5.4"/></g>
+        <path class="mouth" d="M40 54 Q50 59 60 54"/>
+        <line class="ant" x1="30" y1="68" x2="30" y2="78"/>
+        <line class="ant" x1="70" y1="68" x2="70" y2="78"/>
+      </svg>
+    </div>
 
-  <h2>roster × standard interface</h2>
-  <div class="matrix"><table id="mx">
-    <thead><tr><th>robot</th><th>category</th><th>verbs</th><th>transports</th>
-      <th>status</th><th>verbs</th><th>plan</th><th>sim</th><th>exec</th><th>receipt</th><th>ledger</th></tr></thead>
-    <tbody id="tb"></tbody>
-  </table></div>
-  <p class="note"><b>Declared, not measured.</b> <span id="ck"></span></p>
+    <div class="coord" id="coord"><span class="r">robot</span><span class="sep">://</span><span class="v" id="cv">fleet</span><span class="sep">/</span><span class="a" id="ca">status</span></div>
+    <div class="tag" id="where">one governed address space · one development contract</div>
 
-  <h2>categories</h2>
-  <div class="cats" id="cats"></div>
+    <div class="rule"><b>The rule.</b> An address is not a permission. Motion needs approval or an armed
+      deadman. Every dialect writes its own ledger; <b>robot://</b> adds the fleet receipt on every route.</div>
+
+    <div class="log" id="log"></div>
+
+    <div class="console">
+      <div class="inrow">
+        <span class="p">›</span>
+        <input id="cmd" placeholder="robot://asimov/trajectory · or type 'help'" autocomplete="off" spellcheck="false">
+        <button id="go">RUN</button>
+      </div>
+    </div>
+
+    <div class="legend" id="legend"></div>
+  </div>
+
+  <section class="panel" aria-label="The standard interface">
+    <div class="eyebrow">THE DEVELOPMENT CONTRACT · SEVEN VERBS</div>
+    <h2>whatever is built for one robot is provided for all</h2>
+    <div id="iface"></div>
+  </section>
+
+  <section class="panel" aria-label="The roster">
+    <div class="eyebrow">ROSTER × STANDARD INTERFACE · <span id="roster-count"></span></div>
+    <h2>every robot, one row of seven</h2>
+    <div class="mesh" id="mesh"></div>
+  </section>
 
   <p class="note" id="gaps"></p>
-
-  <div class="top" style="margin-top:26px;padding-top:14px">
-    <span><a href="index.html">← the hub</a> · <a href="robots/index.json">robots/index.json</a></span>
-    <span id="count"></span>
-  </div>
-  <footer><span>robot:// · generated from robots/index.json</span><span>#HERMIPHICATIONISINEVITABLE</span></footer>
+  <div class="hint">⌘K FOCUS · W/S STEER THE VERB AXIS · A MISSING VERB IS A NAMED REFUSAL, NEVER A CRASH</div>
+  <footer>
+    <span>robot:// · live from <a href="./robots/index.json">robots/index.json</a></span>
+    <span id="gen"></span>
+  </footer>
 </div>
 <script>
-const CAT = {};
-fetch('robots/index.json').then(r=>r.json()).then(d=>{
-  document.getElementById('gen').textContent = 'generated ' + (d.generated||'').replace('T',' ').slice(0,19) + ' UTC';
-  document.getElementById('count').textContent = d.count + ' robots · ' + d.roster.length + ' indexed';
-  document.getElementById('ck').textContent = d.coverage_kind || '';
-  const cats = d.categories || {};
-  for (const [c, list] of Object.entries(cats)) for (const r of list) CAT[r] = c;
-  const tb = document.getElementById('tb');
-  for (const name of d.roster) {
-    const r = d.robots[name] || {};
-    const p = r.provides || {};
-    const cell = v => v ? '<td class="yes">✓</td>' : '<td class="na">·</td>';
-    const tr = document.createElement('tr');
-    if (!r.present) tr.className = 'mesh';
-    const cat = CAT[name] || (r.present ? '—' : 'mesh only');
-    const verbs = r.verbs ? r.verbs + ' <span class="dim">(' + Object.keys(r.verb_classes||{}).join('/') + ')</span>' : '<span class="dim">0</span>';
-    const tr2 = r.transports && r.transports.length ? r.transports.join(' · ') : '<span class="dim">—</span>';
-    tr.innerHTML = `<td class="robot">${name}</td><td class="dim">${cat}</td><td>${verbs}</td>
-      <td class="dim">${tr2}</td>${cell(p.status)}${cell(p.verbs)}${cell(p.plan)}${cell(p.sim)}${cell(p.exec)}${cell(p.receipt)}${cell(p.ledger)}`;
-    tb.appendChild(tr);
+(function(){'use strict';
+function $(id){return document.getElementById(id)}
+var _theme='night';
+try{_theme=localStorage.getItem('ae-theme')||'night'}catch(e){}
+function applyTheme(t){document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('ae-theme',t)}catch(e){}}
+applyTheme(_theme);
+var _tt=$('theme-toggle');if(_tt)_tt.addEventListener('click',function(){
+  _theme=(_theme==='night')?'day':'night';applyTheme(_theme);tickPush('theme → '+_theme,'')});
+
+/* ── the seven standard verbs, in contract order ───────────────── */
+var VERBS=[
+ ['status','present? transports? live? ledger tail?'],
+ ['verbs','the verb table, hashed — the policy IS the verbs'],
+ ['plan','<command> a plan, never an act (address ≠ permission)'],
+ ['sim','<command> the simulation trace, receipted'],
+ ['exec','<command> hardware — requires approval, stays dry-run'],
+ ['receipt','the ledger, hash-chained'],
+ ['ledger','the ledger tail, verifiable']
+];
+var AXCOL=['#D4AF37','#70dcff','#00ff9d','#b98cff','#ff2d78','#ffda83','#a8ffc1'];
+
+var INDEX=null, ROSTER=[], VI=0;
+var TLOG=[];
+function TCOORD(){return [coordStr()+' · '+(INDEX?summary():'index loading'),'coord']}
+function tickGroup(){return [TCOORD()].concat(TLOG).map(function(m){
+  return '<span class="tm '+(m[1]||'')+'">'+m[0]+'</span>'}).join('<span class="td">·</span>')}
+function tickRender(){$('tstream').innerHTML='<span class="tgrp">'+tickGroup()+'</span><span class="td">·</span><span class="tgrp">'+tickGroup()+'</span>'}
+function tickPush(msg,cls){TLOG.push([msg,cls||'']);if(TLOG.length>14)TLOG.shift();tickRender()}
+function coordStr(){return 'robot://'+(INDEX&&INDEX._sel?INDEX._sel:'fleet')+'/'+VERBS[VI][0]}
+function summary(){
+  var p=ROSTER.filter(function(n){return (INDEX.robots[n]||{}).present});
+  var mesh=ROSTER.filter(function(n){return !((INDEX.robots[n]||{}).present)});
+  var rec=ROSTER.reduce(function(a,n){return a+((INDEX.robots[n]||{}).ledger_receipts||0)},0);
+  return p.length+' present · '+mesh.length+' mesh-only · '+rec+' receipts · 7 verbs';
+}
+
+/* ── log ───────────────────────────────────────────────────────── */
+function log(t,cls){var el=$('log');el.innerHTML+='<span class="'+(cls||'')+'">'+t+'</span>\n';el.scrollTop=el.scrollHeight}
+function typeSeq(lines,i){if(i>=lines.length)return;var L=lines[i];log(L[0],L[1]);
+  setTimeout(function(){typeSeq(lines,i+1)},L[2]||150)}
+
+typeSeq([
+ ['robot:// kernel · fleet runtime','g',170],
+ ['> index ........................ loading','c',190],
+ ['> standard interface ........... 7 verbs','c',170],
+ ['> rule ......................... address ≠ permission','g',170],
+ ['> ready. type \'help\' or steer with W/S','',150]
+],0);
+
+/* ── render ────────────────────────────────────────────────────── */
+function renderLegend(){
+  $('legend').innerHTML=VERBS.map(function(v,i){
+    return '<span><i style="background:'+AXCOL[i]+'"></i><b>'+v[0]+'</b></span>'}).join('');
+}
+function catOf(n){
+  var c=(INDEX&&INDEX.categories)||{};
+  for(var k in c){if(c[k].indexOf(n)>=0)return k}
+  return '';
+}
+function renderIface(){
+  var box=$('iface');if(!box||!INDEX)return;
+  box.innerHTML=VERBS.map(function(v,i){
+    var on=[],off=[];
+    ROSTER.forEach(function(n){
+      var p=(INDEX.robots[n]||{}).provides||{};
+      (p[v[0]]?on:off).push(n);
+    });
+    var pips=on.map(function(){return '<u class="pip on"></u>'}).join('')+
+             off.map(function(){return '<u class="pip off"></u>'}).join('');
+    var who=on.length?('· '+on.join(', ')):'· nobody';
+    return '<div class="verb'+(i===VI?' active':'')+'" data-v="'+i+'">'+
+      '<div class="vn">'+v[0]+'</div>'+
+      '<div class="vd"><b>'+v[1]+'</b>'+
+      '<div class="cov">'+pips+'<span class="who">'+who+'</span></div></div></div>';
+  }).join('');
+}
+function renderMesh(){
+  var m=$('mesh');if(!m||!INDEX)return;
+  m.innerHTML=ROSTER.map(function(n,i){
+    var r=INDEX.robots[n]||{};
+    var p=r.provides||{};
+    var dots=VERBS.map(function(v){
+      return '<u class="'+(p[v[0]]?'on':'off')+'"></u>'}).join('');
+    var cat=catOf(n);
+    var tr=r.transports||[], nt=tr.length?(' · '+tr.length+' transport'+(tr.length===1?'':'s')):'';
+    var sub=r.present
+      ? (cat?cat+' · ':'')+r.verbs+' verb'+(r.verbs===1?'':'s')+nt
+      : (r.reason||'no dialect');
+    return '<button class="door'+(r.present?'':' meshonly')+(INDEX._sel===n?' sel':'')+'" style="--ac:'+AXCOL[i%AXCOL.length]+'" data-n="'+n+'">'+
+      '<span class="ax">robot://'+n+'</span><b>'+n+'</b>'+
+      '<span class="small">'+sub+'</span>'+
+      '<span class="dots">'+dots+'<em>'+(r.present?r.coverage+'%':'gap')+'</em></span></button>';
+  }).join('');
+  Array.prototype.forEach.call(m.querySelectorAll('.door'),function(d){
+    d.addEventListener('click',function(){openRobot(d.getAttribute('data-n'))});
+  });
+}
+function renderGaps(){
+  var g=$('gaps');if(!g||!INDEX)return;
+  var mesh=ROSTER.filter(function(n){return !((INDEX.robots[n]||{}).present)});
+  var unreg=(INDEX.unregistered_dialects||[]);
+  var named=[], c=INDEX.categories||{};
+  Object.keys(c).forEach(function(k){c[k].forEach(function(n){
+    if(ROSTER.indexOf(n)<0)named.push(n+' ('+k+')');});});
+  g.innerHTML='<b>Gaps, named.</b> '+
+    (mesh.length?mesh.join(', ')+' — mesh only: no dialect, no policy.':'')+
+    (named.length?' <span class="m">'+named.join(', ')+'</span> — in a category, absent from the roster.':'')+
+    (unreg.length?' Unregistered dialect modules on disk: '+unreg.join(', ')+'.':'')+
+    '<br><b>Declared, not measured.</b> '+(INDEX.coverage_kind||'');
+}
+function renderAll(){
+  renderLegend();renderIface();renderMesh();renderGaps();
+  $('roster-count').textContent=ROSTER.length+' robots';
+  var p=ROSTER.filter(function(n){return (INDEX.robots[n]||{}).present}).length;
+  var rec=ROSTER.reduce(function(a,n){return a+((INDEX.robots[n]||{}).ledger_receipts||0)},0);
+  $('meshstate').textContent=p+' present · '+rec+' receipts';
+  var ce=$('coord');ce.classList.add('dip');setTimeout(function(){ce.classList.remove('dip')},200);
+  tickRender();
+}
+
+/* ── selection + verb axis ─────────────────────────────────────── */
+function setVI(i){
+  VI=Math.max(0,Math.min(VERBS.length-1,i));
+  if(!INDEX)return;
+  $('ca').textContent=VERBS[VI][0];
+  renderIface();
+  log('  verb axis → '+VERBS[VI][0]+' — '+VERBS[VI][1],'c');
+}
+function openRobot(n){
+  if(!INDEX||!INDEX.robots[n])return;
+  var r=INDEX.robots[n];INDEX._sel=n;
+  renderMesh();
+  if(!r.present){log('  robot://'+n+' — '+(r.reason||'no dialect'),'m');tickPush('robot://'+n+' · no dialect','m');return}
+  log('  robot://'+n+' · present '+r.present+' · live '+r.live+' · '+r.verbs+' verbs','g');
+  log('  transports '+((r.transports||[]).join(' · ')||'none')+' · ledger '+r.ledger_receipts+' receipts','c');
+  log('  policy '+String(r.policy_sha256||'').slice(0,16),'c');
+  var pv=r.provides||{};
+  VERBS.forEach(function(v){if(pv[v[0]])log('    '+v[0].padEnd(8)+' → '+pv[v[0]],'')});
+  tickPush('robot://'+n+' · '+r.verbs+' verbs · '+r.ledger_receipts+' receipts','ok');
+}
+
+/* ── console ───────────────────────────────────────────────────── */
+function run(raw){
+  var c=(String(raw||'')).trim();if(!c)return;log('> '+c,'g');
+  var low=c.toLowerCase().replace(/^robot:\/\//,'');
+  if(low==='help'){
+    log('  robot://<robot>            — open a robot\'s measured status','c');
+    log('  robot://<robot>/<verb>    — resolve one standard verb','c');
+    log('  fleet | scan | help','c');return}
+  if(low==='scan'||low==='fleet'){
+    ROSTER.forEach(function(n){var r=INDEX.robots[n]||{};
+      log('  '+n.padEnd(11)+(r.present?'present · '+r.verbs+' verbs · '+r.ledger_receipts+' receipts':'gap · '+(r.reason||'no dialect')),r.present?'ok':'m')});
+    return}
+  var parts=low.split('/');
+  var name=parts[0], verb=parts[1];
+  if(!name||name==='fleet'){setVI(VI);return}
+  if(ROSTER.indexOf(name)<0){log('  no robot "'+name+'" — try \'fleet\'','m');return}
+  INDEX._sel=name;renderMesh();
+  if(verb){
+    var i=-1;
+    for(var k=0;k<VERBS.length;k++)if(VERBS[k][0]===verb)i=k;
+    if(i<0){log('  no standard verb "'+verb+'" — '+VERBS.map(function(v){return v[0]}).join(' '),'m');return}
+    VI=i;renderIface();$('ca').textContent=VERBS[VI][0];
   }
-  document.getElementById('cats').innerHTML = Object.entries(cats).map(([c,l]) =>
-    `<span class="cat"><b>${c}</b> ${l.length ? l.join(' · ') : '<span class="dim">— named, nothing on disk</span>'}</span>`).join('');
-  const mesh = d.roster.filter(n => !(d.robots[n]||{}).present);
-  const unreg = d.unregistered_dialects || [];
-  document.getElementById('gaps').innerHTML =
-    `<b>Gaps, named.</b> ${mesh.length ? mesh.join(', ') + ' — mesh only: no dialect, no policy, no ledger.' : 'none.'}
-     ${unreg.length ? 'Unregistered dialect modules on disk: ' + unreg.join(', ') + '.' : ''}
-     ${(cats.phone||[]).length===0 ? 'phone — named, nothing built.' : ''}
-     ${(cats.drone||[]).length===0 ? 'drone — named, nothing built.' : ''}`;
-}).catch(e => {
-  document.getElementById('gen').textContent = 'index failed: ' + e;
+  openRobot(name);
+}
+$('go').addEventListener('click',function(){run($('cmd').value);$('cmd').value=''});
+$('cmd').addEventListener('keydown',function(e){if(e.key==='Enter'){run($('cmd').value);$('cmd').value=''}});
+
+document.addEventListener('keydown',function(e){
+  var t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'))return;
+  var k=e.key.toLowerCase();
+  if(k==='w'||k==='arrowup'){setVI(VI-1)}
+  else if(k==='s'||k==='arrowdown'){setVI(VI+1)}
+  else if(k==='a'||k==='arrowleft'){cycleRobot(-1)}
+  else if(k==='d'||k==='arrowright'){cycleRobot(1)}
+  else if(k==='k'&&(e.metaKey||e.ctrlKey)){e.preventDefault();$('cmd').focus();return}
+  else return;
+  e.preventDefault();
 });
+function cycleRobot(d){
+  if(!INDEX||!ROSTER.length)return;
+  var i=ROSTER.indexOf(INDEX._sel);
+  i=(i<0?(d>0?0:ROSTER.length-1):(i+d+ROSTER.length)%ROSTER.length);
+  openRobot(ROSTER[i]);
+}
+
+/* ── ticker ────────────────────────────────────────────────────── */
+var _ai=0;
+function tickAmb(){
+  if(!INDEX||!ROSTER.length)return;
+  var r=ROSTER[_ai++%ROSTER.length], m=INDEX.robots[r]||{};
+  if(m.present)tickPush('robot://'+r+' · '+m.verbs+' verbs · '+m.ledger_receipts+' receipts','ok');
+  else tickPush('robot://'+r+' · '+(m.reason||'no dialect'),'m');
+}
+function tickScroll(){var s=$('tstream'),pos=0;(function loop(){
+  var half=s.scrollWidth/2;pos-=0.4;if(half>0&&-pos>=half)pos+=half;
+  s.style.transform='translateX('+pos+'px)';requestAnimationFrame(loop)})()}
+
+/* ── grid ──────────────────────────────────────────────────────── */
+function drawGrid(){var c=$('grid'),x=c.getContext('2d');
+  var dpr=Math.min(2,window.devicePixelRatio||1);
+  function fit(){c.width=innerWidth*dpr;c.height=innerHeight*dpr;x.setTransform(dpr,0,0,dpr,0,0)}
+  fit();window.addEventListener('resize',fit);
+  var t=0;function loop(){x.clearRect(0,0,innerWidth,innerHeight);
+    var h=innerHeight,w=innerWidth,hy=h*0.42;
+    var cs=getComputedStyle(document.documentElement);
+    var gn=cs.getPropertyValue('--grid-neon').trim()||'rgba(0,255,157,.06)';
+    var gg=cs.getPropertyValue('--grid-gold').trim()||'rgba(212,175,55,.10)';
+    x.strokeStyle=gn;x.lineWidth=1;
+    for(var i=-12;i<=12;i++){x.beginPath();x.moveTo(w/2+i*46,hy);x.lineTo(w/2+i*230,h);x.stroke()}
+    for(var j=0;j<14;j++){var yy=hy+(h-hy)*(j/14)+(t%60)*0.4;x.beginPath();x.moveTo(0,yy);x.lineTo(w,yy);x.stroke()}
+    x.strokeStyle=gg;x.beginPath();x.moveTo(w/2,0);x.lineTo(w/2,h);x.stroke();
+    t+=0.4;requestAnimationFrame(loop)}loop()}
+
+/* ── living glyph ──────────────────────────────────────────────── */
+(function(){var face=$('glyph'),L=$('eyeL'),R=$('eyeR');if(!face||!L||!R)return;var MAX=3.2;
+  function look(e){var r=face.getBoundingClientRect();
+    var dx=(e.clientX-(r.left+r.width/2))/Math.max(r.width,1);
+    var dy=(e.clientY-(r.top+r.height/2))/Math.max(r.height,1);
+    var len=Math.sqrt(dx*dx+dy*dy)||1;if(len>1){dx/=len;dy/=len}
+    var tr='translate('+(dx*MAX).toFixed(2)+','+(dy*MAX).toFixed(2)+')';
+    L.setAttribute('transform',tr);R.setAttribute('transform',tr)}
+  window.addEventListener('mousemove',look,{passive:true});
+  document.addEventListener('mouseleave',function(){L.removeAttribute('transform');R.removeAttribute('transform')});
+})();
+
+/* ── live index ────────────────────────────────────────────────── */
+fetch('robots/index.json',{cache:'no-cache'})
+ .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
+ .then(function(d){
+    INDEX=d;ROSTER=(d.roster||[]).slice();
+    $('gen').textContent='derived '+(d.generated||'').replace('T',' ').slice(0,19)+' UTC';
+    $('ca').textContent=VERBS[0][0];
+    renderAll();
+    var p=ROSTER.filter(function(n){return (d.robots[n]||{}).present}).length;
+    var rec=ROSTER.reduce(function(a,n){return a+((d.robots[n]||{}).ledger_receipts||0)},0);
+    log('> index ........................ '+ROSTER.length+' robots · '+p+' present · '+rec+' receipts','ok');
+    log('> dialects on disk ............. '+ROSTER.length+' registered · '+(d.unregistered_dialects||[]).length+' unregistered','c');
+    log('> unregistered ................. '+(d.unregistered_dialects||[]).join(', '),'c');
+    tickPush('robot://fleet · '+p+' present · '+rec+' receipts','g');
+    for(var i=0;i<3;i++)tickAmb();
+    setInterval(tickAmb,5200);
+ })
+ .catch(function(e){
+    $('meshstate').textContent='index failed';
+    log('> index ........................ FAILED · '+e,'m');
+    $('gaps').innerHTML='<b>index failed.</b> The fleet index could not be read: '+e+
+      '. Nothing on this page is measured until it loads.';
+ });
+
+renderLegend();tickRender();drawGrid();tickScroll();
+window.robotFleet={open:openRobot,setVerb:setVI,
+  state:function(){return{verbs:VERBS.map(function(v){return v[0]}),vi:VI,sel:INDEX?INDEX._sel:null}}};
+})();
 </script>
 </body>
 </html>
