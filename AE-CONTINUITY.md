@@ -1599,3 +1599,39 @@ under the tracker's area_min (2000); at 300 it tracks 1 blob over 216 frames.
 A detection floor is a parameter, not a constant.
 **change** - the film is a teacher of trajectory. The next instrument is the
 inverse: film -> path.
+
+
+## 48. asimov pet — its own gaits, and a receipt (2026-11-22)
+
+The pet (`hermes-plugins/asimov-pet`) is the real Menlo CAD rasterised at
+192x208 with alpha, 9 states x 6 frames. Two improvements.
+
+1. DISTINCT GAITS. The three locomotion rows replayed ONE walk trace at three
+   yaws, so running / running-right / running-left were the same gait. Now:
+   `running`  <- the vx walk trace (command [0.4, 0, 0])
+   `running-right` / `running-left` <- a real wz turn trace (command [0, 0, 0.8])
+   Measured: five rows of the atlas differ from the shipped sheet — the three
+   locomotion rows (8299a8fa / 2de26a8a / 111907ca vs 94e9b743 / 8fa8f771 /
+   0220a8a7) plus jumping, failed and review.
+
+2. PROVENANCE. `--receipt` writes an `asimov-pet/1` block into pet.json: the
+   sheet sha256, the atlas/frame geometry, the state list, the policy sha, the
+   source traces AND their commands, and the min opaque pixel count.
+
+DETERMINISM: two renders from the same model + traces produced identical bytes
+(165,024 B, sha256 `1963ee54ad83601e39adac105117df8a44165e3c4543a4172295893332433f77`).
+The receipt's claim is measured, not asserted. The installed sheet's hash
+matches the receipt.
+
+STILL OPEN: the strafe (vy) has no row — the taxonomy is fixed at 9 rows by the
+Hermes pet contract, so a 'governed/refused' state cannot be added without a
+contract change. The `failed` row is still a keyed slump; there is no real fall
+trace.
+
+**proved** - the mascot walks and turns with the policy's own gaits, and the
+sheet carries the hash that proves which traces made it.
+**broke** - the first install used the output dir name as the pet id
+(`asimov-pet`); the id must stay `asimov-cad`, so it was re-rendered under the
+right slug.
+**change** - the pet is receipted and gait-faithful; the next improvement is the
+lab link (pet state derived from tinylab's own verdict).
