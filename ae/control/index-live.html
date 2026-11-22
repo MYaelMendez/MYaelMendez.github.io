@@ -255,6 +255,7 @@ function renderProvenance(){
     ['m',(meta.total||0)+' recursos',(meta.counts?Object.keys(meta.counts).length:0)+' categorías'],
     ['m','agent card '+(c.capabilities||0)+' caps','.well-known/agent-card.json'],
     ['m','atlas '+((window.AE_ATLAS||[]).length),'ae-atlas.js'],
+    ['m',(window.__kanbanSub||'kanban —'),'board/state.json'],
     ['m','peticiones externas '+ext,'medida en esta carga'],
   ];
   DECLARED_CLAIMS.forEach(d=>rows.push(['d',d[0],d[1]]));
@@ -517,13 +518,13 @@ function drawKanban(){
 
   fetch(BOARD_URL,{cache:'no-cache'}).then(r=>r.json()).then(s=>{
 
-    kanbanSigs=s.signatures||{};Object.keys(kanbanSigs).forEach(k=>{if(k.indexOf('daollc-')===0)kanbanSigs[k.slice(7)]=kanbanSigs[k];});
+    kanbanSigs={};Object.keys(s.signatures||{}).forEach(k=>{kanbanSigs[k.replace('daollc-','')]=s.signatures[k];});
 
     kanbanWaves=s.batches.map(b=>b.wave.replace('daollc-',''));waveProg={};
 
     s.batches.forEach(b=>{const sh=b.wave.replace('daollc-','');waveProg[sh]=Math.min(3,Math.floor(3*b.complete/b.total));});
 
-    const sub=document.getElementById('kanban-sub');if(sub)sub.textContent=kanbanWaves.length+' waves · '+Object.keys(kanbanSigs).length+' signed';if(window.aeMarkFeed)window.aeMarkFeed('board',true);
+    const sub=document.getElementById('kanban-sub');if(sub)sub.textContent=kanbanWaves.length+' waves · '+Object.keys(kanbanSigs).length+' signed';window.__kanbanSub=sub?sub.textContent:'';if(window.aeMarkFeed)window.aeMarkFeed('board',true);
 
   }).catch(e=>{if(window.aeMarkFeed)window.aeMarkFeed('board',false);console.error('Board fetch failed',e)});
 
