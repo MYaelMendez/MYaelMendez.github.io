@@ -1324,3 +1324,28 @@ showreel can be assembled from them in one deterministic render.
 reason the brief says 'size the voice first'.
 
 Not verified: browser playback of the showreel.
+
+
+## 39. GAIT/09 — the best raster on the saved gait (2026-11-21)
+
+`rtx_asimov.py --trace walk-trace.json` — the real Menlo CAD (26 links,
+1,007,041 triangles) walking the SAVED tinyPython policy trace, rendered by the
+RTX raster (CuPy RawKernels, packed-uint64 atomicMin depth).
+
+- Film `gait-09.mp4`: 9.000 s, 720x1280, 216 frames, 3,615,891 B.
+  Gate PASS — luminance 21.53, contrast 45.38, motion 2.211, black 0.0%.
+- Render: 77.0 ms raster/frame, 462.6 ms total/frame, 99.9 s wall.
+- Trace: policy Menlo/asimov1-locomotion-0818, sha256
+  `47f70691ecd5afda2933b2e6430d2375004c9435522841712a2d7b28b84188a0c`,
+  480 frames, travel +7.8696 m, success true.
+
+**proved** — the RTX raster renders the assembled CAD from the SAVED trace with
+no keyframes, and the camera follows the walker. Visual check: a connected
+humanoid (head, torso, arms, legs), not scattered geometry.
+**broke** — the renderer's own meta labels wall time as `seconds: 99.9`; the
+real duration is 9.000 s (ffprobe). Field-naming bug in `rtx_asimov.py`.
+**change** — recorded; the meta should say `wall_s`, not `seconds`.
+
+Rasters ranked: tinycuda 49 fps @1M tris (the oracle) · rtx_raster 77 ms
+@1.007M tris (depth-correct) · tinygpu 71.6 ms/frame · æRTXrender (CDP) ·
+emoji_scene.
