@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>æ:// contributions — derived GitHub calendar</title>
+<link rel="canonical" href="https://myaelmendez.github.io/contributions.html">
+<meta property="og:title" content="æ:// contributions — derived GitHub calendar">
+<meta property="og:description" content="One human, many agents. The GitHub calendar, derived from GraphQL — no credential on the surface.">
+<link rel="icon" href="./favicon.svg">
+<style>
+  :root{--gold:#D4AF37;--void:#050505;--cyan:#00eaff;--muted:#a8bccc;}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#0e1c2e;color:#e8ecef;
+    font-family:'JetBrains Mono',Consolas,monospace}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 22px 48px}
+  header{display:flex;justify-content:space-between;align-items:flex-end;
+    border-bottom:1px solid #1b2733;padding-bottom:14px;margin-bottom:22px}
+  h1{font-family:Orbitron,Consolas,monospace;font-size:16px;letter-spacing:.18em;
+    color:var(--gold);margin:0 0 6px}
+  .sub{font-size:10px;color:var(--muted);letter-spacing:.08em}
+  .status{font-size:11px;color:var(--cyan);letter-spacing:.14em}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:22px}
+  .card{border:1px solid #2b4a66;background:#12233a;padding:14px 16px}
+  .card .label{font-size:9px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase}
+  .card .value{font-family:Orbitron,Consolas,monospace;font-size:30px;color:var(--gold);margin-top:6px}
+  .card .value.cyan{color:var(--cyan)}
+  .panel{border:1px solid #2b4a66;background:#12233a;padding:18px;margin-bottom:16px}
+  .panel h2{font-size:10px;color:var(--muted);letter-spacing:.18em;margin:0 0 16px;font-weight:400}
+  #grid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,11px);
+    gap:3px;overflow-x:auto;padding-bottom:8px}
+  .cell.hidden{opacity:0.06}
+  .cell{width:11px;height:11px;background:#1a2a3d;border:1px solid #24384f;cursor:default}
+  .cell.n1{background:#1b7d8c}.cell.n2{background:#29b3c0}
+  .cell.n3{background:#3fd0c0}.cell.n4{background:#FFD755;box-shadow:0 0 10px #FFD75599}
+  .legend{display:flex;gap:6px;align-items:center;margin-top:12px;font-size:9px;color:var(--muted)}
+  .legend i{width:10px;height:10px;display:inline-block;border:1px solid #141c26}
+  .bars{display:flex;flex-direction:column;gap:5px}
+  .bar{display:grid;grid-template-columns:70px 1fr 46px;align-items:center;gap:10px;font-size:10px}
+  .bar .m{color:var(--muted)}
+  .bar .track{height:8px;background:#10161f;position:relative}
+  .bar .fill{height:100%;background:linear-gradient(90deg,#14606a,var(--gold))}
+  .bar .v{text-align:right;color:#cdd6dd}
+
+  #sweep{position:fixed;left:0;bottom:0;height:10px;background:linear-gradient(90deg,#14606a,#FFD755);
+    box-shadow:0 0 24px #FFD755;transition:width 0.05s linear;z-index:99}
+  #head{position:fixed;top:0;bottom:0;width:3px;background:#FFD755;
+    box-shadow:0 0 36px 8px #FFD75588;z-index:98;opacity:0.85}
+  footer{margin-top:24px;border-top:1px solid #1b2733;padding-top:14px;
+    font-size:9px;color:var(--muted);line-height:1.8}
+  a{color:var(--cyan);text-decoration:none}
+</style>
+</head>
+<body>
+<div id="sweep"></div><div id="head"></div>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>æ:// CONTRIBUTIONS</h1>
+      <div class="sub">one human → many agents · @MYaelMendez · derived from GitHub GraphQL</div>
+    </div>
+    <div class="status" id="status">LOADING…</div>
+  </header>
+
+  <div class="stats">
+    <div class="card"><div class="label">total contributions</div><div class="value" id="s-total">—</div></div>
+    <div class="card"><div class="label">active days</div><div class="value cyan" id="s-active">—</div></div>
+    <div class="card"><div class="label">weeks</div><div class="value cyan" id="s-weeks">—</div></div>
+    <div class="card"><div class="label">max / day</div><div class="value" id="s-max">—</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>CALENDAR · <span id="range">—</span></h2>
+    <div id="grid"></div>
+    <div class="legend">less
+      <i style="background:#10161f"></i><i class="n1"></i><i class="n2"></i><i class="n3"></i><i class="n4"></i>
+      more · each cell = one day
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>BY MONTH</h2>
+    <div class="bars" id="bars"></div>
+  </div>
+
+  <footer>
+    DERIVED, NEVER HAND-WRITTEN · <code>tools/gen_contributions.py --check</code> gates this surface.<br>
+    No token, header, or credential is stored here — only public calendar data.<br>
+    <a href="./homebase.html">⌂ homebase</a> ·
+    <a href="./filmmemory-status.json">🧾 film memory</a> ·
+    <a href="../contributions.json">▦ raw JSON</a>
+  </footer>
+</div>
+<script>
+fetch('../contributions.json',{cache:'no-cache'})
+  .then(r=>r.ok?r.json():null)
+  .then(d=>{
+    if(!d||d.schema!=='ae/github-contributions/1'){
+      document.getElementById('status').textContent='REFUSED';return;
+    }
+    document.getElementById('status').textContent='DERIVED · OK';
+    document.getElementById('s-total').textContent=d.total_contributions;
+    document.getElementById('s-active').textContent=d.active_days+' / '+d.days;
+    document.getElementById('s-weeks').textContent=d.weeks;
+    document.getElementById('s-max').textContent=d.max_per_day;
+    document.getElementById('range').textContent=d.first_day+' → '+d.last_day;
+
+    const grid=document.getElementById('grid');
+    window.__cells=[];
+    d.calendar.forEach(c=>{
+      const el=document.createElement('div');
+      const n=c.n;
+      el.className='cell hidden';
+      el._lit='cell'+(n===0?'':n<=2?' n1':n<=5?' n2':n<=15?' n3':' n4');
+      el.title=c.d+' · '+n+' contribution'+(n===1?'':'s');
+      grid.appendChild(el); window.__cells.push(el);
+    });
+    window.__cal=d.calendar;
+    window.__data=d;
+
+    const mx=Math.max(...Object.values(d.per_month),1);
+    const bars=document.getElementById('bars'); const barRows=[];
+    Object.entries(d.per_month).forEach(([m,n])=>{
+      const row=document.createElement('div');row.className='bar';
+      const pct=Math.max(2,Math.round(n/mx*100));
+      row.innerHTML='<span class="m">'+m+'</span>'+
+        '<span class="track"><span class="fill" style="width:0%" data-final="'+pct+'%"></span></span>'+
+        '<span class="v" data-final="'+n+'">0</span>';
+      barRows.push(row); bars.appendChild(row);
+    });
+  })
+  .then(()=>{
+    window.__segT0=[0.0, 5.781333, 13.056, 19.168, 23.882667, 28.672, 34.186667];
+    window.__segT1=[5.781333, 13.056, 19.168, 23.882667, 28.672, 34.186667, 38.666667];
+    window.__ready=true;
+  })
+  .catch(()=>{document.getElementById('status').textContent='OFFLINE';});
+
+// ===== STUDIO TIME CONTROL (injected) =====
+window.__setTime=function(sec){
+  if(!window.__cells||!window.__data) return false;
+  const d=window.__data, cells=window.__cells;
+  const p=Math.max(0,Math.min(1,sec/32));
+  const upto=Math.min(cells.length-1,Math.floor(p*cells.length));
+  let sum=0;
+  for(let i=0;i<cells.length;i++){
+    const el=cells[i];
+    if(i<=upto){ el.className=el._lit; sum+=d.calendar[i].n; }
+    else { el.className='cell hidden'; }
+  }
+  document.getElementById('s-total').textContent=sum.toLocaleString();
+  const sweep=document.getElementById('sweep'), head=document.getElementById('head');
+  if(sweep){ sweep.style.width=(p*100)+'%'; head.style.left=(p*100)+'%'; }
+  // bars must agree with the counter: both derive from the SAME revealed days
+  const monthSum={};
+  for(let i=0;i<=upto;i++){
+    const m=d.calendar[i].d.slice(0,7);
+    monthSum[m]=(monthSum[m]||0)+d.calendar[i].n;
+  }
+  const maxMonth=Math.max(...Object.values(monthSum).concat([1]));
+  document.querySelectorAll('.bar').forEach(row=>{
+    const m=row.querySelector('.m').textContent.trim();
+    const v=row.querySelector('.v[data-final]');
+    const f=row.querySelector('.fill');
+    const n=monthSum[m]||0;
+    if(v) v.textContent=n;
+    if(f) f.style.width=Math.max(0,Math.round(n/maxMonth*100))+'%';
+  });
+  const seg=window.__segT0.findIndex((t0,i)=>sec>=t0&&sec<window.__segT1[i]);
+  document.querySelectorAll('.card').forEach((c,i)=>{
+    c.style.outline=(seg>=0&&i===seg%4)?'2px solid #D4AF37':'none';
+  });
+  return sec;
+};
+
+</script>
+</body>
+</html>

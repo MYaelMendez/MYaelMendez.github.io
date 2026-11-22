@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>robot:// — fleet console</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; background:#050505; color:#D4AF37;
+    font-family:'JetBrains Mono',monospace; font-size:13px; }
+  body { display:grid; grid-template-rows:auto 1fr; height:100vh; overflow:hidden; }
+  header { padding:14px 20px; border-bottom:1px solid rgba(212,175,55,.25);
+    display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+  header h1 { font-family:'Orbitron',sans-serif; font-size:16px; letter-spacing:.14em; }
+  header h1 span { color:#FFD700; }
+  header .chain { font-size:10px; color:rgba(212,175,55,.55); letter-spacing:.04em; }
+  main { display:grid; grid-template-columns: 300px 400px 1fr; min-height:0; }
+  aside { border-right:1px solid rgba(212,175,55,.18); padding:14px; overflow-y:auto; }
+  section { padding:14px; overflow-y:auto; border-right:1px solid rgba(212,175,55,.18); }
+  h2 { font-family:'Orbitron',sans-serif; font-size:11px; letter-spacing:.12em;
+    color:#FFD700; margin:14px 0 8px; text-transform:uppercase; }
+  h2:first-child { margin-top:0; }
+  .robot { padding:8px; border:1px solid rgba(212,175,55,.2); margin-bottom:6px; cursor:pointer;
+    background:rgba(212,175,55,.03); }
+  .robot:hover { border-color:#D4AF37; }
+  .robot.active { background:rgba(212,175,55,.16); border-color:#FFD700; }
+  .robot.absent { opacity:.45; cursor:not-allowed; }
+  .robot b { color:#FFD700; }
+  .robot .meta { font-size:10px; color:rgba(212,175,55,.55); margin-top:3px; line-height:1.5; }
+  .verb { display:flex; justify-content:space-between; gap:8px; padding:5px 8px;
+    border:1px solid rgba(212,175,55,.15); margin-bottom:4px; cursor:pointer;
+    background:rgba(212,175,55,.03); }
+  .verb:hover { background:rgba(212,175,55,.12); border-color:#D4AF37; }
+  .verb.active { background:rgba(212,175,55,.18); border-color:#FFD700; }
+  .verb .name { color:#FFD700; }
+  .verb .cls { font-size:10px; color:rgba(212,175,55,.55); }
+  .verb.motion { border-left:2px solid #D4AF37; }
+  .verb.safety { border-left:2px solid #ff5555; }
+  .verb.read { border-left:2px solid #00EAFF; }
+  .row { display:flex; gap:8px; margin:10px 0; flex-wrap:wrap; }
+  button { font-family:'JetBrains Mono',monospace; font-size:12px; cursor:pointer;
+    background:transparent; color:#D4AF37; border:1px solid #D4AF37; padding:7px 12px;
+    letter-spacing:.06em; }
+  button:hover { background:#D4AF37; color:#050505; }
+  button.danger { border-color:#ff5555; color:#ff5555; }
+  button.danger:hover { background:#ff5555; color:#050505; }
+  select, input { font-family:'JetBrains Mono',monospace; font-size:12px; background:#050505;
+    color:#D4AF37; border:1px solid rgba(212,175,55,.4); padding:6px; width:100%; }
+  pre { background:rgba(0,0,0,.5); border:1px solid rgba(212,175,55,.2);
+    padding:12px; white-space:pre-wrap; word-break:break-word; font-size:11px;
+    line-height:1.6; color:#D4AF37; }
+  .verdict { font-family:'Orbitron',sans-serif; font-size:12px; letter-spacing:.1em;
+    padding:8px 10px; margin-bottom:10px; border:1px solid; }
+  .verdict.allow { color:#33ff88; border-color:#33ff88; }
+  .verdict.require_approval, .verdict.route, .verdict.refuse { color:#ff5555; border-color:#ff5555; }
+  .verdict.dry-run { color:#FFD700; border-color:#FFD700; }
+  .muted { color:rgba(212,175,55,.5); font-size:11px; }
+  .receipt { color:#00EAFF; font-size:11px; word-break:break-all; }
+  .missing { color:#ff5555; }
+</style>
+</head>
+<body>
+<header>
+  <h1>robot<span>://</span> fleet console</h1>
+  <div class="chain">HUMAN://ROOT → æ POLICY → robot:// → {asimov|reachy|microduck}:// → RECEIPT</div>
+  <div class="muted" id="fleetline"></div>
+</header>
+<main>
+  <aside>
+    <h2>Robots</h2>
+    <div id="robots"></div>
+    <h2>Fleet ledger</h2>
+    <div id="ledger" class="muted"></div>
+  </aside>
+  <section>
+    <h2>Verbs</h2>
+    <div id="verbs"><div class="muted">select a robot</div></div>
+  </section>
+  <section>
+    <h2>Address</h2>
+    <div class="row">
+      <select id="transport">
+        <option value="auto">auto</option>
+        <option value="sim">sim (official twin)</option>
+      </select>
+    </div>
+    <div class="row"><input id="params" placeholder='params JSON, e.g. {"head":{"z":10,"roll":15}}'></div>
+    <div class="row">
+      <button id="plan">plan</button>
+      <button id="sim">sim</button>
+      <button id="exec">exec</button>
+      <button id="grant" class="danger">grant (report only)</button>
+    </div>
+    <div id="verdict"></div>
+    <pre id="out">Select a robot, then a verb. Nothing executes without the operator's LIVE flag.</pre>
+  </section>
+</main>
+<script>
+const API = (location.port === '8165') ? '' : 'http://127.0.0.1:8165';
+let fleet = null, ledger = null, robot = null, verbs = null, current = null;
+
+async function get(path) { return (await fetch(API + path)).json(); }
+async function dispatch(raw, params) {
+  return (await fetch(API + '/api/dispatch', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(params ? {raw, params} : {raw})
+  })).json();
+}
+
+function renderRobots() {
+  const el = document.getElementById('robots');
+  el.innerHTML = Object.entries(fleet.robots).map(([name, r]) =>
+    `<div class="robot ${r.present ? '' : 'absent'} ${name === robot ? 'active' : ''}" data-robot="${name}">
+       <b>${name}</b> <span class="meta">${r.present ? '' : 'absent'}</span>
+       <div class="meta">${r.scheme} · ${r.verb_count || 0} verbs<br>${r.sdk}<br>
+       transports: ${(r.transports || []).join(', ')}</div>
+     </div>`).join('');
+  document.querySelectorAll('.robot').forEach(el =>
+    el.addEventListener('click', () => selectRobot(el.dataset.robot)));
+  document.getElementById('fleetline').textContent =
+    `${fleet.present.length}/${fleet.count} present: ${fleet.present.join(', ')}`;
+}
+
+function renderVerbs() {
+  const el = document.getElementById('verbs');
+  if (!verbs) { el.innerHTML = '<div class="muted">select a robot</div>'; return; }
+  el.innerHTML = Object.entries(verbs.verbs).map(([name, m]) =>
+    `<div class="verb ${m.class}" data-verb="${name}">
+       <span class="name">${name}</span><span class="cls">${m.class}</span>
+     </div>`).join('');
+  document.querySelectorAll('.verb').forEach(el =>
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.verb').forEach(x => x.classList.remove('active'));
+      el.classList.add('active');
+      current = el.dataset.verb;
+    }));
+}
+
+function renderLedger() {
+  const el = document.getElementById('ledger');
+  if (!ledger || !ledger.ledgers) { el.textContent = 'no ledger'; return; }
+  el.innerHTML = Object.entries(ledger.ledgers).map(([k, v]) =>
+    `<div>${k}: ${v.receipts} receipts${v.tail ? ' · tail ' + v.tail.slice(0, 8) : ''}</div>`).join('') +
+    `<div style="margin-top:6px;color:#00EAFF">combined ${ledger.combined_sha256.slice(0, 16)}</div>`;
+}
+
+function show(r) {
+  const v = document.getElementById('verdict');
+  const cls = r.decision || (r.grants === false ? 'grant' : 'allow');
+  const label = r.refused ? 'REFUSED'
+    : (r.decision || (r.grants === false ? 'REPORTS SHAPE — GRANTS NOTHING' : 'ALLOWED'));
+  v.innerHTML = `<div class="verdict ${cls}">${label}</div>` +
+    (r.reason ? `<div class="muted" style="margin-bottom:10px">${r.reason}</div>` : '') +
+    (r.receipt ? `<div class="receipt">receipt ${r.receipt.hash}<br>prev ${r.receipt.prev}</div>` : '');
+  document.getElementById('out').textContent = JSON.stringify(r, null, 2);
+}
+
+function params() {
+  const raw = document.getElementById('params').value.trim();
+  if (!raw) return undefined;
+  try { return JSON.parse(raw); } catch (e) { return {__bad: raw}; }
+}
+
+async function selectRobot(name) {
+  robot = name; verbs = null; current = null;
+  renderRobots(); renderVerbs();
+  verbs = await dispatch(name + '/verbs');
+  renderVerbs();
+  const sel = document.getElementById('transport');
+  const ts = (fleet.robots[name].transports || ['auto']);
+  sel.innerHTML = ['auto', ...ts].map(t => `<option value="${t}">${t}</option>`).join('');
+}
+
+async function init() {
+  [fleet, ledger] = await Promise.all([get('/api/fleet'), get('/api/fleet/ledger')]);
+  renderRobots(); renderLedger();
+  const first = fleet.present[0];
+  if (first) await selectRobot(first);
+}
+['plan', 'sim', 'exec', 'grant'].forEach(route => {
+  document.getElementById(route).addEventListener('click', async () => {
+    if (!robot || !current) return;
+    let raw;
+    if (route === 'plan') raw = `${robot}/plan ${current} ${document.getElementById('transport').value}`.trim();
+    else if (route === 'sim') raw = `${robot}/sim ${current}`;
+    else if (route === 'exec') raw = `${robot}/exec ${current}`;
+    else raw = `${robot}/grant ${current}`;
+    const p = params();
+    const r = await dispatch(raw, p);
+    show(r);
+    ledger = await get('/api/fleet/ledger');
+    renderLedger();
+  });
+});
+document.getElementById('transport').addEventListener('change', () => {});
+init().catch(e => {
+  document.getElementById('out').textContent = 'bridge unreachable: ' + e +
+    '\n\nStart it:  python C:/æ/agents/robot_bridge.py';
+});
+</script>
+</body>
+</html>

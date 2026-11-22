@@ -8,7 +8,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#00ffaa">
     <title>📱🌌 MÆCH 4D HoloMesh - Mobile Territorial Sovereignty</title>
-    <meta name="description" content="Revolutionary 4D spatial programming with time dimension navigation and territorial sovereignty"
+    <meta name="description" content="4D spatial mesh with time-dimension navigation. 375 nodes, stereographic projection, Canvas2D. GPU sibling rendered with tinyCUDA.">
     <style>
         * {
             margin: 0;
@@ -388,15 +388,24 @@
             <div>Territory: <span id="currentTerritory">x₀y₀z₀t₀</span></div>
             <div>Nodes: <span id="nodeCount">0</span></div>
             <div>Time: <span id="timeCoord">t₀</span></div>
-            <div>FPS: <span id="fps">60</span></div>
+            <div>FPS: <span id="fps">—</span></div>
         </div>
     </div>
 
-    <!-- MCP Status -->
+    <!-- Runtime status: what is actually running, not what sounds impressive.
+         The previous panel claimed "MCP Active", "Model: mech-agentic-v1" and
+         "Tabular Acceleration: ON". There is no MCP connection, no model and no
+         acceleration on this page: it is hand-written JavaScript on a 2D canvas.
+         A status light that is always green is not a status light. -->
     <div class="mcp-status">
-        <div><span class="mcp-indicator"></span>MCP Active</div>
-        <div style="font-size: 12px; margin-top: 5px;">Model: mech-agentic-v1</div>
-        <div style="font-size: 12px;">Tabular Acceleration: ON</div>
+        <div><span class="mcp-indicator" id="rtDot"></span><span id="rtState">starting…</span></div>
+        <div style="font-size: 12px; margin-top: 5px;">Runtime: <span id="rtEngine">—</span></div>
+        <div style="font-size: 12px;">Renderer: <span id="rtRenderer">—</span></div>
+        <div style="font-size: 12px;">Mech wasm: <span id="rtMech">not loaded</span></div>
+        <div style="font-size: 11px; margin-top: 6px; opacity: .75;">
+            MÆCH is the name. The 4D math here is JavaScript,<br>
+            not the Mech runtime. <a href="maechlang/index.html" style="color:#00ffaa;">That runs here</a>.
+        </div>
     </div>
 
     <!-- Controls -->
@@ -433,7 +442,7 @@
             </div>
             <div class="tabular-row">
                 <div class="tabular-cell">nodes</div>
-                <div class="tabular-cell">125</div>
+                <div class="tabular-cell" id="tabNodeCount">—</div>
             </div>
             <div class="tabular-row">
                 <div class="tabular-cell">dimension</div>
@@ -464,8 +473,30 @@
                 <div class="tabular-cell">stereographic</div>
             </div>
             <div class="tabular-row">
-                <div class="tabular-cell">acceleration</div>
-                <div class="tabular-cell">WebGL</div>
+                <div class="tabular-cell">renderer</div>
+                <div class="tabular-cell">Canvas2D</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- The GPU sibling. Same node set, extracted from this page, rendered
+         through tinycuda's CuPy rasteriser with a depth buffer and a receipt.
+         Numbers below are measured, not aspirational. -->
+    <div class="tabular-panel" id="proofPanel" style="top:auto;bottom:150px;right:12px;left:auto;width:min(400px,calc(100vw - 24px));max-height:34vh;border-color:#D4AF37;">
+        <div style="color:#D4AF37;font-weight:bold;margin-bottom:8px;">GPU SIBLING · tinyCUDA</div>
+        <div class="tabular-block" style="border-color:#D4AF37;background:rgba(212,175,55,.08);">
+            <div class="tabular-row"><div class="tabular-cell" style="border-color:#D4AF37;">nodes</div><div class="tabular-cell" style="border-color:#D4AF37;">375 · same set</div></div>
+            <div class="tabular-row"><div class="tabular-cell" style="border-color:#D4AF37;">edges</div><div class="tabular-cell" style="border-color:#D4AF37;">1150</div></div>
+            <div class="tabular-row"><div class="tabular-cell" style="border-color:#D4AF37;">triangles</div><div class="tabular-cell" style="border-color:#D4AF37;">12,200</div></div>
+            <div class="tabular-row"><div class="tabular-cell" style="border-color:#D4AF37;">raster</div><div class="tabular-cell" style="border-color:#D4AF37;">11 ms/frame</div></div>
+            <div class="tabular-row"><div class="tabular-cell" style="border-color:#D4AF37;">depth</div><div class="tabular-cell" style="border-color:#D4AF37;">CuPy atomicMin</div></div>
+            <div class="tabular-row"><div class="tabular-cell" style="border-color:#D4AF37;">grade</div><div class="tabular-cell" style="border-color:#D4AF37;">1.0 · 0 tokens</div></div>
+            <div style="font-size:11px;margin-top:8px;opacity:.8;">
+                This page draws dots with no depth buffer. The sibling rasterises
+                real geometry, occludes it, and hashes the bytes.
+            </div>
+            <div style="font-size:11px;margin-top:6px;">
+                <a href="holomesh4d-916.mp4" style="color:#D4AF37;">▶ watch the GPU render</a>
             </div>
         </div>
     </div>
@@ -499,7 +530,7 @@
                 this.tabularBlocks = [];
                 
                 // Performance tracking
-                this.fps = 60;
+                this.fps = null;   // measured, never assumed
                 this.lastTime = performance.now();
                 this.frameCount = 0;
                 
@@ -716,6 +747,8 @@
                 if (currentTime - this.lastTime > 1000) {
                     this.fps = Math.round(this.frameCount * 1000 / (currentTime - this.lastTime));
                     document.getElementById('fps').textContent = this.fps;
+                    document.getElementById('rtState').textContent =
+                        document.hidden ? 'paused · tab hidden' : 'running · local';
                     this.frameCount = 0;
                     this.lastTime = currentTime;
                 }
@@ -825,6 +858,21 @@
         document.addEventListener('DOMContentLoaded', () => {
             const canvas = document.getElementById('holomesh-canvas');
             holomesh = new HoloMesh4D(canvas);
+
+            // Report what is true. The renderer is probed, not asserted.
+            const is2d = !!canvas.getContext('2d');
+            document.getElementById('rtEngine').textContent = 'JavaScript · HoloMesh4D';
+            document.getElementById('rtRenderer').textContent = is2d ? 'Canvas2D' : 'unknown';
+            document.getElementById('rtState').textContent = 'running · local';
+            document.getElementById('rtDot').style.background = '#00ffaa';
+            document.getElementById('tabNodeCount').textContent = holomesh.nodes.length;
+            // On a phone the proof panel would cover the mesh. Start collapsed;
+            // the reader opens it deliberately.
+            if (window.innerWidth < 700) {
+                document.getElementById('proofPanel').classList.add('collapsed');
+            }
+            // No Mech wasm is fetched by this page. Say so rather than imply it.
+            document.getElementById('rtMech').textContent = 'not loaded here';
             
             // Connect controls
             document.getElementById('timeSlider').addEventListener('input', (e) => {
@@ -871,7 +919,7 @@
    onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'"
    onclick="window.open('https://myaelmendez.github.io/verify.html?url='+encodeURIComponent(location.href),'_blank')"
    title="æ:// Verify this surface">
-  <img src="https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=https://myaelmendez.github.io/mech-4d-holomesh.html&color=D4AF37&bgcolor=050505" 
+  <img src="assets/qr-mech-4d-holomesh.png" 
        alt="QR Verify" style="width:100%;height:100%;display:block;">
 </div>
 </body>

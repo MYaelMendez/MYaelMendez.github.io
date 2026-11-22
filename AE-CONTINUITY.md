@@ -2321,3 +2321,25 @@ bundled `gh.EXE` in WindowsApps raises `WinError 5` for `C:/gpu/python`.
 no surface (intentionally — not requested); OpenClaw contributor count remains
 unresolved (Link header vs unique-id methods disagree); `AE-CONTINUITY.md`
 itself carries foreign edits and was appended to, not rewritten.
+
+## 2026-11-22 — kænbæn unificado (local, not published)
+
+**Surface.** `github-pages/kanban-unified.html` + `kanban-unified.json`, generated
+read-only by `agents/kanban_unified.py`. Four sources — hermes tasks, fleet waves,
+tiny* doctors, kanban-irl cards — projected into five lanes
+READY / WORK / VERIFY / DONE / BLOCKED. Native status kept verbatim on every card;
+one sha256 per source plus a content hash over cards+sources. Hermes is authority,
+the other three are projections — no DB was written.
+
+**Source.** `agents/kanban_unified.py` (new); `tiny/tiny_kanban.py` and
+`tiny/tiny_family.py` gained a cross-link to the unified surface. Generated
+`tiny.html`, `tiny-kanban.html`, `kanban-unified.html/.json` updated locally —
+**uncommitted, unpushed**.
+
+**Checks (measured).** `kanban_unified.py --check` OK at content
+`6db3ced9b99f3a87`; rendered at 1600px: 268 cards across 5 lanes, `tiny` filter
+shows 21; HTTP 200 on `127.0.0.1:8137/kanban-unified.html`.
+
+**Blockers.** github.io still serves the old surfaces. The hermes DB is written
+by concurrent agents, so counts drift between runs (266→268 within minutes);
+the content hash detects that drift, it is not a defect.
