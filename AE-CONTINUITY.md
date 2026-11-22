@@ -1349,3 +1349,31 @@ real duration is 9.000 s (ffprobe). Field-naming bug in `rtx_asimov.py`.
 Rasters ranked: tinycuda 49 fps @1M tris (the oracle) · rtx_raster 77 ms
 @1.007M tris (depth-correct) · tinygpu 71.6 ms/frame · æRTXrender (CDP) ·
 emoji_scene.
+
+
+## 40. The three untested oracles — now tested (2026-11-21)
+
+The instrument panel had three zeroes: tinycontinuum, tinyfilmmemory and
+tinyplugin shipped no tests while their siblings carried 21-30. That is fixed.
+
+- tinycontinuum: 15 tests — freeze, gap, reversal, duplicate-time,
+  under-coverage, too-few, frame index gaps, byte-identical frames, chain
+  integrity, broken link, truncated payload, doctor.
+- tinyfilmmemory: 9 tests — hash/canonical stability, chain check + tamper,
+  deterministic append, verify tamper, byte drift, absent!=drift, audit,
+  end-to-end selftest, doctor.
+- tinyplugin: 6 tests — undefined CAPITAL constant, invented host method,
+  pl_add no-op, a clean plugin grades clean, missing plugin refuses,
+  doctor/audit.
+Total 30 new; the tiny family is now 158 tests with NO zeroes.
+
+Also fixed: `rtx_asimov.py`'s meta labelled wall time as `seconds` (99.9); it
+now reports `seconds: 9.0` and `wall_s: 99.9` separately (the defect in §39).
+
+**proved** — the time-axis, ledger and plugin oracles are deterministic and
+their refusals are reachable; a green grade now means something.
+**broke** — two filmmemory tests were written against a guessed chain shape and
+failed honestly; the tests were corrected to the real API (append-built chains,
+drift keyed on kind='film'), not the API bent to the test.
+**change** — the three oracles are tested; ORACLES/09 can be re-cut so the
+zeroes become 15 / 9 / 6.
