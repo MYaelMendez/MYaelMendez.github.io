@@ -2237,3 +2237,33 @@ found and corrected in-session rather than shipped.
 prompt; the rule is read the artifact at render time, never repeat a count from
 a doc. Nothing in this section was committed or pushed — the record itself is
 the artifact.
+
+
+## 64. The bridge, hardened + gated (2026-11-22)
+
+The secret-source bridge page is a client for a broker that did not exist.
+Both halves are now real.
+
+**BROKER (new)** `C:\æ\secrets\secret_bridge.py` on 127.0.0.1:7890.
+- CORS is NOT a wildcard: only `http://127.0.0.1:8137` (and :8080) may call it.
+  Verified: `Origin: https://evil.example` gets **no** Access-Control-Allow-Origin.
+- Append-only audit `bridge.audit.log` (op / key / fingerprint / client).
+  Values are never logged.
+- Custody `hermes-bridge.json`, atomic replace.
+
+**GATE (new)** `secret-source-bridge.html` gates the LOCKED ACTIONS - reveal,
+copy, export .env, export .json, push to local - behind a væult passphrase.
+Page load stays open; the secret actions do not.
+- Crypto copied VERBATIM from `vault-layers.html` (PBKDF2-SHA256 600000,
+  AES-256-GCM, AAD `vault-entry:`+name, `__check__` sentinel).
+- Verified on the page itself: wrong passphrase -> `Wrong passphrase`; correct
+  -> `UNLOCKED` and the entry decrypts. Cross-checked with the skill's
+  `verify_gate.mjs` against a sealed probe vault. Probe deleted.
+
+Live: 200, 25,117 B, bytes equal.
+
+**STILL OPEN (named):**
+- The page is still publicly reachable on github.io. The gate makes it less
+  phishing-shaped, but it is still a published secret form.
+- The broker is a background process; it will not survive a reboot.
+- Export writes plaintext; the gate covers it, but the buttons remain.
