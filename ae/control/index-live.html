@@ -1,13 +1,13 @@
 <!doctype html>
 
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 
-<title>$æ | Command & Control · LIVE</title><meta name="description" content="Open-sourceware æ agentic command-and-control console · LIVE. three.js scene + æC2 console + mood engine + kanban. Local compiler (||| ^ ↺) runs in-browser; no live agent or market feed.">
-
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>æC2 · Command & Control · LIVE</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23050505'/%3E%3Ctext x='16' y='24' font-size='21' text-anchor='middle' fill='%23D4AF37'%3E%C3%A6%3C/text%3E%3C/svg%3E"><meta name="description" content="Open-sourceware æ agentic command-and-control console · LIVE. three.js scene + æC2 console + mood engine + kanban. Local compiler (||| ^ ↺) runs in-browser; no live agent or market feed.">
 
 <style>
 
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:400;font-display:swap;src:url('../../aipodcast_me/assets/fonts/JetBrainsMono-400.ttf') format('truetype')}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:700;font-display:swap;src:url('../../aipodcast_me/assets/fonts/JetBrainsMono-700.ttf') format('truetype')}
 :root{color-scheme:dark;--bg:#06101a;--panel:#0d1d2a;--edge:#31516b;--ink:#e7f6ff;--muted:#92afc0;--cyan:#72d9ff;--gold:#f4c77c;--green:#9ce5ae;--red:#ff9d9d;--shellbg:rgba(6,16,26,.87)}:root[data-theme="day"]{--bg:#f5f2ea;--panel:#e8e6df;--edge:#b8b2a0;--ink:#1a1a1a;--muted:#6f6a5c;--cyan:#0a6a8a;--gold:#8a6d1f;--green:#0a6a3a;--red:#a02030;--shellbg:rgba(245,242,234,.92)}:root[data-env="agentic_environments"]{--bg:#0a1f11;--panel:#1a3423;--edge:#3e6b49;--ink:#c1d9c8;--muted:#6f8a7a;--cyan:#70dcff;--gold:#a8ffc1;--green:#00ff9d;--red:#ff9d9d;--shellbg:rgba(10,31,17,.94)}*{box-sizing:border-box}
 
 .hdr-btn{background:transparent;border:1px solid var(--edge);color:var(--muted);font:inherit;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:3px 7px;cursor:pointer;border-radius:4px}
@@ -21,7 +21,9 @@ a{color:var(--cyan)}button,input,select{font:inherit;color:inherit}button{cursor
 
 .shell{position:relative;z-index:2;width:min(100%,550px);height:100svh;margin:auto;display:grid;grid-template-rows:auto auto auto minmax(0,1fr) auto auto;overflow:hidden;background:var(--shellbg);border-inline:1px solid var(--edge)}
 
-header{padding:9px 11px 6px;background:rgba(12,27,41,.94)}.top{display:flex;align-items:center;justify-content:space-between;gap:5px}.brand{font-size:26px;font-weight:850;letter-spacing:-1px;color:var(--gold)}.tiny{font:10px ui-monospace,monospace;color:var(--muted)}.actions{display:flex;gap:5px;align-items:center}.actions a{font-size:19px;text-decoration:none}.status{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}.chip{font:10px ui-monospace,monospace;padding:3px 6px;border:1px solid var(--edge);border-radius:4px;color:var(--cyan)}.chip.warn{color:var(--gold)}.chip.live{color:var(--green);border-color:#2f6b4a}.chip.mood{color:#c084fc;border-color:#5b3a8a}
+header{padding:9px 11px 6px;background:rgba(12,27,41,.94)}.top{display:flex;align-items:center;justify-content:space-between;gap:5px}.brand{font-size:26px;font-weight:850;letter-spacing:-1px;color:var(--gold);margin:0}
+.skip{position:absolute;left:-9999px;top:0;z-index:2000;background:var(--gold);color:#15202a;padding:7px 11px;border-radius:0 0 4px 0;font:700 10px 'JetBrains Mono',ui-monospace,monospace;text-decoration:none}
+.skip:focus{left:0;top:0}.tiny{font:10px ui-monospace,monospace;color:var(--muted)}.actions{display:flex;gap:5px;align-items:center}.actions a{font-size:19px;text-decoration:none}.status{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}.chip{font:10px ui-monospace,monospace;padding:3px 6px;border:1px solid var(--edge);border-radius:4px;color:var(--cyan)}.chip.warn{color:var(--gold)}.chip.live{color:var(--green);border-color:#2f6b4a}.chip.mood{color:#c084fc;border-color:#5b3a8a}
 
 .command{display:flex;gap:5px;padding:7px 10px;background:rgba(11,34,49,.92)}.command input{min-width:0;flex:1;background:#071521;border:1px solid var(--edge);border-radius:4px;padding:7px;color:var(--ink)}.command button{background:var(--gold);color:#15202a;font-weight:800}
 
@@ -55,7 +57,7 @@ main{min-height:0;overflow-y:auto;padding:8px;display:grid;align-content:start;g
 
 #c2-status{font-size:9px;color:#5a7a8a;margin-bottom:8px}
 
-.c2-btn{background:#0a1a2a;border:1px solid rgba(0,255,157,.25);color:#00ff9d;padding:4px 8px;font-size:8px;cursor:pointer;font-family:'JetBrains Mono',monospace}.c2-btn:hover{background:#0a2a1a}
+.c2-btn{background:#0a1a2a;border:1px solid rgba(0,255,157,.25);color:#00ff9d;padding:4px 8px;font-size:8px;cursor:pointer;font-family:'JetBrains Mono',ui-monospace,monospace}.c2-btn:hover{background:#0a2a1a}
 
 .c2-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
 
@@ -63,9 +65,9 @@ main{min-height:0;overflow-y:auto;padding:8px;display:grid;align-content:start;g
 
 #c2-log{max-height:120px;overflow-y:auto;font-size:9px;color:#5a7a8a;line-height:1.6;white-space:pre-wrap;word-break:break-word;margin-top:8px;border-top:1px solid rgba(112,220,255,.15);padding-top:6px}
 
-#c2-toggle{position:fixed;bottom:20px;right:20px;z-index:1001;background:rgba(8,12,20,.85);border:1px solid #6fd0ff;color:#6fd0ff;padding:8px 12px;font:700 9px 'JetBrains Mono',monospace;letter-spacing:.14em;cursor:pointer;text-transform:uppercase}
+#c2-toggle{position:fixed;bottom:20px;right:20px;z-index:1001;background:rgba(8,12,20,.85);border:1px solid #6fd0ff;color:#6fd0ff;padding:8px 12px;font:700 9px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.14em;cursor:pointer;text-transform:uppercase}
 
-.think-cloud{position:fixed;bottom:70px;right:20px;z-index:999;font:700 10px 'JetBrains Mono',monospace;color:#6fd0ff;opacity:0;transition:opacity .4s;pointer-events:none;text-align:right;letter-spacing:.1em}
+.think-cloud{position:fixed;bottom:70px;right:20px;z-index:999;font:700 10px 'JetBrains Mono',ui-monospace,monospace;color:#6fd0ff;opacity:0;transition:opacity .4s;pointer-events:none;text-align:right;letter-spacing:.1em}
 
 .think-cloud.show{opacity:.7}
 
@@ -73,11 +75,13 @@ main{min-height:0;overflow-y:auto;padding:8px;display:grid;align-content:start;g
 
 </style></head><body>
 
+<a class="skip" href="#main">Saltar al panel de control</a>
+
 <div id="stage"><canvas id="h"></canvas></div>
 
 <div class="shell">
 
-<header><div class="top"><div><div class="brand">>_æææ://|||</div><div class="tiny">æᵃᵉ · COMMAND & CONTROL · LIVE</div></div><div class="actions"><a href="../" title="Main æ environment">🏢</a><a href="../economy/" title="Economic network">☕</a><a href="https://github.com/MYaelMendez/llm.store" title="Source and RFC">📦</a><a href="../../origin/" title="æ coordinate origin">◎</a><button id="theme-toggle" type="button" class="hdr-btn" title="Theme">◐ theme</button><button id="env-toggle" type="button" class="hdr-btn" title="Environment">⬡ env</button><span title="Human trust and connection">🤝</span></div></div>
+<header><div class="top"><div><h1 class="brand">>_æææ://|||</h1><div class="tiny">æᵃᵉ · COMMAND & CONTROL · LIVE</div></div><div class="actions"><a href="../" title="Main æ environment" aria-label="æ entorno principal">🏢</a><a href="../economy/" title="Economic network" aria-label="Red económica">☕</a><a href="https://github.com/MYaelMendez/llm.store" title="Source and RFC" aria-label="Fuente y RFC">📦</a><a href="../../origin/" title="æ coordinate origin" aria-label="Origen de coordenadas æ">◎</a><button id="theme-toggle" type="button" class="hdr-btn" title="Theme">◐ theme</button><button id="env-toggle" type="button" class="hdr-btn" title="Environment">⬡ env</button><span role="img" aria-label="Confianza humana" title="Human trust and connection">🤝</span></div></div>
 
 <div class="status"><span class="chip" id="coord-chip" title="æ coordinate · this console is x14:y0:z0:æ0">x14:y0:z0:æ0</span><span class="chip warn">MODE: LOCAL DEMO</span><span class="chip live">COMPILER: LIVE (LOCAL)</span><span class="chip mood" id="mood-hud">MOOD: THINK</span><span class="chip">PRINCIPAL: HUMAN</span><span class="chip">AUTHORITY: LOCKED</span><span class="chip live" id="feeds-chip" title="live feeds: manifest · board · queue · mood">FEEDS: 0/4</span><a class="chip" id="agent-chip" href="../../.well-known/agent-card.json" target="_blank" rel="noopener" title="agent card — the machine surface other agents fetch first">AGENT CARD · …</a></div></header>
 
@@ -91,7 +95,7 @@ main{min-height:0;overflow-y:auto;padding:8px;display:grid;align-content:start;g
 
 <div class="ticker"><b>💵 MARKETS</b><div class="rail"><span>NO LIVE MARKET DATA CONNECTED · PRICES AND RETURNS NOT DISPLAYED · PROVIDER REQUIRED · SOURCE + TIMESTAMP REQUIRED · </span></div></div></div>
 
-<main>
+<main id="main">
 
 <div class="summary" title="local compile counters — this browser only, not a fleet"><div class="stat"><strong id="q">0</strong><small>QUEUED · LOCAL</small></div><div class="stat"><strong id="r">0</strong><small>RUNNING · LOCAL</small></div><div class="stat"><strong id="a">0</strong><small>APPROVALS · LOCAL</small></div><div class="stat"><strong id="v">0</strong><small>VERIFIED · LOCAL</small></div></div>
 
