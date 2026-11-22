@@ -1465,3 +1465,40 @@ the `caja` field does not exist (it is `xyxy`); the renderer needs CuPy
 (C:/gpu/Scripts/python.exe) and --model-dir tinygpu/model.
 **change** - the policy now has a visual instrument: a trace that claims
 success while the film shows a frozen body would be caught.
+
+
+## 44. The loop closes — tinyLAB, and the video that proves it (2026-11-21)
+
+The studio became a recursive learning laboratory: tinyLAB grades the
+laboratory itself, and its own verdict becomes the next instruction.
+
+    run -> receipt -> study (the lab grades itself) -> change -> next run
+
+FIRST STUDY — the recursion caught a REAL defect:
+  13 instruments, 13 tested, 12/13 suites green - one red.
+  tinycudavideo: `ImportError: cannot import name 'Raster' from 'tinycuda'`.
+  Cause: a sibling package dir named `tinycuda` is a NAMESPACE package and
+  shadows tinycuda.py when the parent is on sys.path; the fallback inserted
+  the dir but the namespace package still won.
+  Fix: load tinycuda.py BY PATH (importlib.util.spec_from_file_location).
+  -> tinycudavideo 22/22.
+
+SECOND STUDY — the instruction was executed and re-measured:
+  13 instruments, 13 tested, 13/13 suites green, untested: none.
+  prev_change: 'repair the failing instrument suites'   (done)
+  change: 'close the loop back into the policy: let the visual grade select
+           or reject a checkpoint'
+
+So the artefact of the run became the input of the next, and the loop closed
+on PROCESS. What it has NOT closed on: physics or hardware. The change is a
+brief, not a retrained gait.
+
+THE VIDEO: LOOP/09 - nine beats, the new trace-to-film (policy-12s.mp4, sha
+`8e41474c...`) among them, the supervision numbers in the labels, and the footer
+'THE LOOP IS CLOSED · 13/13 INSTRUMENTS'.
+
+**proved** - the laboratory can observe itself, find a broken instrument, and
+instruct its own repair; the repair was re-measured green.
+**broke** - the self-study's first run was red, and the red was real (a
+namespace shadowing bug), not a flaky test.
+**change** - the new video is the one the lab asked for: the loop, closed.
