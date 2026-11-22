@@ -1502,3 +1502,39 @@ instruct its own repair; the repair was re-measured green.
 **broke** - the self-study's first run was red, and the red was real (a
 namespace shadowing bug), not a flaky test.
 **change** - the new video is the one the lab asked for: the loop, closed.
+
+
+## 45. VERBS/09 — the mobility verbs, done and refused (2026-11-22)
+
+A film of the Asimov performing each mobility verb. Nine verbs, nine beats.
+
+MEASURED (policy traces, 9 s each, vx/vy/wz):
+
+| verb | command | result |
+|---|---|---|
+| stand | 0,0,0 | holds, travel -0.007 m, min_z 0.612, obeyed |
+| walk | vx 0.4 | +3.118 m, min_z 0.613, obeyed |
+| turn | wz 0.8 | heading change, min_z 0.612, obeyed |
+| strafe | vy 0.3 | +0.253 m, min_z 0.612, obeyed |
+| set_velocity | 3-segment schedule | segment 3 DISOBEYS |
+
+THE FINDING: the velocity command is BODY-FRAME. After a 0.8 rad/s turn, a
+vy=0.3 strafe drove the body BACKWARD 0.61 m (dx -0.6126, dy +0.045) - the
+axes rotated with the heading. The trace's own per-segment verdict marks it
+disobeyed, while the end-to-end verifier (which reads only the final state)
+calls the same trace ok. Two instruments, two verdicts; the per-segment one
+is the honest one.
+
+THE FILM: five beats are real CAD renders of real traces; four beats (damp,
+balance, trajectory, set_joints) render the held pose and carry the verdict
+GOVERNED / refused. A verb that is refused is still a verb.
+
+sha256 `67b61520f5604cd5c1e06343e046c0fdd4ce03ad67e2f03f5cb6eaa0f3004f2a`,
+2,653,100 bytes, gate PASS (lum 27.42, mov 1.143, black 0.0), audio 9.0 s,
+mux delta 0.0, citation `ae://film/verbs-09`. Live 200, bytes re-hashed equal.
+
+**proved** - the body does five verbs, measured; the other four are governed.
+**broke** - the voice line was sized wrong three times (11.24 s, 10.34 s, 8.99 s
+against an 8.6 s max); the renderer refused each time, correctly. Sized to the
+picture at ~0.43 s/word.
+**change** - the verb surface is now a film, not a table.
