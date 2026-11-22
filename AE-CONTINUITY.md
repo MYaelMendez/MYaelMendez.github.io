@@ -2023,3 +2023,29 @@ THREE OPEN ITEMS, named not fixed:
 dead); a homepage implying "everything lands here" would be a false claim.
 **change** - the origin tells the truth about the estate, including the parts
 that are not yet routed.
+
+
+## 60. tinyHQ — the origin, designed by the tiny idiom (2026-11-22)
+
+`tinyhq.html` - the headquarters of the tiny constellation. **Generated from
+`tiny.html`'s own node data** (not hand-written), so the HQ cannot drift from the
+measured surface.
+
+```
+20 rooms · 20 doctors run · 0 refused
+grouped by 15 domains: protocol, policy, pixels, video, motion, actors,
+memory, time, identity, bus, codecs, voice, film, lab, plugin
++ the domain gateway (11) + the current work (6 films)
+```
+
+Design rule taken from the instruments: one capability per room, the result on
+the door, measured not declared.
+
+NOTE: `tiny.html`'s own meta says "18 instrumentos" but the surface carries 20
+nodes. The surface is the authority; the HQ reports 20.
+
+**proved** - the origin now has a headquarters whose rooms are the instruments.
+**broke** - the first generator unpacked 3-tuples as 4 (fixed); the browser
+daemon timed out on the visual check, so the page is verified structurally
+(curl: 200, 20 rooms) rather than pixel-verified.
+**change** - every future estate surface can be generated from the measured one.
