@@ -1,97 +1,118 @@
-/* æC2 widgets — vanilla JS. No React, no JSX, no external requests.
-   Each widget mounts into its container in index-live.html and is fully local:
-   nothing here is fetched, and nothing here claims a network result. */
+/* æC2 widgets — vanilla JS, fully integrated with the console.
+   - theme-aware: every colour is a console token, so day / agentic_environments
+     restyles them with the rest of the surface;
+   - live: the address widget reads the console's CURRENT coordinate;
+   - honest: nothing is fetched, and every card says what it is. */
 (function () {
   'use strict';
 
-  function el(tag, cls, txt) {
-    const e = document.createElement(tag);
-    if (cls) e.className = cls;
+  var PANEL = 'var(--panel,#071521)';
+  var EDGE = 'var(--edge,#31516b)';
+  var INK = 'var(--ink,#e7f6ff)';
+  var MUTED = 'var(--muted,#92afc0)';
+  var GOLD = 'var(--gold,#f4c77c)';
+  var CYAN = 'var(--cyan,#72d9ff)';
+  var GREEN = 'var(--green,#9ce5ae)';
+  var PURPLE = '#c084fc';
+
+  function el(tag, txt) {
+    var e = document.createElement(tag);
     if (txt != null) e.textContent = txt;
     return e;
   }
 
   function card(id, title, accent) {
-    const host = document.getElementById(id);
+    var host = document.getElementById(id);
     if (!host) return null;
     host.style.cssText =
-      'background:#071521;border:1px solid #31516b;border-left:2px solid ' + accent + ';' +
+      'background:' + PANEL + ';border:1px solid ' + EDGE + ';border-left:2px solid ' + accent + ';' +
       'border-radius:6px;padding:8px;font:10px/1.5 ui-monospace,monospace;' +
-      'color:#92afc0;min-width:280px;text-align:left';
-    const h = el('div', null, title);
+      'color:' + MUTED + ';min-width:280px;text-align:left';
+    var h = el('div', title);
     h.style.cssText = 'color:' + accent + ';font-size:9px;letter-spacing:.08em;margin-bottom:5px';
     host.appendChild(h);
     return host;
   }
 
-  function row(host, k, v, vcolor) {
-    const tr = el('tr');
-    const a = el('td', null, k);
-    a.style.cssText = 'color:#5a7a8a;padding:1px 4px';
-    const b = el('td', null, v);
-    b.style.cssText = 'color:' + (vcolor || '#e7f6ff') + ';text-align:right';
-    tr.append(a, b);
+  function row(k, v, vcolor) {
+    var tr = el('tr');
+    var a = el('td', k);
+    a.style.cssText = 'color:' + MUTED + ';padding:1px 4px';
+    var b = el('td', v);
+    b.style.cssText = 'color:' + (vcolor || INK) + ';text-align:right';
+    tr.appendChild(a); tr.appendChild(b);
     return tr;
   }
 
   /* 01 · mathematical notation — parses the literal, shows the structure */
   function latex() {
-    const host = card('latex-widget', '$LæTæX · NOTATION', '#f4c77c');
+    const host = card('latex-widget', '$LæTæX · NOTATION', GOLD);
     if (!host) return;
     const t = el('table');
     t.style.cssText = 'width:100%;border-collapse:collapse';
     [
-      ['expr', '∫₀¹ x² dx', '#f4c77c'],
+      ['expr', '∫₀¹ x² dx', GOLD],
       ['variable', 'x', null],
       ['bounds', '0 → 1', null],
       ['integrand', 'x²', null],
-      ['result', '1/3', '#9ce5ae']
-    ].forEach(r => t.appendChild(row(host, r[0], r[1], r[2])));
+      ['result', '1/3', GREEN]
+    ].forEach(r => t.appendChild(row(r[0], r[1], r[2])));
     host.appendChild(t);
     const f = el('div', null, '✓ derivative(x³/3) = x²');
-    f.style.cssText = 'color:#9ce5ae;margin-top:4px';
+    f.style.cssText = 'color:' + GREEN + ';margin-top:4px';
     host.appendChild(f);
   }
 
   /* 02 · doctrinal sample — explicitly labelled as a static sample */
   function teologia() {
-    const host = card('teologia-widget', 'TEOLOGIA · MUESTRA LOCAL', '#c084fc');
+    const host = card('teologia-widget', 'TEOLOGIA · MUESTRA LOCAL', PURPLE);
     if (!host) return;
     host.appendChild(el('div', null, 'Justificación por la fe — don, no obra.'));
     host.appendChild(el('div', null, 'referencias: Romanos 3:28 · Efesios 2:8-9'));
     const n = el('div', null, 'muestra estática · no verificada contra una fuente');
-    n.style.cssText = 'color:#5a7a8a;margin-top:4px';
+    n.style.cssText = 'color:' + MUTED + ';margin-top:4px';
     host.appendChild(n);
   }
 
-  /* 03 · address check — resolves this console against the live atlas */
+  /* 03 · address check — resolves the console's LIVE coordinate in the atlas */
   function aeqr() {
-    const host = card('aeqr-widget', 'ÆQR · ADDRESS CHECK', '#72d9ff');
+    const host = card('aeqr-widget', 'ÆQR · ADDRESS CHECK', CYAN);
     if (!host) return;
-    const A = window.AE_ATLAS || [];
-    const here = A.filter(s => s.x === 14 && s.y === 0 && s.z === 0 && s.a === 0)[0];
-    host.appendChild(el('div', null, 'this console · x14:y0:z0:æ0'));
-    const hit = el('div', null, here ? ('atlas hit: ' + here.name) : 'atlas: not loaded');
-    hit.style.cssText = 'color:' + (here ? '#9ce5ae' : '#f4c77c');
-    host.appendChild(hit);
-    const n = el('div', null, here ? '✓ la dirección resuelve en el atlas' : '… esperando ae-atlas.js');
-    n.style.cssText = 'color:#5a7a8a;margin-top:4px';
-    host.appendChild(n);
+    const line = el('div');
+    const hit = el('div');
+    hit.style.cssText = 'font-weight:700';
+    const note = el('div');
+    note.style.cssText = 'color:' + MUTED + ';margin-top:4px';
+    host.appendChild(line); host.appendChild(hit); host.appendChild(note);
+
+    function refresh() {
+      const c = (window.aeCoord && window.aeCoord()) || { x: 14, y: 0, z: 0, a: 0 };
+      const addr = 'x' + c.x + ':y' + c.y + ':z' + c.z + ':æ' + c.a;
+      const A = window.AE_ATLAS || [];
+      const s = A.filter(v => v.x === c.x && v.y === c.y && v.z === c.z && v.a === c.a)[0];
+      line.textContent = 'this console · ' + addr;
+      hit.textContent = s ? ('atlas hit: ' + s.name) : 'atlas: sin carga';
+      hit.style.color = s ? GREEN : GOLD;
+      note.textContent = s ? '✓ la dirección resuelve en el atlas' : '… esperando ae-atlas.js';
+    }
+    refresh();
+    window.addEventListener('ae:coord', refresh);
+    window.__aeRefreshAddress = refresh;
   }
 
-  /* 04 · local canvas — deterministic animation, no assets */
+  /* 04 · local canvas — deterministic, yields to reduced-motion and hidden tabs */
   function canvas() {
-    const host = card('canvas-widget', 'STUDIO CANVAS · LOCAL', '#9ce5ae');
+    const host = card('canvas-widget', 'STUDIO CANVAS · LOCAL', GREEN);
     if (!host) return;
     const c = document.createElement('canvas');
     c.width = 264; c.height = 90;
     c.style.cssText = 'display:block;width:100%;background:#050505;border-radius:4px';
     host.appendChild(c);
     const ctx = c.getContext('2d');
-    let t = 0;
-    (function loop() {
-      if (!document.body.contains(c)) return;
-      t += 0.03;
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let t = 0, raf = 0;
+
+    function draw() {
       ctx.clearRect(0, 0, c.width, c.height);
       ctx.strokeStyle = '#f4c77c';
       ctx.lineWidth = 1.5;
@@ -101,8 +122,26 @@
         if (x) ctx.lineTo(x, y); else ctx.moveTo(x, y);
       }
       ctx.stroke();
-      requestAnimationFrame(loop);
-    })();
+    }
+
+    function loop() {
+      t += 0.03;
+      draw();
+      raf = requestAnimationFrame(loop);
+    }
+
+    function sync() {
+      const hidden = document.visibilityState === 'hidden';
+      if (reduce || hidden) {
+        if (raf) { cancelAnimationFrame(raf); raf = 0; }
+        if (!reduce) draw();            // freeze on the current frame
+      } else if (!raf) {
+        raf = requestAnimationFrame(loop);
+      }
+    }
+
+    document.addEventListener('visibilitychange', sync);
+    if (reduce) draw(); else raf = requestAnimationFrame(loop);
   }
 
   function mount() {

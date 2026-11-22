@@ -202,7 +202,8 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 // ── æ coordinate origin integration: atlas resolve + shared theme/env ──
 const S={x:14,y:0,z:0,a:0};
 function coordStr(s){return 'x'+s.x+':y'+s.y+':z'+s.z+':æ'+s.a}
-function setCoord(x,y,z,a){S.x=x;S.y=y;S.z=z;S.a=a;const c=$('coord-chip');if(c)c.textContent=coordStr(S)}
+window.aeCoord=function(){return {x:S.x,y:S.y,z:S.z,a:S.a}};
+function setCoord(x,y,z,a){S.x=x;S.y=y;S.z=z;S.a=a;const c=$('coord-chip');if(c)c.textContent=coordStr(S);window.dispatchEvent(new CustomEvent('ae:coord'))}
 function resolveAtlas(q){q=(q||'').toLowerCase().replace(/^æ:\/\//,'').replace(/^æææ:\/\//,'').replace(/^ae:\/\//,'').replace(/^web\+æ:\/\//,'');const A=window.AE_ATLAS||[];const cm=q.match(/^x?(-?\d+):y?(-?\d+):z?(-?\d+):æ?(-?\d+)$/);if(cm){for(let i=0;i<A.length;i++){const s=A[i];if(s.x==cm[1]&&s.y==cm[2]&&s.z==cm[3]&&s.a==cm[4])return s}return null}for(let j=0;j<A.length;j++){const t=A[j];if(t.id.indexOf(q)>=0||t.name.toLowerCase().indexOf(q)>=0||t.url.toLowerCase().indexOf(q)>=0||t.cat.indexOf(q)>=0)return t}return null}
 let _theme='night',_env='default';try{_theme=localStorage.getItem('ae-theme')||'night';_env=localStorage.getItem('ae-env')||'default'}catch(e){}
 function applyTheme(t){document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('ae-theme',t)}catch(e){}}
