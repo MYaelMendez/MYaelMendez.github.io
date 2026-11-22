@@ -1987,3 +1987,39 @@ longer one silhouette.
 the GLB JSON chunk (`KHR_draco_mesh_compression`).
 **change** - the cast can now be heterogeneous; the next cut adds the missing
 bodies and the missing policies.
+
+
+## 59. The origin becomes the landing site (2026-11-22)
+
+`index.html` gains **"the domains - one estate, one landing"**: every domain,
+what it is, and where it lands. Measured live, not remembered.
+
+```
+llm.store           301 -> myaelmendez.github.io
+cli.llc             301 -> myaelmendez.github.io/
+æææ.com            301 -> http://myaelmendez.github.io/
+soværeign.com       301 -> myaelmendez.github.io/
+mobility.foundation 301 -> myaelmendez.github.io/
+neuromitosis.com    301 -> myaelmendez.github.io/neuromitosis   (deep path)
+daollc.ai           301 -> privateclient.ai/owner
+privateclient.ai    200  (serves its own surface)
+commandprompt.ai    200
+æl.net              200
+yæl.com             200
+teologia.ai         NO RESPONSE
+zacapa.ai           NO RESPONSE
+æ.store             NO RESPONSE
+/neuromitosis 200 · /owner 404 · /mobility 200
+```
+
+THREE OPEN ITEMS, named not fixed:
+- **daollc.ai is BROKEN** - it forwards to `privateclient.ai/owner`, which 404s.
+- `teologia.ai`, `zacapa.ai` and `æ.store` do not resolve.
+- Fixing these needs DNS custody (Hostinger / Cloudflare tokens) - out of scope
+  for a surface edit. A token offered in chat would be refused and rotated.
+
+**proved** - the homepage is now the map of the estate, and the map is measured.
+**broke** - the redirect set is heterogeneous (root vs deep path vs served vs
+dead); a homepage implying "everything lands here" would be a false claim.
+**change** - the origin tells the truth about the estate, including the parts
+that are not yet routed.
