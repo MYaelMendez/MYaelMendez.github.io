@@ -4,15 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>tinyHQ · the headquarters of the tiny constellation</title>
-<meta name="description" content="tinyHQ — the origin surface designed by the tiny* idiom: 20 rooms, one capability each, every doctor run. Measured, not declared.">
+<meta name="description" content="tinyHQ — generated from tinyae-registry.json. Every room's badge is a measurement, not a claim.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
 :root{--void:#050505;--gold:#D4AF37;--text:#e8e8e8;--dim:#a3926a;--mut:#a89e80;--line:rgba(212,175,55,.24)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--void);color:var(--text);font-family:'JetBrains Mono',ui-monospace,monospace;min-height:100vh;overflow-x:hidden}
-body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(1000px 700px at 50% 30%,rgba(212,175,55,.10),transparent 62%),radial-gradient(700px 500px at 8% 92%,rgba(0,229,255,.06),transparent 60%)}
-body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;background:repeating-linear-gradient(0deg,rgba(212,175,55,.03) 0 1px,transparent 1px 4px)}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(1000px 700px at 50% 30%,rgba(212,175,55,.10),transparent 62%)}
 .wrap{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:clamp(14px,2.6vw,34px)}
 header{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;padding-bottom:18px;border-bottom:1px solid var(--line)}
 .eyebrow{font-size:clamp(.58rem,1.1vw,.72rem);letter-spacing:.4em;text-transform:uppercase;color:var(--gold)}
@@ -33,14 +32,8 @@ section{margin-top:26px}
 .rd{display:inline-block;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;border:1px solid;border-radius:999px;padding:2px 8px;margin-top:8px}
 .rd.ok{color:#39ff14;border-color:rgba(57,255,20,.4)}
 .rd.refused{color:#ff6b6b;border-color:rgba(255,107,107,.4)}
-.links{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:9px}
-.link{display:block;border:1px solid var(--line);border-radius:10px;padding:11px 13px;color:var(--text);text-decoration:none;font-size:.78rem;line-height:1.5;transition:border-color .2s,color .2s}
-.link:hover{border-color:var(--gold);color:var(--gold)}
-footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
-.receipt{color:var(--mut);font-size:.66rem;letter-spacing:.1em}
-.close{font-family:'Orbitron',sans-serif;color:var(--gold);font-weight:700}
-.blink{animation:bl 1.1s steps(2) infinite}
-@keyframes bl{50%{opacity:0}}
+footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-size:.66rem;color:var(--mut);letter-spacing:.08em;line-height:1.7}
+footer a{color:var(--gold);text-decoration:none}
 </style>
 </head>
 <body>
@@ -49,158 +42,139 @@ footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);display
     <div>
       <div class="eyebrow">æ:// tinyHQ · la sede</div>
       <h1>tinyHQ</h1>
-      <p class="sub">The headquarters of the tiny constellation. Every room is <b>one
-      capability</b>, every doctor was <b>run</b>, and the result is on the door. The design
-      of this page is the design of the instruments: measured, not declared.</p>
+      <p class="sub">The headquarters of the tiny constellation. Every badge is a
+      <b>measurement</b> taken when this page was generated — never a claim copied
+      from somewhere else.</p>
     </div>
     <div class="count">
-      <div class="n">20</div>
+      <div class="n">22</div>
       <div class="l">rooms</div>
-      <div class="t">20 ok · 0 refused</div>
+      <div class="t">22 ok · 0 refused · 1 flaky</div>
     </div>
   </header>
   <section>
     <h2 class="sec-head">the floor plan</h2>
-    <p class="lede">Grouped by domain. Click a room for its doctor.</p>
+    <p class="lede">Generated from <code>tinyae-registry.json</code> by
+    <code>tinyae.py surfaces</code>. A room that cannot run is shown as refused.</p>
     <div class="rooms">
-      <a class="room" href="tiny.html#tinyae" data-dom="protocol">
-        <span class="rn">ae</span>
-        <span class="rr">la familia measure-and-refuse, un solo prefijo</span>
-        <span class="rd ok">ok</span>
-      </a>
-      <a class="room" href="tiny.html#tinyonnx" data-dom="policy">
-        <span class="rn">onnx</span>
-        <span class="rr">el oracle ONNX</span>
-        <span class="rd ok">ok</span>
-      </a>
-      <a class="room" href="tiny.html#tinypolicy" data-dom="policy">
-        <span class="rn">policy</span>
-        <span class="rr">su C2</span>
-        <span class="rd ok">ok</span>
-      </a>
-      <a class="room" href="tiny.html#tinypython" data-dom="policy">
-        <span class="rn">python</span>
-        <span class="rr">la politica que camina</span>
-        <span class="rd ok">ok</span>
-      </a>
-      <a class="room" href="tiny.html#tinycuda" data-dom="pixels">
+      <a class="room" href="tiny.html#tinycuda">
         <span class="rn">cuda</span>
         <span class="rr">raster determinista en una libreta GPU</span>
         <span class="rd ok">ok</span>
       </a>
-      <a class="room" href="tiny.html#tinygpu" data-dom="pixels">
+      <a class="room" href="tiny.html#tinygpu">
         <span class="rn">gpu</span>
         <span class="rr">renderer de robot con CAD real</span>
         <span class="rd ok">ok</span>
       </a>
-      <a class="room" href="tiny.html#tinycudavideo" data-dom="video">
+      <a class="room" href="tiny.html#tinycudavideo">
         <span class="rn">cudavideo</span>
-        <span class="rr">el seam: frames -&amp;gt; pelicula</span>
+        <span class="rr">el seam: frames -> pelicula</span>
         <span class="rd ok">ok</span>
       </a>
-      <a class="room" href="tiny.html#tinyvision" data-dom="video">
+      <a class="room" href="tiny.html#tinyvision">
         <span class="rn">vision</span>
         <span class="rr">supervision del film de la politica</span>
         <span class="rd ok">ok</span>
       </a>
-      <a class="room" href="tiny.html#tinyasimov" data-dom="motion">
-        <span class="rn">asimov</span>
-        <span class="rr">el cuerpo: C2 con gates</span>
-        <span class="rd ok">ok</span>
-      </a>
-      <a class="room" href="tiny.html#tinymujoco" data-dom="motion">
-        <span class="rn">mujoco</span>
-        <span class="rr">fisica y movimiento</span>
-        <span class="rd ok">ok</span>
-      </a>
-      <a class="room" href="tiny.html#tinygpugbot" data-dom="actors">
-        <span class="rn">gpugbot</span>
-        <span class="rr">actores con cues, desde trazas</span>
-        <span class="rd ok">ok</span>
-      </a>
-      <a class="room" href="tiny.html#tinyfilmmemory" data-dom="memory">
-        <span class="rn">filmmemory</span>
-        <span class="rr">la memoria del film</span>
-        <span class="rd ok">ok</span>
-      </a>
-      <a class="room" href="tiny.html#tinycontinuum" data-dom="time">
-        <span class="rn">continuum</span>
-        <span class="rr">el tiempo y sus frames</span>
-        <span class="rd ok">ok</span>
-      </a>
-      <a class="room" href="tiny.html#tinyqr" data-dom="identity">
-        <span class="rn">qr</span>
-        <span class="rr">el chip: firma de extremo a extremo</span>
-        <span class="rd ok">ok</span>
-      </a>
-      <a class="room" href="tiny.html#tinycan" data-dom="bus">
-        <span class="rn">can</span>
-        <span class="rr">el bus del robot</span>
-        <span class="rd ok">ok</span>
-      </a>
-      <a class="room" href="tiny.html#tinyffmpeg" data-dom="codecs">
+      <a class="room" href="tiny.html#tinyffmpeg">
         <span class="rn">ffmpeg</span>
         <span class="rr">gobierna los builds de FFmpeg</span>
         <span class="rd ok">ok</span>
       </a>
-      <a class="room" href="tiny.html#tinyvoca" data-dom="voice">
-        <span class="rn">voca</span>
-        <span class="rr">la voz local que narra los films</span>
+      <a class="room" href="tiny.html#tinyqr">
+        <span class="rn">qr</span>
+        <span class="rr">el chip: firma de extremo a extremo</span>
         <span class="rd ok">ok</span>
       </a>
-      <a class="room" href="tiny.html#tinyrepofilm" data-dom="film">
-        <span class="rn">repofilm</span>
-        <span class="rr">un repo, org o usuario -&amp;gt; pelicula sellada</span>
+      <a class="room" href="tiny.html#tinymujoco">
+        <span class="rn">mujoco</span>
+        <span class="rr">fisica y movimiento</span>
         <span class="rd ok">ok</span>
       </a>
-      <a class="room" href="tiny.html#tinylab" data-dom="lab">
+      <a class="room" href="tiny.html#tinyasimov">
+        <span class="rn">asimov</span>
+        <span class="rr">el cuerpo: C2 con gates</span>
+        <span class="rd ok">ok</span>
+      </a>
+      <a class="room" href="tiny.html#tinypython">
+        <span class="rn">python</span>
+        <span class="rr">la politica que camina</span>
+        <span class="rd ok">ok</span>
+      </a>
+      <a class="room" href="tiny.html#tinypolicy">
+        <span class="rn">policy</span>
+        <span class="rr">su C2</span>
+        <span class="rd ok">ok</span>
+      </a>
+      <a class="room" href="tiny.html#tinyonnx">
+        <span class="rn">onnx</span>
+        <span class="rr">el oracle ONNX</span>
+        <span class="rd ok">ok</span>
+      </a>
+      <a class="room" href="tiny.html#tinycan">
+        <span class="rn">can</span>
+        <span class="rr">el bus del robot</span>
+        <span class="rd ok">ok</span>
+      </a>
+      <a class="room" href="tiny.html#tinygpugbot">
+        <span class="rn">gpugbot</span>
+        <span class="rr">actores con cues, desde trazas</span>
+        <span class="rd ok">ok</span>
+      </a>
+      <a class="room" href="tiny.html#tinycontinuum">
+        <span class="rn">continuum</span>
+        <span class="rr">el tiempo y sus frames</span>
+        <span class="rd ok">ok</span>
+      </a>
+      <a class="room" href="tiny.html#tinyfilmmemory">
+        <span class="rn">filmmemory</span>
+        <span class="rr">la memoria del film</span>
+        <span class="rd ok">ok</span>
+      </a>
+      <a class="room" href="tiny.html#tinylab">
         <span class="rn">lab</span>
         <span class="rr">el auto-estudio de la familia</span>
         <span class="rd ok">ok</span>
       </a>
-      <a class="room" href="tiny.html#tinyplugin" data-dom="plugin">
+      <a class="room" href="tiny.html#tinyplugin">
         <span class="rn">plugin</span>
         <span class="rr">fallos de instalacion, a la vista</span>
         <span class="rd ok">ok</span>
       </a>
-    </div>
-  </section>
-  <section>
-    <h2 class="sec-head">the domains — one estate, one landing</h2>
-    <div class="links">
-      <a class="link" href="https://llm.store">llm.store — the store · → this site · exp 2027-11-29</a>
-      <a class="link" href="https://moltcontextprotocol.com">moltcontextprotocol.com — the protocol · → this site · exp 2027-02-09</a>
-      <a class="link" href="https://moltcontextprotocol.net">moltcontextprotocol.net — served · exp 2027-02-09</a>
-      <a class="link" href="https://moltcontextprotocol.org">moltcontextprotocol.org — → æ.store (dead) · exp 2027-02-09</a>
-      <a class="link" href="https://iaamano.com">iaamano.com — → æ.store (dead) · exp 2027-08-26</a>
-      <a class="link" href="https://iaamano.org">iaamano.org — → æ.store (dead) · exp 2027-08-26</a>
-      <a class="link" href="https://iaamano.net">iaamano.net — → æ.store (dead) · exp 2027-08-26</a>
-      <a class="link" href="https://xn--l-3fa.app">æl.app — served · exp 2027-07-13</a>
-      <a class="link" href="https://xn--l-3fa.net">æl.net — served · exp 2027-07-13</a>
-      <a class="link" href="https://xn--wtz-yla.com">wætz.com — → cli.llc · exp 2029-10-25</a>
-      <a class="link" href="https://xn--6ca.store">æ.store — the intended primary · <b>does not resolve</b> · exp 2029-07-20</a>
-    </div>
-    <p class="lede" style="margin-top:12px"><b>The estate has a dead primary.</b> æ.store
-    does not resolve and four domains redirect to it — iaamano.com/.org/.net and
-    moltcontextprotocol.org. Open work, not claims.</p>
-  </section>
-  <section>
-    <h2 class="sec-head">the current work</h2>
-    <div class="links">
-      <a class="link" href="the-film-is-an-instrument.html">the post — the thesis, the measured, the retractions</a>
-      <a class="link" href="ROBOTICS.md">ROBOTICS.md — every robotics work, ordered</a>
-      <a class="link" href="index.html">the estate hub</a>
-      <a class="link" href="correction-01.mp4">CORRECTION/01</a>
-      <a class="link" href="morphologies-01.mp4">MORPHOLOGIES/01</a>
-      <a class="link" href="actor-01.mp4">ACTOR/01</a>
-      <a class="link" href="mixture-performed.mp4">MIXTURE OF ROBOTS</a>
-      <a class="link" href="verbs-09.mp4">VERBS/09</a>
-      <a class="link" href="loop-09.mp4">LOOP/09</a>
+      <a class="room" href="tiny.html#tinyrepofilm">
+        <span class="rn">repofilm</span>
+        <span class="rr">un repo, org o usuario -> pelicula sellada</span>
+        <span class="rd ok">ok</span>
+      </a>
+      <a class="room" href="tiny.html#tinyvoca">
+        <span class="rn">voca</span>
+        <span class="rr">la voz local que narra los films</span>
+        <span class="rd ok">ok</span>
+      </a>
+      <a class="room" href="tiny.html#tinyae">
+        <span class="rn">ae</span>
+        <span class="rr">la familia measure-and-refuse, un solo prefijo</span>
+        <span class="rd ok">ok</span>
+      </a>
+      <a class="room" href="tiny.html#tinySVG">
+        <span class="rn">SVG</span>
+        <span class="rr">el viewBox no es la pantalla: escala y solapes</span>
+        <span class="rd ok">ok</span>
+      </a>
+      <a class="room" href="tiny.html#tinyXML">
+        <span class="rn">XML</span>
+        <span class="rr">el documento es el contrato: canon, XXE, firma</span>
+        <span class="rd ok">ok</span>
+      </a>
     </div>
   </section>
   <footer>
-    <span class="receipt">tinyHQ · generated from tiny.html · HUMAN://ROOT · receipts on every action</span>
-    <span class="close">&gt;_æ:<span class="blink">_</span></span>
+    derived 2026-11-22T20:08:39+00:00 · 2 interpreters · flaky detection on<br>
+    <a href="./tinyae-registry.json">registry →</a>
+    <a href="./tinyae.html">report →</a>
+    <a href="./tiny.html">constellation →</a>
+    <a href="./purpose.html">the charter →</a>
   </footer>
 </div>
 </body>
