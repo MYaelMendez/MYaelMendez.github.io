@@ -114,6 +114,10 @@ html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'J
 .door .dots u.on{background:var(--neon);box-shadow:0 0 6px rgba(0,255,157,.55)}
 .door .dots u.off{background:var(--magenta);opacity:.45}
 .door .dots em{font-size:8px;color:var(--muted);font-style:normal;margin-left:auto;letter-spacing:.5px}
+.door .rule{display:block;font-size:8.5px;color:var(--muted);line-height:1.5;margin-top:5px;
+ border-top:1px dashed var(--line);padding-top:5px}
+.door .rule b{color:var(--gold);font-weight:400}
+.door.meshonly .rule{color:var(--magenta)}
 .door.meshonly{opacity:.62;border-left-color:var(--magenta)}
 .door.meshonly b{color:var(--magenta)}
 .door.sel{outline:2px solid var(--gold);outline-offset:1px}
@@ -191,6 +195,19 @@ footer a{color:var(--gold)}
     <div class="eyebrow">ROSTER × STANDARD INTERFACE · <span id="roster-count"></span></div>
     <h2>every robot, one row of seven</h2>
     <div class="mesh" id="mesh"></div>
+  </section>
+
+  <section class="panel" aria-label="codemode">
+    <div class="eyebrow">CODE MODE · THE FLEET AS AN EXPRESSION</div>
+    <h2>codemode://robots — not a tool call</h2>
+    <div class="verb"><div class="vn">present()</div><div class="vd">who is present, measured <div class="cov"><span class="who" id="cm-present"></span></div></div></div>
+    <div class="verb"><div class="vn">coverage('reachy')</div><div class="vd">a robot's share of the seven verbs</div></div>
+    <div class="verb"><div class="vn">provides('asimov','plan')</div><div class="vd">which dialect verb satisfies a standard verb</div></div>
+    <div class="verb"><div class="vn">gaps()</div><div class="vd">the named gaps — mesh-only, unregistered, empty categories</div></div>
+    <div class="verb"><div class="vn">sum(ledger_receipts(n) for n in roster)</div><div class="vd">aggregate across the fleet <div class="cov"><span class="who" id="cm-sum"></span></div></div></div>
+    <p class="note" style="margin-top:10px"><b>Governed, not free eval.</b> No dunder, a name whitelist,
+      empty <code>__builtins__</code> — and every evaluation leaves a receipt in
+      <code>logs/codemode/robots.jsonl</code>. A refusal is receipted too.</p>
   </section>
 
   <p class="note" id="gaps"></p>
@@ -292,6 +309,7 @@ function renderMesh(){
     return '<button class="door'+(r.present?'':' meshonly')+(INDEX._sel===n?' sel':'')+'" style="--ac:'+AXCOL[i%AXCOL.length]+'" data-n="'+n+'">'+
       '<span class="ax">robot://'+n+'</span><b>'+n+'</b>'+
       '<span class="small">'+sub+'</span>'+
+      (r.rule?'<span class="rule">'+r.rule+'</span>':'')+
       '<span class="dots">'+dots+'<em>'+(r.present?r.coverage+'%':'gap')+'</em></span></button>';
   }).join('');
   Array.prototype.forEach.call(m.querySelectorAll('.door'),function(d){
@@ -444,6 +462,9 @@ fetch('robots/index.json',{cache:'no-cache'})
     log('> index ........................ '+ROSTER.length+' robots · '+p+' present · '+rec+' receipts','ok');
     log('> dialects on disk ............. '+ROSTER.length+' registered · '+(d.unregistered_dialects||[]).length+' unregistered','c');
     log('> unregistered ................. '+(d.unregistered_dialects||[]).join(', '),'c');
+    var cp=document.getElementById('cm-present'), cs=document.getElementById('cm-sum');
+    if(cp)cp.textContent='· '+p+' present: '+ROSTER.filter(function(n){return (d.robots[n]||{}).present}).join(', ');
+    if(cs)cs.textContent='· '+rec+' receipts across '+ROSTER.length+' robots';
     tickPush('robot://fleet · '+p+' present · '+rec+' receipts','g');
     for(var i=0;i<3;i++)tickAmb();
     setInterval(tickAmb,5200);
