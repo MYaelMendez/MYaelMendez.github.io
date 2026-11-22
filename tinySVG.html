@@ -145,6 +145,41 @@ footer a{color:var(--gold);text-decoration:none}
   </section>
 
   <section>
+    <h2>EL LABORATORIO DE <span>FILTROS</span></h2>
+    <p class="lead">Cuatro técnicas que la plataforma lleva años teniendo y casi nadie
+    usa: <b>feTurbulence</b> genera ruido Perlin procedural y <b>feDisplacementMap</b>
+    lo usa como campo de desplazamiento. Sin WebGL, sin canvas, sin JavaScript para
+    el efecto en sí. Mueve los mandos y mira la constelación deformarse.</p>
+    <div class="lab">
+      <div class="row">
+        <label>filtro</label>
+        <select id="ff" style="background:#0a0905;color:#7bdff2;border:1px solid rgba(123,223,242,.4);
+              border-radius:6px;padding:6px 10px;font-family:inherit;font-size:.78rem">
+          <option value="warp">warp — feTurbulence + feDisplacementMap</option>
+          <option value="gooey">gooey — blur + colorMatrix</option>
+          <option value="grain">grain — turbulencia como textura</option>
+          <option value="mesh">mesh — gradiente multipunto</option>
+          <option value="none">ninguno</option>
+        </select>
+        <label style="color:var(--gold)"><input id="hz" type="checkbox" style="accent-color:var(--gold)"> heat haze</label>
+      </div>
+      <div class="row"><label>baseFrequency</label>
+        <input id="bf" type="range" min="1" max="100" value="20">
+        <div class="val" id="bfv">0.020</div></div>
+      <div class="row"><label>desplazamiento</label>
+        <input id="sc" type="range" min="0" max="120" value="30">
+        <div class="val" id="scv">30</div></div>
+      <div class="row"><label>semilla</label>
+        <input id="sd" type="range" min="0" max="99" value="7">
+        <div class="val" id="sdv">7</div></div>
+      <div class="kv"><span class="k">región del filtro</span><span class="v">x −20% · y −20% · 140% × 140%</span></div>
+      <div class="kv"><span class="k">por qué importa</span><span class="v">sin ampliarla, el warp recorta los bordes</span></div>
+    </div>
+    <div class="demo" style="margin-top:12px"><svg id="flt" viewBox="0 0 1590 1034"
+      role="img" aria-label="constelacion con filtros svg"></svg></div>
+  </section>
+
+  <section>
     <h2>LO QUE <span>RECHAZA</span></h2>
     <p class="lead">Cada refusal está pinneado por un test. Un chequeo que no se
     ejecuta nunca se muestra como que pasa.</p>
@@ -234,6 +269,102 @@ function draw() {
 }
 ['rw', 'nn'].forEach(id => document.getElementById(id).addEventListener('input', draw));
 draw();
+
+// ── laboratorio de filtros ──────────────────────────────────────────────
+const FLT = {
+  warp: 'url(#f-warp)', gooey: 'url(#f-gooey)', grain: 'url(#f-grain)',
+  mesh: '', none: ''
+};
+function drawFilters() {
+  const kind = document.getElementById('ff').value;
+  const bf = (+document.getElementById('bf').value / 1000).toFixed(3);
+  const sc = +document.getElementById('sc').value;
+  const sd = +document.getElementById('sd').value;
+  const hz = document.getElementById('hz').checked;
+  document.getElementById('bfv').textContent = bf;
+  document.getElementById('scv').textContent = sc;
+  document.getElementById('sdv').textContent = sd;
+  const turb = document.getElementById('turb');
+  turb.setAttribute('baseFrequency', bf + ' ' + (bf * 1.6).toFixed(3));
+  turb.setAttribute('numOctaves', '3');
+  turb.setAttribute('seed', sd);
+  const disp = document.getElementById('disp');
+  disp.setAttribute('scale', kind === 'gooey' ? 0 : sc);
+  // heat haze: animar la frecuencia (la via cara) o el scale (la barata)
+  const old = turb.querySelector('animate');
+  if (old) old.remove();
+  if (hz && kind !== 'gooey') {
+    const a = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+    a.setAttribute('attributeName', 'baseFrequency');
+    a.setAttribute('dur', '12s');
+    a.setAttribute('values', bf + ' ' + (bf*1.6).toFixed(3) + ';'
+      + (bf*1.08).toFixed(3) + ' ' + (bf*1.4).toFixed(3) + ';'
+      + bf + ' ' + (bf*1.6).toFixed(3));
+    turb.appendChild(a);
+  }
+  const g = document.getElementById('flt-body');
+  g.setAttribute('filter', FLT[kind]);
+  // el mesh pinta el fondo por gradiente, no por filtro
+  document.getElementById('mesh-bg').setAttribute('opacity', kind === 'mesh' ? 1 : 0);
+  document.getElementById('grain-fill').setAttribute('opacity', kind === 'grain' ? .5 : 0);
+}
+['ff','bf','sc','sd','hz'].forEach(id =>
+  document.getElementById(id).addEventListener('input', drawFilters));
+</script>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="f-warp" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence id="turb" type="fractalNoise" baseFrequency="0.02 0.032"
+                    numOctaves="3" seed="7" result="noise"/>
+      <feDisplacementMap id="disp" in="SourceGraphic" in2="noise"
+                         scale="30" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="f-gooey" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="b"/>
+      <feColorMatrix in="b" mode="matrix"
+        values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -11" result="goo"/>
+      <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+    </filter>
+    <filter id="f-grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComposite operator="in" in2="SourceGraphic"/>
+    </filter>
+    <radialGradient id="mg1" cx="20%" cy="25%" r="55%">
+      <stop offset="0%" stop-color="#D4AF37"/><stop offset="100%" stop-color="#050505" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="mg2" cx="80%" cy="20%" r="55%">
+      <stop offset="0%" stop-color="#7bdff2"/><stop offset="100%" stop-color="#050505" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="mg3" cx="50%" cy="90%" r="60%">
+      <stop offset="0%" stop-color="#bf5af2"/><stop offset="100%" stop-color="#050505" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="grainF"><feTurbulence type="fractalNoise" baseFrequency="0.9"
+      numOctaves="2" seed="3"/><feColorMatrix type="saturate" values="0"/></filter>
+  </defs>
+</svg>
+
+<script>
+(function() {
+  const svg = document.getElementById('flt');
+  const vw = 1590, vh = 1034, n = 20, nodeR = 58, hubR = Math.round(nodeR * 2.2);
+  const pts = positions(n, vw, vh, nodeR, hubR);
+  let out = '<rect id="mesh-bg" width="1590" height="1034" fill="#050505" opacity="0"/>'
+    + '<rect width="1590" height="1034" fill="url(#mg1)"/>'
+    + '<rect width="1590" height="1034" fill="url(#mg2)"/>'
+    + '<rect width="1590" height="1034" fill="url(#mg3)" opacity=".85"/>'
+    + '<rect id="grain-fill" width="1590" height="1034" filter="url(#grainF)" opacity="0"/>'
+    + '<circle cx="795" cy="517" r="' + hubR + '" fill="none" stroke="rgba(212,175,55,.28)"/>';
+  pts.forEach(([x, y], i) => {
+    out += '<line x1="' + x.toFixed(1) + '" y1="' + y.toFixed(1) + '" x2="795" y2="517" stroke="#D4AF37" stroke-opacity=".15"/>';
+    out += '<g transform="translate(' + x.toFixed(1) + ',' + y.toFixed(1) + ')">'
+      + '<circle r="' + nodeR + '" fill="rgba(5,5,5,.72)" stroke="#D4AF37" stroke-width="2.2"/>'
+      + '<text y="9" text-anchor="middle" fill="#e8e8e8" font-size="27" font-family="monospace">n' + i + '</text></g>';
+  });
+  svg.innerHTML = '<g id="flt-body">' + out + '</g>';
+  drawFilters();
+})();
 </script>
 </body>
 </html>
