@@ -2446,3 +2446,133 @@ written from one `manifest()` call so both carry 12/12 and the same fanin link.
 **Remaining.** `site/` clone still does not mirror these artifacts. `truth.json`
 is a verified claim, not an authorization — every publish still needs a human
 push.
+
+## 64. tinyMUJOCO — launching the robots (2026-11-22)
+
+The pane grew a ROBOTS section: every robot this estate can put in the physics
+engine, its **own stack state** (via `robot://`) beside its MuJoCo rollout. The
+two facts are deliberately separate — a robot present in MuJoCo and a robot on
+the desk are different things.
+
+- `tinymujoco_backend.py` — `ROBOTS` table (asimov / reachy / microduck → model),
+  `robots()`, `launch(robot)`, `launch_all()` (parallel, one failure does not
+  stop the rest). Loads `robot://` lazily for the stack half.
+- `dashboard/plugin_api.py` — 3 new routes: `/robots`, `/launch`, `/launch_all`
+  (**10 routes total**).
+- `__init__.py` / `plugin.yaml` — 3 new tools: `tinymujoco_robots`,
+  `tinymujoco_launch`, `tinymujoco_launch_all` (**9 tools**).
+- `plugin.js` — ROBOTS section: per-robot stack dot, launch button, and the
+  result (dofs, controllability, trace, speed, reason).
+
+**Asimov's meshdir was broken on disk, not by staging.** `asimov_1_25dof.xml`
+declares `meshdir="../meshes"`, but the meshes live at
+`C:\æ\tinygpu\model\meshes` — `..\meshes` beside the model does not exist. The
+stager now reads `meshdir`, and when it cannot resolve, locates one of the
+referenced STLs on the estate and copies that directory into the stage. It
+reports what it did instead of silently producing a model that will not load.
+
+Measured, in the app's interpreter, `launch_all(seed 0, steps 600)`:
+
+```
+wall 9.29 s · launched ['asimov','reachy','microduck'] · refused []
+
+asimov     nq=32  nu=0   controllable=false  realtime 14.32x  staged=true
+           trace f6a0a8071dfe…   (no actuators: open-loop dynamics, honest)
+reachy     nq=58  nu=9   controllable=true   realtime  8.10x  staged=false
+           trace d3dfb88942ae…
+microduck  nq=35  nu=14  controllable=true   realtime  7.07x  staged=true
+           trace c7b3f7c2b2ec…
+```
+
+**proved** — all three robots load and step in the physics engine; the pane's
+backend reports each robot's stack presence and its rollout separately; 10
+routes; `hermes plugins validate` passes.
+
+**broke** — the pane BODY is still unverified (same blocker as §63: clicking the
+TINYMUJOCO tab needs a consent prompt that timed out). No `[plugins] tinymujoco
+failed to register` line in `desktop.log`, so registration is clean; that is
+not the same as the component mounting.
+
+**change** — "launch" now means: put the robot in the engine AND show whether its
+own stack is up. The stager repairs a missing meshdir by finding a referenced
+mesh, which generalises to any MJCF whose meshes were moved.
+
+## 65. robot:// — doctor, discovery, authority (2026-11-22)
+
+Concurrent work: another agent landed the **fleet receipt** (every dispatch
+recorded, refusals included, `fleet/ledger` anchoring all dialect ledgers plus
+the fleet's own) and a 7-test suite. All 7 passed before this entry; this entry
+is additive and did not rewrite their code.
+
+Added, in the house style:
+
+- `robot://doctor` — probes every registered robot AND scans the disk for
+  dialect modules the registry misses. Per robot: presence, verb count, class
+  breakdown, **policy hash** (`sha256` of the canonical verb table — the policy
+  IS the verb set, so a change is a measurable event), ledger tail, transports,
+  live flag. Separates real dialects (`SCHEME` + `dispatch`) from generator
+  modules, and skips test modules.
+- `robot://fleet/authority` — the authority link: per robot, the gate classes,
+  the motion-verb count, the probe verb, and the grant shape. `granted: false`
+  always; it reports what an approval would have to look like.
+- `robot-console.html` — a Fleet row: `doctor` / `authority` / `ledger`, with a
+  one-line note under it.
+
+Measured:
+
+```
+robot://doctor
+  ok true · robots asimov/reachy/microduck
+  asimov    verbs 14  classes {media 4, motion 6, read 4}      policy 0b0c025e7c5b  ledger 62
+  reachy    verbs 27  classes {motion 16, read 6, safety 5}    policy 1711d7f2aefa  ledger 13
+  microduck verbs 22  classes {motion 9, read 10, safety 2, telemetry 1}
+                                                              policy 41b533248b99  ledger 10
+  unregistered dialects: ['cli', 'film', 'voice']
+  modules (not dialects): gen_ae, molt_context
+  fleet_receipt 0358f30bc3c542a4…
+
+robot://fleet/authority
+  granted false · asimov motion 6 · reachy motion 21 · microduck motion 11
+  every robot reports a grant shape; none grants
+
+tests: 13/13 (7 prior + 6 new) · 39 s
+browser: console renders the doctor button; click →
+        "ok · 3 unregistered dialect(s): cli, film, voice"
+```
+
+**proved** — the dispatcher now has a doctor that probes the disk rather than
+trusting the registry, and an authority route that reports the gate instead of
+assuming it. Both are reachable through the bridge and the console.
+
+**found** — three dialects exist on disk and are NOT registered: `cli://`,
+`film://`, `voice://`. `gen_ae_protocol.py` appeared at 14:01 during this run
+(concurrent agent) and is correctly classified as a generator, not a robot.
+
+**change** — registering a robot is still one `ROBOTS` entry, but the registry
+can no longer silently lag the disk: `doctor` names what is missing.
+
+
+---
+
+## 2026-11-22 — æC2 console: honest feeds, dead widgets removed, visible receipt
+
+**source** — `ae/control/index-live.html` (`#feeds-chip` reports manifest/board/queue/mood
+as `FEEDS: n/4` with a DOWN count; `#ops-ticker` now has ONE source — JS builds
+`ATLAS n ADDRESSES · MANIFEST n CAPABILITIES`; the four stat counters are labelled
+`· LOCAL`; new `🧾 LAST RECEIPT` panel renders SHA-256 + cost + per-workstream rows);
+`ae/control/widgets.js` (new, vanilla JS — replaces the React/JSX widgets whose
+`../plugins/*/index.js` resolved to `/ae/plugins/`, which does not exist).
+
+**Why** — the console claimed `FEEDS: STATIC` while it already consumed four live feeds; it
+carried a duplicated `#plugins-section` (5 duplicate ids, invalid DOM); and the four widget
+scripts 404'd while loading React UMD for nothing.
+
+**Not superseded** — the markets rail still refuses prices without provider, source and
+timestamp; the local compiler still emits a real SHA-256 over local results.
+
+**tests** — `browser_exec` against a local server: `FEEDS: 4/4` with per-feed states; ticker
+reads `ATLAS 52 ADDRESSES · MANIFEST 51 CAPABILITIES`; stats read `· LOCAL`; all four widget
+containers mount content with **zero 404s**; after a compile the receipt panel shows
+`sha256 af0d8eb5…`, `cost Σ11.3`, 8 workstream rows.
+
+**deploy** — pushed to `gh-pages` via `kanban_push.py`; the github.io CDN lags.
