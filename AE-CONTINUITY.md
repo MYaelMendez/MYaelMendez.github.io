@@ -1301,3 +1301,26 @@ lookup, not a recollection.
 
 Follow-up recorded: brighten v2's scene defaults, and decide whether v3 is
 worth its render budget.
+
+
+## 38. SHOWREEL/09 — the demonstration of what our assets make (2026-11-21)
+
+`proof/film/1` instance 3. A showreel whose nine beats are the nine KINDS of film
+this estate can already produce — each beat sampling a representative artefact,
+each labelled with its kind.
+
+- Film `showreel-09.mp4`: 9.000 s, 720x1280, 216 frames, 4,866,834 B.
+  sha256 `76eb4b917141d3a9cf0580f330a112fc76f937669ec24e31090e242492e2d368`.
+  Gate PASS — luminance 29.71, motion 7.38, black 0.0%.
+- Spine: asimov studio, saved gait, 4D time axis, receipted montage, oracle panel,
+  emoji context, narrated, CUDA raster, provenance cut.
+- Spec: `showreel-09.proof.json`.
+
+**proved** — the estate's film kinds are finite and each has a live example; a
+showreel can be assembled from them in one deterministic render.
+**broke** — the voice line ran long twice (10.19 s, 8.86 s) and the format's own
+`max_seconds` guard refused both: size the line before synthesising.
+**change** — nothing to change in the format (the guard worked); recorded as the
+reason the brief says 'size the voice first'.
+
+Not verified: browser playback of the showreel.
