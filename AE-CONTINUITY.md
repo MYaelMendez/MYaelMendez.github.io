@@ -2731,3 +2731,141 @@ reading came from the harness tab, not the page — confirmed by curling the fil
 feed resolves on its 3 s poll, so the chip reads 3/4 for the first seconds by design.
 
 **deploy** — pushed via `kanban_push.py`; API blob verified, the github.io CDN lagged.
+
+## 2026-11-22 — privateclient.ai flagship: secret bridge
+
+**Surface.** `https://privateclient.ai/secret/` (canonical), plus a fixed door on
+the root page. Source in `privateclient/bridge.html` (local, uncommitted), derived
+from `secret-source-bridge.html` without touching any form id or broker logic.
+Droplet: `/opt/pcsecret/www/index.html` + `assets/aether.css`, nginx
+`location /secret/` added after backing up the site config.
+
+**Boundary.** The public page carries an explicit notice: it is the SURFACE, the
+secret stays on the visitor's device, the broker is the visitor's own
+`127.0.0.1:7890`. A PROBE button calls `operation:'list'` and renders ONLY HTTP
+status + content-type; the body is discarded because it may contain secrets.
+
+**Measured.** Live GET 200, canonical/flagship hero present, CSS loaded
+(`rgb(5,5,5)`), root door link present, probe returns `status 0 · TypeError` from
+the public origin (honest: no loopback broker there), `nginx -t` OK + reload OK.
+`domain-stack.json` now marks `flagship: /secret/` and operation `secret_bridge`.
+
+**Remaining.** github.io mirror and continuity entry are local-only (no push was
+requested for them). `C:\æ\secrets\secrets.json` ACL is broader than custody
+requires and the source page is served on `0.0.0.0:8137` — reported, not changed.
+
+## 2026-11-22 — #localai default posture
+
+**Rule.** Added to `AGENTS.md`: inference defaults to local Victus RTX
+(`victus-rtx` / `victus-qwen3-agent`); secrets never go to a cloud surface;
+custody stays in `C:\æ\secrets\`. Hermes `config.yaml` ALREADY had local
+defaults (`model.default: victus-qwen3-agent`, `provider: victus-rtx`,
+`base_url: http://127.0.0.1:8081/v1`); no config change was needed or made —
+the tool refused to edit that security-sensitive file, which is the correct gate.
+
+**Flagship surface.** `privateclient/bridge.html` now carries `#LOCALAI` in the
+status bar and an explicit no-cloud-inference/no-external-asset notice.
+Google Fonts and `api.qrserver.com` were removed: Orbitron/JetBrains Mono are
+vendored under `/secret/assets/fonts/`, and the QR is a local PNG whose bytes
+decode back to `https://privateclient.ai/secret/` via `cv2.QRCodeDetector`.
+
+**Measured.** Browser with cache disabled: `performance.getEntriesByType('resource')`
+returns ONLY `privateclient.ai/secret/...` resources (aether.css, aether.js,
+QR PNG, 4 local TTFs); zero third-party requests. All assets HTTP 200.
+
+**Remaining.** The current conversation still runs a Nous cloud model — the
+local default applies to future sessions/config, not to a model already in
+flight. `image_gen.provider: nous` and the `moa.free` cloud preset remain
+declared in config; they were not changed.
+
+## 67. meshbot:// — the mesh bodies get a dialect (2026-11-22)
+
+`robot://` listed Soldier, Xbot and kira as "mesh only — no dialect, no policy,
+no ledger", which meant a row of dots and a fleet of three. The index's own rule
+is *whatever is built for one robot is provided for all — a missing verb is a
+named refusal, never a crash*. So the mesh bodies got the same seven routes.
+
+`agents/meshbot_protocol.py` — one dialect, three bodies, one shared ledger
+(`meshbot-protocol.jsonl`).
+
+```
+Soldier   2.16 MB GLB   68 nodes · 2 meshes · 2 skins (49+2 joints) · 4 clips
+          clips: Idle, Run, TPose, Walk
+Xbot      2.93 MB GLB   70 nodes · 2 meshes · 1 skin  (67 joints)    · 7 clips
+          clips: agree, headShake, idle, run, sad_pose, sneak_pose, walk
+kira      0.98 MB GLB   56 nodes · 32 meshes · 1 skin (23 joints)    · 0 clips
+```
+
+Verbs: 7 = 5 read (`status info meshes animations clips`) + 2 render
+(`render animate`). Facts are read from the GLB JSON chunk with stdlib only, so
+`status` reports what is on disk — nodes, meshes, skins, joints, clips, sha256 —
+not a claim.
+
+Verdicts, and they are the point:
+
+```
+plan animate walk   → allow   (render plan, no hardware)
+plan animate nope   → refused "Xbot has no clip 'nope'"   (clips are checked)
+sim Walk            → refused "Soldier has no physics model — mesh only"
+exec walk           → refused "Soldier has no actuators and no body — mesh only"
+grant walk          → grants: false, required shape returned
+```
+
+Coverage is **71%**, not 100: `sim` and `exec` are genuinely absent, and the
+index now shows `·` for them. Declaring them "provided" would have been the
+false claim the page warns about.
+
+Two bugs found while wiring it, both of the silent kind:
+
+1. `_robot_status` read `st['sdk'].get('live')` — a `str` for meshbot, so every
+   mesh body reported `present: false` while the dialect was healthy.
+2. `parse` lowercased the robot segment, so `robot://Soldier/...` resolved to
+   `soldier` and was refused. Robot names are case-sensitive on disk; `_resolve`
+   now matches case-insensitively without changing the registered name.
+
+Measured:
+```
+robot://doctor          ok=true · 6 robots · all present
+robot://fleet/ledger    asimov 62 · reachy 13 · microduck 10 · meshbot 8 · robot 43
+                        combined_sha256 78f4ae3ce10b8da5…
+test_robot_protocol     13/13
+index --check           OK current: 6 robots derived from disk
+page (local :8124)      6 PRESENT · 85 RECEIPTS · 0 mesh-only
+                        roster row: robot://Soldier / humanoid · 7 verbs · 1 transports / 71%
+```
+
+
+---
+
+## 2026-11-22 — æC2: PROVENANCE — la consola se audita a sí misma
+
+**source** — `ae/control/index-live.html` (`🧾 PROVENANCE` panel, `#prov-chip`,
+`#prov-body`, `DECLARED_CLAIMS`, `renderProvenance()`, `deriveRails()`) ·
+`ae/control/discover.js` (re-renders provenance when its index resolves).
+
+**The lesson applied.** Auditing `robots.html` showed the failure mode: `evidence_kind`
+was hand-written as "measured" on robots whose `evidence.module` was `null`, and the
+module paths did not exist — a seal asserting what the evidence contradicted. This
+console now separates the two by construction: **MEDIDO** rows are computed from
+artifacts that answered in this very load (`feeds 4/4`, `1196 recursos`,
+`agent card 51 caps`, `atlas 52`, `peticiones externas 0`); **DECLARADO** rows are an
+explicit list of what the page asserts without an artifact (4 rails, 12 floors,
+AUTHORITY: LOCKED, PRINCIPAL: HUMAN).
+
+**Also derived.** The four rail placeholders were hand-written state claims
+("Awaiting instruction…", "No agents connected"); they are now computed from real
+state at boot and on every feed change.
+
+**tests** — `browser_exec`: `#prov-chip` = `PROV: 5M · 4D`; panel reads
+`5 MEDIDO · 4 DECLARADO` with the five measured rows and the four declared ones; rails
+read `0 intents this session · awaiting principal`, `operators idle · receipt NONE`,
+`no runtime connected · feeds 4/4`, `markets refuse prices without provider + source +
+timestamp`; no console errors.
+
+**Honesty fix found by the same rule** — the resources row first said `14 índices`; it is
+14 *categorías* (14 keys in the counts map), so the label now says `categorías`.
+
+**Not fixed** — the four DECLARADO rows are still declarations; the point is that the
+page now says so out loud.
+
+**deploy** — pushed via `kanban_push.py`; API blob verified, the github.io CDN lagged.
