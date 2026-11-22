@@ -345,6 +345,73 @@ window.asimov = {
     document.getElementById('lines').innerHTML = bits.join('<br>');
     document.getElementById('kick').textContent =
       `AWARE · ${e.host.node} · ${new Date(e.at).toLocaleTimeString()}`;
+  },
+
+  // ── DOM awareness ──────────────────────────────────────────────────────
+  // The robot perceives the DOCUMENT it lives in: the title, the headline,
+  // the tables, the films, the hashes printed on the page. A read is never a
+  // permission — `grants` stays false, as everywhere else on this surface.
+  domStats: null,
+
+  dom(){
+    const t = document.title || '';
+    const h1el = document.querySelector('h1');
+    const heads = [...document.querySelectorAll('h1,h2,h3')]
+      .map(e => e.textContent.trim()).filter(Boolean).slice(0, 12);
+    const tables = [...document.querySelectorAll('table')].map(tb => ({
+      rows: tb.querySelectorAll('tr').length,
+      head: (tb.querySelector('th') || {}).textContent || ''
+    }));
+    const videos = [...document.querySelectorAll('video source')]
+      .map(s => s.getAttribute('src')).filter(Boolean);
+    const hashes = (document.body.innerText.match(/\b[0-9a-f]{32,64}\b/g) || [])
+      .filter((v, i, a) => a.indexOf(v) === i).slice(0, 8);
+    const out = {
+      scheme: 'asimov://dom', ok: true, authority: 'HUMAN://ROOT',
+      title: t, h1: h1el ? h1el.textContent.trim() : '', headings: heads,
+      tables, videos, hashes,
+      links: document.querySelectorAll('a').length,
+      images: document.querySelectorAll('img').length,
+      bytes: document.documentElement.outerHTML.length,
+      hud: {banner: (document.getElementById('banner') || {}).textContent || null,
+            kick: (document.getElementById('kick') || {}).textContent || null},
+      fingerprint: '',
+      grants: false,
+      note: 'the robot reads the document it lives in. Reading is never permission.'
+    };
+    out.fingerprint = this._fingerprint(JSON.stringify(out));
+    this.domStats = out;
+    return out;
+  },
+
+  // FNV-1a, 32-bit — a fingerprint, honestly labelled. Not sha256.
+  _fingerprint(s){
+    let h = 0x811c9dc5;
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    return h.toString(16).padStart(8, '0');
+  },
+
+  _domReact(){
+    const d = this.domStats; if (!d) return;
+    // the DOM write comes FIRST and stands alone: a WebGL hiccup must never
+    // silence what the robot read.
+    let mood = 'LISTENING';
+    if (d.videos.length) mood = 'THINKING';
+    if (d.hashes.length >= 2) mood = 'REVIEW';
+    const bits = [`document · ${d.title.slice(0, 42) || 'untitled'}`,
+                  `${d.tables.length} tables · ${d.links} links · ${d.images} images`];
+    if (d.videos.length) bits.push(`${d.videos.length} film${d.videos.length > 1 ? 's' : ''} · ${d.videos.map(v => v.split('/').pop()).join(', ')}`);
+    if (d.hashes.length) bits.push(`${d.hashes.length} hashes printed on the page`);
+    bits.push(`mood ${mood} · dom ${d.bytes} B · fp ${d.fingerprint}`);
+    try {
+      if (mood !== this._state && this._state !== 'SPEAKING') this.setState(mood, 'asimov-agent');
+    } catch (e) {
+      this._state = mood;              // the expression is a picture, not a permission
+    }
+    const el = document.getElementById('lines');
+    if (el) el.innerHTML = bits.join('<br>');
+    const k = document.getElementById('kick');
+    if (k) k.textContent = `DOM AWARE · ${(d.h1 || d.title).slice(0, 30)}`;
   }
 };
 
@@ -360,6 +427,21 @@ requestAnimationFrame(tick);
 // boot perception ONCE, outside the frame loop
 window.asimov.perceive();
 setInterval(() => window.asimov.perceive(), 4000);
+
+// DOM awareness: read the document now, and notice when it changes.
+// Reading the page is not a permission — grants stays false.
+// The observer ignores the HUD subtree: the robot writes there, and a
+// self-induced mutation loop would never settle.
+window.asimov.dom(); window.asimov._domReact();
+let __domT = null;
+const __domScan = () => { window.asimov.dom(); window.asimov._domReact(); };
+const __inHud = (t) => { const h = document.getElementById('hud'); return !!(h && (h === t || h.contains(t))); };
+new MutationObserver((muts) => {
+  if (muts.some(__inHud)) return;
+  clearTimeout(__domT);
+  __domT = setTimeout(__domScan, 800);
+}).observe(document.documentElement,
+  {subtree: true, childList: true, characterData: true, attributes: true});
 
 window.__info = () => {
   const gl = renderer.getContext();

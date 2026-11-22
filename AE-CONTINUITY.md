@@ -1635,3 +1635,36 @@ sheet carries the hash that proves which traces made it.
 right slug.
 **change** - the pet is receipted and gait-faithful; the next improvement is the
 lab link (pet state derived from tinylab's own verdict).
+
+
+## 49. DOM awareness — the companion reads the page (2026-11-22)
+
+The browser companion perceived the MACHINE (GPU/RAM via :8162) but not the
+DOCUMENT. It now perceives the page it lives in.
+
+    asimov://dom -> title, h1, headings, tables (rows), video sources, the
+                     hashes printed on the page, links, images, byte size,
+                     a fingerprint, and grants:false.
+
+MEASURED on the post surface (the-film-is-an-instrument.html): 2 tables,
+2 films (verbs-09, loop-09), 3 sha256 hashes, 1 link, 11,303 B.
+MEASURED on the companion itself: title, 0 tables, 0 films, fp 2423dbbb.
+
+The robot REACTS (mood): films -> THINKING, >=2 hashes -> REVIEW. Reading is
+never permission - grants stays false, as on every other verb.
+
+A MutationObserver notices DOM changes (debounced 800 ms) but IGNORES the HUD
+subtree: the robot writes there, and a self-induced loop would never settle.
+Verified: the fingerprint is stable across calls (effa57e9 twice).
+
+ALSO FIXED: `asimov-companion/vendor/` did not exist, so the live page's
+`import * as THREE from './vendor/three.module.js'` 404'd and the companion
+was dead on github.io. Vendored three.module.js + three.core.js.
+
+**proved** - the pet reads the document and reports what it found, with a
+fingerprint; the read is a measurement, not a claim.
+**broke** - the first observer watched its own HUD writes (fingerprint moved
+fa734705 -> 957daa02 between calls); and the boot write was swallowed by a
+renderer-not-ready throw inside setState. Both fixed.
+**change** - the companion is DOM-aware; the same read works on any surface,
+so the next step is injecting it over CDP rather than only on its own page.

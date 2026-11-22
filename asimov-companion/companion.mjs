@@ -29,6 +29,7 @@ switch (cmd) {
   case 'pose':   expr = `window.asimov.pose(${Number(args[0]||0)})`; break;
   case 'move':   expr = 'window.asimov.move()'; break;
   case 'ledger': expr = 'window.asimov.ledger()'; break;
+  case 'dom':    expr = 'window.asimov.dom()'; break;
   case 'live':   expr = `(()=>{window.asimov._live=${args[0]!=='off'};return {live:window.asimov._live};})()`; break;
   default:       expr = 'window.asimov.status()';
 }
