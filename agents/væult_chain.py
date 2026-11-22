@@ -28,6 +28,9 @@ The links, in order:
     6  kanban       dispatch         physical cards → board state
     7  push         publish          fleet-safe, kanban-serialized
     8  transport    delivery         sealed envelopes over mail / SMS
+    9  teach        adoption         is every agent actually taught this chain
+    10 alias        reach            can a person actually open this path
+    11 fanin        fan-in           how N receipts become ONE truth
 
 USAGE
     python væult_chain.py chain
@@ -69,7 +72,7 @@ CHAIN = [
     {
         "n": 3, "id": "supervision", "module": "qr_supervision", "path": "C:/æ/agents/qr_supervision.py",
         "role": "gate", "answers": "is the artifact real, or a picture of one",
-        "verbs": ["produce", "supervise", "selftest", "chain_prev", "chain_append"],
+        "verbs": ["produce", "supervise", "selftest", "chain_prev", "chain_append", "chain_verify", "require_armed"],
         "shape": "python",
     },
     {
@@ -114,6 +117,12 @@ CHAIN = [
         "shape": "python",
         "also": [{"id": "sms", "module": "qr_sms", "path": "C:/æ/agents/qr_sms.py",
                   "verbs": ["send_sms", "check_inbox", "segments", "reassemble"]}],
+    },
+    {
+        "n": 11, "id": "fanin", "module": "fanin", "path": "C:/æ/agents/fanin.py",
+        "role": "fan-in", "answers": "how N receipts become ONE truth",
+        "verbs": ["collect", "gate", "receipt", "build", "emit", "check", "selftest"],
+        "shape": "python",
     },
 ]
 
@@ -274,7 +283,7 @@ def manifest() -> dict:
         "system": "æ://",
         "name": "væult",
         "meaning": "the whole tool chain, under one name",
-        "flow": "custody → format → gate → authority → contract → dispatch → publish → delivery",
+        "flow": "custody → format → gate → authority → contract → dispatch → publish → delivery → adoption → reach → fan-in",
         "generated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "healthy": v["healthy"],
         "links_total": v["total"],
