@@ -1,0 +1,215 @@
+{
+ "schema": "robot-index/1",
+ "authority": "HUMAN://ROOT",
+ "generated": "2026-11-22T21:06:41+00:00",
+ "standard_interface": [
+  "status",
+  "verbs",
+  "plan",
+  "sim",
+  "exec",
+  "receipt",
+  "ledger"
+ ],
+ "categories": {
+  "humanoid": [
+   "asimov",
+   "kira",
+   "Xbot",
+   "Soldier"
+  ],
+  "companion": [
+   "asimov_pet",
+   "tinyasimov"
+  ],
+  "lab": [
+   "reachy",
+   "microduck",
+   "microduck_rl"
+  ],
+  "phone": [],
+  "drone": []
+ },
+ "roster": [
+  "Soldier",
+  "Xbot",
+  "asimov",
+  "kira",
+  "microduck",
+  "reachy"
+ ],
+ "count": 6,
+ "robots": {
+  "asimov": {
+   "scheme": "asimov://",
+   "sdk": "menlo-sdk (Menlo)",
+   "present": true,
+   "live": false,
+   "verbs": 14,
+   "verb_classes": {
+    "media": 4,
+    "motion": 6,
+    "read": 4
+   },
+   "transports": [
+    "udp",
+    "hybrid",
+    "livekit",
+    "sim"
+   ],
+   "ledger_receipts": 62,
+   "policy_sha256": "0b0c025e7c5b058045cca8d98a7fd7a958b99eab7e3aaeeec2cf439595f465e9",
+   "provides": {
+    "status": "status / state / get_state",
+    "verbs": "the dialect's own table (14)",
+    "plan": "trajectory (plan only — never acts)",
+    "sim": "sim transport (MuJoCo, via tinypython)",
+    "exec": "set_velocity / set_joints — gated, dry-run",
+    "receipt": "asimov-protocol.jsonl",
+    "ledger": "asimov-protocol.jsonl"
+   },
+   "coverage": 100
+  },
+  "reachy": {
+   "scheme": "reachy://",
+   "sdk": "reachy_mini 1.12.0.dev0",
+   "present": true,
+   "live": false,
+   "verbs": 27,
+   "verb_classes": {
+    "motion": 16,
+    "read": 6,
+    "safety": 5
+   },
+   "transports": [
+    "daemon",
+    "sim",
+    "mujoco"
+   ],
+   "ledger_receipts": 13,
+   "policy_sha256": "1711d7f2aefa2a917d337ea73daf9b361c17135f41d79b008f4a12a388d65e15",
+   "provides": {
+    "status": "imu / get_current_*",
+    "verbs": "the dialect's own table (27)",
+    "plan": "goto_target / set_target (gated)",
+    "sim": "sim transport (MockupSim)",
+    "exec": "set_target_* — gated, dry-run",
+    "receipt": "reachy-protocol.jsonl",
+    "ledger": "reachy-protocol.jsonl"
+   },
+   "coverage": 100
+  },
+  "microduck": {
+   "scheme": "microduck://",
+   "sdk": "duckctl / robotctl (Pollen)",
+   "present": true,
+   "live": false,
+   "verbs": 22,
+   "verb_classes": {
+    "motion": 9,
+    "read": 10,
+    "safety": 2,
+    "telemetry": 1
+   },
+   "transports": [
+    "ble",
+    "udp",
+    "webrtc",
+    "sim"
+   ],
+   "ledger_receipts": 10,
+   "policy_sha256": "41b533248b99f0ca8d0f1d3d0b2c9fbe9b6baa9aaadb26eec2f8f652bd925ebc",
+   "provides": {
+    "status": "health / system.info",
+    "verbs": "the dialect's own table (22)",
+    "plan": "robot.move (gated)",
+    "sim": "sim transport (duck-sim)",
+    "exec": "robot.do — gated, dry-run",
+    "receipt": "microduck-protocol.jsonl",
+    "ledger": "microduck-protocol.jsonl"
+   },
+   "coverage": 100
+  },
+  "kira": {
+   "scheme": null,
+   "sdk": null,
+   "present": false,
+   "live": false,
+   "verbs": 0,
+   "verb_classes": {},
+   "transports": [],
+   "ledger_receipts": 0,
+   "policy_sha256": null,
+   "provides": {
+    "status": null,
+    "verbs": null,
+    "plan": null,
+    "sim": null,
+    "exec": null,
+    "receipt": null,
+    "ledger": null
+   },
+   "coverage": 0,
+   "reason": "mesh only — no dialect, no policy"
+  },
+  "Xbot": {
+   "scheme": null,
+   "sdk": null,
+   "present": false,
+   "live": false,
+   "verbs": 0,
+   "verb_classes": {},
+   "transports": [],
+   "ledger_receipts": 0,
+   "policy_sha256": null,
+   "provides": {
+    "status": null,
+    "verbs": null,
+    "plan": null,
+    "sim": null,
+    "exec": null,
+    "receipt": null,
+    "ledger": null
+   },
+   "coverage": 0,
+   "reason": "mesh only — no dialect, no policy"
+  },
+  "Soldier": {
+   "scheme": null,
+   "sdk": null,
+   "present": false,
+   "live": false,
+   "verbs": 0,
+   "verb_classes": {},
+   "transports": [],
+   "ledger_receipts": 0,
+   "policy_sha256": null,
+   "provides": {
+    "status": null,
+    "verbs": null,
+    "plan": null,
+    "sim": null,
+    "exec": null,
+    "receipt": null,
+    "ledger": null
+   },
+   "coverage": 0,
+   "reason": "mesh only — no dialect, no policy"
+  }
+ },
+ "unregistered_dialects": [
+  "cli",
+  "film",
+  "voice"
+ ],
+ "meshes": [
+  "Soldier",
+  "Xbot",
+  "asimov",
+  "asimov-assembled",
+  "asimov-web",
+  "kira"
+ ],
+ "coverage_kind": "declared — PROVIDES maps each standard verb to a dialect verb by hand; the dialects expose no machine-readable 'I implement X' flag, so this is a claim to verify, not a measurement",
+ "rule": "whatever is built for one robot is provided for all; a missing verb is a named refusal, never a crash"
+}
