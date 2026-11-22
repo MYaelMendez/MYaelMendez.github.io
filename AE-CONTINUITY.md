@@ -1403,3 +1403,32 @@ the surface says otherwise (exec is the protocol action; the rules are ACT-001
 / AUTH-002 / DEAD-001). Tests corrected to the code.
 **change** — mobility.foundation now has a tested C2; point it at a trace and
 cite its ledger like any other receipt.
+
+
+## 42. tinyONNX — the policy oracle; five policies, two runnable (2026-11-21)
+
+Five Menlo Asimov policies exist upstream. They were unpulled and unmeasured.
+Now pulled into `C:/ae/policies/` and measured by tinyONNX.
+
+MEASURED (read from the ONNX itself, not from the names):
+
+| policy | obs | actions | verdict |
+|---|---|---|---|
+| `0818` | 78 | 23 | runs (viewer contract) |
+| `26-09-24` | 78 | 23 | runs (viewer contract) |
+| `26-10-05-upper-body` | 78 | 12 | refused - partial body |
+| `26-10-17-upper-body-blind` | 45 | 12 | refused - partial body + narrower obs |
+| `26-10-26-lower-body-27dof` | 45 | 12 | refused - partial body + narrower obs |
+
+So the four 'variants' are NOT four full-body policies: three are 12-action
+partial-body policies with a different observation width. Dropping them into the
+23-joint harness would be a guess about the policy; tinyONNX refuses them and
+names the actual in/out.
+
+tinyONNX: inspect / contract / run / grade / compare / ledger. 10 tests.
+
+**proved** - the policy set is measurable, and the refusal is a measurement
+(78/12, 45/12), not an assumption.
+**broke** - the first run crashed on a duplicated argparse subparser; fixed by
+registering each subparser once.
+**change** - 'test them all' is now a contract check first: 2 of 5 run, 3 refuse.
