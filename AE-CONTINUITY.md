@@ -2287,3 +2287,37 @@ Live: 200, 30,323 B, bytes equal, 4 doors present.
   first draft cited a number nothing measures.
 **change** - the hub is now a router, and the estate's gaps are on the front
 page rather than in a footnote.
+
+---
+
+## 2026-11-22 · tinyRepoFilm / æ PROTOCOL — source, tests, deploy (separate states)
+
+**Source.** `hermes-contributions-film@3cf892a` (generators + director ID fix,
+pushed). `github-pages@a87f569` + `5e177f2` + `db4aa2a` + `dd3a114` +
+`a16431f` pushed via `kanban_push.py`. Local in `C:/æ`: `gen_tinyae.py`,
+`tinyrepofilm/`, `tinyfilmmemory` quarantine support — **not yet committed**.
+
+**Tests (measured, not claimed).** `væult_chain verify` 11/11. `tiny_family.py`
+20/20 doctors. `tinyæ registry` 20 families / 18 green (two doctor implementations
+disagree; the film shows `20/18`, not a silent pick). `tinyfilmmemory.verify`:
+chain 17, 14 films, `ok:true`, `open_drift:[]`. `hermes-agent-activity` v1/v2
+drift **quarantined, not re-sealed** — their bytes were overwritten by v3;
+re-sealing would assert dead bytes are live. Decision record:
+`tinyfilmmemory/quarantine-hermes-agent-activity.json`.
+
+**Deploy.** Build was `errored` for `a87f569` and the concurrent foreign commit
+`af2247c` ("domain gateway"); **no re-push was made**. It self-recovered:
+subsequent builds `built` through `cb9a3b5`. Assets serve 200. `ae-protocol-v2`
+was pushed and its assets serve, but its specific build was in the errored
+window — the v1 surface remains the authoritative published protocol film.
+
+**Provenance gate (new).** `MYaelMendez/HuggingBot` is a fork byte-identical to
+`pollen-robotics/reachy_mini` (`compare`: identical, ahead_by 0; 0/100 recent
+commits authored by MYaelMendez). `tinyRepoFilm` now REFUSES it. A fork is an
+ARCHIVE, not authorship. The CLI reads a derived provenance record because the
+bundled `gh.EXE` in WindowsApps raises `WinError 5` for `C:/gpu/python`.
+
+**Remaining blockers (explicit).** Local generators uncommitted; HuggingBot has
+no surface (intentionally — not requested); OpenClaw contributor count remains
+unresolved (Link header vs unique-id methods disagree); `AE-CONTINUITY.md`
+itself carries foreign edits and was appended to, not rewritten.
