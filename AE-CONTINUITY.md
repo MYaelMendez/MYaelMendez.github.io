@@ -2704,3 +2704,30 @@ addresses. `--check` on both builders → `FRESH`.
 after any index change (`--check` is the gate).
 
 **deploy** — pushed via `kanban_push.py`; API verified, CDN caught up after ~2.5 min.
+
+
+---
+
+## 2026-11-22 — æC2: exemplary-surface pass (zero CDN, semantics, a11y)
+
+**source** — `ae/control/index-live.html`: dropped the Google Fonts `<link>` for two
+`@font-face` rules pointing at the estate's own vendored TTFs
+(`aipodcast_me/assets/fonts/JetBrainsMono-{400,700}.ttf`); `<html lang="en">` → `es`;
+`<title>$æ | …>` → `æC2 · Command & Control · LIVE`; brand `<div>` → `<h1 class="brand">`
+with `margin:0`; added `.skip` + `#main`; `aria-label`s on the icon links and `role="img"`
+on the 🤝 glyph; inline SVG favicon (data URI) so nothing 404s.
+
+**Why.** "Exemplary" is a measurable bar, not an adjective. Measured before the fix:
+one external stylesheet request (violates the estate's zero-CDN rule), a wrong language,
+no `h1`, no skip link, unnamed icon links, and a `favicon.ico` 404.
+
+**tests** — `browser_exec`: `peticiones externas: 0`, `404s: []`,
+`document.fonts = ['JetBrains Mono 400 loaded','JetBrains Mono 700 loaded']`,
+`FEEDS: 4/4`, no console errors; no horizontal overflow at 720×1280, 1280×720 or
+550×900 with all 8 panels visible. The served `<title>` is clean (the `🐴` seen in one
+reading came from the harness tab, not the page — confirmed by curling the file).
+
+**Not fixed here** — the Life Tower is still 12 hardcoded floors (pending C8); the queue
+feed resolves on its 3 s poll, so the chip reads 3/4 for the first seconds by design.
+
+**deploy** — pushed via `kanban_push.py`; API blob verified, the github.io CDN lagged.
