@@ -3353,3 +3353,12 @@ The robotics console's numbers were fabricated: `randomizeStatus()` drew CPU and
   the broker is loopback-bound at `127.0.0.1:7890`.
 - Every number is either cited to an artifact or marked `PROPOSED`. Nothing built by this
   document; it is the contract for the build.
+
+## 80. the spec becomes a surface (2026-11-23)
+
+- `neuromitosis/mech-hermes/llm_store.html` (12,906 B): the §79 specification rendered as an
+  æ-surface — gold on void, JetBrains Mono + Orbitron, scanlines, sharp edges, section nav,
+  the stage table as the readable spine. Same content, no new claims.
+- **Verified:** 12 sections render in order (0 thesis … 11 blockers), `--gold` = `#D4AF37`,
+  body `#050505`, no horizontal overflow at the surface width.
+- Linked from the home's `receipts & source` block. The console link is still pending.

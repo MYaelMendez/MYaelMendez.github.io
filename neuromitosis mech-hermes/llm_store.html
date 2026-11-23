@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>&gt;_æ://neuromitosis/mech-hermes/llm_store — build specification</title>
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-hi:#ffda83;--neon:#00ff9d;--cyan:#70dcff;
+ --ink:#e8e6df;--muted:#6f6a5c;--line:rgba(212,175,55,.2);--frame:#0c0c0c}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--void);color:var(--ink);
+ font:14px/1.6 'JetBrains Mono',ui-monospace,monospace}
+body{padding:26px 18px 60px;
+ background-image:linear-gradient(rgba(212,175,55,.03) 1px,transparent 1px);
+ background-size:100% 3px}
+.wrap{max-width:1000px;margin:0 auto}
+h1{font:700 clamp(1.1rem,3.2vw,1.7rem)/1.15 'Orbitron',sans-serif;color:var(--gold);
+ letter-spacing:.06em;margin:0 0 6px;word-break:break-word}
+.sub{color:var(--muted);font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:18px}
+.route{display:inline-block;border:1px solid var(--line);padding:6px 10px;color:var(--gold);
+ font-size:12px;margin-bottom:14px;word-break:break-all}
+.status{color:var(--neon)}
+nav.toc{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 26px}
+nav.toc a{color:var(--muted);text-decoration:none;font-size:10px;letter-spacing:.08em;
+ border:1px solid var(--line);padding:4px 8px;text-transform:uppercase}
+nav.toc a:hover{color:var(--gold);border-color:var(--gold)}
+section{border:1px solid var(--line);border-radius:3px;padding:14px 16px;margin-bottom:14px;
+ background:rgba(255,255,255,.015)}
+h2{font:700 11px/1 'JetBrains Mono',monospace;letter-spacing:.2em;text-transform:uppercase;
+ color:var(--gold);margin:0 0 10px}
+h3{font-size:12px;color:var(--gold-hi);margin:12px 0 4px;letter-spacing:.04em}
+p{margin:6px 0}
+code{color:var(--gold-hi);background:#0a0a0a;padding:1px 4px;border-radius:2px;font-size:12.5px}
+pre{background:#070707;border:1px solid var(--line);border-left:3px solid var(--gold);
+ padding:10px 12px;overflow-x:auto;font-size:12px;color:var(--ink);margin:8px 0}
+table{width:100%;border-collapse:collapse;font-size:11.5px;margin:8px 0}
+th,td{text-align:left;padding:5px 7px;border-bottom:1px solid rgba(212,175,55,.12);vertical-align:top}
+th{color:var(--gold);font-weight:400;letter-spacing:.1em;text-transform:uppercase;font-size:9.5px}
+td.m{color:var(--muted)}
+.ok{color:var(--neon)} .warn{color:#ff5f6b} .dim{color:var(--muted)}
+blockquote{margin:8px 0;padding:8px 12px;border-left:2px solid var(--gold);color:var(--ink);
+ background:rgba(212,175,55,.05);font-size:13px}
+footer{margin-top:22px;color:var(--muted);font-size:10px;letter-spacing:.1em;
+ display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+footer a{color:var(--gold)}
+@media(max-width:640px){body{padding:16px 12px 40px}section{padding:11px 12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>&gt;_æ://neuromitosis/mech-hermes/llm_store</h1>
+<div class="sub">build specification · <span class="status">nothing built beyond §1</span></div>
+<div class="route">route: &gt;_æ://neuromitosis/mech-hermes/llm_store</div>
+
+<nav class="toc">
+  <a href="#thesis">0 thesis</a><a href="#exists">1 exists</a><a href="#arch">2 arch</a>
+  <a href="#modules">3 modules</a><a href="#contracts">4 contracts</a><a href="#loop">5 loop</a>
+  <a href="#agent">6 agent</a><a href="#gov">7 governance</a><a href="#stages">8 stages</a>
+  <a href="#label">9 label</a><a href="#verify">10 verify</a><a href="#blockers">11 blockers</a>
+</nav>
+
+<section id="thesis">
+<h2>0 · thesis</h2>
+<p>The model store is not a page you visit. It is a <b>module the conductor serves</b>.</p>
+<p>Today <code>llm-store.html</code> is a storefront whose omnibox commands are
+<code>ls models</code> / <code>executeCommand(...)</code> — a CLI in storefront clothing, with no
+backend: its <code>/api/llm-store/inference</code> fetch cannot resolve on a static host.
+<code>mech-os.html</code> is the opposite: a rich console (draggable windows, command input, robot
+canvas, spatial frame, evolving typography) whose telemetry was <b>fabricated</b> until §78 made
+it measured, and which has no execution behind it.</p>
+<p>This specification joins them. This is the estate's own law restated:
+<blockquote>one human → many agents needs “us” in between = the conductor (the product).</blockquote>
+</p>
+</section>
+
+<section id="exists">
+<h2>1 · what already exists — measured</h2>
+<table>
+<tr><th>asset</th><th>fact</th><th>source</th></tr>
+<tr><td>mech-os console</td><td class="m">panels robot-window · robot-pos · robot-bat · robot-canvas · spatial-window · spatial-frame; measured ticker</td><td class="m">mech-os.html DOM</td></tr>
+<tr><td>store family</td><td class="m">13 surfaces · llm-store.html 309 KB · 54 model mentions · 51 price figures</td><td class="m">estate.json · tinyorigin gems</td></tr>
+<tr><td>live price feed</td><td class="m">OpenRouter public API · 477 models · watch-list 104</td><td class="m">openrouter.ai/api/v1/models</td></tr>
+<tr><td>estate index</td><td class="m">420 surfaces · 11.0 MB · 30 addressed · 390 unaddressed</td><td class="m">estate.json</td></tr>
+<tr><td>address atlas</td><td class="m">52 addresses · 49 live · 3 dead</td><td class="m">tinyorigin verify</td></tr>
+<tr><td>pet atlas</td><td class="m">1536×1872 · 9 states × 6 frames · 1,007,041 tris</td><td class="m">pet/pet.json</td></tr>
+<tr><td>locomotion</td><td class="m">12 s @ vx 0.4 → +4.1868 m · knee swing 38.8°/37.7° · ~5 cm clearance · verdict <i>a shuffle, not a stride</i></td><td class="m">policies/0818/MEASURED.md</td></tr>
+<tr><td>proof corpus</td><td class="m">152 films · 115 live · 37 unpublished · 5 defective (2 still live)</td><td class="m">film-corpus.json</td></tr>
+<tr><td>loopback broker</td><td class="m">127.0.0.1:7890 · loopback-bound · never echoes values · audit log</td><td class="m">secret_bridge.py</td></tr>
+</table>
+<p class="dim">These are the parts. The build wires them; it does not replace them.</p>
+</section>
+
+<section id="arch">
+<h2>2 · target architecture</h2>
+<pre>SURFACE   mech-os console (white-labelled)         human looks here
+  │       intent in, receipt out — never a key
+  ▼
+BRIDGE    loopback relay 127.0.0.1:&lt;port&gt;         the only crossing
+  │       op → plan → approval → act → receipt
+  ▼
+CONDUCTOR Hermes (&gt;_h:)                            intent, custody, memory, dispatch
+  │       catalogue · policy · fleet waves
+  ▼
+LEAF      Victus RTX (llama.cpp) · CUDA_MCP² broker → droplet</pre>
+<p><b>The bridge is the only boundary.</b> Everything public is static; everything that acts is
+local. No credential crosses the bridge — only ops and crypto proofs.</p>
+</section>
+
+<section id="modules">
+<h2>3 · modules</h2>
+<h3>3.1 console — <code>mech-os</code></h3>
+<ul>
+<li><code>MODEL_COMBINATOR</code> → live catalogue: model, context, $/1M in/out, state, <code>QR://</code> handle. Prices from the same feed the markets ticker reads.</li>
+<li><code>VISUAL_ROBOT_MCP</code> → the <b>real CAD pet</b> (<code>aeMountPet</code>), states and receipts, not theatre.</li>
+<li><code>SPATIAL_GATEWAY :: 4D_CORE</code> → the <b>measured</b> locomotion block (+4.1868 m, gait, verdict).</li>
+<li>new <code>LLM_STORE</code> window → intent box + plan view + receipt view.</li>
+</ul>
+<h3>3.2 conductor — Hermes</h3>
+<ul>
+<li>intent parser → plan object</li>
+<li>catalogue resolver (which leaf, which model, which cost)</li>
+<li>custody (keys held locally, referenced by id)</li>
+<li>dispatch + fan-in (one truth from N receipts)</li>
+<li>memory (operator preferences, white-label profile)</li>
+</ul>
+<h3>3.3 bridge ops</h3>
+<p><code>store.catalogue · store.quote · store.plan · store.run · store.receipt ·
+pet.state · locomotion.trace</code></p>
+<p>Every op returns <code>{ok, plan|result, receipt}</code>. Refusals are results, not errors.</p>
+</section>
+
+<section id="contracts">
+<h2>4 · contracts</h2>
+<pre>receipt    H(prev ∥ ts ∥ op ∥ plan ∥ result ∥ evidence)     hash-chained, tinyorigin shape
+catalogue  id · provider · context · in_per_M · out_per_M · local_capable · license · receipt_of_source
+plan       intent · model · leaf · estimated_cost · approver · deadline · receipt</pre>
+</section>
+
+<section id="loop">
+<h2>5 · the conductor loop</h2>
+<ol>
+<li>Human types intent in the console.</li>
+<li>Console → bridge <code>store.plan</code>.</li>
+<li>Conductor resolves catalogue + leaf, writes a plan, <b>stops</b>.</li>
+<li>Human approves (explicit). No approval, no act.</li>
+<li>Leaf runs; receipt returns through the same bridge.</li>
+<li>Console shows plan + receipt side by side. Fan-in: N leaves → one truth.</li>
+</ol>
+</section>
+
+<section id="agent">
+<h2>6 · built for longcat 2.5 ultra max</h2>
+<p>The build is designed so a long-context, tool-using agent can execute it <b>without holding a
+wizard's opinion</b> — every stage is specified as a gate the agent can run and prove.</p>
+<ul>
+<li><b>long-horizon</b> — the spec is the contract; the agent carries it across sessions and hands off by writing <i>skills</i>, not by re-explaining.</li>
+<li><b>tool orchestration</b> — each stage names the exact tool (<code>terminal</code>, <code>read_file</code>, <code>patch</code>, <code>browser_exec</code>, <code>delegate_task</code>) and the exact artifact it produces.</li>
+<li><b>parallel fan-out</b> — independent modules (catalogue, pet panel, spatial panel, bridge) are separable and merge behind a PASS gate.</li>
+<li><b>self-verification</b> — every stage ends with a command that proves it, and a receipt.</li>
+<li><b>procedural memory</b> — each completed stage lands as a skill entry so the next session starts from the mechanism, not the recollection.</li>
+</ul>
+<p class="dim">Capability is used where it pays: generation, delegation, verification — never as a
+substitute for a gate.</p>
+</section>
+
+<section id="gov">
+<h2>7 · governance</h2>
+<ul>
+<li>Plan → approval → act. Address is not permission.</li>
+<li>Motion/spend requires a bound human.</li>
+<li>Custody never moves. Keys stay on Victus; the page never sees one.</li>
+<li>Refusal is a result and is logged.</li>
+<li>One surface, one responsibility: console renders, bridge brokers, conductor decides, leaf runs.</li>
+</ul>
+</section>
+
+<section id="stages">
+<h2>8 · build stages</h2>
+<table>
+<tr><th>#</th><th>stage</th><th>gate (measured)</th></tr>
+<tr><td class="m">0</td><td>catalogue into MODEL_COMBINATOR</td><td class="m">live prices render; source named</td></tr>
+<tr><td class="m">1</td><td>loopback bridge store.*</td><td class="m">op returns a receipt; refusal paths return ok:false</td></tr>
+<tr><td class="m">2</td><td>intent → plan (no execution)</td><td class="m">plan shown, nothing ran, executed:false</td></tr>
+<tr><td class="m">3</td><td>approval gate + run</td><td class="m">receipt hash verifies; without approval, no run</td></tr>
+<tr><td class="m">4</td><td>pet panel wired</td><td class="m">real atlas draws; state changes measured</td></tr>
+<tr><td class="m">5</td><td>spatial panel wired</td><td class="m">measured locomotion numbers shown, verdict text present</td></tr>
+<tr><td class="m">6</td><td>white-label the console</td><td class="m">visitor's mark applies; nothing defaults to æ</td></tr>
+<tr><td class="m">7</td><td>estate-wide rollout</td><td class="m">atlas pages carry it; drift zero</td></tr>
+</table>
+<p class="dim">Each stage: artifact + receipt + continuity entry.</p>
+</section>
+
+<section id="label">
+<h2>9 · white-label</h2>
+<p>The console is the product. The white-label layer already proven on the home (glyph, name,
+accent, persisted locally) extends to the console: the operator wears it, the store keeps its
+data. Nothing defaults to æ.</p>
+</section>
+
+<section id="verify">
+<h2>10 · verification</h2>
+<p>One command per stage, plus: the console renders offline; the bridge refuses an unapproved
+<code>run</code>; a receipt recomputes; the drift sweep stays clean.</p>
+</section>
+
+<section id="blockers">
+<h2>11 · blockers, honestly</h2>
+<ul>
+<li><b>static host</b> — no direct agent call from github.io; the bridge is mandatory, not optional.</li>
+<li><b>local inference</b> — local model capability bounds what the leaf can serve; the CUDA_MCP² route is the fallback and is <span class="warn">not yet measured end-to-end</span>.</li>
+<li><b>catalogue truth</b> — prices are a third-party feed; quote them with source and timestamp, never as our own rates.</li>
+<li><b>governance</b> — until stage 3 lands, the console is a viewer. Do not describe it as operable.</li>
+</ul>
+</section>
+
+<footer>
+  <span>&gt;_æ://neuromitosis/mech-hermes/llm_store · specification · nothing typed</span>
+  <span><a href="../../index.html">home</a> · <a href="../../origin/">origin</a> · <a href="../../mech-os.html">mech-os</a></span>
+</footer>
+
+</div>
+</body>
+</html>
