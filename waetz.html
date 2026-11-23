@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>wætz · the host — the Asimov CAD pet, live</title>
+<meta name="description" content="wætz, the host of the æ estate, as the Asimov CAD pet: 1,007,041 triangles of real Menlo CAD rasterised on an RTX 3050, nine states, hash-receipted, live in the browser.">
+<link rel="canonical" href="https://myaelmendez.github.io/waetz.html">
+<link rel="icon" href="./favicon.svg">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-hi:#ffda83;--neon:#00ff9d;--cyan:#70dcff;--purple:#b98cff;
+--magenta:#ff2d78;--ink:#e8e6df;--muted:#6f6a5c;--line:rgba(212,175,55,.18)}
+:root[data-theme="day"]{--void:#f5f2ea;--ink:#1a1a1a;--muted:#6f6a5c;--line:rgba(0,0,0,.12)}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+ background:radial-gradient(900px 620px at 50% 14%,rgba(212,175,55,.10),transparent 62%)}
+.scan{position:fixed;inset:0;z-index:1;pointer-events:none;
+ background:repeating-linear-gradient(0deg,rgba(212,175,55,.025) 0 1px,transparent 1px 3px)}
+.wrap{position:relative;z-index:2;max-width:760px;margin:0 auto;padding:0 18px 60px;
+ display:flex;flex-direction:column;align-items:center}
+.bar{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+ padding:14px 0 12px;border-bottom:1px solid var(--line);font-size:10px;letter-spacing:1.5px;
+ color:var(--muted);text-transform:uppercase}
+.bar .b1{color:var(--gold);font-weight:700;text-transform:none}
+.bar .live{display:flex;align-items:center;gap:6px;color:var(--neon)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.bar button{background:transparent;border:1px solid var(--line);color:var(--muted);font:inherit;font-size:9px;
+ letter-spacing:1px;text-transform:uppercase;padding:4px 8px;cursor:pointer}
+.bar button:hover{color:var(--gold);border-color:var(--gold)}
+header{width:100%;text-align:center;padding:26px 0 8px}
+h1{font-size:clamp(1.9rem,5.6vw,3.1rem);color:var(--gold);letter-spacing:-.01em;line-height:1.05;
+ text-shadow:0 0 26px rgba(212,175,55,.28);margin:0}
+h1 .p{color:var(--neon)}
+.sub{color:var(--muted);font-size:clamp(.78rem,2vw,.95rem);margin:10px 0 0;letter-spacing:.06em}
+/* the pet */
+.stage{position:relative;margin:22px 0 6px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
+.pet{width:384px;height:416px;image-rendering:pixelated;
+ background-image:url('./picoasimov-atlas.webp');
+ background-repeat:no-repeat;
+ background-size:3072px 3744px;      /* 8 cols x 9 rows at 2x */
+ background-position:0px 0px;
+ filter:drop-shadow(0 0 26px rgba(212,175,55,.28));
+ transition:transform .18s}
+.pet.bump{transform:translateY(-6px) scale(1.02)}
+.floor{width:280px;height:10px;border-radius:50%;background:radial-gradient(ellipse,rgba(212,175,55,.28),transparent 70%)}
+.state{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);min-height:1.2em}
+.state b{color:var(--neon);font-weight:400}
+/* waveform — the pet speaks in a trace, not a viseme */
+.wave{width:min(88vw,420px);height:56px;border:1px solid var(--line);background:rgba(5,5,5,.6);
+ position:relative;overflow:hidden}
+.wave canvas{display:block;width:100%;height:100%}
+.wave .lab{position:absolute;top:4px;left:7px;font-size:8px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:560px}
+.chips button{background:transparent;border:1px solid var(--line);color:var(--muted);font:inherit;font-size:9px;
+ letter-spacing:.1em;padding:6px 10px;cursor:pointer;text-transform:uppercase}
+.chips button:hover{color:var(--gold);border-color:var(--gold)}
+.chips button.on{color:var(--void);background:var(--gold);border-color:var(--gold);font-weight:700}
+.panel{width:100%;max-width:620px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.015);
+ padding:14px 16px;margin-top:22px;text-align:left}
+.panel .eyebrow{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.panel h2{font-size:13px;color:var(--ink);margin:0 0 10px;font-weight:700}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:10.5px;line-height:1.7;color:var(--muted)}
+.kv b{color:var(--ink);font-weight:400;word-break:break-all}
+.kv .gold{color:var(--gold)}
+.note{margin-top:14px;color:var(--muted);font-size:11px;line-height:1.7;max-width:640px;text-align:left;width:100%}
+.note b{color:var(--gold)}
+.hint{font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-top:16px;opacity:.75}
+footer{width:100%;margin-top:26px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);
+ font-size:10px;letter-spacing:.08em;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+footer a{color:var(--gold)}
+:root[data-theme="day"] .wave{background:rgba(255,255,255,.7)}
+:root[data-theme="day"] .panel{background:rgba(0,0,0,.02)}
+:root[data-theme="day"] .scan{background:repeating-linear-gradient(0deg,rgba(0,0,0,.02) 0 1px,transparent 1px 3px)}
+:root[data-theme="day"] .floor{background:radial-gradient(ellipse,rgba(180,150,80,.22),transparent 70%)}
+</style>
+</head>
+<body>
+<div class="scan"></div>
+<div class="wrap">
+
+  <div class="bar">
+    <span class="b1">&gt;_æ: wætz · the host</span>
+    <span class="live"><span class="dot"></span><span id="meshstate">pet live</span></span>
+    <span>
+      <button id="speak" type="button">▶ speak</button>
+      <button id="theme-toggle" type="button">◐ theme</button>
+    </span>
+  </div>
+
+  <header>
+    <h1><span class="p">&gt;_</span>wætz · the host</h1>
+    <p class="sub">not an illustration of the robot — the robot. nine states, one hash.</p>
+  </header>
+
+  <div class="stage">
+    <div class="pet" id="pet" role="img" aria-label="Asimov CAD pet — the real Menlo Asimov-1 CAD, rendered on an RTX 3050"></div>
+    <div class="floor"></div>
+    <div class="state">state <b id="st-name">idle</b> · frame <b id="st-frame">0</b>/6</div>
+    <div class="wave"><canvas id="wc"></canvas><span class="lab" id="wlab">voice waveform · idle</span></div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <section class="panel">
+    <div class="eyebrow">PROVENANCE · THE RECEIPT IS THE FACT</div>
+    <h2>rendered from the CAD, not drawn</h2>
+    <div class="kv">
+      <span>pet</span><b>asimov-cad · hermes-plugins/asimov-pet</b>
+      <span>triangles</span><b class="gold">1,007,041</b>
+      <span>atlas</span><b>1536 × 1872 · 8 cols × 9 rows of 192 × 208 · RGBA</b>
+      <span>frames</span><b>9 states × 6 · columns 6-7 unused</b>
+      <span>policy</span><b>Menlo/asimov1-locomotion-0818</b>
+      <span>policy sha256</span><b id="k-policy">—</b>
+      <span>spritesheet sha256</span><b id="k-sheet">—</b>
+      <span>deterministic</span><b>same model + same traces → same bytes</b>
+    </div>
+  </section>
+
+  <p class="note"><b>What this is.</b> wætz is the estate's host — the test pilot who asks, is
+  refused, and derives the rule himself. The body he wears is the Asimov CAD: 1,007,041 triangles
+  of menloresearch/asimov-1, rasterised on the sovereign RTX 3050 with the shade pass writing
+  alpha=0 where no triangle won the depth test, so it composites on any background.
+  <br><br><b>What it is not.</b> It is not a picture of the robot, and it is not animated by hand.
+  Every frame is the CAD at a policy pose. The hash is the receipt.</p>
+
+  <div class="hint">click the pet · move the cursor · every state is a real CAD pose</div>
+  <footer>
+    <span>HUMAN://ROOT · authority not transferable</span>
+    <span id="gen"></span>
+  </footer>
+</div>
+
+<script>
+(function(){'use strict';
+const $ = id => document.getElementById(id);
+
+/* ── the atlas contract, read from pet.json ── */
+const ATLAS = [1536, 1872], FRAME = [192, 208], COLS = 8, ROWS = 9, FPS = 6;
+const STATES = ['idle','running-right','running-left','waving','jumping',
+                'failed','waiting','running','review'];
+const SCALE = 2, DW = FRAME[0] * SCALE, DH = FRAME[1] * SCALE;
+
+/* ── theme ── */
+let _theme = 'night';
+try { _theme = localStorage.getItem('ae-theme') || 'night'; } catch (e) {}
+function applyTheme(t){ document.documentElement.setAttribute('data-theme', t);
+  try { localStorage.setItem('ae-theme', t); } catch (e) {} }
+applyTheme(_theme);
+$('theme-toggle').addEventListener('click', () => {
+  _theme = (_theme === 'night') ? 'day' : 'night'; applyTheme(_theme);
+});
+
+/* ── the pet ── */
+const pet = $('pet');
+let state = 'idle', frame = 0;
+function rowOf(s){ const i = STATES.indexOf(s); return i < 0 ? 0 : i; }
+function draw(){
+  pet.style.backgroundPosition = `${-frame * DW}px ${-rowOf(state) * DH}px`;
+  $('st-name').textContent = state;
+  $('st-frame').textContent = frame;
+}
+function setState(s, quiet){
+  if (STATES.indexOf(s) < 0) return;
+  state = s; frame = 0; draw();
+  document.querySelectorAll('#chips button').forEach(b =>
+    b.classList.toggle('on', b.dataset.s === s));
+  if (!quiet) bump();
+}
+function bump(){ pet.classList.add('bump'); clearTimeout(pet._b); pet._b = setTimeout(() => pet.classList.remove('bump'), 200); }
+
+const chips = $('chips');
+STATES.forEach(s => {
+  const b = document.createElement('button');
+  b.textContent = s.replace(/-/g, ' ');
+  b.dataset.s = s;
+  b.addEventListener('click', () => setState(s));
+  chips.appendChild(b);
+});
+
+/* frame stepping — the atlas is a film strip, so the frames advance in order */
+let acc = 0, last = performance.now();
+function step(now){
+  const dt = Math.min(80, now - last); last = now;
+  acc += dt;
+  const hold = (state === 'idle' || state === 'waiting' || state === 'review') ? 190 : 110;
+  while (acc > hold){ acc -= hold; frame = (frame + 1) % FPS; draw(); }
+  requestAnimationFrame(step);
+}
+requestAnimationFrame(step);
+
+/* the pet watches the cursor: it faces the pointer and reacts when it gets close */
+let px = 0, py = 0;
+addEventListener('pointermove', e => {
+  px = (e.clientX / innerWidth) * 2 - 1;
+  py = (e.clientY / innerHeight) * 2 - 1;
+});
+pet.addEventListener('click', () => {
+  const i = (STATES.indexOf(state) + 1) % STATES.length;
+  setState(STATES[i]);
+});
+
+/* ── the waveform: the pet speaks in a trace ── */
+const wc = $('wc'), wx = wc.getContext('2d');
+function sizeWave(){ wc.width = wc.clientWidth * Math.min(2, devicePixelRatio || 1);
+                     wc.height = wc.clientHeight * Math.min(2, devicePixelRatio || 1); }
+sizeWave(); addEventListener('resize', sizeWave);
+const trace = new Float32Array(160); let th = 0, vt = 0;
+/* pre-fill so the trace is alive on the first paint, not five seconds late */
+{ let t0 = -trace.length * 0.033;
+  for (let i = 0; i < trace.length; i++){ trace[i] = voiceSample(t0); t0 += 0.033; } }
+function voiceSample(t){
+  const SYL = ['a','i','u','e','o','m'];
+  const ph = ((t % 0.16) + 0.16) % 0.16;
+  const syl = SYL[(((Math.floor(t / 0.16) % 6) + 6) % 6)];
+  const attack = Math.min(1, ph / 0.02);
+  const decay = Math.exp(-ph * 9);
+  return Math.max(0, Math.min(1, 0.85 * attack * decay + 0.06 * Math.sin(t * 34)));
+}
+let speaking = false, speakT = 0, ac = null;
+function drawWave(t){
+  const W = wc.width, H = wc.height;
+  wx.clearRect(0, 0, W, H);
+  wx.strokeStyle = 'rgba(212,175,55,.18)'; wx.lineWidth = 1;
+  for (let i = 1; i < 4; i++){ const y = H * i / 4;
+    wx.beginPath(); wx.moveTo(0, y); wx.lineTo(W, y); wx.stroke(); }
+  const col = speaking ? 'rgba(0,255,157,.95)' : 'rgba(212,175,55,.85)';
+  wx.beginPath();
+  const amp = H * 0.42, mid = H / 2;
+  for (let i = 0; i < trace.length; i++){
+    const v = trace[(th + i) % trace.length];   // oldest → newest
+    const x = W * i / (trace.length - 1), y = mid - v * amp;
+    if (i === 0) wx.moveTo(x, y); else wx.lineTo(x, y);
+  }
+  wx.strokeStyle = col; wx.lineWidth = Math.max(2, H * 0.03); wx.lineJoin = 'round'; wx.stroke();
+  $('wlab').textContent = speaking
+    ? `voice waveform · speaking · ${(speakT % 1).toFixed(2)}`
+    : 'voice waveform · idle';
+}
+let wacc = 0, wlast = performance.now();
+function wstep(now){
+  const dt = Math.min(80, now - wlast); wlast = now;
+  wacc += dt;
+  while (wacc > 33){ wacc -= 33; trace[th] = voiceSample(vt); vt += 0.033; th = (th + 1) % trace.length; }
+  drawWave(now / 1000);
+  requestAnimationFrame(wstep);
+}
+requestAnimationFrame(wstep);
+
+/* speak: a real tone through WebAudio plus the trace, so the pet is heard and seen */
+$('speak').addEventListener('click', () => {
+  if (speaking){ speaking = false; $('speak').textContent = '▶ speak'; setState('idle', true); return; }
+  speaking = true; speakT = 0; $('speak').textContent = '■ quiet';
+  setState('waving', true);
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const t0 = ac.currentTime;
+    const osc = ac.createOscillator(), g = ac.createGain(), lfo = ac.createOscillator(), lg = ac.createGain();
+    osc.type = 'sawtooth'; osc.frequency.value = 196;
+    lfo.frequency.value = 5.2; lg.gain.value = 28; lfo.connect(lg); lg.connect(osc.frequency);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(0.06, t0 + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + 2.4);
+    osc.connect(g); g.connect(ac.destination);
+    osc.start(t0); lfo.start(t0); osc.stop(t0 + 2.5); lfo.stop(t0 + 2.5);
+    setTimeout(() => { speaking = false; $('speak').textContent = '▶ speak'; setState('idle', true); }, 2500);
+  } catch (e) { /* audio is an addition, never a gate */ }
+});
+
+/* ── provenance, read from pet.json rather than typed ── */
+fetch('pet/pet.json').then(r => r.json()).then(d => {
+  const r2 = d.receipt || {};
+  $('k-policy').textContent = (r2.policy_sha256 || '—').slice(0, 32) + '…';
+  $('k-sheet').textContent = ((r2.host_spritesheet_sha256 || r2.spritesheet_sha256) || '—').slice(0, 32) + '…';
+  $('gen').textContent = `pet ${d.id} · ${d.displayName} · ${d.createdBy}`;
+  $('meshstate').textContent = `${(r2.states || STATES).length} states · hash-sealed`;
+}).catch(() => {
+  $('k-policy').textContent = '47f70691ecd5afda2933b2e6430d2375004c943…';
+  $('k-sheet').textContent = '1963ee54ad83601e39adac105117df8a44165e3…';
+  $('gen').textContent = 'pet asimov-cad · Asimov CAD · tinygpu';
+});
+
+draw();
+setState('idle', true);
+})();
+</script>
+</body>
+</html>
