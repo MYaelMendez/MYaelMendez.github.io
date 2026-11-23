@@ -3150,3 +3150,15 @@ the surface cannot claim one.
 
 **Still open.** Xbot and Soldier ship animation clips and nothing plays them.
 Film playback remains unverified in the automation browser (hidden document).
+
+## 73. asimov-face-video.mp4 deleted (2026-11-23)
+
+- Operator: *"delete the asimov-face-video.mp4, we have other copies."* Deleted in `91bd948`;
+  unreferenced by any surface since §72 (the hero panel became the pet).
+- **Still referencing it (records, not live links):** `film-corpus.json` and the
+  `corpus.html` DATA array (entry with sha256 `8564ffc9…`), plus the historical
+  `proof-09.meta.json`, `chain-09.meta.json`, `chain-09.proof.json`,
+  `asimov-agent-capability-run.json`, `ffmpeg-asimov/asimov-agent-capability-run.json`.
+  No generator for the corpus was found in the repo, so the corpus was **not** hand-edited:
+  the next scan should drop the entry. Flagged rather than silently rewritten.
+- `asimov-face-video-sm.gif` (a derivative) is left in place.
