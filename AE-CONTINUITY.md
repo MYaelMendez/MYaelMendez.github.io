@@ -3263,3 +3263,22 @@ contador de declaradas): un solo SyntaxError tumbaba **todo** el script de la co
 cazó el `node --check`, no el navegador; `const` se renombró a `dep`.
 
 **deploy** — push vía `kanban_push.py` (que ahora sella); el CDN va detrás.
+
+## 75. the markets ticker (2026-11-23)
+
+- `index.html`: a second ticker directly under `æ://live`, labelled **markets** → home
+  `llm-store.html` ("LLM.store — The Model Store"). Prices are pulled live from OpenRouter's
+  public models API (`https://openrouter.ai/api/v1/models`, no key), filtered by a watch list
+  of open-weight families we actually run (`qwen|llama|mistral|gemma|deepseek|granite|phi`),
+  sorted by prompt price, quoted **$/1M tokens**. Refresh every 300 s.
+- **Measured:** the feed returns; 104 watch-list models; CORS allows the cross-origin read;
+  the ticker renders 30 lines. A feed failure prints `markets · feed unavailable (<reason>)`
+  — it never shows a stale or invented price.
+- **Defect caught before publish:** the patch reintroduced a stray `renderLegend()` call into
+  the boot line; that function no longer exists in the file, so it would have thrown at boot and
+  killed the whole page script. Reverted to `tickRender();drawGrid();tickScroll();`.
+- **Home choice:** `llm-store.html` was already the estate's model store, is referenced by 3
+  other surfaces, carries no coordinate (a `gems` demand-without-address row) and holds 316 KB
+  of store front matter. Making it the ticker's home gives an unaddressed surface a role.
+- **Not done:** llm-store itself is unchanged — it is a link target, not yet a markets surface
+  with its own data. That is the obvious next step.

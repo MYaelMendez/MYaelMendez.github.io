@@ -38,6 +38,9 @@ html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'J
  -webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);
  mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
 .tstream{display:inline-flex;white-space:nowrap;will-change:transform}
+.ticker-markets .tlabel a{color:var(--neon);text-decoration:none;letter-spacing:.14em;text-transform:uppercase}
+.ticker-markets .tlabel a:hover{color:var(--gold)}
+.ticker-markets .tm.c{color:var(--cyan)}
 .tgrp{display:inline-flex;gap:22px;padding-right:22px}
 .tm{color:var(--muted)}.tm.g{color:var(--gold)}.tm.ok{color:var(--neon)}.tm.c{color:var(--cyan)}.tm.m{color:var(--magenta)}
 .tm.coord{color:var(--gold-hi);font-weight:700}
@@ -199,6 +202,11 @@ img.support-card:hover{border-color:var(--gold);box-shadow:0 0 26px rgba(212,175
   <div class="ticker">
     <span class="tlabel"><span class="dot"></span>æ://live</span>
     <div class="tmask"><div class="tstream" id="tstream"></div></div>
+  </div>
+  <div class="ticker ticker-markets">
+    <span class="tlabel"><span class="dot"></span><a href="llm-store.html"
+        title="the markets ticker's home — LLM.store · The Model Store">markets</a></span>
+    <div class="tmask"><div class="tstream" id="mstream"></div></div>
   </div>
 
   <div class="core">
@@ -547,6 +555,33 @@ fetch('estate.json',{cache:'no-cache'})
     log('> estate index .................. FAILED · '+e,'m');
     $('kpi').innerHTML='<span>the estate index could not be read — '+esc(e)+'</span>';
  });
+
+/* ── the markets ticker — live model prices. Its home is llm-store.html ── */
+var MKT=[], MKT_WATCH=/qwen|llama|mistral|gemma|deepseek|granite|phi/i;
+function mGroup(){return MKT.map(function(m){
+  return '<span class="tm '+(m[1]||'')+'">'+m[0]+'</span>'}).join('<span class="td">·</span>')}
+function mRender(){var s=$('mstream');if(!s)return;
+  s.innerHTML='<span class="tgrp">'+mGroup()+'</span><span class="td">·</span><span class="tgrp">'+mGroup()+'</span>'}
+function mPush(lines){MKT=lines;mRender()}
+function perM(v){var n=parseFloat(v);return isFinite(n)?n*1e6:null}
+function mLoad(){
+  if(location.protocol==='file:'){mPush([['markets · feed needs http','p']]);return}
+  fetch('https://openrouter.ai/api/v1/models',{cache:'no-cache'})
+    .then(function(r){if(!r.ok)throw new Error('http '+r.status);return r.json()})
+    .then(function(d){
+      var rows=(d.data||[]).filter(function(x){return x&&x.pricing&&MKT_WATCH.test(x.id||'')});
+      rows.sort(function(a,b){return parseFloat(a.pricing.prompt||0)-parseFloat(b.pricing.prompt||0)});
+      var lines=rows.slice(0,14).map(function(x){
+        var p=perM(x.pricing.prompt), c=perM(x.pricing.completion);
+        if(p===null)return null;
+        return [(x.id||'').replace(/^.*\//,'')+'  '+p.toFixed(2)+'/M in'+
+                (c!==null?'  ·  '+c.toFixed(2)+'/M out':''),'c']}).filter(Boolean);
+      if(!lines.length){mPush([['markets · no watch-list models returned','p']]);return}
+      mPush([['markets · '+rows.length+' models · $/1M tokens · openrouter','ok']].concat(lines));
+    })
+    .catch(function(e){mPush([['markets · feed unavailable ('+e.message+')','p']])});
+}
+mLoad(); setInterval(mLoad, 300000);
 
 tickRender();drawGrid();tickScroll();
 window.aeEstate={state:function(){return E?{surfaces:E.counts,generated:E.generated}:null},
