@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>robot:// — the environment, the address space, the gate</title>
+<meta name="description" content="A note on what was built and why it is the beginning of something: one MuJoCo world, one address space, one gate, one destination.">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--green:#00ff9f;--cyan:#00ccff;--magenta:#ff2d78;
+ --ink:#e8e8e8;--dim:#8fa89c;--mut:#6f8579;--line:rgba(212,175,55,.22)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--void);color:var(--ink);
+ font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+ min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+ background:radial-gradient(900px 620px at 50% 14%,rgba(212,175,55,.10),transparent 62%)}
+body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.16;
+ background:repeating-linear-gradient(180deg,rgba(255,255,255,.05) 0 1px,transparent 1px 3px)}
+.wrap{position:relative;z-index:1;max-width:940px;margin:0 auto;
+ padding:clamp(16px,3vw,40px) clamp(14px,3vw,34px) 90px}
+.top{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;
+ padding-bottom:12px;border-bottom:1px solid var(--line);
+ font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)}
+.top b{color:var(--gold)}
+.kicker{font-size:.64rem;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin-top:26px}
+h1{font-family:'Orbitron','JetBrains Mono',ui-monospace,sans-serif;font-weight:900;
+ font-size:clamp(1.4rem,4.4vw,2.7rem);color:var(--gold);letter-spacing:-.01em;
+ line-height:1.06;margin-top:10px}
+h1 .p{color:var(--magenta)}
+h2{font-family:'Orbitron','JetBrains Mono',ui-monospace,sans-serif;font-weight:700;
+ font-size:clamp(.95rem,2.4vw,1.3rem);color:var(--gold);margin:30px 0 10px;letter-spacing:.01em}
+h3{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);
+ margin:18px 0 8px;font-weight:400}
+p,li{color:var(--dim);font-size:.78rem;line-height:1.75;margin-top:10px}
+p b,li b{color:var(--ink)}
+.lede{font-size:clamp(.85rem,1.7vw,1rem);color:var(--ink);line-height:1.7;margin-top:14px}
+.rule{margin-top:18px;padding:12px 14px;border:1px solid var(--line);
+ border-left:2px solid var(--gold);font-size:.74rem;line-height:1.65;color:var(--dim);
+ background:rgba(212,175,55,.04)}
+.rule b{color:var(--gold)}
+pre{background:rgba(0,0,0,.55);border:1px solid var(--line);padding:12px 14px;
+ overflow-x:auto;font-size:.7rem;line-height:1.65;color:var(--ink);margin-top:12px}
+pre .k{color:var(--gold)}
+pre .c{color:var(--mut)}
+code{font-family:inherit;font-size:.94em;color:var(--cyan);background:rgba(0,204,255,.07);
+ padding:1px 4px}
+pre code{background:none;padding:0;color:inherit}
+table{width:100%;border-collapse:collapse;font-size:.7rem;margin-top:12px}
+th,td{text-align:left;padding:7px 9px;border-bottom:1px solid rgba(212,175,55,.12);
+ vertical-align:top;line-height:1.5}
+th{color:var(--mut);font-weight:400;letter-spacing:.12em;text-transform:uppercase;font-size:.6rem}
+td b{color:var(--gold);font-weight:400}
+td a{color:var(--cyan);text-decoration:none;word-break:break-all}
+.pass{color:var(--green)}
+.mut{color:var(--mut)}
+section{margin-top:8px}
+footer{margin-top:46px;padding-top:14px;border-top:1px solid var(--line);
+ display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+ font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mut)}
+footer a{color:var(--gold);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <span><b>robot://</b> · a note</span>
+    <span>2026-11-22</span>
+  </div>
+
+  <div class="kicker">what was built, and why it is the beginning of something</div>
+  <h1>THE ENVIRONMENT<span class="p">.</span> THE ADDRESS SPACE<span class="p">.</span> THE GATE<span class="p">.</span></h1>
+
+  <p class="lede">
+    Three threads converged on one idea: the estate's robots stop being a collection
+    and become a <b>fleet</b> when they share an address space, a physics world, and a gate.
+  </p>
+  <p class="mut" style="font-size:.7rem">Nothing here is a plan. Everything below was executed and measured.</p>
+
+  <table>
+    <thead><tr><th>thread</th><th>before</th><th>after</th></tr></thead>
+    <tbody>
+      <tr><td><b>The environment</b></td><td>each robot rendered alone</td><td><b>one MuJoCo world</b>, three bodies, one camera, one trace</td></tr>
+      <tr><td><b>The address space</b></td><td>three dialects, three consoles</td><td><b>robot://</b>, longest-prefix routed, six bodies, one fleet receipt</td></tr>
+      <tr><td><b>The gate</b></td><td>films published because they existed</td><td><b>produce → Receipt, or refuse</b></td></tr>
+      <tr><td><b>The mesh bodies</b></td><td>"mesh only — no dialect, no policy, no ledger"</td><td><b>meshbot://</b>, seven routes, refusals named not crashed</td></tr>
+      <tr><td><b>The destination</b></td><td>films scattered across the estate</td><td><b>aipodcast.me</b>, one wired publish path</td></tr>
+    </tbody>
+  </table>
+
+  <p>None of these is a feature. Together they are a <b>governance substrate</b>:
+    every body addressable, every act recorded, every artifact gated.</p>
+
+  <section>
+    <h2>1 · One environment</h2>
+    <p class="mut"><code>agents/robot_env_film.py</code> → <code>aipodcast_me/robot-env.mp4</code></p>
+    <pre><span class="c"># one world: nbody 64 · ngeom 307 · nq 125 · nu 23</span>
+<span class="k">asimov</span>    x -0.42   1.25 m    26 mesh geoms   1,007,041 tris    0 actuators
+<span class="k">reachy</span>    x  0.00   0.39 m   173 mesh geoms     940,986 tris    9 actuators
+<span class="k">microduck</span> x  0.42   0.26 m    81 mesh geoms     980,836 tris   14 actuators
+camera (0,-3.2,0.85) → (0,-0.05,0.38) · 720×1280 · 24 fps · seed 0</pre>
+    <p>MuJoCo supplies the geometry; <b>tinyCUDA's CuPy raster</b> supplies the pixels.
+      No OpenGL — this Optimus laptop has no registered NVIDIA ICD, so MuJoCo's own
+      renderer is unusable here.</p>
+    <pre><span class="k">gate</span>        <span class="pass">PASS</span>
+luminancia_media  43.7   (&gt; 20)
+contraste_medio   43.98  (&gt; 8)
+movimiento_medio  1.216  (&gt; 0.5)
+frames_negros     0 / 5</pre>
+    <p>Two defects were found by measurement, not by looking:</p>
+    <p><b>1. Depth stagger only reads at one distance.</b> Robots at y = 0 / −1.15 / −0.80:
+      move closer and the forward body fills the frame while the other two leave it.
+      They now stand on <b>one plane, in a line</b>.</p>
+    <p><b>2. A 9:16 frame holding three bodies of different sizes is mostly background</b>,
+      and the gate measures the frame. A <b>ground plane</b> was added — and testing it
+      exposed a silent raster defect: the CuPy raster <b>drops triangles past a screen
+      bound</b> (<code>half=3.0</code> draws, <code>half=6.0</code> disappears with no error).</p>
+    <p class="mut">Tests: <code>agents/test_robot_env_film.py</code> — 6/6, including
+      <i>the trace is byte-identical for a seed and differs for another</i>.</p>
+  </section>
+
+  <section>
+    <h2>2 · One address space</h2>
+    <p class="mut"><code>agents/robot_protocol.py</code> · <code>agents/robot_bridge.py</code> · <code>github-pages/robots.html</code></p>
+    <p>Six bodies. Every dialect keeps its own verbs; <code>robot://</code> is the single
+      front door and adds a fleet receipt on every route.</p>
+    <pre><span class="k">robot://asimov</span>     14 verbs   udp · hybrid · livekit · sim     100%
+<span class="k">robot://reachy</span>     27 verbs   daemon · sim · mujoco           100%
+<span class="k">robot://microduck</span>  22 verbs   ble · udp · webrtc · sim         100%
+<span class="k">robot://Soldier</span>     7 verbs   mesh                             71%
+<span class="k">robot://Xbot</span>        7 verbs   mesh                             71%
+<span class="k">robot://kira</span>        7 verbs   mesh                             71%</pre>
+    <div class="rule"><b>The rule the index encodes.</b> Whatever is built for one robot is
+      provided for all — a missing verb is a named refusal, never a crash.</div>
+    <p>So the mesh bodies got the same seven routes. <code>meshbot://</code> reports what is
+      on disk (Soldier: 4 clips — Idle, Run, TPose, Walk · Xbot: 7 clips · kira: rigged, no
+      clips) and refuses the rest by name:</p>
+    <pre><span class="k">plan animate walk</span>   → allow    render plan, no hardware
+<span class="k">plan animate nope</span>   → refused  "Xbot has no clip 'nope'"
+<span class="k">sim Walk</span>            → refused  "no physics model — mesh only"
+<span class="k">exec walk</span>           → refused  "no actuators and no body — mesh only"</pre>
+    <p><b>Coverage is 71%, not 100.</b> <code>sim</code> and <code>exec</code> are genuinely
+      absent, and the roster shows <code>·</code> for them. Declaring them "provided" would
+      have been exactly the false claim the page warns about.</p>
+    <p><code>robot://fleet/ledger</code> anchors every dialect ledger into one
+      <code>combined_sha256</code>, so a fleet action is itself recorded.</p>
+  </section>
+
+  <section>
+    <h2>3 · One gate</h2>
+    <p class="mut"><code>agents/publish_robot_env.py</code></p>
+    <p>The gate runs <b>first</b>. PASS → receipt + copy + manifest entry. FAIL → REFUSED
+      receipt, nothing copied, exit 1.</p>
+    <div class="rule"><b>The gate is never adjusted to fit the film.</b> When a film fails,
+      the scene is fixed and the film is re-made. That is why the ground plane exists and why
+      the stagger was removed — the first cut failed, and the failure was real.</div>
+  </section>
+
+  <section>
+    <h2>4 · One destination</h2>
+    <p class="mut"><code>github-pages/aipodcast_me/</code></p>
+    <pre>spec-robot-env.json       the spec
+robot-env.mp4             the film   <span class="k">sha256 0a98fc6b…</span>
+robot-env-poster.png      a real frame (n=48)
+robot-env.receipt.json    gate + ffprobe + supervision receipt
+robot-env-demo.html       the demo
+media-manifest.json       13 videos</pre>
+  </section>
+
+  <section>
+    <h2>Links</h2>
+    <table>
+      <thead><tr><th>what</th><th>local · production</th></tr></thead>
+      <tbody>
+        <tr><td><b>The demo</b></td><td><a href="http://127.0.0.1:8125/aipodcast_me/robot-env-demo.html">http://127.0.0.1:8125/aipodcast_me/robot-env-demo.html</a><br>
+          <a href="https://myaelmendez.github.io/aipodcast_me/robot-env-demo.html">https://myaelmendez.github.io/aipodcast_me/robot-env-demo.html</a></td></tr>
+        <tr><td><b>The film</b></td><td><a href="http://127.0.0.1:8125/aipodcast_me/robot-env.mp4">http://127.0.0.1:8125/aipodcast_me/robot-env.mp4</a><br>
+          <a href="https://myaelmendez.github.io/aipodcast_me/robot-env.mp4">https://myaelmendez.github.io/aipodcast_me/robot-env.mp4</a></td></tr>
+        <tr><td><b>The receipt</b></td><td><a href="http://127.0.0.1:8125/aipodcast_me/robot-env.receipt.json">http://127.0.0.1:8125/aipodcast_me/robot-env.receipt.json</a><br>
+          <a href="https://myaelmendez.github.io/aipodcast_me/robot-env.receipt.json">https://myaelmendez.github.io/aipodcast_me/robot-env.receipt.json</a></td></tr>
+        <tr><td><b>Fleet index</b></td><td><a href="http://127.0.0.1:8125/robots.html">http://127.0.0.1:8125/robots.html</a><br>
+          <a href="https://myaelmendez.github.io/robots.html">https://myaelmendez.github.io/robots.html</a></td></tr>
+        <tr><td><b>Fleet data</b></td><td><a href="http://127.0.0.1:8125/robots/index.json">http://127.0.0.1:8125/robots/index.json</a><br>
+          <a href="https://myaelmendez.github.io/robots/index.json">https://myaelmendez.github.io/robots/index.json</a></td></tr>
+        <tr><td><b>aipodcast.me</b></td><td><a href="http://127.0.0.1:8125/aipodcast_me/index.html">http://127.0.0.1:8125/aipodcast_me/index.html</a><br>
+          <a href="https://aipodcast.me/">https://aipodcast.me/</a></td></tr>
+      </tbody>
+    </table>
+    <p class="mut" style="margin-top:12px">Local server:
+      <code>python agents/serve_pages.py C:/æ/github-pages 8125</code><br>
+      (Range-capable — Python's <code>http.server</code> answers 200 to every Range request,
+      which stalls Chrome's media stack.)</p>
+  </section>
+
+  <section>
+    <h2>Honest limits</h2>
+    <p><b>Film playback was not verified in the automation browser.</b> It reports
+      <code>document.visibilityState === 'hidden'</code>, and Chrome suspends media loading
+      for hidden documents — the <code>&lt;video&gt;</code> never issues a request. The bytes
+      are reachable, and the film is verified by the gate, by ffprobe, and by an extracted
+      frame. Playback in a visible tab is expected but unmeasured there.</p>
+    <p><b><code>media-manifest.json</code> reports <code>all_pass: false</code></b> — from five
+      older entries that carry no <code>vision</code> block. Pre-existing, not this film.</p>
+    <p><b>Xbot and Soldier ship animation clips and nothing plays them yet.</b>
+      <code>meshbot://</code> plans them; rendering them is the next link.</p>
+    <p><b>Nothing is pushed.</b> Every artifact above is local. Publishing is a separate,
+      explicit step.</p>
+  </section>
+
+  <section>
+    <h2>Why this is the beginning</h2>
+    <p>The estate's robots were <b>things on disk</b>. They are becoming <b>bodies in an
+      address space</b>: addressable by one scheme, standing in one world, recorded in one
+      ledger, published through one gate.</p>
+    <p>That is the difference between a project and a platform. The next links are obvious
+      once the substrate exists: play the clips, give the mesh bodies physics, drive the fleet
+      from one console, and let the gate decide what ships.</p>
+  </section>
+
+  <footer>
+    <span>robot:// · recorded 2026-11-22</span>
+    <span><a href="../robots.html">fleet index</a> · <a href="aipodcast_me/robot-env-demo.html">the demo</a></span>
+  </footer>
+
+</div>
+</body>
+</html>

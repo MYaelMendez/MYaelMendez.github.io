@@ -114,6 +114,31 @@ body{padding:max(12px,env(safe-area-inset-top)) 12px calc(96px + env(safe-area-i
 .surf .d{margin-top:6px;font-size:8.5px;line-height:1.55;color:var(--muted)}
 .surf .go{margin-top:9px;font-size:9px;color:var(--cyan)}
 
+/* robot fleet */
+.robotgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:1px;background:var(--line)}
+.rcard{background:#070706;padding:14px;border-left:2px solid var(--gold)}
+.rcard .k{font-size:8px;letter-spacing:.18em;color:var(--muted)}
+.rcard .n{margin-top:7px;font-family:var(--display);font-size:12.5px;font-weight:700;
+  letter-spacing:.03em;color:var(--gold)}
+.rcard .d{margin-top:6px;font-size:8.5px;line-height:1.6;color:var(--muted)}
+.rcard a{color:var(--cyan);text-decoration:none;font-size:8.5px;letter-spacing:.1em}
+.rcard a:hover{text-decoration:underline}
+.gate{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line)}
+.gate .v{padding:5px 11px;font-size:9px;letter-spacing:.14em;border:1px solid currentColor}
+.gate .v.pass{color:var(--emerald)}
+.gate .v.fail{color:#ff5d8f}
+.gate .m{font-size:9px;color:var(--muted);letter-spacing:.06em}
+.gate .m b{color:var(--ink);font-weight:400}
+.mtable{width:100%;border-collapse:collapse;font-size:9px}
+.mtable th,.mtable td{text-align:left;padding:7px 9px;
+  border-bottom:1px solid rgba(212,175,55,.12);vertical-align:top;line-height:1.5}
+.mtable th{color:var(--muted);font-weight:400;letter-spacing:.14em;font-size:8px}
+.mtable td b{color:var(--gold);font-weight:400}
+.mtable td a{color:var(--cyan);text-decoration:none;word-break:break-all}
+.mtable .pass{color:var(--emerald)}
+.mtable .refused{color:#ff5d8f}
+.mtable .mut{color:var(--muted)}
+
 /* deepdives */
 .dd{padding:18px 14px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
 .dd .copy .t{font-family:var(--display);font-size:14px;font-weight:700;color:var(--ink)}
@@ -192,6 +217,9 @@ body{padding:max(12px,env(safe-area-inset-top)) 12px calc(96px + env(safe-area-i
       <div class="chip"><b>rent</b> zero cloud</div>
       <div class="chip" style="border-color:rgba(0,234,255,.45);cursor:pointer" onclick="location.href='./discover.html'">
         <b>gpu</b> webgpu discovery ↗
+      </div>
+      <div class="chip" style="border-color:rgba(0,255,157,.5);cursor:pointer" onclick="location.href='./robot-env-demo.html'">
+        <b>robots</b> one world · 9:16 ↗
       </div>
     </div>
   </section>
@@ -317,6 +345,86 @@ body{padding:max(12px,env(safe-area-inset-top)) 12px calc(96px + env(safe-area-i
         <div class="d">The full surface index · 100+ agentic surfaces</div>
         <div class="go">open →</div>
       </a>
+      <a class="surf" href="./robot-env-demo.html" style="border-color:rgba(0,255,157,.45)">
+        <div class="k">ROBOT · ONE WORLD</div><div class="n">ROBOT:// ENVIRONMENT</div>
+        <div class="d">Three bodies, one MuJoCo world, one 9:16 film — gated PASS. Live receipt + roster.</div>
+        <div class="go">enter →</div>
+      </a>
+      <a class="surf" href="/robots.html" style="border-color:rgba(212,175,55,.45)">
+        <div class="k">ROBOT · ADDRESS SPACE</div><div class="n">ROBOT:// FLEET INDEX</div>
+        <div class="d">Six bodies, one scheme, seven routes each. A missing verb is a named refusal.</div>
+        <div class="go">open →</div>
+      </a>
+      <a class="surf" href="/robot-env-note.html">
+        <div class="k">ROBOT · THE NOTE</div><div class="n">THE ENVIRONMENT, THE ADDRESS SPACE, THE GATE</div>
+        <div class="d">Why one world + one scheme + one gate is the difference between a project and a platform.</div>
+        <div class="go">read →</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ROBOT FLEET -->
+  <section class="panel">
+    <div class="panel-head"><span>◈ ROBOT:// · THE FLEET</span><span class="tag" id="fleet-tag">LIVE FROM DISK</span></div>
+
+    <div class="gate" id="gatebar">
+      <span class="v pass" id="gatev">…</span>
+      <span class="m" id="gatem">reading the receipt…</span>
+    </div>
+
+    <div class="robotgrid">
+      <div class="rcard">
+        <div class="k">FILM</div>
+        <div class="n">robot-env.mp4</div>
+        <div class="d">One MuJoCo world · 720×1280 · 96 frames · 4.0 s · h264</div>
+        <a href="./robot-env.mp4">play →</a>
+      </div>
+      <div class="rcard">
+        <div class="k">RECEIPT</div>
+        <div class="n">gate + ffprobe</div>
+        <div class="d">SupervisorVideo verdict, thresholds, sha256, container facts</div>
+        <a href="./robot-env.receipt.json">read →</a>
+      </div>
+      <div class="rcard">
+        <div class="k">SPEC</div>
+        <div class="n">spec-robot-env.json</div>
+        <div class="d">The three bodies, the world counts, the camera, the seed</div>
+        <a href="./spec-robot-env.json">read →</a>
+      </div>
+      <div class="rcard">
+        <div class="k">DEMO</div>
+        <div class="n">robot-env-demo.html</div>
+        <div class="d">Plays the film, reads the receipt and the roster live</div>
+        <a href="./robot-env-demo.html">open →</a>
+      </div>
+      <div class="rcard">
+        <div class="k">FLEET</div>
+        <div class="n">robots/index.json</div>
+        <div class="d">Six bodies, dialects, transports, coverage — derived from disk</div>
+        <a href="/robots/index.json">read →</a>
+      </div>
+      <div class="rcard">
+        <div class="k">NOTE</div>
+        <div class="n">robot-env-note.html</div>
+        <div class="d">The through-line, the measured defects, the honest limits</div>
+        <a href="/robot-env-note.html">read →</a>
+      </div>
+    </div>
+
+    <table class="mtable" style="margin-top:1px">
+      <thead><tr>
+        <th>robot</th><th>dialect</th><th>verbs</th><th>transports</th>
+        <th>live</th><th>sim</th><th>coverage</th>
+      </tr></thead>
+      <tbody id="fleetrows"><tr><td colspan="7" class="mut">loading ../robots/index.json…</td></tr></tbody>
+    </table>
+
+    <table class="mtable" style="margin-top:1px">
+      <thead><tr><th>artifact</th><th>kind</th><th>gate</th><th>detail</th></tr></thead>
+      <tbody id="mediarows"><tr><td colspan="4" class="mut">loading media-manifest.json…</td></tr></tbody>
+    </table>
+    <div class="gate" style="border-bottom:0">
+      <span class="m" id="mediacounts">…</span>
     </div>
   </section>
 
@@ -471,6 +579,16 @@ body{padding:max(12px,env(safe-area-inset-top)) 12px calc(96px + env(safe-area-i
     fleet:       "/school-of-hermes-fleet.html",
     baesic:      "/yael-baesic-vae.html",
     basic:       "/yael-baesic-vae.html",
+    robot:       "/aipodcast_me/robot-env-demo.html",
+    robots:      "/aipodcast_me/robot-env-demo.html",
+    demo:        "/aipodcast_me/robot-env-demo.html",
+    env:         "/aipodcast_me/robot-env-demo.html",
+    environment: "/aipodcast_me/robot-env-demo.html",
+    film:        "/aipodcast_me/robot-env.mp4",
+    receipt:     "/aipodcast_me/robot-env.receipt.json",
+    note:        "/robot-env-note.html",
+    fleetindex:  "/robots.html",
+    indexjson:   "/robots/index.json",
     home:        "/",
     root:        "/",
     index:       "/"
@@ -487,7 +605,7 @@ body{padding:max(12px,env(safe-area-inset-top)) 12px calc(96px + env(safe-area-i
     if(!q) return;
 
     if(q === "help" || q === "?"){
-      out.textContent = "SURFACES · teleprompt hauge cri molt llm dna twin store cell sov fleet baesic home";
+      out.textContent = "SURFACES · teleprompt hauge cri molt llm dna twin store cell sov fleet baesic robot demo film receipt note home";
       return;
     }
     if(q === "deepdives" || q === "pod" || q === "podcast"){
@@ -506,6 +624,89 @@ body{padding:max(12px,env(safe-area-inset-top)) 12px calc(96px + env(safe-area-i
     } else {
       out.textContent = "UNKNOWN · " + q + " · type help";
     }
+  });
+
+  /* ── robot fleet: receipt, roster, media ── */
+  function jget(url){
+    return fetch(url, {cache:"no-store"}).then(function(r){
+      if(!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    });
+  }
+
+  /* the gate receipt — the verdict is the point */
+  jget("robot-env.receipt.json").then(function(d){
+    var s = d.supervision || {};
+    var pass = d.gate === "PASS";
+    var v = document.getElementById("gatev");
+    v.textContent = pass ? "PASS" : "REFUSED";
+    v.className = "v " + (pass ? "pass" : "fail");
+    document.getElementById("gatem").innerHTML =
+      "luminancia <b>" + (s.luminancia_media ?? "—") + "</b> · " +
+      "contraste <b>" + (s.contraste_medio ?? "—") + "</b> · " +
+      "movimiento <b>" + (s.movimiento_medio ?? "—") + "</b> · " +
+      "negros <b>" + (s.frames_negros ?? "—") + "</b> · " +
+      (d.resolution || "—") + " · sha <b>" + String(d.sha256 || "").slice(0,12) + "</b>";
+    document.getElementById("fleet-tag").textContent =
+      pass ? "GATE PASS · " + (d.frames || "?") + " FRAMES" : "GATE REFUSED";
+  }).catch(function(e){
+    document.getElementById("gatev").textContent = "NO RECEIPT";
+    document.getElementById("gatev").className = "v fail";
+    document.getElementById("gatem").textContent = String(e);
+  });
+
+  /* the roster */
+  jget("../robots/index.json").then(function(d){
+    document.getElementById("fleetrows").innerHTML = Object.keys(d.robots).map(function(name){
+      var r = d.robots[name];
+      var cov = (r.coverage == null ? 0 : r.coverage);
+      var sim = (r.provides && r.provides.sim) ? r.provides.sim : "—";
+      return "<tr><td><b>robot://" + name + "</b></td>" +
+        "<td>" + (r.scheme || "—") + "</td>" +
+        "<td>" + (r.verbs == null ? 0 : r.verbs) + "</td>" +
+        "<td>" + (r.transports || []).join(" · ") + "</td>" +
+        "<td>" + (r.live ? '<span class="pass">live</span>' : "dry") + "</td>" +
+        "<td>" + sim + "</td>" +
+        '<td><span class="' + (cov === 100 ? "pass" : "refused") + '">' + cov + "%</span></td></tr>";
+    }).join("");
+  }).catch(function(e){
+    document.getElementById("fleetrows").innerHTML =
+      '<tr><td colspan="7" class="mut">robots/index.json unavailable: ' + e + "</td></tr>";
+  });
+
+  /* the media manifest — every artifact, with its gate */
+  jget("media-manifest.json").then(function(d){
+    var rows = [];
+    (d.videos || []).forEach(function(v){
+      var vis = v.vision || {};
+      var gate = vis.calidad || "—";
+      var cls = gate === "PASS" ? "pass" : (gate === "—" ? "mut" : "refused");
+      rows.push(
+        '<tr><td><b><a href="' + v.file + '">' + v.file + "</a></b></td>" +
+        "<td>" + (v.kind || "video") + "</td>" +
+        '<td><span class="' + cls + '">' + gate + "</span></td>" +
+        "<td class=\"mut\">" + (v.width || "?") + "×" + (v.height || "?") +
+        " · " + (v.duration_s == null ? "?" : v.duration_s + "s") +
+        " · " + (v.size_mb == null ? "?" : v.size_mb + " MB") + "</td></tr>");
+    });
+    (d.audio || []).forEach(function(a){
+      rows.push(
+        '<tr><td><b><a href="' + (a.file || "#") + '">' + (a.file || "?") + "</a></b></td>" +
+        "<td>audio</td><td>—</td><td class=\"mut\">" +
+        (a.duration_s == null ? "" : a.duration_s + "s") + "</td></tr>");
+    });
+    document.getElementById("mediarows").innerHTML = rows.join("") ||
+      '<tr><td colspan="4" class="mut">media-manifest.json has no entries</td></tr>';
+    var gated = (d.videos || []).filter(function(v){ return (v.vision || {}).calidad; });
+    var ung = (d.videos || []).filter(function(v){ return !(v.vision || {}).calidad; });
+    document.getElementById("mediacounts").innerHTML =
+      "gated <b>" + gated.length + "</b> · all pass <b>" +
+      (ung.length === 0 && gated.length > 0) + "</b> · ungated <b>" + ung.length + "</b>" +
+      (ung.length ? " · " + ung.map(function(v){ return v.file; }).join(", ") : "") +
+      ' · <span class="mut">a video with no verdict is UNGATED, not a pass</span>';
+  }).catch(function(e){
+    document.getElementById("mediarows").innerHTML =
+      '<tr><td colspan="4" class="mut">media-manifest.json unavailable: ' + e + "</td></tr>";
   });
 
   console.info("%cæ:/aipodcast.me%c AI PODCAST HQ · ONE PRINCIPAL · MANY AGENTS",

@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>robot:// — the environment demo</title>
+<meta name="description" content="Three robots in ONE MuJoCo world, rendered to 9:16 and gated. The film, the receipt, and the fleet that produced it.">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--green:#00ff9f;--cyan:#00ccff;--magenta:#ff2d78;
+ --ink:#e8e8e8;--dim:#8fa89c;--mut:#6f8579;--line:rgba(212,175,55,.22)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--void);color:var(--ink);
+ font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+ min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+ background:radial-gradient(900px 620px at 50% 16%,rgba(212,175,55,.10),transparent 62%)}
+body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.16;
+ background:repeating-linear-gradient(180deg,rgba(255,255,255,.05) 0 1px,transparent 1px 3px)}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;
+ padding:clamp(14px,3vw,38px) clamp(14px,3vw,34px) 80px}
+.top{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;
+ padding-bottom:12px;border-bottom:1px solid var(--line);
+ font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)}
+.top b{color:var(--gold)}
+.kicker{font-size:.64rem;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin-top:24px}
+h1{font-family:'Orbitron','JetBrains Mono',ui-monospace,sans-serif;font-weight:900;
+ font-size:clamp(1.35rem,4.2vw,2.5rem);color:var(--gold);letter-spacing:-.01em;
+ line-height:1.05;margin-top:10px}
+h1 .p{color:var(--magenta)}
+.sub{color:var(--dim);font-size:clamp(.74rem,1.4vw,.9rem);line-height:1.65;margin-top:12px;max-width:760px}
+.sub b{color:var(--ink)}
+.rule{margin-top:16px;padding:11px 14px;border:1px solid var(--line);
+ border-left:2px solid var(--gold);font-size:.72rem;line-height:1.6;color:var(--dim);
+ background:rgba(212,175,55,.04)}
+.rule b{color:var(--gold)}
+.grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:clamp(16px,2.6vw,30px);
+ margin-top:26px;align-items:start}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.stage{position:relative;width:100%;aspect-ratio:9/16;background:#000;
+ border:1px solid var(--line);overflow:hidden}
+.stage video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
+.stage .tag{position:absolute;left:0;right:0;bottom:0;padding:8px 10px;
+ font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+ background:linear-gradient(0deg,rgba(5,5,5,.92),transparent)}
+.panel{border:1px solid var(--line);background:rgba(10,10,10,.6);padding:14px}
+.panel h2{font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);
+ margin-bottom:10px;font-weight:400}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;font-size:.72rem;line-height:1.5}
+.kv dt{color:var(--mut);white-space:nowrap}
+.kv dd{color:var(--ink);word-break:break-all}
+.verdict{display:inline-block;padding:3px 9px;font-size:.64rem;letter-spacing:.16em;
+ text-transform:uppercase;border:1px solid currentColor}
+.verdict.pass{color:var(--green)}
+.verdict.fail{color:var(--magenta)}
+.meters{display:grid;gap:9px;margin-top:12px}
+.meter{font-size:.66rem;color:var(--mut)}
+.meter .bar{height:5px;background:rgba(255,255,255,.07);margin-top:4px;position:relative;overflow:hidden}
+.meter .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--gold);display:block}
+.meter .bar i.ok{background:var(--green)}
+.meter .bar i.bad{background:var(--magenta)}
+.meter .row{display:flex;justify-content:space-between;gap:10px}
+.meter .row b{color:var(--ink);font-weight:400}
+table{width:100%;border-collapse:collapse;font-size:.7rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid rgba(212,175,55,.1);vertical-align:top}
+th{color:var(--mut);font-weight:400;letter-spacing:.12em;text-transform:uppercase;font-size:.6rem}
+td b{color:var(--gold);font-weight:400}
+td .dot{color:var(--mut)}
+td .yes{color:var(--green)}
+td .no{color:var(--magenta)}
+.mono{font-size:.64rem;color:var(--mut);line-height:1.7;word-break:break-all}
+section{margin-top:34px}
+footer{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);
+ display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+ font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mut)}
+footer a{color:var(--gold);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <span><b>robot://</b> · the environment demo</span>
+    <span id="top-right">loading…</span>
+  </div>
+
+  <div class="kicker">one governed address space · one physics world</div>
+  <h1>THREE BODIES<span class="p">.</span> ONE WORLD<span class="p">.</span></h1>
+  <p class="sub">
+    Every robot in the estate, stepped in <b>one MuJoCo model</b>, rendered through
+    <b>tinyCUDA's CuPy raster</b> to one 9:16 film. Not three panels and not three
+    renders — one <b>MjSpec</b>, three attached bodies, one seeded control sequence,
+    one trace. Then gated by SupervisorVideo, or refused.
+  </p>
+  <div class="rule">
+    <b>The rule.</b> An address is not a permission. Motion needs approval or an armed
+    deadman. Every dialect writes its own ledger; <b>robot://</b> adds the fleet receipt
+    on every route. A film that fails the gate is not published.
+  </div>
+
+  <div class="grid">
+    <div class="stage">
+      <video id="film" src="robot-env.mp4" autoplay loop muted playsinline
+             preload="auto" poster="robot-env-poster.png"></video>
+      <div class="tag">robot-env.mp4 · 9:16 · live from this directory</div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <h2>the gate · SupervisorVideo</h2>
+        <div id="verdict">awaiting receipt…</div>
+        <div class="meters" id="meters"></div>
+      </div>
+
+      <div class="panel" style="margin-top:14px">
+        <h2>the artifact</h2>
+        <dl class="kv" id="artifact"><dt>file</dt><dd>robot-env.mp4</dd></dl>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="kicker">who is in the world</div>
+    <h1 style="font-size:clamp(1rem,2.6vw,1.5rem)">THE ROSTER</h1>
+    <p class="sub">Derived from disk by <b>robot_index.py</b> — every dialect is asked what it
+      provides, and a missing verb is a named refusal, never a crash.</p>
+    <div class="panel" style="margin-top:16px">
+      <table id="roster">
+        <thead><tr>
+          <th>robot</th><th>dialect</th><th>verbs</th><th>transports</th>
+          <th>live</th><th>sim</th><th>coverage</th>
+        </tr></thead>
+        <tbody><tr><td colspan="7" class="mono">loading robots/index.json…</td></tr></tbody>
+      </table>
+      <p class="mono" id="coverage-note" style="margin-top:10px"></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="kicker">the address</div>
+    <h1 style="font-size:clamp(1rem,2.6vw,1.5rem)">ROBOT://</h1>
+    <div class="panel" style="margin-top:16px">
+      <dl class="kv">
+        <dt>scheme</dt><dd>robot://&lt;robot&gt;/&lt;route&gt;</dd>
+        <dt>routes</dt><dd>status · verbs · plan · sim · exec · receipt · ledger · grant</dd>
+        <dt>fleet</dt><dd>robot://fleet · robot://fleet/status · robot://fleet/ledger</dd>
+        <dt>authority</dt><dd>HUMAN://ROOT → æ POLICY → robot:// → {asimov|reachy|microduck|meshbot}:// → RECEIPT</dd>
+        <dt>index</dt><dd><a href="../robots/index.json" style="color:var(--gold)">robots/index.json</a></dd>
+      </dl>
+    </div>
+  </section>
+
+  <footer>
+    <span>robot:// · generated from robots/index.json + robot-env.receipt.json</span>
+    <span><a href="index.html">aipodcast.me</a> · #HERMIPHICATIONISINEVITABLE</span>
+  </footer>
+
+</div>
+
+<script>
+const GOLD = getComputedStyle(document.documentElement).getPropertyValue('--gold').trim();
+
+// ---- the receipt ----------------------------------------------------------
+fetch('robot-env.receipt.json').then(r => r.json()).then(d => {
+  const s = d.supervision || {};
+  const pass = (d.gate === 'PASS');
+  const box = document.getElementById('verdict');
+  box.innerHTML = '<span class="verdict ' + (pass ? 'pass' : 'fail') + '">'
+    + (pass ? 'PASS' : 'REFUSED') + '</span>'
+    + ' <span class="mono" style="margin-left:8px">gate ' + (d.gate || '?')
+    + ' · supervised ' + (s.supervisado_at || d.published_at || '?') + '</span>';
+
+  const rows = [
+    ['luminancia_media', s.luminancia_media, 20, '>', 100],
+    ['contraste_medio',  s.contraste_medio,  8,  '>', 120],
+    ['movimiento_medio', s.movimiento_medio, 0.5,'>', 10],
+  ];
+  document.getElementById('meters').innerHTML = rows.map(([k, v, th, op, scale]) => {
+    const num = Number(v);
+    const ok = (op === '>') ? (num > th) : (num < th);
+    const pct = Math.max(0, Math.min(100, (num / scale) * 100)).toFixed(1);
+    return '<div class="meter"><div class="row"><span>' + k
+      + ' <span style="color:var(--mut)">(threshold ' + op + ' ' + th + ')</span></span>'
+      + '<b>' + (v == null ? 'n/a' : v) + '</b></div>'
+      + '<div class="bar"><i class="' + (ok ? 'ok' : 'bad') + '" style="width:' + pct + '%"></i></div></div>';
+  }).join('') + '<div class="meter"><div class="row"><span>frames_negros</span>'
+    + '<b>' + (s.frames_negros ?? 'n/a') + ' / ' + (s.frames_analizados ?? '?') + '</b></div></div>'
+    + '<div class="meter"><div class="row"><span>frames_con_qr</span>'
+    + '<b>' + (s.frames_con_qr ?? 'n/a') + '</b></div></div>';
+
+  const bits = [
+    ['bytes', d.bytes], ['sha256', d.sha256],
+    ['resolution', d.resolution], ['codec', d.codec],
+    ['duration', d.duration_s + ' s'], ['fps', d.fps], ['frames', d.frames],
+    ['receipt', s.receipt], ['published', d.published ? 'yes' : 'no'],
+  ];
+  document.getElementById('artifact').innerHTML =
+    '<dt>file</dt><dd>robot-env.mp4</dd>' +
+    bits.map(([k, v]) => '<dt>' + k + '</dt><dd>' + (v == null ? '—' : v) + '</dd>').join('');
+
+  document.getElementById('top-right').textContent =
+    (pass ? 'GATE PASS' : 'GATE REFUSED') + ' · ' + d.resolution + ' · ' + d.sha256.slice(0, 12);
+}).catch(e => {
+  document.getElementById('verdict').innerHTML =
+    '<span class="verdict fail">NO RECEIPT</span> <span class="mono">' + e + '</span>';
+  document.getElementById('top-right').textContent = 'receipt unavailable';
+});
+
+// ---- the roster -----------------------------------------------------------
+fetch('../robots/index.json').then(r => r.json()).then(d => {
+  const tb = document.querySelector('#roster tbody');
+  tb.innerHTML = Object.entries(d.robots).map(([name, r]) => {
+    const cov = r.coverage ?? 0;
+    const cls = cov === 100 ? 'yes' : 'no';
+    const sim = (r.provides && r.provides.sim) ? r.provides.sim : '—';
+    return '<tr><td><b>robot://' + name + '</b></td>'
+      + '<td>' + (r.scheme || '—') + '</td>'
+      + '<td>' + (r.verbs ?? 0) + '</td>'
+      + '<td>' + (r.transports || []).join(' · ') + '</td>'
+      + '<td>' + (r.live ? '<span class="yes">live</span>' : 'dry') + '</td>'
+      + '<td>' + sim + '</td>'
+      + '<td class="' + cls + '">' + cov + '%</td></tr>';
+  }).join('');
+  const note = d.coverage_kind || d.coverage_note || '';
+  document.getElementById('coverage-note').textContent =
+    (note ? note + ' — ' : '') + 'derived from disk · ' + d.count + ' robots';
+  const partial = Object.values(d.robots).filter(r => (r.coverage ?? 0) < 100);
+  if (partial.length) {
+    document.getElementById('top-right').textContent +=
+      ' · ' + partial.length + ' partial (' + partial.map(r => Object.keys(d.robots)
+        .find(k => d.robots[k] === r)).join(', ') + ')';
+  }
+}).catch(e => {
+  document.querySelector('#roster tbody').innerHTML =
+    '<tr><td colspan="7" class="mono">robots/index.json unavailable: ' + e + '</td></tr>';
+});
+</script>
+</body>
+</html>

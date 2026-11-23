@@ -2968,7 +2968,7 @@ layout      9:16 stage with the three robots, gate panel, roster table, address
   and says the trace is real but the clock is not. Declared, not claimed.
 - No new assets; the atlas is the existing `picoasimov-atlas.webp`.
 
-## 69. The note — why this is the beginning (2026-11-22)
+## 73. The note — why this is the beginning (2026-11-22)
 
 Operator's words: *"wonderful work. this is definitely the beginning of something
 special."* Recorded as a note, not a plan.
@@ -3014,7 +3014,7 @@ fleet    http://127.0.0.1:8125/robots.html · /robots/index.json
 ```
 Local server: `python agents/serve_pages.py C:/æ/github-pages 8125` (Range-capable).
 
-## 70. aipodcast.me fully wired (2026-11-22)
+## 74. aipodcast.me fully wired (2026-11-22)
 
 `aipodcast_me/index.html` — the home now carries the robot fleet, live.
 
