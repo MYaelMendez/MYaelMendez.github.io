@@ -268,6 +268,10 @@
             display: inline-block;
             padding: 0 20px;
         }
+        .ticker-item .sim {
+            font-size: 9px; padding: 1px 4px; border: 1px solid currentColor; border-radius: 2px;
+            opacity: .75; vertical-align: middle;
+        }
 
         @keyframes tickerMove {
             0% {
@@ -579,23 +583,10 @@
             </div>
         </div>
 
-        <!-- BOTTOM TICKER -->
+        <!-- BOTTOM TICKER — rendered from MEASURED signals. Rows we cannot measure on
+             this device carry an explicit SIM tag; nothing here is invented. -->
         <div id="bottom-ticker">
-            <div id="ticker-track">
-                <span class="ticker-item">SYSTEM_STATUS: NOMINAL</span>
-                <span class="ticker-item">NET_LATENCY: 12ms</span>
-                <span class="ticker-item">ENCRYPTION: AES-4096 [ACTIVE]</span>
-                <span class="ticker-item text-warning">WARNING: EXTERNAL SCAN DETECTED SECTOR 7</span>
-                <span class="ticker-item">CPU_TEMP: 45C</span>
-                <span class="ticker-item">MEM_INTEGRITY: 100%</span>
-                <span class="ticker-item">UPTIME: 99.999%</span>
-                <span class="ticker-item" style="color: var(--primary-color);">[| Æ.STORE: ONLINE |]</span>
-                <span class="ticker-item" style="color: var(--primary-color);">[| TYPOGRAPHY_SVR: ACTIVE |]</span>
-                <!-- Duplicate for seamless loop effect -->
-                <span class="ticker-item">SYSTEM_STATUS: NOMINAL</span>
-                <span class="ticker-item">NET_LATENCY: 12ms</span>
-                <span class="ticker-item">ENCRYPTION: AES-4096 [ACTIVE]</span>
-            </div>
+            <div id="ticker-track"></div>
         </div>
 
     </div>
@@ -668,19 +659,44 @@
             draggedElement = null;
         });
 
-        /* --- SIMULATION UTILS --- */
-        function randomizeStatus() {
-            const cpu = Math.floor(Math.random() * 100);
-            const mem = Math.floor(Math.random() * 16000);
-            document.getElementById('cpu-load').innerText = cpu;
-            document.getElementById('mem-load').innerText = mem;
-            document.getElementById('load-bar').style.width = cpu + '%';
-
-            const qr = `QR://sys/stats/${Date.now().toString().slice(-4)}`;
-            addLog(`[| "STATS", "CPU:${cpu}%", "${qr}" |]`);
+        /* --- MEASURED STATUS — every number names its source. Anything this device
+           cannot measure is tagged SIM; nothing here is invented. --- */
+        var TICK = [], TYPO = 'MONOSPACE';
+        function tickRender() {
+            var h = TICK.map(function (t) {
+                return '<span class="ticker-item' + (t[2] ? ' ' + t[2] : '') + '">' +
+                       (t[1] ? '<span class="sim">' + t[1] + '</span> ' : '') + t[0] + '</span>';
+            }).join('');
+            var el = document.getElementById('ticker-track');
+            if (el) el.innerHTML = h + h;      /* doubled for the seamless loop */
         }
-
-        setInterval(randomizeStatus, 5000);
+        function measureStatus() {
+            var cores = navigator.hardwareConcurrency || 0;
+            var heap = 0;
+            try { heap = (performance.memory && performance.memory.usedJSHeapSize) || 0; } catch (e) {}
+            var rtt = 0;
+            try { rtt = (navigator.connection && navigator.connection.rtt) || 0; } catch (e) {}
+            TICK = [
+                ['SYSTEM_STATUS: ' + (cores ? 'ONLINE' : 'UNKNOWN'), '', ''],
+                ['NET_LATENCY: ' + (rtt ? rtt + 'ms' : 'n/a') + ' · rtt, this device', rtt ? '' : 'UNMEASURED', ''],
+                ['LOGICAL_CORES: ' + (cores || 'n/a'), cores ? '' : 'UNMEASURED', ''],
+                ['JS_HEAP: ' + (heap ? (heap / 1048576).toFixed(1) + ' MB' : 'n/a'), heap ? '' : 'UNMEASURED', ''],
+                ['CPU_TEMP: n/a', 'SIM', ''],
+                ['UPTIME: n/a', 'SIM', ''],
+                ['ENCRYPTION: AES-4096 [ACTIVE]', 'SIM', ''],
+                ['WARNING: EXTERNAL SCAN DETECTED SECTOR 7', 'SET DRESSING', 'text-warning'],
+                ['[| TYPOGRAPHY_LVL: ' + TYPO + ' |]', '', '']
+            ];
+            tickRender();
+            var cpu = document.getElementById('cpu-load'), mem = document.getElementById('mem-load');
+            if (cpu) cpu.innerText = cores || 'n/a';
+            if (mem) mem.innerText = heap ? (heap / 1048576).toFixed(0) : 'n/a';
+            var lb = document.getElementById('load-bar');
+            if (lb) lb.style.width = Math.min(100, (heap / (1024 * 1024 * 1024)) * 100).toFixed(1) + '%';
+            addLog('[| "STATS", "cores:' + cores + '", "heap:' + (heap ? (heap / 1048576).toFixed(1) + 'MB' : 'n/a') + '", "rtt:' + (rtt || 'n/a') + '" |]');
+        }
+        measureStatus();
+        setInterval(measureStatus, 5000);
 
         /* --- COMMAND INPUT --- */
         const cmdInput = document.getElementById('cmd-input');
@@ -1039,11 +1055,9 @@
             const fontNames = ['MONOSPACE', 'TRANSITION', 'ENHANCEMENT', 'REVOLUTIONARY'];
             addLog(`[| "SYS", "TYPOGRAPHY_EVOLVED", "${fontNames[currentFontIndex]}" |]`);
 
-            // Update ticker or HUD if needed
-            const tickerItem = document.querySelector('.ticker-item[style*="var(--primary-color)"]');
-            if (tickerItem) {
-                tickerItem.innerText = `[| TYPOGRAPHY_LVL: ${fontNames[currentFontIndex]} |]`;
-            }
+            // Update ticker or HUD if needed — the typography level is a ticker row now
+            TYPO = fontNames[currentFontIndex];
+            tickRender();
         }
 
         // Auto-evolve every 10 seconds or via command

@@ -3317,3 +3317,25 @@ cazó el `node --check`, no el navegador; `const` se renombró a `dep`.
 - **Defects fixed before publish:** a second `esc()` declaration shadowed the existing null-safe
   one (removed); no swatch carried `.on`, so `querySelector('#lbl-accent button.on')` would
   have thrown on apply (added the default + a fallback).
+
+## 78. mech-os — the telemetry stops lying (2026-11-23)
+
+The robotics console's numbers were fabricated: `randomizeStatus()` drew CPU and MEM from
+`Math.random()`, and the bottom ticker asserted `CPU_TEMP: 45C`, `UPTIME: 99.999%`,
+`AES-4096 [ACTIVE]` and `EXTERNAL SCAN DETECTED SECTOR 7` as if they were readings.
+
+- Replaced with **measured** signals, each naming its source:
+  `NET_LATENCY` = `navigator.connection.rtt` · `LOGICAL_CORES` = `navigator.hardwareConcurrency`
+  · `JS_HEAP` = `performance.memory.usedJSHeapSize` · `SYSTEM_STATUS` derived from those.
+  The `CPU_LOAD`/`MEM_USAGE` panel now shows cores and real heap instead of dice.
+- Rows this device cannot measure are now **`n/a` + an explicit `SIM` tag**
+  (`CPU_TEMP`, `UPTIME`, `ENCRYPTION`), and the sector-7 alarm is tagged **`SET DRESSING`** —
+  it is theatre, and the page says so instead of passing it off as a sensor reading.
+- The ticker is rendered from one `TICK` array (single source, doubled for the loop), which
+  also absorbed the old `TYPOGRAPHY_LVL` row that `evolveTypography` used to patch by
+  querying `[style*=…]` — that selector died when the row moved into the array.
+- **Verified:** 18 ticker items render (doubled set); measured `NET_LATENCY: 50ms · rtt, this
+  device`, `LOGICAL_CORES: 12`, `JS_HEAP: 1.0 MB`; `SIM`/`SET DRESSING` tags present;
+  typography row updates without throwing.
+- **Rule applied:** nothing typed. A console that fakes its own sensors is the exact
+  anti-pattern the estate exists to refuse.
