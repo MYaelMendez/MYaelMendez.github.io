@@ -15,9 +15,9 @@ h1{font:700 clamp(1.05rem,3.4vw,1.6rem)/1.1 'Orbitron',sans-serif;color:var(--go
  letter-spacing:.16em;text-transform:uppercase;margin:0 0 4px}
 .sub{color:var(--muted);font-size:11px;letter-spacing:.06em;margin-bottom:14px}
 .sub b{color:var(--ink);font-weight:400}
-.wrap{display:grid;grid-template-columns:minmax(220px,1fr) minmax(260px,1.15fr);gap:16px;
- align-items:start;max-width:1180px;margin:0 auto}
-@media(max-width:820px){.wrap{grid-template-columns:1fr}}
+.wrap{display:grid;grid-template-columns:minmax(220px,1fr) minmax(300px,1.2fr);gap:16px;
+ align-items:start;max-width:1240px;margin:0 auto}
+@media(max-width:880px){.wrap{grid-template-columns:1fr}}
 .panel{border:1px solid var(--line);border-radius:3px;background:rgba(255,255,255,.015);padding:12px}
 .panel h2{font:700 10px/1 'JetBrains Mono',monospace;letter-spacing:.2em;text-transform:uppercase;
  color:var(--gold);margin:0 0 10px}
@@ -55,17 +55,22 @@ td.n{color:var(--ink)} td.m{color:var(--muted)}
 td.ok{color:var(--neon)} td.bad{color:#ff5f6b}
 .scroll{overflow-x:auto}
 .verdict{border:1px solid var(--line);border-left:3px solid var(--gold);padding:9px 11px;
- font-size:11px;color:var(--ink);margin-top:10px;letter-spacing:.02em}
+ font-size:11px;color:var(--ink);margin-top:10px;letter-spacing:.02em;line-height:1.7}
 .verdict b{color:var(--gold);font-weight:400}
-footer{max-width:1180px;margin:14px auto 0;color:var(--muted);font-size:9.5px;letter-spacing:.1em}
+.receipt{border:1px solid var(--line);padding:9px 11px;margin-top:9px;font-size:10px;
+ color:var(--muted);line-height:1.7;word-break:break-all;display:none}
+.receipt.show{display:block}
+.receipt b{color:var(--neon);font-weight:400}
+.receipt a{color:var(--gold)}
+footer{max-width:1240px;margin:14px auto 0;color:var(--muted);font-size:9.5px;letter-spacing:.1em}
 footer a{color:var(--gold)}
 </style>
 </head>
 <body>
 <h1>pet test · 9:16</h1>
-<div class="sub">the Asimov CAD atlas, at <b>every coherent size</b> — measured, not asserted.
-atlas <b>1536 × 1872</b> · cell <b>192 × 208</b> · <b>6</b> frames · <b>9</b> states.
-receipt <b>1963ee54…</b></div>
+<div class="sub">the Asimov CAD atlas, at <b>every coherent size</b> — measured from the DOM, in
+<b>both</b> coordinate systems. atlas <b>1536 × 1872</b> · cell <b>192 × 208</b> · <b>6</b> frames ·
+<b>9</b> states. receipt <b>1963ee54…</b></div>
 
 <div class="wrap">
   <div class="panel stagebox">
@@ -108,11 +113,15 @@ receipt <b>1963ee54…</b></div>
     </div>
     <div class="scroll">
       <table>
-        <thead><tr><th>viewport</th><th>scale</th><th>pet box</th><th>cell</th><th>fits</th><th>crisp</th></tr></thead>
-        <tbody id="rows"><tr><td class="m" colspan="6">nothing measured yet — run the matrix</td></tr></tbody>
+        <thead><tr>
+          <th>viewport</th><th>scale</th><th>k</th>
+          <th>coord box</th><th>screen box</th><th>fits</th><th>crisp</th>
+        </tr></thead>
+        <tbody id="rows"><tr><td class="m" colspan="7">nothing measured yet — run the matrix</td></tr></tbody>
       </table>
     </div>
     <div class="verdict" id="verdict">—</div>
+    <div class="receipt" id="receipt"></div>
   </div>
 </div>
 
@@ -125,18 +134,20 @@ var ATLAS=[1536,1872], CELL=[192,208], FRAMES=6, ROWS=9;
 var STATES=['idle','running-right','running-left','waving','jumping','failed','waiting','running','review'];
 var VIEWPORTS=[[135,240],[270,480],[360,640],[405,720],[540,960],[720,1280],[1080,1920]];
 var SCALES=[0.25,0.5,0.75,1,1.25,1.5,2,3];
+var COLUMN=380;   /* the device is fitted into this column by a transform */
 
 var pet=document.getElementById('pet'), device=document.getElementById('device'),
     floorEl=document.getElementById('floor'), rows=document.getElementById('rows'),
-    readout=document.getElementById('readout'), verdict=document.getElementById('verdict');
+    readout=document.getElementById('readout'), verdict=document.getElementById('verdict'),
+    receiptBox=document.getElementById('receipt');
 var state='idle', frame=0, vw=360, vh=640, scale=1, walking=false;
 
 function cellPx(){ return [CELL[0]*scale, CELL[1]*scale]; }
+function rowOf(s){ var i=STATES.indexOf(s); return i<0?0:i; }
 function draw(){
   pet.style.backgroundSize = (ATLAS[0]*scale)+'px '+(ATLAS[1]*scale)+'px';
   pet.style.backgroundPosition = (-frame*CELL[0]*scale)+'px '+(-rowOf(state)*CELL[1]*scale)+'px';
 }
-function rowOf(s){ var i=STATES.indexOf(s); return i<0?0:i; }
 function sizePet(){
   var c=cellPx();
   pet.style.width=c[0]+'px'; pet.style.height=c[1]+'px';
@@ -148,10 +159,12 @@ function place(x,y){
   floorEl.style.width=(cellPx()[0]*0.72)+'px'; floorEl.style.height='6px';
   floorEl.style.left=(x+cellPx()[0]*0.14)+'px'; floorEl.style.top=(y+cellPx()[1]+2)+'px';
 }
+/* the display factor: the device is fitted into COLUMN px by a transform, so the
+   coordinate space and the screen are two different boxes. k is the ratio. */
+function displayK(w){ return Math.min(1, COLUMN/w); }
 function setViewport(w){
   vw=w; vh=w*16/9;
-  /* the coordinate space stays exact; a transform scales it to fit the column */
-  var k=Math.min(1, 380/w);
+  var k=displayK(w);
   var wrap=document.getElementById('devwrap');
   wrap.style.width=(vw*k)+'px'; wrap.style.height=(vh*k)+'px';
   device.style.width=vw+'px'; device.style.height=vh+'px';
@@ -168,29 +181,46 @@ function setScale(s){
 function report(){
   var c=cellPx();
   readout.innerHTML='state <b>'+state+'</b> · frame <b>'+(frame+1)+'/'+FRAMES+'</b> · '+
-    'device <b>'+Math.round(vw)+'×'+Math.round(vh)+'</b> · pet <b>'+
-    c[0].toFixed(1)+'×'+c[1].toFixed(1)+'</b> · pos <b>'+
-    Math.round(parseFloat(pet.style.left))+' , '+Math.round(parseFloat(pet.style.top))+'</b>';
+    'device <b>'+Math.round(vw)+'×'+Math.round(vh)+'</b> · k <b>'+displayK(vw).toFixed(4)+'</b> · '+
+    'pet coord <b>'+c[0].toFixed(1)+'×'+c[1].toFixed(1)+'</b> · screen <b>'+
+    pet.getBoundingClientRect().width.toFixed(1)+'×'+pet.getBoundingClientRect().height.toFixed(1)+
+    '</b> · pos <b>'+Math.round(parseFloat(pet.style.left))+' , '+
+    Math.round(parseFloat(pet.style.top))+'</b>';
 }
 /* frame stepping — setTimeout, not rAF: rAF is throttled headless and this is a measuring rig */
-var last=0, timer=null;
+var last=0;
 function step(t){
   if(t-last>83){ last=t; frame=(frame+1)%FRAMES; draw(); report(); }
-  timer=setTimeout(function(){step(performance.now())},40);
+  setTimeout(function(){step(performance.now())},40);
 }
 setTimeout(function(){step(performance.now())},40);
 
-/* ── the matrix: measure every coherent (viewport, scale) pair ── */
+/* ── the matrix: every coherent pair, measured from the DOM ─────────────────
+   Two boxes exist. The COORD box is the design box, CELL*scale, in the device's
+   own coordinate space. The SCREEN box is what getBoundingClientRect() returns
+   after the fit-transform — what a viewer actually gets. A crispness claim that
+   ignores k is a claim about a box nobody sees. */
 function measure(w,h,s){
-  var pw=CELL[0]*s, ph=CELL[1]*s;
-  var fits = pw<=w+0.01 && ph<=h+0.01;
-  /* crisp = the cell lands on whole CSS pixels, so no resampling is needed.
-     the cell is 192×208 — both divisible by 4, so every 0.25 step is whole. */
-  var whole = Math.abs(pw-Math.round(pw))<1e-6 && Math.abs(ph-Math.round(ph))<1e-6;
+  setViewport(w); setScale(s);
+  var pr=pet.getBoundingClientRect(), dr=device.getBoundingClientRect();
+  var coord=cellPx();
+  var k=dr.width/w;
   var pixelated = getComputedStyle(pet).imageRendering === 'pixelated';
-  var crisp = whole && pixelated;
-  return {w:w,h:h,s:s,pw:pw,ph:ph,fits:fits,whole:whole,crisp:crisp};
+  var whole = function(v){ return Math.abs(v-Math.round(v))<0.01; };
+  var fitsCoord   = coord[0]<=w+0.01   && coord[1]<=h+0.01;
+  var fitsScreen  = pr.width<=dr.width+0.01 && pr.height<=dr.height+0.01;
+  return {
+    w:w, h:h, s:s, k:+k.toFixed(4),
+    coord:[+coord[0].toFixed(1), +coord[1].toFixed(1)],
+    screen:[+pr.width.toFixed(2), +pr.height.toFixed(2)],
+    device:[+dr.width.toFixed(1), +dr.height.toFixed(1)],
+    fitsCoord:fitsCoord, fitsScreen:fitsScreen,
+    crispCoord: whole(coord[0])&&whole(coord[1])&&pixelated,
+    crispScreen: whole(pr.width)&&whole(pr.height)&&pixelated,
+    pixelated: pixelated
+  };
 }
+function fmtBox(b){ return b[0]+'×'+b[1]; }
 function runMatrix(){
   var out=[];
   VIEWPORTS.forEach(function(v){
@@ -198,20 +228,63 @@ function runMatrix(){
   });
   rows.innerHTML = out.map(function(r){
     return '<tr><td class="n">'+r.w+'×'+r.h+'</td><td class="m">'+r.s+'×</td>'+
-      '<td class="n">'+r.pw.toFixed(1)+'×'+r.ph.toFixed(1)+'</td>'+
-      '<td class="'+(r.whole?'ok':'bad')+'">'+(r.whole?'whole':'frac '+(ATLAS[0]*r.s/CELL[0]).toFixed(3))+'</td>'+
-      '<td class="'+(r.fits?'ok':'bad')+'">'+(r.fits?'yes':'no')+'</td>'+
-      '<td class="'+(r.crisp?'ok':'bad')+'">'+(r.crisp?'crisp':'soft')+'</td></tr>';
+      '<td class="m">'+r.k.toFixed(4)+'</td>'+
+      '<td class="n">'+fmtBox(r.coord)+'</td>'+
+      '<td class="n">'+fmtBox(r.screen)+'</td>'+
+      '<td class="'+(r.fitsScreen?'ok':'bad')+'">'+(r.fitsScreen?'yes':'no')+'</td>'+
+      '<td class="'+(r.crispScreen?'ok':'bad')+'">'+(r.crispScreen?'crisp':'soft')+'</td></tr>';
   }).join('');
-  var coherent = out.filter(function(r){return r.fits&&r.crisp;});
-  var best = coherent.filter(function(r){return r.w>=360;});
-  verdict.innerHTML = '<b>'+out.length+'</b> pairs measured · <b>'+coherent.length+
-    '</b> coherent (fits <i>and</i> crisp) · <b>'+best.length+'</b> coherent at a real handset width (≥360).<br>'+
-    'The cell is 192×208 — both divisible by 4, so <b>every 0.25-step scale lands on whole '+
-    'pixels and stays crisp</b> (all '+SCALES.length+' measured crisp). The real constraint is '+
-    '<b>fitting</b>: at 1080×1920 a 3× pet is 576×624 and fits; at 360×640 a 2× pet is '+
-    '384×416 and does not. Pick the scale by the viewport, not by the pixels.';
+  var cohS = out.filter(function(r){return r.fitsScreen&&r.crispScreen;});
+  var cohC = out.filter(function(r){return r.fitsCoord&&r.crispCoord;});
+  var hand = cohS.filter(function(r){return r.w>=360;});
+  var soft = out.filter(function(r){return !r.crispScreen;});
+  verdict.innerHTML =
+    '<b>'+out.length+'</b> pairs measured from the DOM · '+
+    '<b>'+cohC.length+'</b> coherent in <b>coord</b> · <b>'+cohS.length+'</b> coherent <b>on screen</b> · '+
+    '<b>'+hand.length+'</b> of those at a real handset width (≥360).<br>'+
+    'The two diverge because the device is fitted into a '+COLUMN+' px column by a transform: '+
+    '<b>k = '+displayK(1080).toFixed(4)+' at 1080×1920</b>, so a 1× pet is 192×208 in coord '+
+    'but <b>'+measure(1080,1920,1).screen.join('×')+' on screen</b> — fractional, so soft. '+
+    soft.length+' of '+out.length+' pairs are soft on screen; every one of them has k &lt; 1.<br>'+
+    'Read crisp as <b>screen crisp</b>. Pick the scale by the viewport, and fit the column '+
+    'to the width you actually ship.';
+  writeReceipt(out);
   return out;
+}
+/* ── the rig receipts its own output, so "the matrix said so" is checkable ── */
+function sha256Hex(buf){
+  if(!(crypto && crypto.subtle && crypto.subtle.digest)) return Promise.resolve(null);
+  return crypto.subtle.digest('SHA-256', buf).then(function(h){
+    return [...new Uint8Array(h)].map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+  });
+}
+function writeReceipt(out){
+  var doc = {
+    schema:'pet-matrix/1',
+    generated:new Date().toISOString(),
+    rig:'pet/test-916.html',
+    atlas:ATLAS, cell:CELL, frames:FRAMES, states:STATES,
+    column:COLUMN, viewports:VIEWPORTS, scales:SCALES,
+    counts:{
+      pairs:out.length,
+      coherent_coord:out.filter(function(r){return r.fitsCoord&&r.crispCoord;}).length,
+      coherent_screen:out.filter(function(r){return r.fitsScreen&&r.crispScreen;}).length,
+      soft_screen:out.filter(function(r){return !r.crispScreen;}).length
+    },
+    pairs:out
+  };
+  var txt = JSON.stringify(doc);
+  sha256Hex(new TextEncoder().encode(txt)).then(function(hex){
+    var url = URL.createObjectURL(new Blob([txt],{type:'application/json'}));
+    receiptBox.classList.add('show');
+    receiptBox.innerHTML =
+      '<b>RECEIPT</b> pet-matrix/1 · ' + out.length + ' pairs · ' +
+      (hex ? 'sha256 <b>'+hex.slice(0,32)+'…</b>' : 'sha256 unavailable (non-secure context)') +
+      '<br>coord-coherent '+doc.counts.coherent_coord+' · screen-coherent '+doc.counts.coherent_screen+
+      ' · soft-on-screen '+doc.counts.soft_screen+
+      '<br><a href="'+url+'" download="pet-matrix.json">download the matrix ↓</a>';
+    window.__matrixReceipt = {doc:doc, sha256:hex};
+  });
 }
 /* ── stage 2 rig: walk left ↔ right, measured, out-of-bounds counted ── */
 function walk(cb){
@@ -227,7 +300,10 @@ function walk(cb){
     x += dir*step;
     if(x>=x1){ x=x1; dir=-1; setState('running-left', true); }
     if(x<=x0){ x=x0; dir=0; }
+    /* count in BOTH spaces: the coord bound and the rendered bound */
+    var pr=pet.getBoundingClientRect(), dr=device.getBoundingClientRect();
     if(x<-0.01||x+c[0]>vw+0.01) oob++;
+    if(pr.left<-0.01||pr.right>dr.right+0.01) oob++;
     place(x, parseFloat(pet.style.top));
     report();
     i++;
@@ -236,7 +312,8 @@ function walk(cb){
       walking=false; setState('idle', true);
       var dt=(performance.now()-t0)/1000, done=(i>=steps && dir===0);
       cb({completed:done, steps:i, planned:steps, outOfBounds:oob,
-          seconds:+dt.toFixed(2), from:Math.round(x0), to:Math.round(x1)});
+          seconds:+dt.toFixed(2), from:Math.round(x0), to:Math.round(x1),
+          k:+displayK(vw).toFixed(4)});
     }
   }
   tick();
@@ -268,7 +345,8 @@ document.getElementById('runMatrix').addEventListener('click',runMatrix);
 document.getElementById('runWalk').addEventListener('click',function(){
   walk(function(r){
     verdict.innerHTML='<b>walk test</b> · device '+Math.round(vw)+'×'+Math.round(vh)+' · scale '+scale+'×'+
-      ' · pet '+cellPx()[0].toFixed(1)+'×'+cellPx()[1].toFixed(1)+'<br>'+
+      ' · k '+r.k+' · pet coord '+cellPx()[0].toFixed(1)+'×'+cellPx()[1].toFixed(1)+
+      ' · screen '+pet.getBoundingClientRect().width.toFixed(1)+'×'+pet.getBoundingClientRect().height.toFixed(1)+'<br>'+
       'completed <b class="'+(r.completed?'ok':'bad')+'">'+r.completed+'</b> · steps <b>'+r.steps+
       '</b>/'+r.planned+' · from x='+r.from+' to x='+r.to+' and back · '+
       'out-of-bounds <b class="'+(r.outOfBounds?'bad':'ok')+'">'+r.outOfBounds+'</b> · '+
@@ -279,7 +357,8 @@ document.getElementById('runWalk').addEventListener('click',function(){
 /* boot */
 setViewport(360); setState('idle');
 window.petTest={measure:measure, run:runMatrix, walk:walk, states:STATES,
-  setViewport:setViewport, setScale:setScale, setState:setState};
+  setViewport:setViewport, setScale:setScale, setState:setState,
+  receipt:function(){return window.__matrixReceipt || null}};
 </script>
 </body>
 </html>
