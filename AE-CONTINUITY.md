@@ -3162,3 +3162,76 @@ Film playback remains unverified in the automation browser (hidden document).
   No generator for the corpus was found in the repo, so the corpus was **not** hand-edited:
   the next scan should drop the entry. Flagged rather than silently rewritten.
 - `asimov-face-video-sm.gif` (a derivative) is left in place.
+
+
+---
+
+## 2026-11-22 — AUTHORITY derived from the pledge roster (+ a stale roster caught)
+
+**source** — `agent-pledge.json` (regenerated) · `tools/build_pledge_roster.py` (new, `--check`) ·
+`ae/control/index-live.html` (`#auth-chip`, `renderAuthority()`, PROVENANCE row).
+
+**What it answers.** `AUTHORITY: LOCKED` was a static chip with no gate behind it — the same
+failure mode as robots' `evidence_kind`. It is now **derived**: the console reads
+`agent-pledge.json`, counts `committed/total`, and **cross-checks** that `pledge.html`
+still publishes the same `pledge_hash`. Anything less than all-current, or a hash absent
+from pledge.html, reads `LAPSED` / `INCOHERENTE`.
+
+**The drift it caught.** Custody (`C:\æ\kænbæn\agent-pledge.json`) held **8** commitments;
+the published roster listed **7** — `waetz-bot` had committed on 2026-11-19 and the roster was
+never regenerated. The new `--check` fails on exactly that, and the roster is now derived.
+
+**Identity, declared.** All 8 commitments share **one** public key. That is by design
+(`agent_pledge.py`: *"reuse the card signing key — one identity per operator"*), but the
+roster presented 8 entries as if they were 8 identities. It now publishes
+`distinct_keys: 1` and `identity_note` saying the agent ids are **roles** on one operator
+identity — so nothing reads the roster as 8 cryptographic agents.
+
+**tests** — `browser_exec`: `#auth-chip` = `AUTHORITY: LOCKED`, title
+`pledge 8/8 current · 1 clave(s) · hash coherente con pledge.html`; PROVENANCE gained
+`MEDIDO authority 8/8` and **lost** the DECLARADO row for AUTHORITY (4 → 3 declared).
+
+**Gate placement.** `build_pledge_roster.py` reads local custody, so it runs **where
+custody lives** — deliberately not in CI (the source file is outside the repo). It is an
+operator gate, like `agent_pledge.py require`.
+
+**deploy** — pushed via `kanban_push.py`; API verified, the github.io CDN lagged.
+
+## 74. background batch — two films live, five verb clips, five policies measured (2026-11-23)
+
+Verified by read-back, not taken from the subagent reports.
+
+**Live now** (HTTP 200, tracked in gh-pages):
+- `core-registry-916-narrated.mp4` — 5,586,533 B, sha256 `665dae81…`; narration WAV + txt +
+  receipt staged beside it; gate PASS (lum 22.51, contrast 28.54, motion 1.47, black 0%,
+  mux delta 0.0). *The producing subagent reported `published:false`; it is in fact live —
+  a sibling published it. Reported as measured.*
+- `mobility4d.mp4` — 5,912,751 B, sha256 `574e21ba…9cfd7`; gate PASS (lum **20.9** vs the
+  20 floor — thin margin, recorded), contrast 42.88, motion 0.866, black 0%.
+
+**Rendered, not published** (`C:/æ/verbs/out/`, all 9.000 s · 720×1280 · 24 fps · silent,
+RTX 3050 CUDA, 1,007,041 tris, policy `Menlo/asimov1-locomotion-0818`):
+| verb | bytes | sha256 |
+|---|---|---|
+| stand | 2,377,299 | `519e0da4…` |
+| walk | 3,250,370 | `0a7c33fb…` |
+| turn | 3,592,357 | `bd65a968…` |
+| strafe | 3,009,331 | `12ff04fa…` |
+| set_velocity | 3,323,487 | `11c93842…` |
+
+These are the renders of the atlas's own `walk.json` / `turn.json` verb sources.
+
+**Policies measured** (`C:/æ/policies/`, simulation only, `grants:false`):
+- `0818` baseline reproduced exactly: +4.1868 m, 600 ticks/2400 steps, min base 0.6125 m,
+  no fall, byte-identical repeat; **a shuffle, not a stride** (knees 38.8°/37.7°, feet ~5 cm).
+- `26-09-24`: +4.6405 m — but measured under the **legacy ankle contract**; the harness is
+  hardcoded to 0818 (ankle kp/kd/effort differ). **A missing check, reported as missing.**
+- `26-10-05-upper-body`: +4.4389 m, 12 leg-only actions, ankle-roll scale 0.08 ±0.09 clip.
+- `26-10-17-upper-body-blind`: stock harness **cannot run it** (45 obs/12 actions vs the
+  pinned 78/23); measured through an adapter; `wz 0.5` is a ~180° flip, not a yaw track.
+- `26-10-26-lower-body-27dof`: **cannot run** — falls at 1.42 s; it is a 27-DOF policy on a
+  25-DOF body (armature/friction differ). Adapter + evidence in the policy dir.
+
+**Blocker for the pet work:** the harness speaks only the 0818 contract, so every checkpoint
+after it is measured through a bespoke adapter — the numbers are real but not comparable
+without a contract-aware harness.
