@@ -545,14 +545,15 @@ window.aeEstate={state:function(){return E?{surfaces:E.counts,generated:E.genera
 /* the pet — the real Asimov CAD atlas, driven from the DOM */
 (function(){
   var pet=document.getElementById('pet'); if(!pet) return;
-  var STATES=['idle','running-right','running-left','waving','jumping','sleeping','sitting','standing','backflip'];
-  var COLS=8, DW=192, DH=208, FPS=12;
+  /* the nine states, in atlas row order — exactly pet.json's receipt */
+  var STATES=['idle','running-right','running-left','waving','jumping','failed','waiting','running','review'];
+  var FRAMES=6, DW=192, DH=208, FPS=12;   /* pet.json: frames_per_state = 6 (cols 6-7 are empty) */
   var state='idle', frame=0;
   var rowOf=function(s){var i=STATES.indexOf(s); return i<0?0:i;};
   function draw(){ pet.style.backgroundPosition=(-frame*DW)+'px '+(-rowOf(state)*DH)+'px'; }
   var last=0;
   function step(now){
-    if(now-last>1000/FPS){ last=now; frame=(frame+1)%COLS; draw(); }
+    if(now-last>1000/FPS){ last=now; frame=(frame+1)%FRAMES; draw(); }
     requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
