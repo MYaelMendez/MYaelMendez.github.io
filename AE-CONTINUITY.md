@@ -3401,3 +3401,22 @@ The robotics console's numbers were fabricated: `randomizeStatus()` drew CPU and
 - **Verified:** button visible (145×24, `--secondary-color` = `rgb(255,157,0)` amber); click
   flips it to `✓ CONNECTED >_æ:/`; the log carries both the measured STATS line
   (`cores:12 · heap:1.1MB · rtt:100`) and the four login lines.
+
+## 82. mech-os — æ menu + window manager + llm.store window (2026-11-23)
+
+- **One `æ` menu** in the top bar (`#ae-menu`, built from the live `.window-title` set): every
+  window listed, open ones marked, click to open. Includes **LLM_STORE**.
+- **New `LLM_STORE` window** — body read from `estate.json` (`/store/i`), largest named as host,
+  links out to `llm-store.html`.
+- **Window manager**: default **9:16**, dock control `[▣]` injected into every header toggles
+  **1:1**. Layout: up to **four 9:16 across the top**, then as many **1:1 squares as fit
+  below**. Re-layouts on resize; below 700 px it hands back to the phone rule.
+- **Verified at 1440×900:** four 9:16 tiles 304×540 at x=8/320/632/944, y=8; then four 1:1
+  tiles 160×160 at y=556. LLM_STORE loads "13 store surfaces · hosted by llm-store.html".
+- **Two defects fixed to get there:**
+  1. `.window{min-width:300px}` clamped tiles → the layout clears min-* inline.
+  2. `@media(max-width:768px)` forced full-width stacking with `!important` → re-scoped to
+     `body:not(.tiled) .window`, with JS toggling `body.tiled`. The phone behaviour is intact
+     when the manager isn't tiling.
+- **Also:** the first layout pass ran while `#desktop` was still hidden (clientWidth 0); it now
+  runs at the boot reveal instead of racing the random-delay boot.

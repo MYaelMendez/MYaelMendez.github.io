@@ -276,6 +276,33 @@
         }
         .btn-connect:hover { background: var(--primary-color, #D4AF37); }
         .btn-connect.bound { background: transparent; color: var(--secondary-color, #D4AF37); }
+        .btn-menu {
+            background: transparent; color: var(--secondary-color, #ff9d00);
+            border: 1px solid var(--secondary-color, #ff9d00);
+            font: inherit; font-weight: 700; font-size: 13px; line-height: 1;
+            width: 26px; height: 24px; cursor: pointer; padding: 0;
+        }
+        .btn-menu:hover { background: rgba(255,157,0,.14); }
+        #ae-menu {
+            position: fixed; top: 54px; left: 10px; z-index: 600; min-width: 240px;
+            background: rgba(5,5,5,.97); border: 1px solid var(--secondary-color, #ff9d00);
+            box-shadow: 0 18px 50px rgba(0,0,0,.6); padding: 8px; font-size: 12px;
+        }
+        #ae-menu[hidden] { display: none; }
+        #ae-menu b {
+            display: block; color: var(--secondary-color, #ff9d00); letter-spacing: .16em;
+            font-size: 9.5px; text-transform: uppercase; margin-bottom: 6px; font-weight: 400;
+        }
+        #ae-menu button {
+            display: block; width: 100%; text-align: left; background: none; border: 0;
+            color: var(--primary-color, #00ffea); font: inherit; padding: 5px 6px; cursor: pointer;
+            letter-spacing: .04em;
+        }
+        #ae-menu button:hover { background: rgba(255,157,0,.12); color: var(--secondary-color, #ff9d00); }
+        #ae-menu button.on { color: var(--secondary-color, #ff9d00); }
+        #ae-menu .hint { color: #6f6a5c; font-size: 9.5px; margin-top: 6px; line-height: 1.6; }
+        .window .dockbtn { cursor: pointer; opacity: .75; }
+        .window .dockbtn:hover { opacity: 1; }
         .ticker-item .sim {
             font-size: 9px; padding: 1px 4px; border: 1px solid currentColor; border-radius: 2px;
             opacity: .75; vertical-align: middle;
@@ -338,8 +365,8 @@
         /* --- RESPONSIVE / BURNER PHONE OPTIMIZATION --- */
         @media (max-width: 768px) {
 
-            /* Stack windows vertically */
-            .window {
+            /* Stack windows vertically — unless the æ window manager has tiled them */
+            body:not(.tiled) .window {
                 position: relative !important;
                 top: auto !important;
                 left: auto !important;
@@ -440,13 +467,18 @@
         </div>
 
         <div id="top-bar">
-            <div>æææ:/// MECH-OS // SYSTEMS ONLINE</div>
+            <div style="display:flex;gap:10px;align-items:center;">
+                <button class="btn-menu" id="ae-menu-btn" onclick="toggleMenu()" title="æ · the one menu">æ</button>
+                <div>æææ:/// MECH-OS // SYSTEMS ONLINE</div>
+            </div>
             <div style="display:flex;gap:10px;align-items:center;">
                 <button class="btn-connect" id="agent-connect" onclick="agentConnect()"
                         title="enter the conductor session >_æ:/ — binds locally, no credential leaves this device">&#9679; AGENT CONNECT</button>
                 <div id="clock">00:00:00</div>
             </div>
         </div>
+
+        <div id="ae-menu" hidden></div>
 
         <!-- Draggable Window 1 -->
         <div class="window" style="top: 100px; left: 100px; width: 400px;">
@@ -595,6 +627,18 @@
             </div>
         </div>
 
+        <!-- LLM_STORE -->
+        <div class="window" id="win-llmstore" style="display:none;top:100px;left:520px;width:340px;">
+            <div class="window-header">
+                <span class="window-title">LLM_STORE</span>
+                <span class="window-controls"
+                      onclick="this.parentElement.parentElement.style.display='none';layoutWindows()">[x]</span>
+            </div>
+            <div class="window-content" id="llmstore-body" style="font-size:11px;line-height:1.75">
+                <p>&gt; reading the store index…</p>
+            </div>
+        </div>
+
         <!-- BOTTOM TICKER — rendered from MEASURED signals. Rows we cannot measure on
              this device carry an explicit SIM tag; nothing here is invented. -->
         <div id="bottom-ticker">
@@ -631,6 +675,7 @@
             setTimeout(() => {
                 bootScreen.style.display = 'none';
                 desktop.style.display = 'block';
+                if (typeof layoutWindows === 'function') layoutWindows();
                 // Trigger an initial "open" animation for desktop
                 desktop.style.opacity = 0;
                 let fade = 0;
@@ -1129,9 +1174,126 @@
             }
         });
 
+        /* --- æ menu + window management ----------------------------------------
+           default 9:16, dockable 1:1; up to four 9:16 across the top,
+           then as many 1:1 squares as fit below. */
+        function allWindows() { return [...document.querySelectorAll('.window')]; }
+        function winByTitle(t) {
+            return allWindows().find(function (w) {
+                var el = w.querySelector('.window-title');
+                return el && el.textContent.replace(/\[x\]/g, '').trim() === t;
+            });
+        }
+        allWindows().forEach(function (w) {          /* inject the dock control */
+            var h = w.querySelector('.window-header'); if (!h) return;
+            var old = h.querySelector('.window-controls'); if (!old) return;
+            var b = document.createElement('span');
+            b.className = 'window-controls dockbtn'; b.textContent = '[▣]';
+            b.title = 'dock as 1:1 / restore 9:16';
+            b.onclick = function (e) { e.stopPropagation(); dockWindow(w); };
+            h.insertBefore(b, old);
+        });
+        function dockWindow(w) {
+            w.dataset.docked = (w.dataset.docked === '1') ? '' : '1';
+            layoutWindows();
+        }
+        function toggleMenu() {
+            var m = document.getElementById('ae-menu'); if (!m) return;
+            m.hidden = !m.hidden; if (!m.hidden) renderMenu();
+        }
+        function renderMenu() {
+            var m = document.getElementById('ae-menu'); if (!m) return;
+            var names = [];
+            allWindows().forEach(function (w) {
+                var el = w.querySelector('.window-title'); if (!el) return;
+                var t = el.textContent.replace(/\[x\]/g, '').trim();
+                if (names.indexOf(t) < 0) names.push(t);
+            });
+            m.innerHTML = '<b>æ · windows · ' + names.length + '</b>' + names.map(function (t) {
+                var w = winByTitle(t), open = w && w.style.display !== 'none';
+                return '<button data-win="' + t + '" class="' + (open ? 'on' : '') +
+                       '" onclick="menuOpen(this)">' + t + '</button>';
+            }).join('') + '<div class="hint">default 9:16 · [▣] docks 1:1<br>' +
+                         'four 9:16 across, then 1:1 below</div>';
+        }
+        function menuOpen(btn) {
+            var t = btn.getAttribute('data-win'), w = winByTitle(t);
+            var m = document.getElementById('ae-menu'); if (m) m.hidden = true;
+            if (!w) return;
+            w.style.display = 'block'; w.dataset.docked = '';
+            layoutWindows();
+            addLog('[| "WIN", "' + t + '", "OPEN", ">_æ:/menu" |]');
+        }
+        function layoutWindows() {
+            var d = document.getElementById('desktop'); if (!d) return;
+            var W = d.clientWidth, H = d.clientHeight, gap = 8;
+            var wins = allWindows().filter(function (w) { return w.style.display !== 'none' });
+            /* four 9:16 across needs room; below that the phone rule stacks for us */
+            var tiled = W >= 700 && wins.length > 0;
+            document.body.classList.toggle('tiled', tiled);
+            if (!tiled) {
+                wins.forEach(function (w) {
+                    w.style.left = ''; w.style.top = ''; w.style.width = ''; w.style.height = '';
+                    w.style.minWidth = ''; w.style.minHeight = '';
+                });
+                return;
+            }
+            var n = Math.min(4, wins.length);
+            var pw = Math.floor((W - gap * (n + 1)) / n);
+            var ph = Math.round(pw * 16 / 9), maxPh = Math.round(H * 0.60);
+            if (ph > maxPh) { ph = maxPh; pw = Math.max(120, Math.round(ph * 9 / 16)); }
+            wins.forEach(function (w, i) {
+                w.style.position = 'absolute';
+                w.style.right = 'auto'; w.style.bottom = 'auto';
+                w.style.minWidth = '0'; w.style.minHeight = '0';   /* beat .window{min-*} */
+                if (i < n) {                                   /* top row: 9:16 */
+                    w.style.left = (gap + i * (pw + gap)) + 'px'; w.style.top = gap + 'px';
+                    w.style.width = pw + 'px'; w.style.height = ph + 'px';
+                } else {                                       /* below: 1:1 flow */
+                    var s = Math.max(90, Math.min(180, Math.floor(W / 9)));
+                    var perRow = Math.max(1, Math.floor((W - gap) / (s + gap)));
+                    var r = i - n, row = Math.floor(r / perRow), col = r % perRow;
+                    w.style.left = (gap + col * (s + gap)) + 'px';
+                    w.style.top = (ph + gap * 2 + row * (s + gap)) + 'px';
+                    w.style.width = s + 'px'; w.style.height = s + 'px';
+                }
+            });
+        }
+        window.addEventListener('resize', layoutWindows);
+
+        /* --- llm.store window body: our own store family, from estate.json --- */
+        function loadStore() {
+            var el = document.getElementById('llmstore-body'); if (!el) return;
+            el.innerHTML = '<p>&gt; reading the store index…</p>';
+            if (location.protocol === 'file:') { el.innerHTML = '<p>&gt; needs http</p>'; return }
+            fetch('estate.json', { cache: 'no-cache' })
+                .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json() })
+                .then(function (d) {
+                    var rows = (d.surfaces || []).filter(function (x) {
+                        return /store/i.test((x.url || '') + ' ' + (x.id || '') + ' ' + (x.category || ''));
+                    });
+                    rows.sort(function (a, b) { return b.bytes - a.bytes });
+                    if (!rows.length) { el.innerHTML = '<p>&gt; no store surfaces</p>'; return }
+                    el.innerHTML = '<p>&gt; ' + rows.length + ' store surfaces · hosted by ' +
+                        (rows[0].url || '').replace(/^\//, '') + '</p>' +
+                        rows.slice(0, 12).map(function (x) {
+                            return '<div style="display:flex;justify-content:space-between;gap:8px">' +
+                                '<span> ' + (x.url || '').replace(/^\//, '') + '</span>' +
+                                '<span style="opacity:.6">' + (x.bytes / 1024).toFixed(0) + ' KB</span></div>';
+                        }).join('') +
+                        '<p style="opacity:.7;margin-top:8px">&gt; <a href="llm-store.html" ' +
+                        'style="color:var(--secondary-color,#ff9d00)">open llm-store.html</a></p>';
+                })
+                .catch(function (e) { el.innerHTML = '<p>&gt; store index unreadable (' + e.message + ')</p>'; });
+        }
+
         /* --- start the measured telemetry, after every handler above is defined --- */
         measureStatus();
         setInterval(measureStatus, 5000);
+        layoutWindows(); loadStore();
+        /* the desktop is hidden until the boot finishes — relayout once it has size */
+        setTimeout(layoutWindows, 700);
+        setTimeout(layoutWindows, 2200);
 
     </script>
 
