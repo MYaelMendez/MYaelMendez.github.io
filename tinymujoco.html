@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>tinyMUJOCO · robot_face — the live face tablet</title>
+<meta name="description" content="tinyMUJOCO — the robot_face tablet live in the browser: gaze, blink, eight visemes, seven states, on the Asimov head link. Measured note: the estate GLBs carry no node transforms, so the 26 links are shown as the chain the tablet mounts, or raw.">
+<link rel="canonical" href="https://myaelmendez.github.io/tinymujoco.html">
+<link rel="icon" href="./favicon.svg">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-hi:#ffda83;--neon:#00ff9d;--cyan:#70dcff;--purple:#b98cff;
+--magenta:#ff2d78;--ink:#e8e6df;--muted:#6f6a5c;--line:rgba(212,175,55,.18)}
+:root[data-theme="day"]{--void:#f5f2ea;--ink:#1a1a1a;--muted:#6f6a5c;--line:rgba(0,0,0,.12)}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow:hidden}
+#scene{position:fixed;inset:0;z-index:0}
+.bar{position:fixed;z-index:3;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;
+ gap:10px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--line);font-size:10px;
+ letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;background:rgba(5,5,5,.72);backdrop-filter:blur(6px)}
+.bar .b1{color:var(--gold);font-weight:700;text-transform:none}
+.bar .live{display:flex;align-items:center;gap:6px;color:var(--neon)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.bar button{background:transparent;border:1px solid var(--line);color:var(--muted);font:inherit;font-size:9px;
+ letter-spacing:1px;text-transform:uppercase;padding:4px 8px;cursor:pointer}
+.bar button:hover{color:var(--gold);border-color:var(--gold)}
+.hud{position:fixed;z-index:3;left:16px;bottom:16px;border:1px solid var(--line);background:rgba(5,5,5,.78);
+ backdrop-filter:blur(6px);padding:12px 14px;min-width:230px;font-size:11px;line-height:1.75;color:var(--muted)}
+.hud b{color:var(--gold);font-weight:400}
+.hud .st{font-size:15px;color:var(--gold);letter-spacing:.1em;font-weight:700}
+.hud .row{display:flex;justify-content:space-between;gap:14px}
+.hud .row span:last-child{color:var(--ink)}
+.hud .vis{display:flex;gap:3px;margin-top:6px}
+.hud .vis u{width:14px;height:5px;border-radius:3px;background:var(--line);text-decoration:none}
+.hud .vis u.on{background:var(--neon);box-shadow:0 0 6px rgba(0,255,157,.5)}
+.states{position:fixed;z-index:3;right:16px;bottom:16px;display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.states button{background:rgba(5,5,5,.78);border:1px solid var(--line);color:var(--muted);font:inherit;font-size:10px;
+ letter-spacing:.08em;padding:6px 10px;cursor:pointer;text-transform:uppercase;backdrop-filter:blur(6px)}
+.states button:hover{color:var(--gold);border-color:var(--gold)}
+.states button.on{color:var(--void);background:var(--gold);border-color:var(--gold);font-weight:700}
+.hint{position:fixed;z-index:3;top:54px;left:50%;transform:translateX(-50%);font-size:9px;letter-spacing:.12em;
+ color:var(--muted);text-transform:uppercase;background:rgba(5,5,5,.6);padding:5px 10px;border:1px solid var(--line);
+ white-space:nowrap}
+#boot{position:fixed;z-index:4;inset:0;display:grid;place-items:center;background:var(--void);transition:opacity .5s}
+#boot pre{font-size:12px;line-height:1.9;color:var(--muted);text-align:left}
+#boot .g{color:var(--gold)}#boot .ok{color:var(--neon)}#boot .m{color:var(--magenta)}
+: root[data-theme="day"] .bar,:root[data-theme="day"] .hud,:root[data-theme="day"] .states button{background:rgba(245,242,234,.9)}
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+
+<div class="bar">
+  <span class="b1">tinyMUJOCO · robot_face</span>
+  <span class="live"><span class="dot"></span><span id="meshstate">loading the CAD</span></span>
+  <span><button id="view-toggle" type="button">◉ face</button> <button id="theme-toggle" type="button">◐ theme</button></span>
+</div>
+
+<div class="hint" id="hint">drag to orbit · wheel to zoom · click the face to cycle state · keys 1-7</div>
+
+<div class="hud" id="hud">
+  <div class="st" id="h-state">IDLE</div>
+  <div class="vis" id="h-vis"></div>
+  <div class="row"><span>viseme</span><span id="h-viseme">0 · rest</span></div>
+  <div class="row"><span>gaze</span><span id="h-gaze">0.00 , 0.00</span></div>
+  <div class="row"><span>blink</span><span id="h-blink">0.00</span></div>
+  <div class="row"><span>charge</span><span id="h-charge">0.00</span></div>
+  <div class="row"><span>model</span><span id="h-model">—</span></div>
+  <div class="row"><span>links</span><span id="h-links">—</span></div>
+  <div class="row"><span>face</span><span id="h-face">—</span></div>
+</div>
+
+<div class="states" id="states"></div>
+
+<div id="boot"><pre id="bootlog"></pre></div>
+
+<script type="importmap">
+{"imports":{"three":"./assets/vendor/three.module.js"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from './assets/vendor/GLTFLoader.js';
+
+const $ = id => document.getElementById(id);
+const boot = [];
+function blog(t, c) { boot.push(`<span class="${c || ''}">${t}</span>`); $('bootlog').innerHTML = boot.join('\n'); }
+
+/* ── theme ── */
+let _theme = 'night';
+try { _theme = localStorage.getItem('ae-theme') || 'night'; } catch (e) {}
+function applyTheme(t) { document.documentElement.setAttribute('data-theme', t);
+  try { localStorage.setItem('ae-theme', t); } catch (e) {} }
+applyTheme(_theme);
+$('theme-toggle').addEventListener('click', () => {
+  _theme = (_theme === 'night') ? 'day' : 'night'; applyTheme(_theme);
+});
+$('view-toggle').addEventListener('click', () => {
+  viewMode = (viewMode === 'head') ? 'links' : 'head';
+  const showAll = viewMode === 'links';
+  scene.traverse(o => { if (o.isMesh && o.userData.isLink !== false) o.visible = showAll ? true : HEAD_CHAIN.has(o.name); });
+  if (viewMode === 'head') frameHead(); else frameLinks();
+  $('view-toggle').textContent = viewMode === 'head' ? '◉ face' : '◎ all 26 links';
+  window.__view = () => [viewMode, +dist.toFixed(3),
+    target.toArray().map(n => +n.toFixed(3)),
+    bodyBox ? bodyBox.getSize(new THREE.Vector3()).toArray().map(n => +n.toFixed(3)) : null];
+});
+
+/* ── the face spec — ported from C:/æ/agents/robot_face2.py ── */
+const VISEMES = [
+  [0.62, 0.05, 0.5, 0.0], [0.55, 0.03, 0.5, 0.0], [0.52, 0.62, 0.8, 1.0],
+  [0.86, 0.26, 0.3, 0.5], [0.74, 0.12, 0.2, 0.2], [0.34, 0.52, 1.0, 0.9],
+  [0.24, 0.34, 1.0, 0.7], [0.66, 0.14, 0.3, 0.3]];
+const VISEME_NAMES = ['rest', 'M/B/P', 'A', 'E', 'I', 'O', 'U', 'F/V'];
+const STATE_EXPR = {
+  IDLE: [0.0, 0.0, 0.85], LISTENING: [0.35, 0.25, 1.0], SPEAKING: [0.05, 0.30, 1.0],
+  THINKING: [0.55, -0.10, 0.75], AWAITING_APPROVAL: [0.30, 0.0, 0.95],
+  APPROVED: [0.45, 0.75, 1.0], REFUSED: [-0.85, -0.65, 0.70]};
+const STATE_ORDER = Object.keys(STATE_EXPR);
+
+let FW = 512, FH = 640;
+const fc = document.createElement('canvas'); fc.width = FW; fc.height = FH;
+const fx = fc.getContext('2d');
+
+function rr(d, box, r, fill, stroke, lw) {
+  const [x0, y0, x1, y1] = box;
+  d.beginPath();
+  d.moveTo(x0 + r, y0);
+  d.arcTo(x1, y0, x1, y1, r); d.arcTo(x1, y1, x0, y1, r);
+  d.arcTo(x0, y1, x0, y0, r); d.arcTo(x0, y0, x1, y0, r);
+  d.closePath();
+  if (fill) { d.fillStyle = fill; d.fill(); }
+  if (stroke) { d.strokeStyle = stroke; d.lineWidth = lw || 1; d.stroke(); }
+}
+function mouth(d, cx, cy, mw, mh, curve, rgb, rnd, openness) {
+  const col = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},`;
+  if (Math.abs(curve) < 0.12 || openness > 0.45) {
+    rr(d, [cx - mw / 2, cy - mh / 2, cx + mw / 2, cy + mh / 2], mh / 2 * rnd, col + '0.92)');
+    if (openness > 0.45 && mh > 6) {
+      d.fillStyle = 'rgba(0,0,0,0.55)';
+      d.fillRect(cx - mw / 2 + mh * 0.18, cy - mh / 2 + mh * 0.22,
+                 mw - mh * 0.36, mh * 0.30);
+    }
+    return;
+  }
+  // curved mouth: a thick parabolic polyline — curvature is what reads as approve/refuse
+  const k = curve * mh * 1.5, N = 22, th = Math.max(3, mh * 0.34);
+  d.beginPath();
+  for (let i = 0; i <= N; i++) {
+    const t = i / N, x = cx - mw / 2 + mw * t;
+    const y = cy - k * (2 * t - 1) * (2 * t - 1) + k;
+    if (i === 0) d.moveTo(x, y - th / 2); else d.lineTo(x, y - th / 2);
+  }
+  for (let i = N; i >= 0; i--) {
+    const t = i / N, x = cx - mw / 2 + mw * t;
+    const y = cy - k * (2 * t - 1) * (2 * t - 1) + k;
+    d.lineTo(x, y + th / 2);
+  }
+  d.closePath(); d.fillStyle = col + '0.92)'; d.fill();
+}
+
+/* ── state ── */
+let state = 'IDLE', viseme = 0, blink = 0, charge = 0.72;
+let gaze = { x: 0, y: 0 }, gazeT = { x: 0, y: 0 };
+let headNode = null, faceMesh = null, faceTex = null, faceMat = null;
+let faceScale = 0.13, headBox = null;
+
+function drawFace() {
+  const W = FW, H = FH, rgb = [212, 175, 55];
+  const col = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},`;
+  fx.clearRect(0, 0, W, H);
+  const pad = 0.02 * W, bez = [pad, pad, W - pad, H - pad];
+  rr(fx, bez, 0.09 * H, 'rgba(15,16,19,0.95)', col + '1)', Math.max(1, 0.014 * H));
+  const ins = 0.035 * W, scr = [bez[0] + ins, bez[1] + ins, bez[2] - ins, bez[3] - ins];
+  rr(fx, scr, 0.07 * H, 'rgba(5,7,10,1)');
+  // lit-panel falloff
+  const g = fx.createLinearGradient(0, scr[1], 0, scr[3]);
+  g.addColorStop(0, col + '0.10)'); g.addColorStop(1, col + '0)');
+  fx.fillStyle = g; fx.fillRect(scr[0], scr[1], scr[2] - scr[0], scr[3] - scr[1]);
+  // scanlines
+  fx.strokeStyle = col + '0.05)'; fx.lineWidth = 1;
+  for (let y = scr[1]; y < scr[3]; y += Math.max(2, 0.018 * H)) {
+    fx.beginPath(); fx.moveTo(scr[0], y); fx.lineTo(scr[2], y); fx.stroke();
+  }
+  const [bt, mc, eo] = STATE_EXPR[state];
+  const cx = W / 2, cy = H / 2, sw = scr[2] - scr[0], sh = scr[3] - scr[1];
+  // eyes
+  const ew = 0.24 * sw, eh = 0.26 * sh, eyeY = cy - 0.13 * sh, eyeDX = 0.20 * sw;
+  const openh = Math.max(0.02 * sh, eh * eo * (1 - 0.93 * blink));
+  for (const sx of [-1, 1]) {
+    const ex = cx + sx * eyeDX;
+    rr(fx, [ex - ew / 2, eyeY - openh / 2, ex + ew / 2, eyeY + openh / 2], openh / 2, col + '0.94)');
+    if (blink < 0.5 && openh > 0.06 * sh) {
+      const gx = ex + gaze.x * ew * 0.20, gy = eyeY + gaze.y * openh * 0.18;
+      const pr = Math.min(ew, openh) * 0.30;
+      fx.beginPath(); fx.arc(gx, gy, pr, 0, 7); fx.fillStyle = 'rgba(6,8,10,0.92)'; fx.fill();
+      const hr = pr * 0.34;
+      fx.beginPath(); fx.arc(gx - pr * 0.34, gy - pr * 0.36, hr, 0, 7);
+      fx.fillStyle = 'rgba(255,255,255,0.82)'; fx.fill();
+    }
+  }
+  // brows
+  fx.strokeStyle = col + '0.69)'; fx.lineWidth = Math.max(2, 0.022 * sh); fx.lineCap = 'round';
+  for (const sx of [-1, 1]) {
+    const bx = cx + sx * eyeDX, by = eyeY - eh * 0.85 - bt * 0.02 * sh;
+    const tilt = bt * 0.05 * sh * sx * (state === 'REFUSED' ? -1 : 1);
+    fx.beginPath(); fx.moveTo(bx - ew * 0.46, by + tilt); fx.lineTo(bx + ew * 0.46, by - tilt); fx.stroke();
+  }
+  // mouth
+  const [wf, hf, rnd, op] = VISEMES[Math.max(0, Math.min(7, viseme | 0))];
+  mouth(fx, cx, cy + 0.22 * sh, 0.46 * sw * wf, Math.max(0.022 * sh, 0.30 * sh * hf), mc, rgb, rnd, op);
+  // charge arc
+  const x0 = scr[0] + 0.07 * sw, x1 = scr[2] - 0.07 * sw, by = scr[3] - 0.055 * sh;
+  const lw = Math.max(2, 0.022 * sh);
+  fx.strokeStyle = col + '0.22)'; fx.lineWidth = lw;
+  fx.beginPath(); fx.moveTo(x0, by); fx.lineTo(x1, by); fx.stroke();
+  fx.strokeStyle = col + '0.88)';
+  fx.beginPath(); fx.moveTo(x0, by); fx.lineTo(x0 + (x1 - x0) * Math.max(0, Math.min(1, charge)), by); fx.stroke();
+  // status dot
+  fx.beginPath(); fx.arc(scr[2] - 0.05 * sw, scr[1] + 0.05 * sh, 0.016 * sh, 0, 7);
+  fx.fillStyle = col + '0.82)'; fx.fill();
+  if (faceTex) faceTex.needsUpdate = true;
+}
+
+/* ── three.js scene ── */
+const canvas = $('scene');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x050505);
+const camera = new THREE.PerspectiveCamera(38, 1, 0.05, 100);
+
+scene.add(new THREE.HemisphereLight(0xfff2d0, 0x0a0f0c, 0.85));
+const key = new THREE.DirectionalLight(0xffe6b0, 2.1); key.position.set(2.2, 1.6, 2.6); scene.add(key);
+const rim = new THREE.DirectionalLight(0x00ff9d, 1.15); rim.position.set(-2.4, 0.9, -2.0); scene.add(rim);
+const fill = new THREE.DirectionalLight(0x70dcff, 0.55); fill.position.set(-1.2, -0.6, 2.2); scene.add(fill);
+
+const grid = new THREE.GridHelper(6, 24, 0x2a2620, 0x161410);
+grid.position.y = -0.001; scene.add(grid);
+
+let target = new THREE.Vector3(0, 0.85, 0);
+let az = 25 * Math.PI / 180, el = -3 * Math.PI / 180, dist = 2.6;
+let bodyBox = null, viewMode = 'head';
+function frameLinks() {
+  if (!bodyBox) return;
+  const c = new THREE.Vector3(); bodyBox.getCenter(c);
+  const s = new THREE.Vector3(); bodyBox.getSize(s);
+  target.set(c.x, c.y, c.z);
+  dist = Math.max(1.0, s.length() * 1.9);
+  az = 25 * Math.PI / 180;
+}
+function frameHead() {
+  if (!headBox) return;
+  const c = new THREE.Vector3(); headBox.getCenter(c);
+  const s = new THREE.Vector3(); headBox.getSize(s);
+  target.set(c.x, c.y, c.z);
+  dist = Math.max(0.85, s.length() * 2.1);
+  az = 25 * Math.PI / 180;
+}
+function place() {
+  const d = dist * Math.cos(el);
+  camera.position.set(target.x + d * Math.cos(az), target.y + dist * Math.sin(el), target.z + d * Math.sin(az));
+  camera.lookAt(target);
+}
+function resize() {
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+
+/* drag orbit + wheel zoom */
+let dragging = false, px = 0, py = 0;
+canvas.addEventListener('pointerdown', e => { dragging = true; px = e.clientX; py = e.clientY; });
+addEventListener('pointerup', () => dragging = false);
+addEventListener('pointermove', e => {
+  gazeT.x = (e.clientX / innerWidth) * 2 - 1;
+  gazeT.y = -((e.clientY / innerHeight) * 2 - 1);
+  if (!dragging) return;
+  az -= (e.clientX - px) * 0.006; el += (e.clientY - py) * 0.004;
+  el = Math.max(-0.9, Math.min(0.9, el));
+  px = e.clientX; py = e.clientY;
+});
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  dist = Math.max(0.7, Math.min(6, dist * (1 + Math.sign(e.deltaY) * 0.08)));
+}, { passive: false });
+
+/* ── load the CAD ── */
+blog('&gt; tinymujoco · loading the CAD', 'g');
+new GLTFLoader().load('./assets/gltf/asimov-web.glb', gltf => {
+  const root = gltf.scene;
+  root.traverse(o => {
+    if (o.isMesh) {
+      o.userData.isLink = true;
+      o.material = new THREE.MeshStandardMaterial({
+        color: 0x2a2f36, metalness: 0.85, roughness: 0.34,
+        emissive: 0x0a0d10, emissiveIntensity: 0.5
+      });
+      o.castShadow = o.receiveShadow = false;
+    }
+  });
+  scene.add(root);
+
+  let links = 0; root.traverse(o => { if (o.isMesh) links++; });
+  scene.updateMatrixWorld(true);
+  // MEASURED: every node in these GLBs is a scene root with no translation,
+  // rotation or scale, so the 26 link meshes all sit at the origin. A "whole
+  // body" render of them is a pile, not a robot. Show the kinematic chain the
+  // face tablet actually mounts, and name the finding on the door.
+  const HEAD_CHAIN = new Set(['pelvis_link', 'waist_yaw_link', 'neck_yaw_link', 'neck_pitch_link']);
+  root.traverse(o => { if (o.isMesh) o.visible = HEAD_CHAIN.has(o.name); });
+  bodyBox = new THREE.Box3().setFromObject(root);
+  headNode = root.getObjectByName('neck_pitch_link');
+  const box = new THREE.Box3();
+  if (headNode) { box.setFromObject(headNode); }
+  else { box.setFromObject(root); }
+  headBox = box;
+
+  // the face tablet: flush on the head's front (+X), sized as a fraction of the head
+  const size = new THREE.Vector3(); box.getSize(size);
+  faceScale = Math.max(0.07, Math.min(0.16, size.z * 0.62));
+  const c = new THREE.Vector3(); box.getCenter(c);
+  const geo = new THREE.PlaneGeometry(faceScale, faceScale * (FH / FW));
+  faceTex = new THREE.CanvasTexture(fc);
+  faceTex.colorSpace = THREE.SRGBColorSpace;
+  faceTex.anisotropy = 4;
+  faceMat = new THREE.MeshBasicMaterial({ map: faceTex, transparent: true, side: THREE.DoubleSide,
+                                          toneMapped: false, depthWrite: false });
+  faceMesh = new THREE.Mesh(geo, faceMat);
+  faceMesh.position.set(c.x + size.x / 2 + 0.004, c.y + size.y * 0.06, c.z);
+  faceMesh.rotation.y = Math.PI / 2;
+  scene.add(faceMesh);
+
+  // frame the head — the face is the subject; the body is one click away
+  frameHead();
+  place();
+
+  $('h-links').textContent = links + ' meshes';
+  $('h-model').textContent = 'asimov-web.glb';
+  $('h-face').textContent = 'robot_face2 spec · ' + FW + '×' + FH;
+  $('meshstate').textContent = links + ' links · face live';
+  blog(`&gt; CAD loaded ................. ${links} meshes`, 'ok');
+  blog(`&gt; head body ................. ${headNode ? 'neck_pitch_link' : 'root'}`, 'c');
+  blog(`&gt; tablet sized .............. ${faceScale.toFixed(3)} m on the front`, 'c');
+  blog("&gt; ready. click the face, or press 1-7", '');
+  setTimeout(() => { $('boot').style.opacity = '0';
+    setTimeout(() => $('boot').remove(), 520); }, 900);
+}, undefined, err => {
+  blog('&gt; CAD load FAILED · ' + (err && err.message ? err.message : err), 'm');
+  $('meshstate').textContent = 'CAD failed';
+});
+
+/* ── states ── */
+const sbox = $('states');
+STATE_ORDER.forEach((s, i) => {
+  const b = document.createElement('button');
+  b.textContent = `${i + 1} ${s.toLowerCase().replace(/_/g, ' ')}`;
+  b.dataset.s = s;
+  b.addEventListener('click', () => setState(s));
+  sbox.appendChild(b);
+});
+function setState(s) {
+  if (!STATE_EXPR[s]) return;
+  state = s;
+  document.querySelectorAll('#states button').forEach(b =>
+    b.classList.toggle('on', b.dataset.s === s));
+  $('h-state').textContent = s;
+  blog(`  face state → ${s}`, s === 'REFUSED' ? 'm' : 'g');
+}
+function cycleState(d) {
+  const i = (STATE_ORDER.indexOf(state) + d + STATE_ORDER.length) % STATE_ORDER.length;
+  setState(STATE_ORDER[i]);
+}
+addEventListener('keydown', e => {
+  const n = parseInt(e.key, 10);
+  if (n >= 1 && n <= STATE_ORDER.length) setState(STATE_ORDER[n - 1]);
+  else if (e.key === ' ') { e.preventDefault(); cycleState(1); }
+});
+/* click near the face cycles the state */
+canvas.addEventListener('click', e => {
+  if (Math.abs(e.clientX - innerWidth / 2) < innerWidth * 0.25 &&
+      Math.abs(e.clientY - innerHeight / 2) < innerHeight * 0.35) cycleState(1);
+});
+
+/* viseme pips */
+const vbox = $('h-vis');
+for (let i = 0; i < 8; i++) { const u = document.createElement('u'); vbox.appendChild(u); }
+
+/* ── loop ── */
+const clock = new THREE.Clock();
+let visClock = 0, nextBlink = 1.2, blinkStart = -1;
+function tick() {
+  const dt = Math.min(0.05, clock.getDelta());
+  const t = clock.elapsedTime;
+
+  // gaze eases toward the pointer
+  gaze.x += (gazeT.x - gaze.x) * 0.06;
+  gaze.y += (gazeT.y - gaze.y) * 0.06;
+
+  // occasional blink — scheduled, not rhythmic: a blink every 2.5-6.5 s
+  if (t > nextBlink) { blinkStart = t; nextBlink = t + 2.5 + Math.random() * 4; }
+  const bc = t - blinkStart;
+  blink = bc < 0.16 ? Math.sin(Math.PI * bc / 0.16) : 0;
+
+  // visemes cycle only while speaking
+  if (state === 'SPEAKING') {
+    visClock += dt;
+    const step = Math.floor(visClock * 9) % 8;
+    if (step !== viseme) { viseme = step; }
+  } else if (viseme !== 0) viseme = 0;
+
+  charge = 0.5 + 0.5 * Math.sin(t * 0.16);
+
+  drawFace();
+
+  // keep the tablet glued to the head if the model ever moves
+  if (faceMesh && headBox) {
+    const c = new THREE.Vector3(); headBox.getCenter(c);
+    const s = new THREE.Vector3(); headBox.getSize(s);
+    faceMesh.position.set(c.x + s.x / 2 + 0.004, c.y + s.y * 0.06, c.z);
+  }
+
+  $('h-viseme').textContent = viseme + ' · ' + VISEME_NAMES[viseme];
+  $('h-gaze').textContent = gaze.x.toFixed(2) + ' , ' + gaze.y.toFixed(2);
+  $('h-blink').textContent = blink.toFixed(2);
+  $('h-charge').textContent = charge.toFixed(2);
+  [...vbox.children].forEach((u, i) => u.classList.toggle('on', i === viseme));
+
+  place();
+  renderer.render(scene, camera);
+  window.__frames = (window.__frames || 0) + 1;
+}
+/* rAF is the clock, but a throttled or background tab suspends it — a robot
+   tablet must keep breathing. If rAF stalls, a 33 ms timer drives the same step. */
+let lastStep = 0;
+function drive() {
+  const now = performance.now();
+  if (now - lastStep < 20) return;
+  lastStep = now;
+  tick();
+}
+function raf() { drive(); requestAnimationFrame(raf); }
+requestAnimationFrame(raf);
+setInterval(drive, 33);
+resize();
+drawFace();
+tick();
+</script>
+</body>
+</html>
