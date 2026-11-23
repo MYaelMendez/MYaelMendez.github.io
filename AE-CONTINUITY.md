@@ -3076,3 +3076,19 @@ shows it — the surface cannot claim a pass the instrument did not make.
   frame 0 is an `@asimovVOICE · face spec` **gold-ring state readout — not the Asimov
   head**. Same class of defect as the one corrected on `robots.html`. Awaiting the
   operator's call.
+
+## 72. the hero face panel is the pet (2026-11-23)
+
+- Operator: *"swap it for our asimov pet of course."* The hero's left panel was
+  `asimov-face-video.mp4` — an `@asimovVOICE · face spec` gold-ring readout, not the robot
+  (flagged in §71). It is now `<div class="heroPet" id="heroPet">`: the same
+  `picoasimov-atlas.webp` CAD sprite, 192×208, caption `asimov-cad · the pet · 1,007,041
+  tris · 9 states · 6 frames`.
+- The driver became a factory, `aeMountPet(el, {onChange})`, so the hero pet and the
+  `the pet` section share **one** implementation — no second copy. `window.aeHeroPet` and
+  `window.aePet` are the two mounts.
+- **Verified:** both mounts render 192×208; the old `<video>` is gone from the DOM;
+  `aeHeroPet.set('waving')` moves the hero sprite to row 3 (`-624px`); the hero shows the
+  3D robot (gold head, grey body) and the new caption. No layout breakage.
+- **Declared, not measured:** the frame loop (headless rAF throttled).
+- `asimov-face-video.mp4` is left on disk, now unreferenced by the home.

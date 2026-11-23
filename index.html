@@ -44,10 +44,16 @@ html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'J
 .td{color:var(--gold);opacity:.35}
 .core{flex:1 0 auto;display:flex;flex-direction:column;align-items:center;gap:13px;text-align:center;padding:20px 0}
 .heroflex{display:flex;gap:22px;align-items:center;justify-content:center;width:100%;flex-wrap:wrap}
-.facecover{flex:none;width:clamp(150px,26vw,210px);border:1px solid var(--line);border-radius:14px;
- overflow:hidden;background:#020504;box-shadow:0 0 40px rgba(212,175,55,.10)}
-.facecover video{display:block;width:100%;height:auto;aspect-ratio:9/16;
- background:linear-gradient(180deg,#0b0e12 0%,#05070a 55%,#080a0d 100%)}
+.facecover{flex:none;width:clamp(200px,26vw,220px);border:1px solid var(--line);border-radius:14px;
+ overflow:hidden;background:#020504;box-shadow:0 0 40px rgba(212,175,55,.10);
+ display:flex;flex-direction:column}
+.heroPetStage{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+.heroPet{width:192px;height:208px;image-rendering:pixelated;cursor:pointer;
+ background-image:url('picoasimov-atlas.webp');background-repeat:no-repeat;background-position:0 0;
+ filter:drop-shadow(0 0 18px rgba(212,175,55,.32))}
+.heroPet.bump{transform:translateY(-5px) scale(1.03)}
+.heroPetFloor{position:absolute;bottom:16%;left:50%;transform:translateX(-50%);width:120px;height:6px;
+ border-radius:50%;background:radial-gradient(ellipse,rgba(212,175,55,.3),transparent 70%);pointer-events:none}
 .facecover figcaption{font-size:8px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;
  padding:7px 9px;border-top:1px solid var(--line);line-height:1.6;text-align:left}
 .herotext{flex:1;min-width:260px;display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:left}
@@ -198,9 +204,12 @@ img.support-card:hover{border-color:var(--gold);box-shadow:0 0 26px rgba(212,175
   <div class="core">
     <div class="heroflex">
       <figure class="facecover">
-        <video autoplay loop muted playsinline preload="auto" src="asimov-face-video.mp4"
-               aria-label="robot_face — the real face tablet, looping"></video>
-        <figcaption>robot_face · the real one<br>720 × 1280 · 3.0 s · silent by design</figcaption>
+        <div class="heroPetStage">
+          <div class="heroPet" id="heroPet" role="img" tabindex="0"
+               aria-label="the asimov pet — the real Menlo Asimov-1 CAD, live in the hero. Activate to wave."></div>
+          <div class="heroPetFloor"></div>
+        </div>
+        <figcaption>asimov-cad · the pet<br>1,007,041 tris · 9 states · 6 frames</figcaption>
       </figure>
       <div class="herotext">
         <div class="glyph" id="glyph" title="the æ boy · the institutional mark" role="img"
@@ -545,41 +554,52 @@ window.aeEstate={state:function(){return E?{surfaces:E.counts,generated:E.genera
 })();
 </script>
 <script>
-/* the pet — the real Asimov CAD atlas, driven from the DOM */
-(function(){
-  var pet=document.getElementById('pet'); if(!pet) return;
-  /* the nine states, in atlas row order — exactly pet.json's receipt */
-  var STATES=['idle','running-right','running-left','waving','jumping','failed','waiting','running','review'];
-  var FRAMES=6, DW=192, DH=208, FPS=12;   /* pet.json: frames_per_state = 6 (cols 6-7 are empty) */
+/* the pet — the real Asimov CAD atlas, driven from the DOM.
+   one factory, any number of mounts: the hero pet and the section pet. */
+var PET_STATES=['idle','running-right','running-left','waving','jumping','failed','waiting','running','review'];
+function aeMountPet(el, opts){
+  if(!el) return null;
+  opts=opts||{};
+  /* pet.json: cell 192×208, frames_per_state 6 (columns 6-7 unused) */
+  var FRAMES=6, DW=192, DH=208, FPS=opts.fps||12;
   var state='idle', frame=0;
-  var rowOf=function(s){var i=STATES.indexOf(s); return i<0?0:i;};
-  function draw(){ pet.style.backgroundPosition=(-frame*DW)+'px '+(-rowOf(state)*DH)+'px'; }
+  function rowOf(s){var i=PET_STATES.indexOf(s); return i<0?0:i;}
+  function draw(){ el.style.backgroundPosition=(-frame*DW)+'px '+(-rowOf(state)*DH)+'px'; }
+  el.style.backgroundSize=(1536)+'px '+(1872)+'px';
+  el.style.width=DW+'px'; el.style.height=DH+'px';
   var last=0;
   function step(now){
     if(now-last>1000/FPS){ last=now; frame=(frame+1)%FRAMES; draw(); }
     requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
-  var label=document.getElementById('pet-state');
   function setState(s){
-    if(STATES.indexOf(s)<0) return;
+    if(PET_STATES.indexOf(s)<0) return;
     state=s; frame=0; draw();
-    if(label)label.textContent=s;
-    var bs=document.querySelectorAll('#pet-chips button');
-    for(var i=0;i<bs.length;i++) bs[i].classList.toggle('on', bs[i].getAttribute('data-state')===s);
+    if(opts.onChange) opts.onChange(s);
   }
-  var chips=document.getElementById('pet-chips');
-  if(chips) chips.addEventListener('click',function(e){
-    var b=e.target; while(b && b.tagName!=='BUTTON' && b!==chips) b=b.parentNode;
-    if(b && b.getAttribute) setState(b.getAttribute('data-state'));
-  });
-  function bump(){ pet.classList.add('bump'); clearTimeout(pet._b);
-    pet._b=setTimeout(function(){pet.classList.remove('bump')},200); }
-  pet.addEventListener('click',function(){ bump(); setState('waving'); });
-  pet.addEventListener('keydown',function(e){
+  function bump(){ el.classList.add('bump'); clearTimeout(el._b);
+    el._b=setTimeout(function(){el.classList.remove('bump')},200); }
+  el.addEventListener('click',function(){ bump(); setState('waving'); });
+  el.addEventListener('keydown',function(e){
     if(e.key==='Enter'||e.key===' '){ e.preventDefault(); bump(); setState('waving'); }});
   setState('idle');
-  window.aePet={set:setState, get:function(){return state}};
+  return {set:setState, get:function(){return state}};
+}
+(function(){
+  var label=document.getElementById('pet-state');
+  var hero=aeMountPet(document.getElementById('heroPet'));
+  var pet=aeMountPet(document.getElementById('pet'), {onChange:function(s){
+    if(label) label.textContent=s;
+    var bs=document.querySelectorAll('#pet-chips button');
+    for(var i=0;i<bs.length;i++) bs[i].classList.toggle('on', bs[i].getAttribute('data-state')===s);
+  }});
+  window.aePet=pet; window.aeHeroPet=hero;
+  var chips=document.getElementById('pet-chips');
+  if(chips && pet) chips.addEventListener('click',function(e){
+    var b=e.target; while(b && b.tagName!=='BUTTON' && b!==chips) b=b.parentNode;
+    if(b && b.getAttribute) pet.set(b.getAttribute('data-state'));
+  });
 })();
 </script>
 </body>
