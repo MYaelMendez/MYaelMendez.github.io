@@ -3339,3 +3339,17 @@ The robotics console's numbers were fabricated: `randomizeStatus()` drew CPU and
   typography row updates without throwing.
 - **Rule applied:** nothing typed. A console that fakes its own sensors is the exact
   anti-pattern the estate exists to refuse.
+
+## 79. >_æ://neuromitosis/mech-hermes/llm_store — build specification (2026-11-23)
+
+- New spec at `neuromitosis/mech-hermes/llm_store.md` (7,918 B): the store as a **module the
+  conductor serves**, not a page you visit. Three layers — SURFACE (mech-os console) → BRIDGE
+  (loopback relay, the only boundary) → CONDUCTOR (Hermes) → LEAF (Victus RTX / CUDA_MCP²).
+- Contains: existing-assets table (all measured), module list, three contracts
+  (receipt hash chain / catalogue entry / plan), the six-step conductor loop, governance,
+  8 build stages with measurable gates, white-label rollout, verification, and §11 blockers.
+- **Citations re-verified before committing:** `policies/0818/MEASURED.md` carries
+  `4.1868`, `shuffle`, `38.8`, `37.7`; `pet/pet.json` carries `1,007,041` and `1963ee54`;
+  the broker is loopback-bound at `127.0.0.1:7890`.
+- Every number is either cited to an artifact or marked `PROPOSED`. Nothing built by this
+  document; it is the contract for the build.
