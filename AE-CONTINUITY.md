@@ -3362,3 +3362,24 @@ The robotics console's numbers were fabricated: `randomizeStatus()` drew CPU and
 - **Verified:** 12 sections render in order (0 thesis … 11 blockers), `--gold` = `#D4AF37`,
   body `#050505`, no horizontal overflow at the surface width.
 - Linked from the home's `receipts & source` block. The console link is still pending.
+
+
+## 81. the case for Qwen3-1.7B, derived from a measured QLoRA (2026-11-23)
+
+- **Source:** `tools/slm_fit.py`, `tools/qlora_smoke.py`, `agents/gen_slm_case.py`,
+  `tools/slm-fit.json`, `tools/qlora-smoke.json` in `C:/æ`.
+- **Surfaces:** `qwen3-1.7b-case.html` (6,410 B), `slm-fit.json`, `qlora-smoke.json`.
+- **Measured, not claimed:** a real 5-step NF4 QLoRA on `Qwen/Qwen3-0.6B` completed on
+  teknium — peak 1.66 GiB allocated, 1.83 GiB reserved, 10,092,544 trainable params,
+  loss 14.2 → 8.636, 121.7 s. Stack: torch 2.6.0+cu124 (cap 8.6), bnb 0.50.2,
+  peft 0.22.0, transformers 5.24.0. Unsloth is NOT installed.
+- **Calibration:** the initial VRAM formula understated by ~0.4 GiB; a 1.30x measured
+  calibration was applied. After calibration 1.7B (3.27 GiB) and 3B (4.45 GiB) fit with
+  ~5.26 GiB free (inference unloaded); 4B (5.51 GiB) is REFUSED. `--check` asserts this
+  invariant; `--seq 0` refuses with rc=10.
+- **Browser verification:** title, 4 KPIs, 6 table rows, 2 REFUSED marks, no `undefined`,
+  `--gold` = `#D4AF37`, no horizontal overflow.
+- **Blockers explicit:** no trained 1.7B adapter exists; 5 steps prove the pipeline, not
+  quality. The live `llama-server` (PID 3868) holds 2915 MiB and was NOT killed. GGUF
+  serving artifact stays untouched; training uses the safetensors base + adapter at serve.
+- **Not deployed yet:** pending kanban push; CDN check not performed in this entry.

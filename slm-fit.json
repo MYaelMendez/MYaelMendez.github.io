@@ -1,0 +1,109 @@
+{
+  "gpu": {
+    "name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+    "total_mib": 6144,
+    "used_mib": 2915,
+    "free_mib": 3087,
+    "driver": "610.91"
+  },
+  "available_gib": 3.01,
+  "available_if_unloaded_gib": 5.26,
+  "seq": 512,
+  "batch": 1,
+  "assumptions": {
+    "cuda_context_gib": 0.45,
+    "nf4_bytes_per_param": 0.55,
+    "lora_fraction": 0.01,
+    "lora_bytes_per_param": 6.0,
+    "act_gib_per_b_param_seq512_bs1": 0.3,
+    "safety_gib": 0.3,
+    "measured_calibration": 1.3
+  },
+  "ranking": [
+    {
+      "repo": "meta-llama/Llama-3.2-3B-Instruct",
+      "params_b": 3.21,
+      "license": "llama3.2",
+      "note": "gated; most tunable per Distilabs",
+      "weights_nf4_gib": 1.64,
+      "lora_gib": 0.18,
+      "activations_gib": 0.96,
+      "total_gib": 4.6,
+      "fits": false,
+      "fits_if_unloaded": true,
+      "headroom_gib": -1.59,
+      "headroom_unloaded_gib": 0.66
+    },
+    {
+      "repo": "HuggingFaceTB/SmolLM3-3B",
+      "params_b": 3.08,
+      "license": "apache-2.0",
+      "note": "fully-open research, strongest 3B reasoning",
+      "weights_nf4_gib": 1.58,
+      "lora_gib": 0.17,
+      "activations_gib": 0.92,
+      "total_gib": 4.45,
+      "fits": false,
+      "fits_if_unloaded": true,
+      "headroom_gib": -1.44,
+      "headroom_unloaded_gib": 0.81
+    },
+    {
+      "repo": "Qwen/Qwen3-1.7B",
+      "params_b": 2.03,
+      "license": "apache-2.0",
+      "note": "BEST BALANCE: fast iteration, structured output",
+      "weights_nf4_gib": 1.04,
+      "lora_gib": 0.11,
+      "activations_gib": 0.61,
+      "total_gib": 3.27,
+      "fits": false,
+      "fits_if_unloaded": true,
+      "headroom_gib": -0.26,
+      "headroom_unloaded_gib": 1.99
+    },
+    {
+      "repo": "google/gemma-3-1b-it",
+      "params_b": 1.0,
+      "license": "gemma",
+      "note": "gated; narrow but cheap",
+      "weights_nf4_gib": 0.51,
+      "lora_gib": 0.06,
+      "activations_gib": 0.3,
+      "total_gib": 2.1,
+      "fits": true,
+      "fits_if_unloaded": true,
+      "headroom_gib": 0.91,
+      "headroom_unloaded_gib": 3.16
+    },
+    {
+      "repo": "Qwen/Qwen3-0.6B",
+      "params_b": 0.6,
+      "license": "apache-2.0",
+      "note": "tiny / routing / classification",
+      "weights_nf4_gib": 0.31,
+      "lora_gib": 0.03,
+      "activations_gib": 0.18,
+      "total_gib": 1.65,
+      "fits": true,
+      "fits_if_unloaded": true,
+      "headroom_gib": 1.36,
+      "headroom_unloaded_gib": 3.61
+    },
+    {
+      "repo": "Qwen/Qwen3-4B",
+      "params_b": 4.02,
+      "license": "apache-2.0",
+      "note": "capability ceiling, tight on 6GB",
+      "weights_nf4_gib": 2.06,
+      "lora_gib": 0.22,
+      "activations_gib": 1.21,
+      "total_gib": 5.51,
+      "fits": false,
+      "fits_if_unloaded": false,
+      "headroom_gib": -2.5,
+      "headroom_unloaded_gib": -0.25
+    }
+  ],
+  "evidence": "PROVEN: GPU + live VRAM. ESTIMATED: training VRAM (needs a run to prove)."
+}

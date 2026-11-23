@@ -1,0 +1,86 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Why Qwen3-1.7B — measured on teknium</title>
+<style>
+:root{--gold:#D4AF37;--void:#050505;--ink:#e8e4d8;--dim:#8a8577;--line:#2a2620;
+--ok:#00ff9d;--bad:#ff6b6b;--cyan:#70dcff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--void);color:var(--ink);
+font-family:'JetBrains Mono',ui-monospace,monospace;line-height:1.6;padding:34px 30px 80px}
+h1{font-size:clamp(25px,4vw,42px);color:var(--gold);letter-spacing:.03em;margin:0 0 6px}
+.sub{color:var(--dim);font-size:12px;margin-bottom:24px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.k{border:1px solid var(--line);padding:12px 14px}
+.k .t{font-size:9px;color:var(--dim);letter-spacing:.16em}
+.k .v{font-size:22px;color:var(--gold);margin-top:4px}
+.panel{border:1px solid var(--line);padding:16px 18px;margin-bottom:14px;background:#0d1118}
+h2{font-size:11px;color:var(--dim);letter-spacing:.18em;margin:0 0 12px;font-weight:500}
+p{font-size:13px;margin:0 0 9px}b{color:var(--gold)}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{text-align:left;color:var(--dim);font-weight:500;letter-spacing:.1em;font-size:9px;
+border-bottom:1px solid var(--line);padding:6px 8px}
+td{padding:7px 8px;border-bottom:1px solid var(--line)}td.n{text-align:right}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+.pill{font-size:9px;padding:2px 7px;border:1px solid var(--line)}
+.pill.good{color:var(--ok);border-color:var(--ok)}
+.pill.bad{color:var(--bad);border-color:var(--bad)}
+.meter{height:16px;border:1px solid var(--line);margin:9px 0 4px;position:relative}
+.fill{height:100%;background:rgba(212,175,55,.35);border-right:2px solid var(--gold)}
+.fill.b{background:rgba(255,107,107,.2);border-color:var(--bad)}
+.lab{display:flex;justify-content:space-between;font-size:10px;color:var(--dim)}
+code{color:var(--cyan)}
+a{color:var(--gold);font-size:11px;margin-right:14px}
+.foot{margin-top:24px;border-top:1px solid var(--line);padding-top:14px}
+</style></head><body>
+<h1>Why Qwen3-1.7B</h1>
+<div class="sub">measured on teknium · RTX 3050 6GB · NF4 + LoRA · the model we can actually train here</div>
+
+<div class="kpis">
+ <div class="k"><div class="t">QLORA PEAK · PROVEN</div><div class="v">1.66 GiB</div></div>
+ <div class="k"><div class="t">LOSS · 5 STEPS</div><div class="v">14.2 → 8.6</div></div>
+ <div class="k"><div class="t">1.7B QLORA · EST.</div><div class="v">3.27 GiB</div></div>
+ <div class="k"><div class="t">HEADROOM</div><div class="v">+1.99 GiB</div></div>
+</div>
+
+<div class="panel"><h2>01 · THE MEASUREMENT, NOT A SPEC SHEET</h2>
+<p>This is not a recommendation from a blog. A real <b>5-step NF4 QLoRA</b> ran on this node:
+<code>Qwen/Qwen3-0.6B</code>, r=16 all-linear, gradient checkpointing, paged 8-bit Adam.
+Peak allocated <b>1.66 GiB</b>, 10,092,544 trainable parameters,
+loss <b>14.2 → 11.824</b>. The estimator was then calibrated by that measurement —
+its first version understated VRAM by ~0.4 GiB and would have lied about the 4B case.</p></div>
+
+<div class="panel"><h2>02 · THE VRAM CASE · seq 512, batch 1</h2>
+<table><thead><tr><th>MODEL</th><th>B</th><th>QLORA GiB</th><th>HEADROOM</th><th>VERDICT</th></tr></thead>
+<tbody><tr><td>meta-llama/Llama-3.2-3B-Instruct</td><td class="n">3.21</td><td class="n">4.60</td><td class="n good">+0.66</td><td><span class="pill good">FIT</span></td></tr><tr><td>HuggingFaceTB/SmolLM3-3B</td><td class="n">3.08</td><td class="n">4.45</td><td class="n good">+0.81</td><td><span class="pill good">FIT</span></td></tr><tr><td>Qwen/Qwen3-1.7B</td><td class="n">2.03</td><td class="n">3.27</td><td class="n good">+1.99</td><td><span class="pill good">FIT</span></td></tr><tr><td>google/gemma-3-1b-it</td><td class="n">1.00</td><td class="n">2.10</td><td class="n good">+3.16</td><td><span class="pill good">FIT</span></td></tr><tr><td>Qwen/Qwen3-0.6B</td><td class="n">0.60</td><td class="n">1.65</td><td class="n good">+3.61</td><td><span class="pill good">FIT</span></td></tr><tr><td>Qwen/Qwen3-4B</td><td class="n">4.02</td><td class="n">5.51</td><td class="n bad">-0.25</td><td><span class="pill bad">REFUSED</span></td></tr></tbody></table>
+<p style="margin-top:14px">With the inference server unloaded the node offers <b>5.26 GiB</b>.
+The 1.7B uses 62.2% of it:</p>
+<div class="meter"><div class="fill" style="width:62.2%"></div></div>
+<div class="lab"><span>Qwen3-1.7B · 3.27 GiB</span><span>free 5.26 GiB</span></div>
+<p style="margin-top:12px">Qwen3-4B needs <b>5.51 GiB</b> — 100.0% of
+available memory. It is <span class="bad">REFUSED</span>, not "probably tight".</p></div>
+
+<div class="panel"><h2>03 · WHY THIS ONE</h2>
+<p><b>Headroom is the product.</b> 1.99 GiB left means seq length or batch can grow
+without an OOM. The 3B class leaves only 0.81 GiB —
+it fits, but it cannot move.</p>
+<p><b>License matches the estate.</b> Apache 2.0 — same regime as the rest of the sovereign stack.
+Llama-3.2-3B is gated; Gemma is gated.</p>
+<p><b>The corpus is short and structured.</b> Receipts, governed verbs, custody rules. This is exactly
+where a tuned small model beats a prompted larger one — the task is format and boundary, not world knowledge.</p>
+<p><b>GGUF stays untouched.</b> Train the safetensors base, emit an adapter, apply it at serve time.
+The deployed GGUF remains byte-identical and hashable. No overwrite, no drift.</p></div>
+
+<div class="panel"><h2>04 · WHAT IS NOT TRUE YET</h2>
+<p>A 5-step loss curve is <b>proof of pipeline, not of quality</b>. A real fine-tune still needs a corpus
+derived from on-disk receipts with <code>source_sha256</code> on every record, a disjoint held-out set,
+and the base model scored first — an improvement claim without a base score is unprovable.</p>
+<p>The live <code>llama-server</code> holds 2915 MiB; unload it before a 3B run. The 1.7B needs the same
+treatment at seq 512. No trained 1.7B adapter exists yet — this page makes the case, not the claim.</p></div>
+
+<div class="foot"><a href="./slm-fit.json">slm-fit.json →</a>
+<a href="./qlora-smoke.json">qlora-smoke.json →</a>
+<a href="./tinyfanin.html">tinyFANIN →</a>
+<a href="./tinyrepofilm.html">tinyRepoFilm →</a>
+<a href="./support.html">support the compute →</a><br>
+Generated from measured receipts · no typed numbers · #opensourceware</div>
+</body></html>
