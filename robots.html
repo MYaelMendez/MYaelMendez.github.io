@@ -528,6 +528,7 @@ if(vt)vt.addEventListener('click',function(){
 });
 var gl=document.getElementById('glyph');
 if(gl)gl.addEventListener('click',function(){
+  if(face){ if(face.paused){ var p=face.play(); if(p&&p.catch)p.catch(function(){}); } }
   if(!VOICE_ON&&vt)vt.click();
   else speak(fleetLine());
 });
