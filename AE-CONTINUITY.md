@@ -3235,3 +3235,31 @@ These are the renders of the atlas's own `walk.json` / `turn.json` verb sources.
 **Blocker for the pet work:** the harness speaks only the 0818 contract, so every checkpoint
 after it is measured through a bespoke adapter — the numbers are real but not comparable
 without a contract-aware harness.
+
+
+---
+
+## 2026-11-22 — DEPLOY stamp: cada superficie dice qué commit la generó
+
+**source** — `C:\æ\agents\kanban_push.py` (escribe `deploy.json` tras cada push) ·
+`deploy.json` (nuevo) · `ae/control/index-live.html` (`#deploy-chip`, `renderDeploy()`,
+fila PROVENANCE).
+
+**Qué resolvía.** Ninguna superficie decía si estaba fresca; el operador leyó una consola
+vieja sin poder distinguirla de la corriente. Ahora `kanban_push` escribe, tras cada push,
+`{schema, branch, content_sha, pushed_at, task, detail}` y la consola lo muestra como
+`DEPLOY f445e7a · 4 min` (sha + edad), con el sha completo y la tarea en el `title`.
+
+**Por qué el sello va en un commit aparte.** Un sello no puede vivir dentro del commit que
+nombra sin regresión infinita; por eso registra `content_sha` (el commit que contiene los
+cambios) y se commitea y empuja justo después. **Declarado, no oculto.**
+
+**tests** — push real: contenido `f445e7a` → sello `b8aea9c (content f445e7a)`; `deploy.json`
+commiteado con ese sha. `browser_exec` local: `#deploy-chip` = `DEPLOY f226398 · 3 min` con
+`title` completo; PROVENANCE ganó `MEDIDO deploy …`.
+
+**Bug encontrado al cablear** — `const d` duplicado en `renderProvenance` (el deploy y el
+contador de declaradas): un solo SyntaxError tumbaba **todo** el script de la consola. Lo
+cazó el `node --check`, no el navegador; `const` se renombró a `dep`.
+
+**deploy** — push vía `kanban_push.py` (que ahora sella); el CDN va detrás.
