@@ -89,7 +89,7 @@ main{min-height:0;overflow-y:auto;padding:8px;display:grid;align-content:start;g
 
 <header><div class="top"><div><h1 class="brand">>_æææ://|||</h1><div class="tiny">æᵃᵉ · COMMAND & CONTROL · LIVE</div></div><div class="actions"><a href="../" title="Main æ environment" aria-label="æ entorno principal">🏢</a><a href="../economy/" title="Economic network" aria-label="Red económica">☕</a><a href="https://github.com/MYaelMendez/llm.store" title="Source and RFC" aria-label="Fuente y RFC">📦</a><a href="../../origin/" title="æ coordinate origin" aria-label="Origen de coordenadas æ">◎</a><button id="theme-toggle" type="button" class="hdr-btn" title="Theme">◐ theme</button><button id="env-toggle" type="button" class="hdr-btn" title="Environment">⬡ env</button><span role="img" aria-label="Confianza humana" title="Human trust and connection">🤝</span></div></div>
 
-<div class="status"><span class="chip" id="coord-chip" title="æ coordinate · this console is x14:y0:z0:æ0">x14:y0:z0:æ0</span><span class="chip warn">MODE: LOCAL DEMO</span><span class="chip live">COMPILER: LIVE (LOCAL)</span><span class="chip mood" id="mood-hud">MOOD: THINK</span><span class="chip">PRINCIPAL: HUMAN</span><span class="chip">AUTHORITY: LOCKED</span><span class="chip live" id="feeds-chip" title="live feeds: manifest · board · queue · mood">FEEDS: 0/4</span><a class="chip" id="agent-chip" href="../../.well-known/agent-card.json" target="_blank" rel="noopener" title="agent card — the machine surface other agents fetch first">AGENT CARD · …</a><span class="chip" id="prov-chip" title="provenance — medido (respaldado por un artefacto) vs declarado (fijo en la página)">PROV: …</span></div></header>
+<div class="status"><span class="chip" id="coord-chip" title="æ coordinate · this console is x14:y0:z0:æ0">x14:y0:z0:æ0</span><span class="chip warn">MODE: LOCAL DEMO</span><span class="chip live">COMPILER: LIVE (LOCAL)</span><span class="chip mood" id="mood-hud">MOOD: THINK</span><span class="chip">PRINCIPAL: HUMAN</span><span class="chip" id="auth-chip" title="authority — derived from agent-pledge.json, cross-checked against pledge.html">AUTHORITY: …</span><span class="chip live" id="feeds-chip" title="live feeds: manifest · board · queue · mood">FEEDS: 0/4</span><a class="chip" id="agent-chip" href="../../.well-known/agent-card.json" target="_blank" rel="noopener" title="agent card — the machine surface other agents fetch first">AGENT CARD · …</a><span class="chip" id="prov-chip" title="provenance — medido (respaldado por un artefacto) vs declarado (fijo en la página)">PROV: …</span></div></header>
 
 <form class="command" id="cmd"><input id="intent" aria-label="Command intent" placeholder=">_ enter intent · find <recurso> · æ://<name> · x1:y0:z0:æ0" autocomplete="off"><button type="submit">COMPILE ↵</button></form>
 
@@ -241,7 +241,6 @@ window.aeMarkFeed=markFeed;
 const DECLARED_CLAIMS=[
  ['4 rails','texto fijo en index-live.html'],
  ['12 floors','LIFE TOWER hardcodeado'],
- ['AUTHORITY: LOCKED','chip estático — sin gate que lo respalde'],
  ['PRINCIPAL: HUMAN','chip estático'],
 ];
 function renderProvenance(){
@@ -258,6 +257,8 @@ function renderProvenance(){
     ['m',(window.__kanbanSub||'kanban —'),'board/state.json'],
     ['m','peticiones externas '+ext,'medida en esta carga'],
   ];
+  const a=window.__authState;
+  if(a)rows.push(['m','authority '+a.ok+'/'+a.total,'agent-pledge.json · '+a.keys+' clave(s) · pledge.html '+(a.coherent?'coherente':'INCOHERENTE')]);
   DECLARED_CLAIMS.forEach(d=>rows.push(['d',d[0],d[1]]));
   b.innerHTML=rows.map(r=>'<div class="pr"><span class="k '+r[0]+'">'+(r[0]==='m'?'MEDIDO':'DECLARADO')+'</span><b>'+r[1]+'</b><small>'+r[2]+'</small></div>').join('');
   const n=rows.filter(r=>r[0]==='m').length,d=rows.length-n;
@@ -265,6 +266,25 @@ function renderProvenance(){
   const chip=$('prov-chip');if(chip)chip.textContent='PROV: '+n+'M · '+d+'D';
 }
 window.aeRenderProvenance=renderProvenance;
+// authority is DERIVED: roster + cross-check that pledge.html still publishes the same hash
+function renderAuthority(){
+  const chip=$('auth-chip');
+  Promise.all([
+    fetch('../../agent-pledge.json',{cache:'no-cache'}).then(r=>r.json()).catch(()=>null),
+    fetch('../../pledge.html',{cache:'no-cache'}).then(r=>r.text()).catch(()=>null)
+  ]).then(([roster,html])=>{
+    window.__pledge=roster||null;
+    if(!roster||!roster.total){window.__authState=null;if(chip){chip.textContent='AUTHORITY: SIN ROSTER';chip.classList.add('warn');chip.classList.remove('live')}renderProvenance();return}
+    const ok=roster.committed,total=roster.total,keys=roster.distinct_keys;
+    const coherent=!!(html&&roster.pledge_hash&&html.indexOf(roster.pledge_hash)>=0);
+    const locked=(ok===total&&total>0);
+    window.__authState={ok:ok,total:total,keys:keys,coherent:coherent};
+    if(chip){chip.textContent='AUTHORITY: '+(locked?'LOCKED':'LAPSED '+ok+'/'+total)+(coherent?'':' · pledge.html INCOHERENTE');
+      chip.classList.toggle('live',locked&&coherent);chip.classList.toggle('warn',!(locked&&coherent));
+      chip.title='pledge '+ok+'/'+total+' current · '+keys+' clave(s) · hash '+(coherent?'coherente con pledge.html':'NO hallado en pledge.html')}
+    renderProvenance();
+  });
+}
 function deriveRails(){
   const set=(id,t)=>{const e=document.getElementById(id);if(!e)return;const p=e.querySelector('.empty');if(p)p.textContent=t};
   set('intent-rail','0 intents this session · awaiting principal');
@@ -274,7 +294,7 @@ function deriveRails(){
 }
 function setTicker(){const t=$('ops-ticker');if(!t)return;const A=(window.AE_ATLAS||[]).length;const M=window.__aeManifest||0;t.textContent='INTENT → DISCOVER → COMPILE → AUTHORIZE → EXECUTE → WITNESS → RETURN · ATLAS '+A+' ADDRESSES · MANIFEST '+M+' CAPABILITIES · AUTHORITY public → published → operator → custody · COMPILER ||| ^ ↺ LIVE LOCAL · ';}
 setTicker();
-renderProvenance();deriveRails();
+renderProvenance();deriveRails();renderAuthority();
 // agent card — what another agent fetches first; show its real counts here too
 fetch('../../.well-known/agent-card.json',{cache:'no-cache'}).then(r=>r.json()).then(c=>{const n=c.counts||{};const chip=$('agent-chip');if(chip)chip.textContent='AGENT CARD · '+n.capabilities+' CAPS · '+n.tools+' TOOLS · '+n.skills+' SKILLS';window.__aeCard=c}).catch(()=>{});
 fetch('../../capability-manifest.json',{cache:'no-cache'}).then(r=>r.json()).then(m=>{if(!m||!m.capabilities){markFeed('manifest',false);return}window.__aeManifest=m.capabilities.length;markFeed('manifest',true);setTicker()}).catch(()=>{markFeed('manifest',false);setTicker()});
