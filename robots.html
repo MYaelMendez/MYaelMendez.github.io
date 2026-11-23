@@ -47,6 +47,11 @@ html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'J
 .glyph .face{width:100%;height:100%;display:block;overflow:visible;filter:drop-shadow(0 0 16px rgba(212,175,55,.5))}
 .glyph .head{width:100%;height:100%;object-fit:contain;display:block;border-radius:14px;
  filter:drop-shadow(0 0 18px rgba(212,175,55,.42)) saturate(1.05)}
+.glyph video{width:100%;height:100%;object-fit:cover;display:block;border-radius:14px;
+ filter:drop-shadow(0 0 18px rgba(212,175,55,.42)) saturate(1.05);background:#050505}
+.glyph video.playing + .head{display:none}
+.glyph.speaking{outline:2px solid var(--neon);outline-offset:3px;border-radius:16px;
+ box-shadow:0 0 26px rgba(0,255,157,.28)}
 .face .ring{fill:none;stroke:var(--gold);stroke-width:4;opacity:.95}
 .face .halo{fill:none;stroke:var(--gold);stroke-width:1;opacity:.3;stroke-dasharray:2 6;transform-box:fill-box;
  transform-origin:center;animation:halo 26s linear infinite}
@@ -146,7 +151,8 @@ footer a{color:var(--gold)}
   <div class="bar">
     <span class="b1">wætz:// · THE POLICY OVER robot://</span>
     <span class="live"><span class="dot"></span><span id="meshstate">index loading</span></span>
-    <span><button id="theme-toggle" type="button">◐ theme</button></span>
+    <span><button id="theme-toggle" type="button">◐ theme</button>
+      <button id="voice-toggle" type="button" title="the head speaks — browser speech for now, tiny-voca ONNX when wired">◈ voice</button></span>
   </div>
   <div class="ticker">
     <span class="tlabel"><span class="dot"></span>robot://live</span>
@@ -154,8 +160,10 @@ footer a{color:var(--gold)}
   </div>
 
   <div class="core">
-    <div class="glyph" id="glyph" title="wætz:// · the fleet · the Asimov head" role="button" tabindex="0" aria-label="wætz:// fleet mark — Asimov head">
-      <img class="head" src="asimov-front-square.png" alt="Asimov humanoid head — front view, 25 DOF, CERN-OHL-S-2.0"/>
+    <div class="glyph" id="glyph" title="wætz:// · the fleet · the Asimov head — click to hear the fleet" role="button" tabindex="0" aria-label="wætz:// fleet mark — Asimov head, animated">
+      <video id="face" autoplay loop muted playsinline poster="asimov-front-square.png"
+             aria-hidden="true"><source src="asimov-robot-face-holomesh-916.mp4" type="video/mp4"/></video>
+      <img class="head" id="faceFallback" src="asimov-front-square.png" alt="Asimov humanoid head — front view, 25 DOF, CERN-OHL-S-2.0"/>
     </div>
 
     <div class="coord" id="coord"><span class="r">robot</span><span class="sep">://</span><span class="v" id="cv">fleet</span><span class="sep">/</span><span class="a" id="ca">status</span></div>
@@ -480,6 +488,58 @@ fetch('robots/index.json',{cache:'no-cache'})
     $('gaps').innerHTML='<b>index failed.</b> The fleet index could not be read: '+e+
       '. Nothing on this page is measured until it loads.';
  });
+
+/* ── the head: animated, spoken, DOM-aware ─────────────────────── */
+var VOICE_ON=false;
+var face=document.getElementById('face');
+if(face){face.addEventListener('playing',function(){face.classList.add('playing')});
+  face.addEventListener('error',function(){face.classList.remove('playing')});}
+function speak(text){
+  if(!VOICE_ON||!text)return;
+  try{
+    if(!('speechSynthesis' in window))return;
+    speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(text);u.rate=0.96;u.pitch=0.72;
+    var g=document.getElementById('glyph');
+    u.onstart=function(){if(g)g.classList.add('speaking')};
+    u.onend=u.onerror=function(){if(g)g.classList.remove('speaking')};
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function fleetLine(){
+  if(!INDEX)return '';
+  var p=ROSTER.filter(function(n){return (INDEX.robots[n]||{}).present}).length;
+  var rec=ROSTER.reduce(function(a,n){return a+((INDEX.robots[n]||{}).ledger_receipts||0)},0);
+  return 'watz online. '+p+' robots present. '+rec+' receipts. seven verbs.';
+}
+function robotLine(n){
+  var r=(INDEX&&INDEX.robots[n])||{};
+  if(!r.present)return 'robot '+n+' — no dialect. a gap, named.';
+  return 'robot '+n+'. '+r.verbs+' verbs. '+(r.rule||'');
+}
+var vt=document.getElementById('voice-toggle');
+if(vt)vt.addEventListener('click',function(){
+  VOICE_ON=!VOICE_ON;
+  vt.textContent=VOICE_ON?'◈ voice on':'◈ voice';
+  vt.style.color=VOICE_ON?'var(--neon)':'';
+  if(!VOICE_ON){try{speechSynthesis.cancel()}catch(e){}}
+  log('  voice '+(VOICE_ON?'ON — the head will speak':'off'),'c');
+  if(VOICE_ON)speak(fleetLine());
+});
+var gl=document.getElementById('glyph');
+if(gl)gl.addEventListener('click',function(){
+  if(!VOICE_ON&&vt)vt.click();
+  else speak(fleetLine());
+});
+/* the head reacts to the DOM: it speaks the rule of whatever is selected */
+var _openRobot=openRobot;
+openRobot=function(n){
+  _openRobot(n);
+  var r=(INDEX&&INDEX.robots[n])||{};
+  speak(robotLine(n));
+  var gl2=document.getElementById('glyph');
+  if(gl2){gl2.style.animationDuration='0';setTimeout(function(){gl2.style.animationDuration=''},320);}
+};
 
 renderLegend();tickRender();drawGrid();tickScroll();
 /* ── the merge addendum: reported vs measured ───────────────────── */
