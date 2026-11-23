@@ -106,14 +106,19 @@ footer a{color:var(--gold)}
     <div class="eyebrow">PROVENANCE · THE RECEIPT IS THE FACT</div>
     <h2>rendered from the CAD, not drawn</h2>
     <div class="kv">
-      <span>pet</span><b>asimov-cad · hermes-plugins/asimov-pet</b>
-      <span>triangles</span><b class="gold">1,007,041</b>
-      <span>atlas</span><b>1536 × 1872 · 8 cols × 9 rows of 192 × 208 · RGBA</b>
-      <span>frames</span><b>9 states × 6 · columns 6-7 unused</b>
-      <span>policy</span><b>Menlo/asimov1-locomotion-0818</b>
+      <span>pet</span><b id="k-pet">—</b>
+      <span>triangles</span><b class="gold" id="k-tris">—</b>
+      <span>triangles from</span><b id="k-tris-src">—</b>
+      <span>min opaque px</span><b id="k-mop">—</b>
+      <span>atlas</span><b id="k-atlas">—</b>
+      <span>cell</span><b id="k-cell">—</b>
+      <span>states</span><b id="k-states">—</b>
+      <span>frames</span><b id="k-frames">—</b>
+      <span>contract</span><b id="k-contract">typed fallback</b>
+      <span>policy</span><b id="k-policy-name">—</b>
       <span>policy sha256</span><b id="k-policy">—</b>
       <span>spritesheet sha256</span><b id="k-sheet">—</b>
-      <span>deterministic</span><b>same model + same traces → same bytes</b>
+      <span>deterministic</span><b id="k-determ">—</b>
     </div>
   </section>
 
@@ -121,8 +126,14 @@ footer a{color:var(--gold)}
   refused, and derives the rule himself. The body he wears is the Asimov CAD: 1,007,041 triangles
   of menloresearch/asimov-1, rasterised on the sovereign RTX 3050 with the shade pass writing
   alpha=0 where no triangle won the depth test, so it composites on any background.
-  <br><br><b>What it is not.</b> It is not a picture of the robot, and it is not animated by hand.
-  Every frame is the CAD at a policy pose. The hash is the receipt.</p>
+  <br><br><b>What this is not.</b> It is not a picture of the robot, and it is not animated by hand.
+  Every frame is the CAD at a policy pose. The hash is the receipt.<br><br>
+  <b>What it does not claim.</b> Nothing here is interpolated, extrapolated or
+  re-timed. The motion you see is exactly the frames the renderer wrote, at the
+  rate the atlas implies. If a state looks stiff, that is the CAD at those poses
+  — the page reports the contract, it does not vouch for the performance. And the
+  waveform is a synthetic voice envelope, not a recording: it is drawn so the pet
+  has something honest to show while it has nothing to say.</p>
 
   <div class="hint">click the pet · move the cursor · every state is a real CAD pose</div>
   <footer>
@@ -136,10 +147,15 @@ footer a{color:var(--gold)}
 const $ = id => document.getElementById(id);
 
 /* ── the atlas contract, read from pet.json ── */
-const ATLAS = [1536, 1872], FRAME = [192, 208], COLS = 8, ROWS = 9, FPS = 6;
-const STATES = ['idle','running-right','running-left','waving','jumping',
-                'failed','waiting','running','review'];
-const SCALE = 2, DW = FRAME[0] * SCALE, DH = FRAME[1] * SCALE;
+/* ── the atlas contract ──
+   The typed values below are a NAMED FALLBACK, not the source. pet/pet.json
+   carries the renderer's own receipt; when it loads, it overwrites every one
+   of these and the page says so. A surface must never hold two copies of a
+   number it claims to measure. */
+var ATLAS=[1536,1872], FRAME=[192,208], FRAMES_PER_STATE=6,
+    STATES=['idle','running-right','running-left','waving','jumping','failed','waiting','running','review'];
+var SCALE = 2, DW = FRAME[0]*SCALE, DH = FRAME[1]*SCALE;
+var CONTRACT_FROM = 'typed fallback';
 
 /* ── theme ── */
 let _theme = 'night';
@@ -155,6 +171,14 @@ $('theme-toggle').addEventListener('click', () => {
 const pet = $('pet');
 let state = 'idle', frame = 0;
 function rowOf(s){ const i = STATES.indexOf(s); return i < 0 ? 0 : i; }
+/* DW/DH and the background size all follow the contract — nothing typed twice */
+function syncContract(){
+  DW = FRAME[0]*SCALE; DH = FRAME[1]*SCALE;
+  pet.style.width = DW+'px'; pet.style.height = DH+'px';
+  pet.style.backgroundSize = (ATLAS[0]*SCALE)+'px '+(ATLAS[1]*SCALE)+'px';
+  $('k-atlas').textContent = ATLAS.join(' × ');
+  $('k-cell').textContent = FRAME.join(' × ');
+}
 function draw(){
   pet.style.backgroundPosition = `${-frame * DW}px ${-rowOf(state) * DH}px`;
   $('st-name').textContent = state;
@@ -169,14 +193,18 @@ function setState(s, quiet){
 }
 function bump(){ pet.classList.add('bump'); clearTimeout(pet._b); pet._b = setTimeout(() => pet.classList.remove('bump'), 200); }
 
-const chips = $('chips');
-STATES.forEach(s => {
-  const b = document.createElement('button');
-  b.textContent = s.replace(/-/g, ' ');
-  b.dataset.s = s;
-  b.addEventListener('click', () => setState(s));
-  chips.appendChild(b);
-});
+function buildChips(){
+  const chips = $('chips');
+  chips.innerHTML = '';
+  STATES.forEach(s => {
+    const b = document.createElement('button');
+    b.textContent = s.replace(/-/g, ' ');
+    b.dataset.s = s;
+    b.addEventListener('click', () => setState(s));
+    chips.appendChild(b);
+  });
+}
+buildChips();
 
 /* frame stepping — the atlas is a film strip, so the frames advance in order */
 let acc = 0, last = performance.now();
@@ -184,7 +212,7 @@ function step(now){
   const dt = Math.min(80, now - last); last = now;
   acc += dt;
   const hold = (state === 'idle' || state === 'waiting' || state === 'review') ? 190 : 110;
-  while (acc > hold){ acc -= hold; frame = (frame + 1) % FPS; draw(); }
+  while (acc > hold){ acc -= hold; frame = (frame + 1) % FRAMES_PER_STATE; draw(); }
   requestAnimationFrame(step);
 }
 requestAnimationFrame(step);
@@ -267,19 +295,46 @@ $('speak').addEventListener('click', () => {
   } catch (e) { /* audio is an addition, never a gate */ }
 });
 
-/* ── provenance, read from pet.json rather than typed ── */
+/* ── provenance AND contract, read from pet.json rather than typed ── */
 fetch('pet/pet.json').then(r => r.json()).then(d => {
   const r2 = d.receipt || {};
+
+  /* the contract itself comes from the receipt. If it disagrees with the
+     typed fallback above, the receipt wins and the page says where from. */
+  if (Array.isArray(r2.atlas)) ATLAS = r2.atlas.slice();
+  if (Array.isArray(r2.frame)) FRAME = r2.frame.slice();
+  if (r2.frames_per_state) FRAMES_PER_STATE = r2.frames_per_state;
+  if (Array.isArray(r2.states) && r2.states.length) {
+    STATES = r2.states.slice();
+    buildChips();
+  }
+  CONTRACT_FROM = 'pet/pet.json';
+  syncContract();
+  setState(state, true);
+
+  $('k-pet').textContent = `${d.id} · ${d.displayName} · by ${d.createdBy}`;
+  /* the triangle count is not in the receipt as a field; it is stated in the
+     description. Say which, rather than passing one number off as measured. */
+  const tm = /([\d,]+)\s+triangles/.exec(d.description || '');
+  $('k-tris').textContent = tm ? tm[1] : (r2.triangles != null ? r2.triangles : '—');
+  $('k-tris-src').textContent = tm ? 'receipt description' : (r2.triangles != null ? 'receipt field' : '—');
+  $('k-mop').textContent = r2.min_opaque_px != null ? String(r2.min_opaque_px) + ' (measured)' : '—';
+  $('k-states').textContent = `${STATES.length} · ` + STATES.join(' · ');
+  $('k-frames').textContent = `${FRAMES_PER_STATE} per state` +
+    (ATLAS[0] / FRAME[0] > FRAMES_PER_STATE ? ` · ${ATLAS[0]/FRAME[0] - FRAMES_PER_STATE} cols unused` : '');
+  $('k-contract').textContent = CONTRACT_FROM;
+  $('k-policy-name').textContent = r2.policy || '—';
   $('k-policy').textContent = (r2.policy_sha256 || '—').slice(0, 32) + '…';
   $('k-sheet').textContent = ((r2.host_spritesheet_sha256 || r2.spritesheet_sha256) || '—').slice(0, 32) + '…';
+  $('k-determ').textContent = r2.deterministic ? 'yes — same model + same traces → same bytes' : 'no';
   $('gen').textContent = `pet ${d.id} · ${d.displayName} · ${d.createdBy}`;
-  $('meshstate').textContent = `${(r2.states || STATES).length} states · hash-sealed`;
-}).catch(() => {
-  $('k-policy').textContent = '47f70691ecd5afda2933b2e6430d2375004c943…';
-  $('k-sheet').textContent = '1963ee54ad83601e39adac105117df8a44165e3…';
+  $('meshstate').textContent = `${STATES.length} states · contract from ${CONTRACT_FROM}`;
+}).catch(e => {
+  $('k-contract').textContent = 'typed fallback (pet/pet.json unreadable: ' + e + ')';
   $('gen').textContent = 'pet asimov-cad · Asimov CAD · tinygpu';
 });
 
+syncContract();
 draw();
 setState('idle', true);
 })();

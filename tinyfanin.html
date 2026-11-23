@@ -1,35 +1,123 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>tinyFANIN — N receipts → ONE truth</title><style>
-:root{--gold:#D4AF37;--void:#050505;--ink:#e8e4d8;--dim:#8a8577;--line:#2a2620;--ok:#00ff9d}
-*{box-sizing:border-box}body{margin:0;background:var(--void);color:var(--ink);
-font-family:'JetBrains Mono',ui-monospace,monospace;padding:32px 30px 70px;line-height:1.5}
+<title>tinyFANIN — N receipts → ONE truth</title>
+<meta name="description" content="tinyFANIN — N receipts folded into one truth by a hash chain. The page is a view of tinyfanin-truth.json and verifies the chain it renders: every prev links, and the head is the last chain.">
+<style>
+:root{--gold:#D4AF37;--void:#050505;--ink:#e8e4d8;--dim:#8a8577;--line:#2a2620;--ok:#00ff9d;--bad:#ff5f6b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--void);color:var(--ink);
+ font-family:'JetBrains Mono',ui-monospace,monospace;padding:32px 30px 70px;line-height:1.5}
 h1{font-size:30px;color:var(--gold);letter-spacing:.06em;margin:0}
 .sub{font-size:12px;color:var(--dim);margin-bottom:22px}
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
-.k{border:1px solid var(--line);padding:12px}.k .t{font-size:9px;color:var(--dim);letter-spacing:.14em}
-.k .v{font-size:23px;color:var(--gold);margin-top:4px}
+.k{border:1px solid var(--line);padding:12px}
+.k .t{font-size:9px;color:var(--dim);letter-spacing:.14em}
+.k .v{font-size:23px;color:var(--gold);margin-top:4px;word-break:break-all}
+.k .v.ok{color:var(--ok)} .k .v.bad{color:var(--bad)}
 .panel{border:1px solid var(--line);padding:14px 16px;margin-bottom:12px}
 h3{font-size:10px;color:var(--dim);letter-spacing:.18em;margin:0 0 10px;font-weight:500}
-.r{display:grid;grid-template-columns:1fr 150px 90px 150px;gap:10px;font-size:11px;padding:5px 0;border-bottom:1px solid var(--line)}
-.f{color:var(--ink)}.d{color:var(--gold)}.v{color:var(--dim)}.c{color:#70dcff}
-.tag{font-size:11px;color:var(--dim)}b{color:var(--gold)}
+.r{display:grid;grid-template-columns:1fr 150px 90px 150px;gap:10px;font-size:11px;
+ padding:5px 0;border-bottom:1px solid var(--line)}
+.r.head{font-weight:700}
+.f{color:var(--ink)} .d{color:var(--gold)} .v{color:var(--dim)} .c{color:#70dcff}
+.tag{font-size:11px;color:var(--dim);line-height:1.7}
+b{color:var(--gold);font-weight:700}
+.ok{color:var(--ok)} .bad{color:var(--bad)}
 a{color:var(--gold);font-size:11px;margin-right:14px}
+.note{font-size:10px;color:var(--dim);margin-top:10px;line-height:1.7}
 </style></head><body>
 <h1>tinyFANIN</h1>
 <div class="sub">N receipts → ONE truth · the number one skill, executable · no member skipped</div>
+
 <div class="kpis">
- <div class="k"><div class="t">MEMBERS FOLDED</div><div class="v">4</div></div>
- <div class="k"><div class="t">VERDICTS</div><div class="v">1</div></div>
- <div class="k"><div class="t">HEAD</div><div class="v">471a78f4f42d</div></div>
- <div class="k"><div class="t">SCHEMA</div><div class="v">1</div></div>
+ <div class="k"><div class="t">MEMBERS FOLDED</div><div class="v" id="k-members">—</div></div>
+ <div class="k"><div class="t">VERDICTS</div><div class="v" id="k-verdicts">—</div></div>
+ <div class="k"><div class="t">HEAD</div><div class="v" id="k-head">—</div></div>
+ <div class="k"><div class="t">CHAIN</div><div class="v" id="k-chain">—</div></div>
 </div>
-<div class="panel"><h3>INTENT</h3><div class="tag">the session, folded · source C:\Users\yaelm\AppData\Local\hermes\cache\scratch\fanin-demo</div></div>
-<div class="panel"><h3>THE FOLDED RECEIPTS · HASH CHAIN IN ORDER</h3><div class="r"><span class="f">openclaw.receipt.json</span><span class="d">ab93effa4a4ee084</span><span class="v">recorded</span><span class="c">56b0276b301d2abd</span></div><div class="r"><span class="f">github-institution.receipt.json</span><span class="d">befb0eb357377bdb</span><span class="v">recorded</span><span class="c">7788b4e36a8314a9</span></div><div class="r"><span class="f">ae-protocol-v3.receipt.json</span><span class="d">d52182499dab7a9b</span><span class="v">recorded</span><span class="c">ffd4c6f8c5c28f1f</span></div><div class="r"><span class="f">menlo-research.receipt.json</span><span class="d">e61a3363b99a4def</span><span class="v">recorded</span><span class="c">471a78f4f42d6aa8</span></div></div>
+
+<div class="panel"><h3>INTENT</h3><div class="tag" id="intent">loading…</div></div>
+
+<div class="panel"><h3>THE FOLD · HASH CHAIN IN ORDER</h3>
+  <div id="rows"><div class="tag">loading…</div></div>
+  <div class="note" id="verify"></div>
+</div>
+
 <div class="panel"><h3>THE RULE</h3>
-<div class="tag">A receipt without a measured digest is <b>REFUSED</b>, never skipped. A tampered digest fails <b>verify</b> with exit 10 and names the broken members. The head is the only truth; everything else is evidence.</div></div>
+<div class="tag">A receipt without a measured digest is <b>REFUSED</b>, never skipped.
+A tampered digest fails <b>verify</b> with exit 10 and names the broken members.
+The head is the only truth; everything else is evidence.</div>
+<div class="note">This page holds no numbers of its own — it renders
+<b>tinyfanin-truth.json</b> and then checks the chain it just rendered. If the JSON
+and the page ever disagree, the page is wrong.</div>
+</div>
+
 <div style="margin-top:16px">
  <a href="./tiny.html">constellation →</a><a href="./tinyae.html">registry →</a>
  <a href="./tinyrepofilm.html">tinyRepoFilm →</a><a href="./ae-protocol.html">æ protocol →</a>
  <a href="./tinyfanin-truth.json">truth JSON →</a></div>
+
+<script>
+fetch('tinyfanin-truth.json').then(function(r){
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  return r.json();
+}).then(function(d){
+  document.getElementById('k-members').textContent = d.members;
+  document.getElementById('k-verdicts').textContent = d.verdicts.join(' · ');
+  document.getElementById('k-head').textContent = (d.head||'').slice(0,16);
+  document.getElementById('intent').textContent =
+    (d.intent||'—') + ' · source ' + (d.source||'—');
+  document.getElementById('k-head').title = d.head || '';
+
+  var rs = d.receipts || [];
+  var rows = rs.map(function(r){
+    return '<div class="r"><span class="f">'+r.file+'</span>'+
+      '<span class="d">'+String(r.digest||'').slice(0,16)+'</span>'+
+      '<span class="v">'+r.verdict+'</span>'+
+      '<span class="c">'+String(r.chain||'').slice(0,16)+'</span></div>';
+  }).join('');
+  document.getElementById('rows').innerHTML = rows;
+
+  /* verify the chain the page just rendered — the page is a view, so the only
+     thing it can honestly claim is that the chain closes. */
+  var links = [], broken = [];
+  for (var i=1;i<rs.length;i++){
+    var ok = rs[i-1].chain === rs[i].prev;
+    links.push(ok);
+    if(!ok) broken.push(rs[i].file+' (prev does not match the previous chain)');
+  }
+  var lastChain = rs.length ? rs[rs.length-1].chain : '';
+  var headOk = !!d.head && !!lastChain &&
+               String(d.head).indexOf(String(lastChain)) === 0;
+  if(!headOk) broken.push('head is not the last chain');
+  var verdictsOk = rs.every(function(r){ return (d.verdicts||[]).indexOf(r.verdict) >= 0; });
+  if(!verdictsOk) broken.push('a receipt carries a verdict the truth does not list');
+  var membersOk = d.members === rs.length;
+  if(!membersOk) broken.push('members '+d.members+' but '+rs.length+' receipts listed');
+
+  var allOk = broken.length === 0;
+  var chainEl = document.getElementById('k-chain');
+  chainOk(chainEl, allOk, membersOk ? links.every(Boolean) : false);
+  document.getElementById('verify').innerHTML =
+    (allOk
+      ? '<span class="ok">CHAIN VERIFIED</span> · '+rs.length+' members · '+
+        links.length+' links closed · head is the last chain · verdicts consistent'
+      : '<span class="bad">CHAIN BROKEN</span> · '+broken.join(' · ')) +
+    '<br>derived '+(d.derived_at||'?')+' · schema '+(d.schema||'?');
+
+  window.tinyFanin = {truth:d, verify:{ok:allOk, broken:broken, links:links,
+    headOk:headOk, verdictsOk:verdictsOk, membersOk:membersOk}};
+}).catch(function(e){
+  document.getElementById('rows').innerHTML =
+    '<div class="tag"><span class="bad">TRUTH UNREADABLE</span> · '+e+'</div>';
+  document.getElementById('verify').textContent =
+    'Nothing here is measured until tinyfanin-truth.json loads.';
+  document.getElementById('k-head').textContent = 'unread';
+  window.tinyFanin = {truth:null, verify:{ok:false, broken:[String(e)]}};
+});
+function chainOk(el, allOk, linksOk){
+  el.textContent = allOk ? 'CLOSED' : 'BROKEN';
+  el.className = 'v ' + (allOk ? 'ok' : 'bad');
+}
+</script>
 </body></html>
