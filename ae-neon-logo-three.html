@@ -1,0 +1,35 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>æ · neon logo · three.js</title>
+<style>html,body{margin:0;background:#000;overflow:hidden}
+#s{position:absolute;inset:0}</style></head>
+<body><div id="s"></div>
+<script type="module">
+import * as THREE from './assets/vendor/three.module.js';
+const W=746, H=1017;
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
+renderer.setPixelRatio(devicePixelRatio); renderer.setSize(innerWidth,innerHeight);
+renderer.setClearColor(0x000000,1);
+document.getElementById('s').appendChild(renderer.domElement);
+const scene=new THREE.Scene();
+function fit(){const a=innerWidth/innerHeight,ca=W/H;
+  const vw=a>ca?H*a:W, vh=a>ca?H:W/a;
+  return new THREE.OrthographicCamera(-vw/2,vw/2,vh/2,-vh/2,0.1,100);}
+const cam=fit(); cam.position.z=10;
+async function load(url){
+  const img=new Image(); img.crossOrigin='anonymous';
+  await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=url;});
+  const t=new THREE.Texture(img); t.needsUpdate=true;
+  t.colorSpace=THREE.SRGBColorSpace;
+  return t;
+}
+try{
+  const tex=await load('assets/brand/ae-neon-logo-clone.svg');
+  const mat=new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false});
+  scene.add(new THREE.Mesh(new THREE.PlaneGeometry(W,H),mat));
+  renderer.render(scene,cam);
+  window.__neonReady=true; window.__neonSource='svg-texture';
+}catch(e){
+  document.getElementById('s').textContent='REFUSED — texture load failed: '+e;
+  window.__neonReady=false;
+}
+</script></body></html>
