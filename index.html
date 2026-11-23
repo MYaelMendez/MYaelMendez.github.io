@@ -141,6 +141,22 @@ section.block{width:100%;margin-top:26px;text-align:left}
 footer{margin-top:10px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);
  font-size:10px;letter-spacing:.08em;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
 footer a{color:var(--gold)}
+/* the pet — the real Asimov CAD, on the home */
+.pet-stage{display:flex;flex-direction:column;align-items:center;gap:10px;margin:6px 0 4px}
+.pet{width:192px;height:208px;image-rendering:pixelated;background-image:url('picoasimov-atlas.webp');
+  background-repeat:no-repeat;background-size:1536px 1872px;background-position:0 0;
+  filter:drop-shadow(0 0 20px rgba(212,175,55,.3));transition:transform .18s;cursor:pointer}
+.pet.bump{transform:translateY(-5px) scale(1.03)}
+.pet-floor{width:140px;height:8px;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(212,175,55,.3),transparent 70%)}
+.pet-state{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);min-height:1.2em}
+.pet-state b{color:var(--gold);font-weight:400}
+.pet-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.pet-chips button{background:transparent;border:1px solid var(--line);color:var(--muted);
+  font:inherit;font-size:9px;letter-spacing:.1em;padding:5px 10px;cursor:pointer;text-transform:uppercase}
+.pet-chips button:hover{color:var(--gold);border-color:var(--gold)}
+.pet-chips button.on{color:var(--void);background:var(--gold);border-color:var(--gold);font-weight:700}
+
 img.support-card{display:block;width:100%;max-width:880px;height:auto;
   border:1px solid var(--line);border-radius:3px;background:#050505;
   transition:border-color .2s,box-shadow .2s,transform .2s}
@@ -304,6 +320,27 @@ img.support-card:hover{border-color:var(--gold);box-shadow:0 0 26px rgba(212,175
     </ul>
     <p class="lede" style="margin-top:10px">★ The machine gate measures pixels. The human gate judges
       rightness. Both are required — films have passed every threshold and still been wrong.</p>
+  </section>
+
+  <section class="block">
+    <h2 class="sec-head">the pet <span>· the real Asimov CAD, live in the browser</span></h2>
+    <p class="lede">This is not a mascot drawn for a website. It is the <b>actual Menlo Asimov-1 CAD</b> —
+      1,007,041 triangles — rasterised on our own RTX 3050 and cut into a hash-sealed atlas.
+      Nine states, real geometry, zero shaders invented for the page.</p>
+    <div class="pet-stage">
+      <div class="pet" id="pet" role="img" tabindex="0"
+           aria-label="Asimov CAD pet — the real Menlo Asimov-1 CAD, rendered on an RTX 3050. Activate to wave."></div>
+      <div class="pet-floor"></div>
+      <div class="pet-state">state <b id="pet-state">idle</b> · atlas <b>1536 × 1872</b> · mesh <b>1,007,041 tris</b></div>
+      <div class="pet-chips" id="pet-chips">
+        <button type="button" data-state="idle" class="on">idle</button>
+        <button type="button" data-state="waving">wave</button>
+        <button type="button" data-state="running-right">run →</button>
+        <button type="button" data-state="jumping">jump</button>
+      </div>
+    </div>
+    <p class="lede" style="margin-top:10px;font-size:.72rem">Source: <a href="https://github.com/MenloResearch/asimov-1">MenloResearch/asimov-1</a>
+      · atlas from the sovereign RTX 3050 · full page at <a href="waetz.html">waetz.html</a> · the pet is the host, wætz.</p>
   </section>
 
   <section class="block">
@@ -503,6 +540,43 @@ fetch('estate.json',{cache:'no-cache'})
 tickRender();drawGrid();tickScroll();
 window.aeEstate={state:function(){return E?{surfaces:E.counts,generated:E.generated}:null},
   filter:renderReg};
+})();
+</script>
+<script>
+/* the pet — the real Asimov CAD atlas, driven from the DOM */
+(function(){
+  var pet=document.getElementById('pet'); if(!pet) return;
+  var STATES=['idle','running-right','running-left','waving','jumping','sleeping','sitting','standing','backflip'];
+  var COLS=8, DW=192, DH=208, FPS=12;
+  var state='idle', frame=0;
+  var rowOf=function(s){var i=STATES.indexOf(s); return i<0?0:i;};
+  function draw(){ pet.style.backgroundPosition=(-frame*DW)+'px '+(-rowOf(state)*DH)+'px'; }
+  var last=0;
+  function step(now){
+    if(now-last>1000/FPS){ last=now; frame=(frame+1)%COLS; draw(); }
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+  var label=document.getElementById('pet-state');
+  function setState(s){
+    if(STATES.indexOf(s)<0) return;
+    state=s; frame=0; draw();
+    if(label)label.textContent=s;
+    var bs=document.querySelectorAll('#pet-chips button');
+    for(var i=0;i<bs.length;i++) bs[i].classList.toggle('on', bs[i].getAttribute('data-state')===s);
+  }
+  var chips=document.getElementById('pet-chips');
+  if(chips) chips.addEventListener('click',function(e){
+    var b=e.target; while(b && b.tagName!=='BUTTON' && b!==chips) b=b.parentNode;
+    if(b && b.getAttribute) setState(b.getAttribute('data-state'));
+  });
+  function bump(){ pet.classList.add('bump'); clearTimeout(pet._b);
+    pet._b=setTimeout(function(){pet.classList.remove('bump')},200); }
+  pet.addEventListener('click',function(){ bump(); setState('waving'); });
+  pet.addEventListener('keydown',function(e){
+    if(e.key==='Enter'||e.key===' '){ e.preventDefault(); bump(); setState('waving'); }});
+  setState('idle');
+  window.aePet={set:setState, get:function(){return state}};
 })();
 </script>
 </body>
