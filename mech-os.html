@@ -268,6 +268,14 @@
             display: inline-block;
             padding: 0 20px;
         }
+        .btn-connect {
+            background: var(--secondary-color, #D4AF37); color: #050505;
+            border: 1px solid var(--secondary-color, #D4AF37);
+            font: inherit; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+            font-size: 11px; padding: 5px 12px; cursor: pointer;
+        }
+        .btn-connect:hover { background: var(--primary-color, #D4AF37); }
+        .btn-connect.bound { background: transparent; color: var(--secondary-color, #D4AF37); }
         .ticker-item .sim {
             font-size: 9px; padding: 1px 4px; border: 1px solid currentColor; border-radius: 2px;
             opacity: .75; vertical-align: middle;
@@ -433,7 +441,11 @@
 
         <div id="top-bar">
             <div>æææ:/// MECH-OS // SYSTEMS ONLINE</div>
-            <div id="clock">00:00:00</div>
+            <div style="display:flex;gap:10px;align-items:center;">
+                <button class="btn-connect" id="agent-connect" onclick="agentConnect()"
+                        title="enter the conductor session >_æ:/ — binds locally, no credential leaves this device">&#9679; AGENT CONNECT</button>
+                <div id="clock">00:00:00</div>
+            </div>
         </div>
 
         <!-- Draggable Window 1 -->
@@ -695,8 +707,30 @@
             if (lb) lb.style.width = Math.min(100, (heap / (1024 * 1024 * 1024)) * 100).toFixed(1) + '%';
             addLog('[| "STATS", "cores:' + cores + '", "heap:' + (heap ? (heap / 1048576).toFixed(1) + 'MB' : 'n/a') + '", "rtt:' + (rtt || 'n/a') + '" |]');
         }
-        measureStatus();
-        setInterval(measureStatus, 5000);
+        /* NOTE: measureStatus() is invoked at the END of this script — it calls addLog,
+           which needs `const logsDiv` further down. Calling it here would throw a TDZ
+           ReferenceError and kill every handler defined below. */
+
+        /* --- AGENT CONNECT — enters the conductor session >_æ:/
+           A LOCAL session binding, not an authentication. No credential leaves this
+           device; the console only marks that a human is present. */
+        var _bound = false;
+        function agentConnect() {
+            var b = document.getElementById('agent-connect');
+            if (_bound) { addLog('[| "SESSION", "ALREADY BOUND", ">_æ:/", "" |]'); return }
+            _bound = true;
+            var lines = [
+                '> CONNECTING TO CONDUCTOR ...',
+                '> USER: HUMAN://ROOT · BOUND LOCALLY',
+                '> ROUTE LOCKED: >_æ:/',
+                '> SESSION: LOCAL ONLY — NO CREDENTIAL LEFT THIS DEVICE'
+            ];
+            var i = 0;
+            (function step() {
+                if (i < lines.length) { addLog(lines[i]); i++; setTimeout(step, 240); }
+            })();
+            if (b) { b.classList.add('bound'); b.innerHTML = '&#10003; CONNECTED &gt;_æ:/'; }
+        }
 
         /* --- COMMAND INPUT --- */
         const cmdInput = document.getElementById('cmd-input');
@@ -1094,6 +1128,10 @@
                 }
             }
         });
+
+        /* --- start the measured telemetry, after every handler above is defined --- */
+        measureStatus();
+        setInterval(measureStatus, 5000);
 
     </script>
 

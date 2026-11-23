@@ -3383,3 +3383,21 @@ The robotics console's numbers were fabricated: `randomizeStatus()` drew CPU and
   quality. The live `llama-server` (PID 3868) holds 2915 MiB and was NOT killed. GGUF
   serving artifact stays untouched; training uses the safetensors base + adapter at serve.
 - **Not deployed yet:** pending kanban push; CDN check not performed in this entry.
+
+## 81. mech-os — AGENT CONNECT enters >_æ:/ (2026-11-23)
+
+- Yellow **`● AGENT CONNECT`** button in the top bar. Clicking binds a local session and
+  plays the login into `#logs`:
+  `CONNECTING TO CONDUCTOR …` → `USER: HUMAN://ROOT · BOUND LOCALLY` →
+  `ROUTE LOCKED: >_æ:/` → `SESSION: LOCAL ONLY — NO CREDENTIAL LEFT THIS DEVICE`.
+  The button becomes `✓ CONNECTED >_æ:/`; a second click reports ALREADY BOUND.
+- **Honest by design:** it is a *local session binding*, not an authentication, and the log
+  says so. Nothing is claimed as privileged; the ritual is the product.
+- **Defect found and fixed (a §78 regression I introduced):** `measureStatus()` was invoked
+  mid-script while it calls `addLog`, which reads `const logsDiv` declared ~30 lines later —
+  a TDZ `ReferenceError` that **killed the entire remainder of the script**: command input,
+  typography evolution and the new connect handler were all dead. The immediate call now
+  sits at the very end of the block, after every definition.
+- **Verified:** button visible (145×24, `--secondary-color` = `rgb(255,157,0)` amber); click
+  flips it to `✓ CONNECTED >_æ:/`; the log carries both the measured STATS line
+  (`cores:12 · heap:1.1MB · rtt:100`) and the four login lines.
