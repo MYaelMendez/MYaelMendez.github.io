@@ -2967,3 +2967,112 @@ layout      9:16 stage with the three robots, gate panel, roster table, address
   setTimeout to ~1 Hz, so 8/116 steps ran in 6.57 s. The page reports `completed: false`
   and says the trace is real but the clock is not. Declared, not claimed.
 - No new assets; the atlas is the existing `picoasimov-atlas.webp`.
+
+## 69. The note — why this is the beginning (2026-11-22)
+
+Operator's words: *"wonderful work. this is definitely the beginning of something
+special."* Recorded as a note, not a plan.
+
+**`github-pages/robot-env-note.html`** (source `robot-env-note.md`) — gold-on-void,
+zero deps, all seven sections browser-verified (no layout breakage):
+
+```
+the through-line   a 5-row table: thread → before → after
+1 · one environment   one MuJoCo world · gate PASS 43.7/43.98/1.216 · 0 negros
+2 · one address space robot:// six bodies · meshbot 71% · refusals named
+3 · one gate          produce → Receipt, or refuse; the gate is never adjusted
+4 · one destination   aipodcast.me: spec + mp4 + poster + receipt + demo + manifest
+links                local :8125 and production github.io, side by side
+honest limits       playback unmeasured in automation · all_pass false is pre-existing
+                     · clips unplayed · nothing pushed
+why this is the beginning
+```
+
+**The argument the note makes.** Three threads converged:
+
+| thread | before | after |
+|---|---|---|
+| environment | each robot rendered alone | one MuJoCo world, three bodies, one trace |
+| address space | three dialects, three consoles | `robot://`, six bodies, one fleet receipt |
+| gate | published because it existed | produce → Receipt, or refuse |
+| mesh bodies | "mesh only" | `meshbot://`, refusals named not crashed |
+| destination | scattered | `aipodcast.me`, one wired path |
+
+> The estate's robots were **things on disk**. They are becoming **bodies in an
+> address space**: addressable by one scheme, standing in one world, recorded in
+> one ledger, published through one gate. That is the difference between a project
+> and a platform.
+
+Links (both surfaces):
+```
+demo     http://127.0.0.1:8125/aipodcast_me/robot-env-demo.html
+         https://myaelmendez.github.io/aipodcast_me/robot-env-demo.html
+film     http://127.0.0.1:8125/aipodcast_me/robot-env.mp4
+receipt  http://127.0.0.1:8125/aipodcast_me/robot-env.receipt.json
+note     http://127.0.0.1:8125/robot-env-note.html
+fleet    http://127.0.0.1:8125/robots.html · /robots/index.json
+```
+Local server: `python agents/serve_pages.py C:/æ/github-pages 8125` (Range-capable).
+
+## 70. aipodcast.me fully wired (2026-11-22)
+
+`aipodcast_me/index.html` — the home now carries the robot fleet, live.
+
+**Before:** the robot artifacts existed in `aipodcast_me/` but nothing on the home
+page referenced them. A visitor could not find them.
+
+**After — five wiring points, all live from disk:**
+
+1. **Hero chip** — `robots · one world · 9:16 ↗` → the demo.
+2. **Three surface cards** in RUNTIME SURFACES — `ROBOT:// ENVIRONMENT` (demo),
+   `ROBOT:// FLEET INDEX` (`/robots.html`), `THE ENVIRONMENT, THE ADDRESS SPACE,
+   THE GATE` (the note).
+3. **A `◈ ROBOT:// · THE FLEET` panel**:
+   - **gate bar** — PASS badge + luminancia / contraste / movimiento / negros /
+     resolution / sha, read from `robot-env.receipt.json`
+   - **six cards** — film, receipt, spec, demo, fleet data, note
+   - **roster table** — six bodies from `../robots/index.json` (dialect, verbs,
+     transports, live, sim, coverage)
+   - **media table** — every artifact from `media-manifest.json` with its gate
+     verdict (13 videos + 4 audio)
+4. **Command line routes** — `robot · robots · demo · env · environment ·
+   film · receipt · note · fleetindex · indexjson`; `help` lists them.
+5. **The panel header tag** flips to `GATE PASS · 96 FRAMES` / `GATE REFUSED`
+   from the receipt, so the verdict is not static text.
+
+Measured (browser, DOM + screenshot):
+```
+gate bar     PASS · luminancia 43.7 · contraste 43.98 · movimiento 1.216
+             · negros 0 · 720x1280 · sha 0a98fc6b520d
+roster       6 rows — asimov 14 / reachy 27 / microduck 22 / meshbot 7×3
+             coverage 100% ×3, 71% ×3
+media        17 rows — 13 videos (robot-env.mp4 · robot · PASS · 720×1280 · 4s · 1.55 MB)
+             + 4 audio
+cards        6 robot cards · 3 robot surface cards · 1 hero chip
+routes       robot→demo · demo→demo · film→mp4 · receipt→json · note→note
+             · fleetindex→robots.html · nope→"UNKNOWN · nope · type help"
+layout       no breakage, no horizontal overflow
+```
+
+**Design note.** The verdict is rendered from the receipt, never hardcoded. If a
+future film fails the gate, the same panel shows REFUSED and the manifest row
+shows it — the surface cannot claim a pass the instrument did not make.
+
+## 71. the æ boy becomes the institutional mark (2026-11-23)
+
+- Operator: *"this is our institutional logo"* → `assets/brand/ae-neon-logo-clone.svg`
+  (the vector clone of `ae-neon-logo.png`, 746×1017, 20.8 KB).
+- `index.html`: the hero `.glyph` now carries the mark (108×144, cyan glow) with the label
+  `★ the æ boy · the institutional mark`; the gold smiley SVG is gone (its eye-tracking JS
+  guards on missing nodes, so it degrades cleanly). Footer names the mark and links the
+  receipt.
+- **Verified:** the clone renders pixel-faithful to the canonical PNG (compared in the
+  browser); it loads (natural 746×1017); the hero shows it and no longer shows the smiley.
+- **Receipt preserved, not edited:** `assets/brand/ae-neon-logo.adoption.json` widens the
+  role from "æ.store agentic environments" to the institutional logo, and records the
+  observation that the receipt's "two letters, not ligature" reads as a joined æ — the
+  operator defines the mark.
+- **Flagged, not changed:** the hero's left panel is still `asimov-face-video.mp4`, whose
+  frame 0 is an `@asimovVOICE · face spec` **gold-ring state readout — not the Asimov
+  head**. Same class of defect as the one corrected on `robots.html`. Awaiting the
+  operator's call.
