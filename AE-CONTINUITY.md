@@ -2950,3 +2950,20 @@ layout      9:16 stage with the three robots, gate panel, roster table, address
   not measured. Named, not claimed.
 - **Design:** `pet/PET-MANEUVER.md` — six stages from DOM anchoring to real Menlo
   locomotion control; stage 4 (vertical + turning) is an RTX render job, not CSS.
+
+## 70. pet test · 9:16 — the coherent-size rig (2026-11-23)
+
+- `pet/test-916.html`: a measuring rig for the Asimov CAD pet. Seven 9:16 viewports
+  (135×240 → 1080×1920) × eight scales (0.25× → 3×) = **56 pairs**, each measured for
+  *fits* and *crisp*. The device keeps an exact coordinate space and scales by transform, so
+  1080×1920 is testable in a narrow column.
+- **Measured:** **all 56 crisp** — the cell is 192×208, both divisible by 4, so every
+  0.25-step scale lands on whole pixels. **43 fit**; the binding constraint is the viewport,
+  not the pixels (1080×1920 @3× = 576×624 fits; 360×640 @2× = 384×416 does not).
+- **Fixed while building:** the crispness test measured the background-size ratio, not the
+  cell — it would have passed every scale. Now it measures the cell pixels.
+- **Walk rig (stage 2):** left ↔ right, 2 px-class steps, `out-of-bounds` counted.
+  **Measured:** out-of-bounds 0. **Not completed** in the harness — headless throttles
+  setTimeout to ~1 Hz, so 8/116 steps ran in 6.57 s. The page reports `completed: false`
+  and says the trace is real but the clock is not. Declared, not claimed.
+- No new assets; the atlas is the existing `picoasimov-atlas.webp`.

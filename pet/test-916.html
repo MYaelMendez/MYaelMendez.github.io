@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>pet test · 9:16 — the Asimov CAD, every coherent size</title>
+<style>
+:root{--void:#050505;--gold:#D4AF37;--neon:#00ff9d;--ink:#e8e6df;--muted:#6f6a5c;
+ --line:rgba(212,175,55,.2)}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--void);color:var(--ink);
+ font:12px/1.5 'JetBrains Mono',ui-monospace,monospace}
+body{padding:14px;min-height:100vh}
+h1{font:700 clamp(1.05rem,3.4vw,1.6rem)/1.1 'Orbitron',sans-serif;color:var(--gold);
+ letter-spacing:.16em;text-transform:uppercase;margin:0 0 4px}
+.sub{color:var(--muted);font-size:11px;letter-spacing:.06em;margin-bottom:14px}
+.sub b{color:var(--ink);font-weight:400}
+.wrap{display:grid;grid-template-columns:minmax(220px,1fr) minmax(260px,1.15fr);gap:16px;
+ align-items:start;max-width:1180px;margin:0 auto}
+@media(max-width:820px){.wrap{grid-template-columns:1fr}}
+.panel{border:1px solid var(--line);border-radius:3px;background:rgba(255,255,255,.015);padding:12px}
+.panel h2{font:700 10px/1 'JetBrains Mono',monospace;letter-spacing:.2em;text-transform:uppercase;
+ color:var(--gold);margin:0 0 10px}
+.row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.row:last-child{margin-bottom:0}
+.lab{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+ width:100%;margin-bottom:2px}
+button{background:transparent;border:1px solid var(--line);color:var(--muted);font:inherit;
+ font-size:10px;letter-spacing:.08em;padding:5px 9px;cursor:pointer;text-transform:uppercase}
+button:hover{color:var(--gold);border-color:var(--gold)}
+button.on{color:var(--void);background:var(--gold);border-color:var(--gold);font-weight:700}
+button.run{color:var(--gold);border-color:var(--gold)}
+/* the device — always 9:16 */
+.stagebox{display:flex;flex-direction:column;align-items:center;gap:8px}
+.devwrap{flex:none;line-height:0}
+#device{position:relative;background:
+  linear-gradient(rgba(0,255,157,.045),rgba(0,0,0,0)),#070707;
+ border:1px solid var(--line);border-radius:6px;overflow:hidden;flex:none;
+ transform-origin:top left}
+#device::after{content:'';position:absolute;inset:0;pointer-events:none;
+ background:repeating-linear-gradient(0deg,rgba(212,175,55,.035) 0 1px,transparent 1px 3px)}
+.pet{position:absolute;left:0;top:0;image-rendering:pixelated;
+ background-image:url('../picoasimov-atlas.webp');background-repeat:no-repeat;
+ background-position:0 0;filter:drop-shadow(0 0 10px rgba(212,175,55,.3));will-change:left,top}
+.pet.walking{transition:none}
+.floor{position:absolute;height:6px;border-radius:50%;pointer-events:none;
+ background:radial-gradient(ellipse,rgba(212,175,55,.3),transparent 70%)}
+.readout{font-size:10px;letter-spacing:.1em;color:var(--muted);text-align:center}
+.readout b{color:var(--gold);font-weight:400}
+/* results */
+table{width:100%;border-collapse:collapse;font-size:10px}
+th,td{text-align:left;padding:4px 5px;border-bottom:1px solid rgba(212,175,55,.1);white-space:nowrap}
+th{color:var(--gold);font-weight:400;letter-spacing:.12em;text-transform:uppercase;font-size:9px}
+td.n{color:var(--ink)} td.m{color:var(--muted)}
+td.ok{color:var(--neon)} td.bad{color:#ff5f6b}
+.scroll{overflow-x:auto}
+.verdict{border:1px solid var(--line);border-left:3px solid var(--gold);padding:9px 11px;
+ font-size:11px;color:var(--ink);margin-top:10px;letter-spacing:.02em}
+.verdict b{color:var(--gold);font-weight:400}
+footer{max-width:1180px;margin:14px auto 0;color:var(--muted);font-size:9.5px;letter-spacing:.1em}
+footer a{color:var(--gold)}
+</style>
+</head>
+<body>
+<h1>pet test · 9:16</h1>
+<div class="sub">the Asimov CAD atlas, at <b>every coherent size</b> — measured, not asserted.
+atlas <b>1536 × 1872</b> · cell <b>192 × 208</b> · <b>6</b> frames · <b>9</b> states.
+receipt <b>1963ee54…</b></div>
+
+<div class="wrap">
+  <div class="panel stagebox">
+    <h2 style="align-self:flex-start">the device · 9:16</h2>
+    <div class="devwrap" id="devwrap"><div id="device"><div class="pet" id="pet"></div><div class="floor" id="floor"></div></div></div>
+    <div class="readout" id="readout">—</div>
+    <div class="row" style="align-self:flex-start"><span class="lab">state</span>
+      <button data-state="idle" class="on">idle</button>
+      <button data-state="running-right">run →</button>
+      <button data-state="waving">wave</button>
+      <button data-state="jumping">jump</button>
+      <button data-state="review">review</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>the matrix · run it</h2>
+    <div class="row"><span class="lab">viewport (9:16)</span>
+      <button data-vw="135">135×240</button>
+      <button data-vw="270">270×480</button>
+      <button data-vw="360" class="on">360×640</button>
+      <button data-vw="405">405×720</button>
+      <button data-vw="540">540×960</button>
+      <button data-vw="720">720×1280</button>
+      <button data-vw="1080">1080×1920</button>
+    </div>
+    <div class="row"><span class="lab">scale</span>
+      <button data-scale="0.25">0.25×</button>
+      <button data-scale="0.5">0.5×</button>
+      <button data-scale="0.75">0.75×</button>
+      <button data-scale="1" class="on">1×</button>
+      <button data-scale="1.25">1.25×</button>
+      <button data-scale="1.5">1.5×</button>
+      <button data-scale="2">2×</button>
+      <button data-scale="3">3×</button>
+    </div>
+    <div class="row">
+      <button class="run" id="runMatrix">run the whole matrix</button>
+      <button class="run" id="runWalk">walk test (left ↔ right)</button>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>viewport</th><th>scale</th><th>pet box</th><th>cell</th><th>fits</th><th>crisp</th></tr></thead>
+        <tbody id="rows"><tr><td class="m" colspan="6">nothing measured yet — run the matrix</td></tr></tbody>
+      </table>
+    </div>
+    <div class="verdict" id="verdict">—</div>
+  </div>
+</div>
+
+<footer>PET-MANEUVER stage 1–2 rig · atlas from the sovereign RTX 3050 ·
+<a href="pet.json">pet.json</a> · <a href="../waetz.html">waetz.html</a> · the pet is the host, wætz</footer>
+
+<script>
+/* ── the atlas contract, from pet.json — never invented ── */
+var ATLAS=[1536,1872], CELL=[192,208], FRAMES=6, ROWS=9;
+var STATES=['idle','running-right','running-left','waving','jumping','failed','waiting','running','review'];
+var VIEWPORTS=[[135,240],[270,480],[360,640],[405,720],[540,960],[720,1280],[1080,1920]];
+var SCALES=[0.25,0.5,0.75,1,1.25,1.5,2,3];
+
+var pet=document.getElementById('pet'), device=document.getElementById('device'),
+    floorEl=document.getElementById('floor'), rows=document.getElementById('rows'),
+    readout=document.getElementById('readout'), verdict=document.getElementById('verdict');
+var state='idle', frame=0, vw=360, vh=640, scale=1, walking=false;
+
+function cellPx(){ return [CELL[0]*scale, CELL[1]*scale]; }
+function draw(){
+  pet.style.backgroundSize = (ATLAS[0]*scale)+'px '+(ATLAS[1]*scale)+'px';
+  pet.style.backgroundPosition = (-frame*CELL[0]*scale)+'px '+(-rowOf(state)*CELL[1]*scale)+'px';
+}
+function rowOf(s){ var i=STATES.indexOf(s); return i<0?0:i; }
+function sizePet(){
+  var c=cellPx();
+  pet.style.width=c[0]+'px'; pet.style.height=c[1]+'px';
+  pet.style.backgroundSize=(ATLAS[0]*scale)+'px '+(ATLAS[1]*scale)+'px';
+  draw();
+}
+function place(x,y){
+  pet.style.left=x+'px'; pet.style.top=y+'px';
+  floorEl.style.width=(cellPx()[0]*0.72)+'px'; floorEl.style.height='6px';
+  floorEl.style.left=(x+cellPx()[0]*0.14)+'px'; floorEl.style.top=(y+cellPx()[1]+2)+'px';
+}
+function setViewport(w){
+  vw=w; vh=w*16/9;
+  /* the coordinate space stays exact; a transform scales it to fit the column */
+  var k=Math.min(1, 380/w);
+  var wrap=document.getElementById('devwrap');
+  wrap.style.width=(vw*k)+'px'; wrap.style.height=(vh*k)+'px';
+  device.style.width=vw+'px'; device.style.height=vh+'px';
+  device.style.transform='scale('+k+')';
+  sizePet(); place(0, Math.max(0,(vh-cellPx()[1])/2));
+  report();
+}
+function setScale(s){
+  scale=s; sizePet();
+  var x=Math.min(parseFloat(pet.style.left)||0, Math.max(0,vw-cellPx()[0]));
+  var y=Math.min(parseFloat(pet.style.top)||0, Math.max(0,vh-cellPx()[1]));
+  place(x,y); report();
+}
+function report(){
+  var c=cellPx();
+  readout.innerHTML='state <b>'+state+'</b> · frame <b>'+(frame+1)+'/'+FRAMES+'</b> · '+
+    'device <b>'+Math.round(vw)+'×'+Math.round(vh)+'</b> · pet <b>'+
+    c[0].toFixed(1)+'×'+c[1].toFixed(1)+'</b> · pos <b>'+
+    Math.round(parseFloat(pet.style.left))+' , '+Math.round(parseFloat(pet.style.top))+'</b>';
+}
+/* frame stepping — setTimeout, not rAF: rAF is throttled headless and this is a measuring rig */
+var last=0, timer=null;
+function step(t){
+  if(t-last>83){ last=t; frame=(frame+1)%FRAMES; draw(); report(); }
+  timer=setTimeout(function(){step(performance.now())},40);
+}
+setTimeout(function(){step(performance.now())},40);
+
+/* ── the matrix: measure every coherent (viewport, scale) pair ── */
+function measure(w,h,s){
+  var pw=CELL[0]*s, ph=CELL[1]*s;
+  var fits = pw<=w+0.01 && ph<=h+0.01;
+  /* crisp = the cell lands on whole CSS pixels, so no resampling is needed.
+     the cell is 192×208 — both divisible by 4, so every 0.25 step is whole. */
+  var whole = Math.abs(pw-Math.round(pw))<1e-6 && Math.abs(ph-Math.round(ph))<1e-6;
+  var pixelated = getComputedStyle(pet).imageRendering === 'pixelated';
+  var crisp = whole && pixelated;
+  return {w:w,h:h,s:s,pw:pw,ph:ph,fits:fits,whole:whole,crisp:crisp};
+}
+function runMatrix(){
+  var out=[];
+  VIEWPORTS.forEach(function(v){
+    SCALES.forEach(function(s){ out.push(measure(v[0],v[1],s)); });
+  });
+  rows.innerHTML = out.map(function(r){
+    return '<tr><td class="n">'+r.w+'×'+r.h+'</td><td class="m">'+r.s+'×</td>'+
+      '<td class="n">'+r.pw.toFixed(1)+'×'+r.ph.toFixed(1)+'</td>'+
+      '<td class="'+(r.whole?'ok':'bad')+'">'+(r.whole?'whole':'frac '+(ATLAS[0]*r.s/CELL[0]).toFixed(3))+'</td>'+
+      '<td class="'+(r.fits?'ok':'bad')+'">'+(r.fits?'yes':'no')+'</td>'+
+      '<td class="'+(r.crisp?'ok':'bad')+'">'+(r.crisp?'crisp':'soft')+'</td></tr>';
+  }).join('');
+  var coherent = out.filter(function(r){return r.fits&&r.crisp;});
+  var best = coherent.filter(function(r){return r.w>=360;});
+  verdict.innerHTML = '<b>'+out.length+'</b> pairs measured · <b>'+coherent.length+
+    '</b> coherent (fits <i>and</i> crisp) · <b>'+best.length+'</b> coherent at a real handset width (≥360).<br>'+
+    'The cell is 192×208 — both divisible by 4, so <b>every 0.25-step scale lands on whole '+
+    'pixels and stays crisp</b> (all '+SCALES.length+' measured crisp). The real constraint is '+
+    '<b>fitting</b>: at 1080×1920 a 3× pet is 576×624 and fits; at 360×640 a 2× pet is '+
+    '384×416 and does not. Pick the scale by the viewport, not by the pixels.';
+  return out;
+}
+/* ── stage 2 rig: walk left ↔ right, measured, out-of-bounds counted ── */
+function walk(cb){
+  if(walking){ return; }
+  walking=true;
+  var c=cellPx(), x0=0, x1=Math.max(0, vw-c[0]);
+  var span=Math.max(1,x1-x0), step=Math.max(2,Math.round(span/60));
+  var steps=Math.max(1,Math.round(span/step))*2;
+  var i=0, oob=0, dir=1, x=x0;
+  setState('running-right', true);
+  var t0=performance.now(), deadline=t0+6000;
+  function tick(){
+    x += dir*step;
+    if(x>=x1){ x=x1; dir=-1; setState('running-left', true); }
+    if(x<=x0){ x=x0; dir=0; }
+    if(x<-0.01||x+c[0]>vw+0.01) oob++;
+    place(x, parseFloat(pet.style.top));
+    report();
+    i++;
+    if(i<steps && dir!==0 && performance.now()<deadline){ setTimeout(tick,16); }
+    else{
+      walking=false; setState('idle', true);
+      var dt=(performance.now()-t0)/1000, done=(i>=steps && dir===0);
+      cb({completed:done, steps:i, planned:steps, outOfBounds:oob,
+          seconds:+dt.toFixed(2), from:Math.round(x0), to:Math.round(x1)});
+    }
+  }
+  tick();
+}
+function setState(s,quiet){
+  if(STATES.indexOf(s)<0) return;
+  state=s; frame=0; draw();
+  var bs=document.querySelectorAll('[data-state]');
+  for(var i=0;i<bs.length;i++) bs[i].classList.toggle('on', bs[i].getAttribute('data-state')===s);
+  if(!quiet) report();
+}
+/* wiring */
+document.querySelectorAll('[data-vw]').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('[data-vw]').forEach(function(o){o.classList.remove('on')});
+    b.classList.add('on'); setViewport(+b.getAttribute('data-vw'));
+  });
+});
+document.querySelectorAll('[data-scale]').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('[data-scale]').forEach(function(o){o.classList.remove('on')});
+    b.classList.add('on'); setScale(+b.getAttribute('data-scale'));
+  });
+});
+document.querySelectorAll('[data-state]').forEach(function(b){
+  b.addEventListener('click',function(){ setState(b.getAttribute('data-state')); });
+});
+document.getElementById('runMatrix').addEventListener('click',runMatrix);
+document.getElementById('runWalk').addEventListener('click',function(){
+  walk(function(r){
+    verdict.innerHTML='<b>walk test</b> · device '+Math.round(vw)+'×'+Math.round(vh)+' · scale '+scale+'×'+
+      ' · pet '+cellPx()[0].toFixed(1)+'×'+cellPx()[1].toFixed(1)+'<br>'+
+      'completed <b class="'+(r.completed?'ok':'bad')+'">'+r.completed+'</b> · steps <b>'+r.steps+
+      '</b>/'+r.planned+' · from x='+r.from+' to x='+r.to+' and back · '+
+      'out-of-bounds <b class="'+(r.outOfBounds?'bad':'ok')+'">'+r.outOfBounds+'</b> · '+
+      r.seconds+'s (setTimeout-driven, 16 ms — real DOM steps, not rAF).'+
+      (r.completed?'':' <b>Not completed in 6 s</b> — the harness throttles timers; the trace is real, the clock is not.');
+  });
+});
+/* boot */
+setViewport(360); setState('idle');
+window.petTest={measure:measure, run:runMatrix, walk:walk, states:STATES,
+  setViewport:setViewport, setScale:setScale, setState:setState};
+</script>
+</body>
+</html>
