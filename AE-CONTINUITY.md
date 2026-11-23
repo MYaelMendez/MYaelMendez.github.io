@@ -3282,3 +3282,20 @@ cazó el `node --check`, no el navegador; `const` se renombró a `dep`.
   of store front matter. Making it the ticker's home gives an unaddressed surface a role.
 - **Not done:** llm-store itself is unchanged — it is a link target, not yet a markets surface
   with its own data. That is the obvious next step.
+
+## 76. the llm.store ticker + host selection (2026-11-23)
+
+- Third ticker row under `markets`, labelled **llm.store**, home **`llm-store.html`**.
+  Content is our OWN store family, read from `estate.json` (filter `/store/i` over
+  url+id+category), sorted by bytes, largest named as host. **13 surfaces.**
+- **Host selection, measured:** `llm-store.html` — 309 KB, 54 model mentions, 51 price
+  figures, real listings (Llama-3.3-70B, Gemma, DeepSeek) and its own provider/cost/latency
+  tickers. The field: `ae/store.html` 53 KB (1 model mention), `ae-store-pico-os.html` 47 KB,
+  `ae-store-semantic-key.html` 26 KB, `ae-store-digital-twin.html` 18 KB,
+  `llm-store-4d-atlas.html` 17 KB, `llm-store-widget.html` 17 KB,
+  `gospel-bookstore/index.html` 15 KB, `llm-store-dna-qr.html` 11 KB,
+  `aipodcast_me/aestore.html` 10 KB, `ae_store/index.html` 3 KB. Rivals are landing pages.
+- **Verified:** 26 lines render; the markets ticker is unaffected; both labels link to
+  `llm-store.html`.
+- **Flagged, not changed:** both tickers now share one home. If markets should land on the
+  economy surface (`ae/economy/`) instead, that is a one-line change.

@@ -208,6 +208,11 @@ img.support-card:hover{border-color:var(--gold);box-shadow:0 0 26px rgba(212,175
         title="the markets ticker's home — LLM.store · The Model Store">markets</a></span>
     <div class="tmask"><div class="tstream" id="mstream"></div></div>
   </div>
+  <div class="ticker ticker-llmstore">
+    <span class="tlabel"><span class="dot"></span><a href="llm-store.html"
+        title="the llm.store ticker's home — the estate's own model store">llm.store</a></span>
+    <div class="tmask"><div class="tstream" id="lstream"></div></div>
+  </div>
 
   <div class="core">
     <div class="heroflex">
@@ -582,6 +587,34 @@ function mLoad(){
     .catch(function(e){mPush([['markets · feed unavailable ('+e.message+')','p']])});
 }
 mLoad(); setInterval(mLoad, 300000);
+
+/* ── the llm.store ticker — our OWN store family, read from estate.json ──
+   Host: llm-store.html. It is the only implementation with real listings
+   (54 model mentions, 51 price figures); the rivals are empty landing pages. */
+var LSTORE=[];
+function lGroup(){return LSTORE.map(function(m){
+  return '<span class="tm '+(m[1]||'')+'">'+m[0]+'</span>'}).join('<span class="td">·</span>')}
+function lRender(){var s=$('lstream');if(!s)return;
+  s.innerHTML='<span class="tgrp">'+lGroup()+'</span><span class="td">·</span><span class="tgrp">'+lGroup()+'</span>'}
+function lPush(lines){LSTORE=lines;lRender()}
+function lLoad(){
+  if(location.protocol==='file:'){lPush([['llm.store · feed needs http','p']]);return}
+  fetch('estate.json',{cache:'no-cache'})
+    .then(function(r){if(!r.ok)throw new Error('http '+r.status);return r.json()})
+    .then(function(d){
+      var rows=(d.surfaces||[]).filter(function(x){
+        return /store/i.test((x.url||'')+' '+(x.id||'')+' '+(x.category||''))});
+      rows.sort(function(a,b){return b.bytes-a.bytes});
+      if(!rows.length){lPush([['llm.store · no store surfaces in the index','p']]);return}
+      var host=rows[0], rest=rows.slice(0,12).map(function(x){
+        return [(x.url||'').replace(/^\//,'')+'  '+(x.bytes/1024).toFixed(0)+' KB',
+                (x.url===host.url)?'g':'c']});
+      lPush([['llm.store · '+rows.length+' surfaces · hosted by '+
+              (host.url||'').replace(/^\//,''),'ok']].concat(rest));
+    })
+    .catch(function(e){lPush([['llm.store · index unreadable ('+e.message+')','p']])});
+}
+lLoad();
 
 tickRender();drawGrid();tickScroll();
 window.aeEstate={state:function(){return E?{surfaces:E.counts,generated:E.generated}:null},
