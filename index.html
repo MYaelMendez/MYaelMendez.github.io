@@ -39,6 +39,29 @@ html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'J
  mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
 .tstream{display:inline-flex;white-space:nowrap;will-change:transform}
 .ticker-markets .tlabel a{color:var(--neon);text-decoration:none;letter-spacing:.14em;text-transform:uppercase}
+/* white-label panel */
+.lpanel{position:fixed;top:52px;right:14px;z-index:60;width:min(320px,90vw);
+  border:1px solid var(--gold);border-radius:8px;background:rgba(5,5,5,.97);
+  box-shadow:0 18px 50px rgba(0,0,0,.6);padding:12px 13px;font-size:11px}
+.lpanel[hidden]{display:none}
+.lphead{display:flex;justify-content:space-between;align-items:center;color:var(--gold);
+  letter-spacing:.16em;text-transform:uppercase;font-size:10px;margin-bottom:8px}
+.lphead button{background:none;border:0;color:var(--muted);cursor:pointer;font-size:12px}
+.lpnote{color:var(--muted);line-height:1.6;margin:0 0 10px}
+.lpnote b{color:var(--ink);font-weight:400}
+.lpanel label{display:block;color:var(--muted);margin-bottom:8px;letter-spacing:.06em}
+.lpanel input{display:block;width:100%;margin-top:4px;background:#0a0a0a;border:1px solid var(--line);
+  color:var(--ink);font:inherit;padding:6px 8px;border-radius:3px}
+.swatches{display:inline-flex;gap:6px;margin-left:6px;vertical-align:middle}
+.swatches button{width:18px;height:18px;border-radius:50%;border:1px solid var(--line);
+  background:var(--c);cursor:pointer;padding:0}
+.swatches button.on{outline:2px solid var(--ink);outline-offset:2px}
+.lpactions{display:flex;gap:8px;margin:10px 0 8px}
+.lpactions button{flex:1}
+.lphint{color:var(--muted);font-size:9.5px;line-height:1.6;margin:0}
+/* the visitor's mark, worn over the institutional one */
+.myglyph{font:700 clamp(2.4rem,7vw,3.6rem)/1 'Orbitron',sans-serif;color:var(--gold);
+  display:flex;align-items:center;justify-content:center;width:100%;height:100%}
 .ticker-markets .tlabel a:hover{color:var(--gold)}
 .ticker-markets .tm.c{color:var(--cyan)}
 .tgrp{display:inline-flex;gap:22px;padding-right:22px}
@@ -197,7 +220,27 @@ img.support-card:hover{border-color:var(--gold);box-shadow:0 0 26px rgba(212,175
   <div class="bar">
     <span class="b1">&gt;_æ: OPENSOURCEWARE</span>
     <span class="live"><span class="dot"></span><span id="meshstate">estate loading</span></span>
-    <span><button id="theme-toggle" type="button">◐ theme</button></span>
+    <span><button id="theme-toggle" type="button">◐ theme</button>
+      <button id="label-open" type="button" title="white-label this surface with your own mark">◈ white-label</button></span>
+  </div>
+  <div class="lpanel" id="lpanel" role="dialog" aria-label="white-label this surface" hidden>
+    <div class="lphead"><b>◈ white-label</b><button id="label-close" type="button" title="close">✕</button></div>
+    <p class="lpnote">This surface is the æ:// open-source ware pattern. Put <b>your</b> mark on it —
+      the glyph is personal, and æ is Yæl's, so nothing defaults to it.</p>
+    <label>your glyph <input id="lbl-glyph" maxlength="2" placeholder="e.g. Ω" autocomplete="off"/></label>
+    <label>your name <input id="lbl-name" maxlength="28" placeholder="e.g. ACME robots" autocomplete="off"/></label>
+    <label>your accent <span class="swatches" id="lbl-accent">
+      <button type="button" data-c="#D4AF37" class="on" style="--c:#D4AF37"> </button>
+      <button type="button" data-c="#70dcff" style="--c:#70dcff"> </button>
+      <button type="button" data-c="#00ff9d" style="--c:#00ff9d"> </button>
+      <button type="button" data-c="#ff2d78" style="--c:#ff2d78"> </button>
+    </span></label>
+    <div class="lpactions">
+      <button id="lbl-apply" type="button">apply</button>
+      <button id="lbl-reset" type="button">restore æ</button>
+    </div>
+    <p class="lphint">Applies to this browser only — it is a wearing of the surface, not a change
+      to the repository. To ship it, fork the repo and rebuild.</p>
   </div>
   <div class="ticker">
     <span class="tlabel"><span class="dot"></span>æ://live</span>
@@ -396,6 +439,58 @@ function applyTheme(t){document.documentElement.setAttribute('data-theme',t);try
 applyTheme(_theme);
 var _tt=$('theme-toggle');if(_tt)_tt.addEventListener('click',function(){
   _theme=(_theme==='night')?'day':'night';applyTheme(_theme);tickPush('theme → '+_theme,'')});
+
+/* ── white-label: the visitor wears the surface with their own mark ──
+   Nothing defaults to æ. An empty glyph restores the institutional mark. */
+var LKEY='ae-label-v1';
+function labelApply(l){
+  var r=document.documentElement;
+  if(!l||!l.glyph){labelReset();return}
+  try{localStorage.setItem(LKEY,JSON.stringify(l))}catch(e){}
+  r.style.setProperty('--gold',l.accent||'#D4AF37');
+  r.style.setProperty('--gold-hi',l.accent||'#D4AF37');
+  var g=$('glyph'), img=g?g.querySelector('img'):null, cur=g?g.querySelector('.myglyph'):null;
+  if(g&&!cur){var s=document.createElement('span');s.className='myglyph';s.textContent=l.glyph;g.appendChild(s)}
+  else if(cur)cur.textContent=l.glyph;
+  if(img)img.style.display='none';
+  var b1=document.querySelector('.b1');
+  if(b1)b1.innerHTML='&gt;_'+esc(l.glyph)+': '+esc(l.name||'YOUR MARK');
+  var bl=document.querySelector('.brandlab');
+  if(bl)bl.textContent=(l.name||'your mark')+' · white-labelled by you';
+  document.title=(l.name||'white-label')+' · '+l.glyph+' — #opensourceware';
+  tickPush('white-label → '+l.glyph,'g');
+}
+function labelReset(){
+  try{localStorage.removeItem(LKEY)}catch(e){}
+  var r=document.documentElement;
+  r.style.removeProperty('--gold');r.style.removeProperty('--gold-hi');
+  var g=$('glyph'),cur=g?g.querySelector('.myglyph'):null,img=g?g.querySelector('img'):null;
+  if(cur)cur.remove(); if(img)img.style.display='';
+  var b1=document.querySelector('.b1'); if(b1)b1.innerHTML='&gt;_æ: OPENSOURCEWARE';
+  var bl=document.querySelector('.brandlab');
+  if(bl)bl.textContent='the æ boy · the institutional mark';
+  document.title='>_æ://#opensourceware';
+  tickPush('white-label → restored æ','');
+}
+var _lp=$('lpanel');
+function labelOpen(o){if(!_lp)return;_lp.hidden=!o;
+  var cur={};try{cur=JSON.parse(localStorage.getItem(LKEY)||'{}')}catch(e){}
+  if($('lbl-glyph'))$('lbl-glyph').value=cur.glyph||'';
+  if($('lbl-name'))$('lbl-name').value=cur.name||'';}
+var _lo=$('label-open');if(_lo)_lo.addEventListener('click',function(){labelOpen(_lp.hidden)});
+var _lc=$('label-close');if(_lc)_lc.addEventListener('click',function(){labelOpen(false)});
+var _lr=$('lbl-reset');if(_lr)_lr.addEventListener('click',function(){labelReset();labelOpen(false)});
+var _la=$('lbl-apply');if(_la)_la.addEventListener('click',function(){
+  var g=$('lbl-glyph').value.trim(),n=$('lbl-name').value.trim();
+  if(!g){labelReset();labelOpen(false);return}
+  var sw=document.querySelector('#lbl-accent button.on')||document.querySelector('#lbl-accent button');
+  labelApply({glyph:g,name:n,accent:(sw&&sw.getAttribute('data-c'))||'#D4AF37'});
+  labelOpen(false)});
+var _ac=document.querySelectorAll('#lbl-accent button');
+for(var _i=0;_i<_ac.length;_i++)_ac[_i].addEventListener('click',function(){
+  for(var _j=0;_j<_ac.length;_j++)_ac[_j].classList.remove('on');
+  this.classList.add('on')});
+try{labelApply(JSON.parse(localStorage.getItem(LKEY)||'null'))}catch(e){}
 
 var E=null, SURF=[], AMB=[], _ai=0, TLOG=[];
 function TCOORD(){return ['x0:y0:z0:æ0 · '+(E?summary():'estate loading'),'coord']}

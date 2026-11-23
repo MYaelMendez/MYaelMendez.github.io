@@ -3299,3 +3299,21 @@ cazó el `node --check`, no el navegador; `const` se renombró a `dep`.
   `llm-store.html`.
 - **Flagged, not changed:** both tickers now share one home. If markets should land on the
   economy surface (`ae/economy/`) instead, that is a one-line change.
+
+## 77. the white-label layer (2026-11-23)
+
+- `index.html`: a `◈ white-label` control beside `◐ theme`. It asks for **your glyph**
+  (max 2 chars), **your name**, and **your accent** (gold/cyan/neon/magenta) — and nothing
+  defaults to æ, because æ is Yæl's. Applying re-skins the surface: the hero glyph, the bar
+  brand line, the caption, the document title, and `--gold`/`--gold-hi` site-wide. Persisted
+  in `localStorage['ae-label-v1']`; `restore æ` clears it and puts the institutional mark back.
+- **This is the #opensourceware product**: the surface is the pattern, the visitor wears it.
+  The panel says so plainly — *"applies to this browser only… to ship it, fork the repo and
+  rebuild."*
+- **Verified:** glyph Ω + "ACME robots" + neon accent → `.myglyph` = Ω, img hidden,
+  brand `>_Ω: ACME robots`, caption, title rewritten, `--gold` = `#00ff9d`, stored JSON;
+  **after a full reload** all of it persists; `restore æ` returns brand/title/glyph/`--gold`
+  and empties storage.
+- **Defects fixed before publish:** a second `esc()` declaration shadowed the existing null-safe
+  one (removed); no swatch carried `.on`, so `querySelector('#lbl-accent button.on')` would
+  have thrown on apply (added the default + a fallback).
