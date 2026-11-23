@@ -2869,3 +2869,84 @@ timestamp`; no console errors.
 page now says so out loud.
 
 **deploy** — pushed via `kanban_push.py`; API blob verified, the github.io CDN lagged.
+
+## 68. aipodcast.me wired in · the film passes, and a demo page (2026-11-22)
+
+**The film passes.** `robot-env.mp4` → SupervisorVideo **PASS**.
+
+```
+720x1280 · 96 frames · 4.000 s · h264 · 1,547,847 B
+sha256 0a98fc6b520dec46324d389cdefd284263234fece8bdf813f0f0ff39dcb1825b
+luminancia_media 43.7  (>20) · contraste_medio 43.98 (>8)
+movimiento_medio 1.216 (>0.5) · frames_negros 0/5
+supervision receipt 968f73796a64b3a2e84a581ab4cd12ec0279ea5b3ee1a738e873fc03166d6e0f
+physics 101.7 s · render 553.1 s · tests 6/6
+```
+
+Two scene defects were found by measurement, not by looking:
+
+1. **Depth stagger only reads at one distance.** Robots at y = 0 / −1.15 / −0.80:
+   move closer and the forward body fills the frame while the other two leave it.
+   They now stand on **one plane (y=0) in a line** — a lineup, not a perspective trick.
+2. **A 9:16 frame holding three bodies of different sizes is mostly background**,
+   and the gate measures the frame, not the subject. Added a **ground plane**.
+   While testing it: the CuPy raster **silently drops triangles beyond a screen
+   bound** — `half=3.0` draws, `half=6.0` disappears with no error. Capped at 1.8.
+
+**Publish path.** `agents/publish_robot_env.py` — runs the gate FIRST, then:
+PASS → receipt + copy + `media-manifest.json` entry; FAIL → REFUSED receipt,
+nothing copied, exit 1. The gate is never adjusted to fit the film.
+
+**Destination.** `aipodcast.me` → `github-pages/aipodcast_me/`:
+```
+spec-robot-env.json      the spec (bodies, world counts, camera, seed)
+robot-env.mp4            the film
+robot-env-poster.png     a real frame (extracted at n=48) — the demo's poster
+robot-env.receipt.json   gate + ffprobe + supervision receipt
+media-manifest.json      13 videos (this one added; `all_pass` was already false
+                         from 5 older entries that carry no `vision` block)
+```
+
+**Demo.** `aipodcast_me/robot-env-demo.html` — gold-on-void, no CDN, zero deps.
+Plays the film, reads the receipt live (verdict + three threshold meters +
+artifact facts), and reads `../robots/index.json` live for the roster.
+
+Verified in the browser (DOM + screenshot):
+```
+verdict     PASS gate PASS · supervised 2026-11-22T23:10:00Z
+meters      luminancia 43.7 · contraste 43.98 · movimiento 1.216 · black 0/5
+roster      6 rows · asimov/reachy/microduck 100% · Soldier/Xbot/kira 71%
+layout      9:16 stage with the three robots, gate panel, roster table, address
+```
+
+**Honest limits.**
+- `<video>` playback could NOT be verified in the automation browser: it reports
+  `document.visibilityState === 'hidden'`, and Chrome suspends media loading for
+  hidden documents — the element never issues a request (`readyState 0`,
+  `networkState 2`, no request in the server log). The bytes ARE reachable
+  (`fetch()` → 1,547,847, `video/mp4`), and the film itself is verified by the
+  gate, by ffprobe, and by an extracted frame. Playback in a visible tab is
+  expected but **unmeasured here**.
+- `agents/serve_pages.py` was written for this: Python's `http.server` answers
+  200 to every Range request, which stalls Chrome's media stack. github.io
+  answers 206, so production is unaffected.
+
+## 69. the Asimov CAD pet on the home · the Nous referral card (2026-11-23)
+
+- `index.html`: new `the pet` section — the real Menlo Asimov-1 CAD atlas
+  (`picoasimov-atlas.webp`, 1536×1872, 8 cols × 9 rows of 192×208, RGBA), DOM-driven
+  (`window.aePet`), 4 state chips, provenance line. Also the `support the compute`
+  section: the Nous Portal referral (`https://portal.nousresearch.com/r/opensource`) as a
+  deterministic card (`support-card.html` → `support-the-compute.png`, 1200×630) plus the
+  plain-text terms, and a second permanent link in `receipts & source`.
+- **Defect found:** the home driver cycled 8 columns and named rows 5–8
+  `sleeping/sitting/standing/backflip`. `pet/pet.json` says `frames_per_state: 6`
+  (columns 6–7 measured with 0 opaque samples) and `failed/waiting/running/review`.
+  Fixed in `ba9631e`.
+- **Verified:** atlas loads (natural width 1536); `aePet.set('waving')` moves the
+  background to row 3 (`-624px` = 3×208) and the label follows; a screenshot shows the
+  3D humanoid (gold head, silver-gray torso) with the IDLE/WAVE/RUN/JUMP chips.
+- **Unverified:** the frame loop — headless rAF is throttled, so 12 fps is *declared*,
+  not measured. Named, not claimed.
+- **Design:** `pet/PET-MANEUVER.md` — six stages from DOM anchoring to real Menlo
+  locomotion control; stage 4 (vertical + turning) is an RTX render job, not CSS.
