@@ -3092,3 +3092,61 @@ shows it — the surface cannot claim a pass the instrument did not make.
   3D robot (gold head, grey body) and the new caption. No layout breakage.
 - **Declared, not measured:** the frame loop (headless rAF throttled).
 - `asimov-face-video.mp4` is left on disk, now unreferenced by the home.
+
+## 75. PUSHED — the robot fleet is on the truth surface (2026-11-22)
+
+**Commit `17a90f19db20` → `origin/gh-pages`.** Pushed through the kanban
+(`kanban_push.py push --task "robot:// one world, one address space, one gate"`,
+task `t_da594932`, fast-forward `c4252f6 → 17a90f19db20`, no rebase needed).
+No bare `git push`.
+
+**Ten files, and only those.** Other agents' in-flight work
+(`continuity.html`, `morphologies.html`, `privateclient/`, `threejs-curriculo/robot-console.html`,
+`continuity-wasm/target/`, …) was left untouched in the working tree.
+
+```
+AE-CONTINUITY.md                      §73 the note · §74 aipodcast fully wired
+aipodcast_me/index.html               +203 — the fleet panel, live
+aipodcast_me/media-manifest.json      13 videos (robot-env added)
+aipodcast_me/robot-env.mp4            1,547,847 B · gate PASS
+aipodcast_me/robot-env-demo.html      the demo
+aipodcast_me/robot-env-poster.png     a real frame (n=48)
+aipodcast_me/robot-env.receipt.json   gate + ffprobe + supervision
+aipodcast_me/spec-robot-env.json      the spec
+robot-env-note.html / .md             the note
+```
+
+**Verified on the provider, not on the clone.**
+```
+GET api.github.com/.../git/ref/heads/gh-pages
+  → 17a90f19db2042875a9e0b23efde29bf1806da00   (== local HEAD)
+contents API, ref=gh-pages → 200 for all eight robot artifacts
+```
+
+**Deployment.** GitHub Pages took ~95 s. Before: `robot-env-demo.html` 404.
+After: 200 on demo, note, receipt, mp4.
+
+**One focused browser verification of the deployed surface:**
+```
+https://myaelmendez.github.io/aipodcast_me/index.html
+  gate bar      PASS · luminancia 43.7 · contraste 43.98 · movimiento 1.216
+                · negros 0 · 720x1280 · sha 0a98fc6b520d
+  panel header  GATE PASS · 96 FRAMES
+  roster        6 rows
+  media         17 rows
+  manifest      gated 8 · all pass false · ungated 5 (named)
+  robot cards   6
+https://myaelmendez.github.io/aipodcast_me/robot-env-demo.html
+  verdict PASS gate PASS · roster 6
+https://myaelmendez.github.io/robot-env-note.html
+  7 sections render
+```
+
+**One status changed and it is named.** `media-manifest.json` had
+`all_pass: true` over 12 videos; five of them carry **no gate verdict at all**.
+The manifest now reports `all_pass: false` with `gated_count: 8`,
+`ungated_count: 5` and the five files listed. A missing check is not a pass —
+the surface cannot claim one.
+
+**Still open.** Xbot and Soldier ship animation clips and nothing plays them.
+Film playback remains unverified in the automation browser (hidden document).
