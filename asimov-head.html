@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>asimov:// studio — the head, the waveform mouth, the cameras</title>
+<meta name="description" content="asimov:// studio — the Asimov head with eyes and a live waveform mouth, four camera presets and an orbit, recorded in-browser to WebM with a sha256 receipt. The head is the estate's menloresearch/asimov-1 CAD mesh; the studio and cameras are the ones asimov_studio.py proved.">
+<link rel="canonical" href="https://myaelmendez.github.io/asimov-head.html">
+<link rel="icon" href="./favicon.svg">
+<style>
+:root{--void:#050505;--gold:#D4AF37;--gold-hi:#ffda83;--neon:#00ff9d;--cyan:#70dcff;--purple:#b98cff;
+--magenta:#ff2d78;--ink:#e8e6df;--muted:#6f6a5c;--line:rgba(212,175,55,.18)}
+:root[data-theme="day"]{--void:#f5f2ea;--ink:#1a1a1a;--muted:#6f6a5c;--line:rgba(0,0,0,.12)}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',monospace;overflow:hidden}
+#scene{position:fixed;inset:0;z-index:0}
+.bar{position:fixed;z-index:3;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;
+ gap:10px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--line);font-size:10px;
+ letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;background:rgba(5,5,5,.74);backdrop-filter:blur(6px)}
+.bar .b1{color:var(--gold);font-weight:700;text-transform:none}
+.bar .live{display:flex;align-items:center;gap:6px;color:var(--neon)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.bar button{background:transparent;border:1px solid var(--line);color:var(--muted);font:inherit;font-size:9px;
+ letter-spacing:1px;text-transform:uppercase;padding:4px 8px;cursor:pointer}
+.bar button:hover{color:var(--gold);border-color:var(--gold)}
+.bar button.rec.on{background:var(--magenta);border-color:var(--magenta);color:#fff;font-weight:700}
+.hint{position:fixed;z-index:3;top:54px;left:50%;transform:translateX(-50%);font-size:9px;letter-spacing:.12em;
+ color:var(--muted);text-transform:uppercase;background:rgba(5,5,5,.6);padding:5px 10px;border:1px solid var(--line);
+ white-space:nowrap}
+.hud{position:fixed;z-index:3;left:16px;bottom:16px;border:1px solid var(--line);background:rgba(5,5,5,.8);
+ backdrop-filter:blur(6px);padding:12px 14px;min-width:250px;font-size:11px;line-height:1.75;color:var(--muted)}
+.hud b{color:var(--gold);font-weight:400}
+.hud .row{display:flex;justify-content:space-between;gap:14px}
+.hud .row span:last-child{color:var(--ink)}
+.hud .st{font-size:14px;color:var(--gold);letter-spacing:.1em;font-weight:700}
+.cam{position:fixed;z-index:3;right:16px;bottom:16px;display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.cam button{background:rgba(5,5,5,.8);border:1px solid var(--line);color:var(--muted);font:inherit;font-size:10px;
+ letter-spacing:.08em;padding:6px 10px;cursor:pointer;text-transform:uppercase;backdrop-filter:blur(6px)}
+.cam button:hover{color:var(--gold);border-color:var(--gold)}
+.cam button.on{color:var(--void);background:var(--gold);border-color:var(--gold);font-weight:700}
+.receipt{position:fixed;z-index:3;left:50%;bottom:16px;transform:translateX(-50%);border:1px solid var(--line);
+ background:rgba(5,5,5,.85);padding:9px 13px;font-size:10px;color:var(--muted);display:none;max-width:min(92vw,640px);
+ text-align:left;line-height:1.6}
+.receipt.show{display:block}
+.receipt b{color:var(--neon)}
+#boot{position:fixed;z-index:4;inset:0;display:grid;place-items:center;background:var(--void);transition:opacity .5s}
+#boot pre{font-size:12px;line-height:1.9;color:var(--muted);text-align:left;max-width:min(90vw,620px)}
+#boot .g{color:var(--gold)}#boot .ok{color:var(--neon)}#boot .m{color:var(--magenta)}
+:root[data-theme="day"] .bar,:root[data-theme="day"] .hud,:root[data-theme="day"] .cam button{background:rgba(245,242,234,.92)}
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+
+<div class="bar">
+  <span class="b1">asimov:// studio · the head</span>
+  <span class="live"><span class="dot"></span><span id="meshstate">loading the head</span></span>
+  <span>
+    <button id="rec" class="rec" type="button">● record</button>
+    <button id="theme-toggle" type="button">◐ theme</button>
+  </span>
+</div>
+
+<div class="hint" id="hint">drag to orbit · wheel to zoom · cameras cut on the right · the mouth is a live voice waveform</div>
+
+<div class="hud" id="hud">
+  <div class="st" id="h-cam">front</div>
+  <div class="row"><span>camera</span><span id="h-cam2">az 25° · el −3° · 1.05 m</span></div>
+  <div class="row"><span>gaze</span><span id="h-gaze">0.00 , 0.00</span></div>
+  <div class="row"><span>blink</span><span id="h-blink">0.00</span></div>
+  <div class="row"><span>wave</span><span id="h-wave">0.00</span></div>
+  <div class="row"><span>syllable</span><span id="h-syl">—</span></div>
+  <div class="row"><span>head</span><span id="h-head">—</span></div>
+  <div class="row"><span>source</span><span id="h-src">menloresearch/asimov-1</span></div>
+  <div class="row"><span>studio</span><span>asimov_studio.py · cams proved</span></div>
+</div>
+
+<div class="cam" id="cam"></div>
+<div class="receipt" id="receipt"></div>
+<div id="boot"><pre id="bootlog"></pre></div>
+
+<script type="importmap">
+{"imports":{"three":"./assets/vendor/three.module.js"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from './assets/vendor/GLTFLoader.js';
+
+const $ = id => document.getElementById(id);
+const boot = [];
+function blog(t, c) { boot.push(`<span class="${c || ''}">${t}</span>`); $('bootlog').innerHTML = boot.join('\n'); }
+
+let _theme = 'night';
+try { _theme = localStorage.getItem('ae-theme') || 'night'; } catch (e) {}
+function applyTheme(t) { document.documentElement.setAttribute('data-theme', t);
+  try { localStorage.setItem('ae-theme', t); } catch (e) {} }
+applyTheme(_theme);
+$('theme-toggle').addEventListener('click', () => {
+  _theme = (_theme === 'night') ? 'day' : 'night'; applyTheme(_theme);
+});
+
+/* ── the face: eyes + a mouth that IS the voice waveform ──
+   robot_face2.py draws a viseme mouth. The studio the estate proved draws a
+   mouth too. Here the mouth is the thing itself: a rolling envelope of the
+   voice, drawn as a trace. No viseme guesses — the waveform is the mouth. */
+const FW = 512, FH = 640;
+const fc = document.createElement('canvas'); fc.width = FW; fc.height = FH;
+const fx = fc.getContext('2d');
+const RGB = [212, 175, 55];
+const COL = `rgba(${RGB[0]},${RGB[1]},${RGB[2]},`;
+const WAVE_N = 96;
+const wave = new Float32Array(WAVE_N);
+let waveHead = 0;
+
+let gaze = { x: 0, y: 0 }, gazeT = { x: 0, y: 0 };
+let blink = 0, nextBlink = 1.4, blinkStart = -1;
+let syllRate = 0, syllName = '—', syllStart = 0;
+
+const SYLLABLES = [['a', 1.0], ['i', 0.55], ['u', 0.7], ['e', 0.8], ['o', 0.9], ['m', 0.35]];
+
+function rr(d, box, r, fill, stroke, lw) {
+  const [x0, y0, x1, y1] = box;
+  d.beginPath();
+  d.moveTo(x0 + r, y0);
+  d.arcTo(x1, y0, x1, y1, r); d.arcTo(x1, y1, x0, y1, r);
+  d.arcTo(x0, y1, x0, y0, r); d.arcTo(x0, y0, x1, y0, r);
+  d.closePath();
+  if (fill) { d.fillStyle = fill; d.fill(); }
+  if (stroke) { d.strokeStyle = stroke; d.lineWidth = lw || 1; d.stroke(); }
+}
+
+/* a voice-like envelope: syllable onsets + decay, plus breath noise */
+function voiceSample(t) {
+  const ph = t % 1.15;
+  const syl = SYLLABLES[Math.floor(t / 1.15) % SYLLABLES.length];
+  const attack = Math.min(1, ph / 0.045);
+  const decay = Math.exp(-ph * 3.1);
+  const trem = 0.72 + 0.28 * Math.sin(t * 21.0);
+  const breath = (Math.sin(t * 1.7) + Math.sin(t * 2.9 + 0.7)) * 0.05;
+  return Math.max(0, Math.min(1, syl[1] * attack * decay * trem + breath));
+}
+
+function drawFace(t) {
+  const W = FW, H = FH;
+  fx.clearRect(0, 0, W, H);
+  const pad = 0.02 * W, bez = [pad, pad, W - pad, H - pad];
+  rr(fx, bez, 0.09 * H, 'rgba(15,16,19,0.95)', COL + '1)', Math.max(1, 0.014 * H));
+  const ins = 0.035 * W, scr = [bez[0] + ins, bez[1] + ins, bez[2] - ins, bez[3] - ins];
+  rr(fx, scr, 0.07 * H, 'rgba(5,7,10,1)');
+  const g = fx.createLinearGradient(0, scr[1], 0, scr[3]);
+  g.addColorStop(0, COL + '0.10)'); g.addColorStop(1, COL + '0)');
+  fx.fillStyle = g; fx.fillRect(scr[0], scr[1], scr[2] - scr[0], scr[3] - scr[1]);
+  fx.strokeStyle = COL + '0.05)'; fx.lineWidth = 1;
+  for (let y = scr[1]; y < scr[3]; y += Math.max(2, 0.018 * H)) {
+    fx.beginPath(); fx.moveTo(scr[0], y); fx.lineTo(scr[2], y); fx.stroke();
+  }
+  const cx = W / 2, cy = H / 2, sw = scr[2] - scr[0], sh = scr[3] - scr[1];
+
+  /* EYES — capsule, iris + catchlight, lids from the blink */
+  const ew = 0.24 * sw, eh = 0.26 * sh, eyeY = cy - 0.16 * sh, eyeDX = 0.20 * sw;
+  const openh = Math.max(0.02 * sh, eh * (1 - 0.93 * blink));
+  for (const sx of [-1, 1]) {
+    const ex = cx + sx * eyeDX;
+    rr(fx, [ex - ew / 2, eyeY - openh / 2, ex + ew / 2, eyeY + openh / 2], openh / 2, COL + '0.94)');
+    if (blink < 0.5 && openh > 0.06 * sh) {
+      const gx = ex + gaze.x * ew * 0.20, gy = eyeY + gaze.y * openh * 0.18;
+      const pr = Math.min(ew, openh) * 0.30;
+      fx.beginPath(); fx.arc(gx, gy, pr, 0, 7); fx.fillStyle = 'rgba(6,8,10,0.92)'; fx.fill();
+      const hr = pr * 0.34;
+      fx.beginPath(); fx.arc(gx - pr * 0.34, gy - pr * 0.36, hr, 0, 7);
+      fx.fillStyle = 'rgba(255,255,255,0.82)'; fx.fill();
+    }
+  }
+
+  /* THE WAVEFORM MOUTH — the mouth box is a scope; the trace is the voice */
+  const mw = 0.70 * sw, mh = 0.26 * sh, my = cy + 0.24 * sh;
+  rr(fx, [cx - mw / 2, my - mh / 2, cx + mw / 2, my + mh / 2], mh * 0.18,
+     'rgba(4,6,8,0.9)', COL + '0.28)', 1.5);
+  // graticule
+  fx.strokeStyle = COL + '0.14)'; fx.lineWidth = 1;
+  for (let i = 1; i < 4; i++) {
+    const yy = my - mh / 2 + mh * i / 4;
+    fx.beginPath(); fx.moveTo(cx - mw / 2 + 3, yy); fx.lineTo(cx + mw / 2 - 3, yy); fx.stroke();
+  }
+  fx.beginPath(); fx.moveTo(cx, my - mh / 2 + 3); fx.lineTo(cx, my + mh / 2 - 3); fx.stroke();
+  // the trace, mirrored about the centre line so silence is a flat line
+  fx.beginPath();
+  const amp = mh * 0.46;
+  for (let i = 0; i < WAVE_N; i++) {
+    const v = wave[(waveHead + i) % WAVE_N];
+    const x = cx - mw / 2 + 4 + (mw - 8) * i / (WAVE_N - 1);
+    const y = my - v * amp;
+    if (i === 0) fx.moveTo(x, y); else fx.lineTo(x, y);
+  }
+  fx.strokeStyle = COL + '0.95)'; fx.lineWidth = Math.max(2, 0.014 * sh);
+  fx.lineJoin = 'round'; fx.stroke();
+  // envelope peaks — the waveform's own amplitude, as a thin mirror
+  fx.beginPath();
+  for (let i = 0; i < WAVE_N; i++) {
+    const v = wave[(waveHead + i) % WAVE_N];
+    const x = cx - mw / 2 + 4 + (mw - 8) * i / (WAVE_N - 1);
+    const y = my + v * amp;
+    if (i === 0) fx.moveTo(x, y); else fx.lineTo(x, y);
+  }
+  fx.strokeStyle = COL + '0.28)'; fx.lineWidth = 1; fx.stroke();
+
+  // charge arc + status dot
+  const x0 = scr[0] + 0.07 * sw, x1 = scr[2] - 0.07 * sw, by = scr[3] - 0.055 * sh;
+  const lw = Math.max(2, 0.022 * sh);
+  fx.strokeStyle = COL + '0.22)'; fx.lineWidth = lw;
+  fx.beginPath(); fx.moveTo(x0, by); fx.lineTo(x1, by); fx.stroke();
+  const charge = 0.5 + 0.5 * Math.sin(t * 0.16);
+  fx.strokeStyle = COL + '0.88)';
+  fx.beginPath(); fx.moveTo(x0, by); fx.lineTo(x0 + (x1 - x0) * charge, by); fx.stroke();
+  fx.beginPath(); fx.arc(scr[2] - 0.05 * sw, scr[1] + 0.05 * sh, 0.016 * sh, 0, 7);
+  fx.fillStyle = COL + '0.82)'; fx.fill();
+  if (faceTex) faceTex.needsUpdate = true;
+}
+
+/* ── three.js ── */
+const canvas = $('scene');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+const bg = new THREE.Color(0x050505); scene.background = bg;
+const camera = new THREE.PerspectiveCamera(38, 1, 0.02, 100);
+scene.add(new THREE.HemisphereLight(0xfff2d0, 0x0a0f0c, 0.9));
+const key = new THREE.DirectionalLight(0xffe6b0, 2.2); key.position.set(2.2, 1.6, 2.6); scene.add(key);
+const rim = new THREE.DirectionalLight(0x00ff9d, 1.2); rim.position.set(-2.4, 0.9, -2.0); scene.add(rim);
+const fill = new THREE.DirectionalLight(0x70dcff, 0.6); fill.position.set(-1.2, -0.6, 2.2); scene.add(fill);
+const grid = new THREE.GridHelper(6, 24, 0x2a2620, 0x161410); grid.position.y = -0.6; scene.add(grid);
+
+let headBox = null, headMesh = null, faceMesh = null, faceTex = null;
+let az = 25 * Math.PI / 180, el = -3 * Math.PI / 180, dist = 1.05;
+let camName = 'front';
+const CAMS = [
+  ['front',        12,  -3, 0.85],
+  ['three_quarter',62,  -6, 1.15],
+  ['side',         90,  -3, 1.05],
+  ['close',         6,  -2, 0.55],
+  ['orbit',        12,  -3, 1.05]
+];
+let orbit = false, camT = 0, camFrom = null, camTo = null;
+const target = new THREE.Vector3();
+function place() {
+  const d = dist * Math.cos(el);
+  camera.position.set(target.x + d * Math.cos(az), target.y + dist * Math.sin(el), target.z + d * Math.sin(az));
+  camera.lookAt(target);
+}
+function resize() {
+  renderer.setSize(innerWidth, innerHeight, false);
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+
+let dragging = false, px = 0, py = 0;
+canvas.addEventListener('pointerdown', e => { dragging = true; px = e.clientX; py = e.clientY; });
+addEventListener('pointerup', () => dragging = false);
+addEventListener('pointermove', e => {
+  gazeT.x = (e.clientX / innerWidth) * 2 - 1;
+  gazeT.y = -((e.clientY / innerHeight) * 2 - 1);
+  if (!dragging) return;
+  az -= (e.clientX - px) * 0.006; el += (e.clientY - py) * 0.004;
+  el = Math.max(-0.9, Math.min(0.9, el));
+  px = e.clientX; py = e.clientY;
+  orbit = false; syncCamButtons();
+});
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  dist = Math.max(0.4, Math.min(4, dist * (1 + Math.sign(e.deltaY) * 0.08)));
+}, { passive: false });
+
+/* camera presets */
+const cbox = $('cam');
+CAMS.forEach(c => {
+  const b = document.createElement('button');
+  b.textContent = c[0].replace(/_/g, ' ');
+  b.dataset.cam = c[0];
+  b.addEventListener('click', () => cutTo(c[0]));
+  cbox.appendChild(b);
+});
+function syncCamButtons() {
+  document.querySelectorAll('#cam button').forEach(b =>
+    b.classList.toggle('on', !orbit && b.dataset.cam === camName));
+}
+function cutTo(name) {
+  const c = CAMS.find(x => x[0] === name); if (!c) return;
+  camName = c[0];
+  orbit = (name === 'orbit');
+  camFrom = { az, el, dist }; camTo = { az: c[1] * Math.PI / 180, el: c[2] * Math.PI / 180, dist: c[3] };
+  camT = 0;
+  syncCamButtons();
+  $('h-cam').textContent = name.replace(/_/g, ' ');
+  blog(`  camera → ${name.replace(/_/g, ' ')}`, 'c');
+}
+
+/* ── load the Asimov head (the estate's menloresearch/asimov-1 CAD) ── */
+blog('&gt; asimov:// studio · loading the head', 'g');
+new GLTFLoader().load('./assets/gltf/asimov-web.glb', gltf => {
+  const root = gltf.scene;
+  root.traverse(o => {
+    if (o.isMesh) {
+      o.material = new THREE.MeshStandardMaterial({
+        color: 0x2a2f36, metalness: 0.85, roughness: 0.34,
+        emissive: 0x0a0d10, emissiveIntensity: 0.5
+      });
+    }
+  });
+  scene.add(root);
+  scene.updateMatrixWorld(true);
+  // MEASURED: the GLB's nodes carry no transforms, so all 26 link meshes sit
+  // at the origin. Show the head link — the actual Asimov head CAD — alone.
+  root.traverse(o => { if (o.isMesh) o.visible = (o.name === 'neck_pitch_link'); });
+  headMesh = root.getObjectByName('neck_pitch_link');
+  headBox = new THREE.Box3().setFromObject(headMesh || root);
+  const size = new THREE.Vector3(); headBox.getSize(size);
+  const c = new THREE.Vector3(); headBox.getCenter(c);
+
+  faceTex = new THREE.CanvasTexture(fc);
+  faceTex.colorSpace = THREE.SRGBColorSpace; faceTex.anisotropy = 4;
+  const faceScale = Math.max(0.09, Math.min(0.20, size.z * 0.95));
+  const geo = new THREE.PlaneGeometry(faceScale, faceScale * (FH / FW));
+  const mat = new THREE.MeshBasicMaterial({ map: faceTex, transparent: true,
+    side: THREE.DoubleSide, toneMapped: false, depthWrite: false });
+  faceMesh = new THREE.Mesh(geo, mat);
+  scene.add(faceMesh);
+
+  target.copy(c);
+  dist = Math.max(0.6, size.length() * 2.0);
+  place();
+
+  $('h-head').textContent = 'neck_pitch_link · asimov-web.glb';
+  $('h-src').textContent = 'menloresearch/asimov-1';
+  $('meshstate').textContent = 'head live · waveform mouth';
+  blog('&gt; head loaded ................. neck_pitch_link', 'ok');
+  blog(`&gt; tablet on the front ......... ${faceScale.toFixed(3)} m`, 'c');
+  blog('&gt; mouth ...................... the live voice waveform', 'c');
+  blog('&gt; cameras ................... front / three quarter / side / close / orbit', 'c');
+  blog('&gt; record ..................... captures this canvas to WebM', 'c');
+  setTimeout(() => { $('boot').style.opacity = '0'; setTimeout(() => $('boot').remove(), 520); }, 900);
+}, undefined, err => {
+  blog('&gt; head load FAILED · ' + (err && err.message ? err.message : err), 'm');
+  $('meshstate').textContent = 'head failed';
+});
+
+/* ── record: canvas → WebM → sha256 receipt ── */
+let rec = null, chunks = [], recT0 = 0;
+$('rec').addEventListener('click', async () => {
+  if (rec) { rec.stop(); return; }
+  if (!canvas.captureStream) { blog('  captureStream unavailable in this browser', 'm'); return; }
+  const stream = canvas.captureStream(30);
+  const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  chunks = [];
+  rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 6_000_000 });
+  rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+  rec.onstop = async () => {
+    const blob = new Blob(chunks, { type: 'video/webm' });
+    const buf = new Uint8Array(await blob.arrayBuffer());
+    const h = await crypto.subtle.digest('SHA-256', buf);
+    const hex = [...new Uint8Array(h)].map(b => b.toString(16).padStart(2, '0')).join('');
+    const secs = ((performance.now() - recT0) / 1000).toFixed(2);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `asimov-head-${Date.now()}.webm`;
+    const r = $('receipt');
+    r.innerHTML = `<b>RECORDED</b> ${(blob.size / 1024).toFixed(1)} KB · ${secs} s · ${buf.length} B\n` +
+      `sha256 <b>${hex.slice(0, 32)}…</b>\ncamera ${camName.replace(/_/g, ' ')} · waveform mouth · head neck_pitch_link\n` +
+      `<a href="${a.href}" download="asimov-head.webm" style="color:var(--gold)">download the take ↓</a>`;
+    r.classList.add('show');
+    blog(`  recorded ${secs}s · ${(blob.size / 1024).toFixed(1)} KB · sha256 ${hex.slice(0, 12)}…`, 'ok');
+    rec = null; $('rec').classList.remove('on'); $('rec').textContent = '● record';
+  };
+  rec.start(200);
+  recT0 = performance.now();
+  $('rec').classList.add('on'); $('rec').textContent = '■ stop';
+  blog('  recording… the canvas is the camera', 'm');
+});
+
+/* ── loop ── */
+const clock = new THREE.Clock();
+let waveClock = 0;
+function tick() {
+  const dt = Math.min(0.05, clock.getDelta());
+  const t = clock.elapsedTime;
+
+  // push the voice waveform at ~90 samples/s
+  waveClock += dt;
+  while (waveClock > 1 / 90) { wave[waveHead] = voiceSample(t); waveHead = (waveHead + 1) % WAVE_N; waveClock -= 1 / 90; }
+
+  gaze.x += (gazeT.x - gaze.x) * 0.06;
+  gaze.y += (gazeT.y - gaze.y) * 0.06;
+
+  if (t > nextBlink) { blinkStart = t; nextBlink = t + 2.5 + Math.random() * 4; }
+  const bc = t - blinkStart;
+  blink = bc < 0.16 ? Math.sin(Math.PI * bc / 0.16) : 0;
+
+  const syl = SYLLABLES[Math.floor(t / 1.15) % SYLLABLES.length];
+  syllName = syl[0];
+
+  // camera cut easing
+  if (camTo) {
+    camT = Math.min(1, camT + dt * 1.6);
+    const k = camT * camT * (3 - 2 * camT);
+    az = camFrom.az + (camTo.az - camFrom.az) * k;
+    el = camFrom.el + (camTo.el - camFrom.el) * k;
+    dist = camFrom.dist + (camTo.dist - camFrom.dist) * k;
+    if (camT >= 1) camTo = null;
+  }
+  if (orbit) az += dt * 0.32;
+
+  drawFace(t);
+
+  if (faceMesh && headBox) {
+    const c = new THREE.Vector3(); headBox.getCenter(c);
+    const s = new THREE.Vector3(); headBox.getSize(s);
+    faceMesh.position.set(c.x + s.x / 2 + 0.004, c.y + s.y * 0.06, c.z);
+  }
+
+  $('h-cam2').textContent = `az ${Math.round(((az * 180 / Math.PI) % 360 + 360) % 360)}° · el ${Math.round(el * 180 / Math.PI)}° · ${dist.toFixed(2)} m`;
+  $('h-gaze').textContent = gaze.x.toFixed(2) + ' , ' + gaze.y.toFixed(2);
+  $('h-blink').textContent = blink.toFixed(2);
+  $('h-wave').textContent = wave[(waveHead + WAVE_N - 1) % WAVE_N].toFixed(2);
+  $('h-syl').textContent = syllName;
+
+  place();
+  renderer.render(scene, camera);
+  window.__frames = (window.__frames || 0) + 1;
+}
+let lastStep = 0;
+function drive() {
+  const now = performance.now();
+  if (now - lastStep < 20) return;
+  lastStep = now; tick();
+}
+function raf() { drive(); requestAnimationFrame(raf); }
+requestAnimationFrame(raf);
+setInterval(drive, 33);
+resize();
+syncCamButtons();
+cutTo('front');
+</script>
+</body>
+</html>
