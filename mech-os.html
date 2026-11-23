@@ -303,6 +303,19 @@
         #ae-menu .hint { color: #6f6a5c; font-size: 9.5px; margin-top: 6px; line-height: 1.6; }
         .window .dockbtn { cursor: pointer; opacity: .75; }
         .window .dockbtn:hover { opacity: 1; }
+        /* wætz inside the console — the real Asimov CAD sprite atlas */
+        .petbox { position: relative; width: 100%; height: 100%;
+                  display: flex; align-items: center; justify-content: center; }
+        #mech-pet { width: min(150px, 82%); aspect-ratio: 192 / 208; height: auto;
+            image-rendering: pixelated; cursor: pointer;
+            background-image: url('picoasimov-atlas.webp'); background-repeat: no-repeat;
+            background-size: 100% auto;      /* one cell across the element width */
+            background-position: 0 0;
+            filter: drop-shadow(0 0 12px rgba(255,157,0,.35)); }
+        #mech-pet.bump { transform: translateY(-3px) scale(1.02); }
+        .petbox .floor { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+            width: 110px; height: 6px; border-radius: 50%;
+            background: radial-gradient(ellipse, rgba(255,157,0,.3), transparent 70%); }
         .ticker-item .sim {
             font-size: 9px; padding: 1px 4px; border: 1px solid currentColor; border-radius: 2px;
             opacity: .75; vertical-align: middle;
@@ -602,7 +615,10 @@
                 </div>
                 <div
                     style="background: #000; border: 1px solid var(--metal-light); width: 100%; height: 200px; position: relative; overflow: hidden;">
-                    <canvas id="robot-canvas" width="370" height="198" style="width: 100%; height: 100%;"></canvas>
+                    <div class="petbox">
+                        <div id="mech-pet" title="wætz · the Asimov CAD pet · click to wave"></div>
+                        <div class="floor"></div>
+                    </div>
                 </div>
                 <div style="margin-top: 10px; display: flex; gap: 10px;">
                     <button class="btn" onclick="executeRobotPath()">EXECUTE_PATH</button>
@@ -1286,6 +1302,43 @@
                 })
                 .catch(function (e) { el.innerHTML = '<p>&gt; store index unreadable (' + e.message + ')</p>'; });
         }
+
+        /* --- wætz inside the console: the real Asimov CAD pet ------------------------
+           Same atlas and same nine states as waetz.html / the home. 6 frames per state,
+           columns 6-7 unused (pet.json). Click the pet to wave. */
+        var MPET_STATES = ['idle','running-right','running-left','waving','jumping',
+                           'failed','waiting','running','review'];
+        var _mpState = 'idle', _mpFrame = 0, _mpDW = 144, _mpDH = 156;
+        function mpDraw() {
+            var p = document.getElementById('mech-pet'); if (!p) return;
+            var row = Math.max(0, MPET_STATES.indexOf(_mpState));
+            var cw = p.clientWidth || 144, ch = p.clientHeight || 156;
+            p.style.backgroundPosition = (-_mpFrame * cw) + 'px ' + (-row * ch) + 'px';
+        }
+        function mpSet(s) {
+            if (MPET_STATES.indexOf(s) < 0) return;
+            _mpState = s; _mpFrame = 0; mpDraw();
+            var l = document.getElementById('robot-pos');
+            if (l) l.textContent = 'state:' + s;
+            addLog('[| "PET", "' + s + '", "asimov-cad", "QR://pet/' + s + '" |]');
+        }
+        setInterval(function () { _mpFrame = (_mpFrame + 1) % 6; mpDraw() }, 83);
+        (function () {
+            var p = document.getElementById('mech-pet'); if (!p) return;
+            p.addEventListener('click', function () {
+                p.classList.add('bump'); setTimeout(function () { p.classList.remove('bump') }, 200);
+                mpSet('waving');
+            });
+        })();
+        /* battery is real where the platform exposes it; otherwise say n/a */
+        (function () {
+            var b = document.getElementById('robot-bat'); if (!b) return;
+            if (navigator.getBattery) {
+                navigator.getBattery().then(function (t) {
+                    b.textContent = Math.round(t.level * 100) + '%';
+                }).catch(function () { b.textContent = 'n/a' });
+            } else { b.textContent = 'n/a' }
+        })();
 
         /* --- start the measured telemetry, after every handler above is defined --- */
         measureStatus();

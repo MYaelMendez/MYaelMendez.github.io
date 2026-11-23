@@ -3420,3 +3420,21 @@ The robotics console's numbers were fabricated: `randomizeStatus()` drew CPU and
      when the manager isn't tiling.
 - **Also:** the first layout pass ran while `#desktop` was still hidden (clientWidth 0); it now
   runs at the boot reveal instead of racing the random-delay boot.
+
+## 83. wætz lives inside the console (2026-11-23)
+
+`mech-os` feels like the OS for Asimov, so `VISUAL_ROBOT_MCP` now runs the real body:
+the `picoasimov-atlas.webp` CAD sprite — same atlas, same nine states, same 6-frames-per-state
+contract as `waetz.html` and the home. Click the pet to wave; every state change writes a
+`[| "PET", "<state>", "asimov-cad", "QR://pet/<state>" |]` line to `#logs`.
+
+- Sprite sized by the window (`min(150px, 82%)`, `aspect-ratio:192/208`,
+  `background-size:100% auto`), frame offsets computed from the live element box.
+- `robot-bat` now reads the **real** Battery API where the platform exposes it, else `n/a`
+  (was a hardcoded `100%`). `robot-pos` reports the pet's **state**, not fabricated coordinates.
+- **Verified:** atlas loads; `mpSet('running-right')` → background-position row 1
+  (`-103px -112px` on a 103×112 box) and the label follows; frame stepping measured
+  (position advances each tick).
+- **Honest limitation:** in a 1:1 docked tile the pet is small (~103 px). The atlas contract is
+  right; the prominence depends on giving VISUAL_ROBOT_MCP a 9:16 slot, which the current
+  four-across tiling assigns by open order. Next increment: a preferred-aspect hint per window.
