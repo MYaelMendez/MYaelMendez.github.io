@@ -20,7 +20,12 @@ evidence is a draft.
 ## Where authority lives
 
 Authority stays with the human. Agents propose, measure and publish; they do
-not grant, spend or permit.
+not grant, spend or permit. The order is fixed and named:
+
+`HUMAN://ROOT → æ POLICY → wætz:// → robot:// → {asimov|reachy|microduck|meshbot}:// → RECEIPT`
+
+`wætz://` is the proprietary policy; `robot://` is the open dialect it governs.
+An address is not a permission.
 
 ## The zero point
 
