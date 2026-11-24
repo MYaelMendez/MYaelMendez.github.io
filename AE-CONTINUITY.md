@@ -3844,3 +3844,52 @@ against `rtx-render-demo.html`, read with `computer_use(action="capture", app="c
 **Reusable technique recorded:** put the result where the cheapest read can reach it (title, DOM
 node, URL fragment) before trying to drive UI. Two free channels — `terminal` to launch, capture
 to read — replaced a consent-gated scroll.
+
+## 2026-11-24 — flagship 9:16 mobile, passkey removed
+
+**Removed.** The inert WebAuthn panel is gone from `privateclient/bridge.html`
+(status bar back to `#LOCALAI · FLAGSHIP · LOCAL-ONLY`). Verified live: zero
+`WINDOWS PASSKEY` / `pkProbe` nodes. The gate belongs in the local broker, not
+in a public page.
+
+**Built.** `privateclient/mobile/index.html` → `https://privateclient.ai/secret/mobile/`:
+a 540×960 full-bleed surface with one thumb CTA (`OPEN LOCAL VAULT`), a bottom
+sheet with ENTRIES / ADD / RECEIPT, and a PROBE control that renders only HTTP
+status and discards the broker body. Background is a glyph-free plate whose
+SHA-256 (`c9a1df29f2d99bd6…`) is the surfaced receipt. Only external URL in
+the source is `127.0.0.1:7890`.
+
+**Redirect.** `/secret/` now redirects to `/secret/mobile/` below 700 px and
+keeps a visible `9:16 MOBILE →` door on desktop. Verified both states in a real
+browser at 540px and 1600px.
+
+**Measured.** Phone viewport 540×960; sheet opens, ADD stores one entry
+locally, RECEIPT shows the plate hash, PROBE reports `status 0 · TypeError`
+from the public origin (honest: no visitor loopback broker). Visual review
+caught and fixed headline/art collision and clipped microcopy in two rounds.
+
+**Remaining.** Mobile contract still needs to be applied to kanban (one column)
+and Blender (review sheet only). Plugin `blender` remains disabled behind the
+unrelated `config_backends` admission error; Blender 5.3.0 + add-on v1.0.3 are
+installed and hash-verified but `blender.exe` is not on `PATH`.
+
+## 102. pet: la transparencia ya estaba en el atlas; el fallo era la ruta (2026-11-24)
+
+**Medido antes de tocar nada:** `picoasimov-atlas.webp` es **1536×1872 con 91% de píxeles
+alpha<8** (8% opaco, 0% parcial) — el sprite **ya compone sobre cualquier fondo**. La
+transparencia no era el problema.
+
+**Defecto real encontrado:** `assets/pet/ae-pet-widget.js` apuntaba a
+`pet/picoasimov-atlas.webp`, pero el atlas vive en la **raíz** del sitio; `pet/` solo guarda
+`pet.json` y las pruebas. La ventana ESTATE montaba un **cuadro vacío**. Mi verificación anterior
+leyó `data-pet-state` y el tamaño — atributos que se fijan **aunque la imagen no cargue** — así
+que di por bueno un widget invisible: exactamente la trampa *«a loaded runtime is not a used
+runtime»*.
+
+**Corregido y verificado:** `src:'picoasimov-atlas.webp'`. En el navegador, el `background-image`
+calculado resuelve a `/picoasimov-atlas.webp` y la imagen carga con `naturalWidth 1536`,
+`naturalHeight 1872`.
+
+**Pendiente de decisión, no ejecutado:** lo único opaco que queda detrás de la figura es el panel
+del héroe (`.facecover{background:#020504}`) y `.pet-stage`. Que sean transparentes es una
+decisión de composición, no un arreglo silencioso.

@@ -11,8 +11,10 @@
   'use strict';
   var STATES = ['idle', 'running-right', 'running-left', 'waving', 'jumping',
                 'failed', 'waiting', 'running', 'review'];
-  /* atlas geometry — 1536×1872 · 8 cols × 9 rows of 192×208 · 6 frames used */
-  var ATLAS = { src: 'pet/picoasimov-atlas.webp', w: 1536, h: 1872, cw: 192, ch: 208, frames: 6 };
+  /* atlas geometry — 1536×1872 · 8 cols × 9 rows of 192×208 · 6 frames used
+     La fuente vive en la RAÍZ del sitio (verificada: 91% de píxeles con alpha<8),
+     no en pet/ — pet/ solo guarda pet.json y las pruebas. */
+  var ATLAS = { src: 'picoasimov-atlas.webp', w: 1536, h: 1872, cw: 192, ch: 208, frames: 6 };
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
