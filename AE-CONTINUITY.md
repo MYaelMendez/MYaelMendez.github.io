@@ -3821,3 +3821,26 @@ o no carga el módulo, **el fondo 2D sigue funcionando** y el camino tomado se d
    existía). Ahora el motivo se declara en vez de desaparecer.
 3. el suelo era invisible (opacidad .5, color `0x1b1b1b`, fog 9–26). Ajustado a `.85` / `0x444444`
    / fog 12–34 y `lookAt(0,-1.5,0)`; verificado visualmente.
+
+## 101. RTX render cost MEASURED — the loop improved and closed the gap (2026-11-24)
+
+§98 left the RTX row without a time: under `--virtual-time-budget` headless the GPU work is
+deferred so `performance.now()` around `renderer.render()` reads 0. Instead of reporting that as
+a permanent blocker, the page was changed so the receipt travels in **`document.title`** — which
+`computer_use` capture returns without needing any click or scroll approval.
+
+**Setup:** real desktop Chrome launched with `--force_high_performance_gpu --use-angle=d3d11`
+against `rtx-render-demo.html`, read with `computer_use(action="capture", app="chrome.exe")`.
+
+**Measured, same scene, two machines:**
+
+| launch | gpu | ms/frame | fps |
+|---|---|---|---|
+| real Chrome + RTX flags | **NVIDIA GeForce RTX 3050 6GB** | **1.21** | **826.2** |
+| harness Chrome (no flags) | Intel UHD (ANGLE/D3D11) | 35.15 | 28.5 |
+
+≈ **29×** less time per frame. Digest on the RTX run `74df2505`.
+
+**Reusable technique recorded:** put the result where the cheapest read can reach it (title, DOM
+node, URL fragment) before trying to drive UI. Two free channels — `terminal` to launch, capture
+to read — replaced a consent-gated scroll.

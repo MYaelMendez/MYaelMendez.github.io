@@ -136,6 +136,9 @@ if(THREE){
       note: 'el render es local; el digesto es sobre el último frame'
     };
     $('receipt').textContent = JSON.stringify(rec, null, 2);
+    /* el título lleva el resultado: es legible desde la ventana, sin hacer scroll */
+    const short = /NVIDIA/i.test(gpu) ? 'RTX 3050' : 'Intel UHD';
+    document.title = 'rtx://render · ' + short + ' · ' + ms + ' ms · ' + fps + ' fps · digest ' + rec.frame_digest_64px;
     $('status').innerHTML = (isRTX ? '<span class="pill">RTX · DEFAULT</span>'
                                   : '<span class="pill intel">INTEL · FALLBACK</span>')
       + ' · <span style="color:var(--dim)">digest ' + rec.frame_digest_64px + '</span>';
