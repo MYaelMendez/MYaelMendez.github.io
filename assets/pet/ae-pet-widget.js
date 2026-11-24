@@ -19,6 +19,13 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
+  /* P1 · autoridad sobre el cuerpo: las señales de asimov:// mapean a estados.
+     Un refusado nunca se celebra — `failed` gana hasta que llegue otra señal. */
+  var SIGNALS = {
+    plan: 'running',   approve: 'waving',  refuse: 'failed', receipt: 'review',
+    running: 'running', waiting: 'waiting', failed: 'failed', review: 'review'
+  };
+
   function mount(el, opts) {
     if (!el) return null;
     opts = opts || {};
@@ -70,16 +77,35 @@
     }
 
     draw(); report();
-    return { set: set, get: function () { return state; }, states: STATES };
+    return { set: set, get: function () { return state; }, states: STATES,
+             signal: function (n) {
+               var s = SIGNALS[n];
+               if (!s) return false;
+               set(s);
+               el.setAttribute('data-pet-signal', n);
+               return true;
+             } };
   }
 
   function mountAll(scope) {
     var n = 0;
-    (scope || document).querySelectorAll('[data-pet]').forEach(function (el) { mount(el); n++; });
+    (scope || document).querySelectorAll('[data-pet]').forEach(function (el) {
+      el._aePet = mount(el); n++;
+    });
     return { mounts: n };
   }
 
-  window.aePetWidget = { mount: mount, mountAll: mountAll, states: STATES, atlas: ATLAS };
+  /* una señal con nombre conduce TODOS los mounts; devuelve cuántos respondieron */
+  function signal(n) {
+    var hit = 0;
+    document.querySelectorAll('[data-pet]').forEach(function (el) {
+      if (el._aePet && el._aePet.signal(n)) hit++;
+    });
+    return hit;
+  }
+
+  window.aePetWidget = { mount: mount, mountAll: mountAll, signal: signal,
+                        states: STATES, signals: SIGNALS, atlas: ATLAS };
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () { mountAll() });
   } else { mountAll() }

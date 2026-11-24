@@ -3893,3 +3893,28 @@ calculado resuelve a `/picoasimov-atlas.webp` y la imagen carga con `naturalWidt
 **Pendiente de decisión, no ejecutado:** lo único opaco que queda detrás de la figura es el panel
 del héroe (`.facecover{background:#020504}`) y `.pet-stage`. Que sean transparentes es una
 decisión de composición, no un arreglo silencioso.
+
+## 103. pet evolution — plan + P1 shipped (2026-11-24)
+
+Plan: `ASIMOV-PET-EVOLUTION.md` — P0 substrate (done) · **P1 autoridad sobre el cuerpo** · P2
+telemetría · P3 articulación en vivo · P4 locomoción DOM-aware · P5 raster mayor · P6 voz.
+Invariante: **el receipt cambia de forma, nunca desaparece.**
+
+**P1 implementado y verificado** en `assets/pet/ae-pet-widget.js`:
+`aePetWidget.signal(name)` conduce **todos** los mounts y devuelve cuántos respondieron.
+
+| llamada | estado resultante | atributo |
+|---|---|---|
+| `signal('refuse')` | `failed` | `data-pet-signal="refuse"` · 1 mount |
+| `signal('plan')` | `running` | 1 |
+| `signal('receipt')` | `review` | 1 |
+| `signal('nonexistent')` | — | **0** (rechazada) |
+
+Señales: `plan approve refuse receipt running waiting failed review`. Un refusado no se celebra:
+`failed` gana hasta otra señal.
+
+**Estado honesto del plan:** P1 hecho y medido. **P2 a medias** — existe la API y el mapeo, pero
+todavía no está cableada a señales reales del estate (no hay dispatcher que emita `waiting` ni
+`review` hoy). **P3–P6 no empezados**: P3 es el desbloqueo crítico (requiere el URDF articular +
+digest por frame), P4 depende de P3, P5 es independiente y barato, **P6 sigue bloqueado** por el
+numpy ABI de tiny-voca.
