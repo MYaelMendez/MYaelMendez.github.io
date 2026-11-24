@@ -3500,3 +3500,19 @@ A GGUF exists (`neuromitosis/plan-narrator/adapter-v3-text.gguf`, 59.6 MB).
   (`Runtime.evaluate timed out after 5s`) and did not recover across two sessions. The edit is
   committed on reasoning, not on a read-back. Next session must re-measure the 390×844 layout
   before calling this done.
+
+## 88. the kernel is yæl — mæch stays the language (2026-11-23)
+
+Operator's naming rule: **the kernel is `yæl`; `mæch` is the development language; `æ` is the
+agentic electronic language for machine-learning programming.** `mech-os.html` carried the
+kernel name `MÆCH`, which conflated the two.
+
+- Boot now reads `> INITIALIZING YÆL KERNEL...` plus a new line stating the distinction:
+  `> æ:// agentic electronic · mæch-lang runtime`.
+- Every system-identity use of MÆCH became yæl: typography stack labels (`yæl v4.1`,
+  `yæl Typography`), the SPATIAL_GATEWAY comment (`yæl 4D`), the tabular-format and
+  echo-response comments, the Google demo query (`yæl OS docs`), and the ROOT_ENDPOINT row
+  `MÆCH Core` → `yæl Core`. **`grep -c MÆCH mech-os.html` → 0.**
+- **Not renamed:** the surface/file name `MECH-OS` / `mech-os.html`, and the `mech-os-console`
+  skill. Those name the *console*, not the kernel — but they do inherit the language's name, so
+  if the console should also be re-named, that is a URL/skill change with inbound links to fix.
