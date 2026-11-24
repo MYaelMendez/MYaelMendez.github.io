@@ -3516,3 +3516,21 @@ kernel name `MÆCH`, which conflated the two.
 - **Not renamed:** the surface/file name `MECH-OS` / `mech-os.html`, and the `mech-os-console`
   skill. Those name the *console*, not the kernel — but they do inherit the language's name, so
   if the console should also be re-named, that is a URL/skill change with inbound links to fix.
+
+## 89. MASTER window + ROOT_ENDPOINT docked (2026-11-23)
+
+- New **`MASTER · myaelmendez.github.io`** window: an `<iframe>` of `index.html` — the estate
+  hub worn as a window. `data-master="1"`, amber gradient header, open by default, and it
+  **claims the first portrait slot** (sorted before everything else).
+- `ROOT_ENDPOINT` now starts docked too. Its title is prefixed (`æææ:/// ROOT_ENDPOINT`), so
+  the standard-set matcher was fixed from `indexOf(p) === 0` to `>= 0`.
+- **Two defects found while verifying:**
+  1. the `body.tiled` toggle had been lost in the earlier rewrite, so the ≤768 px phone rule
+     still overrode landscape geometry at 764 px — restored;
+  2. docked windows were still filling the remaining portrait slots (only three squares sat
+     below). Landscape now lays out **undocked-only** for the top row and sends *all* docked
+     windows into the square flow, continuing the same row counter.
+- **Measured at 1440×900:** MASTER 304×540 at (8, 8); SYSTEM_STATUS / COMM_LOGS /
+  MODEL_COMBINATOR / ROOT_ENDPOINT each 160×160 at y=556, x = 8/176/344/512.
+- Composition note: with the four originals docked by default, MASTER is the sole 9:16 tile
+  until more windows are opened — coherent with "the original four start docked".

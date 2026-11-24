@@ -319,6 +319,10 @@
         /* mirror bar + candidate list */
         body.portrait #desktop { overflow-y: auto; overflow-x: hidden; }
         .win-std > .window-header { border-bottom: 1px solid var(--secondary-color, #ff9d00); }
+        .win-master > .window-header {
+            background: linear-gradient(to right, #000, var(--secondary-color, #ff9d00), #000);
+            color: #050505; font-weight: 700;
+        }
         .mirrorbar { display: flex; gap: 6px; align-items: center; font-size: 10px;
             margin-bottom: 4px; letter-spacing: .04em; }
         .mirrorbar input { flex: 1; background: #0a0a0a; border: 1px solid var(--metal-light);
@@ -696,6 +700,20 @@
                 <div style="opacity:.6;font-size:9.5px;margin-top:6px">
                     A plan only. Nothing executes here — dispatch goes through the conductor bridge.
                 </div>
+            </div>
+        </div>
+
+        <!-- MASTER — the estate hub, worn as a window -->
+        <div class="window win-master" id="win-master" data-master="1"
+             style="top:60px;left:520px;width:420px;">
+            <div class="window-header">
+                <span class="window-title">MASTER · myaelmendez.github.io</span>
+                <span class="window-controls"
+                      onclick="this.parentElement.parentElement.style.display='none';layoutWindows()">[x]</span>
+            </div>
+            <div class="window-content" style="padding:0;height:calc(100% - 30px);overflow:hidden">
+                <iframe src="index.html" title="master — the estate hub"
+                        style="width:100%;height:100%;border:0;background:#050505"></iframe>
             </div>
         </div>
 
@@ -1238,7 +1256,7 @@
            default 9:16, dockable 1:1; up to four 9:16 across the top,
            then as many 1:1 squares as fit below. */
         function allWindows() { return [...document.querySelectorAll('.window')]; }
-        /* the standardised four — they start docked and set the layout's default */
+        /* the standardised five — they start docked and set the layout's default */
         var STD_TITLES = ['SYSTEM_STATUS', 'COMM_LOGS', 'MODEL_COMBINATOR', 'ROOT_ENDPOINT'];
         function winByTitle(t) {
             return allWindows().find(function (w) {
@@ -1300,18 +1318,22 @@
                 allWindows().forEach(function (w) {
                     var el = w.querySelector('.window-title'); if (!el) return;
                     var t = el.textContent.replace(/\[x\]/g, '').trim();
-                    if (t.indexOf(p) === 0 && !w.dataset.std) {
+                    if (t.indexOf(p) >= 0 && !w.dataset.std) {   /* ROOT_ENDPOINT is prefixed */
                         w.dataset.std = '1'; w.classList.add('win-std');
                         w.dataset.docked = '1';                 /* start docked */
                     }
                 });
             });
-            /* docked windows take the 1:1 flow, everything else claims the top */
+            /* the master claims the first portrait slot; docked fill the squares */
             wins.sort(function (a, b) {
+                var am = a.dataset.master === '1' ? 0 : 1, bm = b.dataset.master === '1' ? 0 : 1;
+                if (am !== bm) return am - bm;
                 return (a.dataset.docked === '1') - (b.dataset.docked === '1');
             });
             var portrait = H > W;
             document.body.classList.toggle('portrait', portrait);
+            /* landscape: the manager owns the geometry above 700 px, phones stack */
+            document.body.classList.toggle('tiled', !portrait && W >= 700);
             if (!wins.length) return;
 
             if (portrait) {                      /* optimal 9:16 mobile composition */
@@ -1349,21 +1371,34 @@
             var pw = Math.floor((W - gap * (n + 1)) / n);
             var ph = Math.round(pw * 16 / 9), maxPh = Math.round(H * 0.60);
             if (ph > maxPh) { ph = maxPh; pw = Math.max(120, Math.round(ph * 9 / 16)); }
-            wins.forEach(function (w, i) {
+            /* only undocked windows may take a portrait slot; docked go to the squares */
+            var free = wins.filter(function (w) { return w.dataset.docked !== '1' });
+            var s = Math.max(90, Math.min(180, Math.floor(W / 9)));
+            var perRow = Math.max(1, Math.floor((W - gap) / (s + gap)));
+            var sq = ph + gap * 2, col = 0, row = 0;
+            free.forEach(function (w, i) {
                 w.style.position = 'absolute';
                 w.style.right = 'auto'; w.style.bottom = 'auto';
                 w.style.minWidth = '0'; w.style.minHeight = '0';   /* beat .window{min-*} */
                 if (i < n) {                                   /* top row: 9:16 */
                     w.style.left = (gap + i * (pw + gap)) + 'px'; w.style.top = gap + 'px';
                     w.style.width = pw + 'px'; w.style.height = ph + 'px';
-                } else {                                       /* below: 1:1 flow */
-                    var s = Math.max(90, Math.min(180, Math.floor(W / 9)));
-                    var perRow = Math.max(1, Math.floor((W - gap) / (s + gap)));
-                    var r = i - n, row = Math.floor(r / perRow), col = r % perRow;
+                } else {                                       /* overflow: 1:1 */
                     w.style.left = (gap + col * (s + gap)) + 'px';
-                    w.style.top = (ph + gap * 2 + row * (s + gap)) + 'px';
+                    w.style.top = (sq + row * (s + gap)) + 'px';
                     w.style.width = s + 'px'; w.style.height = s + 'px';
+                    if (++col >= perRow) { col = 0; row++; }
                 }
+            });
+            wins.forEach(function (w) {
+                if (w.dataset.docked !== '1') return;
+                w.style.position = 'absolute';
+                w.style.right = 'auto'; w.style.bottom = 'auto';
+                w.style.minWidth = '0'; w.style.minHeight = '0';
+                w.style.left = (gap + col * (s + gap)) + 'px';
+                w.style.top = (sq + row * (s + gap)) + 'px';
+                w.style.width = s + 'px'; w.style.height = s + 'px';
+                if (++col >= perRow) { col = 0; row++; }
             });
         }
         window.addEventListener('resize', layoutWindows);
