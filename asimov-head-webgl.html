@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>asimov:// head studio · webgl mask viewport</title>
+<meta name="description" content="A dedicated WebGL studio for the official Asimov-1 head. The native face mask is a 32x28 programmable LED viewport, not a tablet.">
+<link rel="canonical" href="https://myaelmendez.github.io/asimov-head-webgl.html">
+<link rel="icon" href="./favicon.svg">
+<style>
+:root{--void:#050607;--panel:rgba(5,8,7,.88);--line:rgba(0,255,157,.22);--gold:#D4AF37;--neon:#00ff9d;--cyan:#70dcff;--amber:#ffb000;--red:#ff3b5c;--ink:#e9f7ef;--muted:#789085}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--void);color:var(--ink);font-family:'JetBrains Mono',ui-monospace,monospace;overflow:hidden}
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0}
+.top{position:fixed;z-index:5;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:9px 14px;border-bottom:1px solid var(--line);background:rgba(2,5,4,.82);backdrop-filter:blur(6px);font-size:10px;letter-spacing:.11em;text-transform:uppercase}
+.top .brand{color:var(--gold);font-weight:700;text-transform:none;font-size:12px}
+.top .chain{color:var(--muted);font-size:9px}
+.top .right{display:flex;gap:6px;flex-wrap:wrap}
+button,select,input{font:inherit}
+button{background:rgba(0,255,157,.06);border:1px solid var(--line);color:var(--muted);padding:5px 8px;font-size:9px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:.14s}
+button:hover{color:var(--neon);border-color:var(--neon)}
+button.on{background:var(--neon);border-color:var(--neon);color:#00160c;font-weight:700}
+button.warn.on{background:var(--amber);border-color:var(--amber);color:#1a0d00}
+button.bad.on{background:var(--red);border-color:var(--red);color:#180005}
+.panel{position:fixed;z-index:4;top:50px;bottom:12px;width:246px;overflow:auto;background:var(--panel);border:1px solid var(--line);padding:10px;font-size:10px;line-height:1.5;backdrop-filter:blur(7px)}
+.panel.left{left:12px}.panel.right{right:12px;width:262px}
+.panel::-webkit-scrollbar{width:6px}.panel::-webkit-scrollbar-thumb{background:rgba(0,255,157,.25)}
+h2{font-size:9px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin:12px 0 6px;border-bottom:1px solid var(--line);padding-bottom:4px}
+h2:first-child{margin-top:0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.grid.three{grid-template-columns:1fr 1fr 1fr}
+.grid button{padding:5px 3px;font-size:8.5px}
+label{display:block;color:var(--muted);font-size:9px;margin:7px 0 3px;text-transform:uppercase;letter-spacing:.08em}
+input[type=text]{width:100%;background:#020403;border:1px solid var(--line);color:var(--ink);padding:6px;font-size:10px}
+input[type=range]{width:100%;accent-color:var(--neon)}
+.hint{position:fixed;z-index:3;left:50%;top:54px;transform:translateX(-50%);font-size:9px;color:var(--muted);background:rgba(2,5,4,.72);border:1px solid var(--line);padding:5px 10px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.hud{position:fixed;z-index:4;left:50%;bottom:12px;transform:translateX(-50%);min-width:330px;max-width:min(700px,calc(100vw - 550px));background:rgba(2,5,4,.86);border:1px solid var(--line);padding:8px 11px;font-size:9px;line-height:1.7;color:var(--muted);backdrop-filter:blur(6px)}
+.hud b{color:var(--gold);font-weight:400}
+.hud .row{display:flex;justify-content:space-between;gap:12px}
+.hud .row span:last-child{color:var(--ink)}
+.receipt{margin-top:6px;padding-top:6px;border-top:1px solid var(--line);color:var(--neon);display:none;white-space:pre-wrap;word-break:break-all}
+.receipt.show{display:block}
+.domout{background:#020403;border:1px solid var(--line);padding:6px;margin-top:5px;max-height:120px;overflow:auto;color:var(--cyan);font-size:8.5px;white-space:pre-wrap;word-break:break-all}
+.boot{position:fixed;z-index:9;inset:0;display:grid;place-items:center;background:#050607;transition:opacity .45s}
+.boot pre{font-size:11px;line-height:1.8;color:var(--muted);max-width:min(90vw,620px)}
+.boot .g{color:var(--gold)}.boot .ok{color:var(--neon)}.boot .m{color:var(--red)}
+@media(max-width:900px){.panel{width:210px}.panel.right{width:210px}.hud{max-width:calc(100vw - 24px);left:12px;right:12px;transform:none}.hint{display:none}}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div class="top">
+  <span class="brand">&gt;_æ: ASIMOV // WEBGL HEAD</span>
+  <span class="chain">HUMAN://ROOT → æ → ae → MASK://PROGRAM → RECEIPT</span>
+  <span class="right">
+    <button id="shot">⬡ snap</button>
+    <button id="rec">● record</button>
+    <button id="reset">↺ reset</button>
+  </span>
+</div>
+<div class="hint">drag to orbit · wheel to zoom · the mask is the viewport · no tablet</div>
+
+<aside class="panel left">
+  <h2>Mask viewport</h2>
+  <div class="grid" id="programs"></div>
+  <label for="textIn">Program text</label>
+  <input id="textIn" type="text" value="HUMAN://ROOT">
+  <div class="grid">
+    <button id="setText">send text</button>
+    <button id="cycleText">example</button>
+  </div>
+
+  <h2>Governed states</h2>
+  <div class="grid" id="states"></div>
+
+  <h2>LED surface</h2>
+  <label>brightness <span id="brightVal">1.00</span></label>
+  <input id="bright" type="range" min="0.15" max="1.4" step="0.05" value="1">
+  <label>gaze X <span id="gxVal">0.00</span></label>
+  <input id="gx" type="range" min="-1" max="1" step="0.05" value="0">
+  <label>gaze Y <span id="gyVal">0.00</span></label>
+  <input id="gy" type="range" min="-1" max="1" step="0.05" value="0">
+  <label>blink <span id="blinkVal">0.00</span></label>
+  <input id="blink" type="range" min="0" max="1" step="0.05" value="0">
+  <div class="grid">
+    <button id="blinkNow">blink now</button>
+    <button id="wire">wireframe</button>
+    <button id="autorot">auto orbit</button>
+    <button id="dark">dark mask</button>
+  </div>
+
+  <h2>DOM awareness</h2>
+  <div class="grid">
+    <button id="domSelf">read self DOM</button>
+    <button id="domHermes" data-hermes-send="Read the Asimov WebGL head page DOM and report the mask viewport state.">read via Hermes</button>
+  </div>
+  <div class="domout" id="domOut">DOM not read yet.</div>
+</aside>
+
+<aside class="panel right">
+  <h2>Camera</h2>
+  <div class="grid" id="cams"></div>
+  <label>distance <span id="distVal">0.55</span> m</label>
+  <input id="dist" type="range" min="0.28" max="1.4" step="0.01" value="0.55">
+
+  <h2>Head surface</h2>
+  <label>shell light <span id="lightVal">1.00</span></label>
+  <input id="light" type="range" min="0.2" max="2.2" step="0.05" value="1">
+  <div class="grid">
+    <button id="shellOn">shell on</button>
+    <button id="shellOff">shell off</button>
+    <button id="gridToggle">grid</button>
+    <button id="fit">fit head</button>
+  </div>
+
+  <h2>Mask geometry</h2>
+  <label>width <span id="mwVal">0.120</span> m</label>
+  <input id="mw" type="range" min="0.06" max="0.18" step="0.002" value="0.12">
+  <label>height <span id="mhVal">0.105</span> m</label>
+  <input id="mh" type="range" min="0.05" max="0.16" step="0.002" value="0.105">
+  <label>offset Y <span id="moVal">0.000</span> m</label>
+  <input id="mo" type="range" min="-0.04" max="0.04" step="0.002" value="0">
+
+  <h2>Authority</h2>
+  <button id="receiptBtn" style="width:100%">issue receipt</button>
+  <div class="domout" id="authOut">No receipt issued.</div>
+</aside>
+
+<div class="hud">
+  <div class="row"><span>program</span><span id="hProg">FACE</span></div>
+  <div class="row"><span>state</span><span id="hState">IDLE</span></div>
+  <div class="row"><span>camera</span><span id="hCam">front · az 0° · el 0°</span></div>
+  <div class="row"><span>head</span><span id="hHead">loading…</span></div>
+  <div class="row"><span>source</span><span>menloresearch/asimov-1 · neck_pitch_link</span></div>
+  <div class="receipt" id="receipt"></div>
+</div>
+<div class="boot" id="boot"><pre id="bootlog"></pre></div>
+
+<script type="importmap">{"imports":{"three":"./assets/vendor/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from './assets/vendor/GLTFLoader.js';
+const $ = id => document.getElementById(id);
+const bootLines = [];
+function blog(t, c){ bootLines.push(`<span class="${c||''}">${t}</span>`); const bl=$('bootlog'); if(bl) bl.innerHTML = bootLines.join('\n'); }
+
+/* ───────────────────────── mask viewport ─────────────────────────
+   32 x 28 LED matrix rendered to a transparent canvas, mapped to the
+   front surface of the real Asimov head. No black plate. No tablet. */
+const COLS=32, ROWS=28, FW=512, FH=448;
+const maskCanvas=document.createElement('canvas'); maskCanvas.width=FW; maskCanvas.height=FH;
+const mx=maskCanvas.getContext('2d');
+const textCanvas=document.createElement('canvas'); textCanvas.width=FW; textCanvas.height=FH;
+const tx=textCanvas.getContext('2d');
+let program='FACE', state='IDLE', programText='HUMAN://ROOT';
+let brightness=1, gazeX=0, gazeY=0, blinkAmt=0, blinkUntil=0;
+const COLORS={
+  IDLE:'#00ff9d', LISTENING:'#70dcff', THINKING:'#b98cff', SPEAKING:'#ffd166',
+  'AWAITING APPROVAL':'#ffb000', APPROVED:'#00ff9d', REFUSED:'#ff3b5c', ERROR:'#ff3b5c'
+};
+function led(x,y,color,scale=1,alpha=1){
+  const cx=(x+0.5)*FW/COLS, cy=(y+0.5)*FH/ROWS;
+  const r=(FW/COLS)*0.30*scale;
+  mx.save(); mx.globalAlpha=alpha; mx.shadowBlur=10; mx.shadowColor=color; mx.fillStyle=color;
+  mx.beginPath(); mx.arc(cx,cy,r,0,Math.PI*2); mx.fill(); mx.restore();
+}
+function ledGridText(text,color='#00ff9d'){
+  tx.clearRect(0,0,FW,FH); tx.fillStyle='#fff'; tx.textAlign='center'; tx.textBaseline='middle';
+  let font=64; do{ tx.font=`700 ${font}px ui-monospace,monospace`; font-=2; }while(tx.measureText(text).width>FW-24 && font>18);
+  tx.fillText(text,FW/2,FH/2);
+  const img=tx.getImageData(0,0,FW,FH).data; const cw=FW/COLS, ch=FH/ROWS;
+  for(let y=0;y<ROWS;y++) for(let x=0;x<COLS;x++){
+    let sum=0; for(let yy=0;yy<ch;yy+=2) for(let xx=0;xx<cw;xx+=2){
+      const px=Math.floor(x*cw+xx), py=Math.floor(y*ch+yy); sum+=img[(py*FW+px)*4+3];
+    }
+    if(sum>900) led(x,y,color,0.85,0.95);
+  }
+}
+function face(t){
+  const col=COLORS[state]||'#00ff9d';
+  const gx=Math.round(gazeX*2), gy=Math.round(gazeY*1);
+  const eyeH=blinkAmt>0.08 ? 0 : (state==='THINKING'?2:3);
+  const eyes=[[6,9],[21,9]];
+  for(const [ex,ey] of eyes){
+    for(let yy=0;yy<eyeH;yy++) for(let xx=0;xx<4;xx++){
+      if(state==='REFUSED'||state==='ERROR'){
+        if(xx===yy||xx===3-yy) led(ex+xx,ey+yy,col,0.72);
+      } else led(ex+xx+gx,ey+yy+gy,col,0.78);
+    }
+  }
+  const mouthY=19, amp=state==='SPEAKING'?2.2:(state==='LISTENING'?1.1:0.7);
+  for(let i=0;i<20;i++){
+    const v=Math.sin(i*0.55+t*3.1)*amp + Math.sin(i*0.19-t*1.7)*0.5;
+    led(6+i,mouthY+v,col,0.45,0.85);
+  }
+  if(state==='AWAITING APPROVAL'){
+    for(let x=3;x<COLS-3;x+=2){ led(x,25,col,0.32,0.35+0.35*Math.sin(t*5)); }
+  }
+}
+function telemetry(t){
+  const col=COLORS[state]||'#00ff9d';
+  ledGridText('TELEMETRY',col);
+  for(let i=0;i<24;i++){
+    const v=(Math.sin(t*1.6+i*0.4)+1)/2;
+    led(3+i,24,v*6,0.42,0.75);
+  }
+  led(30,3,col,0.5,0.4+0.4*Math.sin(t*4));
+}
+function qrPattern(text){
+  let h=2166136261; for(const ch of text){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619); }
+  const rand=()=>{ h^=h<<13; h^=h>>>17; h^=h<<5; return (h>>>0)/4294967296; };
+  const size=21, offX=5, offY=3; const grid=Array.from({length:size},()=>Array(size).fill(false));
+  const finder=(ox,oy)=>{ for(let y=0;y<7;y++)for(let x=0;x<7;x++){ const edge=x===0||y===0||x===6||y===6; const core=x>=2&&x<=4&&y>=2&&y<=4; grid[oy+y][ox+x]=edge||core; } };
+  finder(0,0); finder(size-7,0); finder(0,size-7);
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+    if((x<8&&y<8)||(x>12&&y<8)||(x<8&&y>12))continue;
+    grid[y][x]=rand()>0.52;
+  }
+  return {grid,offX,offY};
+}
+function qr(t){
+  const col=COLORS[state]||'#00ff9d'; const {grid,offX,offY}=qrPattern(programText);
+  for(let y=0;y<21;y++)for(let x=0;x<21;x++) if(grid[y][x]) led(offX+x,offY+y,col,0.36);
+  led(30,25,col,0.55,0.4+0.4*Math.sin(t*4));
+}
+function warning(t){
+  const col=state==='REFUSED'||state==='ERROR'?'#ff3b5c':'#ffb000';
+  for(let y=0;y<11;y++){
+    const half=Math.floor(y/2);
+    led(16-half,5+y,col,0.5); led(16+half,5+y,col,0.5);
+  }
+  for(let y=10;y<15;y++) led(16,y,col,0.55);
+  led(16,17,col,0.55);
+  for(let x=1;x<COLS;x+=3) led(x,24,col,0.3,0.25+0.35*Math.sin(t*6+x));
+}
+function drawMask(t){
+  mx.clearRect(0,0,FW,FH);
+  if(program==='FACE') face(t);
+  else if(program==='TEXT') ledGridText(programText,COLORS[state]||'#00ff9d');
+  else if(program==='TELEMETRY') telemetry(t);
+  else if(program==='QR / CODE') qr(t);
+  else if(program==='WARNING') warning(t);
+  else { for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++) led(x,y,'#0f6b48',0.16,0.12); }
+  if(blinkAmt>0 && t<blinkUntil) blinkAmt=Math.max(0,blinkAmt-0.035);
+  maskTex.needsUpdate=true;
+}
+
+/* ───────────────────────── three.js scene ───────────────────────── */
+const canvas=$('gl');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(Math.min(2,devicePixelRatio||1)); renderer.outputColorSpace=THREE.SRGBColorSpace;
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x040706);
+const camera=new THREE.PerspectiveCamera(38,1,0.01,50);
+const hemi=new THREE.HemisphereLight(0xfff0cf,0x06120c,0.9); scene.add(hemi);
+const key=new THREE.DirectionalLight(0xffe0a0,2.1); key.position.set(1.8,1.4,2.4); scene.add(key);
+const rim=new THREE.DirectionalLight(0x00ff9d,1.25); rim.position.set(-2,0.8,-1.6); scene.add(rim);
+const grid=new THREE.GridHelper(3,18,0x183b2e,0x0c1c16); grid.position.y=-0.32; scene.add(grid);
+const target=new THREE.Vector3();
+let az=0, el=0, dist=0.55, camTo=null, camT=0, camFrom=null, autorot=false;
+let headMesh=null, headBox=null, maskMesh=null, maskTex=null, wire=false, shellVisible=true;
+const CAMERAS={front:[0,0,0.55],'three quarter':[36,-5,0.66],side:[86,-3,0.62],close:[0,0,0.34],orbit:[0,0,0.62]};
+function place(){
+  const ce=Math.cos(el);
+  camera.position.set(target.x+dist*ce*Math.sin(az),target.y+dist*Math.sin(el),target.z+dist*ce*Math.cos(az));
+  camera.lookAt(target);
+}
+function resize(){ renderer.setSize(innerWidth,innerHeight,false); camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); }
+addEventListener('resize',resize); resize();
+let dragging=false,px=0,py=0;
+canvas.addEventListener('pointerdown',e=>{dragging=true;px=e.clientX;py=e.clientY;});
+addEventListener('pointerup',()=>dragging=false);
+addEventListener('pointermove',e=>{if(!dragging)return;az-=(e.clientX-px)*0.006;el=Math.max(-0.75,Math.min(0.75,el+(e.clientY-py)*0.004));px=e.clientX;py=e.clientY;autorot=false;syncCams();});
+canvas.addEventListener('wheel',e=>{e.preventDefault();dist=Math.max(0.28,Math.min(1.4,dist*(1+Math.sign(e.deltaY)*0.07)));$('dist').value=dist;$('distVal').textContent=dist.toFixed(2);},{passive:false});
+
+function cut(name){
+  const c=CAMERAS[name]; if(!c)return;
+  camFrom={az,el,dist}; camTo={az:c[0]*Math.PI/180,el:c[1]*Math.PI/180,dist:c[2]}; camT=0;
+  autorot=(name==='orbit'); syncCams(); $('hCam').textContent=name;
+}
+function syncCams(){ document.querySelectorAll('#cams button').forEach(b=>b.classList.toggle('on',!autorot&&b.dataset.cam===currentCam)); }
+let currentCam='front';
+for(const name of Object.keys(CAMERAS)){
+  const b=document.createElement('button'); b.textContent=name; b.dataset.cam=name;
+  b.onclick=()=>{currentCam=name;cut(name);}; $('cams').appendChild(b);
+}
+syncCams();
+
+for(const p of ['FACE','TEXT','TELEMETRY','QR / CODE','WARNING','OFF']){
+  const b=document.createElement('button'); b.textContent=p; b.dataset.prog=p;
+  b.onclick=()=>setProgram(p); $('programs').appendChild(b);
+}
+for(const s of ['IDLE','LISTENING','THINKING','SPEAKING','AWAITING APPROVAL','APPROVED','REFUSED','ERROR']){
+  const b=document.createElement('button'); b.textContent=s.replace(' ','\n'); b.dataset.state=s;
+  if(s==='AWAITING APPROVAL')b.className='warn'; if(s==='REFUSED'||s==='ERROR')b.className='bad';
+  b.onclick=()=>setState(s); $('states').appendChild(b);
+}
+function setProgram(p){
+  program=p; document.querySelectorAll('#programs button').forEach(b=>b.classList.toggle('on',b.dataset.prog===p));
+  $('hProg').textContent=p; blog(`&gt; mask program → ${p}`,'ok'); issueReceipt(false);
+}
+function setState(s){
+  state=s; document.querySelectorAll('#states button').forEach(b=>b.classList.toggle('on',b.dataset.state===s));
+  $('hState').textContent=s; blog(`&gt; governed state → ${s}`,s==='REFUSED'||s==='ERROR'?'m':'ok'); issueReceipt(false);
+}
+setProgram('FACE'); setState('IDLE');
+
+$('setText').onclick=()=>{programText=$('textIn').value||'HUMAN://ROOT'; blog(`&gt; mask text → ${programText}`,'c'); issueReceipt(false);};
+$('textIn').addEventListener('keydown',e=>{if(e.key==='Enter')$('setText').click();});
+$('cycleText').onclick=()=>{const ex=['HUMAN://ROOT','RECEIPT://PUBLIC','æ://AUTHORITY','NO TABLET','NO TABLET','SOVÆREIGN','AGENTIC ENGINEERING'];$('textIn').value=ex[Math.floor(Math.random()*ex.length)];$('setText').click();};
+$('bright').oninput=e=>{brightness=+e.target.value;$('brightVal').textContent=brightness.toFixed(2);};
+$('gx').oninput=e=>{gazeX=+e.target.value;$('gxVal').textContent=gazeX.toFixed(2);};
+$('gy').oninput=e=>{gazeY=+e.target.value;$('gyVal').textContent=gazeY.toFixed(2);};
+$('blink').oninput=e=>{blinkAmt=+e.target.value;$('blinkVal').textContent=blinkAmt.toFixed(2);};
+$('blinkNow').onclick=()=>{blinkAmt=1;blinkUntil=performance.now()/1000+0.18;$('blink').value=0;};
+$('wire').onclick=()=>{wire=!wire;$('wire').classList.toggle('on',wire);if(headMesh)headMesh.traverse(o=>{if(o.isMesh&&o.material)o.material.wireframe=wire;});};
+$('autorot').onclick=()=>{autorot=!autorot;$('autorot').classList.toggle('on',autorot);};
+$('dark').onclick=()=>setProgram('OFF');
+$('dist').oninput=e=>{dist=+e.target.value;$('distVal').textContent=dist.toFixed(2);};
+$('light').oninput=e=>{const v=+e.target.value;$('lightVal').textContent=v.toFixed(2);key.intensity=2.1*v;hemi.intensity=0.9*v;};
+$('shellOn').onclick=()=>{shellVisible=true;if(headMesh)headMesh.visible=true;};
+$('shellOff').onclick=()=>{shellVisible=false;if(headMesh)headMesh.visible=false;};
+$('gridToggle').onclick=()=>{grid.visible=!grid.visible;$('gridToggle').classList.toggle('on',grid.visible);};
+$('fit').onclick=()=>{dist=0.55;$('dist').value=dist;$('distVal').textContent=dist.toFixed(2);az=0;el=0;currentCam='front';syncCams();};
+for(const [id,key2,label] of [['mw','mwVal','maskW'],['mh','mhVal','maskH'],['mo','moVal','maskY']]){
+  $(id).oninput=e=>{const v=+e.target.value;$(key2).textContent=v.toFixed(3);if(maskMesh){
+    if(label==='maskW')maskMesh.scale.x=v/0.12;
+    if(label==='maskH')maskMesh.scale.y=v/0.105;
+    if(label==='maskY')maskMesh.position.y=baseMaskY+v;
+  }};
+}
+$('reset').onclick=()=>{currentCam='front';$('textIn').value='HUMAN://ROOT';programText='HUMAN://ROOT';gazeX=gazeY=blinkAmt=0;brightness=1;$('bright').value=1;$('gx').value=0;$('gy').value=0;$('blink').value=0;['gxVal','gyVal','blinkVal','brightVal'].forEach(i=>$(i).textContent='0.00');$('brightVal').textContent='1.00';setProgram('FACE');setState('IDLE');cut('front');syncCams();};
+
+async function digest(str){ const b=new TextEncoder().encode(str); const h=await crypto.subtle.digest('SHA-256',b); return [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
+async function issueReceipt(show=true){
+  const payload=JSON.stringify({program,state,text:programText,brightness,gazeX,gazeY,camera:currentCam,az:Math.round(az*180/Math.PI),dist});
+  const h=await digest(payload);
+  const line=`WEBGL://MASK ${h.slice(0,16)} · ${program} / ${state} · ${currentCam} · ${programText}`;
+  $('authOut').textContent=line;
+  if(show){const r=$('receipt');r.textContent=line;r.classList.add('show');blog(`&gt; receipt ${h.slice(0,12)}…`,'ok');}
+  return h;
+}
+$('receiptBtn').onclick=()=>issueReceipt(true);
+$('domSelf').onclick=async()=>{
+  const html=document.documentElement.outerHTML; const h=await digest(html);
+  $('domOut').textContent=`self DOM digest ${h.slice(0,24)}\nbytes ${html.length} · title ${document.title}\nprogram ${program} · state ${state} · mask ${COLS}x${ROWS}`;
+  blog(`&gt; self DOM digest ${h.slice(0,12)}…`,'ok');
+};
+$('shot').onclick=()=>{
+  renderer.render(scene,camera);
+  const url=canvas.toDataURL('image/png'); const a=document.createElement('a'); a.href=url; a.download=`asimov-head-mask-${Date.now()}.png`; a.click();
+  issueReceipt(true);
+};
+let rec=null,chunks=[];
+$('rec').onclick=()=>{
+  if(rec){rec.stop();return;}
+  try{const stream=canvas.captureStream(30);rec=new MediaRecorder(stream,{mimeType:MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm',videoBitsPerSecond:5e6});chunks=[];rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};rec.onstop=()=>{const b=new Blob(chunks,{type:'video/webm'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`asimov-head-mask-${Date.now()}.webm`;a.click();$('rec').textContent='● record';$('rec').classList.remove('on');issueReceipt(true);};rec.start(200);$('rec').textContent='■ stop';$('rec').classList.add('on');blog('&gt; recording WebGL canvas…','m');}catch(e){blog('&gt; record unavailable: '+e.message,'m');}
+};
+
+blog('&gt; asimov:// webgl head studio · boot','g');
+new GLTFLoader().load('./assets/gltf/asimov-web.glb',gltf=>{
+  const root=gltf.scene;
+  root.traverse(o=>{if(o.isMesh){o.visible=false;o.material=new THREE.MeshStandardMaterial({color:0x2c3138,metalness:0.78,roughness:0.36,side:THREE.DoubleSide});}});
+  headMesh=root.getObjectByName('neck_pitch_link');
+  if(headMesh)headMesh.visible=true;
+  scene.add(root); scene.updateMatrixWorld(true);
+  headBox=new THREE.Box3().setFromObject(headMesh||root);
+  const size=new THREE.Vector3();headBox.getSize(size);const c=new THREE.Vector3();headBox.getCenter(c);
+  target.copy(c); dist=0.55; place();
+  $('hHead').textContent='neck_pitch_link · 32x28 mask';
+
+  maskTex=new THREE.CanvasTexture(maskCanvas);maskTex.colorSpace=THREE.SRGBColorSpace;maskTex.anisotropy=4;
+  const mat=new THREE.MeshBasicMaterial({map:maskTex,transparent:true,side:THREE.DoubleSide,depthWrite:false,toneMapped:false});
+  const geo=new THREE.PlaneGeometry(0.12,0.105);
+  maskMesh=new THREE.Mesh(geo,mat);
+  const baseMaskY=c.y+0.004;
+  maskMesh.position.set(c.x,baseMaskY,c.z+size.z/2+0.0015);
+  scene.add(maskMesh);
+  window.baseMaskY=baseMaskY;
+  blog(`&gt; head loaded ................. ${size.x.toFixed(3)} × ${size.y.toFixed(3)} × ${size.z.toFixed(3)} m`,'ok');
+  blog('&gt; front axis .................. +Z · mask on face','ok');
+  blog('&gt; mask viewport ............... 32x28 LEDs · no tablet','ok');
+  blog('&gt; controls .................... program / state / camera / DOM / receipt','c');
+  setTimeout(()=>{const b=$('boot');b.style.opacity='0';setTimeout(()=>b.remove(),500);},700);
+  window.__ae={renderer,scene,camera,maskCanvas,headMesh,maskMesh,issueReceipt,setProgram,setState};
+},undefined,err=>{blog('&gt; GLB load FAILED · '+(err&&err.message?err.message:err),'m');$('hHead').textContent='load failed';});
+
+const clock=new THREE.Clock();
+function tick(){
+  const dt=Math.min(0.05,clock.getDelta()); const t=clock.elapsedTime;
+  if(camTo){camT=Math.min(1,camT+dt*1.9);const k=camT*camT*(3-2*camT);az=camFrom.az+(camTo.az-camFrom.az)*k;el=camFrom.el+(camTo.el-camFrom.el)*k;dist=camFrom.dist+(camTo.dist-camFrom.dist)*k;if(camT>=1)camTo=null;}
+  if(autorot)az+=dt*0.32;
+  drawMask(t); place(); renderer.render(scene,camera);
+  $('hCam').textContent=`${currentCam} · az ${Math.round(((az*180/Math.PI)%360+360)%360)}° · el ${Math.round(el*180/Math.PI)}° · ${dist.toFixed(2)} m`;
+  window.__frames=(window.__frames||0)+1;
+  requestAnimationFrame(tick);
+}
+tick();
+</script>
+</body>
+</html>
