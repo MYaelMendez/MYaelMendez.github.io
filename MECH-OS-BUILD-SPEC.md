@@ -105,6 +105,27 @@ window that wears it. A domain with only a verb file is declared **spec-stage**,
 | standard set | `SYSTEM_STATUS` · `COMM_LOGS` · `MODEL_COMBINATOR` · `ROOT_ENDPOINT` — start docked |
 | master | claims the first portrait slot |
 
+### S4.1 · Widget standard (new)
+
+A capability that more than one window needs is **a widget, not a copy**. One module over one
+data source, mounted per window, each instance reporting its own count.
+
+```
+assets/<domain>/ae-<domain>-widget.js   +   <div data-<domain> [data-<domain>-cat] [data-<domain>-limit] [data-<domain>-compact]>
+```
+
+Rules:
+- **one renderer.** No window carries its own markup for shared content.
+- **declare, don't import.** A window opts in with attributes; it never copies a list.
+- **counted.** Every instance exposes `data-<domain>-count` / `-shown`, so a window cannot claim
+  more than it displays.
+- **lensed.** The same widget renders per host scope (category, limit) — one component, many
+  views.
+
+First instance of the standard: **`assets/atlas/ae-atlas-widget.js`** over `window.AE_ATLAS`,
+mounted natively by the `ORIGIN` window. `origin/index.html` keeps its own fuller rendering;
+both read the same data.
+
 ---
 
 ## S5 · Non-goals

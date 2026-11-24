@@ -329,6 +329,20 @@
         }
         .win-ops > .window-header { border-bottom: 1px dashed var(--secondary-color, #ff9d00); }
         .win-origin > .window-header { border-bottom: 2px solid var(--secondary-color, #ff9d00); }
+        /* atlas widget — one renderer, many windows (spec S4) */
+        .ae-atlas { font-size: 10px; line-height: 1.5; }
+        .ae-atlas .aw-head { display: flex; justify-content: space-between; gap: 8px;
+            padding: 2px 0 4px; border-bottom: 1px solid var(--ae-line, #2A2A2A);
+            color: var(--secondary-color, #ff9d00); letter-spacing: .1em; margin-bottom: 4px; }
+        .ae-atlas .aw-count { color: var(--ae-dim, #8A8A8A); letter-spacing: .04em; }
+        .ae-atlas ul { list-style: none; margin: 0; padding: 0; }
+        .ae-atlas li { padding: 3px 0; border-bottom: 1px dotted var(--ae-line, #2A2A2A); }
+        .ae-atlas .aw-name { color: var(--ae-ink, #EDEDED); font-weight: 600; display: block; }
+        .ae-atlas .aw-url { color: var(--ae-accent, #D4AF37); font-family: monospace; font-size: 9px; }
+        .ae-atlas .aw-desc { color: var(--ae-dim, #8A8A8A); display: block; }
+        .ae-atlas .aw-cat { color: var(--ae-dim, #8A8A8A); font-size: 9px; text-transform: uppercase; }
+        .ae-atlas-compact li { padding: 1px 0; }
+        .ae-atlas-compact .aw-desc, .ae-atlas-compact .aw-cat { display: none; }
         .ae-label-btn { background: transparent; border: 1px solid var(--secondary-color, #ff9d00);
             color: var(--secondary-color, #ff9d00); font: inherit; font-size: 10px; letter-spacing: .12em;
             padding: 4px 9px; cursor: pointer; }
@@ -744,7 +758,7 @@
             </div>
         </div>
 
-        <!-- ORIGIN — the atlas, worn as a window -->
+        <!-- ORIGIN — the atlas, as the shared widget (one renderer, many windows) -->
         <div class="window win-origin" id="win-origin" data-origin="1"
              style="top:60px;left:1400px;width:420px;">
             <div class="window-header">
@@ -752,9 +766,8 @@
                 <span class="window-controls"
                       onclick="this.parentElement.parentElement.style.display='none';layoutWindows()">[x]</span>
             </div>
-            <div class="window-content" style="padding:0;height:calc(100% - 30px);overflow:hidden">
-                <iframe src="origin/index.html" title="origin — the atlas of the estate"
-                        style="width:100%;height:100%;border:0;background:#050505"></iframe>
+            <div class="window-content" style="padding:6px;height:calc(100% - 30px);overflow:auto">
+                <div data-atlas></div>
             </div>
         </div>
 
@@ -766,6 +779,8 @@
 
     </div>
 
+    <script src="ae-atlas.js"></script>
+    <script src="assets/atlas/ae-atlas-widget.js"></script>
     <script src="assets/brand/ae-label.js"></script>
     <script src="assets/brand/ae-theme.js"></script>
     <script>

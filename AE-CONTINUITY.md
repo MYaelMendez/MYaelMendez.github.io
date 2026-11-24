@@ -3598,3 +3598,25 @@ overflow:hidden`. `#bottom-ticker` also gained `max-width:100vw; overflow:hidden
 - **UNVERIFIED:** the post-fix read-back failed — the browser daemon timed out
   (`Runtime.evaluate timed out after 5s`) and did not recover. The diagnosis is exact and
   arithmetic (1277 − 249 = 1029), but the zero-overflow claim needs one re-measure next session.
+
+## 93. the widget standard + atlas widget (2026-11-23)
+
+**New standard S4.1.** A capability more than one window needs is **a widget, not a copy**:
+one module over one data source, mounted per window, each instance reporting its own count.
+Contract: `assets/<domain>/ae-<domain>-widget.js` plus
+`<div data-<domain> [data-<domain>-cat] [data-<domain>-limit] [data-<domain>-compact]>`.
+Rules: one renderer · declare don't import · counted (`-count`/`-shown`) · lensed per host.
+
+**First instance:** `assets/atlas/ae-atlas-widget.js` renders `window.AE_ATLAS` (53 addresses)
+from `ae-atlas.js`. Mounts natively; auto-mounts every `[data-atlas]` on load. Category, limit
+and compact are attributes, so ORIGIN can show all 53 while another window shows six media
+addresses — same component, different lens.
+
+**ORIGIN converted to native:** iframe of `origin/index.html` removed, replaced by
+`<div data-atlas>`; the full page keeps its own richer rendering and both read the same data.
+No copy of the atlas body exists in the console any more.
+
+**UNVERIFIED:** the browser daemon timed out again (`Runtime.evaluate timed out after 5s`)
+before the mount could be measured. Nothing about this pass is claimed as observed — the
+widget's count attributes, row counts and the compact/category lens must be read back before
+S4.1 is called proven. Diagnosis is mechanical, the proof is outstanding.
