@@ -3709,3 +3709,25 @@ FAIL-001 (unknown action / missing actor / expired approval ⇒ deny), plus a `d
 Honest note: the policy is a document; no runtime evaluates it yet. `asimov://` gates motion on
 the same shape, but nothing executes `ae-policy.json` end to end — the same execution gap the
 console has.
+
+## 96. tinyTHREE — el renderizador soberano (2026-11-23)
+
+New tiny* instrument, `tinythree.html`: loads the vendored three.js, exposes this machine's real
+GPU capabilities, renders a fixed scene and grades determinism by running twice (FNV-1a over
+`readPixels`). Fails closed — no module, no context, no invented number.
+
+**Measured on this machine:**
+| field | value |
+|---|---|
+| three.js | **r186** (`THREE.REVISION = 186`) |
+| webgl | **WebGL 2.0 (OpenGL ES 3.0 Chromium)** |
+| renderer | **ANGLE (Intel, Intel(R) UHD Graphics, Direct3D11 vs_5_0 ps_5_0, D3D11)** |
+| vendor | Google Inc. (Intel) |
+| webgl2 / max texture / float | sí · **16384** · `EXT_color_buffer_float` sí |
+| frame digest A | `8ef9b785` |
+| frame digest B | `8ef9b785` |
+| grade | **PASS · determinista** |
+
+The renderer line independently reproduces the Optimus finding: three.js reaches **Intel UHD
+through ANGLE/D3D11**, not the RTX. Determinism holds with `antialias:false`; the digest is the
+frame-level receipt the film chain was missing.

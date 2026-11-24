@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>tinyTHREE · el renderizador soberano</title>
+<meta name="description" content="tinyTHREE — el instrumento soberano que prueba el Three.js vendorizado: capacidades WebGL, un render real con digesto por frame y grado de determinismo. Cada número medido en esta máquina.">
+<style>
+  :root{ --gold:#D4AF37; --gold-hi:#f0d878; --void:#050505; --panel:#0b0b0d; --line:#2a2a2a; --dim:#8a8a8a; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--void);color:#ededed;
+       font-family:"JetBrains Mono","Cascadia Code",ui-monospace,monospace;font-size:13px;line-height:1.6;
+       background-image:linear-gradient(rgba(212,175,55,.045) 1px,transparent 1px),
+                        linear-gradient(90deg,rgba(212,175,55,.045) 1px,transparent 1px);
+       background-size:40px 40px}
+  header{padding:26px 22px 14px;border-bottom:1px solid var(--line)}
+  h1{font-family:Orbitron,ui-monospace,monospace;font-size:clamp(22px,4vw,34px);margin:0;color:var(--gold);
+     letter-spacing:.06em}
+  .sub{color:var(--dim);max-width:78ch;margin:6px 0 0}
+  main{padding:18px 22px 40px;max-width:1100px}
+  .bento{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .card{border:1px solid var(--line);background:var(--panel);padding:12px 14px}
+  .k{color:var(--dim);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+  .v{color:var(--gold-hi)}
+  code{color:var(--gold);word-break:break-all}
+  .pill{display:inline-block;padding:2px 9px;border:1px solid var(--gold);color:var(--gold);
+        letter-spacing:.14em;font-size:11px}
+  .pill.bad{border-color:#c0392b;color:#e07b6a}
+  #stage{width:100%;max-width:520px;aspect-ratio:1/1;border:1px solid var(--line);background:#000;display:block}
+  .note{color:var(--dim);font-size:11px;margin-top:14px}
+  table{width:100%;border-collapse:collapse;margin-top:10px}
+  td,th{border-bottom:1px dotted var(--line);padding:5px 4px;text-align:left;vertical-align:top}
+</style>
+</head>
+<body>
+<header>
+  <h1>tinyTHREE</h1>
+  <p class="sub">No reemplaza a Three.js: lo <b>mide</b>. Carga el módulo vendorizado, expone las
+     capacidades reales del GPU de esta máquina, renderiza una escena fija y compara dos corridas
+     para graduar el determinismo. Un receipt es claim <b>hasta re-ejecutar</b>.</p>
+</header>
+<main>
+  <div class="bento">
+    <div class="card"><div class="k">instrumento</div><div class="v" id="t-name">tinyTHREE</div></div>
+    <div class="card"><div class="k">three.js</div><div class="v" id="t-rev">—</div></div>
+    <div class="card"><div class="k">webgl</div><div class="v" id="t-gl">—</div></div>
+    <div class="card"><div class="k">renderer</div><div class="v" id="t-rd">—</div></div>
+    <div class="card"><div class="k">grado</div><div class="v" id="t-grade"><span class="pill">PENDIENTE</span></div></div>
+  </div>
+
+  <p style="margin:16px 0 6px"><canvas id="stage" width="512" height="512"></canvas></p>
+  <p class="note">Escena fija: rejilla áureo-sobre-void, cámara ortográfica, <code>antialias:false</code>
+     para que el digesto no dependa del driver.</p>
+
+  <table id="rows"><tbody></tbody></table>
+
+  <p class="note" id="verdict"></p>
+</main>
+
+<script type="module">
+/* tinyTHREE — mide el Three.js vendorizado. Nada aquí está hardcodeado: cada número sale de
+   esta máquina. Si el módulo no carga, el instrumento lo declara y falla cerrado. */
+const $ = id => document.getElementById(id);
+const rows = [];
+function row(k, v){ rows.push([k, v]); }
+
+let THREE = null, err = null;
+try { THREE = await import('./assets/vendor/three.module.js'); }
+catch(e){ err = e; }
+
+if(!THREE){
+  $('t-rev').textContent = 'NO CARGÓ';
+  $('t-gl').textContent  = 'NO DISPONIBLE';
+  $('t-rd').textContent  = 'NO DISPONIBLE';
+  $('t-grade').innerHTML = '<span class="pill bad">REFUSED</span>';
+  row('estado', 'el módulo vendorizado no cargó — ' + (err ? err.message : 'import falló'));
+  $('verdict').textContent = 'REFUSED — sin runtime no hay medición. No se inventa un número.';
+} else {
+  row('revisión', 'THREE.REVISION = ' + THREE.REVISION);
+  $('t-rev').textContent = 'r' + THREE.REVISION;
+
+  const canvas = $('stage');
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({canvas, antialias:false, preserveDrawingBuffer:true});
+  } catch(e){ renderer = null; }
+
+  if(!renderer){
+    $('t-grade').innerHTML = '<span class="pill bad">REFUSED</span>';
+    row('webgl','sin contexto — este navegador/GPU no otorgó uno');
+    $('verdict').textContent = 'REFUSED — no se pudo crear un contexto WebGL.';
+  } else {
+    const gl = renderer.getContext();
+    const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+    const vers = gl.getParameter(gl.VERSION), rend = dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+    row('webgl version', vers);
+    row('renderer', String(rend));
+    row('vendor', String(dbg ? gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR)));
+    row('webgl2', (gl instanceof WebGL2RenderingContext) ? 'sí' : 'no');
+    row('max texture', gl.getParameter(gl.MAX_TEXTURE_SIZE));
+    row('float textures', !!gl.getExtension('EXT_color_buffer_float') ? 'EXT_color_buffer_float sí' : 'no');
+    $('t-gl').textContent = vers;
+    $('t-rd').textContent  = String(rend);
+
+    /* escena fija — misma geometría, misma cámara, mismo color en cada corrida */
+    function buildScene(){
+      const s = new THREE.Scene();
+      s.background = new THREE.Color(0x050505);
+      const cam = new THREE.OrthographicCamera(-1,1,1,-1,0,10); cam.position.z = 5;
+      const geo = new THREE.PlaneGeometry(1.6,1.6);
+      const mat = new THREE.MeshBasicMaterial({color:0xD4AF37});
+      s.add(new THREE.Mesh(geo,mat));
+      return {s, cam};
+    }
+    function digest(){
+      const {s, cam} = buildScene();
+      renderer.render(s, cam);
+      const w = gl.drawingBufferWidth, h = gl.drawingBufferHeight;
+      const px = new Uint8Array(w*h*4);
+      gl.readPixels(0,0,w,h,gl.RGBA,gl.UNSIGNED_BYTE,px);
+      renderer.dispose(); s.clear();
+      /* FNV-1a sobre el buffer — determinista, sin deps */
+      let hsh = 0x811c9dc5;
+      for(let i=0;i<px.length;i++){ hsh ^= px[i]; hsh = Math.imul(hsh, 0x01000193) >>> 0; }
+      return { hex: ('00000000'+hsh.toString(16)).slice(-8), bytes: px.length };
+    }
+    const a = digest(), b = digest();
+    row('frame digest · corrida A', a.hex);
+    row('frame digest · corrida B', b.hex);
+    row('bytes leídos', a.bytes);
+    const ok = a.hex === b.hex && a.bytes > 0;
+    $('t-grade').innerHTML = ok ? '<span class="pill">PASS · determinista</span>'
+                                : '<span class="pill bad">FAIL · no determinista</span>';
+    row('grado', ok ? 'PASS — dos corridas, mismo digesto' : 'FAIL — los digestos difieren');
+    row('shader program', (()=>{ const p=gl.createProgram(); const n = p? 'crea programas':'no'; if(p) gl.deleteProgram(p); return n; })());
+    $('verdict').textContent = ok
+      ? 'PASS — el render es reproducible en esta máquina; el digesto es el receipt del frame.'
+      : 'FAIL — el render no es reproducible; no se declare determinismo.';
+  }
+}
+
+$('rows').querySelector('tbody').innerHTML =
+  rows.map(([k,v]) => '<tr><th>'+k+'</th><td>'+(String(v).includes('<')?v:'<code>'+v+'</code>')+'</td></tr>').join('');
+</script>
+</body>
+</html>
