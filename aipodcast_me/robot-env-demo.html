@@ -164,6 +164,7 @@ footer a{color:var(--gold);text-decoration:none}
 
 <script>
 const GOLD = getComputedStyle(document.documentElement).getPropertyValue('--gold').trim();
+window.robotEnvDemo = {bind: null};   // a surface exposes what it verified
 
 // ---- the receipt ----------------------------------------------------------
 fetch('robot-env.receipt.json').then(r => r.json()).then(d => {
@@ -189,9 +190,24 @@ fetch('robot-env.receipt.json').then(r => r.json()).then(d => {
       + '<b>' + (v == null ? 'n/a' : v) + '</b></div>'
       + '<div class="bar"><i class="' + (ok ? 'ok' : 'bad') + '" style="width:' + pct + '%"></i></div></div>';
   }).join('') + '<div class="meter"><div class="row"><span>frames_negros</span>'
-    + '<b>' + (s.frames_negros ?? 'n/a') + ' / ' + (s.frames_analizados ?? '?') + '</b></div></div>'
+    + '<b>' + (s.frames_negros ?? 'n/a') + ' / ' + (s.frames_analizados ?? '?')
+    + (Number(d.frames) > 0 && s.frames_analizados != null
+        ? ' &nbsp;<span style="color:var(--mut)">of ' + d.frames
+          + ' frames · ' + ((s.frames_analizados / d.frames) * 100).toFixed(1)
+          + '% sampled</span>' : '')
+    + '</b></div></div>'
     + '<div class="meter"><div class="row"><span>frames_con_qr</span>'
     + '<b>' + (s.frames_con_qr ?? 'n/a') + '</b></div></div>';
+
+  // A verdict that does not state its denominator is not a verdict: the gate
+  // sampled 5 of 96 frames and read as if it had watched the film.
+  const sampled = Number(s.frames_analizados), total = Number(d.frames);
+  if (total > 0 && sampled > 0 && sampled < total) {
+    document.getElementById('verdict').innerHTML +=
+      ' <span class="mono" style="margin-left:8px;color:var(--mut)">sampled '
+      + sampled + ' / ' + total + ' (' + ((sampled / total) * 100).toFixed(1)
+      + '%) — not the whole film</span>';
+  }
 
   const bits = [
     ['bytes', d.bytes], ['sha256', d.sha256],
@@ -202,6 +218,35 @@ fetch('robot-env.receipt.json').then(r => r.json()).then(d => {
   document.getElementById('artifact').innerHTML =
     '<dt>file</dt><dd>robot-env.mp4</dd>' +
     bits.map(([k, v]) => '<dt>' + k + '</dt><dd>' + (v == null ? '—' : v) + '</dd>').join('');
+
+  // ---- bind the receipt to the bytes it claims ------------------------------
+  // A sha256 printed next to a file is a claim until it has been compared. Fetch
+  // the film, digest it in the browser, and say which.
+  const art = document.getElementById('artifact');
+  const failBind = (why) => {
+    art.innerHTML += '<dt>bound</dt><dd style="color:var(--magenta)">UNBOUND — '
+      + why + '</dd>';
+    window.robotEnvDemo.bind = {state: 'UNBOUND', reason: why};
+  };
+  fetch('robot-env.mp4').then(r => {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.arrayBuffer();
+  }).then(buf => Promise.all([buf, crypto.subtle.digest('SHA-256', buf)])).then(([buf, h]) => {
+    const hex = [...new Uint8Array(h)].map(b => b.toString(16).padStart(2, '0')).join('');
+    const want = String(d.sha256 || '').toLowerCase();
+    const bound = !!want && hex === want;
+    const kb = buf.byteLength;
+    art.innerHTML += '<dt>measured bytes</dt><dd>'
+      + kb.toLocaleString() + (d.bytes ? ' (receipt ' + Number(d.bytes).toLocaleString() + ')'
+        + (kb === Number(d.bytes) ? ' — match' : ' — MISMATCH') : '') + '</dd>'
+      + '<dt>measured sha256</dt><dd style="font-size:.6rem">' + hex + '</dd>'
+      + '<dt>bound</dt><dd style="color:' + (bound ? 'var(--green)' : 'var(--magenta)')
+      + ';font-weight:600">' + (bound ? 'BOUND' : 'UNBOUND')
+      + (bound ? ' — the bytes are the receipt' : ' — bytes differ from the receipt')
+      + '</dd>';
+    window.robotEnvDemo.bind = {state: bound ? 'BOUND' : 'UNBOUND', sha256: hex,
+                                bytes: kb, receipt_sha256: want};
+  }).catch(e => failBind(String(e)));
 
   document.getElementById('top-right').textContent =
     (pass ? 'GATE PASS' : 'GATE REFUSED') + ' · ' + d.resolution + ' · ' + d.sha256.slice(0, 12);
