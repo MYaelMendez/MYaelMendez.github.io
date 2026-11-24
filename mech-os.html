@@ -655,6 +655,33 @@
             </div>
         </div>
 
+        <!-- NERVOUS_SYS — the æ boy on local llama.cpp -->
+        <div class="window" id="win-nervous" style="display:none;top:100px;left:520px;width:340px;">
+            <div class="window-header">
+                <span class="window-title">NERVOUS_SYS</span>
+                <span class="window-controls"
+                      onclick="this.parentElement.parentElement.style.display='none';layoutWindows()">[x]</span>
+            </div>
+            <div class="window-content" style="font-size:11px;line-height:1.7">
+                <div style="color:var(--primary-color)">&gt; æ boy · local llama.cpp</div>
+                <div>endpoint <code>http://127.0.0.1:8087</code></div>
+                <div>protocol <code>/v1/chat/completions</code> · identity sent per request</div>
+                <div>governance grants <b>false</b> · motion <b>REFUSED</b>, never applied</div>
+                <div id="nervous-status" style="opacity:.75;margin:6px 0">
+                    reachability <span class="sim">UNMEASURED FROM THIS HOST</span>
+                </div>
+                <div style="display:flex;gap:6px;margin-top:6px">
+                    <input id="nervous-input" type="text" placeholder="state your intent…"
+                           style="flex:1;background:#0a0a0a;border:1px solid var(--metal-light);color:var(--ink);
+                                  font:inherit;padding:4px 6px"/>
+                    <button class="btn" onclick="nervousPlan()">PLAN</button>
+                </div>
+                <div style="opacity:.6;font-size:9.5px;margin-top:6px">
+                    A plan only. Nothing executes here — dispatch goes through the conductor bridge.
+                </div>
+            </div>
+        </div>
+
         <!-- BOTTOM TICKER — rendered from MEASURED signals. Rows we cannot measure on
              this device carry an explicit SIM tag; nothing here is invented. -->
         <div id="bottom-ticker">
@@ -1338,6 +1365,31 @@
                     b.textContent = Math.round(t.level * 100) + '%';
                 }).catch(function () { b.textContent = 'n/a' });
             } else { b.textContent = 'n/a' }
+        })();
+
+        /* --- NERVOUS_SYS: the æ boy on local llama.cpp ---------------------------
+           agents/llama_nervous_system.py talks to a loopback llama-server at
+           127.0.0.1:8087. This console is a static host, so it issues a PLAN and
+           says so; execution belongs to the conductor bridge (spec §5). */
+        function nervousPlan() {
+            var i = document.getElementById('nervous-input');
+            var q = i ? i.value.trim() : '';
+            if (!q) { addLog('[| "NERVOUS", "EMPTY", "no intent given", "" |]'); return }
+            addLog('[| "PLAN", "' + q.replace(/"/g, '') + '", "llama.cpp · 127.0.0.1:8087", "executed:false" |]');
+            if (i) i.value = '';
+        }
+        (function () {
+            var i = document.getElementById('nervous-input');
+            if (i) i.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') { e.preventDefault(); nervousPlan(); } });
+            var s = document.getElementById('nervous-status'); if (!s) return;
+            if (location.protocol !== 'http:') {
+                s.innerHTML = 'reachability <span class="sim">NOT REACHABLE — STATIC HOST</span> · the conductor is loopback-only';
+                return;
+            }
+            fetch('http://127.0.0.1:8087/health', { cache: 'no-cache' })
+                .then(function (r) { s.innerHTML = 'reachability <b>HTTP ' + r.status + '</b> · measured now' })
+                .catch(function (e) { s.innerHTML = 'reachability <b>DOWN</b> · ' + e.message });
         })();
 
         /* --- start the measured telemetry, after every handler above is defined --- */

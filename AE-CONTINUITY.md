@@ -3438,3 +3438,22 @@ contract as `waetz.html` and the home. Click the pet to wave; every state change
 - **Honest limitation:** in a 1:1 docked tile the pet is small (~103 px). The atlas contract is
   right; the prominence depends on giving VISUAL_ROBOT_MCP a 9:16 slot, which the current
   four-across tiling assigns by open order. Next increment: a preferred-aspect hint per window.
+
+## 84. llama.cpp moves inside the console — NERVOUS_SYS window (2026-11-23)
+
+Our llama.cpp work is real: `agents/llama_nervous_system.py` — "the æ boy running in local
+llama.cpp", posting to a loopback llama-server at `127.0.0.1:8087/v1/chat/completions`, identity
+sent per request, every response schema- and governance-checked, authority/motion REFUSED.
+A GGUF exists (`neuromitosis/plan-narrator/adapter-v3-text.gguf`, 59.6 MB).
+
+- New **NERVOUS_SYS** window in mech-os carrying that contract verbatim: endpoint, protocol,
+  governance `grants:false · motion REFUSED`, plus an intent box whose PLAN button writes
+  `[| "PLAN", "<intent>", "llama.cpp · 127.0.0.1:8087", "executed:false" |]` to `#logs`.
+- **Reachability is reported, not assumed:** from a static host it says
+  `NOT REACHABLE — STATIC HOST`; served over http it actually probes `:8087/health` and prints
+  the measured result. In the local run it measured **`DOWN · Failed to fetch`** — the server
+  isn't up there, and the window says so instead of implying a connection.
+- Menu now lists nine windows (it is built from the live `.window-title` set).
+- **Verified:** window opens; plan line written and the input cleared; reachability measured.
+- **Honest boundary:** nothing here runs inference. Execution belongs to the conductor bridge
+  (spec §5 stage 3). This is the operator surface for that capability, not the capability.
