@@ -1,0 +1,32 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>asimov stand · shipped dt</title><style>
+:root{--v:#050505;--g:#D4AF37;--c:#00ffd7;--d:rgba(255,255,255,.55);--l:rgba(212,175,55,.3)}
+*{box-sizing:border-box}body{margin:0;background:var(--v);color:#eafaf7;font-family:'JetBrains Mono',ui-monospace,monospace;padding:28px;line-height:1.6}
+.w{max-width:860px;margin:auto}h1{color:var(--g);font-size:22px;letter-spacing:2px}
+.sub{color:var(--d);font-size:11px;margin:8px 0 20px}.card{border:1px solid var(--l);padding:14px;margin:12px 0}
+h2{color:var(--g);font-size:10px;letter-spacing:2px;margin:0 0 8px}
+table{width:100%;border-collapse:collapse;font-size:11px}td,th{padding:5px;border-bottom:1px solid rgba(255,255,255,.07);text-align:left}
+th{color:var(--g);font-weight:400}.ok{color:var(--c)}.bad{color:#ff6b6b}
+a{color:var(--g)}.tag{font-size:11px;color:var(--d)}</style></head><body><div class="w">
+<h1>asimov stands · at the shipped timestep</h1><div class="sub">real actuation · nu=23 · PD hold · 1000 mj_step · simulation only · granted:false</div>
+<div class="card"><h2>THE TRACE</h2><table>
+<tr><th>check</th><th>measured</th></tr>
+<tr><td>timestep</td><td>0.005 s (shipped, unchanged)</td></tr>
+<tr><td>steps / simulated seconds</td><td>1000 / 5.0</td></tr>
+<tr><td>root drift</td><td class="ok">0.0023 m</td></tr>
+<tr><td>tilt from upright</td><td>4.52°</td></tr>
+<tr><td>max joint excursion</td><td>0.03358 rad</td></tr>
+<tr><td>max joint velocity</td><td>0.0583 rad/s</td></tr>
+<tr><td>contacts at end</td><td>8</td></tr>
+<tr><td>all five checks</td><td class="ok">PASS · True</td></tr>
+</table></div>
+<div class="card"><h2>ERRATUM</h2><div class="tag">
+The earlier published trace claimed dt=0.005 was unstable at every gain and moved to dt=0.002.
+That was a <b>coarse-grid artifact</b>: Coarse grid: kd in {10,15,20,25,30}; kd=10 sagged at low kp, kd>=15 exploded, so the stable high-kp/low-kd region was never sampled.<br><br>
+<b class="bad">False claim:</b> At the shipped dt=0.005 the PD loop is unstable at every gain; dt must be lowered to 0.002.<br>
+<b class="ok">Correction:</b> A 63-point fine sweep at dt=0.005 found stable holds at kp=200..400 with kd=8..10. At kp=200/kd=10 the 1000-step hold has 2.3 mm root drift, 4.52 deg tilt, 0.058 rad/s max joint velocity.<br><br>
+not invalid — it is a valid PASS at dt=0.002, but its stated reason for changing dt was wrong.</div></div>
+<div class="card"><h2>THE BOUNDARY</h2><div class="tag">authority HUMAN://ROOT · granted:false · physical_act:false<br>simulation only; no hardware addressed and no approval bound<br>
+trace sha <code>0908b1940b71fa80…</code> · 1000 frames</div></div>
+<div style="font-size:11px"><a href="receipt.json">receipt →</a> <a href="trace.json">trace →</a> <a href="../asimov-stand/receipt.json">earlier dt=0.002 trace →</a></div>
+</div></body></html>

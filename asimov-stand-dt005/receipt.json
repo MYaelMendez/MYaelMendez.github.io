@@ -1,0 +1,103 @@
+{
+ "schema": "asimov-stand-trace/1",
+ "authority": "HUMAN://ROOT",
+ "granted": false,
+ "physical_act": false,
+ "note": "simulation only; no hardware addressed and no approval bound",
+ "model": "C:/æ/policies/0818/model/asimov_1_policy_physics.xml",
+ "model_facts": {
+  "nq": 30,
+  "nv": 29,
+  "nu": 23,
+  "njnt": 24,
+  "ngeom": 22,
+  "actuator_type": "motor (raw torque, no gear)",
+  "shipped_timestep": 0.005,
+  "trace_timestep": 0.005,
+  "nq_explained": "1 free joint x 7 + 23 hinges x 1 = 30"
+ },
+ "controller": {
+  "kind": "PD hold at q0",
+  "kp": 200.0,
+  "kd": 10.0
+ },
+ "metrics": {
+  "steps": 1000,
+  "dt": 0.005,
+  "simulated_seconds": 5.0,
+  "z_start": 0.63,
+  "z_end": 0.6323,
+  "z_drift_m": 0.0023,
+  "tilt_from_upright_deg": 4.52,
+  "max_joint_excursion_rad": 0.03358,
+  "max_joint_velocity_rad_s": 0.0583,
+  "first_nonfinite_step": null,
+  "contacts_at_end": 8,
+  "finite": true
+ },
+ "checks": {
+  "finite": true,
+  "held_height": true,
+  "upright": true,
+  "joints_stayed_near_target": true,
+  "no_blowup": true
+ },
+ "verdict": "PASS",
+ "trace_sha256": "0908b1940b71fa80b6ec3b56d4bd6f0667c0cfee6f52af531c655eabe961aa6a",
+ "trace_frames": 1000,
+ "why_this_timestep": "NO timestep change required. This trace runs at the model's shipped dt=0.005. The earlier conclusion that dt=0.005 is unstable at every gain was a coarse-grid artifact: its kd values jumped 10 -> 15, skipping the stable band kd=8..10.",
+ "erratum": {
+  "target": "asimov-stand/receipt.json (trace_sha 23b073ad49882bcc...)",
+  "false_claim": "At the shipped dt=0.005 the PD loop is unstable at every gain; dt must be lowered to 0.002.",
+  "correction": "A 63-point fine sweep at dt=0.005 found stable holds at kp=200..400 with kd=8..10. At kp=200/kd=10 the 1000-step hold has 2.3 mm root drift, 4.52 deg tilt, 0.058 rad/s max joint velocity.",
+  "root_cause_of_error": "Coarse grid: kd in {10,15,20,25,30}; kd=10 sagged at low kp, kd>=15 exploded, so the stable high-kp/low-kd region was never sampled.",
+  "old_trace": "not invalid — it is a valid PASS at dt=0.002, but its stated reason for changing dt was wrong."
+ },
+ "sweep_evidence": {
+  "dt": 0.005,
+  "kp_values": [
+   40,
+   60,
+   80,
+   100,
+   120,
+   150,
+   200,
+   300,
+   400
+  ],
+  "kd_values": [
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14
+  ],
+  "stable_examples": [
+   {
+    "kp": 200,
+    "kd": 10,
+    "zdrift_m": 0.0029,
+    "jexc_rad": 0.0336,
+    "jvmax_rad_s": 0.06
+   },
+   {
+    "kp": 300,
+    "kd": 10,
+    "zdrift_m": 0.0013,
+    "jexc_rad": 0.0126,
+    "jvmax_rad_s": 0.06
+   },
+   {
+    "kp": 400,
+    "kd": 10,
+    "zdrift_m": 0.0008,
+    "jexc_rad": 0.008,
+    "jvmax_rad_s": 0.06
+   }
+  ],
+  "integrator_check": "At kp=200/kd=20, switching integrator (implicit/RK4/Euler) does not fix it — the fix is the gain band, not the integrator."
+ }
+}
