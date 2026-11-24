@@ -58,7 +58,11 @@ python3 -m http.server 8000 --directory .
 
 ## Remote
 
-The canonical remote is `git@github.com:MYaelMendez/asimov-agent.git`. If that repository does not yet exist, create an empty GitHub repository with that exact name, then:
+Canonical remote: `git@github.com:MYaelMendez/asimov-agent.git`
+
+Snapshot branch: https://github.com/MYaelMendez/MYaelMendez.github.io/tree/asimov-agent
+
+If the canonical repository does not yet exist, create an empty GitHub repository named exactly `asimov-agent`, then:
 
 ```bash
 git push -u origin main
