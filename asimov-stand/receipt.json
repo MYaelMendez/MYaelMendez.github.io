@@ -1,0 +1,49 @@
+{
+ "schema": "asimov-stand-trace/1",
+ "authority": "HUMAN://ROOT",
+ "granted": false,
+ "physical_act": false,
+ "note": "simulation only; no hardware addressed and no approval bound",
+ "model": "C:/æ/policies/0818/model/asimov_1_policy_physics.xml",
+ "model_facts": {
+  "nq": 30,
+  "nv": 29,
+  "nu": 23,
+  "njnt": 24,
+  "ngeom": 22,
+  "actuator_type": "motor (raw torque, no gear)",
+  "shipped_timestep": 0.005,
+  "trace_timestep": 0.002,
+  "nq_explained": "1 free joint x 7 + 23 hinges x 1 = 30"
+ },
+ "controller": {
+  "kind": "PD hold at q0",
+  "kp": 200.0,
+  "kd": 20.0
+ },
+ "metrics": {
+  "steps": 1000,
+  "dt": 0.002,
+  "simulated_seconds": 2.0,
+  "z_start": 0.63,
+  "z_end": 0.6324,
+  "z_drift_m": 0.00245,
+  "tilt_from_upright_deg": 3.727,
+  "max_joint_excursion_rad": 0.02713,
+  "max_joint_velocity_rad_s": 0.0475,
+  "first_nonfinite_step": null,
+  "contacts_at_end": 8,
+  "finite": true
+ },
+ "checks": {
+  "finite": true,
+  "held_height": true,
+  "upright": true,
+  "joints_stayed_near_target": true,
+  "no_blowup": true
+ },
+ "verdict": "PASS",
+ "trace_sha256": "23b073ad49882bccb1ee80fa37bccef62720068689bf19d44926ad6926b23abc",
+ "trace_frames": 1000,
+ "why_this_timestep": "At the shipped dt=0.005 the same controller is unstable at every gain in a 25-point grid (root_z excursions up to 714 m, joint velocity 1.2e7 rad/s). Discrete-time integrator instability, not weak control."
+}
