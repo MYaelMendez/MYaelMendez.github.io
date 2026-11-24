@@ -3752,3 +3752,24 @@ already carry them.
 **Why the instrument earns its place:** the page does not assume a GPU. It reports which one it
 got. The same URL is an Intel measurement or an RTX measurement depending on how Chrome was
 launched, and until this run the estate had only the Intel number recorded.
+
+## 98. rtx://render — el RTX como default + demonstración (2026-11-23)
+
+**Default declarado.** El render three.js local del estate tiene default: **el RTX**. Los flags
+son `--force_high_performance_gpu --use-angle=d3d11` (ya vividos en `agents/asimov_up.cmd`). Una
+página no puede elegir la GPU; el lanzador sí. La regla queda escrita y la página la declara.
+
+**Demonstración:** `rtx-render-demo.html` (`rtx://render`) — escena áureo-sobre-void (rejilla +
+icosaedro wireframe + 1.200 partículas), mide el **costo real de render** por frame, gradúa la
+GPU y emite un receipt JSON. Fail-closed: si no cargó el módulo o no hay contexto, dice REFUSED.
+
+**Medido:**
+| launch | gpu | ms/frame | fps | peor | digest |
+|---|---|---|---|---|---|
+| default (real browser) | `ANGLE (Intel UHD …)` · rtx_default **false** | **35.15** | **28.5** | 801.1 ms | `437a9673` |
+| `--force_high_performance_gpu --use-angle=d3d11` | `ANGLE (NVIDIA GeForce RTX 3050 6GB Laptop GPU …)` · rtx_default **true** | no medible aquí | — | — | `b03a85c4` |
+
+**Declarado, no resuelto:** bajo `--virtual-time-budget` headless, `performance.now()` alrededor de
+`renderer.render()` mide **0 ms** — el trabajo de GPU se difiere, así que el tiempo de render no
+es medible en ese modo. Por eso el RTX se reporta con gpu + digest, no con ms/frame. En un
+navegador real con los flags sí se puede medir; esa es la prueba que falta.

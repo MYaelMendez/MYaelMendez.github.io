@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>rtx://render · la demonstración</title>
+<meta name="description" content="Demostración del render three.js local: declara en qué GPU corre, mide fotogramas reales y emite un receipt. El RTX es el default del estate.">
+<style>
+  :root{ --gold:#D4AF37; --gold-hi:#f0d878; --void:#050505; --panel:#0b0b0d; --line:#2a2a2a; --dim:#8a8a8a; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--void);color:#ededed;
+       font-family:"JetBrains Mono","Cascadia Code",ui-monospace,monospace;font-size:13px;line-height:1.6;
+       background-image:linear-gradient(rgba(212,175,55,.045) 1px,transparent 1px),
+                        linear-gradient(90deg,rgba(212,175,55,.045) 1px,transparent 1px);
+       background-size:40px 40px}
+  header{padding:24px 20px 12px;border-bottom:1px solid var(--line)}
+  h1{font-family:Orbitron,ui-monospace,monospace;font-size:clamp(20px,3.6vw,32px);margin:0;color:var(--gold);letter-spacing:.06em}
+  .sub{color:var(--dim);max-width:82ch;margin:6px 0 0}
+  main{padding:16px 20px 36px;max-width:1100px;display:grid;gap:14px;
+       grid-template-columns:minmax(0,1fr);grid-template-areas:"stage" "cards" "receipt"}
+  @media(min-width:900px){ main{grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);
+       grid-template-areas:"stage cards" "receipt cards"} }
+  #stage{grid-area:stage;width:100%;aspect-ratio:16/10;border:1px solid var(--line);background:#000;display:block}
+  aside{grid-area:cards;display:grid;gap:10px;align-content:start}
+  .card{border:1px solid var(--line);background:var(--panel);padding:10px 12px}
+  .k{color:var(--dim);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+  .v{color:var(--gold-hi)}
+  code{color:var(--gold);word-break:break-all}
+  .pill{display:inline-block;padding:3px 10px;border:1px solid var(--gold);color:var(--gold);letter-spacing:.14em;font-size:11px}
+  .pill.intel{border-color:#c0392b;color:#e07b6a}
+  #receipt{grid-area:receipt;border:1px solid var(--line);background:#070708;padding:10px 12px;overflow:auto}
+  table{width:100%;border-collapse:collapse}
+  td,th{border-bottom:1px dotted var(--line);padding:4px 2px;text-align:left;vertical-align:top}
+</style>
+</head>
+<body>
+<header>
+  <h1>rtx://render</h1>
+  <p class="sub">Demostración de que el render three.js local tiene un <b>default</b>: el RTX.
+     Esta página no asume una GPU — la <b>declara</b>, mide fotogramas reales y emite un receipt.
+     Ábrela con <code>--force_high_performance_gpu --use-angle=d3d11</code> y la insignia dice
+     <b>RTX · DEFAULT</b>; sin esos flags dice <b>INTEL · FALLBACK</b>.</p>
+</header>
+<main>
+  <canvas id="stage"></canvas>
+  <aside>
+    <div class="card"><div class="k">gpu</div><div class="v" id="gpu">—</div></div>
+    <div class="card"><div class="k">estatus</div><div class="v" id="status"><span class="pill">MIDIENDO</span></div></div>
+    <div class="card"><div class="k">fps medido</div><div class="v" id="fps">—</div></div>
+    <div class="card"><div class="k">ms / frame</div><div class="v" id="ms">—</div></div>
+    <div class="card"><div class="k">peor frame</div><div class="v" id="worst">—</div></div>
+    <div class="card"><div class="k">webgl</div><div class="v" id="glv">—</div></div>
+  </aside>
+  <pre id="receipt">…</pre>
+</main>
+
+<script type="module">
+/* rtx://render — la demonstración. Regla del estate: el RTX es el default.
+   Los flags viven en el lanzador (agents/*_up.cmd); la página solo informa la verdad. */
+const $ = id => document.getElementById(id);
+const FLAGS = '--force_high_performance_gpu --use-angle=d3d11';
+let THREE;
+try { THREE = await import('./assets/vendor/three.module.js'); }
+catch(e){ $('receipt').textContent = 'REFUSED — no cargó el módulo vendorizado: ' + e.message; }
+
+function boom(msg){ $('receipt').textContent = 'REFUSED — ' + msg; $('status').innerHTML = '<span class="pill intel">REFUSED</span>'; }
+
+if(THREE){
+ try {
+  const canvas = $('stage');
+  const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+  const gl = renderer.getContext();
+  const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+  const gpu  = String(dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
+  const isRTX = /NVIDIA|GeForce|RTX/i.test(gpu);
+
+  $('gpu').innerHTML = '<code>' + gpu.replace(/</g,'&lt;') + '</code>';
+  $('glv').textContent = gl.getParameter(gl.VERSION);
+  $('status').innerHTML = isRTX ? '<span class="pill">RTX · DEFAULT</span>'
+                                 : '<span class="pill intel">INTEL · FALLBACK</span>';
+
+  /* escena: rejilla áureo-sobre-void + malla neural + partículas — suficiente carga
+     fragmentaria para que la diferencia de GPU se note en el ms/frame. */
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x050505);
+  const cam = new THREE.PerspectiveCamera(55, 16/10, 0.1, 100); cam.position.z = 6;
+  const grid = new THREE.GridHelper(20, 40, 0xD4AF37, 0x1a1a1a); grid.position.y = -2; scene.add(grid);
+  const core = new THREE.Mesh(new THREE.IcosahedronGeometry(1.5, 2),
+                              new THREE.MeshBasicMaterial({color:0xD4AF37, wireframe:true}));
+  scene.add(core);
+  const N = 1200, pos = new Float32Array(N*3);
+  for(let i=0;i<N;i++){ pos[i*3]=(Math.random()-.5)*12; pos[i*3+1]=(Math.random()-.5)*8; pos[i*3+2]=(Math.random()-.5)*6; }
+  const pg = new THREE.BufferGeometry(); pg.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  const pts = new THREE.Points(pg, new THREE.PointsMaterial({color:0xf0d878, size:0.03})); scene.add(pts);
+
+  function resize(){ const w = canvas.clientWidth||800, h = canvas.clientHeight||500;
+    renderer.setSize(w,h,false); cam.aspect=w/h; cam.updateProjectionMatrix(); }
+  addEventListener('resize', resize); resize();
+
+  const FRAMES = 30;   /* suficiente para un promedio honesto sin colgar una sesión lenta */
+  let i = 0, renderAcc = 0, worst = 0;
+  const t0 = performance.now();
+
+  function tick(){
+    /* mide el COSTO REAL del render (submit + wait), no el cadence del rAF */
+    const a = performance.now();
+    core.rotation.x += 0.004; core.rotation.y += 0.007;
+    pts.rotation.y += 0.0012;
+    renderer.render(scene, cam);
+    const dt = performance.now() - a;
+    if(i > 0){ renderAcc += dt; worst = Math.max(worst, dt); }
+    i++;
+    $('fps').textContent = 'frame ' + i + '/' + FRAMES;
+    if(i <= FRAMES) setTimeout(tick, 0);   /* los timers sí corren bajo virtual-time */
+    else finish();
+  }
+
+  function fnv(buf){ let h=0x811c9dc5; for(let k=0;k<buf.length;k++){ h^=buf[k]; h=Math.imul(h,0x01000193)>>>0; } return ('00000000'+h.toString(16)).slice(-8); }
+  function finish(){
+    const px = new Uint8Array(4*64*64);
+    gl.readPixels(0,0,64,64,gl.RGBA,gl.UNSIGNED_BYTE,px);
+    const total = performance.now() - t0;
+    const ms  = Math.round((renderAcc/(FRAMES-1)) * 100) / 100;
+    const fps = Math.round(((FRAMES-1) / (renderAcc/1000)) * 10) / 10;
+    $('fps').textContent = fps + ' fps · ' + FRAMES + ' frames';
+    $('ms').textContent  = ms + ' ms';
+    $('worst').textContent = Math.round(worst*100)/100 + ' ms';
+    const rec = {
+      scheme: 'rtx://render', demo: true,
+      gpu: gpu, rtx_default: isRTX,
+      required_flags: FLAGS,
+      renderer: 'three.js r' + THREE.REVISION,
+      webgl: gl.getParameter(gl.VERSION),
+      frames: FRAMES, ms_per_frame: ms, worst_ms: Math.round(worst*100)/100, fps: fps,
+      frame_digest_64px: fnv(px),
+      note: 'el render es local; el digesto es sobre el último frame'
+    };
+    $('receipt').textContent = JSON.stringify(rec, null, 2);
+    $('status').innerHTML = (isRTX ? '<span class="pill">RTX · DEFAULT</span>'
+                                  : '<span class="pill intel">INTEL · FALLBACK</span>')
+      + ' · <span style="color:var(--dim)">digest ' + rec.frame_digest_64px + '</span>';
+  }
+  /* los timers sí corren; el rAF se detiene en headless/virtual-time */
+  setTimeout(tick, 0);
+  } catch(e){ boom(e && e.message ? e.message : String(e)); }
+}
+</script>
+</body>
+</html>
