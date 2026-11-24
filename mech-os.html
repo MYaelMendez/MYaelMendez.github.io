@@ -316,6 +316,18 @@
         .petbox .floor { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
             width: 110px; height: 6px; border-radius: 50%;
             background: radial-gradient(ellipse, rgba(255,157,0,.3), transparent 70%); }
+        /* mirror bar + candidate list */
+        .mirrorbar { display: flex; gap: 6px; align-items: center; font-size: 10px;
+            margin-bottom: 4px; letter-spacing: .04em; }
+        .mirrorbar input { flex: 1; background: #0a0a0a; border: 1px solid var(--metal-light);
+            color: var(--ink); font: inherit; font-size: 10px; padding: 3px 5px; }
+        .mirrorclose { cursor: pointer; opacity: .75; white-space: nowrap; }
+        .mirrorclose:hover { opacity: 1; color: var(--secondary-color, #ff9d00); }
+        .mirrorlist { max-height: 160px; overflow-y: auto; }
+        .mirrorlist button { display: block; width: 100%; text-align: left; background: none;
+            border: 0; color: var(--primary-color, #00ffea); font: inherit; font-size: 10px;
+            padding: 3px 4px; cursor: pointer; letter-spacing: .02em; }
+        .mirrorlist button:hover { color: var(--secondary-color, #ff9d00); }
         .ticker-item .sim {
             font-size: 9px; padding: 1px 4px; border: 1px solid currentColor; border-radius: 2px;
             opacity: .75; vertical-align: middle;
@@ -1229,9 +1241,14 @@
                 return el && el.textContent.replace(/\[x\]/g, '').trim() === t;
             });
         }
-        allWindows().forEach(function (w) {          /* inject the dock control */
+        allWindows().forEach(function (w) {          /* inject the window controls */
             var h = w.querySelector('.window-header'); if (!h) return;
             var old = h.querySelector('.window-controls'); if (!old) return;
+            var m = document.createElement('span');
+            m.className = 'window-controls dockbtn mirrorbtn'; m.textContent = '[◈]';
+            m.title = 'mirror another HTML surface into this window';
+            m.onclick = function (e) { e.stopPropagation(); mirrorToggle(w); };
+            h.insertBefore(m, old);
             var b = document.createElement('span');
             b.className = 'window-controls dockbtn'; b.textContent = '[▣]';
             b.title = 'dock as 1:1 / restore 9:16';
@@ -1393,6 +1410,69 @@
                 .then(function (r) { s.innerHTML = 'reachability <b>HTTP ' + r.status + '</b> · measured now' })
                 .catch(function (e) { s.innerHTML = 'reachability <b>DOWN</b> · ' + e.message });
         })();
+
+        /* --- mirror: any window can wear another HTML surface --------------------
+           The candidate list is read from estate.json (the surfaces the repository
+           actually has), so it cannot drift from the estate. Mirroring REPLACES the
+           window body and stashes the previous markup for restore; anything stateful
+           in that body (a running driver) stops until restored — named, not hidden. */
+        var MIR = [];
+        function mirrorLoad(cb) {
+            if (MIR.length) { cb(); return }
+            fetch('estate.json', { cache: 'no-cache' })
+                .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json() })
+                .then(function (d) {
+                    MIR = (d.surfaces || []).filter(function (x) {
+                        return /\.html?$/.test(x.url || '');
+                    }).map(function (x) { return x.url.replace(/^\//, '') });
+                    cb();
+                })
+                .catch(function (e) { MIR = []; addLog('[| "MIRROR", "index unreadable", "' + e.message + '", "" |]'); cb(); });
+        }
+        function mirrorToggle(w) {
+            var body = w.querySelector('.window-content'); if (!body) return;
+            if (w.dataset.mirror === '1') { mirrorRestore(body, w); return }
+            /* #logs is shared by every module — mirroring its own host would delete it */
+            if (body.querySelector('#logs')) {
+                addLog('[| "MIRROR", "REFUSED", "this window carries the shared log", "" |]');
+                return;
+            }
+            mirrorLoad(function () {
+                var q = '';
+                w.dataset.saved = body.innerHTML; w.dataset.mirror = '1';
+                body.innerHTML =
+                    '<div class="mirrorbar"><input value="' + q + '" placeholder="filter surfaces…" ' +
+                    'oninput="mirrorFilter(this)"><span class="mirrorclose" ' +
+                    'onclick="mirrorRestore(this.parentNode.parentNode,this.parentNode.parentNode.closest(\'.window\'))">[‹]</span></div>' +
+                    '<div class="mirrorlist">' + MIR.map(function (u) {
+                        return '<button data-url="' + u + '" onclick="mirrorGo(this)">◈ ' + u + '</button>';
+                    }).join('') + '</div>';
+                var inp = body.querySelector('input'); if (inp) inp.focus();
+            });
+        }
+        function mirrorFilter(inp) {
+            var v = inp.value.toLowerCase();
+            var list = inp.parentNode.parentNode.querySelector('.mirrorlist');
+            [...list.querySelectorAll('button')].forEach(function (b) {
+                b.style.display = b.getAttribute('data-url').toLowerCase().indexOf(v) < 0 ? 'none' : '';
+            });
+        }
+        function mirrorGo(btn) {
+            var url = btn.getAttribute('data-url'), w = btn.closest('.window');
+            var body = w.querySelector('.window-content');
+            body.innerHTML =
+                '<div class="mirrorbar"><span>◈ ' + url + '</span>' +
+                '<span class="mirrorclose" onclick="mirrorRestore(this.parentNode.parentNode,this.parentNode.parentNode.closest(\'.window\'))">[‹] restore</span></div>' +
+                '<iframe src="' + url + '" title="mirrored: ' + url + '"' +
+                ' style="width:100%;height:calc(100% - 26px);border:0;background:#000"></iframe>';
+            addLog('[| "MIRROR", "' + url + '", "worn by ' +
+                   (w.querySelector('.window-title') || {}).textContent + '", "QR://mirror/' + url + '" |]');
+        }
+        function mirrorRestore(body, w) {
+            if (!body || !w) return;
+            if (w.dataset.saved != null) body.innerHTML = w.dataset.saved;
+            delete w.dataset.saved; w.dataset.mirror = '';
+        }
 
         /* --- start the measured telemetry, after every handler above is defined --- */
         measureStatus();

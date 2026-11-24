@@ -3466,3 +3466,19 @@ A GGUF exists (`neuromitosis/plan-narrator/adapter-v3-text.gguf`, 59.6 MB).
 - **Verified:** image loads (natural 746×1017), box 22×30, click opens the menu with all nine
   windows listed.
 - Reuses the existing receipted asset — no new mark, no second source of truth.
+
+## 86. every window can mirror an HTML surface (2026-11-23)
+
+- `[◈]` control injected into every window header, beside `[▣]` dock and `[x]`.
+  The candidate list is read from **`estate.json`** (`.html?` surfaces, 425 of them), so it
+  cannot drift from the estate; a filter box narrows it; picking one replaces the window body
+  with an `<iframe>` of that surface and writes a `[| "MIRROR", "<url>", "worn by <window>",
+  "QR://mirror/<url>" |]` line to `#logs`. `[‹]` restores the stashed markup.
+- **Defect found while verifying:** mirroring `COMM_LOGS` **deleted `#logs`**, which every
+  module calls — the console's logging died with one click. Now refused with a logged reason:
+  `[| "MIRROR", "REFUSED", "this window carries the shared log", "" |]`.
+- **Verified:** refusal fires and `#logs` survives; SYSTEM_STATUS mirrors 425 candidates with
+  `waetz.html` and `llm-store.html` present; `mirrorGo` installs `<iframe src="waetz.html">`.
+- **Named limitation:** restore returns the *markup*, not live state — any driver that was
+  running in that body (the pet's timers, a fetch loop) stops until the page reloads. Marked
+  in the code comment rather than left implicit.
