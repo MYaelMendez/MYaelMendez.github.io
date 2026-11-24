@@ -28,9 +28,17 @@ Problem this fixes: ad hoc edits, stale browser panes, and fresh-tab checks were
 5. **Kaizen** — for each defect: write root cause + countermeasure into `skills/robotics-kaizen-loop/SKILL.md`.
 6. **Repeat** — next loop starts from step 1. No exceptions.
 
+## Loop 2 — controllable head environment
+
+- Target: `https://myaelmendez.github.io/asimov-head-lab.html`
+- Source: `assets/gltf/asimov-web.glb` → `neck_pitch_link` (the real Asimov-1 head)
+- Environment: Three.js scene with floor, light rig, particles, and camera presets
+- Control: full head transform (yaw/pitch/roll/position/scale), mask programs/states, LED surface, environment presets, lighting, and motion modes
+- Review: same browser evidence standard as Loop 1, plus transform/environment assertions
+
 ## Current canonical build
 
-- Page: `https://myaelmendez.github.io/asimov-head-webgl-neon.html`
+- Page: `https://myaelmendez.github.io/asimov-head-lab.html`
 - Head: `assets/gltf/asimov-web.glb` → `neck_pitch_link`
 - Shell: `#ff6a00`, emissive `#ff3d00`
 - Mask: 32×28 LED texture, no tablet

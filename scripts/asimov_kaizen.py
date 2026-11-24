@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "asimov-build.json"
 LOG = ROOT / "asimov-kaizen.jsonl"
-PAGE = "asimov-head-webgl-neon.html"
+PAGE = "asimov-head-lab.html"
 CANONICAL = "https://myaelmendez.github.io/" + PAGE
 ASSETS = [
     PAGE,
