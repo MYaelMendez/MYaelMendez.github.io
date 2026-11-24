@@ -3918,3 +3918,35 @@ todavía no está cableada a señales reales del estate (no hay dispatcher que e
 `review` hoy). **P3–P6 no empezados**: P3 es el desbloqueo crítico (requiere el URDF articular +
 digest por frame), P4 depende de P3, P5 es independiente y barato, **P6 sigue bloqueado** por el
 numpy ABI de tiny-voca.
+
+## 104. pet://live (P3) — articulación viva FUNCIONA, el receipt todavía NO (2026-11-24)
+
+`pet/live.html`: carga `assets/gltf/asimov-web.glb` (5 MB) con GLTFLoader+Draco vendorizado,
+pide `asimov-urdf.json` y articula por estado. Fallback declarado al atlas de sprites.
+
+**Medido (verificado):**
+| campo | valor |
+|---|---|
+| camino | **`webgl · live`** |
+| modelo | **`asimov_1_25dof`** |
+| articulaciones enlazadas | **25 / 25** |
+| gpu | `ANGLE (Intel UHD …)` (harness) |
+| digesto por frame | se produce, p. ej. `87fd4ce4 · 64px@centro` |
+
+Visión: el robot 3D **se renderiza**, centrado, sobre rejilla en perspectiva.
+
+**PERO el digesto no sirve como receipt — medición que lo impide:**
+`byState: idle 87fd4ce4 · waving 87fd4ce4 · running 87fd4ce4 · failed 87fd4ce4` → **distinct = 1**.
+El digesto es idéntico en los cuatro estados y no varía con el tiempo. Un hash invariante no es
+un receipt: no distingue una pose de otra.
+
+Defectos ya corregidos en el camino (los dos reales):
+1. rutas relativas: la página vive en `pet/`, todos los assets necesitaban `../` — sin eso el
+   módulo no cargaba y el fallback disparaba;
+2. `readPixels` a (0,0) lee la esquina inferior izquierda, fondo puro → se movió el cultivo al
+   centro, y `preserveDrawingBuffer:true` quedó explícito.
+
+**Pendiente (no resuelto):** por qué el cultivo central no distingue poses. Tres candidatos no
+separados aún: el cultivo 64 px no alcanza la figura (el robot ocupa poco marco), las metas de
+joints no llegan a los nodos (nombres URDF ↔ nodos glTF), o el suavizado `w=0.06` es tan lento que
+en la lectura inmediata la pose aún no cambió. **No se declara P3 terminado.**

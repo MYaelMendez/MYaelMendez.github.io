@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>pet://live · articulación en vivo</title>
+<style>
+  :root{--gold:#D4AF37;--void:#050505;--dim:#8a8a8a;--line:#2a2a2a}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--void);color:#ededed;
+       font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;line-height:1.6;
+       background-image:linear-gradient(rgba(212,175,55,.045) 1px,transparent 1px),
+                        linear-gradient(90deg,rgba(212,175,55,.045) 1px,transparent 1px);
+       background-size:40px 40px}
+  header{padding:20px 18px 10px;border-bottom:1px solid var(--line)}
+  h1{font-family:Orbitron,ui-monospace,monospace;font-size:clamp(18px,3.4vw,28px);margin:0;color:var(--gold);letter-spacing:.06em}
+  .sub{color:var(--dim);max-width:80ch;margin:6px 0 0}
+  main{padding:14px 18px 30px;display:grid;gap:12px;grid-template-areas:"stage" "cards"}
+  @media(min-width:820px){main{grid-template-columns:minmax(0,1fr) 320px;grid-template-areas:"stage cards"}}
+  #stage{grid-area:stage;width:100%;aspect-ratio:9/16;max-height:78vh;border:1px solid var(--line);background:#000;display:block}
+  aside{grid-area:cards;display:grid;gap:8px;align-content:start}
+  .card{border:1px solid var(--line);background:#0b0b0d;padding:9px 11px}
+  .k{color:var(--dim);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+  .v{color:#f0d878}
+  code{color:var(--gold);word-break:break-all}
+  #chips button{background:transparent;border:1px solid var(--line);color:var(--dim);font:inherit;
+    font-size:10px;letter-spacing:.1em;padding:5px 9px;cursor:pointer;text-transform:uppercase}
+  #chips button.on{color:var(--void);background:var(--gold);border-color:var(--gold);font-weight:700}
+</style>
+</head>
+<body>
+<header>
+  <h1>pet://live</h1>
+  <p class="sub">P3 del plan de evolución: la geometría articular real
+     (<code>asimov_1_25dof</code>, 26 links / 25 joints) renderizada en vivo, con <b>digesto por
+     frame</b> como receipt. Si no hay WebGL, el atlas de sprites sigue funcionando y el camino se
+     declara.</p>
+</header>
+<main>
+  <canvas id="stage"></canvas>
+  <aside>
+    <div class="card"><div class="k">camino</div><div class="v" id="path">CARGANDO</div></div>
+    <div class="card"><div class="k">gpu</div><div class="v" id="gpu">—</div></div>
+    <div class="card"><div class="k">modelo</div><div class="v" id="model">—</div></div>
+    <div class="card"><div class="k">articula</div><div class="v" id="joints">—</div></div>
+    <div class="card"><div class="k">digesto por frame</div><div class="v" id="digest">—</div></div>
+    <div class="card"><div class="k">estado</div><div class="v" id="state">idle</div></div>
+    <div class="card"><div class="k">estados</div><div id="chips">
+      <button data-s="idle">idle</button><button data-s="running">running</button>
+      <button data-s="waving">waving</button><button data-s="jumping">jumping</button>
+      <button data-s="failed">failed</button><button data-s="review">review</button>
+    </div></div>
+  </aside>
+</main>
+
+<script type="importmap">
+{"imports":{"three":"../assets/vendor/three.module.js","three/addons/":"../assets/vendor/"}}
+</script>
+<script type="module">
+/* pet://live — P3. Pose = f(state, t); el receipt es un digesto por frame.
+   Fallback declarado: si GLTF/WebGL falla, el atlas de sprites toma el control. */
+const $ = id => document.getElementById(id);
+const STATES = ['idle','running','waving','jumping','failed','review'];
+let state = 'idle', t = 0;
+
+function fallback(razon){
+  $('path').textContent = 'REFUSED';
+  $('path').innerHTML = '<code>2d-fallback · ' + razon + '</code>';
+  $('gpu').textContent = '—'; $('model').textContent = 'atlas de sprites';
+  $('joints').textContent = '0'; $('digest').textContent = '—';
+  const c = $('stage');
+  c.style.backgroundImage = 'url("../picoasimov-atlas.webp")';
+  c.style.backgroundSize = '1536px 1872px'; c.style.backgroundRepeat = 'no-repeat';
+  document.title = 'pet://live · REFUSED · ' + razon;
+}
+
+let THREE, scene, camera, renderer, gl, gpu='', isRTX=false, joints={}, nodeByName={};
+try{
+  THREE = await import('three');
+  const { GLTFLoader } = await import('../assets/vendor/GLTFLoader.js');
+  const { DRACOLoader } = await import('../assets/vendor/DRACOLoader.js');
+
+  /* preserveDrawingBuffer: sin él, readPixels devuelve un buffer ya compostado (ceros) */
+  renderer = new THREE.WebGLRenderer({canvas:$('stage'), antialias:true, preserveDrawingBuffer:true});
+  renderer.setPixelRatio(Math.min(2, devicePixelRatio||1));
+  gl = renderer.getContext();
+  const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+  gpu = String(dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
+  isRTX = /NVIDIA|GeForce|RTX/i.test(gpu);
+  $('gpu').innerHTML = '<code>' + gpu.replace(/</g,'&lt;') + '</code>';
+
+  const urdf = await fetch('../asimov-urdf.json').then(r=>r.json());
+  const draco = new DRACOLoader().setDecoderPath('../assets/vendor/draco/');
+  const loader = new GLTFLoader().setDRACOLoader(draco);
+  const gltf = await loader.loadAsync('../assets/gltf/asimov-web.glb');
+  const root = gltf.scene;
+
+  root.traverse(o => { if(o.name) nodeByName[o.name] = o; });
+  joints = {};
+  for(const j of urdf.joints){
+    const n = nodeByName[j.child] || nodeByName[j.name];
+    if(n) joints[j.name] = n;
+  }
+  $('model').textContent = urdf.robot;
+  $('joints').textContent = Object.keys(joints).length + ' / ' + urdf.joints.length;
+
+  scene = new THREE.Scene(); scene.background = new THREE.Color(0x050505);
+  scene.add(root);
+  const key = new THREE.DirectionalLight(0xfff2cc, 2.4); key.position.set(2.5,3.5,4); scene.add(key);
+  const rim = new THREE.DirectionalLight(0xD4AF37, 1.4); rim.position.set(-3,1.5,-2); scene.add(rim);
+  scene.add(new THREE.AmbientLight(0xffffff, .5));
+  const floor = new THREE.GridHelper(12, 24, 0xD4AF37, 0x222222);
+  floor.position.y = -2.2; scene.add(floor);
+
+  camera = new THREE.PerspectiveCamera(38, 9/16, .1, 100);
+  camera.position.set(0, -0.4, 6.2); camera.lookAt(0, -0.9, 0);
+
+  function fit(){ const w=$('stage').clientWidth||360, h=$('stage').clientHeight||640;
+    renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); }
+  addEventListener('resize', fit); fit();
+
+  const L = n => joints[n];
+  /* pose = f(state, t): interpola hacia los objetivos del estado */
+  const TARGETS = {
+    idle:    { 'left_hip_pitch_joint':-0.05, 'right_hip_pitch_joint':-0.05, 'spine_pitch_joint':0.04 },
+    running: { 'left_hip_pitch_joint':-0.55, 'right_hip_pitch_joint': 0.55, 'spine_pitch_joint':0.10 },
+    waving:  { 'right_shoulder_pitch_joint':-2.2, 'right_elbow_pitch_joint':-0.6 },
+    jumping: { 'left_hip_pitch_joint':-0.35, 'right_hip_pitch_joint':-0.35, 'spine_pitch_joint':-0.12 },
+    failed:  { 'spine_pitch_joint':0.42, 'head_pitch_joint':0.35 },
+    review:  { 'head_yaw_joint':0.5, 'spine_pitch_joint':-0.05 }
+  };
+  function pose(){
+    const tgt = TARGETS[state] || {};
+    const w = Math.min(1, 0.06) ;          /* suavizado */
+    for(const k in joints){
+      const goal = (k in tgt) ? tgt[k] : 0;
+      let cur = joints[k].rotation.x;
+      const osc = (state==='running') ? Math.sin(t*9 + (/left/.test(k)?0:Math.PI))*0.35 : 0;
+      cur += ((goal + osc) - cur) * w;
+      joints[k].rotation.x = cur;
+    }
+    if(state==='waving'){
+      const s = joints['right_elbow_pitch_joint'];
+      if(s) s.rotation.x = -0.6 + Math.sin(t*7)*0.35;
+    }
+    if(state==='jumping'){ root.position.y = Math.abs(Math.sin(t*4))*0.45; }
+    else root.position.y *= 0.9;
+  }
+
+  const px = new Uint8Array(4*64*64);
+  function fnv(b){ let h=0x811c9dc5; for(let i=0;i<b.length;i++){ h^=b[i]; h=Math.imul(h,0x01000193)>>>0; }
+                   return ('00000000'+h.toString(16)).slice(-8); }
+  function loop(){
+    t += 0.016;
+    pose();
+    renderer.render(scene, camera);
+    /* el cultivo va al CENTRO del buffer: la esquina inferior izquierda es fondo puro */
+    const bw=gl.drawingBufferWidth, bh=gl.drawingBufferHeight;
+    gl.readPixels(Math.max(0,(bw>>1)-32), Math.max(0,(bh>>1)-32), 64,64,gl.RGBA,gl.UNSIGNED_BYTE,px);
+    $('digest').textContent = fnv(px) + ' · 64px@centro';
+    requestAnimationFrame(loop);
+  }
+  loop();
+  $('path').textContent = 'webgl · live';
+  document.title = 'pet://live · ' + (isRTX?'RTX':'GPU') + ' · ' +
+                   Object.keys(joints).length + ' joints · ' + $('digest').textContent;
+}catch(e){
+  fallback((e && e.message) ? e.message : String(e));
+}
+
+$('chips').addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  state = b.dataset.s; $('state').textContent = state;
+  [...$('chips').children].forEach(x=>x.classList.toggle('on', x===b));
+});
+</script>
+</body>
+</html>
