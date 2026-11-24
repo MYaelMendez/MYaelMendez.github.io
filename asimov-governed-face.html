@@ -30,6 +30,8 @@ input{width:100%;background:#030705;color:var(--white);border:1px solid #164d38;
 .log{margin-top:10px;max-height:190px;overflow:auto;border-top:1px solid #164d38;padding-top:8px;font-size:10px;color:var(--muted)}
 .log div{margin-bottom:5px;word-break:break-all}.log b{color:var(--green)}
 .note{font-size:10px;color:var(--muted);margin-top:10px}
+.dombox{margin-top:10px;border:1px solid #164d38;border-radius:5px;padding:8px;font-size:10px;color:var(--muted);background:#050b08;max-height:150px;overflow:auto;white-space:pre-wrap}
+.dombox b{color:var(--cyan)}
 .statebar{display:flex;justify-content:space-between;align-items:center;border:1px solid #164d38;border-radius:5px;padding:8px 10px;margin-bottom:10px;font-size:12px}
 .statebar b{color:var(--amber)}
 </style>
@@ -81,6 +83,12 @@ input{width:100%;background:#030705;color:var(--white);border:1px solid #164d38;
     <div>authority <b>HUMAN://ROOT</b></div>
     <div>canonical op <b>ae({op:"daobrain"})</b></div>
   </div>
+  <h2 style="margin-top:14px">DOM awareness</h2>
+  <div class="btns">
+    <button id="dom-read">Read self DOM</button>
+    <button data-hermes-send="Run ae({op:'head', action:'dom'}) against the Asimov head viewport and return the DOM digest.">Read via Hermes</button>
+  </div>
+  <div class="dombox" id="domOut">self DOM · idle</div>
   <h2 style="margin-top:14px">Receipt preview log</h2>
   <div class="log" id="log"><div>boot · native mask contract loaded</div></div>
   <div class="note">This page programs a local preview matrix and computes local SHA-256 hashes. Canonical receipts are written by the hermes-ae ledger, not by this HTML.</div>
@@ -168,6 +176,25 @@ input{width:100%;background:#030705;color:var(--white);border:1px solid #164d38;
   document.querySelectorAll('[data-program]').forEach(b=>b.addEventListener('click',()=>setProgram(b.dataset.program)));
   document.querySelectorAll('[data-state]').forEach(b=>b.addEventListener('click',()=>{setProgram('face');setState(b.dataset.state);}));
   document.getElementById('setText').addEventListener('click',()=>{textValue=(inp.value||'ROOT').slice(0,4);setProgram('text');record('MASK://TEXT',textValue);});
+  const domOut=document.getElementById('domOut');
+  async function selfDom(){
+    const payload={
+      authority:'HUMAN://ROOT',
+      title:document.title,
+      program:program,
+      state:state,
+      zones:[...document.querySelectorAll('.meta div')].map(x=>x.textContent.trim()).filter(x=>/03C|04C|06C|07C/.test(x)),
+      controls:[...document.querySelectorAll('button')].map(b=>b.textContent.trim()).slice(0,48),
+      viewport:{w:innerWidth,h:innerHeight},
+      read_only:true
+    };
+    const json=JSON.stringify(payload);
+    let digest='preview';
+    try{const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(json));digest=[...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,'0')).join('');}catch(e){}
+    domOut.innerHTML='<b>DOM://SELF_READ</b> · read_only · '+digest.slice(0,16)+'\n'+JSON.stringify(payload,null,1).slice(0,900);
+    record('DOM://SELF_READ',digest.slice(0,16));
+  }
+  document.getElementById('dom-read').addEventListener('click',selfDom);
   setProgram('face');setState('IDLE');loop();
 })();
 </script>
