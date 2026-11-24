@@ -3731,3 +3731,24 @@ GPU capabilities, renders a fixed scene and grades determinism by running twice 
 The renderer line independently reproduces the Optimus finding: three.js reaches **Intel UHD
 through ANGLE/D3D11**, not the RTX. Determinism holds with `antialias:false`; the digest is the
 frame-level receipt the film chain was missing.
+
+## 97. tinyTHREE on the RTX — verified (2026-11-23)
+
+The question was whether three.js can render **fully local on the RTX** through the tiny family.
+Answer: yes, and the unlock is documented verbatim in `agents/asimov_up.cmd`
+(`--force_high_performance_gpu --use-angle=d3d11`; comment there: without it
+"ANGLE/D3D11 selects the Intel iGPU and the discrete card stays idle").
+
+**Measured, same `tinythree.html`, two launches of the same Chrome:**
+| launch | renderer string |
+|---|---|
+| default | `ANGLE (Intel, Intel(R) UHD Graphics … Direct3D11)` |
+| `--force_high_performance_gpu --use-angle=d3d11` | **`ANGLE (NVIDIA, NVIDIA GeForce RTX 3050 6GB Laptop GPU (0x000025AC) Direct3D11 vs_5_0 ps_5_0, D3D11)`** |
+
+Both runs grade **PASS · determinista**. So the estate can render three.js locally on the
+RTX with reproducible frames — the flags are the whole difference, and the robot launchers
+already carry them.
+
+**Why the instrument earns its place:** the page does not assume a GPU. It reports which one it
+got. The same URL is an Intel measurement or an RTX measurement depending on how Chrome was
+launched, and until this run the estate had only the Intel number recorded.
