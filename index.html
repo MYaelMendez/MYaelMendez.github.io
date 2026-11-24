@@ -607,7 +607,8 @@ function drawGrid(){var c=$('grid'),x=c.getContext('2d');
   var dpr=Math.min(2,window.devicePixelRatio||1);
   function fit(){c.width=innerWidth*dpr;c.height=innerHeight*dpr;x.setTransform(dpr,0,0,dpr,0,0)}
   fit();window.addEventListener('resize',fit);
-  var t=0;function loop(){x.clearRect(0,0,innerWidth,innerHeight);
+  var t=0;function loop(){if(window.__aeGL)return;   /* WebGL tomó el fondo */
+    x.clearRect(0,0,innerWidth,innerHeight);
     var h=innerHeight,w=innerWidth,hy=h*0.42;
     var cs=getComputedStyle(document.documentElement);
     var gn=cs.getPropertyValue('--grid-neon').trim()||'rgba(0,255,157,.06)';
@@ -765,6 +766,90 @@ function aeMountPet(el, opts){
     if(b && b.getAttribute) pet.set(b.getAttribute('data-state'));
   });
 })();
+</script>
+/* --- three.js neural mesh: the estate's renderer, vendored (cero CDN) ------------
+   Sustituye la rejilla 2D del fondo por una malla con profundidad real en WebGL.
+   Mobile 9:16 es el marco de referencia: la cámara se compone en vertical.
+   Si no hay WebGL o no cargó el módulo, el fondo 2D existente sigue funcionando —
+   el instrumento declara qué camino tomó (window.aeRender) en vez de asumirlo. */
+<script type="module">
+let THREE=null, loadErr=null;
+try{ THREE = await import('./assets/vendor/three.module.js'); }
+catch(e){ loadErr=e; }
+
+function webglOK(){ try{ return !!document.createElement('canvas').getContext('webgl2'); }catch(e){ return false } }
+
+if(!THREE || !webglOK()){
+  window.aeRender = { path:'2d-fallback', reason: loadErr ? ('módulo: '+loadErr.message) : 'sin WebGL2' };
+} else {
+  try{
+  const old = document.getElementById('grid');
+  /* un canvas no puede ser 2D y WebGL a la vez: tres.js recibe su propia capa */
+  const canvas = document.createElement('canvas');
+  canvas.id = 'grid-gl';
+  canvas.style.cssText = 'position:fixed;inset:0;z-index:0;width:100%;height:100%;display:block';
+  old.parentNode.insertBefore(canvas, old);
+  old.style.visibility = 'hidden';      /* el 2D queda como fallback, sin pintar */
+  const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:false});
+  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio||1));
+  const gl = renderer.getContext();
+  const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+  const gpu = String(dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
+  const isRTX = /NVIDIA|GeForce|RTX/i.test(gpu);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x050505);
+  scene.fog = new THREE.Fog(0x050505, 12, 34);
+  const cam = new THREE.PerspectiveCamera(72, 1, 0.1, 100);
+  cam.position.set(0, 1.6, 8.5);
+
+  /* suelo en perspectiva — la misma idea que la rejilla 2D, con profundidad real */
+  const floor = new THREE.GridHelper(60, 60, 0xD4AF37, 0x444444);
+  floor.position.y = -3.2; floor.material.transparent = true; floor.material.opacity = 0.85;
+  scene.add(floor);
+
+  /* polvo áureo: el mismo vocabulario que la demonstración rtx://render */
+  const N = 900, pos = new Float32Array(N*3);
+  for(let i=0;i<N;i++){ pos[i*3]=(Math.random()-.5)*30; pos[i*3+1]=Math.random()*9-2; pos[i*3+2]=(Math.random()-.5)*24; }
+  const pg = new THREE.BufferGeometry(); pg.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  const dust = new THREE.Points(pg, new THREE.PointsMaterial({color:0xf0d878, size:0.045, transparent:true, opacity:0.85}));
+  scene.add(dust);
+
+  let mx=0, my=0;
+  addEventListener('pointermove', e=>{ mx=(e.clientX/innerWidth-0.5); my=(e.clientY/innerHeight-0.5); }, {passive:true});
+
+  function fit(){
+    const w = innerWidth, h = innerHeight, dpr = Math.min(2, devicePixelRatio||1);
+    renderer.setSize(w, h, false);
+    /* 9:16 óptimo: sube el fov y aleja la cámara en vertical para que el suelo respire */
+    const portrait = h > w;
+    cam.aspect = w/h;
+    cam.fov = portrait ? 84 : 68;
+    cam.position.z = portrait ? 10.5 : 8.5;
+    cam.position.y = portrait ? 2.4 : 1.6;
+    cam.updateProjectionMatrix();
+  }
+  addEventListener('resize', fit); fit();
+
+  let t = 0;
+  (function loop(){
+    t += 0.0035;
+    floor.position.z = (t % 1) * 2;
+    dust.rotation.y = t * 0.16;
+    cam.position.x += (mx*0.8 - cam.position.x) * 0.04;
+    cam.position.y += ((portraitY() + my*0.5) - cam.position.y) * 0.04;
+    cam.lookAt(0, -1.5, 0);
+    renderer.render(scene, cam);
+    requestAnimationFrame(loop);
+  })();
+  function portraitY(){ return (innerHeight > innerWidth) ? 2.4 : 1.6; }
+
+  /* el 2D deja de dibujar: WebGL manda */
+  window.__aeGL = true;
+  window.aeRender = { path:'webgl', gpu:gpu, rtx:isRTX, three:'r'+THREE.REVISION,
+                      webgl:gl.getParameter(gl.VERSION) };
+  }catch(e){ window.aeRender={path:'error', reason:(e&&e.message)||String(e)}; }
+}
 </script>
 </body>
 </html>

@@ -3794,3 +3794,30 @@ renderer.
 
 Bloqueo declarado: la causa exacta del fallo del Worker es **desconocida** — el log está tras el
 dashboard de Cloudflare. Lo medible está registrado; lo demás se declara desconocido.
+
+## 100. index.html — tres.js como capa de fondo (evaluación + mejora) (2026-11-24)
+
+**Evaluación.** `index.html` (47,855 B) no tenía ni una línea de three.js. Su único elemento
+espacial era `<canvas id="grid">`: `drawGrid()` recorre ~40 líneas por frame en **2D por CPU**,
+a viewport completo y con DPR×2 en móvil — el coste que paga un teléfono en 9:16. El héroe es un
+atlas CSS rasterizado (deliberado: es un receipt), así que la mejora adecuada era la capa de
+fondo, no tocar el pet.
+
+**Mejora.** Una red neuronal WebGL con el módulo **vendorizado** (`assets/vendor/three.module.js`,
+cero CDN): suelo en perspectiva + 900 partículas de polvo áureo + niebla, cámara que se compone
+distinto en vertical (`fov 84`, `z 10.5`) que en horizontal (`fov 68`, `z 8.5`). Si no hay WebGL
+o no carga el módulo, **el fondo 2D sigue funcionando** y el camino tomado se declara en
+`window.aeRender`.
+
+**Medido en 390×844:** `path:'webgl'` · `three:'r186'` · `WebGL 2.0` · gpu `ANGLE (Intel UHD …)`
+· dos capas (`grid-gl` + `grid` oculto) · `overflowX: false`. Visión: la rejilla dorada ocupa el
+**50% inferior** y los contenidos quedan en la mitad superior — encaje correcto en 9:16.
+
+**Defectos encontrados al verificar (los dos reales):**
+1. el primer intento dio `THREE.WebGLRenderer: Error creating WebGL context.` — **un canvas no
+   puede ser 2D y WebGL a la vez**, y `drawGrid()` ya había tomado el contexto 2D. three.js recibe
+   su propia capa `#grid-gl`.
+2. sin try/catch el fallo era silencioso (`aeRender` quedaba `null` y parecía que el módulo no
+   existía). Ahora el motivo se declara en vez de desaparecer.
+3. el suelo era invisible (opacidad .5, color `0x1b1b1b`, fog 9–26). Ajustado a `.85` / `0x444444`
+   / fog 12–34 y `lookAt(0,-1.5,0)`; verificado visualmente.
