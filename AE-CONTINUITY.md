@@ -3620,3 +3620,73 @@ No copy of the atlas body exists in the console any more.
 before the mount could be measured. Nothing about this pass is claimed as observed — the
 widget's count attributes, row counts and the compact/category lens must be read back before
 S4.1 is called proven. Diagnosis is mechanical, the proof is outstanding.
+
+
+## 94. film:// STUDIO — the scene is data, not code (2026-11-24)
+
+The question: what does it take to direct films repeatedly without spending tokens?
+Answer built here: **the scene document becomes the direction.**
+
+`github-pages/robots/fleet-performs.scene.json` — schema `film.scene/1`: actors
+(source trace, verb, rate, root, mirror) · camera spline keys (t, pos, target,
+fov, ease) · beats (t, actor, verb, line) · stage · gates · render command.
+Every field that used to be a Python literal is now data.
+
+`agents/fleet_performs.py --scene <doc>` reads it. Verified equivalent:
+
+```
+--scene robots/fleet-performs.scene.json --encode
+  [scene] 3 cues · authority 2.0s · total 11.0s
+  → 264 frames · sha256 1079ba729b261695…   ← IDENTICAL to the hardcoded script
+```
+
+Same film, same hash, from JSON. Directing is now editing an array.
+
+`github-pages/robots/studio.html` — the director's console. Gold on void, zero CDN
+(three.js + GLTFLoader from the site's own vendor/), importmap ESM.
+
+```
+loads robots/fleet-performs.scene.json   (falls back to a labelled built-in)
+3D blocking preview: real meshes where they exist (asimov-web.glb,
+  microduck.glb), honest labelled proxies otherwise (reachy has no GLB)
+camera path drawn; scrub + play; cue rings light per beat
+ACTORS   rate · root x/y · mirror
+CAMERA   keys t / pos xyz / target xyz / fov / ease
+BEATS    t · actor · verb · line
+STAGE    ground · backdrop · camera path
+SCENE HASH  sha256 of the canonical document, recomputed on every edit
+RENDER   prints the gated command; carries NO perform button
+```
+
+Measured:
+```
+scene loaded       3 actors · 5 camera keys · 4 beats
+edit a fov value   hash 372dc3c2… → 853044c9…   (the determinism anchor works)
+scrub to t=3.00    framing updates, transport shows 3.00 / 11.00
+page               renders, no layout breakage, no console errors
+```
+
+**Design rule (spec section 0).** A static surface has no server and no secrets
+and must never drive hardware. So the page REPORTS the last governed run and links
+its receipt; the RUN happens locally through `robot://`. Same shape as
+aipodcast.me: **the surface reports, the gate decides.**
+
+**Next, in order:** sampler v1 in Rust (`studio` crate, CLI + wasm) — the JS spline
+here is the reference implementation it must match; then a three.js backend that
+renders the SAME document, giving browser preview and offline render one contract.
+
+## 94. ESTATE window — the whole estate as one window of widgets (2026-11-23)
+
+New `ESTATE · WIDGETS` window: a grid of `<section class="widget">` mounts. Two **real** widgets
+ship with it, no placeholders pretending to work:
+
+- **ATLAS** — `<div data-atlas>` from S4.1. *Measured:* **53 rows**, `data-atlas-count="53"`.
+- **PET** — new second instance of the standard, `assets/pet/ae-pet-widget.js`, over
+  `pet/picoasimov-atlas.webp`. Contract: `data-pet` mount, reports `data-pet-state`,
+  `data-pet-frame`, `data-pet-frames`; geometry fixed at 192×208, 6 frames, 9 states.
+  *Measured:* box **192×208**, `data-pet-state="idle"`, `data-pet-frames="6"`,
+  `background-position: 0px 0px`, and a synthetic click moved it to **`waving`**.
+- One honestly-declared gap: `STORES` carries `DECLARED · no widget yet` — not a fake panel.
+
+Window measured **304×540**. The pattern now holds: a capability used twice becomes a widget,
+and a window is just a grid of mounts.

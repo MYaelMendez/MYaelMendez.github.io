@@ -343,6 +343,15 @@
         .ae-atlas .aw-cat { color: var(--ae-dim, #8A8A8A); font-size: 9px; text-transform: uppercase; }
         .ae-atlas-compact li { padding: 1px 0; }
         .ae-atlas-compact .aw-desc, .ae-atlas-compact .aw-cat { display: none; }
+        /* ESTATE · the whole estate as one window of widgets */
+        .estate-grid { display: grid; gap: 8px; }
+        .widget { border: 1px solid var(--ae-line, #2A2A2A); padding: 6px; background: rgba(0,0,0,.25); }
+        .widget h4 { margin: 0 0 6px; font-size: 9px; letter-spacing: .14em;
+            color: var(--secondary-color, #ff9d00); font-weight: 700; }
+        .ae-pet { cursor: pointer; image-rendering: pixelated; background-repeat: no-repeat;
+            outline-offset: 2px; }
+        .ae-pet:focus-visible { outline: 1px solid var(--ae-accent, #D4AF37); }
+        .widget-declared { font-size: 9px; color: var(--ae-dim, #8A8A8A); letter-spacing: .06em; }
         .ae-label-btn { background: transparent; border: 1px solid var(--secondary-color, #ff9d00);
             color: var(--secondary-color, #ff9d00); font: inherit; font-size: 10px; letter-spacing: .12em;
             padding: 4px 9px; cursor: pointer; }
@@ -771,6 +780,27 @@
             </div>
         </div>
 
+        <!-- ESTATE — the whole estate as one window of widgets -->
+        <div class="window win-estate" id="win-estate" data-estate="1"
+             style="top:60px;left:1840px;width:420px;">
+            <div class="window-header">
+                <span class="window-title">ESTATE · WIDGETS</span>
+                <span class="window-controls"
+                      onclick="this.parentElement.parentElement.style.display='none';layoutWindows()">[x]</span>
+            </div>
+            <div class="window-content" style="padding:6px;height:calc(100% - 30px);overflow:auto">
+                <div class="estate-grid" id="estate-grid">
+                    <section class="widget"><h4>ATLAS · the whole estate</h4>
+                        <div data-atlas></div></section>
+                    <section class="widget"><h4>PET · asimov-cad</h4>
+                        <div data-pet></div></section>
+                    <section class="widget" data-widget="stores"><h4>STORES · llm.store</h4>
+                        <div class="widget-declared">DECLARED · no widget yet. ships when
+                            llm-store.html moves onto S4.1.</div></section>
+                </div>
+            </div>
+        </div>
+
         <!-- BOTTOM TICKER — rendered from MEASURED signals. Rows we cannot measure on
              this device carry an explicit SIM tag; nothing here is invented. -->
         <div id="bottom-ticker">
@@ -781,6 +811,7 @@
 
     <script src="ae-atlas.js"></script>
     <script src="assets/atlas/ae-atlas-widget.js"></script>
+    <script src="assets/pet/ae-pet-widget.js"></script>
     <script src="assets/brand/ae-label.js"></script>
     <script src="assets/brand/ae-theme.js"></script>
     <script>
