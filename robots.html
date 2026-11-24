@@ -25,9 +25,9 @@ html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'J
 .bar .live{display:flex;align-items:center;gap:6px;color:var(--neon)}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);animation:pulse 1.6s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
-.bar button{background:transparent;border:1px solid var(--line);color:var(--muted);font:inherit;font-size:9px;
- letter-spacing:1px;text-transform:uppercase;padding:4px 8px;cursor:pointer}
-.bar button:hover{color:var(--gold);border-color:var(--gold)}
+.bar .tog{color:var(--muted);text-decoration:none;font-size:9px;letter-spacing:1px;
+ text-transform:uppercase;padding:4px 0;cursor:pointer}
+.bar .tog:hover{color:var(--gold)}
 .ticker{display:flex;align-items:center;gap:10px;width:100%;padding:9px 0;border-bottom:1px solid var(--line);
  font-size:9px;letter-spacing:.4px;overflow:hidden}
 .tlabel{display:inline-flex;align-items:center;gap:5px;color:var(--gold);font-weight:700;letter-spacing:1.6px;
@@ -77,14 +77,6 @@ html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'J
  font-size:11px;line-height:1.7;color:var(--muted);text-align:left;min-height:126px;max-height:190px;overflow-y:auto;
  white-space:pre-wrap;word-break:break-word}
 .log .ok{color:var(--neon)}.log .g{color:var(--gold)}.log .c{color:var(--cyan)}.log .m{color:var(--magenta)}
-.console{width:100%;max-width:620px;display:flex;align-items:center;gap:12px}
-.inrow{display:flex;width:100%;border:1px solid var(--line);background:rgba(5,5,5,.7)}
-.inrow .p{color:var(--gold);padding:0 0 0 14px;display:flex;align-items:center;font-size:14px}
-#cmd{flex:1;min-width:0;background:transparent;border:none;outline:none;color:var(--ink);font-family:inherit;
- font-size:13px;padding:13px 10px;letter-spacing:.5px}
-#go{background:var(--gold);color:var(--void);border:none;font-weight:700;font-size:11px;letter-spacing:1px;
- padding:0 20px;cursor:pointer;text-transform:uppercase;align-self:stretch}
-#go:hover{background:var(--gold-hi)}
 .legend{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;font-size:9px;letter-spacing:1px;
  color:var(--muted);text-transform:uppercase;padding-top:2px}
 .legend span{display:inline-flex;align-items:center;gap:5px}
@@ -109,7 +101,8 @@ html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'J
 .mesh{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;padding:14px 0 8px}
 @media(max-width:620px){.mesh{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:400px){.mesh{grid-template-columns:1fr}}
-.door{display:flex;flex-direction:column;gap:4px;padding:11px;border:1px solid var(--line);
+.doorcell{display:flex;flex-direction:column;gap:5px;min-width:0}
+.door{display:flex;flex-direction:column;gap:4px;padding:11px;border:1px solid var(--line);width:100%;
  border-left:2px solid var(--ac,var(--gold));background:rgba(212,175,55,.03);color:var(--ink);
  text-decoration:none;transition:all .18s;min-width:0;cursor:pointer;text-align:left;font:inherit}
 .door:hover{background:rgba(212,175,55,.09);transform:translateY(-2px);border-color:var(--ac,var(--gold))}
@@ -135,8 +128,48 @@ html,body{min-height:100%;background:var(--void);color:var(--ink);font-family:'J
 footer{margin-top:8px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);
  font-size:10px;letter-spacing:.08em;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
 footer a{color:var(--gold)}
+/* ── ledger anchor + governed run + evidence ──────────────────── */
+.anchor-row{display:flex;flex-direction:column;gap:3px;padding:9px 0;border-top:1px dashed var(--line)}
+.anchor-row:first-of-type{border-top:none}
+.anchor-row .who{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-size:10px}
+.anchor-row .who b{color:var(--gold);font-weight:700;letter-spacing:.04em;min-width:64px}
+.hash{font-size:10px;color:var(--gold-hi);word-break:break-all;line-height:1.6}
+a.hash{text-decoration:none;border-bottom:1px dotted rgba(212,175,55,.4)}
+a.hash:hover{border-bottom-style:solid;color:var(--gold)}
+.hash.miss{color:var(--muted);font-style:italic}
+.verifiable{display:inline-flex;align-items:center;gap:5px;font-size:9px;letter-spacing:1.2px;
+ text-transform:uppercase;color:var(--neon)}
+.verifiable i{width:6px;height:6px;border-radius:50%;background:var(--neon);
+ box-shadow:0 0 6px var(--neon);display:inline-block}
+.miss{color:var(--magenta)}
+.ev{font-size:9px;color:var(--muted);line-height:1.65;margin-top:5px;border-top:1px dashed var(--line);
+ padding-top:5px;word-break:break-word}
+.ev code{color:var(--cyan);font-size:9px}
+.ev a{color:var(--gold);font-size:9px;letter-spacing:.5px}
+.ev .k{color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-size:8px}
+.ev .v{color:var(--ink)}
+.runline{display:block;font-size:11px;color:var(--gold-hi);background:rgba(5,5,5,.7);
+ border:1px solid var(--line);padding:10px 12px;word-break:break-all;line-height:1.6;margin-top:4px}
+.verdict{display:flex;flex-direction:column;gap:5px;padding:9px 0;border-top:1px dashed var(--line)}
+.verdict:first-of-type{border-top:none}
+.verdict .vr{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-size:10.5px}
+.verdict .vn2{color:var(--gold);font-weight:700;min-width:74px;letter-spacing:.04em}
+.tagv{font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:1px 6px;border:1px solid}
+.tagv.allow{color:var(--neon);border-color:rgba(0,255,157,.4)}
+.tagv.refused{color:var(--magenta);border-color:rgba(255,45,120,.4)}
+.verdict .why{font-size:9.5px;color:var(--muted);line-height:1.55;word-break:break-word}
+.addr{width:100%;max-width:620px;display:flex;align-items:center;gap:10px;border:1px solid var(--line);
+ background:rgba(5,5,5,.7);padding:13px 14px}
+.addr .p{color:var(--gold);font-size:14px}
+.addr code{color:var(--gold-hi);font-size:12px;word-break:break-all}
+.note a{color:var(--gold)}
+.note code{color:var(--cyan)}
+:root[data-theme="day"] .addr{background:rgba(255,255,255,.85)}
+:root[data-theme="day"] .runline{background:rgba(255,255,255,.72)}
+:root[data-theme="day"] .hash{color:#8a6d1c}
+:root[data-theme="day"] a.hash{border-bottom-color:rgba(0,0,0,.25)}
 :root[data-theme="day"] .log{background:rgba(255,255,255,.72)}
-:root[data-theme="day"] .inrow{background:rgba(255,255,255,.85)}
+:root[data-theme="day"] .addr{background:rgba(255,255,255,.85)}
 :root[data-theme="day"] .panel{background:rgba(0,0,0,.02)}
 :root[data-theme="day"] .door{background:rgba(0,0,0,.02)}
 :root[data-theme="day"] .door:hover{background:rgba(0,0,0,.05)}
@@ -151,8 +184,8 @@ footer a{color:var(--gold)}
   <div class="bar">
     <span class="b1">wætz:// · THE POLICY OVER robot://</span>
     <span class="live"><span class="dot"></span><span id="meshstate">index loading</span></span>
-    <span><button id="theme-toggle" type="button">◐ theme</button>
-      <button id="voice-toggle" type="button" title="the head speaks — browser speech for now, tiny-voca ONNX when wired">◈ voice</button></span>
+    <span><a class="tog" href="#theme" id="theme-toggle">◐ theme</a>
+      <a class="tog" href="#voice" id="voice-toggle" title="the head speaks — browser speech for now, tiny-voca ONNX when wired">◈ voice</a></span>
   </div>
   <div class="ticker">
     <span class="tlabel"><span class="dot"></span>robot://live</span>
@@ -175,13 +208,7 @@ footer a{color:var(--gold)}
 
     <div class="log" id="log"></div>
 
-    <div class="console">
-      <div class="inrow">
-        <span class="p">›</span>
-        <input id="cmd" placeholder="robot://asimov/trajectory · or type 'help'" autocomplete="off" spellcheck="false">
-        <button id="go">RUN</button>
-      </div>
-    </div>
+    <div class="addr"><span class="p">›</span><code id="addr">robot://fleet/status</code></div>
 
     <div class="legend" id="legend"></div>
   </div>
@@ -192,10 +219,31 @@ footer a{color:var(--gold)}
     <div id="iface"></div>
   </section>
 
-  <section class="panel" aria-label="The roster">
+  <section class="panel" id="roster" aria-label="The roster">
     <div class="eyebrow">ROSTER × STANDARD INTERFACE · <span id="roster-count"></span></div>
     <h2>every robot, one row of seven</h2>
     <div class="mesh" id="mesh"></div>
+  </section>
+
+  <section class="panel" id="ledger-anchor" aria-label="Ledger anchor"
+           data-source="robots/index.json"
+           data-combined-from="ledger.combined_sha256"
+           data-tail-from="evidence.ledger_tail | ledger.per_robot.{name}.tail">
+    <div class="eyebrow">LEDGER ANCHOR · <span class="verifiable"><i></i>verifiable</span></div>
+    <h2>one hash chain, anchored</h2>
+    <div id="ledger"></div>
+    <p class="note" style="margin-top:10px"><b>An address is not a permission.</b> The anchor measures
+      the ledgers on disk; it does not licence anything. Every value above is read from
+      <a href="./robots/index.json">robots/index.json</a>. A field that was not measured says
+      <em>not measured</em> — nothing here is invented. Click a hash to copy it.</p>
+  </section>
+
+  <section class="panel" aria-label="The last governed run">
+    <div class="eyebrow">GOVERNED RUN · <span id="run-state">checking…</span></div>
+    <h2>the last run happened locally, through the gate</h2>
+    <div class="verb"><div class="vn">run locally</div><div class="vd">the runner is local only — this page never starts it.
+      <code class="runline">python agents/fleet_sim_all.py</code></div></div>
+    <div id="run"></div>
   </section>
 
   <section class="panel" aria-label="codemode">
@@ -212,19 +260,16 @@ footer a{color:var(--gold)}
   </section>
 
   <section class="panel" aria-label="merge addendum">
-    <div class="eyebrow">THE MERGE ADDENDUM · <span id="mx-verdict">checking…</span></div>
+    <div class="eyebrow">THE MERGE ADDENDUM · <span id="mx-verdict">NOT READ HERE</span></div>
     <h2>what the fleet rides on</h2>
-    <div class="verb"><div class="vn">branch</div><div class="vd" id="mx-branch">—</div></div>
-    <div class="verb"><div class="vn">ahead / behind</div><div class="vd" id="mx-ab">—</div></div>
-    <div class="verb"><div class="vn">film chain</div><div class="vd" id="mx-film">—</div></div>
-    <div class="verb"><div class="vn">tinyæ families</div><div class="vd" id="mx-reg">—</div></div>
-    <div class="verb"><div class="vn">deploy</div><div class="vd" id="mx-dep">—</div></div>
-    <p class="note" style="margin-top:10px"><b>Reported vs measured.</b> <span id="mx-kind"></span>
-      <br><span id="mx-stale"></span></p>
+    <p class="note"><b>Reported elsewhere.</b> Branch, ahead/behind, film chain, registry and deploy live in
+      <a href="./merge-addendum.json">merge-addendum.json</a>. This page does not fetch it: every dynamic
+      figure on this surface comes from <a href="./robots/index.json">robots/index.json</a>, so nothing here
+      can drift from a file the page never reads. <span class="miss">The addendum is a link, not a load.</span></p>
   </section>
 
   <p class="note" id="gaps"></p>
-  <div class="hint">⌘K FOCUS · W/S STEER THE VERB AXIS · A MISSING VERB IS A NAMED REFUSAL, NEVER A CRASH</div>
+  <div class="hint">W/S STEER THE VERB AXIS · A/D CYCLE THE ROSTER · THIS PAGE PERFORMS NOTHING — IT REPORTS</div>
   <footer>
     <span><a href="index.html">&gt;_æ://#opensourceware</a> · live from <a href="./robots/index.json">robots/index.json</a></span>
     <span id="gen"></span>
@@ -237,7 +282,8 @@ var _theme='night';
 try{_theme=localStorage.getItem('ae-theme')||'night'}catch(e){}
 function applyTheme(t){document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('ae-theme',t)}catch(e){}}
 applyTheme(_theme);
-var _tt=$('theme-toggle');if(_tt)_tt.addEventListener('click',function(){
+var _tt=$('theme-toggle');if(_tt)_tt.addEventListener('click',function(e){
+  e.preventDefault();
   _theme=(_theme==='night')?'day':'night';applyTheme(_theme);tickPush('theme → '+_theme,'')});
 
 /* ── the seven standard verbs, in contract order ───────────────── */
@@ -277,7 +323,8 @@ typeSeq([
  ['> index ........................ loading','c',190],
  ['> standard interface ........... 7 verbs','c',170],
  ['> rule ......................... address ≠ permission','g',170],
- ['> ready. type \'help\' or steer with W/S','',150]
+ ['> ready. steer with W/S · A/D cycles the roster','',150],
+ ['> this page reports. it performs nothing.','m',170]
 ],0);
 
 /* ── render ────────────────────────────────────────────────────── */
@@ -290,6 +337,195 @@ function catOf(n){
   for(var k in c){if(c[k].indexOf(n)>=0)return k}
   return '';
 }
+
+/* ── measurement discipline: nothing here is invented ──────────── */
+function esc(s){return String(s===null||s===undefined?'':s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function miss(v){return (v===null||v===undefined||v==='')}
+/* a human `provides` string only claims a verb when it is not a named refusal */
+function claimsProvided(v){
+  if(v===null||v===undefined)return false;
+  if(typeof v==='boolean')return v;
+  var s=String(v).trim().toLowerCase();
+  if(!s)return false;
+  if(/^(null|none|no|not|n\/a|—|-)\b/.test(s))return false;
+  if(s.indexOf('refus')>=0)return false;
+  if(s.indexOf('no physics')>=0)return false;
+  return true;
+}
+/* provides_measured is derived by the data layer; when it is absent there is
+   nothing to compare, so we say so rather than guess. */
+function disagreements(n){
+  var r=(INDEX&&INDEX.robots[n])||{};
+  var pm=r.provides_measured;
+  if(!pm||typeof pm!=='object')return null;
+  var p=r.provides||{}, out=[];
+  VERBS.forEach(function(v){
+    var k=v[0];
+    if(pm[k]!==true&&pm[k]!==false)return;      /* unmeasured slot — skip */
+    var declared=claimsProvided(p[k]);
+    if(declared!==(pm[k]===true))
+      out.push(k+' declared '+(declared?'yes':'no')+' / measured '+(pm[k]?'yes':'no'));
+  });
+  return out;
+}
+function disagreementOn(k){
+  var out=[];
+  ROSTER.forEach(function(n){
+    var r=(INDEX&&INDEX.robots[n])||{}, pm=r.provides_measured;
+    if(!pm||typeof pm!=='object')return;
+    if(pm[k]!==true&&pm[k]!==false)return;
+    var dec=claimsProvided((r.provides||{})[k]);
+    if(dec!==(pm[k]===true))out.push(n+' declared '+(dec?'yes':'no')+' / measured '+(pm[k]?'yes':'no'));
+  });
+  return out.length?('<span class="miss"> ⚠ provides disagrees with provides_measured: '+esc(out.join('; '))+'</span>'):'';
+}
+function markDisagreements(n){
+  var d=disagreements(n);
+  if(!d||!d.length)return '';
+  return '<span class="miss"> ⚠ provides disagrees with provides_measured: '+esc(d.join('; '))+'</span>';
+}
+function tailOf(n){
+  var r=(INDEX&&INDEX.robots[n])||{}, e=r.evidence||{};
+  var per=(((INDEX&&INDEX.ledger)||{}).per_robot)||{};
+  var p=per[n];
+  if(!miss(e.ledger_tail))return e.ledger_tail;
+  if(p){
+    if(typeof p==='string')return p;
+    if(!miss(p.tail))return p.tail;
+  }
+  return null;
+}
+function evidenceLine(n,r){
+  var e=r.evidence||{};
+  var mod=e.module, bytes=e.module_bytes, vt=e.verb_table_present, lf=e.ledger_file;
+  var lb=e.ledger_bytes, lt=e.ledger_tail, inE=e.ledger_in_estate;
+  var s='<div class="ev">';
+  s+='<span class="k">module</span> '+(mod?'<code>'+esc(mod)+'</code>':'<span class="miss">not measured</span>');
+  s+=' · <span class="k">bytes</span> '+(miss(bytes)?'<span class="miss">not measured</span>':esc(bytes));
+  s+=' · <span class="k">verb-table</span> '+(vt===true?'<span class="v">present</span>'
+        :vt===false?'<span class="miss">absent</span>':'<span class="miss">not measured</span>');
+  s+=' · <span class="k">ledger</span> '+(lf?'<code>'+esc(lf)+'</code>':'<span class="miss">none recorded</span>');
+  if(lt){
+    // A tail hash is only evidence if the file ships with the estate. Say which,
+    // rather than letting an uncheckable hash read as verification.
+    s+=' · <span class="k">tail</span> <code>'+esc(String(lt).slice(0,12))+'</code>';
+    s+= inE===true ? '<span class="v">checkable</span>'
+       : inE===false ? '<span class="miss">file not published · tail uncheckable here</span>'
+       : '<span class="miss">publication not measured</span>';
+  }
+  s+=' · <a href="./robots/index.json" title="the record that carries evidence.module for '+esc(n)+'">dialect source</a>';
+  s+='</div>';
+  return s;
+}
+function coverageLine(){
+  var k=String((INDEX&&INDEX.coverage_kind)||'');
+  if(/^measured\b/i.test(k))return '<b>Measured claim.</b> '+esc(k);
+  if(/^declared\b/i.test(k))return '<b>Declared, not measured.</b> '+esc(k);
+  return '<b>Coverage kind.</b> '+esc(k);
+}
+
+/* ── ledger anchor ─────────────────────────────────────────────── */
+function hashCell(v){
+  if(miss(v))return '<span class="hash miss">not measured</span>';
+  return '<a class="hash copyable" href="#ledger-anchor" data-hash="'+esc(v)+'">'+esc(v)+'</a>'+
+         '<span class="verifiable"><i></i>verifiable</span>';
+}
+function renderLedger(){
+  var box=$('ledger');if(!box||!INDEX)return;
+  var L=INDEX.ledger||{};
+  var rows='';
+  rows+='<div class="anchor-row" data-field="combined_sha256" data-robot="" data-measured="'+
+        (miss(L.combined_sha256)?'false':'true')+'">'+
+        '<span class="who"><b>combined</b>'+hashCell(L.combined_sha256)+'</span></div>';
+  ROSTER.forEach(function(n){
+    var v=tailOf(n);
+    rows+='<div class="anchor-row" data-field="ledger_tail" data-robot="'+esc(n)+'" data-measured="'+
+          (miss(v)?'false':'true')+'">'+
+          '<span class="who"><b>'+esc(n)+'</b>'+hashCell(v)+'</span></div>';
+  });
+  box.innerHTML=rows;
+  Array.prototype.forEach.call(box.querySelectorAll('.copyable'),function(a){
+    a.addEventListener('click',function(ev){
+      ev.preventDefault();
+      var h=a.getAttribute('data-hash');
+      try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(h)}catch(e){}
+      log('  copied '+String(h).slice(0,16)+'… — an anchor measures, it does not permit','c');
+      tickPush('anchor copied · '+String(h).slice(0,12),'g');
+    });
+  });
+}
+/* ── the last governed run: reported, never started here ──────── */
+function runField(d,k){
+  if(!d)return null;
+  for(var i=0;i<k.length;i++){var v=d[k[i]];if(v!==null&&v!==undefined&&v!=='')return v}
+  return null;
+}
+function runRobotsOf(d){
+  if(!d)return null;
+  var k=['robots','results','verdicts','runs'];
+  for(var i=0;i<k.length;i++){if(d[k[i]]&&typeof d[k[i]]==='object')return d[k[i]]}
+  return null;
+}
+function verdictOf(v){
+  if(!v||typeof v!=='object')return{allow:false,reason:'no verdict recorded'};
+  if(typeof v.allow==='boolean')return{allow:v.allow,reason:v.reason||''};
+  if(v.refused===true)return{allow:false,reason:v.reason||'refused by the gate'};
+  if(v.ok===true)return{allow:true,reason:v.reason||''};
+  if(v.ok===false)return{allow:false,reason:v.reason||'refused by the gate'};
+  if(v.verdict!==null&&v.verdict!==undefined&&v.verdict!==''){
+    var t=String(v.verdict).toLowerCase();
+    return{allow:t==='allow'||t==='allowed'||t==='ok',reason:v.reason||''};
+  }
+  return{allow:false,reason:'no verdict recorded'};
+}
+function renderRun(d){
+  var box=$('run'),st=$('run-state');if(!box)return;
+  if(!d||typeof d!=='object'){
+    if(st){st.textContent='NO RUN RECORDED';st.style.color='var(--magenta)'}
+    box.innerHTML='<p class="note"><b>No governed run is recorded.</b> '+
+      '<code>robots/sim-all.json</code> was not readable, so there is no verdict to report and '+
+      'nothing below is a measurement. The run happens locally, through the dialect gates — '+
+      'this page never starts one.</p>';
+    return;
+  }
+  var t=runField(d,['timestamp','generated','run_at','at']);
+  var sha=runField(d,['runner_sha256','runner_sha','sha256']);
+  if(d.runner&&d.runner.sha256)sha=d.runner.sha256;
+  if(st){
+    st.textContent=t?('LAST RUN '+String(t).replace('T',' ').slice(0,19)+' UTC')
+                    :'RUN RECORDED · timestamp not measured';
+    st.style.color='var(--gold)';
+  }
+  var h='';
+  h+='<div class="verb"><div class="vn">timestamp</div><div class="vd">'+
+     (t?esc(t):'<span class="miss">not measured</span>')+'</div></div>';
+  h+='<div class="verb"><div class="vn">runner sha</div><div class="vd">'+
+     (sha?'<span class="hash">'+esc(sha)+'</span>':'<span class="miss">not measured</span>')+'</div></div>';
+  h+='<div class="verb"><div class="vn">receipt</div><div class="vd">'+
+     '<a href="./robots/sim-all.json">robots/sim-all.json</a> · the run writes its own record; '+
+     'this page only reads it.</div></div>';
+  var rb=runRobotsOf(d);
+  if(!rb){
+    h+='<p class="note"><span class="miss">No per-robot verdict map found in the run record.</span></p>';
+  }else{
+    h+='<div style="padding-top:6px">';
+    Object.keys(rb).forEach(function(n){
+      var v=rb[n], vd=verdictOf(v), bits=[];
+      if(v&&v.verb!==null&&v.verb!==undefined&&v.verb!=='')bits.push('verb '+v.verb);
+      if(v&&v.receipt_hash)bits.push('receipt '+String(v.receipt_hash).slice(0,16)+'…');
+      h+='<div class="verdict"><div class="vr">'+
+        '<span class="vn2">'+esc(n)+'</span>'+
+        '<span class="tagv '+(vd.allow?'allow':'refused')+'">'+(vd.allow?'allow':'refused')+'</span>'+
+        (bits.length?'<span class="who">'+esc(bits.join(' · '))+'</span>':'')+
+        '</div>'+
+        (vd.reason?'<div class="why">'+esc(vd.reason)+'</div>':'')+'</div>';
+    });
+    h+='</div>';
+  }
+  box.innerHTML=h;
+}
+
 function renderIface(){
   var box=$('iface');if(!box||!INDEX)return;
   box.innerHTML=VERBS.map(function(v,i){
@@ -304,7 +540,8 @@ function renderIface(){
     return '<div class="verb'+(i===VI?' active':'')+'" data-v="'+i+'">'+
       '<div class="vn">'+v[0]+'</div>'+
       '<div class="vd"><b>'+v[1]+'</b>'+
-      '<div class="cov">'+pips+'<span class="who">'+who+'</span></div></div></div>';
+      '<div class="cov">'+pips+'<span class="who">'+who+'</span></div>'+
+      disagreementOn(v[0])+'</div></div>';
   }).join('');
 }
 function renderMesh(){
@@ -319,14 +556,18 @@ function renderMesh(){
     var sub=r.present
       ? (cat?cat+' · ':'')+r.verbs+' verb'+(r.verbs===1?'':'s')+nt
       : (r.reason||'no dialect');
-    return '<button class="door'+(r.present?'':' meshonly')+(INDEX._sel===n?' sel':'')+'" style="--ac:'+AXCOL[i%AXCOL.length]+'" data-n="'+n+'">'+
-      '<span class="ax">robot://'+n+'</span><b>'+n+'</b>'+
-      '<span class="small">'+sub+'</span>'+
-      (r.rule?'<span class="rule">'+r.rule+'</span>':'')+
-      '<span class="dots">'+dots+'<em>'+(r.present?r.coverage+'%':'gap')+'</em></span></button>';
+    return '<div class="doorcell">'+
+      '<a class="door'+(r.present?'':' meshonly')+(INDEX._sel===n?' sel':'')+'" style="--ac:'+AXCOL[i%AXCOL.length]+'" href="#roster" data-n="'+n+'">'+
+        '<span class="ax">robot://'+n+'</span><b>'+n+'</b>'+
+        '<span class="small">'+sub+'</span>'+
+        (r.rule?'<span class="rule">'+r.rule+'</span>':'')+
+        '<span class="dots">'+dots+'<em>'+(r.present?r.coverage+'%':'gap')+'</em></span></a>'+
+      evidenceLine(n,r)+
+      markDisagreements(n)+
+      '</div>';
   }).join('');
   Array.prototype.forEach.call(m.querySelectorAll('.door'),function(d){
-    d.addEventListener('click',function(){openRobot(d.getAttribute('data-n'))});
+    d.addEventListener('click',function(e){e.preventDefault();openRobot(d.getAttribute('data-n'))});
   });
 }
 function renderGaps(){
@@ -336,17 +577,23 @@ function renderGaps(){
   var named=[], c=INDEX.categories||{};
   Object.keys(c).forEach(function(k){c[k].forEach(function(n){
     if(ROSTER.indexOf(n)<0)named.push(n+' ('+k+')');});});
+  var pmMissing=ROSTER.filter(function(n){var r=INDEX.robots[n]||{};
+    return !r.provides_measured||typeof r.provides_measured!=='object'});
+  var dis=ROSTER.filter(function(n){var d=disagreements(n);return d&&d.length});
   g.innerHTML='<b>Gaps, named.</b> '+
     (mesh.length?mesh.join(', ')+' — mesh only: no dialect, no policy.':'')+
     (named.length?' <span class="m">'+named.join(', ')+'</span> — in a category, absent from the roster.':'')+
     (unreg.length?' Unregistered dialect modules on disk: '+unreg.join(', ')+'.':'')+
-    '<br><b>Declared, not measured.</b> '+(INDEX.coverage_kind||'')+
+    '<br>'+coverageLine()+
+    '<br><b>provides_measured.</b> '+(pmMissing.length===0?'derived for every rostered robot.'
+      :'<span class="miss">not measured for '+pmMissing.length+' of '+ROSTER.length+' robots ('+pmMissing.join(', ')+')</span> — the declared mapping is not yet checked against it.')+
+    (dis.length?'<br><b>Declared vs measured.</b> <span class="miss">'+dis.join(', ')+' — provides disagrees with provides_measured; those rows are marked above.</span>':'')+
     '<br><b>Measured evidence.</b> '+ROSTER.filter(function(n){var e=(INDEX.robots[n]||{}).evidence;return e&&e.module}).map(function(n){
       var e=INDEX.robots[n].evidence;return n+' → '+e.module+' ('+e.module_bytes+' B, verb-table '+(e.verb_table_present?'present':'absent')+')';
     }).join(' · ');
 }
 function renderAll(){
-  renderLegend();renderIface();renderMesh();renderGaps();
+  renderLegend();renderIface();renderMesh();renderGaps();renderLedger();setAddr();
   $('roster-count').textContent=ROSTER.length+' robots';
   var p=ROSTER.filter(function(n){return (INDEX.robots[n]||{}).present}).length;
   var rec=ROSTER.reduce(function(a,n){return a+((INDEX.robots[n]||{}).ledger_receipts||0)},0);
@@ -355,17 +602,25 @@ function renderAll(){
   tickRender();
 }
 
+/* ── the address line: read-only, steered, never submitted ─────── */
+function setAddr(){
+  var a=$('addr');if(!a)return;
+  a.textContent='robot://'+((INDEX&&INDEX._sel)?INDEX._sel:'fleet')+'/'+VERBS[VI][0];
+}
+
 /* ── selection + verb axis ─────────────────────────────────────── */
 function setVI(i){
   VI=Math.max(0,Math.min(VERBS.length-1,i));
   if(!INDEX)return;
   $('ca').textContent=VERBS[VI][0];
+  setAddr();
   renderIface();
   log('  verb axis → '+VERBS[VI][0]+' — '+VERBS[VI][1],'c');
 }
 function openRobot(n){
   if(!INDEX||!INDEX.robots[n])return;
   var r=INDEX.robots[n];INDEX._sel=n;
+  setAddr();
   renderMesh();
   if(!r.present){log('  robot://'+n+' — '+(r.reason||'no dialect'),'m');tickPush('robot://'+n+' · no dialect','m');return}
   log('  robot://'+n+' · present '+r.present+' · live '+r.live+' · '+r.verbs+' verbs','g');
@@ -376,34 +631,7 @@ function openRobot(n){
   tickPush('robot://'+n+' · '+r.verbs+' verbs · '+r.ledger_receipts+' receipts','ok');
 }
 
-/* ── console ───────────────────────────────────────────────────── */
-function run(raw){
-  var c=(String(raw||'')).trim();if(!c)return;log('> '+c,'g');
-  var low=c.toLowerCase().replace(/^robot:\/\//,'');
-  if(low==='help'){
-    log('  robot://<robot>            — open a robot\'s measured status','c');
-    log('  robot://<robot>/<verb>    — resolve one standard verb','c');
-    log('  fleet | scan | help','c');return}
-  if(low==='scan'||low==='fleet'){
-    ROSTER.forEach(function(n){var r=INDEX.robots[n]||{};
-      log('  '+n.padEnd(11)+(r.present?'present · '+r.verbs+' verbs · '+r.ledger_receipts+' receipts':'gap · '+(r.reason||'no dialect')),r.present?'ok':'m')});
-    return}
-  var parts=low.split('/');
-  var name=parts[0], verb=parts[1];
-  if(!name||name==='fleet'){setVI(VI);return}
-  if(ROSTER.indexOf(name)<0){log('  no robot "'+name+'" — try \'fleet\'','m');return}
-  INDEX._sel=name;renderMesh();
-  if(verb){
-    var i=-1;
-    for(var k=0;k<VERBS.length;k++)if(VERBS[k][0]===verb)i=k;
-    if(i<0){log('  no standard verb "'+verb+'" — '+VERBS.map(function(v){return v[0]}).join(' '),'m');return}
-    VI=i;renderIface();$('ca').textContent=VERBS[VI][0];
-  }
-  openRobot(name);
-}
-$('go').addEventListener('click',function(){run($('cmd').value);$('cmd').value=''});
-$('cmd').addEventListener('keydown',function(e){if(e.key==='Enter'){run($('cmd').value);$('cmd').value=''}});
-
+/* ── steering: W/S the verb axis, A/D the roster. Nothing submits.  */
 document.addEventListener('keydown',function(e){
   var t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'))return;
   var k=e.key.toLowerCase();
@@ -411,7 +639,6 @@ document.addEventListener('keydown',function(e){
   else if(k==='s'||k==='arrowdown'){setVI(VI+1)}
   else if(k==='a'||k==='arrowleft'){cycleRobot(-1)}
   else if(k==='d'||k==='arrowright'){cycleRobot(1)}
-  else if(k==='k'&&(e.metaKey||e.ctrlKey)){e.preventDefault();$('cmd').focus();return}
   else return;
   e.preventDefault();
 });
@@ -518,7 +745,8 @@ function robotLine(n){
   return 'robot '+n+'. '+r.verbs+' verbs. '+(r.rule||'');
 }
 var vt=document.getElementById('voice-toggle');
-if(vt)vt.addEventListener('click',function(){
+if(vt)vt.addEventListener('click',function(e){
+  e.preventDefault();
   VOICE_ON=!VOICE_ON;
   vt.textContent=VOICE_ON?'◈ voice on':'◈ voice';
   vt.style.color=VOICE_ON?'var(--neon)':'';
@@ -543,33 +771,11 @@ openRobot=function(n){
 };
 
 renderLegend();tickRender();drawGrid();tickScroll();
-/* ── the merge addendum: reported vs measured ───────────────────── */
-fetch('merge-addendum.json',{cache:'no-cache'})
+/* ── the last governed run: read-only. The page never starts one.  */
+fetch('robots/sim-all.json',{cache:'no-cache'})
  .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
- .then(function(d){
-   var v=document.getElementById('mx-verdict');
-   var ok=!!d.correct;
-   if(v){v.textContent=ok?'CORRECT':'STALE';v.style.color=ok?'var(--neon)':'var(--magenta)';}
-   var set=function(id,t){var e=document.getElementById(id);if(e)e.textContent=t;};
-   set('mx-branch',(d.branch||'—')+' · head '+String(d.head||'').slice(0,12)
-        +(d.actual&&!ok?' (git: '+String(d.actual.head).slice(0,12)+')':''));
-   set('mx-ab',(d.ahead!==undefined?d.ahead:'—')+' / '+(d.behind!==undefined?d.behind:'—')
-        +(d.actual&&!ok?'  · git says '+d.actual.ahead+' / '+d.actual.behind:''));
-   var l=d.ledger||{};set('mx-film','chain '+l.chain+' · films '+l.films+' · open drift '
-        +(l.open_drift?l.open_drift.length:0)+' · drift shown '+(l.drift_shown||0));
-   var g=d.registry||{};set('mx-reg',(g.families||0)+' families · green '+(g.green||0)
-        +' · not green '+(g.not_green||0));
-   var dep=d.deploy||{};set('mx-dep',(dep.build_status||'—')+' · aligned '+dep.aligned);
-   set('mx-kind',(d.correct_kind||'')+(d.checked_at?' · checked '+
-        String(d.checked_at).replace('T',' ').slice(0,19)+' UTC':''));
-   set('mx-stale',ok?''
-        :'STALE — the reported head/ahead no longer match the branch. Re-derive before trusting this page.');
- })
- .catch(function(e){
-   var v=document.getElementById('mx-verdict');
-   if(v){v.textContent='UNREADABLE';v.style.color='var(--magenta)';}
-   var s=document.getElementById('mx-stale');if(s)s.textContent='addendum unreadable: '+e;
- });
+ .then(function(d){renderRun(d)})
+ .catch(function(){renderRun(null)});
 window.robotFleet={open:openRobot,setVerb:setVI,
   state:function(){return{verbs:VERBS.map(function(v){return v[0]}),vi:VI,sel:INDEX?INDEX._sel:null}}};
 })();
