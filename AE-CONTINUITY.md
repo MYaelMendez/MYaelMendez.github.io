@@ -3555,3 +3555,18 @@ its own control via `aeLabel.panel(mount)`. Never touches facts or receipts.
 - **Still on its own implementation:** `index.html`'s richer label (glyph img swap, brand
   line, title rewrite). Migrating it onto the shared module is the next pass — until then two
   implementations exist, which is exactly the drift the standard exists to prevent.
+
+## 91. æ://OPS window + the learning register (2026-11-23)
+
+**Window.** New `æ://OPS · CONTROL` window wearing `ae/control/index-live.html` in an iframe,
+open by default, dashed accent header (`data-ops="1"`). Measured at 1440×900: **304×540 at
+(320, 8)** — second portrait slot, MASTER first. It appears in the æ menu automatically because
+`renderMenu()` builds from `.window-title`.
+
+**Learning register.** `AE-LEARNINGS.md` makes a standing rule of what this session practised:
+*every imported codebase records pattern → landed → unlearned.* Five entries — the window
+manager contract, the `!important`/media-query trap, the white-label standard, the æ://OPS verb
+spine (INTENT→DISCOVER→COMPILE→AUTHORIZE→EXECUTE→WITNESS→RETURN plus its MEDIDO/DECLARADO split),
+and the pet atlas. The honest through-line: the OS has the same verb chain as **plans**, not as
+acts — the control surface runs locally with a real SHA-256 receipt and no external execution,
+which is exactly the frontier the console should report about itself.
