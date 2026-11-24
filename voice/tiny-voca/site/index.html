@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#050505">
+<meta name="description" content="Hermes-Agent://tinyVOCA — local English TTS, voice identity, receipts, and Asimov stick lessons for Hermes Agent.">
+<title>Hermes-Agent://tinyVOCA</title>
+<style>
+:root{
+  --void:#050505; --card:#0b110f; --line:rgba(0,255,159,.20); --gold:#d4af37;
+  --cyan:#00ccff; --mag:#ff4fd8; --green:#00ff9f; --ice:#85e9fc;
+  --text:#e6f6ee; --muted:#8892b0;
+  --mono:"JetBrains Mono","SFMono-Regular",Consolas,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--void);color:var(--text);font-family:var(--mono);line-height:1.55}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:48px 48px;opacity:.16;mask-image:radial-gradient(ellipse at 50% 10%,#000 0,transparent 72%)}
+.wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:22px 22px 72px}
+.topbar{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding-bottom:14px;font-size:12px;letter-spacing:.08em}
+.brand{color:var(--gold);font-weight:700}.status{color:var(--muted)}
+h1{font-size:clamp(2.2rem,7vw,4.6rem);line-height:1.02;margin:46px 0 8px;letter-spacing:-.04em}
+h1 .æ{color:var(--gold);text-shadow:0 0 26px rgba(212,175,55,.45)}
+h2{font-size:clamp(1.25rem,3vw,1.9rem);margin:0 0 14px;color:var(--ice)}
+.subtitle{font-size:clamp(1rem,2.4vw,1.4rem);color:var(--cyan);margin:0 0 18px}
+.lede{max-width:76ch;color:#a9d9c4;font-size:15px}
+.chain{display:inline-block;margin:20px 0 8px;padding:9px 14px;border:1px solid rgba(212,175,55,.5);color:var(--gold);font-size:13px;letter-spacing:.06em}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin:26px 0 38px}
+a.btn{display:inline-block;text-decoration:none;border:1px solid var(--green);color:var(--green);padding:12px 18px;border-radius:4px;background:rgba(0,255,159,.05);font-size:14px;transition:.18s}
+a.btn:hover{box-shadow:0 0 24px rgba(0,255,159,.22);transform:translateY(-2px)}
+a.btn.gold{border-color:var(--gold);color:var(--gold);background:rgba(212,175,55,.05)}
+a.btn.cyan{border-color:var(--cyan);color:var(--cyan);background:rgba(0,204,255,.05)}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:28px;align-items:center;margin-bottom:42px}
+.logo{width:100%;max-width:260px;filter:drop-shadow(0 0 22px rgba(0,204,255,.22))}
+section{margin:42px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.card{position:relative;border:1px solid var(--line);border-radius:10px;background:linear-gradient(180deg,rgba(0,255,159,.035),transparent);padding:18px}
+.card::before{content:"";position:absolute;left:0;top:0;width:100%;height:3px;background:var(--accent,var(--green));border-radius:10px 10px 0 0}
+.card.gold{--accent:var(--gold)}.card.cyan{--accent:var(--cyan)}.card.mag{--accent:var(--mag)}
+.card h3{margin:4px 0 8px;font-size:15px}.card p{margin:0;color:var(--muted);font-size:13px}
+code{color:var(--ice);background:rgba(0,204,255,.06);padding:1px 5px;border-radius:3px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--gold);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.status-shipped{color:var(--green)}.status-reference{color:var(--cyan)}.status-planned{color:var(--gold)}.status-blocked{color:var(--muted)}
+.video{width:100%;border:1px solid var(--line);border-radius:10px;background:#000;aspect-ratio:1/1;object-fit:contain}
+.thanks{border:1px solid rgba(212,175,55,.42);background:rgba(212,175,55,.04);border-radius:10px;padding:20px}
+.thanks p{color:#d8e8df;font-size:14px}
+.hashtags{margin-top:14px;color:var(--gold);font-size:13px;letter-spacing:.06em}
+footer{border-top:1px solid var(--line);margin-top:52px;padding-top:18px;color:var(--muted);font-size:12px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
+@media(max-width:720px){.hero-grid{grid-template-columns:1fr}.logo{margin:auto}.wrap{padding:18px 16px 56px}h1{margin-top:30px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="brand">&gt;_æ: OPENSOURCEWARE / TINYVOCA</span>
+    <span class="status">HUMAN://ROOT · AUTHORITY NOT TRANSFERABLE · RECEIPTS PUBLIC</span>
+  </div>
+
+  <header>
+    <h1>Hermes-Agent://<span class="æ">tinyVOCA</span></h1>
+    <p class="subtitle">Local voices. Named compute layers. Receipted authority.</p>
+    <p class="lede">A first-class Hermes Agent package: self-hosted English TTS, a machine-readable voice→compute identity map, a docked Desktop pane, narrated Asimov stick lessons, and a hash-chained receipt for every spoken line.</p>
+    <div class="chain">HUMAN://ROOT → æ → RECEIPT</div>
+    <div class="cta">
+      <a class="btn" href="hermes://plugin/install?repo=MYaelMendez/tiny-voca&amp;enable=1">Install in Hermes</a>
+      <a class="btn gold" href="https://github.com/MYaelMendez/tiny-voca">View source</a>
+      <a class="btn cyan" href="https://raw.githubusercontent.com/MYaelMendez/tiny-voca/main/assets/hermes-agent-tinyvoca-repo-1x1.mp4">Watch the 1:1 film</a>
+    </div>
+    <div class="hero-grid">
+      <div>
+        <h2>Built for the Internet of Agents</h2>
+        <p class="lede">Agents can speak, but they do not sign. Each voice is bound to a principal and a compute layer. The human remains root; the agent executes under approval; the robot is an executor with a body, never an authority source.</p>
+      </div>
+      <svg class="logo" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="tinyVOCA logo">
+        <rect width="1080" height="1080" fill="#050505"/>
+        <path d="M66 26H1014L1054 66V1014L1014 1054H66L26 1014V66Z" fill="none" stroke="#36443e" stroke-width="2"/>
+        <text x="68" y="88" font-family="monospace" font-size="24" font-weight="bold" fill="#d4af37">&gt;_æ: HERMES-AGENT://</text>
+        <circle cx="540" cy="350" r="190" fill="none" stroke="#1e3c34" stroke-width="2"/>
+        <circle cx="540" cy="350" r="168" fill="none" stroke="#00ccff" stroke-width="2"/>
+        <g stroke="#00ccff" stroke-width="2">
+          <path d="M230 350h30M270 350v-42M300 350v70M330 350v-90M360 350v110M390 350v-60M420 350v84M450 350v-100M480 350v120M510 350v-40M540 350v96M570 350v-80M600 350v64M630 350v-110M660 350v90M690 350v-50M720 350v74M750 350v-34M780 350h30"/>
+        </g>
+        <text x="445" y="420" font-family="monospace" font-size="252" font-weight="bold" fill="#ffeb96">æ</text>
+        <text x="540" y="690" text-anchor="middle" font-family="monospace" font-size="88" font-weight="bold" fill="#d2faff">tinyVOCA</text>
+        <text x="540" y="754" text-anchor="middle" font-family="monospace" font-size="22" fill="#8892b0">LOCAL ENGLISH TTS · CPU ONLY · 24 kHz</text>
+        <rect x="80" y="884" width="920" height="96" rx="12" fill="#070e0c" stroke="#285042" stroke-width="2"/>
+        <text x="540" y="942" text-anchor="middle" font-family="monospace" font-size="30" font-weight="bold" fill="#00ff9f">HUMAN://ROOT → æ → RECEIPT</text>
+      </svg>
+    </div>
+  </header>
+
+  <section>
+    <h2>One package. Every surface.</h2>
+    <div class="grid">
+      <div class="card"><h3>tts_speak</h3><p>Local English speech, 24 kHz WAV, canonical F2/M2 alias resolution, and a <code>TTS://SPEAK</code> receipt.</p></div>
+      <div class="card cyan"><h3>tts_stick_lesson</h3><p>Three narrated Asimov lessons on the unchanged upstream stick-scene runtime.</p></div>
+      <div class="card mag"><h3>tts_teleprompt</h3><p>tinyTELEPROMPTER: 9:16 TTS-synced command glass with line highlighting, ETA, and receipts.</p></div>
+      <div class="card gold"><h3>Voice identity</h3><p><code>F2 → human-intent</code>, <code>M2 → agent-runtime</code>, <code>ROBOT → robot-body</code>.</p></div>
+      <div class="card gold"><h3>Voice Lab</h3><p>Consent-gated SOVÆREIGN binding, VoxMel provisioning, and the Chinese one-person-company ad script.</p></div>
+      <div class="card gold"><h3>tts_voice</h3><p>tinyVOICE router: tiny-voca for local English; VoxMel for native Chinese and consent-gated human digital-twin voice.</p></div>
+      <div class="card mag"><h3>Desktop dock</h3><p>Unified Hermes Desktop half: pane, statusbar chip, palette command, scoped REST backend.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Voice → compute layer</h2>
+    <table>
+      <tr><th>Voice</th><th>Principal</th><th>Compute layer</th><th>Role</th></tr>
+      <tr><td><code>F2</code> · nous girl</td><td>HUMAN://ROOT</td><td><code>human-intent</code></td><td>Root voice; source timbre for robot voice</td></tr>
+      <tr><td><code>M2</code> · hermes-agent</td><td>agent</td><td><code>agent-runtime</code></td><td>Build voice; narrates and executes under approval</td></tr>
+      <tr><td><code>ROBOT</code> · asimov-robot</td><td>robot</td><td><code>robot-body</code></td><td>F2 source → Menlo Asimov speaker; executor only</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>The film</h2>
+    <video class="video" controls playsinline preload="metadata" poster="https://raw.githubusercontent.com/MYaelMendez/tiny-voca/main/assets/hermes-agent-tinyvoca-logo-1080.png" src="https://raw.githubusercontent.com/MYaelMendez/tiny-voca/main/assets/hermes-agent-tinyvoca-repo-1x1.mp4"></video>
+  </section>
+
+  <section>
+    <h2>Availability</h2>
+    <table>
+      <tr><th>Capability</th><th>State</th><th>Note</th></tr>
+      <tr><td>CLI + 8 Hermes tools</td><td class="status-shipped">shipped</td><td>py_compile, unittest, acceptance passing.</td></tr>
+      <tr><td>Hermes Desktop dock</td><td class="status-shipped">shipped</td><td>Opt-in pane with scoped `/api/plugins/tiny-voca-voice/` routes.</td></tr>
+      <tr><td>Receipted narration</td><td class="status-shipped">shipped</td><td>`TTS://SPEAK`, `LESSON://BUILD`, and `PROMPT://BUILD` in one hash chain.</td></tr>
+      <tr><td>tinyTELEPROMPTER</td><td class="status-shipped">shipped</td><td>Narrated 9:16 command glass with keyboard controls and receipts.</td></tr>
+      <tr><td>tinyVOICE router</td><td class="status-shipped">shipped</td><td>tiny-voca shipped; VoxMel adapter fail-closed until weights and consent are provisioned.</td></tr>
+      <tr><td>Voice Lab</td><td class="status-shipped">shipped</td><td>Consent-gated SOVÆREIGN binding and Chinese ad render plan.</td></tr>
+      <tr><td>Native TTS provider docs</td><td class="status-reference">reference-only</td><td>Config walkthrough shipped; voice toggles apply next session.</td></tr>
+      <tr><td>Non-English voices</td><td class="status-planned">planned</td><td>Upstream phonemizer reads English only.</td></tr>
+      <tr><td>Physical Asimov binding</td><td class="status-blocked">blocked</td><td>Requires hardware calibration and human approval gate.</td></tr>
+    </table>
+  </section>
+
+  <section class="thanks">
+    <h2>Thanks to the source</h2>
+    <p><strong>Thank you to the original tiny-voca project and its authors.</strong> This package stands directly on the shoulders of <a href="https://github.com/n4ze3m/tiny-voca">n4ze3m/tiny-voca</a> for the model and weights, and <a href="https://github.com/n4ze3m/dizione">n4ze3m/dizione</a> for the phonemizer. We did not invent the voice model; we wrapped it in authority, receipts, a Hermes provider contract, and an educational robot layer. Thanks also to <a href="https://github.com/nilbuild/stick-scene">nilbuild/stick-scene</a> for the dependency-free canvas runtime used by the Asimov lessons.</p>
+    <p>Open source is the supply chain. Cite it, license it, and keep the receipt chain intact.</p>
+    <div class="hashtags">#opensourceware #internetofagents</div>
+  </section>
+
+  <footer>
+    <span>HUMAN://ROOT · authority not transferable · receipts on every action</span>
+    <span>&gt;_æ:<span class="blink">_</span></span>
+  </footer>
+</div>
+</body>
+</html>

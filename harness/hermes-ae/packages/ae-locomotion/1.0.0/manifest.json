@@ -1,0 +1,51 @@
+{
+  "name": "\u00e6LOCOMOTION",
+  "slug": "ae-locomotion",
+  "version": "1.0.0",
+  "authority": "HUMAN://ROOT",
+  "receipt_action": "LOCOMOTION://",
+  "description": "Policy-driven Asimov-1 gait harness: ONNX policy, MuJoCo PD loop, receipted trace and video.",
+  "runtime": {
+    "python": ">=3.11",
+    "mujoco": "4.0.1",
+    "onnxruntime": ">=1.16",
+    "numpy": "required",
+    "pillow": "required"
+  },
+  "entrypoints": {
+    "simulate": "ae({\"op\":\"policy_locomotion\",\"duration\":12,\"vx\":0.4})",
+    "publish": "ae({\"op\":\"policy_walk\",\"publish\":true})",
+    "inspect": "ae({\"op\":\"harness\",\"name\":\"robot\"})"
+  },
+  "policy": {
+    "name": "Menlo/asimov1-locomotion-0818",
+    "source": "https://huggingface.co/Menlo/asimov1-locomotion-0818",
+    "license": "BSD-3-Clause",
+    "sha256": "47f70691ecd5afda2933b2e6430d2375004c943552284172a2d7b28b84188a0c",
+    "inputs": 78,
+    "outputs": 23,
+    "rate_hz": 50
+  },
+  "verified": {
+    "duration_s": 12.0,
+    "policy_ticks": 600,
+    "physics_steps": 2400,
+    "base_x_m": 4.1868,
+    "com_x_m": 4.1743,
+    "min_z_m": 0.6125,
+    "fall": null,
+    "success": true,
+    "proof_video_sha256": "b72a430045a53f032274ea834881021cd2c4e43b1da2d475dadd39684b8db586"
+  },
+  "contents": [
+    "policy/",
+    "model/",
+    "scripts/",
+    "docs/",
+    "install.sh",
+    "verify.sh",
+    "NOTICE.md"
+  ],
+  "homepage": "https://mobility.foundation/mobility/",
+  "fallback_homepage": "https://myaelmendez.github.io/mobility/"
+}

@@ -1,0 +1,98 @@
+{
+  "success": true,
+  "authority": "HUMAN://ROOT",
+  "agent": {
+    "name": "Asimov Agent",
+    "slug": "asimov-agent",
+    "authority": "HUMAN://ROOT",
+    "voice": "hermes-agent (M2)",
+    "body": "Asimov-1 (25 DOF)",
+    "runtime": "hermes-ae MoH orchestrator + official Asimov-1 MJCF/URDF + tiny-voca + MuJoCo + ONNX policy",
+    "receipt_action": "AGENT://ASIMOV",
+    "capabilities": [
+      "tts",
+      "video",
+      "vlc_control",
+      "physics",
+      "qpos_viewport",
+      "onnx_locomotion",
+      "viewport_dom",
+      "publish",
+      "receipts"
+    ],
+    "ops": [
+      "agent",
+      "agent_body",
+      "harnesses",
+      "harness",
+      "run_harness",
+      "policy_locomotion",
+      "policy_walk",
+      "viewport_dom",
+      "masterpiece"
+    ]
+  },
+  "voice": {
+    "name": "hermes-agent",
+    "role": "build voice",
+    "body": "asimov-1",
+    "actor": "hermes-asimov",
+    "runtime": "tiny-voca M2 ONNX + official 25-DOF Asimov-1 CAD",
+    "use": "explains, demonstrates, executes, and returns receipts"
+  },
+  "body": {
+    "name": "Asimov-1",
+    "source": "menloresearch/asimov-1",
+    "dof": 25,
+    "links": 26,
+    "identity": "hermes-agent build body",
+    "authority": "HUMAN://ROOT"
+  },
+  "harnesses": [
+    "voice",
+    "ffmpeg",
+    "control",
+    "physics",
+    "viewport",
+    "robot",
+    "publish",
+    "course",
+    "ledger"
+  ],
+  "policy": {
+    "name": "Menlo/asimov1-locomotion-0818",
+    "sha256": "47f70691ecd5afda2933b2e6430d2375004c943552284172a2d7b28b84188a0c",
+    "verified": {
+      "duration_s": 12.0,
+      "policy_ticks": 600,
+      "physics_steps": 2400,
+      "base_x_m": 4.1868,
+      "com_x_m": 4.1743,
+      "min_z_m": 0.6125,
+      "fall": null,
+      "success": true,
+      "proof_video_sha256": "b72a430045a53f032274ea834881021cd2c4e43b1da2d475dadd39684b8db586"
+    }
+  },
+  "model_sha256": {
+    "physics": "2ffb79442d53473f1e85aeb8859fc46e8db07536fe7a72422084d9f2964969dd",
+    "policy_physics": "898f288360018a8d71d76a4f415fa97e3724053bd60b7fdf14da1908ad8a0828",
+    "urdf": "0cd39d5f2568138e2da7a3a4d393064dd382a8e3313fb6b0edcee7e67fdfb7a6"
+  },
+  "capabilities": {
+    "tts": true,
+    "video": true,
+    "physics": true,
+    "onnx_locomotion": true,
+    "qpos_viewport": true,
+    "viewport_dom": true,
+    "publish": true,
+    "receipts": true
+  },
+  "ledger": {
+    "success": true,
+    "count": 197,
+    "head": "e4c5bd560ce9a19aaf033b8e24c666d790daebe2caef6c268765e74b01274e7d"
+  },
+  "receipt_action": "AGENT://ASIMOV"
+}

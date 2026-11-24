@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>æ HEAD · the DAO brain</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0a0f; font-family: 'JetBrains Mono', ui-monospace, monospace; color: #dffaff; }
+  #app { width: 100%; height: 100%; display: flex; flex-direction: column; }
+  .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; }
+  .header h1 { font-size: 12px; color: #b4ff2e; letter-spacing: 0.1em; }
+  .header .root { font-size: 8px; color: #ff00ff; }
+  .viewport { flex: 1; position: relative; min-height: 0; display: flex; align-items: center; justify-content: center; background: #02051c; overflow: hidden; }
+  .viewport canvas { display: block; max-width: 100%; max-height: 100%; }
+  .viewport .label { position: absolute; top: 8px; left: 8px; font-size: 8px; color: rgba(0,204,255,0.6); }
+  .viewport .brain { position: absolute; top: 8px; right: 8px; font-size: 8px; color: #ff00ff; }
+  .telemetry { display: flex; gap: 6px; padding: 6px 12px; flex-wrap: wrap; }
+  .telemetry .chip { background: #061a30; border: 1px solid #1a5471; border-radius: 10px; padding: 4px 8px; font-size: 8px; color: #bcf8ff; }
+  .telemetry .chip b { color: #b4ff2e; }
+  .telemetry .chip .mag { color: #ff00ff; }
+  .cmd-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 8px 12px; }
+  .cmd-grid button { background: #061a30; color: #bcf8ff; border: 1px solid #2e7b98; padding: 10px 4px; border-radius: 8px; font-family: inherit; font-size: 9px; cursor: pointer; }
+  .cmd-grid button:active { background: #b4ff2e; color: #0a0a0f; }
+  .receipts { max-height: 70px; overflow-y: auto; background: #020918bb; border-top: 1px solid #1a5471; padding: 6px 12px; font-size: 8px; color: rgba(255,255,255,0.4); }
+  .receipts .line b { color: #00eaff; }
+  .receipts .line .ok { color: #b4ff2e; }
+  .receipts .line .mag { color: #ff00ff; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <h1>æ HEAD · the DAO brain</h1>
+    <div class="root">HUMAN://ROOT</div>
+  </div>
+  <div class="viewport" id="viewport">
+    <div class="label">head only · neck_yaw + neck_pitch</div>
+    <div class="brain">DAO BRAIN ACTIVE</div>
+  </div>
+  <div class="telemetry">
+    <div class="chip">head: <b>ASIMOV-1</b></div>
+    <div class="chip">brain: <b class="mag">æ DAO</b></div>
+    <div class="chip">sensors: <b>active</b></div>
+    <div class="chip">compute: <b>onboard</b></div>
+    <div class="chip">body: <b>remote</b></div>
+    <div class="chip">status: <b>THINKING</b></div>
+  </div>
+  <div class="cmd-grid">
+    <button onclick="cmd('THINK')">THINK</button>
+    <button onclick="cmd('LOOK')">LOOK</button>
+    <button onclick="cmd('LISTEN')">LISTEN</button>
+    <button onclick="cmd('SPEAK')">SPEAK</button>
+    <button onclick="cmd('PROPOSE')">PROPOSE</button>
+    <button onclick="cmd('VOTE')">VOTE</button>
+    <button onclick="cmd('SCAN')">SCAN</button>
+    <button onclick="cmd('SLEEP')">SLEEP</button>
+  </div>
+  <div class="receipts" id="receipts">
+    <div class="line">— head mode · DAO brain active · awaiting commands —</div>
+  </div>
+</div>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+
+const viewport = document.getElementById('viewport');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x02051c);
+scene.fog = new THREE.FogExp2(0x02051c, 0.02);
+
+const camera = new THREE.PerspectiveCamera(50, 9/16, 0.1, 500);
+camera.position.set(0, 0.5, 2);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(720, 1280);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+viewport.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.8;
+controls.target.set(0, 0.2, 0);
+
+scene.add(new THREE.AmbientLight(0x404060, 0.5));
+const key = new THREE.DirectionalLight(0x00eaff, 1.2); key.position.set(5,5,5); scene.add(key);
+const rim = new THREE.DirectionalLight(0xff00ff, 0.8); rim.position.set(-3,2,-5); scene.add(rim);
+const red = new THREE.PointLight(0xff2244, 1.0, 10); red.position.set(0, 0.5, 1); scene.add(red);
+
+const grid = new THREE.GridHelper(4, 20, 0x1a3a5c, 0x0a1a2e);
+grid.position.y = -0.3;
+scene.add(grid);
+
+const MESH_BASE = '../asimov-meshes/';
+
+// Load ONLY the head meshes
+const headMeshes = ['neck_yaw_link.STL', 'neck_pitch_link.STL'];
+
+const loader = new STLLoader();
+const head = new THREE.Group();
+scene.add(head);
+
+let loaded = 0;
+for (const meshName of headMeshes) {
+  loader.load(MESH_BASE + meshName, (geometry) => {
+    geometry.computeBoundingBox();
+    const center = geometry.boundingBox.getCenter(new THREE.Vector3());
+    geometry.translate(-center.x, -center.y, -center.z);
+
+    // Wireframe
+    const wireGeo = new THREE.WireframeGeometry(geometry);
+    const wireMat = new THREE.LineBasicMaterial({ color: 0x00eaff, transparent: true, opacity: 0.5 });
+    head.add(new THREE.LineSegments(wireGeo, wireMat));
+
+    // Points
+    const pos = geometry.attributes.position;
+    const pts = [];
+    for (let i = 0; i < pos.count; i += 2) {
+      pts.push(new THREE.Vector3(pos.getX(i), pos.getY(i), pos.getZ(i)));
+    }
+    const pGeo = new THREE.BufferGeometry().setFromPoints(pts);
+    const pMat = new THREE.PointsMaterial({ color: 0x00eaff, size: 0.02, transparent: true, opacity: 0.9 });
+    head.add(new THREE.Points(pGeo, pMat));
+
+    // Fill
+    const fillMat = new THREE.MeshBasicMaterial({ color: 0x0a1a3c, transparent: true, opacity: 0.4 });
+    head.add(new THREE.Mesh(geometry, fillMat));
+
+    loaded++;
+    if (loaded === headMeshes.length) {
+      // æ brain core (glowing sphere at head center)
+      const brain = new THREE.Mesh(
+        new THREE.SphereGeometry(0.12, 24, 24),
+        new THREE.MeshStandardMaterial({ color: 0xff00ff, emissive: 0xff00ff, emissiveIntensity: 2.0 })
+      );
+      brain.position.y = 0.1;
+      head.add(brain);
+      head.userData.brain = brain;
+      // Ring around brain
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(0.2, 0.02, 8, 32),
+        new THREE.MeshBasicMaterial({ color: 0xff00ff, transparent: true, opacity: 0.6 })
+      );
+      ring.position.y = 0.1;
+      head.add(ring);
+      head.userData.ring = ring;
+    }
+  }, undefined, (err) => { loaded++; });
+}
+
+let rxCount = 0;
+const receiptsEl = document.getElementById('receipts');
+let anim = null;
+
+window.cmd = function(action) {
+  rxCount++;
+  const time = new Date().toLocaleTimeString();
+  const line = document.createElement('div');
+  line.className = 'line';
+  line.innerHTML = `<b>${action}</b> · ${time} · <span class="ok">✓ receipt #${rxCount}</span>`;
+  receiptsEl.appendChild(line);
+  receiptsEl.scrollTop = receiptsEl.scrollHeight;
+  if (anim) { clearInterval(anim); anim = null; }
+  if (action === 'THINK') {
+    line.innerHTML = `<b>THINK</b> · ${time} · <span class="mag">processing · DAO deliberating</span>`;
+    head.userData.brain.material.emissiveIntensity = 4;
+    setTimeout(() => head.userData.brain.material.emissiveIntensity = 2, 1500);
+  }
+  if (action === 'LOOK') { head.rotation.y = 0.5; setTimeout(() => head.rotation.y = 0, 800); }
+  if (action === 'LISTEN') {
+    line.innerHTML = `<b>LISTEN</b> · ${time} · <span class="mag">microphones active</span>`;
+  }
+  if (action === 'SPEAK') {
+    line.innerHTML = `<b>SPEAK</b> · ${time} · <span class="ok">"hello, human://root"</span>`;
+  }
+  if (action === 'PROPOSE') {
+    line.innerHTML = `<b>PROPOSE</b> · ${time} · <span class="mag">proposal #13 submitted to DAO</span>`;
+  }
+  if (action === 'VOTE') {
+    line.innerHTML = `<b>VOTE</b> · ${time} · <span class="mag">vote cast · quorum 67%</span>`;
+  }
+  if (action === 'SCAN') {
+    let s = 0;
+    anim = setInterval(() => { s += 0.1; head.rotation.y = s; }, 50);
+    setTimeout(() => { clearInterval(anim); anim = null; head.rotation.y = 0; }, 2000);
+  }
+  if (action === 'SLEEP') {
+    head.userData.brain.material.emissiveIntensity = 0.3;
+    line.innerHTML = `<b>SLEEP</b> · ${time} · <span class="mag">brain idling · low power</span>`;
+  }
+};
+
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+  head.position.y = Math.sin(t * 1.2) * 0.05;
+  if (head.userData.ring) head.userData.ring.rotation.y = t * 2;
+  if (head.userData.brain) {
+    const s = 1 + Math.sin(t * 2) * 0.1;
+    head.userData.brain.scale.setScalar(s);
+  }
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = 9/16;
+  camera.updateProjectionMatrix();
+});
+</script>
+</body>
+</html>

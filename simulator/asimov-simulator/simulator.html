@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>>_æ: ASIMOV-1 · HERMES EDITION</title>
+<script type="importmap">
+{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}
+</script>
+<style>
+  :root { --g:#00ff9f; --c:#00ccff; --m:#ff00ff; --bg:#050a08; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; overflow:hidden; background:var(--bg);
+    font-family:'JetBrains Mono',ui-monospace,monospace; color:var(--g); }
+  #view { position:fixed; inset:0; }
+  canvas { display:block; }
+  .hud { position:fixed; z-index:5; pointer-events:none; text-shadow:0 0 12px rgba(0,255,159,.65); }
+  #brand { top:22px; left:28px; font-size:30px; font-weight:700; letter-spacing:2px; color:var(--g); }
+  #title { top:62px; left:30px; font-size:12px; color:#9fe8c8; letter-spacing:3px; }
+  #spec { top:24px; right:28px; text-align:right; font-size:12px; color:var(--c); line-height:1.7; }
+  #foot { bottom:18px; left:0; right:0; text-align:center; font-size:12px; color:#8fd6b4; }
+  #loading { position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    z-index:10; background:var(--bg); font-size:16px; color:var(--g); }
+  #sensors { position:fixed; right:24px; bottom:58px; z-index:6; width:218px;
+    border:1px solid rgba(0,255,159,.45); background:rgba(4,14,10,.78); padding:12px 14px;
+    box-shadow:0 0 24px rgba(0,255,159,.12); font-size:11px; color:#bff3dc; }
+  #sensors h4 { margin:0 0 8px; color:var(--g); font-size:11px; letter-spacing:2px; }
+  #sensors .row { display:flex; justify-content:space-between; padding:2px 0; }
+  #sensors .v { color:var(--c); }
+  #controls { position:fixed; left:50%; bottom:54px; transform:translateX(-50%); z-index:6;
+    display:flex; gap:10px; }
+  button { font-family:inherit; font-size:11px; letter-spacing:1px; color:var(--g);
+    background:rgba(4,14,10,.85); border:1px solid rgba(0,255,159,.55); padding:8px 14px; cursor:pointer; }
+  button:hover { background:rgba(0,255,159,.14); }
+</style>
+</head>
+<body>
+<div id="view"></div>
+<div id="loading">>_æ: ASSEMBLING ASIMOV-1 · 26 LINKS · 25 JOINTS…</div>
+<div class="hud" id="brand">&gt;_æ:</div>
+<div class="hud" id="title">ASIMOV-1 · HERMES EDITION</div>
+<div class="hud" id="spec">MENLO RESEARCH · CERN-OHL-S-2.0<br>official 25-DOF sim model · green build<br>authority axis: æ · not orange</div>
+<div class="hud" id="foot">HUMAN://ROOT · receipts on every action · >_æ:</div>
+<div id="sensors"><h4>⚙ TELEMETRY</h4>
+  <div class="row"><span>JOINTS</span><span class="v" id="j">0 / 25</span></div>
+  <div class="row"><span>MODE</span><span class="v" id="mode">IDLE</span></div>
+  <div class="row"><span>TIME</span><span class="v" id="time">0.00 s</span></div>
+  <div class="row"><span>POWER</span><span class="v" id="power">12.0 W</span></div>
+  <div class="row"><span>STABILITY</span><span class="v" id="stab">1.00</span></div>
+</div>
+<div id="controls">
+  <button id="play">▶ PLAY</button>
+  <button id="wire">◈ WIRE</button>
+  <button id="speed">◐ 0.5×</button>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+
+const G=new THREE.Color(0x00ff9f), C=new THREE.Color(0x00ccff), M=new THREE.Color(0xff00ff);
+const state={playing:false,time:0,speed:0.5,wire:true};
+let URDF, groups={}, root, grid, camera, renderer, scene, controls, clock=new THREE.Clock();
+
+function euler(xyz){ return new THREE.Euler(xyz[0],xyz[1],xyz[2],'XYZ'); }
+function setJointQuat(obj,joint,angle){
+  const q0=new THREE.Quaternion().setFromEuler(euler(joint.rpy));
+  const qa=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(...joint.axis),angle);
+  obj.quaternion.copy(q0).multiply(qa);
+}
+function angles(t){
+  const j={};
+  j.left_hip_pitch_joint=Math.sin(t*2)*0.28;
+  j.left_knee_joint=Math.sin(t*2-1)*0.45;
+  j.left_ankle_pitch_joint=Math.sin(t*2-2)*0.16;
+  j.right_hip_pitch_joint=-Math.sin(t*2)*0.28;
+  j.right_knee_joint=-Math.sin(t*2-1)*0.45;
+  j.right_ankle_pitch_joint=-Math.sin(t*2-2)*0.16;
+  j.waist_yaw_joint=Math.sin(t*1.4)*0.14;
+  j.neck_yaw_joint=Math.sin(t*0.9+0.4)*0.10;
+  j.neck_pitch_joint=Math.sin(t*0.9+1)*0.05;
+  j.left_shoulder_pitch_joint=Math.sin(t*2-1.5)*0.24;
+  j.left_elbow_joint=Math.sin(t*2-2.5)*0.20;
+  j.right_shoulder_pitch_joint=Math.sin(t*2+1.5)*0.24;
+  j.right_elbow_joint=Math.sin(t*2+2.5)*0.20;
+  return j;
+}
+
+function init(){
+  const view=document.getElementById('view');
+  scene=new THREE.Scene(); scene.background=new THREE.Color(0x050a08);
+  scene.fog=new THREE.FogExp2(0x050a08,0.035);
+  camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,0.01,100);
+  renderer=new THREE.WebGLRenderer({antialias:true});
+  renderer.setSize(innerWidth,innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  view.appendChild(renderer.domElement);
+  controls=new OrbitControls(camera,renderer.domElement); controls.enableDamping=true; controls.dampingFactor=0.08;
+
+  scene.add(new THREE.HemisphereLight(0x00ff9f,0x020804,0.55));
+  const key=new THREE.DirectionalLight(0x00ff9f,1.6); key.position.set(3,4,4); scene.add(key);
+  const rim=new THREE.DirectionalLight(0x00ccff,1.0); rim.position.set(-4,2,-3); scene.add(rim);
+  const mag=new THREE.DirectionalLight(0xff00ff,0.45); mag.position.set(2,-1,3); scene.add(mag);
+
+  grid=new THREE.GridHelper(6,30,0x00ff9f,0x06432c);
+  grid.material.transparent=true; grid.material.opacity=0.35; scene.add(grid);
+
+  for(const name of Object.keys(URDF.links)){
+    const g=new THREE.Group(); g.name=name; groups[name]=g;
+  }
+  for(const j of URDF.joints){
+    const parent=groups[j.parent], child=groups[j.child];
+    child.position.set(j.xyz[0],j.xyz[1],j.xyz[2]);
+    setJointQuat(child,j,0);
+    parent.add(child);
+  }
+  root=groups['pelvis_link']; root.rotation.x=-Math.PI/2; scene.add(root);  // URDF Z-up → Three.js Y-up
+
+  const loader=new STLLoader();
+  let loaded=0; const names=Object.keys(URDF.links);
+  for(const name of names){
+    const info=URDF.links[name];
+    loader.load('../hermes-asimov/model/meshes/'+info.mesh, geo=>{
+      const solidMat=new THREE.MeshStandardMaterial({color:0x0b3a25,emissive:0x00663a,
+        emissiveIntensity:0.45,metalness:0.65,roughness:0.3,transparent:true,opacity:0.94});
+      const wireMat=new THREE.MeshBasicMaterial({color:0x00ff9f,wireframe:true,
+        transparent:true,opacity:0.55});
+      for(const mat of [solidMat,wireMat]){
+        const mesh=new THREE.Mesh(geo,mat);
+        mesh.position.set(info.xyz[0],info.xyz[1],info.xyz[2]);
+        mesh.rotation.copy(euler(info.rpy));
+        groups[name].add(mesh);
+      }
+      loaded++;
+      if(loaded===names.length) finishAssembly();
+    }, undefined, err=>{
+      console.error('mesh failed',name,err); loaded++;
+      if(loaded===names.length) finishAssembly();
+    });
+  }
+  requestAnimationFrame(animate);
+}
+function finishAssembly(){
+  document.getElementById('loading').style.display='none';
+  const box=new THREE.Box3().setFromObject(root);
+  const size=box.getSize(new THREE.Vector3()), center=box.getCenter(new THREE.Vector3());
+  grid.position.y=box.min.y-0.02;
+  controls.target.copy(center);
+  camera.position.set(center.x+size.x*0.85,center.y+size.y*0.10,center.z+Math.max(size.z,0.8)*1.9);
+  controls.update();
+  console.log('ASSEMBLED',size.toArray().map(x=>x.toFixed(3)),center.toArray().map(x=>x.toFixed(3)));
+}
+function animate(){
+  requestAnimationFrame(animate);
+  const dt=Math.min(clock.getDelta(),0.1);
+  if(state.playing) state.time+=dt*state.speed;
+  const t=state.time, a=angles(t);
+  let active=0, power=12;
+  for(const j of URDF.joints){
+    const angle=a[j.name]||0; active+=Math.abs(angle)>0.01?1:0; power+=Math.abs(angle)*0.35;
+    setJointQuat(groups[j.child],j,angle);
+  }
+  document.getElementById('j').textContent=active+' / 25';
+  document.getElementById('mode').textContent=state.playing?'LOCOMOTION':'IDLE';
+  document.getElementById('time').textContent=t.toFixed(2)+' s';
+  document.getElementById('power').textContent=power.toFixed(1)+' W';
+  document.getElementById('stab').textContent=(1-active*0.012).toFixed(2);
+  controls.update(); renderer.render(scene,camera);
+}
+fetch('urdf.json').then(r=>r.json()).then(d=>{URDF=d;init();});
+document.getElementById('play').onclick=e=>{state.playing=!state.playing;e.target.textContent=state.playing?'❚❚ PAUSE':'▶ PLAY';};
+document.getElementById('wire').onclick=e=>{state.wire=!state.wire;e.target.textContent=state.wire?'◈ WIRE':'◆ SOLID';};
+document.getElementById('speed').onclick=e=>{state.speed=state.speed===0.5?1:0.5;e.target.textContent=state.speed===0.5?'◐ 0.5×':'◑ 1×';};
+</script>
+</body>
+</html>

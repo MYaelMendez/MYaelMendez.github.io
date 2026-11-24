@@ -1,0 +1,106 @@
+{
+  "version": "v20261117-d8c65a2",
+  "generated_at": "2026-11-17T17:35:40.418629+00:00",
+  "generated_by": "Hermes Agent / OpenSourceWare",
+  "artifact": "menlo-asimov-ffmpeg",
+  "deploy_target": "GitHub Pages",
+  "repo": "MYaelMendez/MYaelMendez.github.io",
+  "branch": "gh-pages",
+  "pages_path": "ffmpeg-asimov",
+  "pages_dir": "ffmpeg-asimov",
+  "authority": "HUMAN://ROOT",
+  "sources": {
+    "menlo_repo": "https://github.com/menloresearch/asimov-1",
+    "mjcf_sha256": "5d11a9002024d30572f7c34e4f12eb1c6c630f11c90862d6d8da4ff01f9aae1c",
+    "urdf_sha256": "0cd39d5f2568138e2da7a3a4d393064dd382a8e3313fb6b0edcee7e67fdfb7a6",
+    "ffmpeg": "n9.0.1-11-ge47273f4d9"
+  },
+  "pipeline": [
+    "official MJCF/URDF",
+    "MuJoCo qpos",
+    "URDF transforms",
+    "26 STL meshes",
+    "PIL frame painter",
+    "ffmpeg H.264",
+    "OSW receipt"
+  ],
+  "files": [
+    {
+      "path": "POLICY_LOCOMOTION.md",
+      "sha256": "8f7fdd95ef99e78e5d02193d1e51dfe060d1149709c2f840a3ba716ecd723643",
+      "size_bytes": 2277,
+      "role": "doc"
+    },
+    {
+      "path": "asimov-agent-capability-run.json",
+      "sha256": "d6be7c4b7a8eb490d62d6ebeee24f3baf96a59c4b708bdee1c4526b829435c60",
+      "size_bytes": 8473,
+      "role": "source"
+    },
+    {
+      "path": "asimov_1_25dof.urdf",
+      "sha256": "0cd39d5f2568138e2da7a3a4d393064dd382a8e3313fb6b0edcee7e67fdfb7a6",
+      "size_bytes": 33001,
+      "role": "source"
+    },
+    {
+      "path": "asimov_1_25dof.xml",
+      "sha256": "5d11a9002024d30572f7c34e4f12eb1c6c630f11c90862d6d8da4ff01f9aae1c",
+      "size_bytes": 29675,
+      "role": "source"
+    },
+    {
+      "path": "menlo-asimov-ffmpeg-480.gif",
+      "sha256": "07edd5062f99ba241d791734f8eda591091b7d33b9257e377dd47f0d89cce583",
+      "size_bytes": 1093739,
+      "role": "gif"
+    },
+    {
+      "path": "menlo-asimov-ffmpeg-916.mp4",
+      "sha256": "45171a4ce477d30a147b65014fd6bff01955792dc090ca9ccbf8c98c8f09be30",
+      "size_bytes": 1083844,
+      "role": "video"
+    },
+    {
+      "path": "menlo-source-frame.png",
+      "sha256": "a3add43af81bc518a8646a18197bda7787ccb0f3c0951f159cac475f08b67dcb",
+      "size_bytes": 137230,
+      "role": "image"
+    },
+    {
+      "path": "policy_locomotion.py",
+      "sha256": "6d734cc50791d9ee0f24f2c221b1551e33aa6f21d9b31f8b62822136a905acbe",
+      "size_bytes": 8932,
+      "role": "script"
+    },
+    {
+      "path": "render_free_walk.py",
+      "sha256": "298c6b213ec96df81fce6937c620f32c869bd1759eb61befebc688740cafdf13",
+      "size_bytes": 8037,
+      "role": "script"
+    },
+    {
+      "path": "urdf.json",
+      "sha256": "7e6e8d9381d7ff65a7e2a17a1329b10073316a9f3ab05a124388b19693ad1bd9",
+      "size_bytes": 7685,
+      "role": "source"
+    }
+  ],
+  "deploy": {
+    "requires": [
+      "git"
+    ],
+    "env": [
+      "ARTIFACT_DIR",
+      "PAGES_DIR"
+    ],
+    "entrypoint": "menlo-asimov-ffmpeg-916.mp4"
+  },
+  "verify": {
+    "base_url": "https://raw.githubusercontent.com/MYaelMendez/MYaelMendez.github.io/gh-pages/ffmpeg-asimov",
+    "requires": [
+      "curl",
+      "sha256sum"
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>GLB Test</title>
+<style>body{margin:0;background:#02051c;overflow:hidden}</style>
+</head>
+<body>
+<script type="importmap">
+{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x02051c);
+const camera = new THREE.PerspectiveCamera(50, 9/16, 0.1, 500);
+camera.position.set(0, 0.6, 2);
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(720, 1280);
+document.body.appendChild(renderer.domElement);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0.6, 0);
+scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+const key = new THREE.DirectionalLight(0xffffff, 1.0); key.position.set(2,3,2); scene.add(key);
+const grid = new THREE.GridHelper(2, 10, 0x1a3a5c, 0x0a1a2e);
+scene.add(grid);
+
+const loader = new GLTFLoader();
+loader.load('../asimov.glb', (gltf) => {
+  console.log('GLB loaded! scenes:', gltf.scene.children.length);
+  scene.add(gltf.scene);
+  const box = new THREE.Box3().setFromObject(gltf.scene);
+  const size = box.getSize(new THREE.Vector3());
+  console.log('Size:', size);
+  camera.position.set(size.x*2, size.y*1.5, size.z*2);
+  controls.update();
+}, undefined, (err) => console.error('GLB load failed:', err));
+
+function animate(){requestAnimationFrame(animate); controls.update(); renderer.render(scene,camera);}
+animate();
+</script>
+</body>
+</html>

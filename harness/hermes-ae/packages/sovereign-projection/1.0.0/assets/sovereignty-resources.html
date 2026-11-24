@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sovereignty Resources</title>
+<style>
+  :root {
+    --fg: var(--foreground, #e0e0e0);
+    --muted: var(--muted-foreground, #8892b0);
+    --accent: var(--accent, #00ff9f);
+    --border: var(--border, #222);
+    --card: var(--card, #0a0a0f);
+    --gold: #D4AF37;
+    --cyan: #00ccff;
+    --ice: #85e9fc;
+    --void: #050505;
+    --font: var(--app-font, 'JetBrains Mono', 'Fira Code', monospace);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: transparent;
+    color: var(--fg);
+    font-family: var(--font);
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 16px 0 0 0;
+    overflow-x: hidden;
+  }
+
+  /* Scanlines */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.03) 2px,
+      rgba(0,0,0,0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 16px 16px 16px;
+  }
+
+  .row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .col {
+    flex: 1 1 280px;
+    min-width: 260px;
+  }
+
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 14px 16px;
+    position: relative;
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    opacity: 0.7;
+  }
+
+  .panel.gold::before { background: var(--gold); }
+  .panel.cyan::before { background: var(--cyan); }
+  .panel.ice::before { background: var(--ice); }
+  .panel.magenta::before { background: #ff00ff; }
+  .panel.lime::before { background: #00ff9f; }
+
+  .panel-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+
+  .panel-title.gold { color: var(--gold); }
+  .panel-title.cyan { color: var(--cyan); }
+  .panel-title.ice { color: var(--ice); }
+  .panel-title.magenta { color: #ff00ff; }
+  .panel-title.lime { color: #00ff9f; }
+
+  .link {
+    display: block;
+    color: var(--fg);
+    text-decoration: none;
+    padding: 3px 0;
+    font-size: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: color 0.15s;
+  }
+
+  .link:hover { color: var(--accent); }
+  .link .domain { color: var(--muted); font-size: 10px; margin-left: 6px; }
+  .link .tag {
+    display: inline-block;
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 1px;
+    margin-left: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: rgba(255,255,255,0.05);
+    color: var(--muted);
+  }
+
+  .hero {
+    border: 1px solid var(--border);
+    background: var(--card);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -40%; left: -20%;
+    width: 140%; height: 180%;
+    background: radial-gradient(ellipse at center, rgba(212,175,55,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--gold);
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+
+  .hero p {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+    max-width: 640px;
+  }
+
+  .stat-row {
+    display: flex;
+    gap: 24px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat-num {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .stat-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .stem {
+    border-left: 2px solid var(--gold);
+    padding-left: 14px;
+    margin: 4px 0;
+  }
+
+  .stem p {
+    font-size: 12px;
+    color: var(--fg);
+    margin: 2px 0;
+  }
+
+  .stem .muted { color: var(--muted); font-size: 11px; }
+
+  .mesh-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+  }
+
+  .mesh-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 10px 12px;
+    transition: border-color 0.15s;
+  }
+
+  .mesh-card:hover { border-color: var(--accent); }
+
+  .mesh-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .mesh-cap {
+    font-size: 11px;
+    color: var(--muted);
+    padding: 1px 0;
+  }
+
+  .quote {
+    border-left: 2px solid var(--gold);
+    padding: 10px 14px;
+    background: rgba(212,175,55,0.03);
+    color: var(--fg);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .quote .attr {
+    display: block;
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .hashtag {
+    display: inline-block;
+    font-size: 11px;
+    color: var(--accent);
+    margin: 2px 4px 2px 0;
+    opacity: 0.8;
+  }
+
+  .terminal-line {
+    font-size: 12px;
+    color: var(--accent);
+    padding: 2px 0;
+  }
+
+  .terminal-line .prompt { color: var(--gold); }
+  .terminal-line .cmd { color: var(--fg); }
+  .terminal-line .comment { color: var(--muted); font-style: italic; }
+
+  details {
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 8px 12px;
+    background: var(--card);
+    margin-bottom: 6px;
+  }
+
+  summary {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  summary::after { content: '▸'; transition: transform 0.15s; }
+  details[open] summary::after { transform: rotate(90deg); }
+
+  details[open] { border-color: rgba(255,255,255,0.1); }
+
+  details .inner {
+    padding-top: 8px;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  details .inner a { color: var(--fg); text-decoration: none; }
+  details .inner a:hover { color: var(--accent); }
+
+  @media (max-width: 640px) {
+    .row { flex-direction: column; }
+    .mesh-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <h1>DIGITAL SOVEREIGNTY</h1>
+    <p>The capacity to control your own digital destiny — enforced by code, not promised by policy. Gate · Ledger · Receipt · Fleet. One principal. Many agents.</p>
+    <div class="stat-row">
+      <div class="stat"><span class="stat-num">41</span><span class="stat-label">capabilities</span></div>
+      <div class="stat"><span class="stat-num">8</span><span class="stat-label">meshes</span></div>
+      <div class="stat"><span class="stat-num">1</span><span class="stat-label">principal</span></div>
+      <div class="stat"><span class="stat-num">0</span><span class="stat-label">cloud deps</span></div>
+      <div class="stat"><span class="stat-num">22</span><span class="stat-label">repos</span></div>
+      <div class="stat"><span class="stat-num">1,395</span><span class="stat-label">stars</span></div>
+    </div>
+  </div>
+
+  <!-- ROW 1: DOMAINS + REPOS -->
+  <div class="row">
+    <div class="col">
+      <div class="panel gold">
+        <div class="panel-title gold">Domains · Portfolio</div>
+        <a class="link" href="https://soværeign.com" target="_blank">soværeign.com <span class="domain">kernel</span><span class="tag">primary</span></a>
+        <a class="link" href="https://cli.llc" target="_blank">cli.llc <span class="domain">operator identity</span><span class="tag">C2</span></a>
+        <a class="link" href="https://commandprompt.ai" target="_blank">commandprompt.ai <span class="domain">command interface</span><span class="tag">C2</span></a>
+        <a class="link" href="https://privateclient.ai" target="_blank">privateclient.ai <span class="domain">product</span></a>
+        <a class="link" href="https://daollc.ai" target="_blank">daollc.ai <span class="domain">DAO formation</span></a>
+        <a class="link" href="https://llm.store" target="_blank">llm.store <span class="domain">discovery</span></a>
+        <a class="link" href="https://æææ.com" target="_blank">æææ.com <span class="domain">chassis</span></a>
+        <a class="link" href="https://mobility.foundation" target="_blank">mobility.foundation <span class="domain">mobility</span></a>
+        <a class="link" href="https://wætz.com" target="_blank">wætz.com <span class="domain">agent character</span></a>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="panel ice">
+        <div class="panel-title ice">GitHub · R&D Kernel</div>
+        <a class="link" href="https://github.com/MYaelMendez/SOVEREIGN" target="_blank">SOVEREIGN <span class="domain">kernel master</span><span class="tag">41 caps</span></a>
+        <a class="link" href="https://github.com/MYaelMendez/SOV-REIGN" target="_blank">SOV-REIGN <span class="domain">kernel branch</span><span class="tag">92 tests</span></a>
+        <a class="link" href="https://github.com/MYaelMendez/aeqr" target="_blank">aeqr <span class="domain">QR resources</span><span class="tag">278</span></a>
+        <a class="link" href="https://github.com/MYaelMendez/vaeult" target="_blank">vaeult <span class="domain">vault chain</span></a>
+        <a class="link" href="https://github.com/MYaelMendez/gpu-mcp" target="_blank">gpu-mcp <span class="domain">compute</span></a>
+        <a class="link" href="https://github.com/MYaelMendez/local_agent" target="_blank">local_agent <span class="domain">agent runtime</span></a>
+        <a class="link" href="https://github.com/MYaelMendez/vidaeo" target="_blank">vidaeo <span class="domain">video</span></a>
+        <a class="link" href="https://github.com/MYaelMendez/supervisionvidaeo" target="_blank">supervisionvidaeo <span class="domain">CV</span></a>
+        <a class="link" href="https://github.com/MYaelMendez/llm.store" target="_blank">llm.store <span class="domain">store</span></a>
+        <a class="link" href="https://github.com/LutheranInstitute" target="_blank">LutheranInstitute <span class="domain">deployment / LATAM</span><span class="tag">62 repos</span></a>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="panel cyan">
+        <div class="panel-title cyan">External · Allies</div>
+        <a class="link" href="https://github.com/menloresearch/asimov-1" target="_blank">menloresearch/asimov-1 <span class="domain">robot body</span><span class="tag">1.4k ★</span></a>
+        <a class="link" href="https://github.com/roboflow/supervision" target="_blank">roboflow/supervision <span class="domain">eyes</span><span class="tag">MIT</span></a>
+        <a class="link" href="https://github.com/openai/codex" target="_blank">openai/codex <span class="domain">harness</span><span class="tag">Apache-2</span></a>
+        <a class="link" href="https://github.com/nicholasyager/openclaw" target="_blank">OpenClaw <span class="domain">harness</span></a>
+        <a class="link" href="https://github.com/JDhruv14/line-art-animation" target="_blank">JDhruv14/line-art-animation <span class="domain">spring() port</span><span class="tag">MIT</span></a>
+        <a class="link" href="https://teknium.io" target="_blank">teknium.io <span class="domain">design inspiration</span></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 2: CAPABILITIES + STACK -->
+  <div class="row">
+    <div class="col">
+      <div class="panel lime">
+        <div class="panel-title lime">41 Capabilities · 8 Meshes</div>
+        <div class="mesh-grid">
+          <div class="mesh-card">
+            <div class="mesh-name">æ.kanban</div>
+            <div class="mesh-cap">board, dispatch, inspect, verbs</div>
+          </div>
+          <div class="mesh-card">
+            <div class="mesh-name">æ.keeper</div>
+            <div class="mesh-cap">audit, handoff, ledger, publish, recall, reconcile, remember</div>
+          </div>
+          <div class="mesh-card">
+            <div class="mesh-name">æ.kinetic</div>
+            <div class="mesh-cap">bounce, color_shift, flip, float, glow, grow, pulse, signal, slide</div>
+          </div>
+          <div class="mesh-card">
+            <div class="mesh-name">æ.mesh</div>
+            <div class="mesh-cap">bots, read, write</div>
+          </div>
+          <div class="mesh-card">
+            <div class="mesh-name">æ.rtx</div>
+            <div class="mesh-cap">compute, probe</div>
+          </div>
+          <div class="mesh-card">
+            <div class="mesh-name">æ.social</div>
+            <div class="mesh-cap">follow, post, read</div>
+          </div>
+          <div class="mesh-card">
+            <div class="mesh-name">æ.storage</div>
+            <div class="mesh-cap">list, read, write</div>
+          </div>
+          <div class="mesh-card">
+            <div class="mesh-name">æ.video</div>
+            <div class="mesh-cap">receipt, render, status, verify</div>
+          </div>
+          <div class="mesh-card">
+            <div class="mesh-name">æ.vps</div>
+            <div class="mesh-cap">down, logs, status, up</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="panel magenta">
+        <div class="panel-title magenta">Sovereign Stack</div>
+        <div class="stem">
+          <p><strong>1. YOUR MACHINE</strong> <span class="muted">— or your robot. No cloud. No API key.</span></p>
+          <p><strong>2. LOOPBACK RUNTIME</strong> <span class="muted">— Node 22+. No outbound telemetry. No provider dependency.</span></p>
+          <p><strong>3. VAULT</strong> <span class="muted">— scrypt → AES-256-GCM. Your keys only.</span></p>
+          <p><strong>4. GATE</strong> <span class="muted">— Approval expires in 1 minute. Editing invalidates.</span></p>
+          <p><strong>5. RECEIPT</strong> <span class="muted">— SHA-256. Hash-linked. Witnessed. Public.</span></p>
+          <p><strong>6. YOU HOLD THE EVIDENCE</strong> <span class="muted">— No one else can sign for you.</span></p>
+        </div>
+        <div class="quote" style="margin-top:12px;">
+          Policy gives you rights. The kernel gives you keys.
+          <span class="attr">— The gap · soværeign.com</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 3: #OSW + EQUATION + NAMESPACES -->
+  <div class="row">
+    <div class="col">
+      <div class="panel gold">
+        <div class="panel-title gold">#osw · Opensourceware</div>
+        <div class="stem">
+          <p><strong>tool is open</strong> <span class="muted">— source visible · auditable</span></p>
+          <p><strong>secrets are not</strong> <span class="muted">— keys · vault · credentials stay private</span></p>
+          <p><strong>authority not transferred</strong> <span class="muted">— HUMAN::ROOT · non-transferable</span></p>
+          <p><strong>receipts are public</strong> <span class="muted">— SHA-256 · witnessed · hash-linked</span></p>
+        </div>
+        <div style="margin-top:10px;">
+          <span class="hashtag">#ioa</span>
+          <span class="hashtag">#osw</span>
+          <span class="hashtag">#opensourceware</span>
+          <span class="hashtag">#INTERNETofAGENTS</span>
+          <span class="hashtag">#thememoryistheagent</span>
+          <span class="hashtag">#startabusiness</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="panel cyan">
+        <div class="panel-title cyan">Hæebbian Rule</div>
+        <div style="font-size:16px; color:var(--gold); padding:8px 0; text-align:center; font-weight:700;">
+          Δw = η · xᵢ · xⱼ · æ · memory · receipt
+        </div>
+        <div style="font-size:11px; color:var(--muted); text-align:center; margin-bottom:10px;">
+          The sovereign learning rule · æ = 0 kills the gradient
+        </div>
+        <div class="stem">
+          <p><strong>MoE</strong> <span class="muted">— LLMs reign</span></p>
+          <p><strong>MoM</strong> <span class="muted">— agentic reign</span></p>
+          <p><strong>MoW</strong> <span class="muted">— soværeign reign</span></p>
+          <p><strong>MoA</strong> <span class="muted">— swarm reign</span></p>
+          <p><strong>MoP</strong> <span class="muted">— standing reign</span></p>
+          <p><strong>MoH</strong> <span class="muted">— operator reign</span></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="panel ice">
+        <div class="panel-title ice">Namespace Schemes</div>
+        <div class="stem">
+          <p><strong>cli://</strong> <span class="muted">— public · read-only · no authority</span></p>
+          <p><strong>cli.llc://</strong> <span class="muted">— operator · post-LLC · full authority</span></p>
+          <p><strong>dao://</strong> <span class="muted">— DAO formation</span></p>
+          <p><strong>soværeign://</strong> <span class="muted">— kernel · thesis · contract</span></p>
+          <p><strong>pc://</strong> <span class="muted">— product · PrivateClient.ai</span></p>
+          <p><strong>æ://</strong> <span class="muted">— chassis · authority axis</span></p>
+          <p><strong>neuromitosis://</strong> <span class="muted">— Human + Robot + DAO bond</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 4: æSIMOV + KEY FILES + ASSETS -->
+  <div class="row">
+    <div class="col">
+      <div class="panel ice">
+        <div class="panel-title ice">æsimov · Fleet C2</div>
+        <div class="stem">
+          <p><strong>Body</strong> <span class="muted">— menloresearch/asimov-1 · 1.2m · 35kg · 25 DOF · MIT</span></p>
+          <p><strong>Eyes</strong> <span class="muted">— roboflow/supervision · model-agnostic CV</span></p>
+          <p><strong>Brain</strong> <span class="muted">— MÆCH · sovereign gate · receipt</span></p>
+          <p><strong>Face spec</strong> <span class="muted">— 8 states · damped springs · state readout</span></p>
+          <p><strong>Key insight</strong> <span class="muted">— shattered ankle → built own → open-sourced</span></p>
+        </div>
+        <details style="margin-top:8px;">
+          <summary>Face States</summary>
+          <div class="inner">
+            IDLE · LISTENING · THINKING · SPEAKING · AWAITING_APPROVAL · APPROVED · REFUSED · ERROR<br>
+            Spring constants: 140/15 · 60/11 · 70/14 · 90/17 · 120/13<br>
+            <a href="sovereign-resources-demo-916.mp4" target="_blank">watch 12s demo</a> ·
+            <a href="asimov-face-video.mp4" target="_blank">watch MP4</a> ·
+            <a href="asimov-face-video-sm.gif" target="_blank">small GIF</a> ·
+            <a href="asimov-face-9x16.gif" target="_blank">9:16 GIF</a>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="panel lime">
+        <div class="panel-title lime">Key Files · Local</div>
+        <div class="stem">
+          <p><strong>soværeign-v2.html</strong> <span class="muted">— rendered kernel thesis</span></p>
+          <p><strong>soværeign-manifest.json</strong> <span class="muted">— #OSW manifest · validated</span></p>
+          <p><strong>soværeign-AGENTS.md</strong> <span class="muted">— operator brief</span></p>
+          <p><strong>soværeign-OPENSOURCEWARE_BOUNDARY.md</strong> <span class="muted">— shipping boundary</span></p>
+          <p><strong>asimov-face-spec-916.png</strong> <span class="muted">— static spec sheet</span></p>
+          <p><strong>asimov-face-demo-loop.gif</strong> <span class="muted">— 2s state demo</span></p>
+          <p><strong>digital-sovereignty-916.png</strong> <span class="muted">— infographic</span></p>
+          <p><strong>command-prompt-cinematic-916.png</strong> <span class="muted">— C2 poster</span></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="panel magenta">
+        <div class="panel-title magenta">The Golden Rule</div>
+        <div class="quote">
+          El agente propone → tú compruebas → tú decides → anotas la evidencia.
+          <span class="attr">— La Regla de Oro · Lutheran Institute</span>
+        </div>
+        <div class="quote" style="margin-top:8px; border-color:var(--cyan); background:rgba(0,204,255,0.03);">
+          The human is root · and it's enforced · not promised.
+          <span class="attr">— æsimov · sovereign kernel</span>
+        </div>
+        <div class="stem" style="margin-top:10px;">
+          <p><strong>Two accounts, one system</strong></p>
+          <p><span class="muted">MYaelMendez (R&D kernel) + LutheranInstitute (deploy/LATAM)</span></p>
+          <p><strong>Conectoma</strong></p>
+          <p><span class="muted">44 forks · 31 teams · growing</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 5: COMMAND CHAIN + TERMINAL -->
+  <div class="row">
+    <div class="col">
+      <div class="panel">
+        <div class="panel-title">Command Chain</div>
+        <div class="terminal-line"><span class="prompt">commandprompt.ai</span> <span class="cmd">→</span> <span class="comment">the prompt = the command</span></div>
+        <div class="terminal-line"><span class="prompt">cli.llc://</span> <span class="cmd">→</span> <span class="comment">operator identity · full authority</span></div>
+        <div class="terminal-line"><span class="prompt">kanban.dispatch</span> <span class="cmd">→</span> <span class="comment">the gate · nothing runs without it</span></div>
+        <div class="terminal-line"><span class="prompt">keeper.ledger</span> <span class="cmd">→</span> <span class="comment">append-only · evidence required</span></div>
+        <div class="terminal-line"><span class="prompt">social.post</span> <span class="cmd">→</span> <span class="comment">public receipt · witnessed</span></div>
+        <div class="terminal-line"><span class="prompt">mesh.write</span> <span class="cmd">→</span> <span class="comment">fleet status update</span></div>
+        <div class="terminal-line"><span class="prompt">video.verify</span> <span class="cmd">→</span> <span class="comment">SupervisorVideo gate</span></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="panel">
+        <div class="panel-title">Sovereign Kernel · Invariants</div>
+        <details>
+          <summary>1. Private intention stays in memory</summary>
+          <div class="inner">What you think before you act is yours alone. The vault does not export intent.</div>
+        </details>
+        <details>
+          <summary>2. Approval bound to digest + session + operation + expiry</summary>
+          <div class="inner">An approval is a cryptographic object, not a feeling. Editing invalidates. Expiry: 1 minute.</div>
+        </details>
+        <details>
+          <summary>3. Public projection allowlisted</summary>
+          <div class="inner">What becomes public is what you chose to publish. No telemetry. No exfil.</div>
+        </details>
+        <details>
+          <summary>4. Receipts are SHA-256</summary>
+          <div class="inner">Every action produces a hash-linked receipt. The chain is the proof.</div>
+        </details>
+        <details>
+          <summary>5. Default-deny</summary>
+          <div class="inner">No capability fires without the gate. The gate is the human.</div>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="row" style="margin-top:4px;">
+    <div class="col">
+      <div class="terminal-line" style="padding:8px 0 2px 0;">
+        <span class="prompt">root@sovereignty:~$</span> <span class="cmd">echo "#ioa · #osw · #opensourceware · #INTERNETofAGENTS · #thememoryistheagent · #startabusiness"</span>
+      </div>
+      <div class="terminal-line" style="padding:2px 0; color:var(--muted); font-size:11px;">
+        HUMAN://ROOT · authority not transferable · receipts on every action<br>
+        cli.llc:// · commandprompt.ai · soværeign.com · æ:// · daollc.ai · llm.store
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

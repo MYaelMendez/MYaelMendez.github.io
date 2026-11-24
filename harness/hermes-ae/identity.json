@@ -1,0 +1,172 @@
+{
+  "authority": "HUMAN://ROOT",
+  "principle": "authority not transferable · execution visible",
+  "bindings": {
+    "F2": {
+      "name": "nous girl",
+      "role": "root voice",
+      "body": null,
+      "use": "asks, challenges, holds the human-root frame"
+    },
+    "M2": {
+      "name": "hermes-agent",
+      "role": "build voice",
+      "body": "asimov-1",
+      "actor": "hermes-asimov",
+      "runtime": "tiny-voca M2 ONNX + official 25-DOF Asimov-1 CAD",
+      "use": "explains, demonstrates, executes, and returns receipts"
+    }
+  },
+  "actor": {
+    "name": "Asimov-1",
+    "source": "menloresearch/asimov-1",
+    "dof": 25,
+    "links": 26,
+    "identity": "hermes-agent build body",
+    "authority": "HUMAN://ROOT"
+  },
+  "agent": {
+    "name": "Asimov Agent",
+    "slug": "asimov-agent",
+    "authority": "HUMAN://ROOT",
+    "composition": {
+      "chassis": {
+        "source": "Menlo Research",
+        "artifact": "official Asimov-1 CAD / URDF / MJCF, 25 DOF, 26 links",
+        "role": "embodied robot chassis",
+        "authority": "executor only; never an authority root"
+      },
+      "harness": {
+        "source": "Nous Research",
+        "artifact": "Hermes Agent runtime + hermes-ae Mixture of Harnesses orchestrator",
+        "role": "agentic engineering harness",
+        "note": "built on Hermes Agent; no official endorsement claimed"
+      },
+      "logic": {
+        "source": "æ / OpenSourceWare",
+        "artifact": "æ Policy + DAO Brain + hash-chained receipts",
+        "role": "agentic logic, authority gate, and public proof",
+        "authority": "HUMAN://ROOT"
+      }
+    },
+    "voice": "hermes-agent (M2)",
+    "twin": {
+      "name": "asimov-avatar",
+      "version": "1.0.0",
+      "format": "USD ASCII",
+      "stage": "packages/asimov-twin/1.0.0/asimov-avatar.usda",
+      "manifest": "packages/asimov-twin/1.0.0/manifest.json",
+      "authority": "HUMAN://ROOT",
+      "receipt_action": "AVATAR://USD_BIND"
+    },
+    "policy": {
+      "name": "æ Policy",
+      "version": "1.1.0",
+      "path": "ae-policy.json",
+      "authority": "HUMAN://ROOT",
+      "receipt_action": "POLICY://EVALUATE"
+    },
+    "dao_brain": {
+      "name": "DAO Brain",
+      "version": "1.0.0",
+      "engine": "scripts/daobrain.py",
+      "surface": "native Asimov head mask viewport",
+      "authority": "HUMAN://ROOT",
+      "receipt_action": "DAO://DECISION"
+    },
+    "verbs": {
+      "name": "æ Robot Verbs",
+      "version": "1.0.0",
+      "engine": "scripts/ae_verbs.py",
+      "authority": "HUMAN://ROOT",
+      "receipt_action": "SDK://VERB"
+    },
+    "body": "Asimov-1 (25 DOF)",
+    "runtime": "hermes-ae MoH orchestrator + official Asimov-1 MJCF/URDF + tiny-voca + MuJoCo + ONNX policy",
+    "receipt_action": "AGENT://ASIMOV",
+    "capabilities": [
+      "tts",
+      "video",
+      "vlc_control",
+      "physics",
+      "qpos_viewport",
+      "onnx_locomotion",
+      "viewport_dom",
+      "head_viewport",
+      "dom_awareness",
+      "digital_twin",
+      "ae_policy",
+      "dao_brain",
+      "robot_verbs",
+      "voice_fallback",
+      "pi500_teleop",
+      "publish",
+      "receipts"
+    ],
+    "ops": [
+      "agent",
+      "head",
+      "head_dom",
+      "agent_body",
+      "harnesses",
+      "harness",
+      "run_harness",
+      "policy_locomotion",
+      "policy_walk",
+      "viewport_dom",
+      "face",
+      "twin",
+      "policy",
+      "daobrain",
+      "verbs",
+      "masterpiece"
+    ],
+    "homepage": "https://mobility.foundation/mobility/",
+    "fallback_homepage": "https://myaelmendez.github.io/mobility/",
+    "viewport": "https://myaelmendez.github.io/asimov-viewport/",
+    "viewport_raw": "https://raw.githubusercontent.com/MYaelMendez/MYaelMendez.github.io/gh-pages/asimov-viewport/index.html",
+    "head_viewport": {
+      "surface": "native Asimov-1 head mask and three exterior covers",
+      "primary_mask": "ASV1_700_03C head base front mask",
+      "exterior_zones": [
+        {
+          "id": "front_mask",
+          "part": "ASV1_700_03C",
+          "role": "primary LED viewport"
+        },
+        {
+          "id": "top_cover",
+          "part": "ASV1_700_04C",
+          "role": "status strip"
+        },
+        {
+          "id": "left_cover",
+          "part": "ASV1_700_06C",
+          "role": "side status strip"
+        },
+        {
+          "id": "right_cover",
+          "part": "ASV1_700_07C",
+          "role": "side status strip"
+        }
+      ],
+      "voice": "tiny-voca F2/M2; SOVÆREIGN digital-twin voice optional",
+      "visemes": true,
+      "face_states": [
+        "IDLE",
+        "LISTENING",
+        "THINKING",
+        "SPEAKING",
+        "AWAITING_APPROVAL",
+        "APPROVED",
+        "REFUSED",
+        "ERROR"
+      ],
+      "governance": "viewport state is a policy outcome; the head never signs",
+      "status": "shipped as native viewport contract, self-contained HTML projection, and read-only DOM awareness; physical hardware is late-bound",
+    "dom_aware": true,
+    "dom_op": "ae({op:\"head\", action:\"dom\"})",
+    "dom_receipt_action": "VIEWPORT://DOM_AWARENESS"
+    }
+  }
+}

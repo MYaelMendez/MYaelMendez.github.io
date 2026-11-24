@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>æSYMOV · la voz encarnada</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100%; height:100%; background:#0a0a0f; overflow:hidden; font-family:'JetBrains Mono', ui-monospace, monospace; color:#dffaff; }
+  #app { position:relative; width:100%; height:100%; display:flex; flex-direction:column; }
+  #viewport { flex:1; position:relative; }
+  #viewport canvas { width:100% !important; height:100% !important; display:block; }
+  .hud { position:absolute; left:0; right:0; padding:12px 14px; pointer-events:none; }
+  .hud.top { top:0; }
+  .hud .t { font-size:14px; color:#00ff9f; }
+  .hud .s { font-size:10px; color:rgba(255,255,255,.55); margin-top:2px; }
+  .hud .st { font-size:10px; color:#ff00ff; margin-top:6px; }
+  #caption { position:absolute; left:0; right:0; bottom:140px; text-align:center; pointer-events:none; }
+  #caption .w { font-size:clamp(22px,6vw,34px); color:#00ccff; min-height:40px; text-shadow:0 0 18px #00ccff80; }
+  #caption .p { font-size:10px; color:#b4ff2e; margin-top:4px; letter-spacing:.06em; }
+  #meter { position:absolute; left:14px; right:14px; bottom:120px; height:3px; background:#1a3a5c; }
+  #meter i { display:block; height:100%; width:0; background:#00ff9f; transition:width .05s linear; }
+  .cmds { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; padding:8px 10px 6px; background:#02051c; border-top:1px solid #1a3a5c; }
+  .cmds button { background:#061a30; border:1px solid #1a5471; color:#bcf8ff; font:inherit; font-size:10px; padding:10px 4px; border-radius:6px; }
+  .cmds button:active { background:#00ff9f22; border-color:#00ff9f; }
+  .cmds button.m { border-color:#ff00ff; color:#ff00ff; }
+  #receipts { height:84px; overflow-y:auto; padding:6px 12px; background:#02051c; font-size:9px; border-top:1px solid #1a3a5c; }
+  #receipts .line { padding:2px 0; color:rgba(255,255,255,.6); border-bottom:1px solid #0a1a2e; }
+  #receipts b { color:#00ff9f; } .ok { color:#00ff9f; } .mag { color:#ff00ff; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="viewport">
+    <div class="hud top">
+      <div class="t">æSYMOV · la voz encarnada</div>
+      <div class="s">Menlo Asimov-1 · neck_yaw + neck_pitch · motor articulatorio hermes-voice-lab</div>
+      <div class="st" id="status">— cabeza lista · toca una frase —</div>
+    </div>
+    <div id="caption"><div class="w" id="word"></div><div class="p" id="phon"></div></div>
+    <div id="meter"><i id="level"></i></div>
+  </div>
+  <div class="cmds">
+    <button onclick="speak('raiz')">RAÍZ</button>
+    <button onclick="speak('humano')">HUMANO</button>
+    <button onclick="speak('hello')">HELLO HUMAN</button>
+    <button class="m" onclick="speak('frase')">EL HUMANO ES LA RAÍZ</button>
+    <button onclick="speak('vc')">VOCALES+CONS.</button>
+    <button onclick="stopAll()">SILENCIO</button>
+  </div>
+  <div id="receipts"><div class="line">— HUMAN://ROOT · cada SPEAK deja recibo —</div></div>
+</div>
+
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+
+const viewport = document.getElementById('viewport');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x02051c);
+scene.fog = new THREE.FogExp2(0x02051c, 0.02);
+const camera = new THREE.PerspectiveCamera(50, viewport.clientWidth/viewport.clientHeight, 0.1, 500);
+camera.position.set(0, 0.35, 1.9);
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+viewport.appendChild(renderer.domElement);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.autoRotate = true; controls.autoRotateSpeed = 0.6;
+controls.target.set(0, 0.15, 0);
+
+scene.add(new THREE.AmbientLight(0x404060, 0.5));
+const key = new THREE.DirectionalLight(0x00eaff, 1.2); key.position.set(5,5,5); scene.add(key);
+const rim = new THREE.DirectionalLight(0xff00ff, 0.8); rim.position.set(-3,2,-5); scene.add(rim);
+const voiceLight = new THREE.PointLight(0x00ff9f, 0, 6); voiceLight.position.set(0, 0.1, 0.8); scene.add(voiceLight);
+const grid = new THREE.GridHelper(4, 20, 0x1a3a5c, 0x0a1a2e); grid.position.y = -0.35; scene.add(grid);
+
+// Head: yaw link holds pitch link (the URDF chain). Pitch link = the face; we articulate it as the jaw.
+const MESH_BASE = '../asimov-meshes/';
+const yaw = new THREE.Group(); scene.add(yaw);
+const pitch = new THREE.Group(); yaw.add(pitch);
+const loader = new STLLoader();
+const wire = (geo, color, op) => new THREE.LineSegments(new THREE.WireframeGeometry(geo), new THREE.LineBasicMaterial({ color, transparent:true, opacity:op }));
+const fill = (geo) => new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color:0x0a1a3c, transparent:true, opacity:0.4 }));
+
+loader.load(MESH_BASE + 'neck_yaw_link.STL', g => {
+  g.computeBoundingBox(); const c = g.boundingBox.getCenter(new THREE.Vector3()); g.translate(-c.x,-c.y,-c.z);
+  yaw.add(wire(g, 0x00eaff, 0.35)); yaw.add(fill(g));
+});
+loader.load(MESH_BASE + 'neck_pitch_link.STL', g => {
+  g.computeBoundingBox(); const c = g.boundingBox.getCenter(new THREE.Vector3()); g.translate(-c.x,-c.y,-c.z);
+  pitch.add(wire(g, 0x00eaff, 0.55)); pitch.add(fill(g));
+  pitch.position.y = 0.12;
+  // æ voice core: the glottis — a sphere whose scale is the signal envelope
+  const core = new THREE.Mesh(new THREE.SphereGeometry(0.1, 24, 24),
+    new THREE.MeshStandardMaterial({ color:0x00ff9f, emissive:0x00ff9f, emissiveIntensity:0.6 }));
+  core.position.set(0, -0.05, 0.05); pitch.add(core); pitch.userData.core = core;
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.015, 8, 48),
+    new THREE.MeshBasicMaterial({ color:0xff00ff, transparent:true, opacity:0.6 }));
+  ring.position.copy(core.position); pitch.add(ring); pitch.userData.ring = ring;
+  document.getElementById('status').textContent = '— cabeza cargada · 55,990 triángulos · lista —';
+});
+
+// --- Voice: real articulatory WAVs → analyser → jaw + glow ---
+const CLIPS = {
+  raiz:   { src:'voice/raiz.wav',                  word:'raíz',                  phon:'R AA0 IY1 S' },
+  humano: { src:'voice/humano.wav',                word:'humano',                phon:'UW0 M AA1 N OW0' },
+  hello:  { src:'voice/hello-human.wav',           word:'hello human',           phon:'HH AH0 L OW1 · HH Y UW1 M AH0 N' },
+  frase:  { src:'voice/el-humano-es-la-raiz.wav',  word:'el humano es la raíz',  phon:'HUMAN://ROOT' },
+  vc:     { src:'voice/vocales-consonantes.wav',   word:'a e i o u · ma na pa…', phon:'vocales → consonantes' },
+};
+let actx, analyser, data, source, current = null;
+let level = 0, rx = 0;
+const receipts = document.getElementById('receipts');
+function receipt(action, note, cls='ok') {
+  rx++; const l = document.createElement('div'); l.className = 'line';
+  l.innerHTML = `<b>${action}</b> · ${new Date().toLocaleTimeString()} · <span class="${cls}">${note}</span> · #${rx}`;
+  receipts.appendChild(l); receipts.scrollTop = receipts.scrollHeight;
+}
+function ensureAudio() {
+  if (actx) return;
+  actx = new (window.AudioContext || window.webkitAudioContext)();
+  analyser = actx.createAnalyser(); analyser.fftSize = 1024; analyser.smoothingTimeConstant = 0.6;
+  data = new Uint8Array(analyser.fftSize);
+  analyser.connect(actx.destination);
+}
+window.stopAll = () => { if (source) { try { source.stop(); } catch(e){} source = null; } current = null;
+  document.getElementById('word').textContent = ''; document.getElementById('phon').textContent = '';
+  document.getElementById('status').textContent = '— silencio —'; receipt('SILENCE', 'voz detenida', 'mag'); };
+window.speak = async (key) => {
+  ensureAudio(); if (actx.state === 'suspended') await actx.resume();
+  if (source) { try { source.stop(); } catch(e){} }
+  const clip = CLIPS[key];
+  document.getElementById('status').textContent = `— SPEAK · ${clip.word} —`;
+  document.getElementById('word').textContent = clip.word;
+  document.getElementById('phon').textContent = clip.phon;
+  receipt('SPEAK', `"${clip.word}" · motor articulatorio · æ-signed`);
+  const buf = await fetch(clip.src).then(r => r.arrayBuffer()).then(b => actx.decodeAudioData(b));
+  source = actx.createBufferSource(); source.buffer = buf; source.connect(analyser); source.start();
+  current = key;
+  source.onended = () => { if (current === key) { current = null; document.getElementById('status').textContent = '— cabeza lista —'; } };
+};
+
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+  // envelope from the real signal
+  let rms = 0;
+  if (analyser && current) {
+    analyser.getByteTimeDomainData(data);
+    let s = 0; for (let i = 0; i < data.length; i++) { const v = (data[i]-128)/128; s += v*v; }
+    rms = Math.sqrt(s / data.length);
+  }
+  level += (Math.min(1, rms * 6) - level) * 0.35;
+  document.getElementById('level').style.width = (level*100).toFixed(1) + '%';
+  // embodiment: pitch link = jaw (opens with amplitude), yaw sways with speech, core = glottis
+  pitch.rotation.x = -level * 0.28;
+  yaw.rotation.y = current ? Math.sin(t*1.7) * 0.12 * level : 0;
+  yaw.position.y = Math.sin(t*1.2) * 0.03;
+  voiceLight.intensity = level * 3.5;
+  if (pitch.userData.core) {
+    pitch.userData.core.scale.setScalar(1 + level * 1.2);
+    pitch.userData.core.material.emissiveIntensity = 0.6 + level * 3.5;
+    pitch.userData.ring.rotation.y = t * 2; pitch.userData.ring.scale.setScalar(1 + level * 0.6);
+  }
+  controls.update(); renderer.render(scene, camera);
+}
+animate();
+window.addEventListener('resize', () => {
+  camera.aspect = viewport.clientWidth/viewport.clientHeight; camera.updateProjectionMatrix();
+  renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+{
+  "source": "https://huggingface.co/Menlo/asimov1-locomotion-0818",
+  "source_sha": "98932b4a15679fc420b90bfab9398c4cb8e0c735",
+  "onnxruntime_version": "1.31.1",
+  "active_providers": [
+    "CPUExecutionProvider"
+  ],
+  "model_inputs": [
+    {
+      "name": "obs",
+      "type": "tensor(float)",
+      "shape": [
+        1,
+        78
+      ]
+    }
+  ],
+  "model_outputs": [
+    {
+      "name": "actions",
+      "type": "tensor(float)",
+      "shape": [
+        1,
+        23
+      ]
+    }
+  ],
+  "sanity_check": {
+    "input_fed": "zeros",
+    "batch": 1,
+    "input_dim": 78,
+    "output_shapes": [
+      [
+        1,
+        23
+      ]
+    ],
+    "all_finite": true
+  },
+  "files": {
+    "policy.onnx": {
+      "size_bytes": 831809,
+      "sha256": "47f70691ecd5afda2933b2e6430d2375004c943552284172a2d7b28b84188a0c"
+    },
+    "env.yaml": {
+      "size_bytes": 61971,
+      "sha256": "bfccfef91349e19c3a422b4aa5ca8ed23f5fe593bd79086cd239f7e4bcfd6bf8"
+    },
+    "agent.yaml": {
+      "size_bytes": 2199,
+      "sha256": "1fd3435ad0c8420923cb1ca79c8e8a0a916e160709f89096c58610cdd46f545a"
+    },
+    "README.md": {
+      "size_bytes": 1852,
+      "sha256": "0f809015c10f79043a3155a6f0dcabaa3e8b460ce101653fb3b6f86259c7358c"
+    }
+  },
+  "notes": "agent.yaml references a training-time AMP motion file (policy_delay_walk_slow.npz at an IsaacLab local path); it is not in the HF repo and is not required for inference."
+}

@@ -1,0 +1,128 @@
+{
+  "schema": "tiny-voca-voice-identity/1",
+  "version": "1.3.1",
+  "authority": "HUMAN://ROOT",
+  "chain": "HUMAN://ROOT → æ → RECEIPT",
+  "principle": "The human is root. Voices are instruments, not principals. The robot is an executor, never an authority source.",
+  "bindings": {
+    "F2": {
+      "id": "F2",
+      "name": "nous girl",
+      "aliases": [
+        "F2",
+        "f2",
+        "nous-girl",
+        "nous_girl",
+        "nous girl"
+      ],
+      "role": "root voice",
+      "principal": "HUMAN://ROOT",
+      "compute_layer": "human-intent",
+      "runtime": "tiny-voca ONNX / CPU",
+      "sample_rate_hz": 24000,
+      "authority": "source of human intent; does not sign",
+      "use": "root questions, human intent, and the source timbre for robot voice output"
+    },
+    "M2": {
+      "id": "M2",
+      "name": "hermes-agent",
+      "aliases": [
+        "M2",
+        "m2",
+        "hermes-agent",
+        "hermes_agent",
+        "hermes agent"
+      ],
+      "role": "build voice",
+      "principal": "agent",
+      "compute_layer": "agent-runtime",
+      "runtime": "tiny-voca ONNX / CPU",
+      "sample_rate_hz": 24000,
+      "authority": "executor only; asks before acting",
+      "use": "narration, build logs, and agent speech"
+    },
+    "ROBOT": {
+      "id": "ROBOT",
+      "name": "asimov-robot",
+      "aliases": [
+        "robotVOICE",
+        "robot-voice",
+        "robot voice",
+        "asimov",
+        "asimov-robot"
+      ],
+      "role": "robot body voice",
+      "principal": "robot",
+      "source_voice": "F2",
+      "compute_layer": "robot-body",
+      "runtime": "robotVOICE → menlo.asimov.Robot.speaker.play_pcm",
+      "sample_rate_hz": 44100,
+      "resample_from_hz": 24000,
+      "authority": "executor only; never an authority root",
+      "use": "Asimov face tablet, speaker output, and robot face-state videos"
+    },
+    "SOVÆREIGN": {
+      "id": "SOVÆREIGN",
+      "name": "soværeign voice",
+      "aliases": [
+        "SOVÆREIGN",
+        "soværeign",
+        "sovareign",
+        "yæl",
+        "yael",
+        "human-twin",
+        "digital twin",
+        "digital-twin"
+      ],
+      "role": "human digital twin voice",
+      "principal": "HUMAN://ROOT",
+      "source": "human reference audio plus exact transcript",
+      "compute_layer": "human-twin",
+      "runtime": "voxmel zero-shot cloning (optional tinyVOICE provider)",
+      "languages": [
+        "en",
+        "zh"
+      ],
+      "sample_rate_hz": 24000,
+      "authority": "human-approved digital twin; never authority root; VOICE://BIND consent required",
+      "use": "one-person company movement, native Chinese narration, and the soværeign voice",
+      "default_timbre": "broadcast",
+      "timbre_variants": [
+        {
+          "id": "low",
+          "description": "deeper authority",
+          "sha256": "56ecfb6d27eb8d1fa05ff33c4b83351db20bacd907a310a5bfdd8e016cd466ae",
+          "duration_s": 14.0
+        },
+        {
+          "id": "bright",
+          "description": "brighter presence",
+          "sha256": "e7b9b3e7d9de7036c83044acf7f17a978bd64710becf1e54537ab566101cf641",
+          "duration_s": 14.0
+        },
+        {
+          "id": "broadcast",
+          "description": "warm compressed broadcast",
+          "sha256": "2fbe9d20344460a7a0e3f84f7fe6616209695b4f0e52ce341106623835953090",
+          "duration_s": 14.0
+        }
+      ],
+      "reference_sha256": "18a162cb706bda85cb2392296c3110e2a2fcd8726f25700fd591122b554826e3",
+      "bind_receipt": "4ca9d6c64cfb78c6f8eb210f766dac7bee7231114fca2f84ae801afcb3b34b8d",
+      "timbre_note": "Signal-derived variants from the bound reference; default broadcast. VoxMel clone still requires provisioning."
+    }
+  },
+  "compute_layers": {
+    "human-intent": "F2 / nous girl — HUMAN://ROOT intent, local tiny-voca CPU",
+    "agent-runtime": "M2 / hermes-agent — agent execution, local tiny-voca CPU",
+    "robot-body": "ROBOT / asimov-robot — F2 source resampled for Menlo Asimov speaker",
+    "human-twin": "SOVÆREIGN / soværeign voice — human-approved VoxMel clone, English and Chinese"
+  },
+  "receipt_actions": [
+    "TTS://SPEAK",
+    "LESSON://BUILD",
+    "PROMPT://BUILD",
+    "VOICE://BIND"
+  ],
+  "note": "Alias resolution is case-insensitive and normalizes '-' and '_' to spaces. Identity does not transfer authority."
+}

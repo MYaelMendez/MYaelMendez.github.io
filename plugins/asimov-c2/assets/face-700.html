@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>æSYMOV · la cara · ASV1_700</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100%; height:100%; background:#0a0a0f; overflow:hidden; font-family:'JetBrains Mono', ui-monospace, monospace; color:#dffaff; }
+  #app { position:relative; width:100%; height:100%; display:flex; flex-direction:column; }
+  #viewport { flex:1; position:relative; }
+  #viewport canvas { width:100% !important; height:100% !important; display:block; }
+  .hud { position:absolute; left:0; right:0; top:0; padding:12px 14px; pointer-events:none; }
+  .hud .t { font-size:14px; color:#00ff9f; }
+  .hud .s { font-size:10px; color:rgba(255,255,255,.55); margin-top:2px; }
+  .hud .st { font-size:10px; color:#ff00ff; margin-top:6px; }
+  #parts { position:absolute; right:10px; top:70px; font-size:9px; pointer-events:auto; }
+  #parts div { padding:3px 6px; margin:2px 0; border:1px solid #1a5471; border-radius:4px; background:#02051caa; color:#bcf8ff; cursor:pointer; }
+  #parts div.off { opacity:.35; }
+  #parts b { color:#00ff9f; }
+  #caption { position:absolute; left:0; right:0; bottom:110px; text-align:center; pointer-events:none; }
+  #caption .w { font-size:clamp(22px,6vw,34px); color:#00ccff; min-height:40px; text-shadow:0 0 18px #00ccff80; }
+  #caption .p { font-size:10px; color:#b4ff2e; margin-top:4px; }
+  #meter { position:absolute; left:14px; right:14px; bottom:96px; height:3px; background:#1a3a5c; }
+  #meter i { display:block; height:100%; width:0; background:#00ff9f; }
+  .cmds { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; padding:8px 10px 6px; background:#02051c; border-top:1px solid #1a3a5c; }
+  .cmds button { background:#061a30; border:1px solid #1a5471; color:#bcf8ff; font:inherit; font-size:10px; padding:10px 4px; border-radius:6px; }
+  .cmds button.m { border-color:#ff00ff; color:#ff00ff; }
+  .cmds button.g { border-color:#D4AF37; color:#D4AF37; }
+  #receipts { height:70px; overflow-y:auto; padding:6px 12px; background:#02051c; font-size:9px; border-top:1px solid #1a3a5c; }
+  #receipts .line { padding:2px 0; color:rgba(255,255,255,.6); border-bottom:1px solid #0a1a2e; }
+  #receipts b { color:#00ff9f; } .ok { color:#00ff9f; } .mag { color:#ff00ff; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="viewport">
+    <div class="hud">
+      <div class="t">æSYMOV · la cara</div>
+      <div class="s">Menlo Asimov-1 · subensamble 700 (Head) · STEP → malla · CERN-OHL-S-2.0</div>
+      <div class="st" id="status">— cargando carcasas 700 —</div>
+    </div>
+    <div id="parts"></div>
+    <div id="caption"><div class="w" id="word"></div><div class="p" id="phon"></div></div>
+    <div id="meter"><i id="level"></i></div>
+  </div>
+  <div class="cmds">
+    <button onclick="speak('hello')">HELLO HUMAN</button>
+    <button class="g" onclick="speak('frase')">EL HUMANO ES LA RAÍZ</button>
+    <button onclick="speak('vc')">VOCALES+CONS.</button>
+    <button onclick="setView('front')">FRENTE</button>
+    <button onclick="setView('side')">PERFIL</button>
+    <button class="m" onclick="toggleShell()">X-RAY</button>
+  </div>
+  <div id="receipts"><div class="line">— HUMAN://ROOT · cada SPEAK deja recibo —</div></div>
+</div>
+
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+
+const viewport = document.getElementById('viewport');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x02051c);
+const camera = new THREE.PerspectiveCamera(42, viewport.clientWidth/viewport.clientHeight, 1, 5000);
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+viewport.appendChild(renderer.domElement);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.autoRotate = true; controls.autoRotateSpeed = 0.5;
+
+scene.add(new THREE.HemisphereLight(0x3060a0, 0x080810, 0.9));
+const key = new THREE.DirectionalLight(0x00eaff, 1.4); key.position.set(300,200,400); scene.add(key);
+const rim = new THREE.DirectionalLight(0xff00ff, 0.9); rim.position.set(-300,150,-300); scene.add(rim);
+const mouthLight = new THREE.PointLight(0x00ff9f, 0, 400); scene.add(mouthLight);
+
+// ── Real head parts (ASV1_700, mm, robot-world Z-up). Face looks toward +X. ──
+const PARTS = [
+  { id:'ASV1_700_04C', name:'cráneo superior',     cls:'MJF PA12', color:0x00ccff, op:0.55 },
+  { id:'ASV1_700_03C', name:'carcasa inferior',    cls:'MJF PA12', color:0x00ccff, op:0.55 },
+  { id:'ASV1_700_06C', name:'lateral derecho',     cls:'MJF PA12', color:0x1a8fb8, op:0.45 },
+  { id:'ASV1_700_07C', name:'lateral izquierdo',   cls:'MJF PA12', color:0x1a8fb8, op:0.45 },
+  { id:'ASV1_700_05C', name:'placa facial interna',cls:'MJF PA12', color:0x00ff9f, op:0.7  },
+];
+const HEAD_CENTER = new THREE.Vector3(42, 0, 1478); // bbox centre of the shells
+const head = new THREE.Group(); scene.add(head);
+head.rotation.x = -Math.PI/2; // Z-up → Y-up
+const pitch = new THREE.Group(); head.add(pitch);
+const meshes = {};
+const loader = new STLLoader();
+let loaded = 0, xray = false;
+const partsEl = document.getElementById('parts');
+for (const p of PARTS) {
+  const row = document.createElement('div'); row.innerHTML = `<b>${p.id}</b> ${p.name} · ${p.cls}`;
+  row.onclick = () => { const m = meshes[p.id]; if (m) { m.visible = !m.visible; row.classList.toggle('off', !m.visible); } };
+  partsEl.appendChild(row);
+  loader.load(`head700/${p.id}.STL`, g => {
+    g.translate(-HEAD_CENTER.x, -HEAD_CENTER.y, -HEAD_CENTER.z);
+    g.computeVertexNormals();
+    const grp = new THREE.Group();
+    const solid = new THREE.Mesh(g, new THREE.MeshPhysicalMaterial({ color:p.color, metalness:0.1, roughness:0.35, transparent:true, opacity:p.op, side:THREE.DoubleSide }));
+    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(g, 28), new THREE.LineBasicMaterial({ color:p.color, transparent:true, opacity:0.9 }));
+    grp.add(solid); grp.add(edges); grp.userData = { solid, edges, p };
+    pitch.add(grp); meshes[p.id] = grp;
+    loaded++;
+    if (loaded === PARTS.length) {
+      document.getElementById('status').textContent = `— ${PARTS.length} carcasas cargadas · 165 × 131 × 181 mm · lista —`;
+      // æ voice core at the mouth: front-centre, low on the face (+X front, -Z low)
+      const core = new THREE.Mesh(new THREE.SphereGeometry(9, 24, 24), new THREE.MeshStandardMaterial({ color:0x00ff9f, emissive:0x00ff9f, emissiveIntensity:0.5 }));
+      core.position.set(75, 0, -45); pitch.add(core); pitch.userData.core = core;
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(17, 1.4, 8, 48), new THREE.MeshBasicMaterial({ color:0xff00ff, transparent:true, opacity:0.6 }));
+      ring.position.copy(core.position); ring.rotation.y = Math.PI/2; pitch.add(ring); pitch.userData.ring = ring;
+      // eyes: two faint cyan points on the upper face
+      for (const s of [-1, 1]) {
+        const eye = new THREE.Mesh(new THREE.SphereGeometry(4, 12, 12), new THREE.MeshStandardMaterial({ color:0x00ccff, emissive:0x00ccff, emissiveIntensity:1.2 }));
+        eye.position.set(78, s*30, 28); pitch.add(eye);
+      }
+      mouthLight.position.set(140, -45, 0);
+    }
+  }, undefined, () => { loaded++; });
+}
+window.toggleShell = () => { xray = !xray; for (const k in meshes) { const u = meshes[k].userData; u.solid.material.opacity = xray ? 0.08 : u.p.op; u.edges.material.opacity = xray ? 1 : 0.9; }
+  receipt('XRAY', xray ? 'carcasas transparentes' : 'carcasas sólidas', 'mag'); };
+window.setView = (v) => { controls.autoRotate = false;
+  if (v === 'front') camera.position.set(520, 60, 0); else camera.position.set(0, 60, 520);
+  controls.target.set(0, 0, 0); receipt('VIEW', v); };
+camera.position.set(380, 120, 380); controls.target.set(0, 0, 0);
+
+// ── Voice: real articulatory WAVs → analyser → mouth core + head micro-motion ──
+const CLIPS = {
+  hello: { src:'voice/hello-human.wav',          word:'hello human',          phon:'HH AH0 L OW1 · HH Y UW1 M AH0 N' },
+  frase: { src:'voice/el-humano-es-la-raiz.wav', word:'el humano es la raíz', phon:'HUMAN://ROOT' },
+  vc:    { src:'voice/vocales-consonantes.wav',  word:'a e i o u · ma na pa…', phon:'vocales → consonantes' },
+};
+let actx, analyser, data, source, current = null, level = 0, rx = 0;
+const receipts = document.getElementById('receipts');
+function receipt(action, note, cls='ok') { rx++; const l = document.createElement('div'); l.className='line';
+  l.innerHTML = `<b>${action}</b> · ${new Date().toLocaleTimeString()} · <span class="${cls}">${note}</span> · #${rx}`; receipts.appendChild(l); receipts.scrollTop = receipts.scrollHeight; }
+window.speak = async (key) => {
+  if (!actx) { actx = new (window.AudioContext||window.webkitAudioContext)(); analyser = actx.createAnalyser(); analyser.fftSize = 1024; analyser.smoothingTimeConstant = 0.6; data = new Uint8Array(analyser.fftSize); analyser.connect(actx.destination); }
+  if (actx.state === 'suspended') await actx.resume();
+  if (source) { try { source.stop(); } catch(e){} }
+  const c = CLIPS[key];
+  document.getElementById('word').textContent = c.word; document.getElementById('phon').textContent = c.phon;
+  document.getElementById('status').textContent = `— SPEAK · ${c.word} —`;
+  receipt('SPEAK', `"${c.word}" · motor articulatorio · æ-signed`);
+  const buf = await fetch(c.src).then(r=>r.arrayBuffer()).then(b=>actx.decodeAudioData(b));
+  source = actx.createBufferSource(); source.buffer = buf; source.connect(analyser); source.start(); current = key;
+  source.onended = () => { if (current === key) { current = null; document.getElementById('status').textContent = '— cara lista —'; } };
+};
+
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+  let rms = 0;
+  if (analyser && current) { analyser.getByteTimeDomainData(data); let s=0; for (let i=0;i<data.length;i++){ const v=(data[i]-128)/128; s+=v*v; } rms = Math.sqrt(s/data.length); }
+  level += (Math.min(1, rms*6) - level) * 0.35;
+  document.getElementById('level').style.width = (level*100).toFixed(1) + '%';
+  // The real Asimov head has no jaw: speech shows as a nod on neck_pitch + the mouth core + light
+  pitch.rotation.y = -level * 0.10 + (current ? Math.sin(t*2.1)*0.03*level : 0); // around world Y after the X-up fix = pitch
+  head.rotation.z = current ? Math.sin(t*1.5)*0.05*level : 0;
+  mouthLight.intensity = level * 6;
+  if (pitch.userData.core) { pitch.userData.core.scale.setScalar(1 + level*1.6); pitch.userData.core.material.emissiveIntensity = 0.5 + level*4; pitch.userData.ring.rotation.x = t*2; pitch.userData.ring.scale.setScalar(1 + level*0.7); }
+  controls.update(); renderer.render(scene, camera);
+}
+animate();
+window.addEventListener('resize', () => { camera.aspect = viewport.clientWidth/viewport.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(viewport.clientWidth, viewport.clientHeight); });
+</script>
+</body>
+</html>

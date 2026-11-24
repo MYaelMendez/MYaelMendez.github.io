@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>æ C2 · 9:19</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0a0f; font-family: 'JetBrains Mono', ui-monospace, monospace; color: #dffaff; }
+  #app { width: 100%; height: 100%; display: flex; flex-direction: column; padding: 16px; gap: 12px; }
+  .header { display: flex; justify-content: space-between; align-items: center; }
+  .header h1 { font-size: 14px; color: #b4ff2e; letter-spacing: 0.12em; }
+  .header .ver { font-size: 9px; color: #ff00ff; }
+  .status { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { background: #061a30; border: 1px solid #2e7b98; border-radius: 12px; padding: 6px 10px; font-size: 9px; color: #bcf8ff; }
+  .chip b { color: #b4ff2e; }
+  .viewport { flex: 1; background: #02051c; border: 1px solid #1a3a5c; border-radius: 12px; position: relative; overflow: hidden; min-height: 200px; }
+  .viewport canvas { width: 100%; height: 100%; display: block; }
+  .viewport .overlay { position: absolute; top: 8px; left: 8px; font-size: 8px; color: rgba(255,255,255,0.4); }
+  .cmd-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .cmd-grid button { background: #061a30; color: #bcf8ff; border: 1px solid #2e7b98; padding: 12px 4px; border-radius: 10px; font-family: inherit; font-size: 10px; cursor: pointer; }
+  .cmd-grid button:active { background: #b4ff2e; color: #0a0a0f; }
+  .receipts { max-height: 120px; overflow-y: auto; background: #020918bb; border: 1px solid #1a5471; border-radius: 10px; padding: 8px; font-size: 8px; color: rgba(255,255,255,0.5); }
+  .receipts h3 { color: #b4ff2e; font-size: 9px; margin-bottom: 4px; }
+  .receipts .line { margin: 2px 0; }
+  .receipts .line b { color: #00eaff; }
+  .receipts .line .ok { color: #b4ff2e; }
+  .footer { font-size: 8px; color: rgba(255,255,255,0.3); text-align: center; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <h1>æ C2 · 9:19</h1>
+    <div class="ver">asimov-c2 · mobile</div>
+  </div>
+  <div class="status">
+    <div class="chip">authority: <b>HUMAN://ROOT</b></div>
+    <div class="chip">body: <b>ASIMOV-1</b></div>
+    <div class="chip">agents: <b>3 online</b></div>
+    <div class="chip">receipts: <b id="rx-count">0</b></div>
+  </div>
+  <div class="viewport" id="viewport">
+    <div class="overlay">æsymov · 4D holomesh</div>
+  </div>
+  <div class="cmd-grid">
+    <button onclick="cmd('STAND')">STAND</button>
+    <button onclick="cmd('WALK')">WALK</button>
+    <button onclick="cmd('WAVE')">WAVE</button>
+    <button onclick="cmd('SCAN')">SCAN</button>
+    <button onclick="cmd('SIT')">SIT</button>
+    <button onclick="cmd('DANCE')">DANCE</button>
+    <button onclick="cmd('SPEAK')">SPEAK</button>
+    <button onclick="cmd('HOME')">HOME</button>
+    <button onclick="cmd('GRAB')">GRAB</button>
+    <button onclick="cmd('RELEASE')">RELEASE</button>
+    <button onclick="cmd('CALIBRATE')">CALIBRATE</button>
+    <button onclick="cmd('SHUTDOWN')">SHUTDOWN</button>
+  </div>
+  <div class="receipts" id="receipts">
+    <h3>RECEIPTS</h3>
+    <div class="line">— awaiting commands —</div>
+  </div>
+  <div class="footer">receipts on every action · authority not transferable</div>
+</div>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+
+const viewport = document.getElementById('viewport');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x02051c);
+scene.fog = new THREE.FogExp2(0x02051c, 0.02);
+
+const camera = new THREE.PerspectiveCamera(50, 9/16, 0.1, 500);
+camera.position.set(0, 2.5, 20);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+viewport.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.5;
+controls.target.set(0, 1.8, 0);
+
+scene.add(new THREE.AmbientLight(0x404060, 0.4));
+const key = new THREE.DirectionalLight(0x00eaff, 1.0); key.position.set(10,15,10); scene.add(key);
+const rim = new THREE.DirectionalLight(0x00eaff, 0.8); rim.position.set(0,8,-12); scene.add(rim);
+const red = new THREE.PointLight(0xff2244, 1.5, 20); red.position.set(0, 8, 2); scene.add(red);
+
+const grid = new THREE.GridHelper(30, 30, 0x1a3a5c, 0x0a1a2e);
+grid.position.y = 0;
+scene.add(grid);
+
+const MESH_BASE = '../asimov-meshes/';
+const URDF = {"links": {"pelvis_link": {"mesh": "pelvis_link.STL"}, "left_hip_pitch_link": {"mesh": "left_hip_pitch_link.STL"}, "left_hip_roll_link": {"mesh": "left_hip_roll_link.STL"}, "left_hip_yaw_link": {"mesh": "left_hip_yaw_link.STL"}, "left_knee_link": {"mesh": "left_knee_link.STL"}, "left_ankle_pitch_link": {"mesh": "left_ankle_pitch_link.STL"}, "left_ankle_roll_link": {"mesh": "left_ankle_roll_link.STL"}, "right_hip_pitch_link": {"mesh": "right_hip_pitch_link.STL"}, "right_hip_roll_link": {"mesh": "right_hip_roll_link.STL"}, "right_hip_yaw_link": {"mesh": "right_hip_yaw_link.STL"}, "right_knee_link": {"mesh": "right_knee_link.STL"}, "right_ankle_pitch_link": {"mesh": "right_ankle_pitch_link.STL"}, "right_ankle_roll_link": {"mesh": "right_ankle_roll_link.STL"}, "waist_yaw_link": {"mesh": "waist_yaw_link.STL"}, "neck_yaw_link": {"mesh": "neck_yaw_link.STL"}, "neck_pitch_link": {"mesh": "neck_pitch_link.STL"}, "right_shoulder_pitch_link": {"mesh": "right_shoulder_pitch_link.STL"}, "right_shoulder_roll_link": {"mesh": "right_shoulder_roll_link.STL"}, "right_shoulder_yaw_link": {"mesh": "right_shoulder_yaw_link.STL"}, "right_elbow_link": {"mesh": "right_elbow_link.STL"}, "right_wrist_yaw_link": {"mesh": "right_wrist_yaw_link.STL"}, "left_shoulder_pitch_link": {"mesh": "left_shoulder_pitch_link.STL"}, "left_shoulder_roll_link": {"mesh": "left_shoulder_roll_link.STL"}, "left_shoulder_yaw_link": {"mesh": "left_shoulder_yaw_link.STL"}, "left_elbow_link": {"mesh": "left_elbow_link.STL"}, "left_wrist_yaw_link": {"mesh": "left_wrist_yaw_link.STL"}}, "joints": [{"name": "left_hip_pitch_joint", "type": "revolute", "parent": "pelvis_link", "child": "left_hip_pitch_link", "xyz": [-0.0519919979, 0.06849986203, -0.044045], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, 1.0, 0.0]}, {"name": "left_hip_roll_joint", "type": "revolute", "parent": "left_hip_pitch_link", "child": "left_hip_roll_link", "xyz": [0.0422501, 0.04000027594, 0.0], "rpy": [0.0, 0.0, 0.0], "axis": [1.0, 0.0, 0.0]}, {"name": "left_hip_yaw_joint", "type": "revolute", "parent": "left_hip_roll_link", "child": "left_hip_yaw_link", "xyz": [-0.04225, 0.0, -0.052], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, 0.0, -1.0]}, {"name": "left_knee_joint", "type": "revolute", "parent": "left_hip_yaw_link", "child": "left_knee_link", "xyz": [0.0, 0.0, -0.19564], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, 1.0, 0.0]}, {"name": "left_ankle_pitch_joint", "type": "revolute", "parent": "left_knee_link", "child": "left_ankle_pitch_link", "xyz": [0.0, 0.0, -0.2946623361], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, 1.0, 0.0]}, {"name": "left_ankle_roll_joint", "type": "revolute", "parent": "left_ankle_pitch_link", "child": "left_ankle_roll_link", "xyz": [-0.0015, 0.0, -0.009999992], "rpy": [0.0, 0.0, 0.0], "axis": [-1.0, 0.0, 0.0]}, {"name": "right_hip_pitch_joint", "type": "revolute", "parent": "pelvis_link", "child": "right_hip_pitch_link", "xyz": [-0.0519919979, -0.06850013797, -0.044045], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, -1.0, 0.0]}, {"name": "right_hip_roll_joint", "type": "revolute", "parent": "right_hip_pitch_link", "child": "right_hip_roll_link", "xyz": [0.0422501, -0.04000027594, 0.0], "rpy": [0.0, 0.0, 0.0], "axis": [1.0, 0.0, 0.0]}, {"name": "right_hip_yaw_joint", "type": "revolute", "parent": "right_hip_roll_link", "child": "right_hip_yaw_link", "xyz": [-0.04225, 0.0, -0.052], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, 0.0, -1.0]}, {"name": "right_knee_joint", "type": "revolute", "parent": "right_hip_yaw_link", "child": "right_knee_link", "xyz": [0.0, 0.0, -0.19564], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, -1.0, 0.0]}, {"name": "right_ankle_pitch_joint", "type": "revolute", "parent": "right_knee_link", "child": "right_ankle_pitch_link", "xyz": [0.0, 0.0, -0.2946623361], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, -1.0, 0.0]}, {"name": "right_ankle_roll_joint", "type": "revolute", "parent": "right_ankle_pitch_link", "child": "right_ankle_roll_link", "xyz": [-0.0015, 0.0, -0.009999992], "rpy": [0.0, 0.0, 0.0], "axis": [-1.0, 0.0, 0.0]}, {"name": "waist_yaw_joint", "type": "revolute", "parent": "pelvis_link", "child": "waist_yaw_link", "xyz": [-0.0519919979, 0.0, 0.074755], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, 0.0, 1.0]}, {"name": "neck_yaw_joint", "type": "revolute", "parent": "waist_yaw_link", "child": "neck_yaw_link", "xyz": [-0.01659877455, 0.0, 0.37817729], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, 0.0, 1.0]}, {"name": "neck_pitch_joint", "type": "revolute", "parent": "neck_yaw_link", "child": "neck_pitch_link", "xyz": [0.0, 0.0, 0.03735], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, -1.0, 0.0]}, {"name": "right_shoulder_pitch_joint", "type": "revolute", "parent": "waist_yaw_link", "child": "right_shoulder_pitch_link", "xyz": [-0.02621282535, -0.0965, 0.2611404833], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, -1.0, 0.0]}, {"name": "right_shoulder_roll_joint", "type": "revolute", "parent": "right_shoulder_pitch_link", "child": "right_shoulder_roll_link", "xyz": [5e-05, -0.06535322324, 6.334135041e-05], "rpy": [0.0, 0.0, 0.0], "axis": [-1.0, 0.0, 0.0]}, {"name": "right_shoulder_yaw_joint", "type": "revolute", "parent": "right_shoulder_roll_link", "child": "right_shoulder_yaw_link", "xyz": [0.0, -0.0007840587182, -0.1289963672], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, -0.006078033456, -0.9999815286]}, {"name": "right_elbow_joint", "type": "revolute", "parent": "right_shoulder_yaw_link", "child": "right_elbow_link", "xyz": [0.0, 0.0004006795283, -0.09860555673], "rpy": [-0.06357995311, 1.483359028, -0.06939277108], "axis": [0.0, 0.9999815286, -0.006078033456]}, {"name": "right_wrist_yaw_joint", "type": "revolute", "parent": "right_elbow_link", "child": "right_wrist_yaw_link", "xyz": [0.106, -0.0009999815286, 0.0], "rpy": [0.0, 0.0, 0.0], "axis": [1.0, 0.0, 0.0]}, {"name": "left_shoulder_pitch_joint", "type": "revolute", "parent": "waist_yaw_link", "child": "left_shoulder_pitch_link", "xyz": [-0.02621282535, 0.0965, 0.2611404833], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, 1.0, 0.0]}, {"name": "left_shoulder_roll_joint", "type": "revolute", "parent": "left_shoulder_pitch_link", "child": "left_shoulder_roll_link", "xyz": [5e-05, 0.06535322324, 6.334135041e-05], "rpy": [0.0, 0.0, 0.0], "axis": [-1.0, 0.0, 0.0]}, {"name": "left_shoulder_yaw_joint", "type": "revolute", "parent": "left_shoulder_roll_link", "child": "left_shoulder_yaw_link", "xyz": [0.0, 0.0007840587182, -0.1289963672], "rpy": [0.0, 0.0, 0.0], "axis": [0.0, 0.006078009292, -0.9999815287]}, {"name": "left_elbow_joint", "type": "revolute", "parent": "left_shoulder_yaw_link", "child": "left_elbow_link", "xyz": [0.0, -0.0004006795283, -0.09860555673], "rpy": [0.06360378094, 1.483388955, 0.06941669025], "axis": [0.0, -0.9999815286, -0.006078033456]}, {"name": "left_wrist_yaw_joint", "type": "revolute", "parent": "left_elbow_link", "child": "left_wrist_yaw_link", "xyz": [0.106, 0.0009999815286, 0.0], "rpy": [0.0, 0.0, 0.0], "axis": [1.0, 0.0, 0.0]}]};
+
+const linkGroups = {};
+const root = new THREE.Group();
+root.scale.setScalar(3);
+scene.add(root);
+
+for (const linkName of Object.keys(URDF.links)) {
+  const g = new THREE.Group();
+  g.name = linkName;
+  linkGroups[linkName] = g;
+}
+for (const joint of URDF.joints) {
+  const parent = linkGroups[joint.parent];
+  const child = linkGroups[joint.child];
+  if (!parent || !child) continue;
+  child.position.set(joint.xyz[0], joint.xyz[1], joint.xyz[2]);
+  child.rotation.set(joint.rpy[0], joint.rpy[1], joint.rpy[2]);
+  parent.add(child);
+}
+root.add(linkGroups['pelvis_link']);
+
+const loader = new STLLoader();
+let loaded = 0;
+const total = Object.keys(URDF.links).filter(k => URDF.links[k].mesh).length;
+
+for (const [linkName, linkData] of Object.entries(URDF.links)) {
+  if (!linkData.mesh) continue;
+  const url = MESH_BASE + linkData.mesh;
+  loader.load(url, (geometry) => {
+    geometry.computeBoundingBox();
+    const center = geometry.boundingBox.getCenter(new THREE.Vector3());
+    geometry.translate(-center.x, -center.y, -center.z);
+    const pos = geometry.attributes.position;
+    const pts = [];
+    for (let i = 0; i < pos.count; i += 3) {
+      pts.push(new THREE.Vector3(pos.getX(i), pos.getY(i), pos.getZ(i)));
+    }
+    const pGeo = new THREE.BufferGeometry().setFromPoints(pts);
+    const pMat = new THREE.PointsMaterial({ color: 0x00eaff, size: 0.06, transparent: true, opacity: 0.7 });
+    linkGroups[linkName].add(new THREE.Points(pGeo, pMat));
+    loaded++;
+    if (loaded === total) {
+      const emblem = new THREE.Mesh(
+        new THREE.TorusGeometry(0.8, 0.12, 8, 32),
+        new THREE.MeshStandardMaterial({ color: 0xff2244, emissive: 0xff2244, emissiveIntensity: 2.0 })
+      );
+      emblem.position.set(0, 8.2, 1.2);
+      linkGroups['waist_yaw_link'].add(emblem);
+    }
+  }, undefined, (err) => { loaded++; });
+}
+
+let rxCount = 0;
+const receiptsEl = document.getElementById('receipts');
+window.cmd = function(action) {
+  rxCount++;
+  document.getElementById('rx-count').textContent = rxCount;
+  const time = new Date().toLocaleTimeString();
+  const line = document.createElement('div');
+  line.className = 'line';
+  line.innerHTML = `<b>${action}</b> · ${time} · <span class="ok">✓ receipt #${rxCount}</span>`;
+  receiptsEl.appendChild(line);
+  receiptsEl.scrollTop = receiptsEl.scrollHeight;
+};
+
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+  root.position.y = Math.sin(t * 0.8) * 0.1;
+  const s = 1 + Math.sin(t * 0.5) * 0.02;
+  root.scale.setScalar(3 * s);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = 9/16;
+  camera.updateProjectionMatrix();
+  renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+});
+</script>
+</body>
+</html>

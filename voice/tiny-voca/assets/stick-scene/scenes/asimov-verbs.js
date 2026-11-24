@@ -1,0 +1,151 @@
+// asimov-verbs: human pulls the governed-verbs lever, Asimov balances and steps, both return
+(function () {
+  const SC = (window.SCENES = window.SCENES || {});
+  const R = window.RIG;
+  const { C, E, P, mix, legs, walkSeg, fig, rr, inkFill, ln, text, seg, breathe, pulse, lp, tickBadge, sparks, pill, circle } = R;
+  const AS = '#d97757', AD = '#a8553a', AF = '#e8b7a3';
+
+  const GIRL = '#ff4fd8', GIRL_DARK = '#a81586', HERMES = '#00ccff', HERMES_DARK = '#006f91';
+  function nousFront(g, J) {
+    g.save(); g.lineJoin = 'round';
+    g.fillStyle = 'rgba(255,79,216,.18)'; g.strokeStyle = GIRL; g.lineWidth = 1.7;
+    g.beginPath();
+    g.moveTo(J.sh[0]-9, J.sh[1]-5); g.lineTo(J.sh[0]+9, J.sh[1]-5);
+    g.lineTo(J.hip[0]+8, J.hip[1]+3); g.lineTo(J.hip[0]-8, J.hip[1]+3);
+    g.closePath(); g.fill(); g.stroke();
+    g.beginPath(); g.moveTo(J.hip[0]-5, J.hip[1]-8); g.lineTo(J.hip[0]+5, J.hip[1]-8); g.stroke();
+    g.beginPath();
+    g.moveTo(J.hip[0]-8, J.hip[1]+2); g.lineTo(J.hip[0]+8, J.hip[1]+2);
+    g.lineTo(J.hip[0]+12, J.hip[1]+13); g.lineTo(J.hip[0]-12, J.hip[1]+13);
+    g.closePath(); g.fill(); g.stroke();
+    g.beginPath(); g.arc(J.hc[0], J.hc[1]-1, 15, Math.PI*0.92, Math.PI*2.08); g.stroke();
+    g.strokeStyle = GIRL_DARK; g.lineWidth = 2.4;
+    g.beginPath();
+    g.moveTo(J.hc[0]-11, J.hc[1]-6); g.lineTo(J.hc[0]-15, J.hc[1]+9);
+    g.moveTo(J.hc[0]+11, J.hc[1]-6); g.lineTo(J.hc[0]+15, J.hc[1]+9);
+    g.stroke();
+    g.strokeStyle = GIRL; g.lineWidth = 1.4;
+    g.beginPath();
+    g.moveTo(J.chest[0]-5, J.chest[1]-2); g.lineTo(J.chest[0]-2, J.chest[1]-2);
+    g.lineTo(J.chest[0], J.chest[1]-6); g.lineTo(J.chest[0]+2, J.chest[1]+2);
+    g.lineTo(J.chest[0]+5, J.chest[1]+2); g.stroke();
+    g.restore();
+  }
+  function hermesFront(g, J) {
+    g.save(); g.lineJoin = 'round';
+    g.fillStyle = 'rgba(0,204,255,.15)'; g.strokeStyle = HERMES; g.lineWidth = 1.7;
+    g.beginPath();
+    g.moveTo(J.hc[0]-13, J.hc[1]-3); g.quadraticCurveTo(J.hc[0], J.hc[1]-22, J.hc[0]+13, J.hc[1]-3);
+    g.closePath(); g.fill(); g.stroke();
+    g.beginPath(); g.moveTo(J.hc[0]-10, J.hc[1]-2); g.lineTo(J.hc[0]+10, J.hc[1]-2); g.stroke();
+    g.beginPath();
+    g.moveTo(J.hc[0]+12, J.hc[1]-8); g.quadraticCurveTo(J.hc[0]+25, J.hc[1]-17, J.hc[0]+28, J.hc[1]-6);
+    g.quadraticCurveTo(J.hc[0]+20, J.hc[1]-9, J.hc[0]+12, J.hc[1]-2); g.closePath(); g.fill(); g.stroke();
+    g.beginPath();
+    g.moveTo(J.hc[0]-12, J.hc[1]-8); g.quadraticCurveTo(J.hc[0]-24, J.hc[1]-16, J.hc[0]-27, J.hc[1]-6);
+    g.quadraticCurveTo(J.hc[0]-20, J.hc[1]-9, J.hc[0]-12, J.hc[1]-2); g.closePath(); g.fill(); g.stroke();
+    g.strokeStyle = HERMES_DARK; g.lineWidth = 1.5;
+    const cx = J.chest[0], cy = J.chest[1];
+    g.beginPath(); g.moveTo(cx, cy+10); g.lineTo(cx, cy-10); g.stroke();
+    g.beginPath();
+    g.moveTo(cx-4, cy+6); g.quadraticCurveTo(cx+6, cy+2, cx-4, cy-2);
+    g.moveTo(cx+4, cy+6); g.quadraticCurveTo(cx-6, cy+2, cx+4, cy-2);
+    g.stroke();
+    g.beginPath();
+    g.moveTo(cx, cy-9); g.lineTo(cx-6, cy-12); g.moveTo(cx, cy-9); g.lineTo(cx+6, cy-12);
+    g.stroke();
+    g.restore();
+  }
+  function asimovFront(g, J) {
+    g.save(); g.lineJoin = 'round';
+    g.strokeStyle = AD; g.lineWidth = 1.1;
+    g.strokeRect(J.hc[0]-14, J.hc[1]-11, 28, 22);
+    g.fillStyle = '#141414'; g.fillRect(J.hc[0]-10, J.hc[1]-6, 20, 8);
+    g.strokeRect(J.hc[0]-18, J.hc[1]-7, 5, 14);
+    g.strokeRect(J.hc[0]+13, J.hc[1]-7, 5, 14);
+    g.beginPath(); g.moveTo(J.hc[0], J.hc[1]-11); g.lineTo(J.hc[0], J.hc[1]-20); g.stroke();
+    g.fillStyle = '#d4af37'; g.beginPath(); g.arc(J.hc[0], J.hc[1]-22, 2.4, 0, Math.PI*2); g.fill();
+    g.fillStyle = 'rgba(217,119,87,.35)';
+    g.beginPath();
+    g.moveTo(J.sh[0]-9, J.sh[1]-4); g.lineTo(J.sh[0]+9, J.sh[1]-4);
+    g.lineTo(J.hip[0]+7, J.hip[1]+3); g.lineTo(J.hip[0]-7, J.hip[1]+3);
+    g.closePath(); g.fill(); g.stroke();
+    g.beginPath(); g.moveTo(J.chest[0], J.sh[1]-3); g.lineTo(J.chest[0], J.hip[1]+2); g.stroke();
+    g.fillStyle = AD;
+    [J.sh, J.eF, J.eB, J.kF, J.kB, J.hip].forEach(function (p) {
+      g.beginPath(); g.arc(p[0], p[1], 2.6, 0, Math.PI*2); g.fill();
+    });
+    g.fillRect(J.fF[0]-5, J.fF[1]-2, 10, 3); g.fillRect(J.fB[0]-5, J.fB[1]-2, 10, 3);
+    g.restore();
+  }
+
+  const HOME = -160, AT = -105, BOT = 150, OUT = 96;
+  const M = { x: -100, y: -150, w: 110, h: 100 };
+  const LEVER = [-72, -80];
+
+  function machine(g, k, tick) {
+    R.stand(g, M.x + 18, M.x + M.w - 18, M.y + M.h);
+    rr(g, M.x, M.y, M.w, M.h, 5);
+    inkFill(g, C.paper, 1.7);
+    text(g, 'æ robot verbs', M.x + M.w / 2, M.y + 16, 9, C.ink);
+    ['stand', 'damp', 'balance', 'set_velocity', 'set_joints'].forEach((s, i) => {
+      text(g, s, M.x + 12, M.y + 38 + i * 12, 7.5, i === 2 && k > 0.4 ? '#1a7f37' : C.muted, 'left');
+    });
+    const angle = -0.22 + 0.42 * k;
+    g.save();
+    g.translate(LEVER[0], LEVER[1]);
+    g.rotate(angle);
+    ln(g, 0, 0, 0, -34, 3.2, C.ink);
+    circle(g, 0, -34, 4.5);
+    inkFill(g, k > 0.4 ? C.butter : C.paper, 1.5);
+    g.restore();
+    circle(g, LEVER[0], LEVER[1], 3);
+    inkFill(g, C.ink);
+    if (tick > 0) tickBadge(g, M.x + M.w - 12, M.y + 30, tick, 8, '#e6f4ea', '#1a7f37');
+  }
+
+  SC['asimov-verbs'] = {
+    dur: 6.5,
+    width: 420,
+    label: 'A human pulls the governed verbs lever and Asimov balances, steps forward, and prints a receipt.',
+    draw(g, S) {
+      const U = S.on ? S.u * this.dur : -1;
+      const t = S.t;
+      let x = HOME, hg = { ph: 0, amp: 0, stride: 0 }, bg = { ph: 0, amp: 0, stride: 0 };
+      let pose = breathe(P({ hF: [12, -60], hB: [-4, -52] }), t);
+      let pull = 0, tick = 0, glow = 0, happy = 0, botX = BOT;
+      if (U < 0) {
+        pose = mix(pose, P({ hF: [10, -96], head: [7, -116], hB: [-4, -54] }), pulse(t, 5.9, 2.1, 2));
+      } else {
+        const fade = 1 - seg(U, this.dur - 0.45, this.dur);
+        if (U < 5.2) {
+          const walk = walkSeg(U, 0.2, 0.9, HOME, AT);
+          x = walk.x; hg = walk;
+        } else {
+          const back = walkSeg(U, 5.2, 6.3, AT, HOME);
+          x = back.x; hg = { ph: -back.ph, amp: back.amp, stride: back.stride };
+        }
+        pull = E.soft(seg(U, 1.0, 1.5)) * (1 - E.soft(seg(U, 2.1, 2.5)));
+        const reach = E.soft(seg(U, 0.95, 1.25)) * (1 - E.soft(seg(U, 2.2, 2.55)));
+        pose = mix(pose, P({ hF: lp(LEVER, x, 0, 1), hB: [-4, -54], head: [8, -115], chest: [4, -89] }), reach * fade);
+        if (U < 2.7) { botX = BOT; }
+        else if (U < 4.0) { const out = walkSeg(U, 2.7, 4.0, BOT, OUT); botX = out.x; bg = out; }
+        else if (U < 5.2) { botX = OUT; }
+        else { const back = walkSeg(U, 5.2, 6.3, OUT, BOT); botX = back.x; bg = { ph: -back.ph, amp: back.amp, stride: back.stride }; }
+        glow = E.soft(seg(U, 2.5, 2.9)) * (1 - E.soft(seg(U, 4.4, 4.8))) * fade;
+        tick = seg(U, 4.0, 4.4) * fade;
+        happy = E.back(seg(U, 4.5, 4.8)) * (1 - seg(U, 5.6, 5.9)) * fade;
+      }
+      pose = legs(pose, hg.ph, hg.amp, { arms: false, stride: hg.stride });
+      machine(g, pull, tick);
+      fig(g, pose, x, 0, { wave: S.wave, wt: S.wt, front: hermesFront });
+      text(g, 'hermes-agent', x, 16, 8, HERMES);
+      const bp = breathe(P({ hF: [12, -60], hB: [-4, -52] }), t + 1);
+      const bgPose = legs(bp, bg.ph, bg.amp, { arms: false, stride: bg.stride });
+      fig(g, bgPose, botX, 0, { sx: -1, ink: AS, far: AF, bot: { col: AS, dark: AD, glow, happy: happy > 0.5, blink: pulse(t, 4.3, 1.2, 0.15) > 0.5 }, front: asimovFront });
+      text(g, 'asimov', botX, 16, 9, AS);
+      if (happy > 0.1) sparks(g, botX, -120, happy, 13, 5, AS);
+      pill(g, 0, -168, 'HUMAN://ROOT → æ → RECEIPT', C.butter, C.ink, 8);
+    },
+  };
+})();

@@ -1,0 +1,50 @@
+{
+  "name": "sovereign-projection",
+  "version": "1.0.0",
+  "authority": "HUMAN://ROOT",
+  "title": "Sovereign Projection",
+  "receipt_action": "PROJECTION://",
+  "definition": "A read-only public projection of governed capability. Not a new harness; a composition of viewport, robot, ffmpeg, and publish under the ledger.",
+  "first_principles": [
+    "HUMAN://ROOT is the only authority",
+    "A projection composes existing harnesses; it never becomes a new plugin",
+    "Live capture is pinned as hashed inputs; production replay is deterministic",
+    "Every build and publish writes a receipt to the one ledger",
+    "QC fails closed; aesthetic judgement stays human"
+  ],
+  "composition": [
+    "viewport",
+    "robot",
+    "ffmpeg",
+    "publish",
+    "ledger"
+  ],
+  "entrypoints": {
+    "verify": "ae({\"op\":\"projection\"})",
+    "render": "ae({\"op\":\"projection_render\",\"publish\":false})"
+  },
+  "inputs": [
+    "assets/sovereignty-resources.html",
+    "assets/sovereign-demo-*.png",
+    "assets/asimov-face-video.mp4"
+  ],
+  "outputs": [
+    "sovereign-resources-demo-916.mp4",
+    "sovereign-resources-demo-480.gif",
+    "receipt"
+  ],
+  "limits": [
+    "face states are displayed, not wired to a live approval gate",
+    "demo has no narration",
+    "custom-domain serving is user-side"
+  ],
+  "proof": {
+    "mp4_sha256": "c681282e5ff64cbdaf8a419d20da1ffdec3960ed3481d5862a950372d1e334f3",
+    "gif_sha256": "d54cb632111a0475c1f4e4da1b2ea95df912b30c3ab168a4a1e8b4328ed9bf4b",
+    "receipt": "4e0f2cb43bd11c62",
+    "duration_s": 12.0,
+    "resolution": "720x1280",
+    "fps": 24,
+    "verified": true
+  }
+}

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>æ viewer · 9:16</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0a0f; font-family: 'JetBrains Mono', ui-monospace, monospace; color: #dffaff; }
+  #app { width: 100%; height: 100%; display: flex; flex-direction: column; }
+  .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid #1a3a5c; }
+  .header h1 { font-size: 12px; color: #b4ff2e; letter-spacing: 0.1em; }
+  .header .root { font-size: 8px; color: #ff00ff; }
+  .tabs { display: flex; gap: 4px; padding: 6px 12px; background: #02051c; overflow-x: auto; }
+  .tabs button { background: #061a30; color: #bcf8ff; border: 1px solid #2e7b98; padding: 6px 10px; border-radius: 6px; font-family: inherit; font-size: 8px; cursor: pointer; white-space: nowrap; }
+  .tabs button.active { background: #b4ff2e; color: #0a0a0f; border-color: #b4ff2e; }
+  .viewport { flex: 1; position: relative; min-height: 0; background: #02051c; overflow: hidden; }
+  .viewport iframe { width: 100%; height: 100%; border: none; }
+  .viewport .placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: rgba(255,255,255,0.3); text-align: center; padding: 20px; }
+  .footer { padding: 6px 12px; font-size: 8px; color: rgba(255,255,255,0.3); text-align: center; border-top: 1px solid #1a3a5c; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <h1>æ viewer · 9:16</h1>
+    <div class="root">HUMAN://ROOT</div>
+  </div>
+  <div class="tabs" id="tabs">
+    <button class="active" onclick="load('robot')">æSYMOV</button>
+    <button onclick="load('twin')">TWIN</button>
+    <button onclick="load('connect')">CONNECT</button>
+    <button onclick="load('health')">HEALTH</button>
+    <button onclick="load('store')">STORE</button>
+    <button onclick="load('dao')">DAO</button>
+    <button onclick="load('cmd')">CMD</button>
+  </div>
+  <div class="viewport" id="viewport">
+    <div class="placeholder">select a view</div>
+  </div>
+  <div class="footer">æ viewer · 9:16 · mobile-first · human://root</div>
+</div>
+<script>
+const VIEWS = {
+  robot: { title: 'æSYMOV · 4D holomesh', url: 'build-robot.html' },
+  twin: { title: 'TWIN · health stack', url: '../health-c2/assets/twin-health.html' },
+  connect: { title: 'CONNECT · dome', url: '../../connectdome.html' },
+  health: { title: 'HEALTH · is wealth', url: '../../health-is-wealth.html' },
+  store: { title: 'STORE · æ-signed', url: '../../ae-store.html' },
+  dao: { title: 'DAO · the brain', url: '../../dao-brain.html' },
+  cmd: { title: 'CMD · æ protocol', url: '../../cmd-ae.html' },
+};
+function load(name) {
+  const v = VIEWS[name];
+  const vp = document.getElementById('viewport');
+  vp.innerHTML = `<iframe src="${v.url}" title="${v.title}"></iframe>`;
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+// Load robot by default
+window.addEventListener('load', () => load('robot'));
+</script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+../../voice/tiny-voca/assets/stick-scene/stick.js
