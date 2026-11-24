@@ -323,6 +323,10 @@
             background: linear-gradient(to right, #000, var(--secondary-color, #ff9d00), #000);
             color: #050505; font-weight: 700;
         }
+        .ae-label-btn { background: transparent; border: 1px solid var(--secondary-color, #ff9d00);
+            color: var(--secondary-color, #ff9d00); font: inherit; font-size: 10px; letter-spacing: .12em;
+            padding: 4px 9px; cursor: pointer; }
+        .ae-label-btn:hover { background: rgba(255,157,0,.14); }
         .mirrorbar { display: flex; gap: 6px; align-items: center; font-size: 10px;
             margin-bottom: 4px; letter-spacing: .04em; }
         .mirrorbar input { flex: 1; background: #0a0a0a; border: 1px solid var(--metal-light);
@@ -503,7 +507,7 @@
                 <button class="btn-menu" id="ae-menu-btn" onclick="toggleMenu()"
                         title="æ boy · the one menu"><img src="assets/brand/ae-neon-logo-clone.svg"
                         alt="æ boy"/></button>
-                <div>æææ:/// MECH-OS // SYSTEMS ONLINE</div>
+                <div data-label-name>æææ:/// MECH-OS // SYSTEMS ONLINE</div>
             </div>
             <div style="display:flex;gap:10px;align-items:center;">
                 <button class="btn-connect" id="agent-connect" onclick="agentConnect()"
@@ -725,6 +729,7 @@
 
     </div>
 
+    <script src="assets/brand/ae-label.js"></script>
     <script>
         /* --- CLOCK --- */
         function updateClock() {
@@ -1553,6 +1558,12 @@
             if (w.dataset.saved != null) body.innerHTML = w.dataset.saved;
             delete w.dataset.saved; w.dataset.mirror = '';
         }
+
+        /* æ protocol white-label — the standard module mounts its own control */
+        (function () {
+            var host = document.querySelector('#top-bar > div:last-child');
+            if (host && window.aeLabel && window.aeLabel.panel) window.aeLabel.panel(host);
+        })();
 
         /* --- start the measured telemetry, after every handler above is defined --- */
         measureStatus();

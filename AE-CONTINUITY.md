@@ -3534,3 +3534,24 @@ kernel name `MÆCH`, which conflated the two.
   MODEL_COMBINATOR / ROOT_ENDPOINT each 160×160 at y=556, x = 8/176/344/512.
 - Composition note: with the four originals docked by default, MASTER is the sole 9:16 tile
   until more windows are opened — coherent with "the original four start docked".
+
+## 90. æ protocol — white-label as a standard (2026-11-23)
+
+**Naming.** The site is **æ protocol — the protocol of agentic environments**. The address
+stays `myaelmendez.github.io`; an address is where it lives, a name is what it is. Charter at
+`AE-PROTOCOL.md`: the three-name rule (yæl kernel / mæch language / æ agentic electronic),
+the white-label contract, the teaching path, fork·clone·contribute, and the funnel
+(Nous Portal → install Hermes Agent → point your agent at the estate).
+
+**Shared module.** `assets/brand/ae-label.js` — one implementation, included by any surface.
+Persists to `localStorage['ae-label-v1']`; sets `--gold`/`--gold-hi` and, for surfaces that
+declare it, `--secondary-color`; fills `[data-label-glyph]` / `[data-label-name]` slots; ships
+its own control via `aeLabel.panel(mount)`. Never touches facts or receipts.
+
+- **mech-os adopts it**: script included, `◈ LABEL` mounted in the top bar, the title line
+  carries `data-label-name`.
+- **Verified:** module loads; button mounted; `apply({Ω,'ACME robots',#00ff9d})` →
+  `--gold: #00ff9d`, `--secondary-color: #00ff9d`, `body[data-labelled=1]`, storage written.
+- **Still on its own implementation:** `index.html`'s richer label (glyph img swap, brand
+  line, title rewrite). Migrating it onto the shared module is the next pass — until then two
+  implementations exist, which is exactly the drift the standard exists to prevent.
