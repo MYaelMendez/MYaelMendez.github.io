@@ -3457,3 +3457,12 @@ A GGUF exists (`neuromitosis/plan-narrator/adapter-v3-text.gguf`, 59.6 MB).
 - **Verified:** window opens; plan line written and the input cleared; reachability measured.
 - **Honest boundary:** nothing here runs inference. Execution belongs to the conductor bridge
   (spec §5 stage 3). This is the operator surface for that capability, not the capability.
+
+## 85. the menu trigger is the tiny æ boy (2026-11-23)
+
+- The `æ` text button in the top bar is replaced by the institutional mark:
+  `<img src="assets/brand/ae-neon-logo-clone.svg">` inside `.btn-menu`, 22×30 with the glyph at
+  18×26. Same `toggleMenu()`, same nine-item menu.
+- **Verified:** image loads (natural 746×1017), box 22×30, click opens the menu with all nine
+  windows listed.
+- Reuses the existing receipted asset — no new mark, no second source of truth.
