@@ -3773,3 +3773,24 @@ GPU y emite un receipt JSON. Fail-closed: si no cargó el módulo o no hay conte
 `renderer.render()` mide **0 ms** — el trabajo de GPU se difiere, así que el tiempo de render no
 es medible en ese modo. Por eso el RTX se reporta con gpu + digest, no con ms/frame. En un
 navegador real con los flags sí se puede medir; esa es la prueba que falta.
+
+## 99. el check que falla en `asimov-agent` es un Worker, no Actions (2026-11-24)
+
+Al revisar la rama `asimov-agent` dos veces, el detalle que importa: junto al commit
+`f759b8d` GitHub muestra **failure**. Medido por API:
+
+- combined status: `pending`, 0 statuses.
+- check runs: **1**, `Workers Builds: hermes`, `status: completed`, **`conclusion: failure`**,
+  sin anotaciones. Build ID `f0dd492e-f34a-420d-8e6e-4538e4486b12`, script `hermes`,
+  **production**, dashboard Cloudflare (`dash.cloudflare.com`, account `85e8949d…`).
+- No es GitHub Actions: el único workflow local es `.github/workflows/capability-manifest.yml`.
+  La config del Worker vive fuera de este checkout, así que **su log no es legible desde aquí**.
+
+Lo que sí se mide en el repo: **83 superficies HTML aún cargan three.js desde CDN**
+(jsdelivr / cdnjs), y **46 usan `import * as THREE from 'three'`** — specifier desnudo que
+requiere import map o resolución remota. `AGENTS.md` manda *cero CDN*. Ahí está la clase de
+fragilidad que el three.js vendorizado elimina: ninguna build tiene que salir a buscar el
+renderer.
+
+Bloqueo declarado: la causa exacta del fallo del Worker es **desconocida** — el log está tras el
+dashboard de Cloudflare. Lo medible está registrado; lo demás se declara desconocido.
