@@ -3570,3 +3570,31 @@ spine (INTENT→DISCOVER→COMPILE→AUTHORIZE→EXECUTE→WITNESS→RETURN plus
 and the pet atlas. The honest through-line: the OS has the same verb chain as **plans**, not as
 acts — the control surface runs locally with a real SHA-256 receipt and no external execution,
 which is exactly the frontier the console should report about itself.
+
+## 92. build spec v0.2 + theme system + origin window + viewport fit (2026-11-23)
+
+**Spec.** `MECH-OS-BUILD-SPEC.md` — S1 viewport discipline (base frame 9:16, zero horizontal
+overflow, one geometry manager, sweep-don't-sample), S2 theme system (six palettes as complete
+surfaces, day/night auto then persisted), S3 native readiness for **androidmcp**, **webmcs**
+and **agentic commerce** (each = verb file + receipt + window, with published refusals), S4
+window contract, S5 non-goals, S6 delivery order.
+
+**Themes.** `assets/brand/ae-theme.js` — `void` (default), `ember`, `glacier`, `verdant`,
+`orchid`, `paper` (light); follows `prefers-color-scheme` until chosen; persists to
+`localStorage['ae-theme-v1']`; writes `--ae-*` always and a surface's existing accents only if
+declared. Mounted in the console top bar.
+*Verified:* six palettes present, button mounted (`◐ æ void`), `apply('glacier')` →
+body background `rgb(4,8,12)`, `--ae-accent #6EE7F9`, `--secondary-color #6EE7F9`.
+
+**Origin window.** `ORIGIN · the atlas` wearing `origin/index.html`, open by default.
+At 390×844 measured **374×665 at (8, 1414)** — third portrait slot after MASTER and æ://OPS;
+the four standardised panels docked two-up at **179×179**.
+
+**Viewport fit — defect found and fixed.** At 390×844 the page had `scrollWidth 1029`.
+Isolated by removal probes (ticker and boot screen were innocent): the culprit was **`#bg-grid`**,
+a decorative layer sized `200% × 200%` absolutely positioned — it measured 1277 px wide at
+left −249, i.e. exactly the 1029 overflow. Fixed: pinned `position:fixed; inset:0; 100% × 100%;
+overflow:hidden`. `#bottom-ticker` also gained `max-width:100vw; overflow:hidden` as a guard.
+- **UNVERIFIED:** the post-fix read-back failed — the browser daemon timed out
+  (`Runtime.evaluate timed out after 5s`) and did not recover. The diagnosis is exact and
+  arithmetic (1277 − 249 = 1029), but the zero-overflow claim needs one re-measure next session.

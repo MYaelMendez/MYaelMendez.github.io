@@ -86,11 +86,13 @@
 
         /* --- BACKGROUND GRID --- */
         #bg-grid {
-            position: absolute;
+            /* S1·V2: pinned to the viewport. A 200%-wide absolute layer widens the page. */
+            position: fixed;
             top: 0;
             left: 0;
-            width: 200%;
-            height: 200%;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
             background-image:
                 linear-gradient(var(--grid-color) 1px, transparent 1px),
                 linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
@@ -247,6 +249,8 @@
             bottom: 0;
             left: 0;
             width: 100%;
+            max-width: 100vw;      /* S1·V2: the ticker may scroll inside, never widen the page */
+            overflow: hidden;
             height: 30px;
             background: var(--dim-color);
             border-top: 1px solid var(--primary-color);
@@ -324,10 +328,14 @@
             color: #050505; font-weight: 700;
         }
         .win-ops > .window-header { border-bottom: 1px dashed var(--secondary-color, #ff9d00); }
+        .win-origin > .window-header { border-bottom: 2px solid var(--secondary-color, #ff9d00); }
         .ae-label-btn { background: transparent; border: 1px solid var(--secondary-color, #ff9d00);
             color: var(--secondary-color, #ff9d00); font: inherit; font-size: 10px; letter-spacing: .12em;
             padding: 4px 9px; cursor: pointer; }
         .ae-label-btn:hover { background: rgba(255,157,0,.14); }
+        .ae-theme-btn { background: transparent; border: 1px solid var(--secondary-color, #ff9d00);
+            color: var(--secondary-color, #ff9d00); font: inherit; font-size: 10px; letter-spacing: .08em;
+            padding: 4px 9px; cursor: pointer; white-space: nowrap; }
         .mirrorbar { display: flex; gap: 6px; align-items: center; font-size: 10px;
             margin-bottom: 4px; letter-spacing: .04em; }
         .mirrorbar input { flex: 1; background: #0a0a0a; border: 1px solid var(--metal-light);
@@ -736,6 +744,20 @@
             </div>
         </div>
 
+        <!-- ORIGIN — the atlas, worn as a window -->
+        <div class="window win-origin" id="win-origin" data-origin="1"
+             style="top:60px;left:1400px;width:420px;">
+            <div class="window-header">
+                <span class="window-title">ORIGIN · the atlas</span>
+                <span class="window-controls"
+                      onclick="this.parentElement.parentElement.style.display='none';layoutWindows()">[x]</span>
+            </div>
+            <div class="window-content" style="padding:0;height:calc(100% - 30px);overflow:hidden">
+                <iframe src="origin/index.html" title="origin — the atlas of the estate"
+                        style="width:100%;height:100%;border:0;background:#050505"></iframe>
+            </div>
+        </div>
+
         <!-- BOTTOM TICKER — rendered from MEASURED signals. Rows we cannot measure on
              this device carry an explicit SIM tag; nothing here is invented. -->
         <div id="bottom-ticker">
@@ -745,6 +767,7 @@
     </div>
 
     <script src="assets/brand/ae-label.js"></script>
+    <script src="assets/brand/ae-theme.js"></script>
     <script>
         /* --- CLOCK --- */
         function updateClock() {
@@ -1578,6 +1601,7 @@
         (function () {
             var host = document.querySelector('#top-bar > div:last-child');
             if (host && window.aeLabel && window.aeLabel.panel) window.aeLabel.panel(host);
+            if (host && window.aeTheme && window.aeTheme.panel) window.aeTheme.panel(host);
         })();
 
         /* --- start the measured telemetry, after every handler above is defined --- */
