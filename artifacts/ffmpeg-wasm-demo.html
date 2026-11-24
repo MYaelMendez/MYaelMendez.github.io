@@ -1,0 +1,18 @@
+<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>ffmpeg.wasm — Demo</title><style>body{margin:0;background:#07090a;color:#d6e2dc;font-family:monospace;text-align:center;padding:20px}code{background:#0d1114;padding:12px;display:block;text-align:left;overflow:auto}button{background:#0d1114;color:#3dffa8;border:1px solid #1b2428;border-radius:20px;padding:10px 18px;font-family:monospace;cursor:pointer}#log{color:#5ee7ff;white-space:pre-wrap;text-align:left}</style></head><body>
+<h1 style="color:#3dffa8">FFMPEG.WASM · DEMO</h1><p>FFmpeg compiled to WebAssembly — runs in this tab, no server.</p>
+<button id=run>▶ Run ffmpeg.wasm transcode</button><pre id=log>Ready. Click run — it will load ffmpeg core (~30MB) and transcode in-browser.</pre>
+<script type=module>
+import {FFmpeg} from 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.15/esm/index.js';
+import {fetchFile, toBlobURL} from 'https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/esm/index.js';
+const log=document.getElementById('log');
+document.getElementById('run').onclick=async()=>{
+  log.textContent='Loading ffmpeg core...\n';
+  const ffmpeg=new FFmpeg();
+  ffmpeg.on('log',({message})=>{log.textContent+=message+'\n'});
+  const base='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/esm';
+  await ffmpeg.load({coreURL:await toBlobURL(base+'/ffmpeg-core.js','text/javascript'), wasmURL:await toBlobURL(base+'/ffmpeg-core.wasm','application/wasm')});
+  log.textContent+='Loaded. Writing test video...\n';
+  await ffmpeg.writeFile('in.mp4', await fetchFile('perfect-loop-9s.mp4'));
+  log.textContent+='Done (demo file path needs server — see log).\n';
+};
+</script></body></html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agentic Stack — @yaelmendez</title>
+<style>
+:root{
+  --bg:#03030a;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#03030a}}
+:root[data-theme="dark"]{--bg:#03030a}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%;background:var(--bg)}
+body{margin:0;height:100%;background:var(--bg);display:flex;justify-content:center;align-items:center;overflow:hidden;font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif}
+svg{width:100%;height:100%;max-width:900px}
+.s{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+@media (prefers-reduced-motion:reduce){svg *{animation:none!important}}
+</style>
+</head>
+<body>
+<svg viewBox="0 0 900 2200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Agentic Stack, Human://root, @yaelmendez">
+<defs>
+  <linearGradient id="tg" x1="0" x2="1">
+    <stop offset="0" stop-color="#67e8f9"/>
+    <stop offset=".5" stop-color="#fef08a"/>
+    <stop offset="1" stop-color="#67e8f9"/>
+  </linearGradient>
+  <radialGradient id="cg">
+    <stop offset="0" stop-color="#fef08a"/>
+    <stop offset=".7" stop-color="#67e8f9" stop-opacity=".4"/>
+    <stop offset="1" stop-color="#03030a" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="gl">
+    <feGaussianBlur stdDeviation="6" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs>
+
+<rect width="900" height="2200" fill="#03030a"/>
+
+<!-- ambient glow -->
+<circle cx="450" cy="480" r="380" fill="url(#cg)" opacity=".22"/>
+
+<!-- ========== LAYER LABELS ========== -->
+<g class="s" font-size="14" fill="#64748b" letter-spacing="1">
+  <text x="60" y="90">ENVIRONMENT</text>
+  <text x="60" y="320">AGENTS</text>
+  <text x="60" y="620">HUMAN</text>
+</g>
+
+<!-- ========== ENVIRONMENT LAYER ========== -->
+<rect x="140" y="110" width="620" height="180" rx="12" fill="none" stroke="#67e8f9" stroke-width="1.8" stroke-opacity=".45"/>
+<text class="s" x="160" y="145" font-size="15" fill="#94a3b8">#agenticenvironments</text>
+<text x="160" y="185" font-size="22" fill="#e2e8f0">where agents live and people choose</text>
+<text class="s" x="160" y="225" font-size="16" fill="#64748b">Agents don’t live in apps.</text>
+<text class="s" x="160" y="250" font-size="16" fill="#fef08a">They live in environments we design.</text>
+
+<!-- floating agents in environment -->
+<circle r="5" fill="#67e8f9" filter="url(#gl)">
+  <animateMotion dur="18s" repeatCount="indefinite" path="M160,160 H720 V250 H160 Z"/>
+</circle>
+<circle r="4" fill="#fef08a" filter="url(#gl)">
+  <animateMotion dur="18s" begin="-9s" repeatCount="indefinite" path="M160,160 H720 V250 H160 Z"/>
+</circle>
+
+<!-- ========== AGENTS LAYER ========== -->
+<rect x="140" y="340" width="620" height="240" rx="12" fill="none" stroke="#67e8f9" stroke-width="1.6" stroke-opacity=".35" stroke-dasharray="4 8"/>
+<text class="s" x="160" y="375" font-size="15" fill="#94a3b8">agent presence</text>
+
+<!-- simple fleet -->
+<g>
+  <circle cx="220" cy="460" r="18" fill="none" stroke="#67e8f9" stroke-width="1.5" opacity=".7"/>
+  <circle cx="220" cy="460" r="7" fill="#fef08a" opacity=".8"/>
+  <circle cx="320" cy="440" r="14" fill="none" stroke="#67e8f9" stroke-width="1.3" opacity=".6"/>
+  <circle cx="320" cy="440" r="5" fill="#a5f3fc" opacity=".7"/>
+  <circle cx="410" cy="470" r="16" fill="none" stroke="#67e8f9" stroke-width="1.4" opacity=".65"/>
+  <circle cx="410" cy="470" r="6" fill="#fef08a" opacity=".75"/>
+  <circle cx="520" cy="445" r="13" fill="none" stroke="#67e8f9" stroke-width="1.2" opacity=".55"/>
+  <circle cx="520" cy="445" r="5" fill="#a5f3fc"/>
+  <circle cx="620" cy="465" r="15" fill="none" stroke="#67e8f9" stroke-width="1.3" opacity=".6"/>
+  <circle cx="620" cy="465" r="6" fill="#fef08a" opacity=".7"/>
+</g>
+<text class="s" x="450" y="540" text-anchor="middle" font-size="15" fill="#64748b">fleets · scouts · parallel agents</text>
+
+<!-- ========== HUMAN LAYER (ROOT) ========== -->
+<line x1="140" y1="640" x2="760" y2="640" stroke="#fef08a" stroke-width="2" stroke-opacity=".75"/>
+<text class="s" x="160" y="675" font-size="15" fill="#fef08a">Human://root</text>
+
+<!-- knowledge + tools growing from root -->
+<path id="kl" d="M450,700 Q280,680 260,600" fill="none" stroke="#fef08a" stroke-width="1.8" stroke-opacity=".7"/>
+<path id="kr" d="M450,700 Q620,680 640,600" fill="none" stroke="#fef08a" stroke-width="1.8" stroke-opacity=".7"/>
+<circle r="4" fill="#fef08a" filter="url(#gl)"><animateMotion dur="5s" repeatCount="indefinite"><mpath href="#kl"/></animateMotion></circle>
+<circle r="4" fill="#fef08a" filter="url(#gl)"><animateMotion dur="5s" begin="-2.5s" repeatCount="indefinite"><mpath href="#kr"/></animateMotion></circle>
+
+<circle cx="260" cy="600" r="10" fill="#03030a" stroke="#fef08a" stroke-width="1.8"/>
+<circle cx="640" cy="600" r="10" fill="#03030a" stroke="#fef08a" stroke-width="1.8"/>
+<text class="s" x="260" y="575" text-anchor="middle" font-size="14" fill="#e2e8f0">knowledge</text>
+<text class="s" x="640" y="575" text-anchor="middle" font-size="14" fill="#e2e8f0">tools</text>
+
+<!-- human core -->
+<circle cx="450" cy="700" r="28" fill="#fef08a" filter="url(#gl)">
+  <animate attributeName="r" values="26;32;26" dur="3.2s" repeatCount="indefinite"/>
+</circle>
+<text class="s" x="450" y="755" text-anchor="middle" font-size="15" fill="#94a3b8">Our human knowledge and tools are ours.</text>
+<text class="s" x="450" y="778" text-anchor="middle" font-size="15" fill="#fef08a">That’s the human layer.</text>
+
+<!-- ========== TOOLS / INTERFACES ========== -->
+<g class="s" font-size="14" fill="#94a3b8">
+  <!-- Cli llc -->
+  <rect x="80" y="840" width="340" height="130" rx="10" fill="#03030a" stroke="#67e8f9" stroke-width="1.5" stroke-opacity=".5"/>
+  <text x="100" y="870" fill="#fef08a" font-size="16">Cli⌨️llc</text>
+  <text x="100" y="900" fill="#e2e8f0">$ llc init --owner human://root</text>
+  <text x="100" y="925" fill="#67e8f9">✓ sovereign: true</text>
+  <text x="100" y="950" fill="#64748b">Your command line. Your entity.</text>
+
+  <!-- PrivateClient -->
+  <rect x="480" y="840" width="340" height="130" rx="10" fill="#03030a" stroke="#67e8f9" stroke-width="1.5" stroke-opacity=".5"/>
+  <text x="500" y="870" fill="#fef08a" font-size="16">PrivateClient🛡ai</text>
+  <text x="500" y="900" fill="#e2e8f0">Agents ask. A human verifies.</text>
+  <text x="500" y="925" fill="#67e8f9">Private stays private.</text>
+  <text x="500" y="950" fill="#64748b">human verification layer</text>
+
+  <!-- Commandprompt -->
+  <rect x="80" y="1000" width="340" height="130" rx="10" fill="#03030a" stroke="#67e8f9" stroke-width="1.5" stroke-opacity=".5"/>
+  <text x="100" y="1030" fill="#fef08a" font-size="16">Commandprompt🗣ai</text>
+  <text x="100" y="1060" fill="#e2e8f0">human://root $ speak --to agents</text>
+  <text x="100" y="1085" fill="#67e8f9">Words go in. Agents act.</text>
+  <text x="100" y="1110" fill="#64748b">The root stays human.</text>
+
+  <!-- DAOllc -->
+  <rect x="480" y="1000" width="340" height="130" rx="10" fill="#03030a" stroke="#67e8f9" stroke-width="1.5" stroke-opacity=".5"/>
+  <text x="500" y="1030" fill="#fef08a" font-size="16">DAOllc🖥ai</text>
+  <text x="500" y="1060" fill="#e2e8f0">Register as LLC · or stay DAO</text>
+  <text x="500" y="1085" fill="#67e8f9">The sandbox is a DAO</text>
+  <text x="500" y="1110" fill="#64748b">sovereign choice</text>
+</g>
+
+<!-- ========== ZEITGEIST MARKER ========== -->
+<line x1="450" y1="1180" x2="450" y2="1380" stroke="#67e8f9" stroke-width="1.5" stroke-opacity=".4"/>
+<circle cx="450" cy="1280" r="70" fill="none" stroke="#67e8f9" stroke-width="2" stroke-opacity=".45"/>
+<circle cx="450" cy="1280" r="48" fill="none" stroke="#fef08a" stroke-width="1.6" stroke-opacity=".55"/>
+<circle cx="450" cy="1280" r="18" fill="#fef08a" filter="url(#gl)">
+  <animate attributeName="r" values="16;22;16" dur="3s" repeatCount="indefinite"/>
+</circle>
+<text class="s" x="450" y="1410" text-anchor="middle" font-size="15" fill="#94a3b8">#zeitgeist</text>
+<text class="s" x="450" y="1435" text-anchor="middle" font-size="14" fill="#64748b">dominant timeline marker</text>
+<text class="s" x="450" y="1465" text-anchor="middle" font-size="16" fill="#e2e8f0">The Internet of Things never arrived.</text>
+<text class="s" x="450" y="1490" text-anchor="middle" font-size="16" fill="#fef08a">The Internet of Agents is already here.</text>
+
+<!-- ========== TITLE BLOCK ========== -->
+<text x="450" y="1620" text-anchor="middle" font-size="78" font-weight="700" fill="url(#tg)" filter="url(#gl)" letter-spacing="-2">Agentic Stack</text>
+<text class="s" x="450" y="1675" text-anchor="middle" font-size="20" fill="#94a3b8" letter-spacing="4">human sovereignty · parallel agents</text>
+<text x="450" y="1720" text-anchor="middle" font-size="24" fill="#e2e8f0">@yaelmendez</text>
+
+<!-- final thesis -->
+<text x="450" y="1820" text-anchor="middle" font-size="28" font-style="italic" fill="#e2e8f0">Environments we design.</text>
+<text x="450" y="1865" text-anchor="middle" font-size="28" font-style="italic" fill="#fef08a">A human at the root.</text>
+<text x="450" y="1910" text-anchor="middle" font-size="28" font-style="italic" fill="#e2e8f0">Agents that live with us.</text>
+
+<!-- signature -->
+<text class="s" x="450" y="2100" text-anchor="middle" font-size="18" fill="#64748b" letter-spacing="2">&gt;_æææ://  ·  #ioa 🛸</text>
+</svg>
+</body>
+</html>

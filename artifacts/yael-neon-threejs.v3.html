@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>@YÆL · æ Studio Neon — Portrait</title><style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:#01015e;color:#dffaff;font-family:ui-monospace,Menlo,monospace;overflow:hidden}
+body{background:radial-gradient(ellipse at 50% 38%,#0a14c8 0%,#04078a 42%,#01015e 100%)}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 52%,rgba(0,0,10,.55) 100%)}
+#stage{position:fixed;inset:0}
+#hud{position:fixed;bottom:max(18px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid #1a5471;background:#020918bb;backdrop-filter:blur(14px);border-radius:30px;white-space:nowrap;z-index:5}
+button{border:1px solid #2e7b98;background:#061a30;color:#bcf8ff;padding:9px 13px;border-radius:20px;cursor:pointer;font:inherit;font-size:11px;transition:.2s}button:hover{background:#0a2a48;border-color:#00dfff}button:focus-visible{outline:2px solid #fff}
+#tag{position:fixed;top:max(18px,env(safe-area-inset-top));left:20px;font-size:11px;letter-spacing:.17em;color:#77c9e6;z-index:5}#tag strong{font-size:22px;color:white;display:block;letter-spacing:.06em;margin-bottom:4px;text-shadow:0 0 18px #00dfff}
+#tag small{display:block;color:#4a7a9a;margin-top:2px}
+#hint{position:fixed;bottom:80px;width:100%;text-align:center;font-size:10px;letter-spacing:.13em;color:#5790b1;pointer-events:none;z-index:5}
+@media(max-width:440px){#hud{gap:5px;padding:7px}button{padding:9px 10px}}
+</style></head><body><div id="stage"></div><div id="tag"><strong>@YÆL</strong>æ STUDIO · CAST / 001<small>PORTRAIT · NEON</small></div><div id="hint">DRAG TO ORBIT · SCROLL TO ZOOM</div><div id="hud"><button id="spin">⟳ ORBIT ON</button><button id="pulse">✦ PULSE ON</button><button id="glow">◍ GLOW BOOST</button><button id="reset">↺ RESET</button></div>
+<svg id="paths" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" style="position:absolute;width:0;height:0;visibility:hidden" aria-hidden="true">
+<path data-depth="0" d="M 84 36 Q 37 36 37 84 L 37 716 Q 37 761 85 761 L 515 761 Q 563 761 563 716 L 563 84 Q 563 36 515 36 Z"/>
+<path d="M 129 164 C 157 104 256 100 275 155 C 293 204 251 254 193 254 C 140 254 116 222 142 191 C 166 162 230 167 275 168 C 310 168 336 167 362 167 C 432 167 453 127 419 108 C 390 90 337 99 317 138 C 296 182 302 238 356 250 C 398 259 433 241 457 217"/>
+<path d="M 124 168 C 171 149 234 147 274 151 L 450 151"/>
+<path d="M 150 428 Q 110 418 132 392 Q 105 385 138 368 Q 118 355 162 342 Q 178 308 226 310 Q 258 278 300 296 Q 334 276 362 302 Q 404 300 424 334 Q 452 333 460 372 Q 488 396 464 426 Q 490 448 462 468 Q 474 492 448 510 Q 442 532 420 542"/>
+<path d="M 160 410 Q 192 402 214 368 Q 208 396 196 418 Q 226 404 254 368 Q 260 398 238 420 Q 270 410 294 378 Q 306 402 288 428"/>
+<path d="M 320 306 Q 354 316 368 348 Q 396 352 400 380 Q 394 404 376 418"/>
+<path d="M 172 442 Q 150 460 148 488 Q 146 512 162 524 Q 184 532 198 518"/>
+<path d="M 410 442 Q 436 458 438 486 Q 438 512 422 528"/>
+<path d="M 210 340 Q 250 328 288 338 M 296 326 Q 340 332 358 360 M 368 352 Q 398 374 400 402"/>
+<path d="M 198 420 Q 176 436 172 466 L 162 492 Q 154 504 168 512 L 184 518 L 180 532 Q 178 544 194 545 Q 190 556 200 568 Q 214 586 248 580 Q 292 574 322 540 Q 340 518 350 482"/>
+<path d="M 202 428 Q 260 404 326 432"/>
+<path d="M 348 462 Q 354 438 376 442 Q 398 450 388 478 Q 382 496 364 506 Q 356 510 350 500"/>
+<path d="M 356 478 Q 364 458 378 466 Q 370 470 366 486"/>
+<path d="M 196 458 Q 224 438 254 454 M 204 470 Q 222 456 242 470 Q 222 488 204 470 Z"/>
+<path d="M 222 462 Q 212 470 222 478 Q 234 476 230 465"/>
+<path d="M 234 450 Q 242 448 246 454"/>
+<path d="M 208 444 Q 226 434 250 444"/>
+<path d="M 172 490 L 188 494 M 176 528 Q 198 536 218 526 M 190 545 Q 210 550 226 540"/>
+<path d="M 218 486 Q 226 502 214 516"/>
+<path d="M 196 552 Q 220 544 244 552 Q 220 566 196 552 Z"/>
+<path d="M 202 556 Q 222 562 240 556"/>
+<path d="M 210 572 Q 226 576 240 570"/>
+<path d="M 244 492 Q 260 500 276 492 M 290 492 Q 304 498 316 490"/>
+<path d="M 234 576 Q 246 602 244 632 M 316 538 Q 326 572 344 592"/>
+<path d="M 244 604 Q 252 636 248 652 M 320 600 Q 330 630 326 652"/>
+<path d="M 240 622 Q 300 640 360 614"/>
+<path d="M 234 606 Q 212 604 200 630 Q 178 634 170 666 Q 126 686 106 744 M 344 585 Q 382 578 416 602 Q 460 610 486 662 Q 504 702 514 744"/>
+<path d="M 226 616 Q 252 664 302 686 Q 340 638 392 612 M 190 652 Q 236 706 300 726 Q 378 662 424 630"/>
+<path d="M 162 746 Q 182 712 208 702 M 392 746 Q 410 714 450 698"/>
+<path d="M 280 686 Q 286 700 282 714"/>
+</svg>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js';
+const stage=document.getElementById('stage');const scene=new THREE.Scene();scene.background=new THREE.Color(0x01015e);scene.fog=new THREE.FogExp2(0x01015e,.009);
+const camera=new THREE.PerspectiveCamera(37,innerWidth/innerHeight,.1,200);camera.position.set(0,0,28);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;stage.appendChild(renderer.domElement);
+const sign=new THREE.Group();scene.add(sign);
+const cyan=new THREE.Color('#85e9fc');const core=new THREE.MeshBasicMaterial({color:0xf2feff});const inner=new THREE.MeshBasicMaterial({color:cyan});
+const glow=new THREE.MeshBasicMaterial({color:0x2a9bff,transparent:true,opacity:.09,depthWrite:false,blending:THREE.AdditiveBlending});const blueGlow=new THREE.MeshBasicMaterial({color:0x85e9fc,transparent:true,opacity:.07,depthWrite:false,blending:THREE.AdditiveBlending});
+const halo=new THREE.MeshBasicMaterial({color:0x1a5dff,transparent:true,opacity:.04,depthWrite:false,blending:THREE.AdditiveBlending});
+let glowBoost=1;
+function tube(points,r,material){const curve=new THREE.CatmullRomCurve3(points);const mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,Math.max(20,points.length*2),r,8,false),material);sign.add(mesh);return mesh}
+const paths=[...document.querySelectorAll('#paths path')];
+for(const p of paths){const len=p.getTotalLength(),n=Math.max(28,Math.ceil(len/3.5)),pts=[];for(let i=0;i<=n;i++){const v=p.getPointAtLength(len*i/n);pts.push(new THREE.Vector3((v.x-300)/54,(400-v.y)/54,Number(p.dataset.depth||0)))}tube(pts,.045,core);tube(pts,.08,inner);tube(pts,.18,blueGlow);tube(pts,.36,glow);tube(pts,.62,halo)}
+const plate=new THREE.Mesh(new THREE.BoxGeometry(10.6,14.4,.32),new THREE.MeshPhysicalMaterial({color:0x0a14c8,metalness:.2,roughness:.25,transparent:true,opacity:.96,clearcoat:.6,clearcoatRoughness:.2}));plate.position.z=-.33;sign.add(plate);
+const back=new THREE.Mesh(new THREE.BoxGeometry(11.2,15,.25),new THREE.MeshStandardMaterial({color:0x04078a,metalness:.5,roughness:.3}));back.position.z=-.57;sign.add(back);
+const key=new THREE.PointLight(0x66d9ff,38,34);key.position.set(-4,3,5);scene.add(key);
+const rim=new THREE.PointLight(0xff4dff,22,30);rim.position.set(5,-2,3);scene.add(rim);
+const light=new THREE.PointLight(0x008dff,42,30);light.position.set(0,0,3.5);scene.add(light);
+scene.add(new THREE.AmbientLight(0x2946b0,.85));
+const stars=new THREE.BufferGeometry(),arr=[];for(let i=0;i<420;i++){arr.push((Math.random()-.5)*85,(Math.random()-.5)*75,-10-Math.random()*40)}stars.setAttribute('position',new THREE.Float32BufferAttribute(arr,3));const particles=new THREE.Points(stars,new THREE.PointsMaterial({color:0x3a7bff,size:.05,transparent:true,opacity:.65}));scene.add(particles);
+let orbit=true,pulse=true,drag=false,lastX=0,lastY=0,targetX=0,targetY=0,zoom=28;const spin=document.getElementById('spin'),puls=document.getElementById('pulse'),glowBtn=document.getElementById('glow');
+spin.onclick=()=>{orbit=!orbit;spin.textContent=orbit?'⟳ ORBIT ON':'⟳ ORBIT OFF'};
+puls.onclick=()=>{pulse=!pulse;puls.textContent=pulse?'✦ PULSE ON':'✦ PULSE OFF'};
+glowBtn.onclick=()=>{glowBoost=glowBoost===1?1.7:1;glow.material.opacity=.075*glowBoost;blueGlow.material.opacity=.055*glowBoost;halo.material.opacity=.028*glowBoost;glowBtn.textContent=glowBoost===1?'◍ GLOW BOOST':'◍ GLOW MAX'};
+document.getElementById('reset').onclick=()=>{targetX=targetY=0;zoom=28;orbit=true;pulse=true;glowBoost=1;spin.textContent='⟳ ORBIT ON';puls.textContent='✦ PULSE ON';glowBtn.textContent='◍ GLOW BOOST'};
+renderer.domElement.addEventListener('pointerdown',e=>{drag=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener('pointerup',()=>drag=false);renderer.domElement.addEventListener('pointermove',e=>{if(!drag)return;targetY=Math.max(-.8,Math.min(.8,targetY+(e.clientX-lastX)*.005));targetX=Math.max(-.4,Math.min(.4,targetX+(e.clientY-lastY)*.004));lastX=e.clientX;lastY=e.clientY});renderer.domElement.addEventListener('wheel',e=>{zoom=Math.max(18,Math.min(44,zoom+e.deltaY*.018))},{passive:true});
+let t=0;function animate(){requestAnimationFrame(animate);t+=.012;const auto=orbit?Math.sin(t*.20)*.15:0;sign.rotation.y+=(targetY+auto-sign.rotation.y)*.055;sign.rotation.x+=(targetX-sign.rotation.x)*.055;camera.position.z+=(zoom-camera.position.z)*.08;light.intensity=pulse?38+Math.sin(t*1.6)*7:40;key.intensity=34+Math.sin(t*1.1)*5;particles.rotation.y+=.00009;particles.position.y=Math.sin(t*.3)*.2;renderer.render(scene,camera)}animate();
+function resize(){camera.aspect=innerWidth/innerHeight;camera.fov=innerWidth<650?50:36;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}window.addEventListener('resize',resize);resize();
+</script></body></html>

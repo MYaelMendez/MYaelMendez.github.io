@@ -1,0 +1,34 @@
+<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Neon Tiles — WebGPU</title><style>body{margin:0;background:#07090a;color:#d6e2dc;font-family:monospace;text-align:center}canvas{width:min(92vw,420px);aspect-ratio:9/16;border:1px solid #1b2428;border-radius:12px}h1{color:#3dffa8;font-size:15px;letter-spacing:.15em}</style></head><body>
+<h1>NEON TILES · WEBGPU · 32×32</h1><p>CUDA-tile kernel, browser-native. No GPU install.</p><canvas id=c width=720 height=1280></canvas>
+<script type=module>
+const canvas=document.getElementById('c');
+if(!navigator.gpu){document.body.innerHTML+='<p>WebGPU not supported in this browser.</p>';throw new Error('no webgpu')}
+const adapter=await navigator.gpu.requestAdapter(); const device=await adapter.requestDevice();
+const ctx=canvas.getContext('webgpu'); const format=navigator.gpu.getPreferredCanvasFormat();
+ctx.configure({device, format, alphaMode:'opaque'});
+const shader=`
+@vertex fn vs(@builtin(vertex_index:i:u32)->@builtin(position) vec4f){
+  var p=array<vec2f,3>(vec2f(-1.,-1.),vec2f(3.,-1.),vec2f(-1.,3.));
+  return vec4f(p[i],0.,1.);
+}
+@fragment fn fs(@builtin(position:vec4f)->@location(0) vec4f){
+  // position in pixels -> tile phase (CUDA block analogue)
+  let tile = 32.0;
+  vec2 tilePos = floor(pos.xy / tile) * tile;
+  let phase = sin(pos.y*0.01 + (tilePos.x+tilePos.y)/180.0);
+  let glow = 0.85 + 0.25*phase;
+  vec3 col = vec3(0.01, 0.02, 0.37); // #01015e-ish
+  // neon portrait-ish glow blob
+  let d = distance(pos.xy, vec2(360., 640.));
+  col += vec3(0.1,0.9,0.99) * max(0., 1.0 - d/500.) * glow;
+  col += vec3(0.24,1.,0.66) * max(0., 1.0 - d/300.) * 0.6;
+  return vec4f(col,1.);
+}`;
+const module=device.createShaderModule({code:shader});
+const pipeline=await device.createRenderPipelineAsync({layout:'auto',vertex:{module},fragment:{module,targets:[{format}]}});
+function frame(){
+  const enc=device.createCommandEncoder(); const pass=enc.beginRenderPass({colorAttachments:[{view:ctx.getCurrentTexture().createView(),loadOp:'clear',storeOp:'store',clearValue:{r:0.003,g:0.035,b:0.04,a:1}}]});
+  pass.setPipeline(pipeline); pass.draw(3); pass.end(); device.queue.submit([enc.finish()]); requestAnimationFrame(frame);
+}
+frame();
+</script></body></html>

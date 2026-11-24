@@ -1,0 +1,35 @@
+<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Hermes.webgl — Neon Media Lab</title><style>
+body{margin:0;background:#07090a;color:#d6e2dc;font-family:monospace;text-align:center}
+h1{color:#3dffa8;letter-spacing:.15em;font-size:16px}
+canvas{width:min(92vw,420px);aspect-ratio:9/16;border:1px solid #1b2428;border-radius:12px;background:#01015e}
+button{background:#0d1114;color:#5ee7ff;border:1px solid #1b2428;border-radius:20px;padding:8px 14px;margin:6px;font-family:monospace;cursor:pointer}
+</style></head><body>
+<h1>HERMES.WEBGL · NEON MEDIA LAB</h1><p>WebGL2 renderer · gateway attach client · HUMAN://ROOT approves</p>
+<canvas id=c width=720 height=1280></canvas><br>
+<button id=spin>⟳ ORBIT</button><button id=pulse>✦ PULSE</button><button id=color>COLOR</button>
+<script type=module>
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js';
+const canvas=document.getElementById('c');
+const renderer=new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setSize(720,1280); renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x01015e);
+const camera=new THREE.PerspectiveCamera(37,720/1280,.1,100); camera.position.set(0,0,14);
+const group=new THREE.Group(); scene.add(group);
+// Vitruvian circle + square
+const circle=new THREE.Mesh(new THREE.TorusGeometry(4.2,.04,8,80), new THREE.MeshBasicMaterial({color:0x85e9fc}));
+const square=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-3.8,-3.8,0),new THREE.Vector3(3.8,-3.8,0),new THREE.Vector3(3.8,3.8,0),new THREE.Vector3(-3.8,3.8,0)]), new THREE.LineBasicMaterial({color:0x3dffa8}));
+group.add(circle,square);
+// point-cloud portrait (holomesh)
+const N=2500, pos=new Float32Array(N*3);
+for(let i=0;i<N;i++){const r=Math.random()*3.5, a=Math.random()*Math.PI*2; pos[i*3]=Math.cos(a)*r; pos[i*3+1]=Math.sin(a)*r*1.4; pos[i*3+2]=(Math.random()-.5)*.5;}
+const geo=new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+const pts=new THREE.Points(geo, new THREE.PointsMaterial({color:0x85e9fc, size:.05}));
+group.add(pts);
+let orbit=true, pulse=true, hue=0;
+document.getElementById('spin').onclick=e=>{orbit=!orbit; e.target.textContent=orbit?'⟳ ORBIT':'⟳ ORBIT OFF'};
+document.getElementById('pulse').onclick=e=>{pulse=!pulse; e.target.textContent=pulse?'✦ PULSE':'✦ PULSE OFF'};
+document.getElementById('color').onclick=()=>{hue=(hue+60)%360; pts.material.color.setHSL(hue/360,.9,.6)};
+let t=0;
+function loop(){requestAnimationFrame(loop); t+=.01; if(orbit) group.rotation.y+=.008; if(pulse) pts.material.size=.05+Math.sin(t*2)*.015; renderer.render(scene,camera);}
+loop();
+</script></body></html>
