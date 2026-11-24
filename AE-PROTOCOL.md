@@ -19,10 +19,33 @@ Three names, three jobs — keep them apart:
 | name | job |
 |---|---|
 | **`yæl`** | the kernel of the operator console |
-| **`mæch`** | the development language |
-| **`æ`** | the agentic electronic language for machine-learning programming |
+| **`mæch`** | the development language — how the system is written |
+| **`æ`** | the **policy language for machines** — how authority is declared and enforced |
 
 The console *runs* yæl, is *written* in mæch, and *speaks* æ.
+
+### æ as policy language
+
+`æ` is not only the agentic-electronic language for machine-learning programming; in
+this estate its governing role is **policy for machines**. Its machine-readable form is
+`ae-policy.json` (schema `hermes-ae/ae-policy/v1`), whose chain is:
+
+```
+HUMAN://ROOT → æ → harness → RECEIPT
+```
+
+`æ` sits between the human root and any machine. A machine — defined there as "any
+runtime, device, surface, robot, or harness that can observe or act" — receives
+authority only through `æ`, never around it. Addresses are `æ://`; approvals bind to an
+action hash, scope and expiry; everything is receipted after it happens.
+
+Division of labour, stated once:
+
+| layer | language | question it answers |
+|---|---|---|
+| write | `mæch` | how is it built? |
+| govern | `æ` | who may act, on which machine, until when? |
+| run | `yæl` | what is executing? |
 
 ---
 

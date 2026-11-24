@@ -3690,3 +3690,22 @@ ship with it, no placeholders pretending to work:
 
 Window measured **304×540**. The pattern now holds: a capability used twice becomes a widget,
 and a window is just a grid of mounts.
+
+## 95. æ declared the policy language for machines (2026-11-23)
+
+Operator's statement: **the policy language is æ, for machines.** Encoded in `AE-PROTOCOL.md`
+alongside the machine-readable form already on disk.
+
+**Already existed** — `github-pages/ae-policy.json`, schema `hermes-ae/ae-policy/v1`, chain
+`HUMAN://ROOT → æ → ae → harness → RECEIPT`. æ sits *between* the human root and any machine;
+a machine is defined there as "any runtime, device, surface, robot, or harness that can observe
+or act". Nine rules: AUTH-001…004, ACT-001 (`actuate` needs approval or a deadman), ACT-002
+(commerce is draft until signed), PUB-001, EVID-001 (every decision writes a receipt),
+FAIL-001 (unknown action / missing actor / expired approval ⇒ deny), plus a `decision_matrix`.
+
+**Added:** the division of labour, stated once — *write* = mæch (how is it built?), *govern* =
+æ (who may act, on which machine, until when?), *run* = yæl (what is executing?).
+
+Honest note: the policy is a document; no runtime evaluates it yet. `asimov://` gates motion on
+the same shape, but nothing executes `ae-policy.json` end to end — the same execution gap the
+console has.
