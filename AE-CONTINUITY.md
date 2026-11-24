@@ -3482,3 +3482,21 @@ A GGUF exists (`neuromitosis/plan-narrator/adapter-v3-text.gguf`, 59.6 MB).
 - **Named limitation:** restore returns the *markup*, not live state — any driver that was
   running in that body (the pet's timers, a fetch loop) stops until the page reloads. Marked
   in the code comment rather than left implicit.
+
+## 87. standardised four + docked default + 9:16 mobile composition (2026-11-23)
+
+- The four originals are now a **standardised set** (`STD_TITLES`, class `win-std`,
+  `data-std`), detected from their titles, and they **start docked** (`data-docked='1'`) —
+  so the default desktop is the four 1:1 squares plus any undocked windows.
+- Layout now sorts docked to the flow: undocked claim the top, docked fill 1:1 rows.
+- **Portrait branch added** (`body.portrait` when height > width): undocked windows stack one
+  per row at full width in 9:16; docked windows flow two-up as 1:1 squares below. `#desktop`
+  grows to fit and scrolls (`body.portrait #desktop{overflow-y:auto;overflow-x:hidden}`).
+- The phone media rule is re-scoped again to `body:not(.tiled):not(.portrait) .window` so the
+  portrait manager actually owns the geometry.
+- **Measured before the last change:** at 390×844 portrait engaged, all four carried
+  `std=1`, the undocked window measured **374×665** (full-width 9:16), docked ones **150×150**.
+- **UNVERIFIED after the two-up dock-flow edit:** the browser daemon began timing out
+  (`Runtime.evaluate timed out after 5s`) and did not recover across two sessions. The edit is
+  committed on reasoning, not on a read-back. Next session must re-measure the 390×844 layout
+  before calling this done.

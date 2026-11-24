@@ -317,6 +317,8 @@
             width: 110px; height: 6px; border-radius: 50%;
             background: radial-gradient(ellipse, rgba(255,157,0,.3), transparent 70%); }
         /* mirror bar + candidate list */
+        body.portrait #desktop { overflow-y: auto; overflow-x: hidden; }
+        .win-std > .window-header { border-bottom: 1px solid var(--secondary-color, #ff9d00); }
         .mirrorbar { display: flex; gap: 6px; align-items: center; font-size: 10px;
             margin-bottom: 4px; letter-spacing: .04em; }
         .mirrorbar input { flex: 1; background: #0a0a0a; border: 1px solid var(--metal-light);
@@ -391,7 +393,7 @@
         @media (max-width: 768px) {
 
             /* Stack windows vertically — unless the æ window manager has tiled them */
-            body:not(.tiled) .window {
+            body:not(.tiled):not(.portrait) .window {
                 position: relative !important;
                 top: auto !important;
                 left: auto !important;
@@ -1235,6 +1237,8 @@
            default 9:16, dockable 1:1; up to four 9:16 across the top,
            then as many 1:1 squares as fit below. */
         function allWindows() { return [...document.querySelectorAll('.window')]; }
+        /* the standardised four — they start docked and set the layout's default */
+        var STD_TITLES = ['SYSTEM_STATUS', 'COMM_LOGS', 'MODEL_COMBINATOR', 'ROOT_ENDPOINT'];
         function winByTitle(t) {
             return allWindows().find(function (w) {
                 var el = w.querySelector('.window-title');
@@ -1290,16 +1294,56 @@
             var d = document.getElementById('desktop'); if (!d) return;
             var W = d.clientWidth, H = d.clientHeight, gap = 8;
             var wins = allWindows().filter(function (w) { return w.style.display !== 'none' });
-            /* four 9:16 across needs room; below that the phone rule stacks for us */
-            var tiled = W >= 700 && wins.length > 0;
-            document.body.classList.toggle('tiled', tiled);
-            if (!tiled) {
-                wins.forEach(function (w) {
-                    w.style.left = ''; w.style.top = ''; w.style.width = ''; w.style.height = '';
-                    w.style.minWidth = ''; w.style.minHeight = '';
+            /* the standard set: the four originals, docked by default */
+            STD_TITLES.forEach(function (p) {
+                allWindows().forEach(function (w) {
+                    var el = w.querySelector('.window-title'); if (!el) return;
+                    var t = el.textContent.replace(/\[x\]/g, '').trim();
+                    if (t.indexOf(p) === 0 && !w.dataset.std) {
+                        w.dataset.std = '1'; w.classList.add('win-std');
+                        w.dataset.docked = '1';                 /* start docked */
+                    }
                 });
+            });
+            /* docked windows take the 1:1 flow, everything else claims the top */
+            wins.sort(function (a, b) {
+                return (a.dataset.docked === '1') - (b.dataset.docked === '1');
+            });
+            var portrait = H > W;
+            document.body.classList.toggle('portrait', portrait);
+            if (!wins.length) return;
+
+            if (portrait) {                      /* optimal 9:16 mobile composition */
+                var y = gap;
+                /* undocked: one 9:16 per row, fitted to the viewport width */
+                wins.forEach(function (w) {
+                    if (w.dataset.docked === '1') return;
+                    var wd = W - gap * 2, h = Math.round(wd * 16 / 9);
+                    w.style.position = 'absolute';
+                    w.style.left = gap + 'px'; w.style.top = y + 'px';
+                    w.style.width = wd + 'px'; w.style.height = h + 'px';
+                    w.style.minWidth = '0'; w.style.minHeight = '0';
+                    w.style.right = 'auto'; w.style.bottom = 'auto';
+                    y += h + gap;
+                });
+                /* docked: 1:1 squares flowing into as many rows as needed */
+                var dock = wins.filter(function (w) { return w.dataset.docked === '1' });
+                var s = Math.max(80, Math.floor((W - gap * 2) / 2 - gap));   /* two up */
+                var perRow = Math.max(1, Math.floor((W - gap) / (s + gap)));
+                dock.forEach(function (w, i) {
+                    var row = Math.floor(i / perRow), col = i % perRow;
+                    w.style.position = 'absolute';
+                    w.style.left = (gap + col * (s + gap)) + 'px';
+                    w.style.top = (y + row * (s + gap)) + 'px';
+                    w.style.width = s + 'px'; w.style.height = s + 'px';
+                    w.style.minWidth = '0'; w.style.minHeight = '0';
+                    w.style.right = 'auto'; w.style.bottom = 'auto';
+                });
+                y += (Math.ceil(dock.length / perRow)) * (s + gap);
+                d.style.height = Math.max(H, y) + 'px';   /* grow so it all fits */
                 return;
             }
+
             var n = Math.min(4, wins.length);
             var pw = Math.floor((W - gap * (n + 1)) / n);
             var ph = Math.round(pw * 16 / 9), maxPh = Math.round(H * 0.60);
