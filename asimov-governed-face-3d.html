@@ -301,12 +301,23 @@ function warning(t){
 function drawMask(t){
   try {
     mx.clearRect(0,0,FW,FH);
+    // The CAD faceplate is an arch/semicircular aperture: clip every program to it.
+    mx.save();
+    const cx=FW/2, topY=FH*0.18, r=FW*0.30, bottomY=FH*0.88;
+    mx.beginPath();
+    mx.moveTo(cx-r,bottomY);
+    mx.lineTo(cx-r,topY);
+    mx.arc(cx,topY,r,Math.PI,0,false);
+    mx.lineTo(cx+r,bottomY);
+    mx.closePath();
+    mx.clip();
     if(program==='FACE') face(t);
     else if(program==='TEXT') ledGridText(programText,COLORS[state]||'#00ff9f');
     else if(program==='TELEMETRY') telemetry(t);
     else if(program==='QR / CODE') qr(t);
     else if(program==='WARNING') warning(t);
     else { for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++) led(x,y,'#0f6b48',0.16,0.12); }
+    mx.restore();
     if(topTex) drawTopViewport(t);
   } catch(e) { window.__maskError = String(e && e.stack || e); }
   if(blinkAmt>0 && t<blinkUntil) blinkAmt=Math.max(0,blinkAmt-0.035);
