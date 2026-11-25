@@ -4054,3 +4054,25 @@ enlaces y dos falsos positivos; este encontró lo real:
 **Gate de frescura:** `verify` devuelve **2 (stale)** si el índice tiene más de 7 días o si algún
 recurso no resuelve — **0** solo cuando todo resuelve hoy. La edad se calcula con la misma base
 (local) en ambos lados; una primera versión usaba UTC y reportaba «age -1».
+
+## 108. the funnel — de extraño a soberano (2026-11-25)
+
+Operador: el visitante no debe **volverse** Yæl; debe **tomar el ware** y correr lo suyo. El
+white-labeling es la postura por defecto, no una feature. Spec: `THE-FUNNEL.md`.
+
+Ocho etapas: compute (referral) · identity (GitHub) · wire (handle → actividad) · home
+(bookmark/start page) · wear (glyph+name+accent, ya construido) · fork (plantilla) · publish
+(github.io) · share (primer artefacto con receipt).
+
+**Líneas no negociables:** nada defaults a æ · una dirección no es permiso · un refusado es un
+resultado registrado · **los secretos no cruzan la frontera** (handle sí, token no — solo vault) ·
+cada etapa declara su propio estado.
+
+**Dos honestades declaradas en el spec:**
+- la contribution graph necesita GraphQL + token; sin token se leen **eventos públicos** y se dice
+  que es actividad, no la rejilla privada;
+- un navegador **no permite** que una página se ponga a sí misma como home → se ofrece PWA
+  manifest + instrucciones, nunca se implica lo que no se puede.
+
+**Build order:** funnel page (8 etapas con estado) → PWA manifest → handle→actividad → starter kit
+→ BYO inputs para la tiny family.
