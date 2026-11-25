@@ -301,22 +301,24 @@ function warning(t){
 function drawMask(t){
   try {
     mx.clearRect(0,0,FW,FH);
-    // The CAD faceplate is an arch/semicircular aperture: clip every program to it.
+    // Asimov 1 front faceplate: semicircular/arched viewport, flat bottom, camera port open.
     mx.save();
-    const cx=FW/2, topY=FH*0.18, r=FW*0.30, bottomY=FH*0.88;
+    const cx=FW/2, topY=75, r=185, bottomY=365;
     mx.beginPath();
     mx.moveTo(cx-r,bottomY);
     mx.lineTo(cx-r,topY);
     mx.arc(cx,topY,r,Math.PI,0,false);
     mx.lineTo(cx+r,bottomY);
-    mx.closePath();
-    mx.clip();
+    mx.closePath(); mx.clip();
     if(program==='FACE') face(t);
     else if(program==='TEXT') ledGridText(programText,COLORS[state]||'#00ff9f');
     else if(program==='TELEMETRY') telemetry(t);
     else if(program==='QR / CODE') qr(t);
     else if(program==='WARNING') warning(t);
     else { for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++) led(x,y,'#0f6b48',0.16,0.12); }
+    mx.globalCompositeOperation='destination-out';
+    mx.beginPath(); mx.arc(256,315,36,0,Math.PI*2); mx.fill();
+    mx.globalCompositeOperation='source-over';
     mx.restore();
     if(topTex) drawTopViewport(t);
   } catch(e) { window.__maskError = String(e && e.stack || e); }
@@ -543,7 +545,7 @@ new GLTFLoader().load('./assets/gltf/asimov-web.glb',gltf=>{
   turn.position.sub(bc); scene.updateMatrixWorld(true);
   const cbox=new THREE.Box3().setFromObject(headMesh||root);
   const size=new THREE.Vector3();cbox.getSize(size);
-  maskBaseW=size.x*0.98; maskBaseH=size.y*0.90;
+  maskBaseW=size.x*1.06; maskBaseH=size.y*1.00;
   $('mw').value=maskBaseW.toFixed(3);$('mwVal').textContent=maskBaseW.toFixed(3);
   $('mh').value=maskBaseH.toFixed(3);$('mhVal').textContent=maskBaseH.toFixed(3);
   const cc=cbox.getCenter(new THREE.Vector3());
@@ -554,17 +556,17 @@ new GLTFLoader().load('./assets/gltf/asimov-web.glb',gltf=>{
 
   maskTex=new THREE.CanvasTexture(maskCanvas);maskTex.colorSpace=THREE.SRGBColorSpace;maskTex.anisotropy=4;
   const mat=new THREE.MeshBasicMaterial({map:maskTex,transparent:true,side:THREE.DoubleSide,depthWrite:false,toneMapped:false,blending:THREE.AdditiveBlending});
-  const geo=new THREE.PlaneGeometry(size.x*0.98,size.y*0.90,40,34);
+  const geo=new THREE.PlaneGeometry(size.x*1.06,size.y*1.00,40,34);
   const pos=geo.attributes.position;
   for(let i=0;i<pos.count;i++){
     const x=pos.getX(i), y=pos.getY(i);
-    pos.setZ(i, -0.020*(Math.pow(x/(size.x*0.49),2)+Math.pow(y/(size.y*0.45),2)));
+    pos.setZ(i, -0.030*(Math.pow(x/(size.x*0.53),2)+Math.pow(y/(size.y*0.50),2)));
   }
   geo.computeVertexNormals();
   maskMesh=new THREE.Mesh(geo,mat);
   const baseMaskY=0;
   maskBaseY=baseMaskY;
-  maskMesh.position.set(0,baseMaskY,size.z/2+0.0015);
+  maskMesh.position.set(0,baseMaskY,size.z/2+0.005);
   headGroup.add(maskMesh);
 
   // The crown is a second viewport: full top-shell LED matrix.
