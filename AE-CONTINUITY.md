@@ -4127,3 +4127,22 @@ agents, everything receipted*.
 
 **No verificado aún:** ninguna superficie existente lo dice en voz alta hoy. El brief del operador
 (`AGENTS.md`) sí lo lleva (`一人公司 / one-person company`), pero eso no es la puerta.
+
+## 112. la puerta dicha en la superficie: `cli.llc://æ` (2026-11-25)
+
+Operador: «yes cli.llc://æ makes it all come together >_æ:// (all our domains)».
+
+**Hecho:** `index.html`, debajo del tagline y **por encima del pliegue**, ahora dice:
+
+> **One person company.** One owner, many agents — every claim receipted.
+> the door · **cli.llc://æ** → `>_æ://` resolves all our domains
+
+*Verificado en 390×844:* el nodo existe, `bottom ≤ innerHeight` (**aboveFold true**), caja 354×64,
+`overflowX false`, y la captura confirma que es legible y no amontona.
+
+**Notación establecida:**
+- **`cli.llc://æ`** — la forma de la puerta: dominio + espacio æ.
+- **`>_æ://`** — el paraguas: resuelve a **todos** nuestros dominios (hoy 10 enrutados, 4 rotos).
+
+**No hecho:** que `>_æ://` resuelva de verdad los dominios es una *declaración*, no un resolver
+implementado. Nadie lo ejecuta todavía.
