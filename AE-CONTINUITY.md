@@ -4020,3 +4020,37 @@ three.js no lo carga nativamente; haría falta conversión a glTF (Blender USD o
 **Riesgo de licencia declarado, no resuelto:** el paquete dice **CC-BY-4.0**; el registro previo del
 estate dice **CERN-OHL-S-2.0** para el CAD/URDF/MJCF de Menlo. Son artefactos distintos y el estate
 debe decir qué licencia cubre cuál, porque la atribución es el objeto de ambas.
+
+## 107. el índice æQR ahora se DERIVA — no puede quedarse viejo (2026-11-24)
+
+**Por qué:** el índice publicado `aeqr-resources.json` era **278 recursos, generado 2026-10-10**
+— seis semanas de atraso contra **458 superficies HTML** vivas. Un índice escrito a mano queda
+viejo al día siguiente de publicarse.
+
+**Generador:** `C:/æ/agents/aeqr_index.py` (`build` | `verify`). Derivado del **branch head**
+(`git ls-files`), no del worktree — la ley del provenance loop: *un archivo en disco no es la
+verdad desplegada*. Excluye `target/` (salida de build de Rust committed por accidente),
+`node_modules`, `secrets`, `.well-known`. Cero CDN: solo rutas ya públicas. El `scope` se deriva de
+la clase de ruta; **una dirección no es un permiso**.
+
+**Medido:**
+| paso | resultado |
+|---|---|
+| primer build (worktree) | 1.998 recursos · **63坐标 muertas** |
+| excluyendo `target/` | 1.948 · 13 |
+| **build desde `git ls-files`** | **1.935 recursos · 458 HTML · resueltos 1.935 · BAD 0** |
+
+El índice pasó de **278 (a mano, viejo) a 1.935 (derivado, todos resolviendo)**.
+
+**Hallazgos que la deriving destapó** — el barrido de enlaces por regex del § anterior encontró 13
+enlaces y dos falsos positivos; este encontró lo real:
+- `continuity-wasm/target/**` — **salida de compilación Rust commiteada** en el árbol de Pages;
+- `aipodcast_me/fleet-performs.mp4` + `.receipt.refused-1.json` + spec — un film **REFUSED** que
+  sigue referenciado por sus propios recibos;
+- `privateclient/bridge.html`, `robots/studio.html`, `hermes-self-portrait.svg`,
+  `menlo-actuator-training.json`, `continuity-wasm/dist/probe.html` — existían en el worktree pero
+  **no en el branch**: por eso el barrido anterior los marcaba y el derivado los descarta.
+
+**Gate de frescura:** `verify` devuelve **2 (stale)** si el índice tiene más de 7 días o si algún
+recurso no resuelve — **0** solo cuando todo resuelve hoy. La edad se calcula con la misma base
+(local) en ambos lados; una primera versión usaba UTC y reportaba «age -1».
