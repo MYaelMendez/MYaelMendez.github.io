@@ -123,10 +123,13 @@ input[type=range]{width:100%;accent-color:var(--neon)}
   <h2>Three-layer identity</h2>
   <div class="domout" style="max-height:none">CHASSIS · Menlo Research Asimov-1 · 25 DOF<br>HARNESS · Nous Research Hermes Agent / ae<br>LOGIC · OpenSourceWare æ Policy · DAO Brain · receipts</div>
 
+  <h2>Hearing</h2>
+  <div class="domout" style="max-height:none">EAR://L · EAR://R — side pods are speaker + microphone arrays (hear in, speak out). Not display surfaces.<br>FACE · front semicircular aperture: mirror default, LED program on demand.</div>
+
   <h2>Camera</h2>
   <div class="grid" id="cams"></div>
-  <label>distance <span id="distVal">0.55</span> m</label>
-  <input id="dist" type="range" min="0.28" max="1.4" step="0.01" value="0.55">
+  <label>distance <span id="distVal">0.62</span> m</label>
+  <input id="dist" type="range" min="0.28" max="1.4" step="0.01" value="0.62">
 
   <h2>Head surface</h2>
   <label>shell light <span id="lightVal">1.00</span></label>
@@ -190,13 +193,14 @@ function blog(t, c){ bootLines.push(`<span class="${c||''}">${t}</span>`); const
    32 x 28 LED matrix rendered to a transparent canvas, mapped to the
    front surface of the real Asimov head. No black plate. No tablet. */
 const COLS=32, ROWS=28, FW=512, FH=448;
+const AP={cx:FW/2,topY:75,r:185,bottomY:365};   // official front faceplate aperture
 const maskCanvas=document.createElement('canvas'); maskCanvas.width=FW; maskCanvas.height=FH;
 const mx=maskCanvas.getContext('2d');
 const textCanvas=document.createElement('canvas'); textCanvas.width=FW; textCanvas.height=FH;
 const tx=textCanvas.getContext('2d');
 const topCanvas=document.createElement('canvas'); topCanvas.width=FW; topCanvas.height=FH;
 const txc=topCanvas.getContext('2d');
-let program='FACE', state='IDLE', programText='HUMAN://ROOT';
+let program='MIRROR', state='IDLE', programText='HUMAN://ROOT';
 let brightness=1, gazeX=0, gazeY=0, blinkAmt=0, blinkUntil=0;
 const COLORS={
   IDLE:'#00ff9f', LISTENING:'#70dcff', THINKING:'#b98cff', SPEAKING:'#ffd166',
@@ -303,14 +307,15 @@ function drawMask(t){
     mx.clearRect(0,0,FW,FH);
     // Asimov 1 front faceplate: semicircular/arched viewport, flat bottom, camera port open.
     mx.save();
-    const cx=FW/2, topY=75, r=185, bottomY=365;
+    const cx=AP.cx, topY=AP.topY, r=AP.r, bottomY=AP.bottomY;
     mx.beginPath();
     mx.moveTo(cx-r,bottomY);
     mx.lineTo(cx-r,topY);
     mx.arc(cx,topY,r,Math.PI,0,false);
     mx.lineTo(cx+r,bottomY);
     mx.closePath(); mx.clip();
-    if(program==='FACE') face(t);
+    if(program==='MIRROR'){ /* bare mirror: no LED emission */ }
+    else if(program==='FACE') face(t);
     else if(program==='TEXT') ledGridText(programText,COLORS[state]||'#00ff9f');
     else if(program==='TELEMETRY') telemetry(t);
     else if(program==='QR / CODE') qr(t);
@@ -333,6 +338,21 @@ const renderer=new THREE.WebGLRenderer({canvas,antialias:true,preserveDrawingBuf
 renderer.setPixelRatio(Math.min(2,devicePixelRatio||1)); renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.12;
+// studio reflections for the default mirror faceplate
+const pmrem=new THREE.PMREMGenerator(renderer);
+const envScene=new THREE.Scene();
+envScene.add(new THREE.Mesh(new THREE.SphereGeometry(10,24,16),new THREE.MeshBasicMaterial({color:0x24343d,side:THREE.BackSide})));
+function envStrip(color,x,y,z,w,h){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color,side:THREE.DoubleSide}));m.position.set(x,y,z);m.lookAt(0,0,0);envScene.add(m);}
+envStrip(0xffffff,-2,3,4,6,3); envStrip(0x00ff9f,-5,2.5,2,5,2); envStrip(0x70dcff,5,-1,2,5,2); envStrip(0xffb000,0,5,-3,6,3); envStrip(0xb98cff,0,-4,5,7,3);
+const mirrorEnv=pmrem.fromScene(envScene,0.06).texture; pmrem.dispose();
+function archShape(w,h){
+  const X=x=>(x/FW-0.5)*w, Y=y=>(0.5-y/FH)*h;
+  const s=new THREE.Shape();
+  s.moveTo(X(AP.cx-AP.r),Y(AP.bottomY));
+  s.lineTo(X(AP.cx-AP.r),Y(AP.topY));
+  for(let i=1;i<48;i++){const a=Math.PI-(i/47)*Math.PI;s.lineTo(X(AP.cx+AP.r*Math.cos(a)),Y(AP.topY-AP.r*Math.sin(a)));}
+  s.lineTo(X(AP.cx+AP.r),Y(AP.bottomY)); s.closePath(); return s;
+}
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x040706); scene.fog=new THREE.Fog(0x040706,1.6,4.6);
 const camera=new THREE.PerspectiveCamera(38,1,0.01,50);
 const hemi=new THREE.HemisphereLight(0xfff0cf,0x06120c,0.9); scene.add(hemi);
@@ -363,7 +383,7 @@ function buildParticles(){
 particlePts=buildParticles(); particlePts.visible=true; $('particles').classList.add('on'); scene.add(particlePts);
 const target=new THREE.Vector3();
 let az=0, el=0, dist=0.55, camTo=null, camT=0, camFrom=null, autorot=false;
-let headMesh=null, headBox=null, maskMesh=null, maskTex=null, topMesh=null, topTex=null, wire=false, shellVisible=true;
+let headMesh=null, headBox=null, maskMesh=null, maskTex=null, topMesh=null, topTex=null, wire=false, shellVisible=true, mirrorMesh=null;
 let headGroup=null, baseCenter=null, maskBaseY=0, maskBaseW=0.168, maskBaseH=0.132;
 let yaw=0,pitch=0,roll=0,posX=0,posY=0,posZ=0,scaleV=1,motionMode='off';
 let baseYaw=0,basePitch=0,baseRoll=0,basePosY=0,currentEnv='void';
@@ -373,7 +393,7 @@ const ENVS={
   solar:{bg:'#180a05',floor:'#241108',grid:'#7a3a18',hemi:'#ffd9b0',key:'#ffb45a',rim:'#ff6a00',fill:'#ffd166'},
   studio:{bg:'#101010',floor:'#1b1b1b',grid:'#555555',hemi:'#ffffff',key:'#ffffff',rim:'#ff00ff',fill:'#00ccff'}
 };
-const CAMERAS={front:[0,0,0.55],'three quarter':[36,-5,0.66],side:[86,-3,0.62],close:[0,0,0.34],top:[0,89,0.34],orbit:[0,0,0.62]};
+const CAMERAS={front:[0,0,0.62],'three quarter':[36,-5,0.72],side:[86,-3,0.68],close:[0,0,0.38],top:[0,89,0.40],orbit:[0,0,0.68]};
 function applyTransform(){
   if(!headGroup||!baseCenter)return;
   baseYaw=yaw*Math.PI/180; basePitch=pitch*Math.PI/180; baseRoll=roll*Math.PI/180;
@@ -425,10 +445,12 @@ for(const name of Object.keys(CAMERAS)){
 }
 syncCams();
 
-for(const p of ['FACE','TEXT','TELEMETRY','QR / CODE','WARNING','OFF']){
+for(const p of ['MIRROR','FACE','TEXT','TELEMETRY','QR / CODE','WARNING','OFF']){
   const b=document.createElement('button'); b.textContent=p; b.dataset.prog=p;
   b.onclick=()=>setProgram(p); $('programs').appendChild(b);
 }
+document.querySelector('#programs [data-prog="MIRROR"]').classList.add('on');
+$('hProg').textContent='MIRROR';
 for(const s of ['IDLE','LISTENING','THINKING','SPEAKING','AWAITING APPROVAL','APPROVED','REFUSED','ERROR']){
   const b=document.createElement('button'); b.textContent=s.replace(' ','\n'); b.dataset.state=s;
   if(s==='AWAITING APPROVAL')b.className='warn'; if(s==='REFUSED'||s==='ERROR')b.className='bad';
@@ -442,7 +464,7 @@ function setState(s){
   state=s; document.querySelectorAll('#states button').forEach(b=>b.classList.toggle('on',b.dataset.state===s));
   $('hState').textContent=s; blog(`&gt; governed state → ${s}`,s==='REFUSED'||s==='ERROR'?'m':'ok'); issueReceipt(false);
 }
-setProgram('FACE'); setState('IDLE');
+setProgram('MIRROR'); setState('IDLE');
 
 $('setText').onclick=()=>{programText=$('textIn').value||'HUMAN://ROOT'; blog(`&gt; mask text → ${programText}`,'c'); issueReceipt(false);};
 $('textIn').addEventListener('keydown',e=>{if(e.key==='Enter')$('setText').click();});
@@ -552,7 +574,7 @@ new GLTFLoader().load('./assets/gltf/asimov-web.glb',gltf=>{
   headGroup.position.set(-cc.x, -0.06-cbox.min.y, -cc.z);
   scene.updateMatrixWorld(true);
   const wc=new THREE.Box3().setFromObject(headMesh).getCenter(new THREE.Vector3());
-  baseCenter=headGroup.position.clone(); target.copy(wc); dist=0.52; place(); applyTransform();
+  baseCenter=headGroup.position.clone(); target.copy(wc); dist=0.62; place(); applyTransform();
 
   maskTex=new THREE.CanvasTexture(maskCanvas);maskTex.colorSpace=THREE.SRGBColorSpace;maskTex.anisotropy=4;
   const mat=new THREE.MeshBasicMaterial({map:maskTex,transparent:true,side:THREE.DoubleSide,depthWrite:false,toneMapped:false,blending:THREE.AdditiveBlending});
@@ -560,14 +582,21 @@ new GLTFLoader().load('./assets/gltf/asimov-web.glb',gltf=>{
   const pos=geo.attributes.position;
   for(let i=0;i<pos.count;i++){
     const x=pos.getX(i), y=pos.getY(i);
-    pos.setZ(i, -0.030*(Math.pow(x/(size.x*0.53),2)+Math.pow(y/(size.y*0.50),2)));
+    pos.setZ(i, -0.006*(Math.pow(x/(size.x*0.53),2)+Math.pow(y/(size.y*0.50),2)));
   }
   geo.computeVertexNormals();
   maskMesh=new THREE.Mesh(geo,mat);
   const baseMaskY=0;
   maskBaseY=baseMaskY;
-  maskMesh.position.set(0,baseMaskY,size.z/2+0.005);
+  maskMesh.position.set(0,baseMaskY,size.z/2+0.008);
   headGroup.add(maskMesh);
+
+  // Default finish: a true reflective semicircular faceplate behind the LED layer.
+  const mirrorGeo=new THREE.ShapeGeometry(archShape(size.x*1.06,size.y*1.00),48);
+  const mirrorMat=new THREE.MeshStandardMaterial({color:0xf2f7ff,metalness:1,roughness:0.045,envMap:mirrorEnv,envMapIntensity:1.45,side:THREE.DoubleSide});
+  mirrorMesh=new THREE.Mesh(mirrorGeo,mirrorMat);
+  mirrorMesh.position.set(0,0,size.z/2+0.003);
+  headGroup.add(mirrorMesh);
 
   // The crown is a second viewport: full top-shell LED matrix.
   topTex=new THREE.CanvasTexture(topCanvas);topTex.colorSpace=THREE.SRGBColorSpace;topTex.anisotropy=4;
@@ -584,16 +613,43 @@ new GLTFLoader().load('./assets/gltf/asimov-web.glb',gltf=>{
   topMesh.position.set(0,size.y/2+0.004,0);
   headGroup.add(topMesh);
 
+  // Side pods are the hearing surfaces: speaker grille + microphone array, never a display.
+  function earCanvas(side){
+    const c=document.createElement('canvas'); c.width=256; c.height=320; const g=c.getContext('2d');
+    g.clearRect(0,0,256,320);
+    g.fillStyle='rgba(6,10,8,.94)'; g.strokeStyle='rgba(0,255,157,.75)'; g.lineWidth=3;
+    g.beginPath(); g.roundRect(8,8,240,304,28); g.fill(); g.stroke();
+    g.fillStyle='#00ff9f'; g.font='700 18px ui-monospace,monospace'; g.textAlign='center';
+    g.fillText(side<0?'EAR://L':'EAR://R',128,42);
+    // microphone array: top row of ports
+    g.fillStyle='#70dcff'; g.font='700 13px ui-monospace,monospace'; g.fillText('MIC-ARRAY',128,78);
+    for(let i=0;i<5;i++){g.beginPath();g.arc(58+i*35,104,7,0,Math.PI*2);g.fillStyle='#06202a';g.fill();g.strokeStyle='#70dcff';g.lineWidth=2;g.stroke();}
+    // speaker grille: concentric perforated field
+    g.fillStyle='#00ff9f'; g.font='700 13px ui-monospace,monospace'; g.fillText('SPEAKER',128,160);
+    for(let y=0;y<6;y++)for(let x=0;x<8;x++){g.beginPath();g.arc(44+x*25,182+y*18,4.5,0,Math.PI*2);g.fillStyle=(x+y)%2?'#0d3a2a':'#12553c';g.fill();}
+    g.fillStyle='rgba(0,255,157,.55)'; g.font='10px ui-monospace,monospace';
+    g.fillText('HEAR · INPUT/OUTPUT',128,302);
+    return c;
+  }
+  for(const side of [-1,1]){
+    const et=new THREE.CanvasTexture(earCanvas(side)); et.colorSpace=THREE.SRGBColorSpace; et.anisotropy=4;
+    const em=new THREE.Mesh(new THREE.PlaneGeometry(size.z*0.80,size.y*0.66),
+      new THREE.MeshStandardMaterial({map:et,transparent:true,metalness:.62,roughness:.32,side:THREE.DoubleSide,envMap:mirrorEnv,envMapIntensity:.7}));
+    em.rotation.y=side*Math.PI/2;
+    em.position.set(side*(size.x/2+0.0045),-0.006,0);
+    headGroup.add(em);
+  }
+
   window.baseMaskY=maskBaseY;
   blog(`&gt; head loaded ................. ${size.x.toFixed(3)} × ${size.y.toFixed(3)} × ${size.z.toFixed(3)} m`,'ok');
   blog('&gt; front axis .................. +Z · mask on face','ok');
-  blog('&gt; mask viewport ............... full front faceplate + crown viewport','ok');
-  blog('&gt; zones ....................... FRONT 32x28 · TOP 32x28','c');
+  blog('&gt; mask viewport ............... semicircular faceplate · mirror default','ok');
+  blog('&gt; zones ....................... FRONT mirror/LED · EARS L/R speaker+mic · TOP status','c');
   blog('&gt; shell ....................... NEON ORANGE #ff6a00','ok');
   blog('&gt; environment ................ floor · ring · particles · light rig','c');
   blog('&gt; controls .................... transform / mask / state / camera / DOM / receipt','c');
   setTimeout(()=>{const b=$('boot');b.style.opacity='0';setTimeout(()=>b.remove(),500);},700);
-  window.__ae={renderer,scene,camera,maskCanvas,topCanvas,headMesh,maskMesh,topMesh,headGroup,baseCenter,issueReceipt,setProgram,setState,setEnv,applyTransform,THREE,target,setCam:(a,e,d)=>{az=a;el=e;dist=d;camTo=null;autorot=false;}};
+  window.__ae={renderer,scene,camera,maskCanvas,topCanvas,headMesh,maskMesh,topMesh,headGroup,baseCenter,issueReceipt,setProgram,setState,setEnv,applyTransform,drawMask,THREE,target,setCam:(a,e,d)=>{az=a;el=e;dist=d;camTo=null;autorot=false;}};
 },undefined,err=>{blog('&gt; GLB load FAILED · '+(err&&err.message?err.message:err),'m');$('hHead').textContent='load failed';});
 
 const clock=new THREE.Clock();
