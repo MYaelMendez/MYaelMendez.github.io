@@ -333,10 +333,10 @@ function makeGrid(size=4,div=32){
   return new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x1d4a5f,transparent:true,opacity:.62}));
 }
 let grid=makeGrid(); grid.position.y=-0.32; scene.add(grid);
-const floor=new THREE.Mesh(new THREE.CircleGeometry(2.4,72),new THREE.MeshStandardMaterial({color:0x0a0f0c,metalness:.42,roughness:.66})); floor.rotation.x=-Math.PI/2; floor.position.y=-0.321; floor.receiveShadow=true; scene.add(floor);
-const pedestal=new THREE.Mesh(new THREE.CylinderGeometry(.22,.30,.26,56),new THREE.MeshStandardMaterial({color:0x141a18,metalness:.72,roughness:.34})); pedestal.position.y=-0.19; pedestal.castShadow=true; pedestal.receiveShadow=true; scene.add(pedestal);
-const pedRing=new THREE.Mesh(new THREE.TorusGeometry(.235,.008,12,72),new THREE.MeshBasicMaterial({color:0x00ff9f,transparent:true,opacity:.7})); pedRing.rotation.x=Math.PI/2; pedRing.position.y=-0.06; scene.add(pedRing);
-const ring=new THREE.Mesh(new THREE.TorusGeometry(.46,.005,12,128),new THREE.MeshBasicMaterial({color:0x00ff9d,transparent:true,opacity:.55})); ring.rotation.x=Math.PI/2; ring.position.y=-0.312; scene.add(ring);
+const floor=new THREE.Mesh(new THREE.CircleGeometry(1.0,72),new THREE.MeshStandardMaterial({color:0x0a0f0c,metalness:.42,roughness:.66})); floor.rotation.x=-Math.PI/2; floor.position.y=-.321; floor.receiveShadow=true; scene.add(floor);
+const pedestal=new THREE.Mesh(new THREE.CylinderGeometry(.13,.18,.20,48),new THREE.MeshStandardMaterial({color:0x141a18,metalness:.72,roughness:.34})); pedestal.position.y=-.16; pedestal.castShadow=true; pedestal.receiveShadow=true; scene.add(pedestal);
+const pedRing=new THREE.Mesh(new THREE.TorusGeometry(.145,.006,12,64),new THREE.MeshBasicMaterial({color:0x00ff9f,transparent:true,opacity:.7})); pedRing.rotation.x=Math.PI/2; pedRing.position.y=-.06; scene.add(pedRing);
+const ring=new THREE.Mesh(new THREE.TorusGeometry(.28,.004,12,96),new THREE.MeshBasicMaterial({color:0x00ff9f,transparent:true,opacity:.55})); ring.rotation.x=Math.PI/2; ring.position.y=-.312; scene.add(ring);
 const lightMarkers=[];
 function addMarker(role,color,pos){const m=new THREE.Mesh(new THREE.SphereGeometry(.02,16,16),new THREE.MeshBasicMaterial({color}));m.position.copy(pos);m.userData.role=role;scene.add(m);lightMarkers.push(m);}
 addMarker('key',0xffe0a0,key.position); addMarker('rim',0x00ff9d,rim.position); addMarker('fill',0x70dcff,fill.position);
@@ -351,7 +351,7 @@ particlePts=buildParticles(); particlePts.visible=true; $('particles').classList
 const target=new THREE.Vector3();
 let az=0, el=0, dist=0.55, camTo=null, camT=0, camFrom=null, autorot=false;
 let headMesh=null, headBox=null, maskMesh=null, maskTex=null, topMesh=null, topTex=null, wire=false, shellVisible=true;
-let headGroup=null, baseCenter=null, maskBaseY=0;
+let headGroup=null, baseCenter=null, maskBaseY=0, maskBaseW=0.168, maskBaseH=0.132;
 let yaw=0,pitch=0,roll=0,posX=0,posY=0,posZ=0,scaleV=1,motionMode='off';
 let baseYaw=0,basePitch=0,baseRoll=0,basePosY=0,currentEnv='void';
 const ENVS={
@@ -477,8 +477,8 @@ document.querySelectorAll('.shell').forEach(b=>b.onclick=()=>{
 });
 for(const [id,key2,label] of [['mw','mwVal','maskW'],['mh','mhVal','maskH'],['mo','moVal','maskY']]){
   $(id).oninput=e=>{const v=+e.target.value;$(key2).textContent=v.toFixed(3);if(maskMesh){
-    if(label==='maskW')maskMesh.scale.x=v/0.168;
-    if(label==='maskH')maskMesh.scale.y=v/0.132;
+    if(label==='maskW')maskMesh.scale.x=v/maskBaseW;
+    if(label==='maskH')maskMesh.scale.y=v/maskBaseH;
     if(label==='maskY')maskMesh.position.y=maskBaseY+v;
   }};
 }
@@ -518,27 +518,42 @@ new GLTFLoader().load('./assets/gltf/asimov-web.glb',gltf=>{
   if(headMesh)headMesh.visible=true;
   scene.add(root); scene.updateMatrixWorld(true);
   headBox=new THREE.Box3().setFromObject(headMesh||root);
-  const size=new THREE.Vector3();headBox.getSize(size);const c=new THREE.Vector3();headBox.getCenter(c);
-  target.copy(c); baseCenter=c.clone(); dist=0.55; place();
+  const size0=new THREE.Vector3();headBox.getSize(size0);const c0=new THREE.Vector3();headBox.getCenter(c0);
   $('hHead').textContent='neck_pitch_link · 32x28 mask';
 
   headGroup=new THREE.Group(); headGroup.rotation.order='YXZ';
-  if(headMesh){ headGroup.add(headMesh); headMesh.position.sub(c); }
-  headGroup.position.copy(c); scene.add(headGroup); applyTransform();
+  const orient=new THREE.Group(); orient.rotation.x=-Math.PI/2;   // GLB is Z-up
+  const turn=new THREE.Group(); turn.rotation.y=Math.PI;           // face to +Z
+  headGroup.add(turn); turn.add(orient);
+  if(headMesh){ orient.add(headMesh); headMesh.position.sub(c0); }
+  scene.add(headGroup); headGroup.position.set(0,0,0); scene.updateMatrixWorld(true);
+  const b0=new THREE.Box3().setFromObject(headMesh||root);
+  const bc=b0.getCenter(new THREE.Vector3());
+  turn.position.sub(bc); scene.updateMatrixWorld(true);
+  const cbox=new THREE.Box3().setFromObject(headMesh||root);
+  const size=new THREE.Vector3();cbox.getSize(size);
+  maskBaseW=size.x*0.98; maskBaseH=size.y*0.90;
+  $('mw').value=maskBaseW.toFixed(3);$('mwVal').textContent=maskBaseW.toFixed(3);
+  $('mh').value=maskBaseH.toFixed(3);$('mhVal').textContent=maskBaseH.toFixed(3);
+  const cc=cbox.getCenter(new THREE.Vector3());
+  headGroup.position.set(-cc.x, -0.06-cbox.min.y, -cc.z);
+  scene.updateMatrixWorld(true);
+  const wc=new THREE.Box3().setFromObject(headMesh).getCenter(new THREE.Vector3());
+  baseCenter=headGroup.position.clone(); target.copy(wc); dist=0.52; place(); applyTransform();
 
   maskTex=new THREE.CanvasTexture(maskCanvas);maskTex.colorSpace=THREE.SRGBColorSpace;maskTex.anisotropy=4;
   const mat=new THREE.MeshBasicMaterial({map:maskTex,transparent:true,side:THREE.DoubleSide,depthWrite:false,toneMapped:false,blending:THREE.AdditiveBlending});
-  const geo=new THREE.PlaneGeometry(0.168,0.132,40,34);
+  const geo=new THREE.PlaneGeometry(size.x*0.98,size.y*0.90,40,34);
   const pos=geo.attributes.position;
   for(let i=0;i<pos.count;i++){
     const x=pos.getX(i), y=pos.getY(i);
-    pos.setZ(i, -0.022*(Math.pow(x/0.084,2)+Math.pow(y/0.066,2)));
+    pos.setZ(i, -0.020*(Math.pow(x/(size.x*0.49),2)+Math.pow(y/(size.y*0.45),2)));
   }
   geo.computeVertexNormals();
   maskMesh=new THREE.Mesh(geo,mat);
-  const baseMaskY=c.y+0.000;
-  maskBaseY=baseMaskY-c.y;
-  maskMesh.position.set(0,maskBaseY,size.z/2+0.0015);
+  const baseMaskY=0;
+  maskBaseY=baseMaskY;
+  maskMesh.position.set(0,baseMaskY,size.z/2+0.0015);
   headGroup.add(maskMesh);
 
   // The crown is a second viewport: full top-shell LED matrix.
