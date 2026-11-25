@@ -4088,3 +4088,27 @@ buymeacoffee/bmc.com. Ambas quedan **NOT SET · operator-supplied**.
 
 **Por qué no se inventaron:** un slug de referido fabricado es peor que un enlace ausente —
 desvía dinero en silencio. Registrado como ausencia honesta en vez de rellenado.
+
+## 110. dominios: `cli.llc` declarado primario; cuatro puertas rotas (2026-11-25)
+
+Sondeo real (`curl -sL`, siguiendo redirects) sobre los dominios del brief. Registrado en
+`DOMAINS.md`.
+
+**Vivos y enrutados (10):** `cli.llc` → github.io raíz · `wætz.com` → raíz · `soværeign.com` →
+raíz · **`neuromitosis.com` → `/neuromitosis`** (sub-ruta real) · `daollc.ai` →
+privateclient.ai/owner · `privateclient.ai` y `commandprompt.ai` → propios · `æ.net` · `yæl.com` ·
+`æl.net`.
+
+**Rotos (4), sin TLS:** **`æ.store`** (insignia), **`llm.store`** (el producto), `zacapa.ai`,
+`teologia.ai`. Un dominio caído muestra **aviso de certificado**, que un visitante nuevo lee como
+inseguridad, no como ausencia.
+
+**Decisión del operador:** `cli.llc` es la **puerta primaria**. Razones registradas: corto y
+operable, coherente con la tesis (`>_æ:` es la puerta, no el escaparate), estructuralmente honesto
+(`.llc` = una persona), y ya verificado 200.
+
+**Compensación declarada, no oculta:** `.llc` habla a operadores y agentes, no a consumo masivo.
+La secuencia correcta es `cli.llc` primario hoy + recuperar `æ.store` como escaparate global.
+
+**No ejecutado:** no se cambió ningún enlace canónico ni el brief del operador (`AGENTS.md`), que
+sigue listando los dominios sin prioridad. Eso es una decisión del operador, no mía.
