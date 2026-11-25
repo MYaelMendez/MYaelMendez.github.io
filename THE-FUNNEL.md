@@ -21,6 +21,20 @@ presume æ, or presume the operator's identity.
 | 6 | **fork** | creates their repo from the template | **yes** — "Use this template", no auth needed |
 | 7 | **publish** | ships it to `*.github.io` | **yes** — steps + checklist |
 | 8 | **share** | publishes their first receipted artifact | **yes** — the tiny family |
+| 9 | **form** | ready → DAOLLC through the Doola referral | link only — **URL not supplied** |
+| 10 | **support** | buys the operator a coffee | link only — **URL not supplied** |
+
+### Stages 9–10 — declared, deliberately not invented
+
+Two closing CTAs belong here: forming the business through the operator's **Doola** referral,
+and a **coffee** if the ware was worth something. Neither link exists anywhere on the surface
+today — a search of the whole tree found only a `doola` *keyword* in
+`.well-known/skills/index.json`, and no coffee URL at all.
+
+They are recorded as **NOT SET — operator-supplied** rather than filled with a plausible-looking
+referral slug. A fabricated affiliate link is worse than a missing one: it silently misdirects
+money. When the operator supplies both, they become two lines and a stage-9/10 state flips from
+`needs-you` to `live`.
 
 ---
 

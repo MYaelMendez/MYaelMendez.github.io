@@ -4076,3 +4076,15 @@ cada etapa declara su propio estado.
 
 **Build order:** funnel page (8 etapas con estado) → PWA manifest → handle→actividad → starter kit
 → BYO inputs para la tiny family.
+
+## 109. funnel: Doola + coffee declarados, enlaces NO inventados (2026-11-25)
+
+El operador pidió añadir al funnel la **formación de DAOLLC por su referral de Doola** (etapa 9)
+y un **café** (etapa 10). `THE-FUNNEL.md` las incorpora.
+
+**Buscado en todo el árbol antes de escribir:** no existe ninguna URL de Doola — solo la
+*palabra* `doola` como keyword en `.well-known/skills/index.json` — y ninguna URL de
+buymeacoffee/bmc.com. Ambas quedan **NOT SET · operator-supplied**.
+
+**Por qué no se inventaron:** un slug de referido fabricado es peor que un enlace ausente —
+desvía dinero en silencio. Registrado como ausencia honesta en vez de rellenado.
