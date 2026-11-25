@@ -3984,3 +3984,39 @@ subprocess `C:/gpu/Scripts/python.exe` (cp312) hereda ese path y carga un numpy 
 *Verificación propia:* con `PYTHONPATH` contaminado → `No module named 'numpy._core._multiarray_umath'`; con `-E` → `numpy 2.2.6 · ort 1.32.0` limpio.
 Corrección mínima y reversible: invocar con `-E` (NO `-I`/`-P`, que rompen `import tiny_voca_paths`).
 **No aplicada**: está en `plugins/tiny-voca-voice/`, fuera del repo. Falta la autorización.
+
+## 106. asimov_1 — procedencia sellada (SimReady Central) (2026-11-24)
+
+**Fuente:** NVIDIA **SimReady Central** (HF Space `nvidia/simready-central`,
+`https://nvidia-simready-central.hf.space`) — biblioteca de **3.913 activos** con filtros de
+profile / rigid bodies / masa / licencia / dimensiones. Entrada: *Menlo asimov 1 humanoid robot*,
+`asimov_1.usd` · 69.64 MB.
+**Paquete:** `simready.hf.Menlo.asimov-1-simready-usd.asimov_1.2026.10.20_00` · licencia
+declarada en el paquete **CC-BY-4.0** · author *Asimov Inc.*
+
+**Hash del payload completo (ley 1 del provenance loop):**
+| artifacto | sha256 | bytes |
+|---|---|---|
+| `asimov_1.zip` (adjunto original) | `8b3c585c1ca146ee40aedc78ff4c69ef2203652b45c52559b19fe95e3acdf5c6` | 14,797,647 |
+| `…/configuration/asimov_1_base.usd` | `a4fddc2ed3dee0921a3e9a78adaaaa9f812ad22d74da17888d81a0f49024f2ff` | 72,836,154 |
+
+Extraído en `C:/æ/asimov_1/` (70 MB; el zip trae su propia carpeta raíz, quedó anidado un nivel).
+
+**Contenido:** base USDC binaria (`PXR-USDC`) de 72.8 MB + capas `robot` / `physics` / `sensor`
+(2.9–9.8 KB) + 5 JSON de metadata con BOM y sha256 por archivo. Metadatos: **26 rigid bodies**
+(coincide con los 26 links de nuestro `asimov-urdf.json`), extents `0.260 × 0.424 × 1.254 m`,
+masa **35 kg**.
+
+**Su propio benchmark de conformidad:** `joint_movement` **pass** y `pivot` **pass** → el activo
+tiene juntas y pivotes reales. Global `passed: false`: fallan `drive_gain_validation`,
+`ground_drop` y `slope_drop`. El fallo es de el activo, no de nuestra lectura.
+
+**Qué desbloquea (y qué no):** nuestro `assets/gltf/asimov-web.glb` es un ensamblado **plano**, sin
+jerarquía de pivotes (§105) — por eso las poses ahí son colocaciones rígidas. Este USD **sí**
+articula, así que es la geometría autorizada para la siguiente fase del pet. Pero es **USD/USDC**:
+three.js no lo carga nativamente; haría falta conversión a glTF (Blender USD o `usdcat`).
+**No se ha convertido nada.**
+
+**Riesgo de licencia declarado, no resuelto:** el paquete dice **CC-BY-4.0**; el registro previo del
+estate dice **CERN-OHL-S-2.0** para el CAD/URDF/MJCF de Menlo. Son artefactos distintos y el estate
+debe decir qué licencia cubre cuál, porque la atribución es el objeto de ambas.
