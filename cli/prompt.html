@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>cli.llc:// · el prompt</title>
+<style>
+  :root{--gold:#D4AF37;--void:#050505;--dim:#8a8a8a;--line:#2a2a2a}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--void);color:#ededed;
+       font-family:"JetBrains Mono",ui-monospace,monospace;font-size:13px;line-height:1.6;
+       background-image:linear-gradient(rgba(212,175,55,.045) 1px,transparent 1px),
+                        linear-gradient(90deg,rgba(212,175,55,.045) 1px,transparent 1px);
+       background-size:40px 40px}
+  main{padding:20px 18px 40px;max-width:720px;margin:0 auto}
+  h1{font-family:Orbitron,ui-monospace,monospace;color:var(--gold);font-size:clamp(16px,3vw,24px);margin:0 0 6px;letter-spacing:.06em}
+  .sub{color:var(--dim);max-width:70ch;margin:0 0 16px}
+  .field{display:flex;align-items:center;gap:8px;border:1px solid var(--gold);
+         padding:12px 14px;background:#0b0b0d;min-height:52px}
+  .field .caret{color:var(--gold);white-space:pre}
+  #in{flex:1;background:transparent;border:0;outline:0;color:#f0d878;font:inherit;caret-color:var(--gold)}
+  .hint{color:var(--dim);font-size:11px;margin-top:8px;letter-spacing:.04em}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+  .chips button{background:transparent;border:1px solid var(--line);color:var(--dim);font:inherit;
+    font-size:10px;letter-spacing:.1em;padding:5px 9px;cursor:pointer;text-transform:uppercase}
+  .chips button.on{color:var(--void);background:var(--gold);border-color:var(--gold);font-weight:700}
+  table{width:100%;border-collapse:collapse;margin-top:14px}
+  td,th{border-bottom:1px dotted var(--line);padding:5px 4px;text-align:left;vertical-align:top}
+  th{color:var(--dim);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+  code{color:var(--gold)}
+  #log{border-top:1px solid var(--line);margin-top:14px;padding-top:10px;color:var(--dim);font-size:11px;min-height:3em}
+  #log div b{color:var(--gold);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+  <h1>cli.llc://</h1>
+  <p class="sub">Una sola línea de comando. Escribe el sigilo y entras en ese cliente; con
+     <code>æ</code> ya puesto, basta <b>Enter</b>.</p>
+
+  <div class="field"><span class="caret" id="caret">&gt;_</span><input id="in" value="æ"
+      autocomplete="off" spellcheck="false" aria-label="prompt"/></div>
+  <div class="hint" id="hint"></div>
+  <div class="chips" id="chips"></div>
+
+  <table><thead><tr><th>sigilo</th><th>cliente</th><th>ruta</th><th>estado</th></tr></thead>
+    <tbody id="rows"></tbody></table>
+
+  <div id="log"></div>
+</main>
+
+<script>
+/* cli.llc:// — un prompt, muchos clientes. El sigilo NO es un permiso: solo elige a qué puerta
+   estás hablando. El campo arranca con «æ» para que Enter basta. */
+const CLIENTS = [
+  {k:'',   sigil:'>_',     name:'cliente nuevo · prompt público', route:'>_://',        state:'abierto'},
+  {k:'æ',  sigil:'>_æ:',   name:'æ · protocolo soberano',        route:'æ://',          state:'abierto'},
+  {k:'pc', sigil:'>_pc://',name:'private client ai',             route:'pc://',         state:'local'},
+  {k:'sov',sigil:'>_sov://',name:'sovereign client',             route:'soværeign://',  state:'local'},
+  {k:'h',  sigil:'>_h:',   name:'hermes · intent routing',       route:'hermes://',     state:'local'},
+  {k:'n',  sigil:'>_n:',   name:'nvidia · compute',              route:'nvidia://',     state:'local'},
+  {k:'$',  sigil:'>_$',    name:'stripe · pagos',                route:'$://',          state:'custodia'}
+];
+const $ = id => document.getElementById(id);
+function match(txt){
+  const t = txt.trim();
+  if (!t) return CLIENTS[0];
+  /* coincidencia por prefijo más largo primero */
+  const cands = CLIENTS.filter(c => c.k && (t === c.k || t.startsWith(c.k + '://') ||
+                                            t.startsWith(c.k)));
+  return cands.sort((a,b)=>b.k.length-a.k.length)[0] || CLIENTS[0];
+}
+function paint(){
+  const c = match($('in').value);
+  /* el caret es solo el prompt; el sigilo lo pone el campo → se lee >_æ, no >_ææ */
+  $('caret').textContent = '>_';
+  $('hint').textContent = c.sigil + ' · ' + c.name + ' · ' + c.route + ' · ' + c.state;
+  [...$('chips').children].forEach(b => b.classList.toggle('on', b.dataset.k === c.k));
+  $('rows').innerHTML = CLIENTS.map(c =>
+    `<tr><td><code>${c.sigil}</code></td><td>${c.name}</td><td><code>${c.route}</code></td><td>${c.state}</td></tr>`).join('');
+}
+$('chips').innerHTML = CLIENTS.map(c =>
+  `<button data-k="${c.k}">${c.sigil}</button>`).join('');
+$('chips').addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  $('in').value = b.dataset.k || '';
+  paint(); $('in').focus();
+});
+$('in').addEventListener('input', paint);
+$('in').addEventListener('keydown', e=>{
+  if(e.key !== 'Enter') return;
+  const c = match($('in').value);
+  const t = new Date().toISOString().slice(11,19);
+  const d = document.createElement('div');
+  d.innerHTML = `[${t}] <b>${c.sigil}</b> ${c.route} · ${c.name} · ${c.state} · grants:false`;
+  $('log').prepend(d);
+});
+paint();
+</script>
+</body>
+</html>

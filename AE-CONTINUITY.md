@@ -4146,3 +4146,31 @@ Operador: «yes cli.llc://æ makes it all come together >_æ:// (all our domains
 
 **No hecho:** que `>_æ://` resuelva de verdad los dominios es una *declaración*, no un resolver
 implementado. Nadie lo ejecuta todavía.
+
+## 113. cli.llc:// — un prompt, muchos clientes (2026-11-25)
+
+Operador: `cli.llc://` cede a un `>_` plano (futuro prompt público de IA); al escribir el sigilo
+entras en ese cliente, y **æ puede venir ya puesto para que baste Enter**.
+
+**Construido:** `cli/prompt.html`. Un campo, siete clientes:
+
+| sigilo | cliente | ruta | estado |
+|---|---|---|---|
+| `>_` | cliente nuevo · prompt público | `>_://` | abierto |
+| `>_æ:` | æ · protocolo soberano | `æ://` | abierto |
+| `>_pc://` | private client ai | `pc://` | local |
+| `>_sov://` | sovereign client | `soværeign://` | local |
+| `>_h:` | hermes · intent routing | `hermes://` | local |
+| `>_n:` | nvidia · compute | `nvidia://` | local |
+| `>_$` | stripe · pagos | `$://` | custodia |
+
+El campo **arranca con «æ»**. Enter emite una línea de registro con **`grants:false`** — el sigilo
+elige a qué puerta hablas, no concede nada.
+
+*Verificado:* prefilled `æ`; resolución `pc→>_pc`, `sov→>_sov`, `æ→>_æ`, `h→>_h`, `$→>_$`;
+7 filas; log `[04:35:38] >_æ: æ:// · abierto · grants:false`.
+
+**Defecto encontrado y corregido:** el caret repetía el sigilo (`>_æ` + input `æ` = `>_ææ`).
+Ahora el caret es solo `>_` y el campo completa. Verificado tras el fix.
+
+**No implementado:** que estos sigilos ejecuten algo. Hoy resuelven *identidad y ruta*, no acción.
