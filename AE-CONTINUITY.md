@@ -3950,3 +3950,37 @@ Defectos ya corregidos en el camino (los dos reales):
 separados aún: el cultivo 64 px no alcanza la figura (el robot ocupa poco marco), las metas de
 joints no llegan a los nodos (nombres URDF ↔ nodos glTF), o el suavizado `w=0.06` es tan lento que
 en la lectura inmediata la pose aún no cambió. **No se declara P3 terminado.**
+
+## 105. fleet wave — P3 receipt, P4 locomotion, P5 raster (2026-11-24)
+
+Wave `deleg_9f24434c`: 4 children, one file each, no pushes. **El conductor re-verificó cada
+afirmación por ejecución propia**, no por reporte.
+
+### P3 · el receipt del pet en vivo — CORREGIDO y verificado
+Causa real: el cultivo de 64 px caía en fondo puro; la figura proyecta ~36 px. El enlace de joints
+estaba bien (`joint.child` ES la malla visible) y el suavizado era solo transiente. Además
+`spine_*`/`head_*` no existían en el URDF — estados enteros eran no-ops silenciosos.
+Ahora el cultivo sigue a la figura (`Box3` → proyección de esquinas → cuadrado con clamp) y se
+emiten **dos** digestos: moving y **canonical** (fase fija).
+*Verificación propia:* `idle bc787cf3 · running 687d0847 · waving 96374093 · failed a402880b`
+→ **distinct = 4/4** (antes: 1). Coincide dígito a dígito con el reporte del agente.
+Determinismo canónico a ~2 s: `687d0847 == 687d0847` ✓ (el moving difiere, y debe).
+
+### P4 · locomoción DOM-aware — VERIFICADA con números propios
+*Propia ejecución* (`reset(); step(200)`): `ticks 200 · checks 213 · avoided 13 · edge 5 ·
+blocked 0 · obstacles 7`. Distinto al reporte del agente (18/11) porque el viewport cambia — que
+difiramos es la prueba de que ambos contaron de verdad. Evita obstáculos reales leyendo
+`getBoundingClientRect()` de 7–11 elementos vivos.
+
+### P5 · raster 2× — VERIFICADA, determinismo cross-sesión
+Canvas **384×416**, `preserveDrawingBuffer:true`. Digestos por estado: `idle 5cd1e363 ·
+running b66d1057 · waving 418d56de · failed cb6e93e6` — **idénticos a los del agente en otra
+sesión**. Hallazgo declarado: `asimov-web.glb` es un ensamblado plano de 26 mallas sin
+jerarquía de pivotes, así que las poses son colocaciones rígidas del CAD completo.
+
+### P6 · tiny-voca — DIAGNÓSTICO VERIFICADO, corrección NO aplicada
+Causa raíz: el proceso Hermes exporta un `PYTHONPATH` que incluye el venv cp314 del payload; el
+subprocess `C:/gpu/Scripts/python.exe` (cp312) hereda ese path y carga un numpy cp314 → **ABI binaria**, no un problema de versión.
+*Verificación propia:* con `PYTHONPATH` contaminado → `No module named 'numpy._core._multiarray_umath'`; con `-E` → `numpy 2.2.6 · ort 1.32.0` limpio.
+Corrección mínima y reversible: invocar con `-E` (NO `-I`/`-P`, que rompen `import tiny_voca_paths`).
+**No aplicada**: está en `plugins/tiny-voca-voice/`, fuera del repo. Falta la autorización.

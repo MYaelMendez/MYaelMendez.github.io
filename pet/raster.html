@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pet://raster · P5 · 384×416</title>
+<style>
+  :root{--gold:#D4AF37;--void:#050505;--dim:#8a8a8a;--line:#2a2a2a;--panel:#0b0b0d}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--void);color:#ededed;font:12px/1.6 "JetBrains Mono",ui-monospace,monospace;
+       background-image:linear-gradient(rgba(212,175,55,.045) 1px,transparent 1px),
+                        linear-gradient(90deg,rgba(212,175,55,.045) 1px,transparent 1px);
+       background-size:40px 40px}
+  header{padding:18px 18px 10px;border-bottom:1px solid var(--line)}
+  h1{font-family:Orbitron,ui-monospace,monospace;font-size:clamp(17px,3.2vw,26px);margin:0;color:var(--gold);letter-spacing:.06em}
+  .sub{color:var(--dim);max-width:92ch;margin:6px 0 0}
+  main{padding:14px 18px 34px;display:grid;gap:14px;justify-items:start}
+  .panel{border:1px solid var(--line);background:var(--panel);padding:10px 12px;width:100%;max-width:1200px}
+  .k{color:var(--dim);font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+  .v{color:#f0d878}
+  code{color:var(--gold);word-break:break-all}
+  #sheet{border:1px solid var(--line);background:#000;max-width:100%;height:auto;display:block}
+  pre#receipt{white-space:pre-wrap;margin:0;font:inherit;color:#cfcfcf;line-height:1.7}
+  button{background:transparent;border:1px solid var(--gold);color:var(--gold);font:inherit;font-size:11px;
+         letter-spacing:.1em;padding:7px 12px;cursor:pointer;text-transform:uppercase}
+  button:hover{background:var(--gold);color:var(--void)}
+  table{border-collapse:collapse;font:inherit}
+  td,th{padding:3px 10px 3px 0;text-align:left;vertical-align:top}
+  th{color:var(--dim);font-weight:400;letter-spacing:.08em;text-transform:uppercase;font-size:10px}
+</style>
+</head>
+<body>
+<header>
+  <h1>pet://raster · P5</h1>
+  <p class="sub">Re-rasterizado del mismo CAD (<code>asimov_1_25dof</code> ·
+     <code>assets/gltf/asimov-web.glb</code>) a <b>384×416</b> — 2× la celda del atlas — con
+     cámara ortográfica fija y luz oro-sobre-void plana. Declarado: el GLB es una malla
+     ensamblada plana de 26 nodos <b>sin jerarquía ni pivotes</b>; las posturas son
+     colocaciones rígidas de todo el CAD, no articulación articular. El renderer es
+     three.js r186 vendido en <code>assets/vendor/</code> — cero CDN.</p>
+</header>
+<main>
+  <div class="panel">
+    <div class="k">lámina de tiles · 4 estados · 384×416 c/u</div>
+    <canvas id="sheet" width="1600" height="500"></canvas>
+    <p style="margin:8px 0 0"><button id="dl" type="button">download tile sheet png</button></p>
+  </div>
+  <div class="panel">
+    <div class="k">medida · canvas</div>
+    <table id="metrics"></table>
+  </div>
+  <div class="panel">
+    <div class="k">receipt · fnv-1a · centro 96×96</div>
+    <pre id="receipt">CARGANDO</pre>
+  </div>
+</main>
+
+<script type="importmap">
+{"imports":{"three":"../assets/vendor/three.module.js","three/addons/":"../assets/vendor/"}}
+</script>
+<script type="module">
+/* pet://raster — P5. Render offscreen a 384×416 (2× celda) determinista.
+   Contrato: GLB vendido + loaders vendidos, ortográfica fija, preserveDrawingBuffer:true,
+   digesto FNV-1a del cultivo central por tile como receipt. */
+const $ = id => document.getElementById(id);
+
+const CELL_W = 384, CELL_H = 416, CROP = 96;
+const STATES = ['idle', 'running', 'waving', 'failed'];
+/* posturas = transformación rígida de TODO el CAD (el GLB no tiene jerarquía) */
+const POSES = {
+  idle:    { r:[ 0.00,  0.00,  0.00], p:[0, 0,  0.00] },
+  running: { r:[-0.22,  0.00,  0.12], p:[0, 0,  0.00] },
+  waving:  { r:[ 0.00, -0.20,  0.55], p:[0, 0,  0.00] },
+  failed:  { r:[ 1.15,  0.00,  0.00], p:[0, 0, -0.02] }
+};
+
+let THREE, renderer, scene, camera, root, gl;
+const digests = {};
+
+function fnv(bytes){
+  let h = 0x811c9dc5;
+  for (let i = 0; i < bytes.length; i++){ h ^= bytes[i]; h = Math.imul(h, 0x01000193) >>> 0; }
+  return ('00000000' + h.toString(16)).slice(-8);
+}
+
+try{
+  THREE = await import('three');
+  const { GLTFLoader } = await import('../assets/vendor/GLTFLoader.js');
+  const { DRACOLoader } = await import('../assets/vendor/DRACOLoader.js');
+
+  /* lienzo offscreen: 384×416 exactos, pixelRatio 1, preserve ANTES de cualquier readPixels */
+  const glCanvas = document.createElement('canvas');
+  glCanvas.width = CELL_W; glCanvas.height = CELL_H;
+  glCanvas.style.cssText = 'position:absolute;left:-9999px;top:0;width:384px;height:416px';
+  document.body.appendChild(glCanvas);
+
+  renderer = new THREE.WebGLRenderer({ canvas: glCanvas, antialias:true, preserveDrawingBuffer:true, alpha:false });
+  renderer.setPixelRatio(1);
+  renderer.setSize(CELL_W, CELL_H, false);
+  renderer.toneMapping = THREE.NoToneMapping;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  gl = renderer.getContext();
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x050505);          /* void */
+
+  const draco = new DRACOLoader().setDecoderPath('../assets/vendor/draco/');
+  const loader = new GLTFLoader().setDRACOLoader(draco);
+  const gltf = await loader.loadAsync('../assets/gltf/asimov-web.glb');
+  root = gltf.scene;
+  root.traverse(o => {
+    if (o.isMesh){
+      if (o.geometry) o.geometry.computeVertexNormals();  /* el GLB no trae NORMAL */
+      o.material = new THREE.MeshStandardMaterial({
+        color:0xD4AF37, metalness:0.05, roughness:0.85, flatShading:true
+      });
+      o.frustumCulled = false;
+    }
+  });
+  scene.add(root);
+
+  /* luz plana oro-sobre-void: key + rim + ambient, sin entorno */
+  const key = new THREE.DirectionalLight(0xfff2cc, 2.4); key.position.set(2.5, 3.5, 4);   scene.add(key);
+  const rim = new THREE.DirectionalLight(0xD4AF37, 1.4); rim.position.set(-3, 1.5, -2);   scene.add(rim);
+  scene.add(new THREE.AmbientLight(0xffffff, .5));
+
+  /* cámara ortográfica fija, encuadre por esfera envolvente (invariante a la rotación rígida) */
+  const bb = new THREE.Box3().setFromObject(root);
+  const center = bb.getCenter(new THREE.Vector3());
+  const sphere = bb.getBoundingSphere(new THREE.Sphere());
+  const aspect = CELL_W / CELL_H;
+  const halfH = sphere.radius * 1.18;
+  camera = new THREE.OrthographicCamera(
+    -halfH * aspect, halfH * aspect, halfH, -halfH,
+    Math.max(0.01, sphere.radius * 0.05), sphere.radius * 8
+  );
+  camera.up.set(0, 0, 1);                                 /* el eje largo del CAD es +Z */
+  const dir = new THREE.Vector3(0.45, 1.0, 0.06).normalize();
+  camera.position.copy(center).addScaledVector(dir, sphere.radius * 3);
+  camera.lookAt(center);
+  camera.updateProjectionMatrix();
+
+  const cropPx = new Uint8Array(CROP * CROP * 4);
+  function centreDigest(){
+    const x = (CELL_W >> 1) - (CROP >> 1), y = (CELL_H >> 1) - (CROP >> 1);
+    gl.readPixels(x, y, CROP, CROP, gl.RGBA, gl.UNSIGNED_BYTE, cropPx);
+    return fnv(cropPx);
+  }
+
+  /* lámina compuesta: tiles + etiqueta visible (estado + tamaño en px) */
+  const sheet = $('sheet'), ctx = sheet.getContext('2d');
+  const PAD = 16, GAP = 12, LABEL_H = 34;
+  sheet.width  = PAD * 2 + STATES.length * CELL_W + (STATES.length - 1) * GAP;
+  sheet.height = PAD * 2 + CELL_H + LABEL_H;
+  ctx.fillStyle = '#050505'; ctx.fillRect(0, 0, sheet.width, sheet.height);
+
+  STATES.forEach((s, i) => {
+    const pose = POSES[s];
+    root.rotation.set(pose.r[0], pose.r[1], pose.r[2]);
+    root.position.set(pose.p[0], pose.p[1], pose.p[2]);
+    root.updateMatrixWorld(true);
+    renderer.render(scene, camera);
+    digests[s] = centreDigest();
+
+    const x = PAD + i * (CELL_W + GAP), y = PAD;
+    ctx.drawImage(glCanvas, x, y, CELL_W, CELL_H);
+    ctx.strokeStyle = '#D4AF37'; ctx.lineWidth = 1;
+    ctx.strokeRect(x + .5, y + .5, CELL_W - 1, CELL_H - 1);
+    ctx.fillStyle = '#D4AF37'; ctx.font = '12px "JetBrains Mono", monospace';
+    ctx.fillText(s, x + 2, y + CELL_H + 16);
+    ctx.fillStyle = '#8a8a8a';
+    ctx.fillText(CELL_W + '×' + CELL_H + 'px', x + 2, y + CELL_H + 30);
+  });
+
+  /* medida */
+  const buf = renderer.getDrawingBufferSize(new THREE.Vector2());
+  const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+  const gpu = String(dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
+  let urdf = null;
+  try{ urdf = await fetch('../asimov-urdf.json').then(r => r.json()); }catch(e){ /* opcional */ }
+  const rows = [
+    ['canvas pixel size', buf.x + ' × ' + buf.y + ' px'],
+    ['cell', CELL_W + ' × ' + CELL_H + ' px'],
+    ['pixel ratio', String(renderer.getPixelRatio())],
+    ['preserveDrawingBuffer', 'true'],
+    ['antialias', 'true'],
+    ['tone mapping', 'NoToneMapping'],
+    ['camera', 'ortográfica · up +Z · r_esfera ' + sphere.radius.toFixed(4)],
+    ['gpu', gpu],
+    ['modelo', urdf ? urdf.robot : 'asimov-web.glb'],
+    ['links / joints', urdf ? Object.keys(urdf.links).length + ' / ' + urdf.joints.length : '26 / 25'],
+    ['centro crop', CROP + '×' + CROP + ' @ (' + ((CELL_W >> 1) - (CROP >> 1)) + ',' + ((CELL_H >> 1) - (CROP >> 1)) + ')']
+  ];
+  $('metrics').innerHTML = rows.map(r =>
+    '<tr><th>' + r[0] + '</th><td class="v">' + String(r[1]).replace(/</g, '&lt;') + '</td></tr>'
+  ).join('');
+
+  /* receipt + comparación con la corrida anterior (misma sesión de pestaña) */
+  const prevRaw = sessionStorage.getItem('p5-raster-digests');
+  let prev = null, match = null;
+  try{ prev = JSON.parse(prevRaw); }catch(e){}
+  if (prev && STATES.every(s => prev[s] === digests[s])) match = true;
+  else if (prev) match = false;
+  sessionStorage.setItem('p5-raster-digests', JSON.stringify(digests));
+
+  const lines = [];
+  lines.push('CANVAS ' + buf.x + 'x' + buf.y + '  PR ' + renderer.getPixelRatio() + '  PRESERVE true');
+  STATES.forEach(s => lines.push('DIGEST ' + s + ' ' + digests[s]));
+  lines.push('CROP ' + CROP + 'x' + CROP + ' centro · fnv-1a');
+  lines.push('PREV ' + (prev ? STATES.map(s => s + ':' + prev[s]).join(' ') : 'none'));
+  lines.push('MATCH ' + (match === null ? 'n/a (primer run)' : match));
+  $('receipt').textContent = lines.join('\n');
+  window.__raster = { canvas:[buf.x, buf.y], digests:Object.assign({}, digests), prev:prev, match:match };
+
+  $('dl').addEventListener('click', () => {
+    const a = document.createElement('a');
+    a.href = sheet.toDataURL('image/png');
+    a.download = 'asimov-raster-' + CELL_W + 'x' + CELL_H + '.png';
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+}catch(e){
+  const msg = (e && e.message) ? e.message : String(e);
+  $('receipt').textContent = 'ERROR ' + msg;
+  $('metrics').innerHTML = '<tr><th>estado</th><td class="v">REFUSED · ' + msg.replace(/</g,'&lt;') + '</td></tr>';
+  window.__raster = { error: msg };
+}
+</script>
+</body>
+</html>

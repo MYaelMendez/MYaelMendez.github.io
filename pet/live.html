@@ -32,9 +32,11 @@
 <header>
   <h1>pet://live</h1>
   <p class="sub">P3 del plan de evolución: la geometría articular real
-     (<code>asimov_1_25dof</code>, 26 links / 25 joints) renderizada en vivo, con <b>digesto por
-     frame</b> como receipt. Si no hay WebGL, el atlas de sprites sigue funcionando y el camino se
-     declara.</p>
+     (<code>asimov_1_25dof</code>, 26 links / 25 joints) renderizada en vivo, con <b>dos
+     digestos por frame</b> como receipt: el <b>móvil</b> (el cuadro en curso, cambia con t) y el
+     <b>canónico</b> (la pose exacta del estado sampleada en fase fija t≡0 mod 2π, reproducible).
+     El cultivo de píxeles se centra en la caja proyectada del robot, no en el centro del buffer.
+     Si no hay WebGL, el atlas de sprites sigue funcionando y el camino se declara.</p>
 </header>
 <main>
   <canvas id="stage"></canvas>
@@ -43,7 +45,8 @@
     <div class="card"><div class="k">gpu</div><div class="v" id="gpu">—</div></div>
     <div class="card"><div class="k">modelo</div><div class="v" id="model">—</div></div>
     <div class="card"><div class="k">articula</div><div class="v" id="joints">—</div></div>
-    <div class="card"><div class="k">digesto por frame</div><div class="v" id="digest">—</div></div>
+    <div class="card"><div class="k">digesto móvil</div><div class="v" id="digest">—</div></div>
+    <div class="card"><div class="k">digesto canónico</div><div class="v" id="cdigest">—</div></div>
     <div class="card"><div class="k">estado</div><div class="v" id="state">idle</div></div>
     <div class="card"><div class="k">estados</div><div id="chips">
       <button data-s="idle">idle</button><button data-s="running">running</button>
@@ -57,17 +60,22 @@
 {"imports":{"three":"../assets/vendor/three.module.js","three/addons/":"../assets/vendor/"}}
 </script>
 <script type="module">
-/* pet://live — P3. Pose = f(state, t); el receipt es un digesto por frame.
+/* pet://live — P3. Pose = f(state, t); el receipt son dos digestos por frame.
    Fallback declarado: si GLTF/WebGL falla, el atlas de sprites toma el control. */
 const $ = id => document.getElementById(id);
 const STATES = ['idle','running','waving','jumping','failed','review'];
 let state = 'idle', t = 0;
 
+/* reporte a nivel ventana: el camino se declara aquí y en el DOM */
+const REPORT = window.__pet = { ready:false, path:'CARGANDO', reason:'', gpu:'—', model:'—',
+  joints:0, state:'idle', moving:null, canonical:null, rot:()=>null, sample:()=>null };
+
 function fallback(razon){
+  REPORT.ready = false; REPORT.path = 'REFUSED'; REPORT.reason = razon;
   $('path').textContent = 'REFUSED';
   $('path').innerHTML = '<code>2d-fallback · ' + razon + '</code>';
   $('gpu').textContent = '—'; $('model').textContent = 'atlas de sprites';
-  $('joints').textContent = '0'; $('digest').textContent = '—';
+  $('joints').textContent = '0'; $('digest').textContent = '—'; $('cdigest').textContent = '—';
   const c = $('stage');
   c.style.backgroundImage = 'url("../picoasimov-atlas.webp")';
   c.style.backgroundSize = '1536px 1872px'; c.style.backgroundRepeat = 'no-repeat';
@@ -119,48 +127,118 @@ try{
     renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); }
   addEventListener('resize', fit); fit();
 
-  const L = n => joints[n];
-  /* pose = f(state, t): interpola hacia los objetivos del estado */
+  /* pose = f(state, t). Solo nombres de joint que existen en el URDF:
+     una clave inexistente era un no-op silencioso (spine_pitch_joint, head_*). */
   const TARGETS = {
-    idle:    { 'left_hip_pitch_joint':-0.05, 'right_hip_pitch_joint':-0.05, 'spine_pitch_joint':0.04 },
-    running: { 'left_hip_pitch_joint':-0.55, 'right_hip_pitch_joint': 0.55, 'spine_pitch_joint':0.10 },
-    waving:  { 'right_shoulder_pitch_joint':-2.2, 'right_elbow_pitch_joint':-0.6 },
-    jumping: { 'left_hip_pitch_joint':-0.35, 'right_hip_pitch_joint':-0.35, 'spine_pitch_joint':-0.12 },
-    failed:  { 'spine_pitch_joint':0.42, 'head_pitch_joint':0.35 },
-    review:  { 'head_yaw_joint':0.5, 'spine_pitch_joint':-0.05 }
+    idle:    { left_hip_pitch_joint:-0.05, right_hip_pitch_joint:-0.05, neck_pitch_joint:0.04 },
+    running: { left_hip_pitch_joint:-0.55, right_hip_pitch_joint: 0.55, neck_pitch_joint:0.10 },
+    waving:  { right_shoulder_pitch_joint:-2.2, right_elbow_joint:-0.6 },
+    jumping: { left_hip_pitch_joint:-0.35, right_hip_pitch_joint:-0.35, neck_pitch_joint:-0.12 },
+    failed:  { neck_pitch_joint:0.42, left_shoulder_pitch_joint:0.28, right_shoulder_pitch_joint:0.28 },
+    review:  { neck_yaw_joint:0.5, neck_pitch_joint:-0.05 }
   };
-  function pose(){
-    const tgt = TARGETS[state] || {};
-    const w = Math.min(1, 0.06) ;          /* suavizado */
-    for(const k in joints){
-      const goal = (k in tgt) ? tgt[k] : 0;
-      let cur = joints[k].rotation.x;
-      const osc = (state==='running') ? Math.sin(t*9 + (/left/.test(k)?0:Math.PI))*0.35 : 0;
-      cur += ((goal + osc) - cur) * w;
-      joints[k].rotation.x = cur;
-    }
-    if(state==='waving'){
-      const s = joints['right_elbow_pitch_joint'];
-      if(s) s.rotation.x = -0.6 + Math.sin(t*7)*0.35;
-    }
-    if(state==='jumping'){ root.position.y = Math.abs(Math.sin(t*4))*0.45; }
-    else root.position.y *= 0.9;
+  for(const s in TARGETS){
+    const bad = Object.keys(TARGETS[s]).filter(k => !(k in joints));
+    if(bad.length) console.warn('[pet://live] claves desconocidas en', s, bad);
   }
 
-  const px = new Uint8Array(4*64*64);
-  function fnv(b){ let h=0x811c9dc5; for(let i=0;i<b.length;i++){ h^=b[i]; h=Math.imul(h,0x01000193)>>>0; }
-                   return ('00000000'+h.toString(16)).slice(-8); }
+  const cur = {}; for(const k in joints) cur[k] = 0;
+  function write(){ for(const k in joints) joints[k].rotation.x = cur[k]; }
+  function pose(){
+    const tgt = TARGETS[state] || {};
+    const w = 0.06;                                  /* suavizado */
+    for(const k in joints){
+      const goal = (k in tgt) ? tgt[k] : 0;
+      const osc = (state==='running') ? Math.sin(t*9 + (/left/.test(k)?0:Math.PI))*0.35 : 0;
+      cur[k] += ((goal + osc) - cur[k]) * w;
+    }
+    if(state==='waving' && joints['right_elbow_joint'])
+      cur['right_elbow_joint'] = -0.6 + Math.sin(t*7)*0.35;
+    write();
+    if(state==='jumping') root.position.y = Math.abs(Math.sin(t*4))*0.45;
+    else root.position.y *= 0.9;
+  }
+  /* pose canónica: targets exactos, oscilación en fase 0 (sin(0)=0), raíz en y=0 */
+  function applyExact(){
+    const tgt = TARGETS[state] || {};
+    for(const k in joints) cur[k] = (k in tgt) ? tgt[k] : 0;
+    if(state==='waving' && joints['right_elbow_joint']) cur['right_elbow_joint'] = -0.6;
+    write(); root.position.y = 0;
+  }
+  const saveCur = () => ({...cur});
+  const restore = s => { for(const k in s) cur[k] = s[k]; write(); };
+
+  /* ---- receipt: cultivo centrado en la CAJA PROYECTADA del robot ----
+     Antes: 64px fijo en el centro del buffer = fondo vacío => hash invariante. */
+  const _box = new THREE.Box3(), _p = new THREE.Vector3();
+  function rect(){
+    _box.setFromObject(root);
+    const bw = gl.drawingBufferWidth, bh = gl.drawingBufferHeight;
+    if(_box.isEmpty()) return {cx:bw/2, cy:bh/2, S:64};
+    let minx=1e9,miny=1e9,maxx=-1e9,maxy=-1e9,ok=false;
+    for(let i=0;i<8;i++){
+      _p.set((i&1)?_box.max.x:_box.min.x, (i&2)?_box.max.y:_box.min.y, (i&4)?_box.max.z:_box.min.z);
+      _p.project(camera);
+      if(!isFinite(_p.x) || !isFinite(_p.y)) continue;
+      ok = true;
+      const x = (_p.x*.5+.5)*bw, y = (1-(_p.y*.5+.5))*bh;   /* píxel top-left */
+      if(x<minx)minx=x; if(x>maxx)maxx=x; if(y<miny)miny=y; if(y>maxy)maxy=y;
+    }
+    if(!ok || minx>maxx) return {cx:bw/2, cy:bh/2, S:64};
+    return {cx:(minx+maxx)/2, cy:(miny+maxy)/2, S:Math.max(maxx-minx, maxy-miny)+12};
+  }
+
+  const MAXS = 192, px = new Uint8Array(4*MAXS*MAXS);
+  function readHash(cx, cy, S){
+    const bw = gl.drawingBufferWidth, bh = gl.drawingBufferHeight;
+    S = Math.max(16, Math.min(MAXS, Math.round(S)));
+    let x0 = Math.round(cx - S/2), y0 = Math.round(cy - S/2);
+    x0 = Math.max(0, Math.min(bw - S, x0)); y0 = Math.max(0, Math.min(bh - S, y0));
+    const yb = bh - y0 - S;                              /* readPixels: origen abajo-izq */
+    gl.readPixels(x0, yb, S, S, gl.RGBA, gl.UNSIGNED_BYTE, px);
+    let h = 0x811c9dc5; const n = S*S*4;
+    for(let i=0;i<n;i++){ h ^= px[i]; h = Math.imul(h, 0x01000193)>>>0; }
+    return {h:('00000000'+h.toString(16)).slice(-8), S, x:x0, y:y0};
+  }
+
+  function canonical(){
+    const s = saveCur(); applyExact();
+    renderer.render(scene, camera);
+    const r = rect(), d = readHash(r.cx, r.cy, r.S);
+    restore(s);
+    return d;
+  }
+
+  /* fase fija: sin(t*9), sin(t*7), sin(t*4) son 0 en t = 2πn */
+  const PHASE = 2*Math.PI; let lastPhase = -1;
   function loop(){
-    t += 0.016;
+    t += 1/60;
     pose();
     renderer.render(scene, camera);
-    /* el cultivo va al CENTRO del buffer: la esquina inferior izquierda es fondo puro */
-    const bw=gl.drawingBufferWidth, bh=gl.drawingBufferHeight;
-    gl.readPixels(Math.max(0,(bw>>1)-32), Math.max(0,(bh>>1)-32), 64,64,gl.RGBA,gl.UNSIGNED_BYTE,px);
-    $('digest').textContent = fnv(px) + ' · 64px@centro';
+    const r = rect(), m = readHash(r.cx, r.cy, r.S);
+    REPORT.moving = m.h; REPORT.state = state;
+    $('digest').textContent = m.h + ' · ' + m.S + 'px@' + Math.round(m.x) + ',' + Math.round(m.y);
+    const ph = Math.floor(t / PHASE);
+    if(ph !== lastPhase){
+      lastPhase = ph;
+      const c = canonical();
+      REPORT.canonical = c.h;
+      $('cdigest').textContent = c.h + ' · fase 0 · ' + state;
+    }
     requestAnimationFrame(loop);
   }
   loop();
+
+  REPORT.ready = true; REPORT.path = 'webgl · live'; REPORT.gpu = gpu; REPORT.model = urdf.robot;
+  REPORT.joints = Object.keys(joints).length;
+  REPORT.rot = n => joints[n] ? +joints[n].rotation.x.toFixed(4) : null;
+  REPORT.sample = s => { state = s; $('state').textContent = s;
+    const c = canonical();
+    return {state:s, canonical:c.h, rot:Object.fromEntries(Object.keys(joints).map(k=>[k,+joints[k].rotation.x.toFixed(4)]))};
+  };
+  REPORT.refreshCanonical = () => { const c = canonical();
+    REPORT.canonical = c.h; $('cdigest').textContent = c.h + ' · fase 0 · ' + state; return c.h; };
+
   $('path').textContent = 'webgl · live';
   document.title = 'pet://live · ' + (isRTX?'RTX':'GPU') + ' · ' +
                    Object.keys(joints).length + ' joints · ' + $('digest').textContent;
@@ -170,7 +248,8 @@ try{
 
 $('chips').addEventListener('click', e=>{
   const b=e.target.closest('button'); if(!b) return;
-  state = b.dataset.s; $('state').textContent = state;
+  state = b.dataset.s; $('state').textContent = state; REPORT.state = state;
+  if(REPORT.refreshCanonical) REPORT.refreshCanonical();
   [...$('chips').children].forEach(x=>x.classList.toggle('on', x===b));
 });
 </script>

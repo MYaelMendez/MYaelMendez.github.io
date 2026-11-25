@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>pet://locomote · locomoción consciente del DOM</title>
+<style>
+:root{--gold:#D4AF37;--void:#050505;--dim:#8a8a8a;--line:#2a2a2a;--panel:#0b0b0d;--ink:#ededed}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:var(--void);color:var(--ink);overflow:hidden;
+  font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.55;
+  background-image:linear-gradient(rgba(212,175,55,.05) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(212,175,55,.05) 1px,transparent 1px);
+  background-size:40px 40px;
+  display:flex;flex-direction:column;
+}
+header{flex:0 0 auto;padding:16px 18px 10px;border-bottom:1px solid var(--line)}
+.kicker{color:var(--gold);font-size:10px;letter-spacing:.22em;text-transform:uppercase;margin:0 0 4px}
+h1{font-family:Orbitron,"JetBrains Mono",ui-monospace,monospace;font-size:clamp(18px,3vw,28px);
+   margin:0;color:var(--gold);letter-spacing:.05em;font-weight:700}
+.sub{color:var(--dim);margin:6px 0 0;max-width:78ch}
+code{color:var(--gold);word-break:break-all}
+#mid{flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;padding:10px}
+.frame{position:relative;height:100%;max-height:100%;aspect-ratio:9/16;max-width:94vw;
+  border:1px solid var(--line);
+  background:radial-gradient(120% 80% at 50% 0%,rgba(212,175,55,.07),transparent 60%),var(--panel);
+  display:flex;flex-direction:column;gap:10px;padding:12px;overflow:hidden}
+.card{border:1px solid var(--line);background:#0b0b0d;padding:9px 11px}
+.card .k{color:var(--dim);font-size:10px;letter-spacing:.14em;text-transform:uppercase}
+.card .v{color:#f0d878}
+#hero{border-color:rgba(212,175,55,.55);box-shadow:0 0 0 1px rgba(212,175,55,.12) inset}
+#grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#dock{margin-top:auto;display:flex;flex-wrap:wrap;gap:6px}
+#dock button{background:transparent;border:1px solid var(--line);color:var(--dim);font:inherit;
+  font-size:10px;letter-spacing:.08em;padding:6px 9px;cursor:pointer;text-transform:uppercase}
+#dock button:hover{color:var(--void);background:var(--gold);border-color:var(--gold)}
+#ft{flex:0 0 auto;display:flex;flex-wrap:wrap;gap:14px;align-items:center;
+  padding:8px 18px;border-top:1px solid var(--line);color:var(--dim);font-size:11px}
+#ft b{color:var(--gold);font-weight:700;font-variant-numeric:tabular-nums}
+#ft .lbl{letter-spacing:.1em;text-transform:uppercase;font-size:10px}
+#field{position:fixed;inset:0;pointer-events:none;z-index:50}
+#traceSvg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+#traceLine{fill:none;stroke:var(--gold);stroke-width:1.4;opacity:.55}
+#traceDots circle{fill:var(--gold)}
+#marker{position:absolute;top:0;left:0;width:30px;height:30px;
+  border:1px solid var(--gold);background:rgba(212,175,55,.22);
+  box-shadow:0 0 14px rgba(212,175,55,.55);will-change:transform}
+#marker::after{content:"";position:absolute;inset:11px;background:var(--gold);border-radius:50%}
+#obstacleLayer{position:absolute;inset:0;display:none}
+#obstacleLayer.on{display:block}
+#obstacleLayer .obox{position:absolute;border:1px dashed var(--gold);opacity:.6}
+#obstacleLayer .otag{position:absolute;font-size:9px;color:var(--gold);letter-spacing:.08em}
+</style>
+</head>
+<body>
+
+<header id="hd">
+  <p class="kicker">ASIMOV PET · FASE P4 · LOCOMOCIÓN CONSCIENTE DEL DOM</p>
+  <h1>pet://locomote</h1>
+  <p class="sub">Un marcador que lee los <code>getBoundingClientRect()</code> reales de esta página,
+     camina por el viewport, gira en los bordes y esquiva el texto. La traza dorada son las
+     últimas 40 posiciones. API: <code>window.aeLocomote</code>.</p>
+</header>
+
+<div id="mid">
+  <div class="frame" id="frame">
+    <div class="card" id="hero">
+      <div class="k">héroe / obstáculo vivo</div>
+      <div class="v">Esta tarjeta es un rectángulo real. El marcador la evita.</div>
+    </div>
+    <div id="grid">
+      <div class="card"><div class="k">velocidad</div><div class="v">6 px/tick</div></div>
+      <div class="card"><div class="k">tamaño</div><div class="v">30 × 30 px</div></div>
+      <div class="card"><div class="k">obstáculos</div><div class="v" id="mObs">—</div></div>
+      <div class="card"><div class="k">estado</div><div class="v" id="mState">detenido</div></div>
+    </div>
+    <div id="dock">
+      <button data-a="toggle">▶ caminar</button>
+      <button data-a="reset">↺ reiniciar</button>
+      <button data-a="obs">◎ obstáculos: off</button>
+    </div>
+  </div>
+</div>
+
+<footer id="ft">
+  <span><span class="lbl">ticks</span> <b id="rTicks">0</b></span>
+  <span><span class="lbl">obstáculos</span> <b id="rObs">0</b></span>
+  <span><span class="lbl">collision checks</span> <b id="rChecks">0</b></span>
+  <span><span class="lbl">colisiones evitadas</span> <b id="rAvoided">0</b></span>
+  <span><span class="lbl">giros de borde</span> <b id="rEdge">0</b></span>
+  <span><span class="lbl">pos</span> <b id="rPos">—</b></span>
+</footer>
+
+<div id="field" aria-hidden="true">
+  <svg id="traceSvg"><polyline id="traceLine" points=""/><g id="traceDots"></g></svg>
+  <div id="obstacleLayer"></div>
+  <div id="marker"></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---- contrato fijo (P4) ---------------------------------------------- */
+var SIZE = 30;                 /* lado del marcador, px */
+var SPEED = 6;                 /* px por tick */
+var TRACE_MAX = 40;            /* largos de la traza visible */
+var SELECTORS = ['h1', '.sub', '.kicker', '.card', '#dock button', '#ft'];
+var DEV = [0, 35, -35, 70, -70, 105, -105, 140, -140, 180]; /* desvíos probados, grados */
+
+var marker = document.getElementById('marker'),
+    line = document.getElementById('traceLine'),
+    dots = document.getElementById('traceDots'),
+    layer = document.getElementById('obstacleLayer'),
+    dock = document.getElementById('dock');
+
+var el = {
+  ticks: document.getElementById('rTicks'),
+  obs: document.getElementById('rObs'),
+  checks: document.getElementById('rChecks'),
+  avoided: document.getElementById('rAvoided'),
+  edge: document.getElementById('rEdge'),
+  pos: document.getElementById('rPos'),
+  mObs: document.getElementById('mObs'),
+  mState: document.getElementById('mState')
+};
+
+var W = 0, H = 0;              /* viewport (campo de caminata) */
+var px = 0, py = 0;            /* centro del marcador */
+var angle = -Math.PI * 0.25;   /* rumbo, radianes */
+var OBS = [];                  /* rectángulos vivos que el algoritmo usa */
+var trace = [];
+var running = false, rafId = null;
+var obsOn = false;
+var stats = { ticks:0, checks:0, avoided:0, edge:0, blocked:0 };
+
+function esc(s){
+  return String(s).replace(/[&<>"]/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
+  });
+}
+
+/* Lee rectángulos REALES del DOM. Se llama en cada batch y en resize. */
+function readObstacles(){
+  var list = [], seen = {};
+  SELECTORS.forEach(function(sel){
+    var nodes = document.querySelectorAll(sel);
+    for (var i = 0; i < nodes.length; i++){
+      var e = nodes[i], r = e.getBoundingClientRect();
+      if (r.width < 1 || r.height < 1) continue;            /* invisible */
+      if (r.bottom < 0 || r.top > H || r.right < 0 || r.left > W) continue; /* fuera */
+      var key = sel + '|' + Math.round(r.left) + '|' + Math.round(r.top) + '|' +
+                Math.round(r.width) + '|' + Math.round(r.height);
+      if (seen[key]) continue; seen[key] = 1;
+      var label = e.id ||
+        (typeof e.className === 'string' ? e.className.split(' ')[0] : e.tagName.toLowerCase());
+      list.push({ sel: sel, label: label, x: r.left, y: r.top, w: r.width, h: r.height });
+    }
+  });
+  return list;
+}
+
+/* solapamiento AABB estricto (tocar el borde no cuenta como overlap) */
+function hits(tx, ty, r){
+  return tx < r.x + r.w && tx + SIZE > r.x && ty < r.y + r.h && ty + SIZE > r.y;
+}
+function firstHit(tx, ty){
+  for (var i = 0; i < OBS.length; i++){ if (hits(tx, ty, OBS[i])) return i; }
+  return -1;
+}
+
+function stepOnce(){
+  stats.ticks++;
+  var placed = false;
+  for (var i = 0; i < DEV.length; i++){
+    var a = angle + DEV[i] * Math.PI / 180;
+    var cx = px + Math.cos(a) * SPEED,
+        cy = py + Math.sin(a) * SPEED;
+    var tx = cx - SIZE / 2, ty = cy - SIZE / 2;
+    if (tx < 0 || ty < 0 || tx + SIZE > W || ty + SIZE > H){ stats.edge++; continue; } /* borde */
+    stats.checks++;                                  /* chequeo de colisión real */
+    if (firstHit(tx, ty) >= 0){ stats.avoided++; continue; } /* rechazado por obstáculo */
+    angle = a; px = cx; py = cy; placed = true; break;
+  }
+  if (!placed){ stats.blocked++; angle += Math.PI / 2; }
+  trace.push({ x: px, y: py });
+  if (trace.length > TRACE_MAX) trace.shift();
+  render();
+}
+
+function render(){
+  marker.style.transform =
+    'translate(' + (px - SIZE / 2).toFixed(2) + 'px,' + (py - SIZE / 2).toFixed(2) +
+    'px) rotate(' + angle.toFixed(4) + 'rad)';
+
+  var pts = '', s = '';
+  for (var i = 0; i < trace.length; i++){
+    var p = trace[i];
+    pts += p.x.toFixed(1) + ',' + p.y.toFixed(1) + ' ';
+    var t = trace.length > 1 ? (i / (trace.length - 1)) : 1;
+    s += '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) +
+         '" r="' + (1 + 2.2 * t).toFixed(2) + '" opacity="' + (0.15 + 0.85 * t).toFixed(2) + '"/>';
+  }
+  line.setAttribute('points', pts.trim());
+  dots.innerHTML = s;
+
+  el.ticks.textContent = stats.ticks;
+  el.obs.textContent = OBS.length;
+  el.checks.textContent = stats.checks;
+  el.avoided.textContent = stats.avoided;
+  el.edge.textContent = stats.edge;
+  el.pos.textContent = Math.round(px) + ',' + Math.round(py);
+  el.mObs.textContent = OBS.length;
+  el.mState.textContent = running ? 'caminando' : (stats.ticks ? 'pausado' : 'detenido');
+  if (obsOn) drawObs();
+}
+
+function drawObs(){
+  var s = '';
+  for (var i = 0; i < OBS.length; i++){
+    var o = OBS[i];
+    s += '<div class="obox" style="left:' + o.x + 'px;top:' + o.y + 'px;width:' +
+         o.w + 'px;height:' + o.h + 'px"></div>';
+    s += '<div class="otag" style="left:' + (o.x + 2) + 'px;top:' + (o.y + 2) + 'px">' +
+         esc(o.label) + '</div>';
+  }
+  layer.innerHTML = s;
+}
+
+function clampPos(){
+  px = Math.max(SIZE / 2, Math.min(W - SIZE / 2, px));
+  py = Math.max(SIZE / 2, Math.min(H - SIZE / 2, py));
+}
+
+function snapshot(){
+  return {
+    ticks: stats.ticks, checks: stats.checks, avoided: stats.avoided,
+    edge: stats.edge, blocked: stats.blocked,
+    x: Math.round(px), y: Math.round(py),
+    obstacles: OBS.length, running: running
+  };
+}
+
+function loop(){
+  if (!running) return;
+  stepOnce();
+  rafId = requestAnimationFrame(loop);
+}
+
+/* ---- API pública ----------------------------------------------------- */
+window.aeLocomote = {
+  /* avanza n ticks síncronamente; devuelve el estado acumulado */
+  step: function(n){
+    n = (typeof n === 'number' && isFinite(n) && n > 0) ? Math.floor(n) : 1;
+    OBS = readObstacles();                 /* rects vivos del DOM, frescos */
+    for (var i = 0; i < n; i++) stepOnce();
+    return snapshot();
+  },
+  /* el conjunto de rects que el algoritmo está usando ahora mismo */
+  obstacles: function(){
+    OBS = readObstacles();
+    return OBS.map(function(o){
+      return { sel: o.sel, label: o.label, x: o.x, y: o.y, w: o.w, h: o.h };
+    });
+  },
+  pos: function(){ return { x: px, y: py, angle: angle }; },
+  reset: function(){
+    W = window.innerWidth; H = window.innerHeight;
+    px = Math.round(W * 0.10); py = Math.round(H * 0.86);
+    angle = -Math.PI * 0.25;
+    stats = { ticks:0, checks:0, avoided:0, edge:0, blocked:0 };
+    trace = [];
+    OBS = readObstacles();
+    trace.push({ x: px, y: py });
+    render();
+    return snapshot();
+  },
+  /* extras de depuración (no rompen el contrato) */
+  stats: snapshot,
+  trace: function(){ return trace.slice(); },
+  auto: function(on){
+    if (on === undefined) return running;
+    if (on && !running){ running = true; rafId = requestAnimationFrame(loop); }
+    else if (!on && running){ running = false; if (rafId) cancelAnimationFrame(rafId); rafId = null; }
+    render();
+    return running;
+  }
+};
+
+/* ---- controles ------------------------------------------------------- */
+dock.addEventListener('click', function(e){
+  var b = e.target && e.target.closest ? e.target.closest('button') : null;
+  if (!b) return;
+  var a = b.getAttribute('data-a');
+  if (a === 'toggle'){
+    var on = !running; window.aeLocomote.auto(on);
+    b.textContent = on ? '⏸ pausar' : '▶ caminar';
+  } else if (a === 'reset'){
+    window.aeLocomote.reset();
+  } else if (a === 'obs'){
+    obsOn = !obsOn;
+    layer.classList.toggle('on', obsOn);
+    b.textContent = '◎ obstáculos: ' + (obsOn ? 'on' : 'off');
+    if (obsOn) drawObs();
+  }
+});
+
+window.addEventListener('keydown', function(e){
+  if (e.key === ' '){ e.preventDefault(); dock.querySelector('[data-a=toggle]').click(); }
+  else if (e.key === 'r' || e.key === 'R'){ window.aeLocomote.reset(); }
+  else if (e.key === 'o' || e.key === 'O'){ dock.querySelector('[data-a=obs]').click(); }
+});
+
+/* obstáculos recomputados en resize (throttled) */
+var rt = null;
+window.addEventListener('resize', function(){
+  clearTimeout(rt);
+  rt = setTimeout(function(){
+    W = window.innerWidth; H = window.innerHeight;
+    OBS = readObstacles(); clampPos(); render();
+  }, 120);
+});
+
+/* arranque detenido: reset()+step(n) es reproducible y la consola no compite
+   con un rAF. Pulsa ▶ caminar (o auto(true)) para verlo en movimiento. */
+window.aeLocomote.reset();
+dock.querySelector('[data-a=toggle]').textContent = '▶ caminar';
+})();
+</script>
+</body>
+</html>
