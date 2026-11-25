@@ -1,5 +1,23 @@
 # THE FUNNEL — from stranger to sovereign
 
+## Who is behind this
+
+**One person.** The operator is a single human — one company, one owner, one accountable name.
+Everything else is agents.
+
+That is not a disclaimer. It is the product:
+
+- **Provenance is personal**, so it can be checked. There is no "team" to hide behind and no
+  corporate memory to lose a decision in.
+- **The method replaces the headcount.** Agents fan out the work; the human arbitrates authority,
+  holds custody, and signs the receipts.
+- **What you get is the method, not the person's time.** Fork the ware and it keeps working
+  without either of us.
+
+Say it plainly on every first-run surface: one person, many agents, everything receipted.
+
+---
+
 **Thesis.** A visitor should leave with **their own** setup: their compute funded, their identity,
 their repository, their home surface — wearing *their* mark, running *our* ware. The operator then
 focuses on content; the user runs capability.

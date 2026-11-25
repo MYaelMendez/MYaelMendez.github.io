@@ -4112,3 +4112,18 @@ La secuencia correcta es `cli.llc` primario hoy + recuperar `æ.store` como esca
 
 **No ejecutado:** no se cambió ningún enlace canónico ni el brief del operador (`AGENTS.md`), que
 sigue listando los dominios sin prioridad. Eso es una decisión del operador, no mía.
+
+## 111. «una empresa de una persona» — dicho en la superficie (2026-11-25)
+
+El operador lo declaró como posicionamiento, no como modestia. `THE-FUNNEL.md` abre ahora con la
+sección **Who is behind this**: una sola persona, el resto son agentes.
+
+**Por qué es el producto y no un pie de página:** la procedencia es *personal* y por tanto
+comprobable; el método sustituye a la plantilla (los agents hacen fan-out, el humano arbitra la
+autoridad, custodia y firma los recibos); y lo que se entrega es el método, no el tiempo de nadie.
+
+**Regla escrita:** decirlo sin ambigüedad en **cada** superficie de primer-run — *one person, many
+agents, everything receipted*.
+
+**No verificado aún:** ninguna superficie existente lo dice en voz alta hoy. El brief del operador
+(`AGENTS.md`) sí lo lleva (`一人公司 / one-person company`), pero eso no es la puerta.
