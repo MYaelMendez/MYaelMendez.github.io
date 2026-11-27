@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Agent Connect · sovereign cast</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#030308;overflow:hidden;font-family:ui-monospace,Menlo,monospace;color:#f3e6cf}
+#stage{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#000;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.12)}
+#fill{display:block;height:100%;width:0;background:#00e5ff}
+#msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;text-align:center;padding:20px;pointer-events:none}
+#rec{position:absolute;top:10px;right:10px;font:11px ui-monospace,monospace;color:#ffd9a0;background:rgba(0,0,0,.45);border:1px solid rgba(255,200,120,.4);border-radius:14px;padding:6px 10px;opacity:.55}
+#pl{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:64px;color:rgba(255,230,190,.8);pointer-events:none}
+#ch{position:absolute;top:10px;left:10px;font:11px ui-monospace,monospace;color:#00e5ff;background:rgba(0,0,0,.45);border:1px solid rgba(0,229,255,.4);border-radius:14px;padding:6px 10px;opacity:.55}
+#hud-top{position:absolute;top:0;left:0;right:0;height:0;text-align:center;padding:10px 20px;pointer-events:none;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+#hud-top .title{font:600 14px ui-monospace,monospace;color:#00e5ff;letter-spacing:2px;text-transform:uppercase}
+#hud-top .status{font:10px ui-monospace,monospace;color:#888;letter-spacing:1px;margin-top:2px}
+#hud-top .brand{font:600 11px ui-monospace,monospace;color:#00e5ff;margin-top:4px;letter-spacing:3px}
+#hud-bottom{position:absolute;bottom:0;left:0;right:0;height:0;text-align:center;padding:10px 20px;pointer-events:none;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+#hud-bottom .tagline{font:600 20px ui-monospace,monospace;color:#00e5ff;letter-spacing:2px;text-transform:uppercase;opacity:.9}
+#hud-bottom .line1{font:10px ui-monospace,monospace;color:#888;letter-spacing:1px;margin-top:2px}
+#hud-bottom .line2{font:10px ui-monospace,monospace;color:#888;letter-spacing:2px;margin-top:2px}
+#hud-bottom .ae{font:600 11px ui-monospace,monospace;color:#00e5ff;margin-top:3px;letter-spacing:1px;font-family:ui-monospace,SF Mono,Monaco,monospace}
+</style></head><body>
+<div id="stage"><canvas id="c"></canvas><div id="hud-top"><div class="title" id="ttl">AGENT CONNECT</div><div class="status" id="stts">STATUS: BOOT</div><div class="brand" id="bnd">AE</div></div><div id="hud-bottom"><div class="tagline" id="tgl">INVOKE · ACT · CONNECT</div><div class="line1" id="ln1">HUMAN·ROOT · CODEX·BUILD · OPENCLAW·EXECUTE</div><div class="line2" id="ln2">LLM·MODEL · WÆTZ·DUAL · LEDGER·SYNC</div><div class="ae" id="ae">æ</div></div><div id="msg">initializing sovereign cast…</div><div id="pl">▶</div><button id="rec">● REC 30s</button><div id="bar"><i id="fill"></i></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const msg=$('msg');
+try{main()}catch(e){msg.textContent='Error: '+e.message;console.error(e)}
+function main(){
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,t)=>a+(b-a)*t;
+const ss=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)};
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+let seed=20261101;const rnd=()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+const rr=(a,b)=>a+(b-a)*rnd();
+const C=h=>new THREE.Color(h).convertSRGBToLinear();
+const V=(x,y,z)=>new THREE.Vector3(x,y,z);
+const DUR=30;let T=0,clockT=0,playing=true;
+const canvas=$('c'),stageEl=$('stage');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:false,powerPreference:'high-performance'});
+renderer.shadowMap.enabled=false;const HDR=THREE.UnsignedByteType;
+const ANI=Math.min(4,renderer.capabilities.getMaxAnisotropy());
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(32,9/16,0.1,300);
+scene.fog=new THREE.FogExp2(new THREE.Color(.01,.01,.03),.015);
+
+/* ---------- HUD panels ---------- */
+document.getElementById('ttl').textContent='AGENT CONNECT';
+document.getElementById('stts').textContent='STATUS: BOOT';
+document.getElementById('bnd').textContent='AE';
+document.getElementById('tgl').textContent='INVOKE · ACT · CONNECT';
+document.getElementById('ln1').textContent='HUMAN·ROOT · CODEX·BUILD · OPENCLAW·EXECUTE';
+document.getElementById('ln2').textContent='LLM·MODEL · WÆTZ·DUAL · LEDGER·SYNC';
+
+/* ---------- post ---------- */
+let RW=0,RH=0,rt=null,qual=1;
+const post=new THREE.ShaderMaterial({depthTest:false,depthWrite:false,uniforms:{tC:{value:null},tD:{value:null},uRes:{value:new THREE.Vector2()},uFocus:{value:10},uMax:{value:15},uBlur:{value:0},uFlash:{value:0},uFade:{value:1},uTime:{value:0}},
+vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}',
+fragmentShader:`varying vec2 vUv;uniform sampler2D tC,tD;uniform vec2 uRes;uniform float uFocus,uMax,uBlur,uFlash,uFade,uTime;
+float ld(vec2 u){float d=texture2D(tD,u).x*2.-1.;return 2.*.1*170./(170.1-d*169.9);}
+float coc(float d){return clamp(abs(1.-uFocus/d)*.85+uBlur-.02,0.,1.);}
+vec3 aces(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.);}
+void main(){vec2 tx=1./uRes;float c0=coc(ld(vUv));float R=c0*uMax;vec3 col=texture2D(tC,vUv).rgb;
+col*=mix(0.7,1.,smoothstep(1.05,.35,length((vUv-.5)*vec2(.9,1.1)*1.3)));
+col*=0.9;gl_FragColor=vec4(col,1.);`);<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Agent Connect · sovereign cast</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#030308;overflow:hidden;font-family:ui-monospace,Menlo,monospace;color:#f3e6cf}
+#stage{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#000;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.12)}
+#fill{display:block;height:100%;width:0;background:#00e5ff}
+#msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;text-align:center;padding:20px;pointer-events:none}
+#rec{position:absolute;top:10px;right:10px;font:11px ui-monospace,monospace;color:#ffd9a0;background:rgba(0,0,0,.45);border:1px solid rgba(255,200,120,.4);border-radius:14px;padding:6px 10px;opacity:.55}
+#pl{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:64px;color:rgba(255,230,190,.8);pointer-events:none}
+#ch{position:absolute;top:10px;left:10px;font:11px ui-monospace,monospace;color:#00e5ff;background:rgba(0,0,0,.45);border:1px solid rgba(0,229,255,.4);border-radius:14px;padding:6px 10px;opacity:.55}
+#hud-top{position:absolute;top:0;left:0;right:0;height:0;text-align:center;padding:10px 20px;pointer-events:none;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+#hud-top .title{font:600 14px ui-monospace,monospace;color:#00e5ff;letter-spacing:2px;text-transform:uppercase}
+#hud-top .status{font:10px ui-monospace,monospace;color:#888;letter-spacing:1px;margin-top:2px}
+#hud-top .brand{font:600 11px ui-monospace,monospace;color:#00e5ff;margin-top:4px;letter-spacing:3px}
+#hud-bottom{position:absolute;bottom:0;left:0;right:0;height:0;text-align:center;padding:10px 20px;pointer-events:none;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+#hud-bottom .tagline{font:600 20px ui-monospace,monospace;color:#00e5ff;letter-spacing:2px;text-transform:uppercase;opacity:.9}
+#hud-bottom .line1{font:10px ui-monospace,monospace;color:#888;letter-spacing:1px;margin-top:2px}
+#hud-bottom .line2{font:10px ui-monospace,monospace;color:#888;letter-spacing:2px;margin-top:2px}
+#hud-bottom .ae{font:600 11px ui-monospace,monospace;color:#00e5ff;margin-top:3px;letter-spacing:1px;font-family:ui-monospace,SF Mono,Monaco,monospace}
+</style></head><body>
+<div id="stage"><canvas id="c"></canvas><div id="hud-top"><div class="title" id="ttl">AGENT CONNECT</div><div class="status" id="stts">STATUS: BOOT</div><div class="brand" id="bnd">AE</div></div><div id="hud-bottom"><div class="tagline" id="tgl">INVOKE · ACT · CONNECT</div><div class="line1" id="ln1">HUMAN·ROOT · CODEX·BUILD · OPENCLAW·EXECUTE</div><div class="line2" id="ln2">LLM·MODEL · WÆTZ·DUAL · LEDGER·SYNC</div><div class="ae" id="ae">æ</div></div><div id="msg">initializing sovereign cast…</div><div id="pl">▶</div><button id="rec">● REC 30s</button><div id="bar"><i id="fill"></i></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const msg=$('msg');
+try{main()}catch(e){msg.textContent='Error: '+e.message;console.error(e)}
+function main(){
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,t)=>a+(b-a)*t;
+const ss=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)};
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+let seed=20261101;const rnd=()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+const rr=(a,b)=>a+(b-a)*rnd();
+const C=h=>new THREE.Color(h).convertSRGBToLinear();
+const V=(x,y,z)=>new THREE.Vector3(x,y,z);
+const DUR=30;let T=0,clockT=0,playing=true;
+const canvas=$('c'),stageEl=$('stage');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:false,powerPreference:'high-performance'});
+renderer.shadowMap.enabled=false;const HDR=THREE.UnsignedByteType;
+const ANI=Math.min(4,renderer.capabilities.getMaxAnisotropy());
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(32,9/16,0.1,300);
+scene.fog=new THREE.FogExp2(new THREE.Color(.01,.01,.03),.015);
+
+/* ---------- HUD panels ---------- */
+document.getElementById('ttl').textContent='AGENT CONNECT';
+document.getElementById('stts').textContent='STATUS: BOOT';
+document.getElementById('bnd').textContent='AE';
+document.getElementById('tgl').textContent='INVOKE · ACT · CONNECT';
+document.getElementById('ln1').textContent='HUMAN·ROOT · CODEX·BUILD · OPENCLAW·EXECUTE';
+document.getElementById('ln2').textContent='LLM·MODEL · WÆTZ·DUAL · LEDGER·SYNC';
+
+/* ---------- post ---------- */
+let RW=0,RH=0,rt=null,qual=1;
+const post=new THREE.ShaderMaterial({depthTest:false,depthWrite:false,uniforms:{tC:{value:null},tD:{value:null},uRes:{value:new THREE.Vector2()},uFocus:{value:10},uMax:{value:15},uBlur:{value:0},uFlash:{value:0},uFade:{value:1},uTime:{value:0}},
+vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}',
+fragmentShader:`varying vec2 vUv;uniform sampler2D tC,tD;uniform vec2 uRes;uniform float uFocus,uMax,uBlur,uFlash,uFade,uTime;
+float ld(vec2 u){float d=texture2D(tD,u).x*2.-1.;return 2.*.1*170./(170.1-d*169.9);}
+float coc(float d){return clamp(abs(1.-uFocus/d)*.85+uBlur-.02,0.,1.);}
+vec3 aces(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.);}
+
+vec3 glow(vec3 col,float intensity){return col*(1.+intensity*0.7);}
+void main(){vec2 tx=1./uRes;float c0=coc(ld(vUv));float R=c0*uMax;vec3 col=texture2D(tC,vUv).rgb;
+col*=mix(0.7,1.,smoothstep(1.05,.35,length((vUv-.5)*vec2(.9,1.1)*1.3)));');
+
+const pq=new THREE.Mesh(new THREE.PlaneGeometry(2,2),post);pq.frustumCulled=false;const pScene=new THREE.Scene();pScene.add(pq);const pCam=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+function layout(){const w=Math.min(innerWidth,innerHeight*9/16),h=w*16/9;stageEl.style.width=w+'px';stageEl.style.height=h+'px';
+RW=Math.max(360,Math.round(Math.min(w*Math.min(devicePixelRatio||1,2)*qual,1080)));RH=Math.round(RW*16/9);renderer.setPixelRatio(1);renderer.setSize(RW,RH,false);
+if(rt){rt.dispose();rt.depthTexture.dispose()}const dt=new THREE.DepthTexture(RW,RH);dt.type=THREE.UnsignedIntType;dt.minFilter=dt.magFilter=THREE.NearestFilter;
+rt=new THREE.WebGLRenderTarget(RW,RH,{minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat,type:HDR,depthTexture:dt,depthBuffer:true,stencilBuffer:false});
+post.uniforms.uRes.value.set(RW,RH);post.uniforms.uMax.value=RH*.012}
+addEventListener('resize',layout);layout();
+
+/* ---------- lights ---------- */
+scene.add(new THREE.AmbientLight(0x202040,.8));
+const sun=new THREE.DirectionalLight(0xffffff,.6);sun.position.set(10,15,10);scene.add(sun);
+
+/* ---------- characters (wireframe authority stack) ---------- */
+const chars={};
+function wire(c,op){return new THREE.MeshBasicMaterial({color:c,wireframe:true,transparent:true,opacity:op||.9})}
+function fill(c,op){return new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:op||.12,side:THREE.DoubleSide})}
+function line(g,c,op){return new THREE.LineSegments(new THREE.EdgesGeometry(g.geometry),wire(c,op))}
+function add(g,geo,c,op,y=0,s=1){const m=new THREE.Mesh(geo,fill(c,op));m.position.y=y;g.add(m);g.add(line(m,geo,c,op));return m}
+
+chars.boy=(()=>{
+const g=new THREE.Group();const c=0x00e5ff;const ac=0x00e5ff;
+add(g,new THREE.SphereGeometry(.18,10,6),c,.25);g.position.y=1.65;
+const t=new THREE.Mesh(new THREE.BoxGeometry(.32,.45,.18),fill(c,.2));t.position.y=1.2;g.add(t);line(t,t);
+[-1,1].forEach(s=>{const l=new THREE.Mesh(new THREE.CylinderGeometry(.06,.05,.65,8),fill(c,.2));l.position.set(s*.12,.35,.1);g.add(l);line(l,l));
+  const f=new THREE.Mesh(new THREE.BoxGeometry(.1,.08,.16),fill(c,.25));f.position.set(s*.12,.02,.1);g.add(f);line(f,f));
+  const a=new THREE.Mesh(new THREE.CylinderGeometry(.05,.04,.45,8),fill(c,.2));a.position.set(s*.2,.8,.1);a.rotation.x=s*-.2;g.add(a);line(a,a));
+  const h=new THREE.Mesh(new THREE.SphereGeometry(.06,8,6),fill(c,.25));h.position.set(s*.18,.46,.1);g.add(h);line(h,h));
+const hood=new THREE.Mesh(new THREE.SphereGeometry(.18,10,6,0,Math.PI*2,0,Math.PI*.55),fill(c,.15));hood.position.y=1.68;hood.rotation.x=-.3;g.add(hood);line(hood,hood);
+add(g,new THREE.PlaneGeometry(.12,.12),c,.85);g.children[g.children.length-1].position.set(0,1.65,.18);
+g.userData={name:'æ://boy'};return g})();
+
+chars.nous=(()=>{
+const g=new THREE.Group();const c=0xff00ff;const ac=0xff00ff;
+add(g,new THREE.SphereGeometry(.16,10,6),c,.25);g.position.y=1.6;
+const h=new THREE.Mesh(new THREE.ConeGeometry(.18,.45,8),fill(c,.2));h.position.y=1.65;h.rotation.x=-.2;g.add(h);line(h,h);
+const t=new THREE.Mesh(new THREE.BoxGeometry(.28,.4,.16),fill(c,.2));t.position.y=1.15;g.add(t);line(t,t);
+const s=new THREE.Mesh(new THREE.ConeGeometry(.2,.25,8),fill(c,.2));s.position.y=.85;s.rotation.x=Math.PI;g.add(s);line(s,s);
+[-1,1].forEach(s=>{const l=new THREE.Mesh(new THREE.CylinderGeometry(.05,.04,.55,8),fill(c,.2));l.position.set(s*.1,.3,0);g.add(l);line(l,l));
+const f=new THREE.Mesh(new THREE.BoxGeometry(.09,.07,.16),fill(c,.25));f.position.set(s*.1,.02,0);g.add(f);line(f,f));
+const a=new THREE.Mesh(new THREE.CylinderGeometry(.04,.03,.38,8),fill(c,.2));a.position.set(s*.18,.8,.08);a.rotation.x=s*-.15;g.add(a);line(a,a));
+const h=new THREE.Mesh(new THREE.SphereGeometry(.05,8,6),fill(c,.25));h.position.set(s*.18,.45,.08);g.add(h);line(h,h));
+const hd=new THREE.Mesh(new THREE.TorusGeometry(.16,.015,8,16),fill(c,.3));hd.position.y=1.62;g.add(hd);line(hd,hd);
+g.userData={name:'nous://girl'};return g})();
+
+chars.hf=(()=>{
+const g=new THREE.Group();const c=0xffd600;
+add(g,new THREE.SphereGeometry(.35,14,12),c,.2);g.position.y=.5;
+const l1=new THREE.Mesh(new THREE.SphereGeometry(.06,8,6),fill(0xffffff,.9));l1.position.set(-.12,.6,.32);g.add(l1);
+const r1=new THREE.Mesh(new THREE.SphereGeometry(.06,8,6),fill(0xffffff,.9));r1.position.set(.12,.6,.32);g.add(r1);
+const sm=new THREE.Mesh(new THREE.TorusGeometry(.12,.015,8,16,Math.PI),fill(c,.9));sm.position.set(0,.4,.3);sm.rotation.z=Math.PI;g.add(sm);
+[-1,1].forEach(s=>{const h=new THREE.Mesh(new THREE.SphereGeometry(.08,8,6),fill(c,.3));h.position.set(s*.4,.5,.1);g.add(h);line(h,h));
+g.userData={name:'hf://emoji'};return g})();
+
+chars.molty=(()=>{
+const g=new THREE.Group();const c=0xff6d00;
+add(g,new THREE.SphereGeometry(.3,10,8),c,.25);g.position.y=.6;
+const l1=new THREE.Mesh(new THREE.SphereGeometry(.07,8,6),fill(0xffffff,.9));l1.position.set(-.1,.72,.25);g.add(l1);
+const r1=new THREE.Mesh(new THREE.SphereGeometry(.07,8,6),fill(0xffffff,.9));r1.position.set(.1,.72,.25);g.add(r1);
+[-1,1].forEach(s=>{const l=new THREE.Mesh(new THREE.CylinderGeometry(.03,.02,.35,6),fill(c,.2));l.position.set(s*.15,.2,s*.1);l.rotation.z=s*-.3;g.add(l);line(l,l));
+const c1=new THREE.Mesh(new THREE.SphereGeometry(.1,8,6),fill(c,.3));c1.position.set(s*.35,.55,s*.2);g.add(c1);line(c1,c1));
+const a=new THREE.Mesh(new THREE.CylinderGeometry(.04,.03,.3,6),fill(c,.2));a.position.set(s*.25,.5,.15);a.rotation.z=s*.5;g.add(a);line(a,a));
+g.userData={name:'openclaw://molty'};return g})();
+
+chars.asimov=(()=>{
+const g=new THREE.Group();const c=0xe0e0e0;const ac=0xff6d00;
+add(g,new THREE.BoxGeometry(.22,.25,.2),c,.25);g.position.y=1.7;
+const v=new THREE.Mesh(new THREE.PlaneGeometry(.18,.06),fill(ac,.85));v.position.set(0,1.72,.11);g.add(v);
+const t=new THREE.Mesh(new THREE.BoxGeometry(.3,.45,.18),fill(c,.2));t.position.y=1.2;g.add(t);line(t,t);
+[-1,1].forEach(s=>{const l=new THREE.Mesh(new THREE.CylinderGeometry(.06,.05,.7,8),fill(c,.2));l.position.set(s*.1,.35,0);g.add(l);line(l,l));
+const f=new THREE.Mesh(new THREE.BoxGeometry(.1,.08,.2),fill(ac,.3));f.position.set(s*.1,.02,0);g.add(f);line(f,f));
+const a=new THREE.Mesh(new THREE.CylinderGeometry(.05,.04,.45,8),fill(c,.2));a.position.set(s*.2,.85,.1);a.rotation.x=s*-.1;g.add(a);line(a,a));
+const h=new THREE.Mesh(new THREE.BoxGeometry(.08,.08,.08),fill(ac,.3));h.position.set(s*.2,.52,.1);g.add(h);line(h,h));
+add(g,new THREE.PlaneGeometry(.1,.1),ac,.85);g.children[g.children.length-1].position.set(0,1.25,.11);
+g.userData={name:'robot://asimov'};return g})();
+
+chars.waetz=(()=>{
+const g=new THREE.Group();const c=0xffffff;const ac=0x00e5ff;
+add(g,new THREE.SphereGeometry(.22,14,12),c,.15);g.position.y=1.2;
+const v=new THREE.Mesh(new THREE.SphereGeometry(.22,14,12,0,Math.PI*2,0,Math.PI*.35),fill(ac,.25));v.position.y=1.22;v.position.z=.02;g.add(v);
+add(g,new THREE.PlaneGeometry(.14,.14),ac,.9);g.children[g.children.length-1].position.set(0,1.2,.22);
+const r=new THREE.Mesh(new THREE.TorusGeometry(.25,.01,8,32),wire(ac));r.position.y=1.2;r.rotation.x=Math.PI/2;g.add(r);
+g.userData={name:'æ://waetz'};return g})();
+
+Object.values(chars).forEach(ch=>scene.add(ch));
+
+/* ---------- ground ---------- */
+const ground=new THREE.PlaneGeometry(140,140);const gm=new THREE.MeshStandardMaterial({color:0x05050c,transparent:true,opacity:.3,roughness:1});
+const groundMesh=new THREE.Mesh(ground,gm);groundMesh.rotation.x=-Math.PI/2;scene.add(groundMesh);
+const gw=new THREE.GridHelper(130,80,0x00e5ff,0x0a0a1a);gw.position.y=-.01;gw.material.transparent=true;gw.material.opacity=.15;scene.add(gw);
+
+/* ---------- data network (background aura) ---------- */
+const netMat=new THREE.LineBasicMaterial({color:0x00e5ff,transparent:true,opacity:.15});const net=[];
+for(let i=0;i<40;i++){const a=i/40*Math.PI*2;const r=5+Math.random()*8;for(let j=0;j<3;j++){net.push(Math.cos(a+j*2.094)*r,Math.sin(a+j*2.094)*r,5+Math.random()*3)}}
+const np=new THREE.BufferGeometry();np.setAttribute('position',new THREE.Float32BufferAttribute(net,3));
+const nl=new THREE.LineSegments(np,netMat);scene.add(nl);
+
+/* ---------- rain ---------- */
+const rainCount=300;const rainGeo=new THREE.BufferGeometry();const rainPos=new Float32Array(rainCount*3);
+for(let i=0;i<rainCount;i++){rainPos[i*3]=rr(-20,20);rainPos[i*3+1]=rr(-5,4);rainPos[i*3+2]=rr(-30,5)}
+rainGeo.setAttribute('position',new THREE.BufferAttribute(rainPos,3));
+const rainMat=new THREE.PointsMaterial({color:0x888,transparent:true,opacity:.35,size:.2,blending:THREE.AdditiveBlending,depthWrite:false,map:null,fog:true});
+const rain=new THREE.Points(rainGeo,rainMat);scene.add(rain);
+
+/* ---------- receipt particles ---------- */
+const rc=600;const rg=new THREE.BufferGeometry();const rp=new Float32Array(rc*3);const rv=[];
+for(let i=0;i<rc;i++){rp[i*3]=rr(-12,12);rp[i*3+1]=rr(-2,4);rp[i*3+2]=rr(-25,0);rv.push({x:rr(-.02,.02),y:.01+rr(0,.04),z:rr(-.02,.02)})}
+rg.setAttribute('position',new THREE.BufferAttribute(rp,3));
+const rm=new THREE.PointsMaterial({color:0x00e5ff,transparent:true,opacity:.4,size:.05,blending:THREE.AdditiveBlending,depthWrite:false,map:null,fog:true});
+const receipts=new THREE.Points(rg,rm);scene.add(receipts);
+
+/* ---------- holographic control panel ---------- */
+const hp=new THREE.Group();
+const hdr=new THREE.Mesh(new THREE.PlaneGeometry(2.2,1.0),new THREE.MeshBasicMaterial({color:0x020204,transparent:true,opacity:.9,side:THREE.DoubleSide,wireframe:false}));
+const hdrWire=new THREE.LineSegments(new THREE.EdgesGeometry(hdr.geometry),new THREE.LineBasicMaterial({color:0x00e5ff,transparent:true,opacity:.4}));
+const hdrTop=new THREE.Mesh(new THREE.PlaneGeometry(1.8,.08),new THREE.MeshBasicMaterial({color:0xffd9a0,transparent:true,opacity:.8,side:THREE.DoubleSide}));
+const label=new THREE.Mesh(new THREE.PlaneGeometry(1.6,.3),new THREE.MeshBasicMaterial({color:0xffd9a0,transparent:true,opacity:.9,side:THREE.DoubleSide}));
+label.position.y=.35;label.position.z=.42;
+hp.add(hdr,hdrTop,hdrWire,label);
+const sp=hdr.geometry.parameters.height*.5;
+for(let i=0;i<3;i++){const sld=new THREE.Mesh(new THREE.PlaneGeometry(1.6,.04),new THREE.MeshBasicMaterial({color:0x00e5ff,transparent:true,opacity:.3,side:THREE.DoubleSide}));sld.position.set(0,.22-.25+i*.28,.42);sld.scale.set(1,1,1);hp.add(sld);
+const hnd=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,.04,8),new THREE.MeshBasicMaterial({color:0x00e5ff,transparent:true,opacity:.9}));hnd.position.set(0,.22-.25+i*.28,.48);hnd.rotation.x=.2;hp.add(hnd);}
+hp.position.y=-0.1;hp.position.z=0;scene.add(hp);
+
+/* ---------- camera choreography ---------- */
+function camFor(t){
+let p,g,fov=32;const k=Math.min(1,(t-5)/5);
+return{t,p,g,fov}
+if(t<2.5){const k=ease(t/2.5);p.set(lerp(0,0,k),lerp(3,2,k),lerp(10,6,k));g.set(0,1.2,0);fov=lerp(35,30,k)}
+else if(t<5){const k=(t-2.5)/2.5;p.set(lerp(-6,-4,k),lerp(1.8,2.2,k),lerp(-6,-4,k));g.set(0,1.2,-4);fov=32}
+else if(t<7.5){const k=(t-5)/2.5;p.set(lerp(-6,-4,k),lerp(2.2,2,k),lerp(-4,-6,k));g.set(0,1.2,0);fov=32}
+else if(t<12.5){const k=(t-7.5)/5;p.set(lerp(-6,2,k),lerp(2.2,1.8,k),lerp(-4,0,k));g.set(-2,1.2,-2);fov=30}
+else if(t<18){const k=(t-12.5)/5.5;p.set(lerp(0,2.5,k),lerp(1.8,2.5,k),lerp(0,5,k));g.set(0,1.2,-2);fov=30}
+else{const k=(t-18)/7;p.set(lerp(2.5,0,k),lerp(2.5,3,k),lerp(5,6,k));g.set(0,1.2,0);fov=lerp(30,28,k)}
+return{p,g,fov}
+}
+
+/* ---------- animation state ---------- */
+const rec={on:false,mr:null,chunks:[]};
+const chapters=['æ://BOOT','HUMAN://ROOT','nous://RUNTIME','llm://MODEL','agent://EXECUTE','robot://BODY','æ://TWIN','LEDGER://SYNC'];
+const hudStates=['BOOT','PROBE','CONNECT','INVOKE','ACT','SYNC'];
+
+function frame(now){requestAnimationFrame(frame);
+let dt=Math.min((now-(frame.l||now))/1000,.05);frame.l=now;clockT+=dt;
+if(playing){T+=dt;if(T>=DUR){if(rec.on)stopRec();T=0}}else dt=0;
+update(T,dt);draw(T);perf(dt)}
+
+function update(t,dt){
+const B=chars.boy,N=chars.nous,H=chars.hf,M=chars.molty,A=chars.asimov,W=chars.waetz;
+const bh=B.position.y,Nh=N.position.y,Hh=H.position.y,Mh=M.position.y,Ah=A.position.y,Wh=W.position.y;
+if(t<2.5){const k=ease(t/2.5);B.position.set(lerp(-10,-1.5,k),lerp(1.2,1.6,k),lerp(6,-8,k));B.rotation.y=lerp(0,0.3,k);}
+else if(t<5){const k=(t-2.5)/2.5;B.position.set(lerp(-1.5,0.2,k),lerp(1.6,1.7,k),lerp(-8,-6,k));B.rotation.y=lerp(.3,0.2,k)}
+else if(t<7.5){const k=(t-5)/2.5;B.position.set(lerp(-3,0.3,k),lerp(1.7,1.8,k),lerp(-6,0,k));B.rotation.y=lerp(.5,.1,k)}
+else if(t<12.5){const k=(t-7.5)/5;B.position.set(lerp(-2,0.3,k),lerp(1.7,1.7,k),lerp(-3,0,k));B.rotation.y=lerp(.6,0.2,k)}
+else if(t<18){const k=(t-12.5)/5.5;B.position.set(lerp(0,0.5,k),lerp(1.7,1.8,k),lerp(0,0,k));B.rotation.y=lerp(.2,0.1,k)}
+else{const k=(t-18)/7;B.position.set(lerp(0,0.5,k),lerp(1.7,1.8,k),lerp(0,0,k));B.rotation.y=lerp(.1,0.1,k)}
+
+if(t<5){const k=(t-2.5)/2.5;N.position.set(lerp(-4,0.2,k),lerp(1.6,1.7,k),lerp(-4,0,k));N.rotation.y=lerp(.4,0.2,k)}
+else if(t<12.5){const k=(t-7.5)/5;N.position.set(lerp(-4,-2,k),lerp(1.7,1.7,k),lerp(0,-6,k));N.rotation.y=lerp(.6,0.3,k)}
+else if(t<18){const k=(t-12.5)/5.5;N.position.set(lerp(0,0.2,k),lerp(1.7,1.7,k),lerp(-3,0,k));N.rotation.y=lerp(.3,0.2,k)}
+else{const k=(t-18)/7;N.position.set(lerp(0,0.2,k),lerp(1.7,1.7,k),lerp(-3,0,k));N.rotation.y=lerp(.2,0.2,k)}
+
+const hm=Math.sin(clockT*2)*.1;if(t<3){hf.position.set(-2,.5,.5)}
+else if(t<7){const k=(t-5)/2;hf.position.set(lerp(-2,0.2,k),lerp(.5,.5,k),lerp(-6,0,k))}
+else if(t<13){const k=(t-7.5)/5.5;hf.position.set(lerp(-2,0.2,k),lerp(.5,.5,k),lerp(0,0,k))}
+else{const k=(t-13)/7;hf.position.set(lerp(0,0.2,k),lerp(.5,.5,k),lerp(0,0,k))}
+hf.rotation.y=Math.sin(clockT*.5)*.1;
+
+const mm=Math.sin(clockT*1.5)*.1;if(t<5){mo.position.set(2,.6,.5)}
+else if(t<10){const k=(t-5)/5;mo.position.set(lerp(2,0.2,k),lerp(.6,.6,k),lerp(-4,0,k))}
+else if(t<16){const k=(t-10)/6;mo.position.set(lerp(2,-2,k),lerp(.6,.6,k),lerp(-3,0,k))}
+else{const k=(t-16)/7;mo.position.set(lerp(-2,0.2,k),lerp(.6,.6,k),lerp(0,0,k))}
+mo.rotation.y=Math.sin(clockT*.4)*.1;
+
+if(t<7.5){as.position.set(-1,.6,-.5)}
+else if(t<14){const k=(t-7.5)/6.5;as.position.set(lerp(-1,0.2,k),lerp(.6,.6,k),lerp(-3,0,k))}
+else{const k=(t-14)/7;as.position.set(lerp(-1,0.2,k),lerp(.6,.6,k),lerp(0,0,k))}
+as.rotation.y=Math.sin(clockT*.3)*.1;
+
+if(t<10){wa.position.set(3,1.2,-.5)}
+else if(t<16){const k=(t-10)/6;wa.position.set(lerp(3,0.2,k),lerp(1.2,1.2,k),lerp(-3,0,k))}
+else{const k=(t-16)/7;wa.position.set(lerp(3,0.2,k),lerp(1.2,1.2,k),lerp(0,0,k))}
+wa.rotation.y=Math.sin(clockT*.4)*.1;
+
+gates.forEach((g,i)=>{g.position.y=2+Math.sin(clockT*.5+i)*.1;g.rotation.y=Math.PI/6+i*.15+Math.sin(clockT*.3+i)*.05});
+ledger.position.y=1.5+Math.sin(clockT*.7)*.08;ledger.rotation.y=-.3+Math.sin(clockT*.4)*.05;
+orbs.forEach(o=>{const u=o.userData;o.position.set(Math.cos(u.phase+clockT*u.speed)*u.r,1.5+Math.sin(clockT*u.speed+u.phase)*.3,Math.sin(u.phase+clockT*u.speed)*u.r-3)});
+const rp=receipts.geometry.attributes.position;for(let i=0;i<rc;i++){const v=rv[i];rp.setXYZ(i,rp.getX(i)+v.x,rp.getY(i)+v.y,rp.getZ(i)+v.z);if(rp.getY(i)>4){rp.setY(i,-2);rp.setX(i,rr(-12,12));rp.setZ(i,rr(-25,0))}}rp.needsUpdate=true;
+rain.position.y=.6+Math.sin(clockT*.3)*.05;rain.material.opacity=.05+Math.sin(clockT*.7)*.25;
+
+const c=camFor(t);camera.position.copy(c.p);camera.fov=c.fov;camera.updateProjectionMatrix();camera.lookAt(c.g);camera.updateMatrixWorld();
+let tr=0;const bounds=[5,10,15,20,25];for(const b of bounds)tr=Math.max(tr,Math.exp(-Math.pow((t-b)/.2,2)));
+const u=post.uniforms;u.uFocus.value=10;u.uBlur.value=tr*.7;u.uFlash.value=tr*.35;u.uFade.value=ss(0,.6,t)*(1-ss(29.65,30,t));u.uTime.value=clockT%10;
+
+// HUD updates
+if(t<2.5){$('ttl').textContent='AGENT CONNECT';$('stts').textContent='STATUS: BOOT';$('bnd').textContent='AE';$('tgl').textContent='SETTING UP';$('ln1').textContent='HUMAN·ROOT → CODEX·BUILD';$('ln2').textContent='LLM·MODEL → WÆTZ·DUAL → LEDGER·SYNC'}
+else if(t<5){$('stts').textContent='STATUS: ONLINE'}
+else if(t<10){$('ttl').textContent='CONNECT';$('stts').textContent='STATUS: CONNECTED';$('bnd').textContent='AE'}
+else if(t<20){$('ttl').textContent='INVOKE · ACT';$('stts').textContent='STATUS: LIVING';$('bnd').textContent='AE'}
+else{$('ttl').textContent='AGENT CONNECT';$('stts').textContent='STATUS: ONLINE';$('bnd').textContent='AE'}
+
+$t('fill').style.width=(t/DUR*100)+'%';
+
+const chChapters=['æ://BOOT','HUMAN://ROOT','nous://RUNTIME','llm://MODEL','agent://EXECUTE','robot://BODY','æ://TWIN','LEDGER://SYNC'];
+const chIdx=Math.min(chapters.length-1,Math.floor(t/3.75));
+$t('ch').textContent=chapters[chIdx];
+const tglIdx=Math.min(3,Math.floor(t/7.5));
+const tgls=['INITIALIZING','LINKING','INVOKING','ACTING'];
+$t('tgl').textContent=tgls[Math.min(tgls.length-1,tglIdx)];
+
+// ae authority marker blinking
+const ae=$('ae');
+if(t%0.5<0.25){ae.style.opacity='.5';ae.style.color='#00e5ff'}else{ae.style.opacity='.9';ae.style.color='#ff6d00'}
+}
+
+function draw(){renderer.setRenderTarget(rt);renderer.render(scene,camera);renderer.setRenderTarget(null);post.uniforms.tC.value=rt.texture;post.uniforms.tD.value=rt.depthTexture;renderer.render(pScene,pCam)}
+
+let acc=0,n=0,cool=0;function perf(dt){if(!playing||dt<=0)return;acc+=dt;n++;cool-=dt;if(acc>2){const fps=n/acc;acc=0;n=0;if(cool<=0&&fps<24&&qual>.5){qual*=.8;layout();cool=3}}}
+stageEl.addEventListener('click',e=>{if(e.target.id==='rec')return;playing=!playing;$('pl').style.display=playing?'none':'flex'});
+function stopRec(){rec.on=false;if(rec.mr&&rec.mr.state!=='inactive')rec.mr.stop();$('rec').textContent='● REC 30s'}
+$('rec').addEventListener('click',e=>{e.stopPropagation();if(rec.on)return stopRec();
+try{const st=canvas.captureStream(30),mt=['video/webm;codecs=vp9','video/webm'].find(m=>window.MediaRecorder&&MediaRecorder.isTypeSupported(m));
+rec.mr=new MediaRecorder(st,{mimeType:mt,videoBitsPerSecond:12e6});rec.chunks=[];rec.mr.ondataavailable=ev=>ev.data.size&&rec.chunks.push(ev.data);
+rec.mr.onstop=()=>{const b=new Blob(rec.chunks,{type:mt}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='agent_connect_sovereign_9x16.webm';a.click()};
+T=0;playing=true;$('pl').style.display='none';rec.mr.start();rec.on=true;$('rec').textContent='■ recording…'}catch(err){$('rec').textContent='REC unsupported'}});
+msg.style.display='none';requestAnimationFrame(frame);
+}
+})();</script></body></html>

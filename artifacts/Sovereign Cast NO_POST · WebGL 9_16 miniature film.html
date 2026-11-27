@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Sovereign Cast NO_POST</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:#000;overflow:hidden}
+#stage{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+canvas{display:block}
+#msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font:16px monospace;pointer-events:none}
+#ch{position:absolute;top:10px;left:10px;font:11px ui-monospace,monospace;color:#00e5ff;background:rgba(0,0,0,.45);border:1px solid rgba(0,229,255,.4);border-radius:14px;padding:6px 10px;opacity:.55;pointer-events:none}
+#bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.12)}
+#fill{display:block;height:100%;width:0;background:#00e5ff}
+</style></head><body>
+<div id="stage"><canvas id="c"></canvas><div id="msg">loading…</div><div id="pl">▶</div><button id="rec">● REC 30s</button><div id="ch">æ://BOOT</div><div id="bar"><i id="fill"></i></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const msg=$('msg');
+try{
+const canvas=$('c');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:false,powerPreference:'high-performance'});
+renderer.setPixelRatio(1);
+renderer.setSize(720,1280,false);
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(32,9/16,0.1,200);
+scene.fog=new THREE.FogExp2(new THREE.Color(.01,.01,.03),.008);
+scene.add(new THREE.AmbientLight(0x404060,.6));
+const sun=new THREE.DirectionalLight(0xffffff,.4);sun.position.set(5,10,5);scene.add(sun);
+
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,t)=>a+(b-a)*t;
+const ss=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)};
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+
+/* grid */
+const grid=new THREE.GridHelper(40,40,0x00e5ff,0x0a0a1a);grid.position.y=-.5;grid.material.transparent=true;grid.material.opacity=.6;scene.add(grid);
+
+/* characters */
+function wm(c,op){return new THREE.MeshBasicMaterial({color:c,wireframe:true,transparent:true,opacity:op||.9})}
+function fm(c,op){return new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:op||.35,side:THREE.DoubleSide})}
+const rr=(a,b)=>a+(b-a)*(Math.random());
+
+/* æ boy */
+const aeBoy=new THREE.Group();
+{
+const c=0x00e5ff;
+const h=new THREE.Mesh(new THREE.SphereGeometry(.18,10,6),fm(c,.35));h.position.y=1.65;aeBoy.add(h);
+const t=new THREE.Mesh(new THREE.BoxGeometry(.3,.45,.18),fm(c,.3));t.position.y=1.2;aeBoy.add(t);
+[-1,1].forEach(s=>{
+  const l=new THREE.Mesh(new THREE.CylinderGeometry(.06,.05,.65,8),fm(c,.3));l.position.set(s*.12,.35,0);aeBoy.add(l);
+  const f=new THREE.Mesh(new THREE.BoxGeometry(.1,.08,.18),fm(c,.3));f.position.set(s*.12,.02,0);aeBoy.add(f);
+  const a=new THREE.Mesh(new THREE.CylinderGeometry(.05,.04,.45,8),fm(c,.3));a.position.set(s*.22,.85,.1);a.rotation.x=s*-.2;aeBoy.add(a);
+});
+const m=new THREE.Mesh(new THREE.PlaneGeometry(.12,.12),new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.9,side:THREE.DoubleSide}));m.position.set(0,1.65,.18);aeBoy.add(m);
+}
+aeBoy.position.set(-4,.6,-6);scene.add(aeBoy);
+
+/* nous girl */
+const nousGirl=new THREE.Group();
+{
+const c=0xff00ff;
+const h=new THREE.Mesh(new THREE.SphereGeometry(.16,10,6),fm(c,.35));h.position.y=1.6;nousGirl.add(h);
+const hr=new THREE.Mesh(new THREE.ConeGeometry(.2,.5,8),fm(c,.3));hr.position.y=1.65;hr.rotation.x=-.2;nousGirl.add(hr);
+const t=new THREE.Mesh(new THREE.BoxGeometry(.28,.4,.17),fm(c,.3));t.position.y=1.15;nousGirl.add(t);
+const s=new THREE.Mesh(new THREE.ConeGeometry(.2,.28,8),fm(c,.3));s.position.y=.85;s.rotation.x=Math.PI;nousGirl.add(s);
+[-1,1].forEach(s2=>{
+  const l=new THREE.Mesh(new THREE.CylinderGeometry(.05,.04,.55,8),fm(c,.3));l.position.set(s2*.1,.3,0);nousGirl.add(l);
+  const f=new THREE.Mesh(new THREE.BoxGeometry(.09,.07,.17),fm(c,.3));f.position.set(s2*.1,.02,0);nousGirl.add(f);
+  const a=new THREE.Mesh(new THREE.CylinderGeometry(.04,.03,.38,8),fm(c,.3));a.position.set(s2*.18,.8,.08);a.rotation.x=s2*-.15;nousGirl.add(a);
+});
+const hs=new THREE.Mesh(new THREE.TorusGeometry(.17,.015,8,16),fm(c,.4));hs.position.y=1.62;nousGirl.add(hs);
+}
+nousGirl.position.set(-1,.6,-5);scene.add(nousGirl);
+
+/* molty */
+const molty=new THREE.Group();
+{
+const c=0xff6d00;
+const b=new THREE.Mesh(new THREE.SphereGeometry(.3,10,8),fm(c,.35));b.position.y=.6;molty.add(b);
+const e1=new THREE.Mesh(new THREE.SphereGeometry(.07,8,6),new THREE.MeshBasicMaterial({color:0xffffff}));e1.position.set(-.1,.72,.25);molty.add(e1);
+const e2=new THREE.Mesh(new THREE.SphereGeometry(.07,8,6),new THREE.MeshBasicMaterial({color:0xffffff}));e2.position.set(.1,.72,.25);molty.add(e2);
+[-1,1].forEach(s=>{
+  const l=new THREE.Mesh(new THREE.CylinderGeometry(.03,.02,.35,6),fm(c,.2));l.position.set(s*.15,.2,s*.1);l.rotation.z=s*-.3;molty.add(l);
+  const cw=new THREE.Mesh(new THREE.SphereGeometry(.1,8,6),fm(c,.4));cw.position.set(s*.35,.55,s*.2);molty.add(cw);
+});
+}
+molty.position.set(5,.55,-4);scene.add(molty);
+
+/* asimov */
+const asimov=new THREE.Group();
+{
+const c=0xe0e0e0;const ac=0xff6d00;
+const h=new THREE.Mesh(new THREE.BoxGeometry(.22,.25,.2),fm(c,.35));h.position.y=1.7;asimov.add(h);
+const v=new THREE.Mesh(new THREE.PlaneGeometry(.18,.06),new THREE.MeshBasicMaterial({color:ac,transparent:true,opacity:.9,side:THREE.DoubleSide}));v.position.set(0,1.72,.11);asimov.add(v);
+const t=new THREE.Mesh(new THREE.BoxGeometry(.28,.42,.17),fm(c,.3));t.position.y=1.2;asimov.add(t);
+[-1,1].forEach(s=>{
+  const l=new THREE.Mesh(new THREE.CylinderGeometry(.06,.05,.65,8),fm(c,.3));l.position.set(s*.1,.35,0);asimov.add(l);
+  const f=new THREE.Mesh(new THREE.BoxGeometry(.1,.08,.18),new THREE.MeshBasicMaterial({color:ac,transparent:true,opacity:.5}));f.position.set(s*.1,.02,0);asimov.add(f);
+});
+const ae=new THREE.Mesh(new THREE.PlaneGeometry(.1,.1),new THREE.MeshBasicMaterial({color:ac,transparent:true,opacity:.9,side:THREE.DoubleSide}));ae.position.set(0,1.25,.11);asimov.add(ae);
+}
+asimov.position.set(-2,.6,-2);scene.add(asimov);
+
+/* waetz */
+const waetz=new THREE.Group();
+{
+const c=0xffffff;const ac=0x00e5ff;
+const h=new THREE.Mesh(new THREE.SphereGeometry(.22,12,8),fm(c,.25));h.position.y=1.2;waetz.add(h);
+const v=new THREE.Mesh(new THREE.SphereGeometry(.22,12,8,0,Math.PI*2,0,Math.PI*.35),new THREE.MeshBasicMaterial({color:ac,transparent:true,opacity:.3,side:THREE.DoubleSide}));v.position.y=1.22;v.position.z=.02;waetz.add(v);
+const ae=new THREE.Mesh(new THREE.PlaneGeometry(.14,.14),new THREE.MeshBasicMaterial({color:ac,transparent:true,opacity:.95,side:THREE.DoubleSide}));ae.position.set(0,1.2,.22);waetz.add(ae);
+const r=new THREE.Mesh(new THREE.TorusGeometry(.25,.015,8,32),new THREE.MeshBasicMaterial({color:ac,transparent:true,opacity:.8}));r.position.y=1.2;r.rotation.x=Math.PI/2;waetz.add(r);
+}
+waetz.position.set(3,1.5,1);scene.add(waetz);
+
+/* gates */
+const gateLabels=['HUMAN://ROOT','CODEX://BUILD','OPENCLAW://OPERATE','æQ://QUEUE','KÆNBÆN://REVIEW','WITNESS://VERIFY'];
+const gateColors=[0x00e5ff,0x00ccff,0xff6d00,0x00e5ff,0xff00ff,0xffd9a0];
+gateLabels.forEach((lab,i)=>{
+  const g=new THREE.Group();const c=gateColors[i];
+  const f=new THREE.Mesh(new THREE.BoxGeometry(1.8,1.2,.08),fm(c,.2));g.add(f);
+  g.position.set(-6+i*2.4,2,-8);g.rotation.y=Math.PI/6+i*.15;scene.add(g);
+});
+
+/* ledger */
+const ledger=new THREE.Mesh(new THREE.PlaneGeometry(3,2),new THREE.MeshBasicMaterial({color:0x00e5ff,transparent:true,opacity:.3,side:THREE.DoubleSide}));
+ledger.position.set(0,1.5,-5);ledger.rotation.y=-.3;scene.add(ledger);
+
+/* orbs */
+for(let i=0;i<8;i++){
+  const o=new THREE.Mesh(new THREE.IcosahedronGeometry(.15,0),fm(0x00e5ff,.4));
+  o.userData={phase:i/8*Math.PI*2,r:3+Math.random()*2,speed:.2+Math.random()*.3};
+  scene.add(o);
+}
+
+/* particles */
+const N=300;const pGeo=new THREE.BufferGeometry();const pPos=new Float32Array(N*3);
+for(let i=0;i<N;i++){pPos[i*3]=rr(-8,8);pPos[i*3+1]=rr(-2,4);pPos[i*3+2]=rr(-15,5)}
+pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));
+const pts=new THREE.Points(pGeo,new THREE.PointsMaterial({color:0x00e5ff,size:.04,transparent:true,opacity:.8,blending:THREE.AdditiveBlending,depthWrite:false,fog:true}));
+scene.add(pts);
+
+/* camera */
+function camFor(t){
+  let p=new THREE.Vector3(),g=new THREE.Vector3(),fov=32;
+  if(t<5){const k=ease(t/5);p.set(lerp(0,0,k),lerp(1.5,1.2,k),lerp(10,6,k));g.set(0,1,-3);fov=lerp(35,30,k)}
+  else if(t<10){const k=(t-5)/5;p.set(-4,1.2,2);g.set(-4,1,0);fov=32}
+  else if(t<15){const k=ease((t-10)/5);p.set(lerp(4,0,k),lerp(1.2,1.8,k),lerp(2,5,k));g.set(0,1,-2);fov=32}
+  else if(t<20){const k=ease((t-15)/5);p.set(lerp(0,2,k),lerp(1.8,1.2,k),lerp(5,2,k));g.set(3,1,0);fov=30}
+  else if(t<25){const k=ease((t-20)/5);p.set(lerp(3,1,k),lerp(1.2,2,k),lerp(2,6,k));g.set(0,1,-4);fov=32}
+  else{const k=ease(clamp((t-25)/4.2,0,1));p.set(lerp(1,0,k),lerp(2,2.5,k),lerp(6,8,k));g.set(0,1,-3);fov=lerp(32,28,k)}
+  return{p,g,fov}}
+
+/* animate */
+const DUR=30;let T=0,clockT=0,playing=true;
+const rec={on:false,mr:null,chunks:[]};
+function frame(now){
+  requestAnimationFrame(frame);
+  let dt=Math.min((now-(frame.l||now))/1000,.05);frame.l=now;clockT+=dt;
+  if(playing){T+=dt;if(T>=DUR){if(rec.on)stopRec();T=0}}else dt=0;
+  
+  // animate characters
+  aeBoy.position.set(-4+Math.sin(clockT*.3)*.3,.6+Math.sin(clockT*.8)*.05,-6);
+  aeBoy.rotation.y=Math.sin(clockT*.5)*.1;
+  nousGirl.position.set(-1+Math.sin(clockT*.4+.5)*.3,.6+Math.sin(clockT*.9+.3)*.05,-5);
+  nousGirl.rotation.y=Math.sin(clockT*.6+.5)*.1;
+  molty.position.set(5+Math.sin(clockT*.45+2)*.3,.55+Math.sin(clockT*.75+2)*.05,-4);
+  molty.rotation.y=Math.sin(clockT*.55+2)*.1;
+  asimov.position.set(-2,.6+Math.sin(clockT*.85+3)*.05,-2);asimov.rotation.y=.3;
+  waetz.position.set(3,1.5+Math.sin(clockT*.6+4)*.1,1);waetz.rotation.y=Math.sin(clockT*.3+4)*.2;
+  
+  // animate particles
+  const pp=pts.geometry.attributes.position;
+  for(let i=0;i<N;i++){pp.setXYZ(i,pp.getX(i)+rr(-.01,.01),pp.getY(i)+.005,pp.getZ(i)+rr(-.01,.01))}
+  pp.needsUpdate=true;
+  
+  // camera
+  const c=camFor(T);camera.position.copy(c.p);camera.fov=c.fov;camera.updateProjectionMatrix();camera.lookAt(c.g);camera.updateMatrixWorld();
+  
+  // render
+  renderer.render(scene,camera);
+  
+  // update HUD
+  $('fill').style.width=(T/DUR*100)+'%';
+  const chEl=$('ch');
+  if(chEl){const ch=['æ://BOOT','HUMAN://ROOT','nous://RUNTIME','llm://MODEL','agent://EXECUTE','robot://BODY','æ://TWIN','LEDGER://SYNC'];chEl.textContent=ch[Math.min(ch.length-1,Math.floor(T/3.75))]}
+}
+
+function stopRec(){rec.on=false;if(rec.mr&&rec.mr.state!=='inactive')rec.mr.stop();const rb=$('rec');if(rb)rb.textContent='● REC 30s'}
+const recBtn=$('rec');
+if(recBtn){
+recBtn.addEventListener('click',e=>{e.stopPropagation();if(rec.on)return stopRec();
+try{const st=canvas.captureStream(30),mt=['video/webm;codecs=vp9','video/webm'].find(m=>window.MediaRecorder&&MediaRecorder.isTypeSupported(m));
+rec.mr=new MediaRecorder(st,{mimeType:mt,videoBitsPerSecond:12e6});rec.chunks=[];rec.mr.ondataavailable=ev=>ev.data.size&&rec.chunks.push(ev.data);
+rec.mr.onstop=()=>{const b=new Blob(rec.chunks,{type:mt}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='sovereign_cast_9x16.webm';a.click()};
+T=0;playing=true;msg.style.display='none';rec.mr.start();rec.on=true;if(recBtn)recBtn.textContent='■ recording…'}catch(err){if(recBtn)recBtn.textContent='REC unsupported'}});
+}
+
+const stageEl=$('stage');
+if(stageEl){
+stageEl.addEventListener('click',e=>{if(e.target.id==='rec')return;playing=!playing;msg.style.display=playing?'none':'flex'});
+}
+
+msg.style.display='none';requestAnimationFrame(frame);
+}catch(e){msg.textContent='Error: '+e.message;console.error(e)}
+})();
+</script>
+</body></html>
