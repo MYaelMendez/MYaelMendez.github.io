@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#040202">
+<title>Tiny Governed Robot</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#040202;overflow:hidden;font-family:ui-monospace,Menlo,monospace;color:#e8ddbf}
+#stage{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#000;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#bar{position:absolute;left:0;right:0;bottom:0;height:16px;cursor:pointer;background:linear-gradient(rgba(0,0,0,0) 13px,rgba(255,255,255,.12) 13px)}
+#fill{position:absolute;left:0;bottom:0;display:block;height:3px;width:0;background:#ff6ec7}
+#msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;text-align:center;padding:20px;pointer-events:none}
+#rec{position:absolute;top:10px;right:10px;font:11px ui-monospace,monospace;color:#ffd9a0;background:rgba(0,0,0,.45);border:1px solid rgba(255,110,199,.4);border-radius:14px;padding:6px 10px;opacity:.55}
+#pl{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:64px;color:rgba(255,220,190,.8);pointer-events:none}
+#snd{position:absolute;top:10px;left:10px;font:11px ui-monospace,monospace;color:#ffd9a0;background:rgba(0,0,0,.45);border:1px solid rgba(255,110,199,.4);border-radius:14px;padding:6px 10px;opacity:.55}
+.tk{position:absolute;bottom:0;width:2px;height:7px;background:rgba(255,110,199,.55);pointer-events:none}
+</style></head><body>
+<div id="stage"><canvas id="c"></canvas><div id="msg">building miniature world…</div><div id="pl">▶</div><button id="snd">♪ SOUND</button><button id="rec">● REC 30s</button><div id="bar"><i id="fill"></i></div></div>
+
+<script>
+/* boot guard: if three.js never loads, show a notice. */
+window.__AE_BOOT_OK=false;
+setTimeout(function(){
+  if(!window.__AE_BOOT_OK){
+    var g=document.createElement('div');
+    g.textContent='three.js failed to load · check connection or host locally';
+    g.style.cssText='position:fixed;inset:0;display:grid;place-items:center;z-index:99;background:#040202;color:#ffd9a0;font:11px/1.8 ui-monospace,monospace;letter-spacing:.14em;text-align:center;padding:20px;';
+    document.body.appendChild(g);
+  }
+},3500);
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const msg=$('msg');
+try{main()}catch(e){msg.textContent='Error: '+e.message;console.error(e)}
+function main(){
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,t)=>a+(b-a)*t;
+const ss=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)};
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+let seed=20261127;const rnd=()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+const rr=(a,b)=>a+(b-a)*rnd();
+const h2=(x,y)=>{const s=Math.sin(x*127.1+y*311.7)*43758.5453;return s-Math.floor(s)};
+const vn=(x,y)=>{const xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi,u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);return lerp(lerp(h2(xi,yi),h2(xi+1,yi),u),lerp(h2(xi,yi+1),h2(xi+1,yi+1),u),v)};
+const fbm=(x,y)=>vn(x,y)*.6+vn(x*2.3,y*2.3)*.4;
+const C=h=>new THREE.Color(h).convertSRGBToLinear();
+const wrapPi=a=>{while(a>Math.PI)a-=2*Math.PI;while(a<-Math.PI)a+=2*Math.PI;return a};
+const V=(x,y,z)=>new THREE.Vector3(x,y,z);
+
+const canvas=$('c'),stageEl=$('stage');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:false,powerPreference:'high-performance'});
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=true;
+const HDR=renderer.capabilities.isWebGL2&&(renderer.extensions.has('EXT_color_buffer_float')||renderer.extensions.has('EXT_color_buffer_half_float'))?THREE.HalfFloatType:THREE.UnsignedByteType;
+const ANI=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+
+// ── Controlled Robot World ────────────────────────────────────────────────
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(26,9/16,0.1,30);
+scene.fog=new THREE.FogExp2(new THREE.Color(0x030504),.025);
+
+// Background: deep void with grid floor
+const bgMat=new THREE.MeshStandardMaterial({color:0x040202,metalness:.9,roughness:.3});
+const bg=new THREE.Mesh(new THREE.SphereGeometry(18,32,16),bgMat);
+bg.renderOrder=-10;bg.frustumCulled=false;scene.add(bg);
+
+// Grid floor
+const grid=new THREE.GridHelper(2.2,20,new THREE.Color(0x00ff9f),new THREE.Color(0x020302));
+grid.position.y=-.12;grid.material.transparent=true;grid.material.opacity=.35;scene.add(grid);
+
+// Pedestal for the robot
+const pedestal=new THREE.Mesh(
+  new THREE.CylinderGeometry(.06,.09,.14,32),
+  new THREE.MeshStandardMaterial({color:0x0a0f0d,metalness:.85,roughness:.25})
+);
+pedestal.position.y=-.10;scene.add(pedestal);
+
+// ── The Governed Robot (Asimov face) ─────────────────────────────────────
+const ring=new THREE.Mesh(
+  new THREE.TorusGeometry(.22,.004,20,72),
+  new THREE.MeshBasicMaterial({color:0x00ff9f,transparent:true,opacity:.6})
+);
+ring.rotation.x=Math.PI/2;ring.position.y=.02;scene.add(ring);
+
+// Robot head from GLB
+const loader=new THREE.GLTFLoader();
+const headMesh=null; // we'll build a procedural robot head instead
+const faceGroup=new THREE.Group();
+faceGroup.position.set(0,0,0);
+scene.add(faceGroup);
+
+// Build a procedural Asimov-style head from primitives
+const headMat=new THREE.MeshStandardMaterial({color:0x8a2a1a,metalness:.7,roughness:.3,emissive:0x4a1008,emissiveIntensity:.2});
+const head=new THREE.Mesh(new THREE.SphereGeometry(.08,24,24),headMat);
+head.scale.set(.6,.9,.6);head.position.y=.04;
+faceGroup.add(head);
+
+// Semicircular face viewport (the arch mask)
+const viewportMat=new THREE.MeshStandardMaterial({color:0x101a18,metalness:1.0,roughness:.05,envMapIntensity:1.2});
+const viewport=new THREE.Mesh(new THREE.SphereGeometry(.085,24,24),viewportMat);
+viewport.scale.set(1,.5,1.2);viewport.position.y=-.01;
+faceGroup.add(viewport);
+
+// Robot neck
+const neck=new THREE.Mesh(new THREE.CylinderGeometry(.02,.025,.05,12),headMat);
+neck.position.y=-.08;faceGroup.add(neck);
+
+// ── Robot LED Mask (the arch) ─────────────────────────────────────────────
+const LED_COLORS=['#00ff9f','#70dcff','#ff00ff','#ffd700','#ff2d55'];
+const maskGeo=new THREE.SphereGeometry(.082,24,24);
+const maskMat=new THREE.MeshBasicMaterial({color:0x00ff9f,transparent:true,blending:THREE.AdditiveBlending});
+const maskMesh=new THREE.Mesh(maskGeo,maskMat);
+maskMesh.scale.set(1,.5,1.2);maskMesh.position.y=-.01;faceGroup.add(maskMesh);
+
+// ── GLOW emitters ─────────────────────────────────────────────────────────
+const glow=new THREE.PointLight(0x00ff9f,1.5,.5,.5);
+glow.position.set(0,.1,.1);scene.add(glow);
+const glow2=new THREE.PointLight(0x00ff9f,1.0,.5,.5);
+glow2.position.set(0,.1,-.1);scene.add(glow2);
+
+// ── CAMERA ────────────────────────────────────────────────────────────────
+const camTarget=new THREE.Vector3(0,.02,0);
+camera.position.set(0,.05,0.32);
+camera.lookAt(camTarget);
+
+// ── Post-processing pass ──────────────────────────────────────────────────
+const renderTarget=new THREE.WebGLRenderTarget(1920/4,1080/4,{
+  format:THREE.RGBAFormat,
+  encoding:THREE.sRGBEncoding,
+  type:THREE.HalfFloatType
+});
+const effectFX=new THREE.ShaderPass({tcolor: {value:0}, uniforms:{ tcolor: {value: new THREE.Color(0x00ff9f)} },defines:{ 'USE_UV': 1 }});
+effectFX.shader.fragmentShader=`
+varying vec2 vUv;
+uniform vec3 tcolor;
+void main(){ vec3 c=texture2D(tcolor, vUv).rgb; gl_FragColor=vec4(c,1.); }`;
+// Bloom via simple glow pass
+const glowPass=new THREE.ShaderPass({tcolor:{value:new THREE.Color(0x00ff9f)}, uniforms:{tcolor:{value:new THREE.Color(0x00ff9f)}} });
+glowPass.shader.fragmentShader=`
+varying vec2 vUv;
+uniform vec3 tcolor;
+void main(){ float g=1.-smoothstep(0.,1.,length(vUv-.5)); vec3 c=tcolor* g*3.5; gl_FragColor=vec4(c,1.); }`;
+
+// Scanline overlay
+const scanlinePass=new THREE.ShaderPass({tcolor:{value:new THREE.Color(0xffffff)}, uniforms:{tcolor:{value:new THREE.Color(0xffffff)}} });
+scanlinePass.shader.fragmentShader=`
+varying vec2 vUv;
+uniform vec3 tcolor;
+void main(){ float s=0.02*sign(sin(100.*vUv.y)); vec3 c=tcolor*s; gl_FragColor=vec4(c,1.); }`;
+
+// ── Audio (procedural) ────────────────────────────────────────────────────
+let audioCtx=null, osc=null, gainNode=null;
+function startAudio(){
+  if(audioCtx) return;
+  audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  osc=audioCtx.createOscillator();
+  gainNode=audioCtx.createGain();
+  osc.connect(gainNode);gainNode.connect(audioCtx.destination);
+  osc.type='sawtooth';osc.frequency.value=55;
+  gainNode.gain.value=.05;
+}
+function stopAudio(){ if(audioCtx){audioCtx.close();audioCtx=null;} }
+function playBeep(freq,dur){ if(!audioCtx)return; const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.connect(g);g.connect(audioCtx.destination); o.type='square';o.frequency.setValueAtTime(freq,0);g.gain.setValueAtTime(.04,0);g.gain.exponentialRampToValueAtTime(0.001,dur);o.start();o.stop(dur); }
+
+// ── State machine for the film ───────────────────────────────────────────
+const CAP={
+  0:'&gt;_æ:// GOVERNED_ROBOT · power-on sequence',
+  1:'LED mask: arch aperture / camera port open',
+  2:'HUMAN://ROOT · receipts on every action',
+  3:'auth@led.append({seq:0,prev:0,action:"boot"})',
+  4:'authority not transferable · robot is mirror'
+};
+const chapterCount=5;
+let ch=0,dur=0,phase=0,chStart=0,playing=false;
+const capEl=$('msg');
+const fillEl=$('fill');
+
+function showCaption(t){ capEl.textContent=CAP[ch]||''; }
+
+function nextChapter(offset){
+  ch=(ch+offset+chapterCount)%chapterCount;
+  dur=ss(1.2,3.0, (ch+1)*0.45);
+  chStart=performance.now();
+  phase=0;
+  showCaption(dur);
+}
+function reset(){
+  ch=0;chStart=performance.now();playing=false;
+  capEl.textContent=CAP[0]||'';fillEl.style.width='0%';
+  const r=$('rec');
+  if(r){r.textContent='● REC 30s';r.style.opacity=.55;}
+  if(audioCtx){audioCtx.resume();}
+}
+function togglePlay(){
+  if(!playing){ startAudio(); playing=true; }
+  else { if(audioCtx)audioCtx.suspend(); playing=false; }
+  $('pl').style.display=playing?'flex':'none';
+}
+function step(dt){
+  if(!playing) return;
+  const t=performance.now();
+  const elapsed=t-chStart;
+  if(elapsed>dur+0.3){
+    nextChapter(1);
+    return;
+  }
+  phase=clamp((elapsed-0.3)/dur,0,1);
+  const e=ease(phase);
+  fillEl.style.width=(e*100)+'%';
+
+  // ── Robot animation ────────────────────────────────────────────────
+  const sc=ease(phase*2);
+  maskMesh.material.opacity=0.3+0.7*Math.sin(phase*3.2);
+  glow.intensity=1.2+1.5*Math.sin(phase*5.0);
+  glow2.intensity=0.8+1.2*Math.sin(phase*4.3+1.2);
+  const headY=lerp(-.02,.06,Math.sin(phase*2.0)*.5+.5);
+  head.position.y=headY;
+  neck.position.y=headY-.05;
+  faceGroup.rotation.x=lerp(-.05,.05,Math.sin(phase*2.0+.5)*.3);
+  faceGroup.rotation.z=lerp(-.03,.03,Math.cos(phase*2.0)*.3);
+
+  // LED mask - breathe with mode
+  const modes=['MIRROR','FACE','TEXT','TELEMETRY','QR / CODE','WARNING','OFF'];
+  const modePhase=phase*3.0;
+  maskMesh.material.color.setHex(0x00ff9f);
+  if(phase>0.15&&phase<0.3){ maskMesh.material.color.setHex(0x00ff9f); maskMesh.material.opacity=.8; }
+  else if(phase>0.35&&phase<0.5){ maskMesh.material.color.setHex(0x70dcff); maskMesh.material.opacity=.6; }
+  else if(phase>0.55&&phase<0.7){ maskMesh.material.color.setHex(0xff00ff); maskMesh.material.opacity=.7; }
+  else { maskMesh.material.opacity=0.3+0.7*Math.sin(phase*4.0); }
+
+  // Panel flashes on transitions
+  if(elapsed>0.1&&elapsed<0.3){ playBeep(220,0.15); }
+  else if(elapsed>0.35&&elapsed<0.5){ playBeep(260,0.15); }
+  else if(elapsed>0.55&&elapsed<0.7){ playBeep(320,0.15); }
+  else if(elapsed>0.75&&elapsed<0.9){ playBeep(380,0.15); }
+
+  if(phase>=1.0&&phase<1.3){ playBeep(440,0.2); }
+  if(phase>=1.3&&phase<1.6){ playBeep(440,0.2); }
+  if(phase>=1.6&&phase<1.9){ playBeep(440,0.2); }
+  if(phase>=1.9&&phase<2.2){ playBeep(440,0.2); }
+
+  // Transition hum
+  const transStart=0.1, transEnd=0.3;
+  if(elapsed>transStart&&elapsed<transEnd){
+    const t2=(elapsed-transStart)/(transEnd-transStart);
+    playBeep(110+110*t2,0.15);
+  }
+  renderer.render(scene,camera);
+}
+
+// ── Render loop ──────────────────────────────────────────────────────────
+const clock=new THREE.Clock();
+function animate(){
+  const dt=Math.min(0.05,clock.getDelta());
+  step(dt);
+  requestAnimationFrame(animate);
+}
+function resize(){ const w=canvas.clientWidth,h=canvas.clientHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); }
+window.addEventListener('resize',resize);
+resize();
+
+// ── Controls ─────────────────────────────────────────────────────────────
+$('pl').addEventListener('click',togglePlay);
+$('snd').addEventListener('click',()=>{ if(audioCtx){ playBeep(330,0.1); if(playing)playBeep(550,0.1); } });
+$('rec').addEventListener('click',()=>{
+  if(!window.MediaRecorder) return;
+  const mime='video/webm;codecs=vp9';
+  const rec=$('rec');
+  rec.textContent='● REC 30s';
+  rec.style.opacity=1;
+  setTimeout(()=>{ rec.textContent='● REC 30s'; rec.style.opacity=.55; },30000);
+  const stream=renderer.domElement.captureStream(24);
+  const mr=new MediaRecorder(stream,{mimeType:mime||undefined});
+  const chunks=[];
+  mr.ondataavailable=e=>{ if(e.data.size>0) chunks.push(e.data); };
+  mr.onstop=()=>{ const blob=new Blob(chunks,new{type:'video/webm'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='tiny-governed-robot.mp4'; a.click(); chunks.length=0; };
+  try{ mr.start(); }catch(e){ msg.textContent='REC: '+e.message; }
+  setTimeout(()=>{ if(mr.state==='recording'){ mr.stop(); } },29000);
+});
+$('bar').addEventListener('click',()=>{ const w=fillEl.getBoundingClientRect().width; fillEl.style.width=(Math.min(100,(w/canvas.getBoundingClientRect().width)*100))+'%'; });
+
+// Boot
+msg.textContent='initializing governed robot world…';
+setTimeout(()=>{
+  msg.textContent='powering on lens array…';
+  setTimeout(()=>{ msg.textContent='robots are mirrors '; },900);
+},700);
+showCaption(1);
+renderer.render(scene,camera);
+animate();
+}
+})();
+</script>
+</body></html>
