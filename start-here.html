@@ -1,130 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>start here — open source, plainly</title>
-<meta name="description" content="A plain-language start for anyone who wants to learn open source software, using this estate's own small repositories.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07101b"><meta name="description" content="Conoce a Wætz: convierte tu teléfono en tu primer laboratorio de robótica. Aprende, simula y construye con OpenSourceWare.">
+<title>Wætz Bot · Start Here · æ Studio</title>
 <style>
-:root{--void:#050505;--green:#00ff9f;--cyan:#00ccff;--magenta:#ff2d78;--gold:#D4AF37;
- --ink:#e8e8e8;--dim:#8fa89c;--mut:#6f8579;--line:rgba(0,255,159,.22)}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--void);color:var(--ink);font-family:'JetBrains Mono',ui-monospace,monospace;
- min-height:100vh;overflow-x:hidden}
-body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:
- radial-gradient(900px 600px at 50% 20%,rgba(0,255,159,.08),transparent 62%)}
-.wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:clamp(16px,3vw,40px)}
-.top{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;
- padding-bottom:14px;border-bottom:1px solid var(--line);font-size:.68rem;letter-spacing:.18em;
- text-transform:uppercase;color:var(--mut)}
-.top b{color:var(--green)}
-.kicker{font-size:.66rem;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin-top:22px}
-h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(1.6rem,5vw,3rem);
- color:var(--green);letter-spacing:-.01em;line-height:1;margin-top:10px}
-h1 .p{color:var(--magenta)}
-.sub{color:var(--dim);font-size:clamp(.8rem,1.6vw,.95rem);line-height:1.6;margin-top:12px;max-width:640px}
-h2{font-family:'Orbitron',sans-serif;font-weight:700;font-size:clamp(.9rem,2.2vw,1.2rem);
- color:var(--green);letter-spacing:.06em;margin:34px 0 12px;display:flex;align-items:center;gap:12px}
-h2::after{content:"";flex:1;height:1px;background:var(--line)}
-p{line-height:1.7;color:var(--ink);font-size:.88rem;margin:10px 0}
-.lead{color:var(--dim);font-size:.92rem}
-code{background:rgba(0,255,159,.08);border:1px solid var(--line);border-radius:3px;
- padding:1px 6px;color:var(--green);font-size:.84em}
-.steps{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
-.step{border:1px solid var(--line);border-left:2px solid var(--green);padding:14px;border-radius:3px;
- background:linear-gradient(180deg,rgba(0,255,159,.05),transparent)}
-.step .n{font-family:'Orbitron',sans-serif;color:var(--magenta);font-size:.72rem;letter-spacing:.16em}
-.step b{display:block;color:var(--green);font-size:.98rem;margin:5px 0 6px}
-.step span{color:var(--dim);font-size:.78rem;line-height:1.55}
-.gloss{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
-.g{border:1px solid var(--line);padding:11px 13px;border-radius:3px}
-.g b{color:var(--cyan);font-size:.82rem}
-.g span{display:block;color:var(--mut);font-size:.76rem;line-height:1.55;margin-top:4px}
-.links{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
-a.l{display:inline-block;text-decoration:none;color:var(--green);border:1px solid rgba(0,255,159,.35);
- padding:10px 15px;border-radius:3px;background:rgba(0,255,159,.05);font-size:.84rem;
- transition:border-color .2s,box-shadow .2s,transform .2s}
-a.l:hover{border-color:var(--green);box-shadow:0 0 18px rgba(0,255,159,.16);transform:translateY(-2px)}
-.note{border:1px solid rgba(212,175,55,.3);border-left:2px solid var(--gold);padding:12px 14px;
- margin-top:14px;background:rgba(212,175,55,.05)}
-.note b{color:var(--gold);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase}
-.note p{color:var(--dim);font-size:.8rem;margin-top:6px}
-footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--line);color:var(--mut);
- font-size:.7rem;letter-spacing:.08em;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="top"><span><b>&gt;_æ:</b> START HERE</span><span>PLAIN LANGUAGE · NO INSIDER DIALECT</span></div>
-
-  <p class="kicker">new here? this is the one page that explains the rest</p>
-  <h1><span class="p">&gt;_</span>open source, plainly.</h1>
-  <p class="sub">The rest of this site assumes you already live here. This page does not.
-    It tells you what open source is, how to actually learn it, and where to start inside
-    this estate — in small steps you can run today.</p>
-
-  <h2>what open source is</h2>
-  <p class="lead">Open source means the <b>source code is public</b>: you can read it, run it,
-    change it, and share your changes. Nobody has to ask permission to look. The licence
-    (a file called <code>LICENSE</code>) says what you may do — most of the projects here are
-    MIT, which means "use it, change it, keep the notice".</p>
-  <p>That is the whole idea. Everything else — forks, pull requests, issues, releases — is
-    just a workflow around those four freedoms.</p>
-
-  <h2>how to learn it — four moves, in order</h2>
-  <div class="steps">
-    <div class="step"><span class="n">01</span><b>read</b>
-      <span>Pick one small project. Read its <code>README</code> first, then its
-      <code>LICENSE</code>, then one source file. Do not start with the biggest one.</span></div>
-    <div class="step"><span class="n">02</span><b>run</b>
-      <span>Install it and run its tests. Tests are the honest documentation: they show
-      you what the code actually does, not what the author remembers.</span></div>
-    <div class="step"><span class="n">03</span><b>change</b>
-      <span>Break one thing on purpose, then fix it. Change a message, a default, a
-      colour. Small diff, real understanding.</span></div>
-    <div class="step"><span class="n">04</span><b>contribute</b>
-      <span>Open an issue before a pull request. Describe what you saw, what you expected,
-      and how to repeat it. Maintainers answer reproductions.</span></div>
-  </div>
-
-  <h2>where to start here</h2>
-  <p class="lead">This estate keeps its smallest instruments as separate repositories, each
-    with its own tests. That makes them good first reads.</p>
-  <div class="links">
-    <a class="l" href="https://github.com/MYaelMendez/tinycuda">tinycuda — a GPU rasteriser, the smallest</a>
-    <a class="l" href="https://github.com/MYaelMendez/tinypython">tinypython — run a robot policy, 34 tests</a>
-    <a class="l" href="https://github.com/MYaelMendez/tinygpu">tinygpu — render real robot CAD</a>
-    <a class="l" href="https://github.com/MYaelMendez/vaeult">væult — secrets, encrypted at rest</a>
-  </div>
-  <div class="note"><b>the smallest useful step</b>
-    <p>Clone <code>tinycuda</code>, run <code>pip install -e .</code>, then run its test suite.
-    When the tests pass you have read a real open-source project end to end — about 22 tests
-    worth. That is the whole threshold.</p></div>
-
-  <h2>the words this site uses (and never explained)</h2>
-  <div class="gloss">
-    <div class="g"><b>#OSW — open source ware</b><span>Software you can run, read and change, where every run leaves a verifiable record.</span></div>
-    <div class="g"><b>tiny*</b><span>The naming rule: one capability per small package. <code>tiny</code> + the noun. Small enough to read in one sitting.</span></div>
-    <div class="g"><b>receipt</b><span>A SHA-256 hash of what was produced. It lets you check back that an artefact is the one you think it is.</span></div>
-    <div class="g"><b>væult</b><span>An encrypted file of secrets. The passphrase is typed in the browser and never stored.</span></div>
-    <div class="g"><b>the laboratory</b><span>Where a robot's policy trace is turned into a film, and the film is graded by a second instrument.</span></div>
-    <div class="g"><b>doors</b><span>Just navigation. Four entry points: the instruments, the films, the domains, the archive.</span></div>
-  </div>
-
-  <h2>what this site will not tell you</h2>
-  <p>It will not tell you that any of this is production-ready, or that a robot moved. Every
-    number here is a <b>simulation trace</b>. The honest page is
-    <a class="l" href="the-film-is-an-instrument.html" style="margin-left:6px">the film is an instrument</a>
-    — it lists what is measured and what is not true.</p>
-
-  <div class="links">
-    <a class="l" href="index.html">back to the hub</a>
-    <a class="l" href="tinyhq.html">tinyHQ — the instruments as rooms</a>
-  </div>
-
-  <footer><span>&gt;_æ: START HERE · PLAIN LANGUAGE</span><span>#HERMIPHICATIONISINEVITABLE</span></footer>
-</div>
-</body>
-</html>
+:root{color-scheme:dark;--bg:#06101b;--panel:#102235;--edge:#31526b;--cyan:#80eaff;--lime:#a2f58e;--ink:#f2f7fc;--muted:#c0d4e4;--orange:#ff9e48}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 50% 0%,#14344c 0%,var(--bg) 55%);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}a{color:var(--cyan)}button,select{font:inherit}button{cursor:pointer;min-height:48px;border:1px solid var(--edge);border-radius:14px;padding:11px 16px;color:var(--ink);background:#1c3b51}button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid var(--orange);outline-offset:3px}button:disabled{opacity:.45;cursor:not-allowed}.primary{background:#8deaff;color:#06202d;font-weight:800;border-color:#8deaff}.danger{background:#5c1e31;border-color:#e58499}.wrap{max-width:1050px;margin:auto;padding:18px clamp(16px,4vw,40px) 64px}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.brand{font-weight:900;color:var(--cyan);letter-spacing:.04em}.top nav{display:flex;gap:14px;flex-wrap:wrap;font-size:.9rem}.top select{background:var(--panel);color:var(--ink);border:1px solid var(--edge);padding:10px;border-radius:12px;min-height:48px}.hero{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center;padding:48px 0 26px}.eyebrow{color:var(--orange);font-weight:700;letter-spacing:.13em;text-transform:uppercase;font-size:.8rem}h1{font-size:clamp(2.2rem,6vw,4.4rem);line-height:1.08;margin:8px 0 18px}h2{font-size:clamp(1.5rem,3vw,2.2rem);margin:0 0 12px}h3{margin:0 0 8px}p{margin:8px 0 16px}.muted{color:var(--muted)}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}.chip{font-size:.82rem;border:1px solid var(--edge);border-radius:999px;padding:7px 11px;color:var(--muted);display:inline-block}.robot-stage{background:linear-gradient(160deg,#173d56,#081827);border:1px solid var(--edge);border-radius:28px;min-height:300px;display:grid;place-items:center;padding:20px;box-shadow:0 18px 50px #0005}.robot-stage svg{width:min(100%,300px);height:auto}.section{padding:32px 0;border-top:1px solid var(--edge)}.panel{background:var(--panel);border:1px solid var(--edge);border-radius:22px;padding:20px}.sim{display:grid;grid-template-columns:minmax(230px,1fr) minmax(260px,1fr);gap:18px}.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;max-width:350px;aspect-ratio:1;margin:auto}.cell{border:1px solid #45627a;border-radius:7px;background:#17344a;display:grid;place-items:center;font-size:clamp(1.2rem,3vw,2rem)}.cell.robot{background:#235a65;border:2px solid var(--cyan)}.cell.wall{background:#5a3442}.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.controls button{min-height:54px}.status{padding:12px;background:#081724;border:1px solid var(--edge);border-radius:12px;margin:12px 0;min-height:52px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.card{border:1px solid var(--edge);border-radius:18px;background:var(--panel);padding:17px}.card a{display:inline-block;margin-top:8px}.links{display:flex;gap:9px;flex-wrap:wrap}.links a{padding:10px 13px;border:1px solid var(--edge);border-radius:12px;text-decoration:none}.small{font-size:.87rem}.receipt{font:12px/1.5 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;background:#050d16;padding:12px;border-radius:10px;max-height:220px;overflow:auto}details{border:1px solid var(--edge);border-radius:15px;padding:15px;margin:10px 0;background:#0b1d2b}summary{cursor:pointer;font-weight:700;color:var(--cyan)}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}footer{padding-top:28px;border-top:1px solid var(--edge);color:var(--muted)}@media(max-width:720px){.hero,.sim{grid-template-columns:1fr}.cards{grid-template-columns:1fr}.hero{padding-top:24px}.robot-stage{min-height:230px}.top nav{order:3;width:100%}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+</style></head><body><div class="wrap">
+<header class="top"><div class="brand">&gt;_æ:// WÆTZ BOT</div><nav aria-label="Navigation"><a href="#play" data-es="Jugar" data-en="Play">Jugar</a><a href="#learn" data-es="Aprender" data-en="Learn">Aprender</a><a href="#source" data-es="Código abierto" data-en="Open source">Código abierto</a><a href="index.html" data-es="Inicio æ" data-en="æ Home">Inicio æ</a></nav><label><span class="sr">Language / Idioma</span><select id="lang" aria-label="Language / Idioma"><option value="es">Español</option><option value="en">English</option></select></label></header>
+<main>
+<section class="hero"><div><div class="eyebrow">OpenSourceWare · Aprende LATAM · Emprende LATAM</div><h1 data-es="¡Hola! Soy Wætz. 🤖" data-en="Hi! I'm Wætz. 🤖">¡Hola! Soy Wætz. 🤖</h1><p class="muted" data-es="Tu teléfono puede ser el cerebro de un robot. Empieza aquí, de 3 a 103 años: juega, aprende, construye y crea." data-en="Your phone can be a robot's brain. Start here, from ages 3 to 103: play, learn, build, and create.">Tu teléfono puede ser el cerebro de un robot. Empieza aquí, de 3 a 103 años: juega, aprende, construye y crea.</p><div class="actions"><a class="primary" style="padding:14px 20px;border-radius:14px;text-decoration:none" href="#play" data-es="▶ Conoce tu robot" data-en="▶ Meet your robot">▶ Conoce tu robot</a><a href="#source" style="padding:14px" data-es="Explorar el código" data-en="Explore the code">Explorar el código</a></div><span class="chip" data-es="✓ Sin registro · Simulación segura · Sin hardware" data-en="✓ No sign-up · Safe simulation · No hardware">✓ Sin registro · Simulación segura · Sin hardware</span></div>
+<div class="robot-stage" role="img" aria-label="Wætz phone robot illustration"><svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"><ellipse cx="150" cy="265" rx="110" ry="15" fill="#07111e"/><rect x="94" y="15" width="112" height="182" rx="24" fill="#050b14" stroke="#80eaff" stroke-width="5"/><rect x="105" y="28" width="90" height="150" rx="14" fill="#16354b"/><rect x="132" y="21" width="36" height="5" rx="3" fill="#7ca5b8"/><circle cx="130" cy="94" r="7" fill="#80eaff"/><circle cx="170" cy="94" r="7" fill="#80eaff"/><path d="M130 123 Q150 146 170 123" fill="none" stroke="#80eaff" stroke-width="6" stroke-linecap="round"/><rect x="78" y="195" width="144" height="35" rx="12" fill="#ff9e48"/><path d="M104 230 L79 249 M196 230 L221 249" stroke="#9ac5dc" stroke-width="12" stroke-linecap="round"/><circle cx="75" cy="250" r="26" fill="#0c2134" stroke="#80eaff" stroke-width="8"/><circle cx="225" cy="250" r="26" fill="#0c2134" stroke="#80eaff" stroke-width="8"/><path d="M90 55 L61 70 L68 92 M210 55 L239 70 L232 92" fill="none" stroke="#ff9e48" stroke-width="7" stroke-linecap="round"/></svg></div></section>
+<section id="play" class="section"><div class="eyebrow">01 · Wætz PhoneRobot v0.1</div><h2 data-es="Tu primera misión" data-en="Your first mission">Tu primera misión</h2><p class="muted" data-es="Elige un movimiento. Wætz comprobará la seguridad. Tú decides si se ejecuta. Todo ocurre dentro de esta simulación." data-en="Choose a move. Wætz checks safety. You decide whether it runs. Everything happens inside this simulation.">Elige un movimiento. Wætz comprobará la seguridad. Tú decides si se ejecuta. Todo ocurre dentro de esta simulación.</p>
+<div class="sim"><div class="panel"><h3 data-es="🗺️ Mundo virtual" data-en="🗺️ Virtual world">🗺️ Mundo virtual</h3><div id="grid" class="grid" role="img" aria-label="5 by 5 robot simulation grid"></div><p class="small muted" id="coords">x:2 y:2 · ↑</p><span class="chip">SIMULATION ONLY · NO PHYSICAL ROBOT</span></div>
+<div class="panel"><h3 data-es="🎮 Dale una instrucción" data-en="🎮 Give a command">🎮 Dale una instrucción</h3><div class="controls"><button data-cmd="forward" data-es="⬆ Avanzar" data-en="⬆ Forward">⬆ Avanzar</button><button data-cmd="left" data-es="↶ Izquierda" data-en="↶ Left">↶ Izquierda</button><button data-cmd="right" data-es="↷ Derecha" data-en="↷ Right">↷ Derecha</button><button data-cmd="scan" data-es="◉ Explorar" data-en="◉ Scan">◉ Explorar</button></div><div id="status" class="status" role="status" aria-live="polite">Wætz listo. Elige una instrucción.</div><div class="controls"><button id="approve" class="primary" disabled data-es="✓ Aprobar" data-en="✓ Approve">✓ Aprobar</button><button id="reject" disabled data-es="✕ Rechazar" data-en="✕ Reject">✕ Rechazar</button><button id="stop" class="danger" data-es="■ PARAR" data-en="■ STOP">■ PARAR</button><button id="reset" data-es="↻ Reiniciar" data-en="↻ Reset">↻ Reiniciar</button></div><h3 style="margin-top:18px" data-es="📋 Recibo de ejecución" data-en="📋 Execution receipt">📋 Recibo de ejecución</h3><pre id="receipt" class="receipt" aria-live="polite">—</pre><button id="export" data-es="Copiar recibos JSON" data-en="Copy JSON receipts">Copiar recibos JSON</button></div></div></section>
+<section id="learn" class="section"><div class="eyebrow">02 · Machine Learning for GOOD</div><h2 data-es="Aprende · Construye · Emprende" data-en="Learn · Build · Create">Aprende · Construye · Emprende</h2><div class="cards"><article class="card"><h3>🎮 <span data-es="Juega y aprende" data-en="Play and learn">Juega y aprende</span></h3><p class="muted" data-es="Para principiantes de cualquier edad. Los niños pequeños participan con un adulto." data-en="For beginners of any age. Young children participate with an adult.">Para principiantes de cualquier edad. Los niños pequeños participan con un adulto.</p><a href="#play" data-es="Probar el robot" data-en="Try the robot">Probar el robot</a></article><article class="card"><h3>🤳 <span data-es="Construye un PhoneRobot" data-en="Build a PhoneRobot">Construye un PhoneRobot</span></h3><p class="muted" data-es="Un teléfono como cerebro; ruedas, sensores y piezas modulares como cuerpo. Asimov es nuestra meta de investigación." data-en="A phone as the brain; wheels, sensors and modular parts as its body. Asimov is our research goal.">Un teléfono como cerebro; ruedas, sensores y piezas modulares como cuerpo. Asimov es nuestra meta de investigación.</p><a href="https://github.com/menloresearch/asimov-1">Asimov-1 · GitHub</a></article><article class="card"><h3>🍊 <span data-es="Crea oportunidades" data-en="Create opportunity">Crea oportunidades</span></h3><p class="muted" data-es="Aprende LATAM y Emprende LATAM: educación, fabricación local y desarrollo comunitario intergeneracional." data-en="Aprende LATAM and Emprende LATAM: education, local making and intergenerational community development.">Aprende LATAM y Emprende LATAM: educación, fabricación local y desarrollo comunitario intergeneracional.</p><a href="https://lutheraninstitute.github.io/">Lutheran Institute</a></article></div></section>
+<section id="source" class="section"><div class="eyebrow">03 · OpenSourceWare</div><h2 data-es="¿Listo para ver cómo funciona?" data-en="Ready to see how it works?">¿Listo para ver cómo funciona?</h2><p class="muted" data-es="El código abierto permite leer, ejecutar, cambiar y compartir código según su licencia. Aquí conservamos los instrumentos y enlaces originales para aprender paso a paso." data-en="Open source lets you read, run, change and share code according to its license. The original learning instruments and links remain available here.">El código abierto permite leer, ejecutar, cambiar y compartir código según su licencia. Aquí conservamos los instrumentos y enlaces originales para aprender paso a paso.</p>
+<details><summary data-es="Las cuatro acciones: leer, ejecutar, cambiar, contribuir" data-en="Four actions: read, run, change, contribute">Las cuatro acciones: leer, ejecutar, cambiar, contribuir</summary><ol><li>READ: README, LICENSE, source.</li><li>RUN: install and run tests.</li><li>CHANGE: make a small reversible change.</li><li>CONTRIBUTE: report a reproducible issue or propose a change.</li></ol></details>
+<details><summary data-es="Instrumentos originales · tinycuda, tinypython, tinygpu, væult" data-en="Original instruments · tinycuda, tinypython, tinygpu, væult">Instrumentos originales · tinycuda, tinypython, tinygpu, væult</summary><div class="links"><a href="https://github.com/MYaelMendez/tinycuda">tinycuda · GPU rasteriser</a><a href="https://github.com/MYaelMendez/tinypython">tinypython · robot policy</a><a href="https://github.com/MYaelMendez/tinygpu">tinygpu · robot CAD</a><a href="https://github.com/MYaelMendez/vaeult">væult · encrypted secrets</a></div><p class="small muted">First developer exercise: clone tinycuda, run <code>pip install -e .</code> and run the repository's documented tests. Check the current README and LICENSE before use.</p></details>
+<details><summary data-es="Glosario: OSW, tiny*, recibos, laboratorio, puertas" data-en="Glossary: OSW, tiny*, receipts, laboratory, doors">Glosario: OSW, tiny*, recibos, laboratorio, puertas</summary><p><strong>#OSW:</strong> open sourceware. <strong>tiny*:</strong> one capability per small package. <strong>Receipt:</strong> evidence of a run; cryptographic verification requires additional checks. <strong>væult:</strong> encrypted secrets tooling. <strong>Laboratory:</strong> experiments and measurements. <strong>Doors:</strong> navigation to instruments, films, domains and archive.</p></details>
+<div class="panel"><h3 data-es="🛡️ Medido, no declarado" data-en="🛡️ Measured, not declared">🛡️ Medido, no declarado</h3><p class="muted" data-es="Este juego no controla robots reales. Sus movimientos y recibos son locales y simulados; no son pruebas de hardware, firmas criptográficas ni operaciones físicas." data-en="This game controls no real robots. Its movements and receipts are local simulations, not proof of hardware, cryptographic signatures, or physical operations.">Este juego no controla robots reales. Sus movimientos y recibos son locales y simulados; no son pruebas de hardware, firmas criptográficas ni operaciones físicas.</p><div class="links"><a href="the-film-is-an-instrument.html">The film is an instrument</a><a href="purpose.html">æ Purpose</a><a href="tinyhq.html">tinyHQ</a><a href="index.html">Back to hub</a></div></div></section>
+</main><footer><p>æ Studio · Wætz Bot · OpenSourceWare · <strong>Many agents. One human principal.</strong></p><p class="small">#HERMIPHICATIONISINEVITABLE · No physical hardware connected.</p></footer></div>
+<script>
+(()=>{'use strict';const $=id=>document.getElementById(id);const L={es:{ready:'Wætz listo. Elige una instrucción.',review:'Revisa y aprueba esta instrucción simulada:',blocked:'Política: movimiento fuera del área. Denegado.',approved:'Acción simulada completada.',rejected:'Instrucción rechazada por la persona.',stopped:'PARADA activada. Reinicia para continuar.',halted:'La parada está activa. Reinicia primero.',scan:'Exploración virtual: espacio delimitado, sin cámara real.',copied:'Recibos copiados.',copyfail:'Copia no disponible en este navegador.'},en:{ready:'Wætz ready. Choose a command.',review:'Review and approve this simulated command:',blocked:'Policy: out-of-bounds move denied.',approved:'Simulated action completed.',rejected:'Human rejected the command.',stopped:'STOP engaged. Reset to continue.',halted:'Stop engaged. Reset first.',scan:'Virtual scan: bounded space, no real camera.',copied:'Receipts copied.',copyfail:'Copy unavailable in this browser.'}};let language='es',state={x:2,y:2,heading:0,stopped:false},pending=null,receipts=[],counter=0;const dirs=[[0,-1],[1,0],[0,1],[-1,0]],arrows=['↑','→','↓','←'];function message(s){$('status').textContent=s}function record(command,decision,before,after,reason){const r={id:++counter,timestamp:new Date().toISOString(),mode:'simulation',command,policy:decision==='denied'?'deny':'allow',human_decision:decision,reason:reason||null,before,after};receipts.push(r);$('receipt').textContent=JSON.stringify(r,null,2)}function snap(){return {...state}}function render(){const grid=$('grid');grid.replaceChildren();for(let y=0;y<5;y++)for(let x=0;x<5;x++){const c=document.createElement('div');c.className='cell'+(x===state.x&&y===state.y?' robot':'');c.textContent=x===state.x&&y===state.y?'🤖'+arrows[state.heading]:'';grid.appendChild(c)}$('coords').textContent='x:'+state.x+' y:'+state.y+' · '+arrows[state.heading];$('approve').disabled=!pending;$('reject').disabled=!pending}function request(command){if(state.stopped){message(L[language].halted);return}pending=null;const before=snap();if(command==='forward'){const [dx,dy]=dirs[state.heading];if(state.x+dx<0||state.x+dx>4||state.y+dy<0||state.y+dy>4){record(command,'denied',before,snap(),'out_of_bounds');message(L[language].blocked);render();return}}pending={command,before};message(L[language].review+' '+command);render()}document.querySelectorAll('[data-cmd]').forEach(b=>b.addEventListener('click',()=>request(b.dataset.cmd)));$('approve').addEventListener('click',()=>{if(!pending||state.stopped)return;const {command,before}=pending;pending=null;if(command==='forward'){const [dx,dy]=dirs[state.heading];state.x+=dx;state.y+=dy}else if(command==='left')state.heading=(state.heading+3)%4;else if(command==='right')state.heading=(state.heading+1)%4;record(command,'approved',before,snap(),command==='scan'?'virtual_scan':null);message(command==='scan'?L[language].scan:L[language].approved);render()});$('reject').addEventListener('click',()=>{if(!pending)return;record(pending.command,'rejected',pending.before,snap(),'human_rejected');pending=null;message(L[language].rejected);render()});$('stop').addEventListener('click',()=>{const before=snap();pending=null;state.stopped=true;record('stop','approved',before,snap(),'emergency_stop');message(L[language].stopped);render()});$('reset').addEventListener('click',()=>{const before=snap();state={x:2,y:2,heading:0,stopped:false};pending=null;record('reset','approved',before,snap(),'local_reset');message(L[language].ready);render()});$('export').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(JSON.stringify(receipts,null,2));message(L[language].copied)}catch{message(L[language].copyfail)}});$('lang').addEventListener('change',e=>{language=e.target.value;document.documentElement.lang=language;document.querySelectorAll('[data-es][data-en]').forEach(el=>el.textContent=el.dataset[language]);message(L[language].ready)});render();message(L[language].ready)})();
+</script></body></html>
