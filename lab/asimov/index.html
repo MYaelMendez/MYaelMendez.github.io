@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="es" data-th="night"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Asimov · asistente virtual · DEMO</title>
+<meta name="description" content="DEMO · solo pantalla. Asistente virtual con el modelo Asimov 1 de Menlo Research.">
+<script>try{var t=localStorage.getItem("pc_term_theme");if(t==="night"||t==="day"||t==="agent")document.documentElement.dataset.th=t}catch(e){}</script>
+<style>
+:root{--bg:#000;--fl:rgba(3,16,18,.92);--ink:#e9f6f7;--dim:#a3c0c4;--c:#00f3ff;--bd:#1d4a4e;--grid:rgba(0,243,255,.05);--me:#0b2a2d;--warn:#ffcf5a}
+html[data-th=day]{--bg:#f4efe3;--fl:#fffaf0;--ink:#151515;--dim:#4c4840;--c:#00687a;--bd:#c9c0ad;--grid:rgba(0,0,0,.045);--me:#e9e1cf;--warn:#8a5a00}
+html[data-th=agent]{--fl:#020c0d;--grid:rgba(0,243,255,.09)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+body{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:40px 40px;display:flex;justify-content:center}
+.mono,code,pre{font-family:ui-monospace,Menlo,Consolas,monospace}
+a{color:var(--c)}
+button{font:inherit;color:var(--ink);cursor:pointer}
+.stage{width:min(100vw,calc(100dvh*9/16));min-height:100dvh;display:flex;flex-direction:column;padding:max(8px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom))}
+@media (max-aspect-ratio:9/16),(max-width:520px){.stage{width:100vw}}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.top b{font-size:13px;letter-spacing:.02em}.top small{display:block;color:var(--dim);font:12px ui-monospace,Menlo,monospace}
+.th{display:flex;gap:4px}
+.th button{background:none;border:1px solid var(--bd);border-radius:999px;min-width:44px;min-height:44px;font-size:16px}
+.th button[aria-pressed=true]{border-color:var(--c)}
+.demo{margin:6px 0 0;border:1px dashed var(--warn);color:var(--warn);border-radius:10px;padding:4px 10px;font:600 12px ui-monospace,Menlo,monospace;text-align:center}
+#ticker{display:none;margin-top:6px;border:1px solid var(--bd);border-radius:8px;padding:4px 8px;font:11px/1.4 ui-monospace,Menlo,monospace;color:var(--c);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--fl)}
+html[data-th=agent] #ticker{display:block}
+.main{flex:1 0 auto;display:flex;flex-direction:column;gap:8px;margin-top:8px;min-height:0}
+.robot{position:relative;flex:0 0 46dvh;min-height:240px;border:1px solid var(--bd);border-radius:16px;overflow:hidden;background:radial-gradient(ellipse at 50% 35%,rgba(0,243,255,.07),transparent 65%)}
+html[data-th=day] .robot{background:radial-gradient(ellipse at 50% 35%,rgba(255,255,255,.9),transparent 70%)}
+html[data-th=agent] .robot{flex-basis:34dvh}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.badge{position:absolute;left:8px;top:8px;font:11px ui-monospace,Menlo,monospace;color:var(--dim);background:var(--fl);border:1px solid var(--bd);border-radius:8px;padding:2px 7px;pointer-events:none}
+#mode{left:auto;right:8px}
+#load{position:absolute;inset:auto 10px 10px 10px;background:var(--fl);border:1px solid var(--bd);border-radius:12px;padding:8px 10px;font:12px ui-monospace,Menlo,monospace;color:var(--dim)}
+#load .bar{height:6px;border-radius:6px;background:var(--bd);overflow:hidden;margin-top:6px}#load .bar i{display:block;height:100%;width:0;background:var(--c);transition:width .2s}
+#load button,#fallback a{display:inline-flex;align-items:center;min-height:44px;margin-top:8px;padding:0 14px;border-radius:12px;border:1px solid var(--c);background:none;color:var(--c);text-decoration:none;font:600 14px system-ui,sans-serif}
+#fallback{display:none;position:absolute;inset:0;padding:18px;background:var(--fl);flex-direction:column;justify-content:center;gap:6px;text-align:center}
+#fallback p{margin:0;color:var(--dim)}
+.gest{position:absolute;left:8px;right:8px;bottom:8px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.gest button{min-height:44px;min-width:44px;padding:0 12px;border-radius:12px;border:1px solid var(--bd);background:var(--fl);font-size:14px}
+.gest button:hover,.gest button:focus-visible{border-color:var(--c)}
+.chat{flex:1 0 auto;min-height:52dvh;display:flex;flex-direction:column;min-height:0;border:1px solid var(--bd);border-radius:16px;background:var(--fl);overflow:hidden}
+#log{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:120px}
+.m{max-width:92%;padding:8px 11px;border-radius:14px;font-size:15px}
+.m.bot{align-self:flex-start;border:1px solid var(--bd)}
+.m.me{align-self:flex-end;background:var(--me)}
+.m .en{display:block;color:var(--dim);font-size:12.5px;margin-top:2px}
+.rc{display:block;margin-top:4px;font:11px ui-monospace,Menlo,monospace;color:var(--dim);word-break:break-all}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:6px 8px;border-top:1px solid var(--bd);scrollbar-width:none}
+.chips button{flex:0 0 auto;min-height:44px;padding:0 12px;border-radius:999px;border:1px solid var(--bd);background:none;font-size:14px;white-space:nowrap}
+.ask{display:flex;gap:6px;padding:8px;border-top:1px solid var(--bd);align-items:center}
+.ask input{flex:1;min-width:0;min-height:44px;font-size:16px;border-radius:12px;border:1px solid var(--bd);background:transparent;color:var(--ink);padding:0 12px}
+.ask input:focus{outline:2px solid var(--c);outline-offset:0}
+.ask button{min-width:44px;min-height:44px;border-radius:12px;border:1px solid var(--bd);background:none;font-size:17px}
+.ask button[aria-pressed=true]{border-color:var(--c);box-shadow:0 0 0 2px var(--c) inset}
+.langs{display:flex;gap:4px;padding:0 8px 8px;align-items:center;font:12px ui-monospace,Menlo,monospace;color:var(--dim);flex-wrap:wrap}
+.langs button{min-width:44px;min-height:44px;border-radius:10px;border:1px solid var(--bd);background:none;font:600 13px ui-monospace,Menlo,monospace}
+.langs button[aria-pressed=true]{border-color:var(--c);color:var(--c)}
+details{border:1px solid var(--bd);border-radius:12px;padding:6px 10px;margin-top:8px;background:var(--fl);font-size:14px}
+summary{cursor:pointer;min-height:36px;display:flex;align-items:center;color:var(--c);font:600 13px ui-monospace,Menlo,monospace}
+pre{white-space:pre-wrap;font-size:11.5px;color:var(--dim);max-height:240px;overflow:auto;margin:6px 0}
+footer{margin-top:10px;text-align:center;font-size:12px;color:var(--dim);line-height:1.6}
+footer .p{font-size:14px;color:var(--ink);font-weight:600}
+footer a{display:inline-block;min-height:28px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (min-width:760px) and (orientation:landscape){
+ .stage{width:min(100vw,1280px);height:100dvh;min-height:0}
+ .main{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1 1 0;min-height:0}
+ .robot,html[data-th=agent] .robot{flex:none;height:100%;min-height:0}
+ .chat{height:100%;min-height:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+<script type="importmap">
+{"imports":{
+ "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+ "three/examples/jsm/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+ "urdf-loader":"https://cdn.jsdelivr.net/npm/urdf-loader@0.13.1/src/URDFLoader.js"
+}}
+</script>
+</head><body>
+<div class="stage">
+ <div class="top">
+  <div><b class="mono">&gt;_ASIMOV · asistente virtual</b><small>HANS · Instituto · #OSW · virtual assistant</small></div>
+  <div class="th" role="group" aria-label="Tema / theme"><button data-t="night" title="Noche / night">🌙</button><button data-t="day" title="Día / day">☀️</button><button data-t="agent" title="Agente / agent">🤖</button></div>
+ </div>
+ <p class="demo">DEMO · solo pantalla · nunca mueve un robot real<br><span style="font-weight:400">screen only · never moves a real robot</span></p>
+ <div id="ticker" aria-hidden="true">&gt;_ cargando…</div>
+ <div class="main">
+  <section class="robot" aria-label="Modelo 3D de Asimov 1">
+   <canvas id="cv" aria-label="Asimov 1 en 3D. Su cabeza sigue tu dedo o puntero."></canvas>
+   <span class="badge">Asimov 1 · Menlo</span><span class="badge" id="mode">STAND · virtual</span>
+   <div id="load" role="status" aria-live="polite"><span id="ltxt">Modelo 3D de Menlo · ≈48 MB · cargando…</span><div class="bar"><i id="lbar"></i></div></div>
+   <div id="fallback" role="alert"><p id="ftxt">No pude cargar el modelo 3D.</p><p>Te muestro la cara de HANS / HANS face instead:</p><a href="https://lutheraninstitute.github.io/aeee-lab/lab/face/v1/">Abrir la cara de HANS →</a></div>
+   <div class="gest" id="gest" hidden>
+    <button data-g="wave" title="Saludar / wave">👋 Saludar</button><button data-g="nod" title="Asentir / nod">🙂 Asentir</button><button data-g="think" title="Pensar / think">🤔 Pensar</button><button data-g="stand" title="De pie / stand">⟲</button>
+   </div>
+  </section>
+  <section class="chat" aria-label="Conversación">
+   <div id="log" aria-live="polite"></div>
+   <div class="chips" id="chips"></div>
+   <form class="ask" id="ask" autocomplete="off">
+    <label class="sr" for="q">Pregunta</label>
+    <input id="q" name="q" placeholder="Pregúntale a HANS… / Ask…" enterkeyhint="send">
+    <button type="button" id="mic" aria-pressed="false" title="Hablar / speak">🎙️</button>
+    <button type="button" id="spk" aria-pressed="true" title="Voz / voice on-off">🔊</button>
+    <button type="submit" title="Enviar / send">➤</button>
+   </form>
+   <div class="langs" role="group" aria-label="Idioma / language"><button data-l="es" aria-pressed="true">ES</button><button data-l="en" aria-pressed="false">EN</button><button data-l="pt" aria-pressed="false">PT</button><span id="micnote">voz: tu navegador · voice by your browser</span></div>
+  </section>
+ </div>
+ <details><summary>&gt;_ cerebro transparente · window.ASIMOV</summary>
+  <p style="margin:4px 0;color:var(--dim)">Sin servidor, sin claves: una tabla de intenciones que puedes leer. Cada respuesta deja un recibo sha-256 (pregunta + respuesta). <i>No server, no keys. Every answer leaves a receipt.</i></p>
+  <pre id="brain"></pre>
+  <p style="margin:4px 0;color:var(--dim)">Verbos (como menlo-sdk, solo sobre el modelo virtual): <code>ASIMOV.stand()</code> <code>.damp()</code> <code>.balance()</code> <code>.set_joints({neck_yaw_joint:0.3})</code> <code>.say("hola")</code> <code>.listen()</code></p>
+ </details>
+ <footer>
+  <div class="p">El agente propone. El humano comprueba y decide.</div>
+  <div>The agent proposes. The human checks and decides.</div>
+  <div>Modelo: Asimov 1 © Menlo Research · CERN-OHL-S-2.0 · <a href="https://github.com/menloresearch/asimov-1">github.com/menloresearch/asimov-1</a></div>
+  <div>Verbos inspirados en <a href="https://github.com/menloresearch/menlo-sdk">menlo-sdk</a> · mallas cargadas sin modificar desde GitHub de Menlo · <a href="https://lutheraninstitute.github.io/aeee-lab/lab/face/v1/">cara de HANS</a></div>
+  <div>LAB · Instituto Luterano Latinoamericano · #OSW</div>
+ </footer>
+</div>
+
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
+import URDFLoader from "urdf-loader";
+
+const $ = s => document.querySelector(s);
+const RM = matchMedia("(prefers-reduced-motion: reduce)");
+const SRC = [
+  "https://raw.githubusercontent.com/menloresearch/asimov-1/main/sim-model/asimov_1_25dof/",
+  "https://cdn.jsdelivr.net/gh/menloresearch/asimov-1@main/sim-model/asimov_1_25dof/"
+];
+const TOTAL_BYTES = 50354234, N_MESH = 26;
+
+/* ---------- theme ---------- */
+const K = "pc_term_theme";
+function th(x){ document.documentElement.dataset.th = x; try{localStorage.setItem(K,x)}catch(e){}
+  document.querySelectorAll(".th button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.t===x)); }
+document.querySelectorAll(".th button").forEach(b=>b.onclick=()=>{th(b.dataset.t); resize();});
+th(document.documentElement.dataset.th || "night");
+
+/* ---------- 3D ---------- */
+let renderer = null;
+const cv = $("#cv");
+try { renderer = new THREE.WebGLRenderer({canvas:cv, antialias:true, alpha:true, powerPreference:"high-performance"}); }
+catch(e) { renderer = null; }
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(32, 1, 0.05, 50);
+camera.position.set(2.2, 0.9, 0.1);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x445056, 1.15));
+const key = new THREE.DirectionalLight(0xffffff, 1.6); key.position.set(3, 4, 2); scene.add(key);
+const rim = new THREE.DirectionalLight(0x9ff6ff, 0.5); rim.position.set(-2, 2, -3); scene.add(rim);
+const MAT = {
+  cream: new THREE.MeshStandardMaterial({color:0xece3cf, roughness:.82, metalness:.03}),
+  graphite: new THREE.MeshStandardMaterial({color:0x3b3f43, roughness:.7, metalness:.12})
+};
+const rig = new THREE.Group(); rig.rotation.x = -Math.PI/2; scene.add(rig);  // URDF z-up -> three y-up
+const ground = new THREE.Mesh(new THREE.CircleGeometry(.55, 48), new THREE.MeshBasicMaterial({color:0x00f3ff, transparent:true, opacity:.06}));
+ground.rotation.x = -Math.PI/2; scene.add(ground);
+let controls = null;
+if (renderer) {
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1, 2));
+  controls = new OrbitControls(camera, cv);
+  controls.enablePan = false; controls.enableDamping = true;
+  controls.minDistance = .9; controls.maxDistance = 3.4;
+  controls.minPolarAngle = .9; controls.maxPolarAngle = 1.75;
+  controls.minAzimuthAngle = Math.PI/2 - 1.1; controls.maxAzimuthAngle = Math.PI/2 + 1.1;
+  controls.target.set(0, .72, 0);
+}
+function resize(){
+  if(!renderer) return;
+  const r = cv.parentElement.getBoundingClientRect();
+  renderer.setSize(r.width, r.height, false);
+  camera.aspect = r.width / Math.max(1, r.height);
+  // keep whole robot in frame on tall/narrow stages
+  camera.fov = camera.aspect < .8 ? 40 : 32; camera.updateProjectionMatrix(); fitCamera();
+}
+addEventListener("resize", resize); new ResizeObserver(resize).observe(cv.parentElement);
+
+/* ---------- joints: real URDF names ---------- */
+const J = {}; // name -> {cur, tgt, lo, hi}
+let robot = null, neckRef = null, mode = "STAND", balanceOn = true, speaking = false, gestureNeck = false;
+const ZERO = n => 0;
+function jset(name, v){ const j = J[name]; if(!j) return null; j.tgt = Math.min(j.hi, Math.max(j.lo, v)); return j.tgt; }
+
+/* ---------- mesh queue with progress + mirror fallback ---------- */
+const PRIO = ["neck_pitch","neck_yaw","waist_yaw","shoulder","elbow","wrist","pelvis","hip","knee","ankle"];
+const queue = []; let active = 0, done = 0, failed = 0, bytes = 0, started = false;
+const prio = n => { const i = PRIO.findIndex(p => n.includes(p)); return i < 0 ? 99 : i; };
+async function fetchBuf(rel){
+  let last;
+  for (const base of SRC) {
+    try {
+      const res = await fetch(base + rel, {mode:"cors"});
+      if (!res.ok) throw new Error(res.status + " " + base);
+      const rd = res.body && res.body.getReader ? res.body.getReader() : null;
+      if (!rd) { const b = await res.arrayBuffer(); bytes += b.byteLength; prog(); return b; }
+      const parts = []; let n = 0;
+      for(;;){ const {done:d, value} = await rd.read(); if (d) break; parts.push(value); n += value.length; bytes += value.length; prog(); }
+      const out = new Uint8Array(n); let o = 0; for (const p of parts){ out.set(p,o); o += p.length; }
+      return out.buffer;
+    } catch(e){ last = e; }
+  }
+  throw last;
+}
+const stl = new STLLoader();
+function pump(){
+  while (active < 6 && queue.length){
+    const it = queue.shift(); active++;
+    fetchBuf("meshes/" + it.name).then(buf => {
+      const g = stl.parse(buf); g.computeBoundingSphere();
+      const m = new THREE.Mesh(g, it.mat); it.cb(m);
+    }).catch(err => { failed++; it.cb(null, err); console.warn("mesh", it.name, err && err.message); })
+      .finally(() => { active--; done++; prog(); if (done === N_MESH) finished(); pump(); });
+  }
+}
+function prog(){
+  const mb = (bytes/1048576).toFixed(1), tot = (TOTAL_BYTES/1048576).toFixed(1);
+  $("#ltxt").textContent = `Asimov 1 (Menlo) · piezas ${done}/${N_MESH} · ${mb}/${tot} MB`;
+  $("#lbar").style.width = Math.min(100, 100*bytes/TOTAL_BYTES) + "%";
+}
+function fallback(msg){
+  $("#load").style.display = "none"; $("#gest").hidden = true;
+  $("#ftxt").textContent = msg; $("#fallback").style.display = "flex"; $("#mode").textContent = "sin 3D";
+}
+function finished(){
+  if (failed >= N_MESH) return fallback("Las mallas de Menlo no cargaron (red o GitHub). The 3D meshes failed to load.");
+  $("#load").style.display = failed ? "block" : "none";
+  if (failed) $("#ltxt").textContent = `${failed} pieza(s) no cargaron · ${N_MESH-failed}/${N_MESH} listas`;
+  $("#gest").hidden = false; fitGround();
+}
+function fitGround(){
+  if(!robot) return; robot.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(robot);
+  if (isFinite(box.min.y)) { rig.position.y -= box.min.y; ground.position.y = 0.001;
+    H = box.max.y - box.min.y; fitCamera(); }
+}
+let H = 0;
+function fitCamera(){
+  if (!H || !controls) return;
+  const vf = THREE.MathUtils.degToRad(camera.fov) / 2, hf = Math.atan(Math.tan(vf) * camera.aspect);
+  const needV = (H * 1.32 / 2) / Math.tan(vf), needH = (0.75 / 2) / Math.tan(hf);
+  const dist = Math.max(needV, needH, 1.2);
+  controls.target.set(0, H * 0.43, 0);
+  const dir = camera.position.clone().sub(controls.target).normalize();
+  camera.position.copy(controls.target).addScaledVector(dir, dist);
+  controls.maxDistance = Math.max(dist * 1.6, 3.4); controls.update();
+}
+
+async function loadRobot(){
+  if (started) return; started = true;
+  if (!renderer) return fallback("Tu navegador no tiene WebGL. No WebGL here.");
+  $("#ltxt").textContent = "Leyendo URDF de Menlo…";
+  let urdf;
+  try { urdf = new TextDecoder().decode(await fetchBuf("urdf/asimov_1_25dof.urdf")); bytes = 0; }
+  catch(e){ return fallback("No pude leer el URDF de Menlo (" + (e && e.message || "red") + ")."); }
+  const loader = new URDFLoader();
+  loader.loadMeshCb = (path, manager, material, cb) => {
+    const name = path.split("/").pop();
+    const c = material && material.color ? material.color : null;
+    const mat = c && c.b > c.r + .05 ? MAT.cream : MAT.graphite; // URDF light-blue parts -> cream, grey -> graphite
+    queue.push({name, mat, cb});
+  };
+  robot = loader.parse(urdf, SRC[0] + "urdf/");
+  rig.add(robot);
+  for (const [n, j] of Object.entries(robot.joints)) {
+    if (j.jointType === "fixed") continue;
+    J[n] = {cur:0, tgt:0, lo:+j.limit.lower, hi:+j.limit.upper, obj:j};
+  }
+  neckRef = robot.links["neck_pitch_link"];
+  queue.sort((a,b) => prio(a.name) - prio(b.name));
+  fitGround(); prog(); pump();
+  window.ASIMOV.joints = Object.keys(J);
+}
+const conn = navigator.connection || {};
+if (conn.saveData || /(^|-)2g|3g/.test(conn.effectiveType||"")) {
+  $("#ltxt").textContent = "Modelo 3D de Menlo · ≈48 MB. Tu conexión ahorra datos.";
+  const b = document.createElement("button"); b.textContent = "Cargar modelo 3D · load"; b.onclick = () => { b.remove(); loadRobot(); };
+  $("#load").appendChild(b);
+} else loadRobot();
+
+/* ---------- pointer / finger follow (neck_yaw_joint, neck_pitch_joint) ---------- */
+const ndc = new THREE.Vector2(0, 0); let lastPtr = -1e9;
+const headW = new THREE.Vector3();
+function onPtr(e){
+  const r = cv.getBoundingClientRect();
+  ndc.set(((e.clientX - r.left)/r.width)*2 - 1, -((e.clientY - r.top)/r.height)*2 + 1);
+  lastPtr = performance.now();
+}
+addEventListener("pointermove", onPtr, {passive:true}); addEventListener("pointerdown", onPtr, {passive:true});
+function gazeTarget(){
+  if (!neckRef) return;
+  // base gaze: look at the viewer (camera); pointer/finger offsets it, symmetric around the screen centre
+  neckRef.getWorldPosition(headW);
+  const head = robot.worldToLocal(headW.clone()), cam = robot.worldToLocal(camera.position.clone());
+  const d = cam.sub(head), waist = J.waist_yaw_joint ? J.waist_yaw_joint.cur : 0;
+  let yaw = Math.atan2(d.y, d.x) - waist, pitch = Math.atan2(d.z, Math.hypot(d.x, d.y));
+  if (performance.now() - lastPtr < 4000) {
+    const nx = Math.max(-1.2, Math.min(1.2, ndc.x)), ny = Math.max(-1.2, Math.min(1.2, ndc.y));
+    yaw += 0.95 * nx; pitch += 0.4 * ny;
+  }
+  jset("neck_yaw_joint", Math.max(-1.2, Math.min(1.2, yaw)));
+  jset("neck_pitch_joint", pitch);
+}
+
+/* ---------- gestures ---------- */
+let gTimers = [];
+function clearG(){ gTimers.forEach(clearTimeout); gTimers = []; gestureNeck = false; }
+function seq(frames, neck){
+  clearG(); gestureNeck = !!neck; let t = 0;
+  frames.forEach(([dt, js]) => { t += dt; gTimers.push(setTimeout(() => { for (const k in js) jset(k, js[k]); }, t)); });
+  gTimers.push(setTimeout(() => { gestureNeck = false; }, t + 350));
+  return t;
+}
+const ARM_R = {right_shoulder_pitch_joint:0, right_shoulder_roll_joint:0, right_shoulder_yaw_joint:0, right_elbow_joint:0, right_wrist_yaw_joint:0};
+const G = {
+  wave(){
+    // forearm up beside the head (verified pose), then wave the forearm with the elbow
+    const up = {right_shoulder_pitch_joint:0.1, right_shoulder_roll_joint:1.4, right_shoulder_yaw_joint:1.5, right_elbow_joint:-1.6};
+    const f = [[0, up]];
+    const n = RM.matches ? 1 : 3;
+    for (let i=0;i<n;i++) f.push([420, {right_elbow_joint:-1.15}], [380, {right_elbow_joint:-1.95}]);
+    f.push([380, {right_elbow_joint:-1.6}], [450, ARM_R]);
+    seq(f, false); log("wave");
+  },
+  nod(){
+    const n = RM.matches ? 1 : 2, f = [[0, {neck_yaw_joint:0}]];
+    for (let i=0;i<n;i++) f.push([260, {neck_pitch_joint:-0.3}], [300, {neck_pitch_joint:0.05}]);
+    f.push([260, {neck_pitch_joint:0}]); seq(f, true); log("nod");
+  },
+  think(ms=1400){
+    seq([[0, {neck_yaw_joint:0.35, neck_pitch_joint:0.22, left_shoulder_pitch_joint:-1.2, left_elbow_joint:2.0, left_shoulder_yaw_joint:0.6}], [ms, {neck_yaw_joint:0, neck_pitch_joint:0, left_shoulder_pitch_joint:0, left_elbow_joint:0, left_shoulder_yaw_joint:0}]], true); log("think");
+  }
+};
+
+/* ---------- menlo-sdk-like verbs (virtual only) ---------- */
+function setMode(m){ mode = m; $("#mode").textContent = m + " · virtual"; }
+const ASIMOV = {
+  demo: "DEMO · solo pantalla · nunca mueve un robot real",
+  stand(){ clearG(); setMode("STAND"); for (const k in J) J[k].tgt = 0; log("stand"); return mode; },
+  damp(){ clearG(); setMode("DAMP"); for (const k in J) J[k].tgt = 0;
+    jset("neck_pitch_joint", -0.34); jset("right_shoulder_roll_joint", .08); jset("left_shoulder_roll_joint", -.08);
+    jset("right_elbow_joint", -.25); jset("left_elbow_joint", .25); log("damp (virtual: se apoya, no cae)"); return mode; },
+  balance(on = true){ balanceOn = !!on; if (on) { if (mode === "DAMP") ASIMOV.stand(); setMode("MOVE"); } else setMode("STAND"); log("balance " + balanceOn); return mode; },
+  set_joints(obj = {}){ const out = {}; for (const k in obj) { const v = jset(k, +obj[k]); if (v !== null) out[k] = v; } log("set_joints " + JSON.stringify(out)); return out; },
+  say(text, lang){ return speak(String(text||""), lang || LANG); },
+  listen(){ return startListen(); },
+  wave: () => G.wave(), nod: () => G.nod(), think: () => G.think(),
+  state(){ const s = {mode, balance:balanceOn, meshes:`${done-failed}/${N_MESH}`}; for (const k in J) s[k] = +J[k].cur.toFixed(3); return s; },
+  joints: []
+};
+window.ASIMOV = ASIMOV;
+const vlog = [];
+function log(s){ vlog.push(new Date().toISOString().slice(11,19) + " " + s); if (vlog.length > 20) vlog.shift(); }
+document.querySelectorAll("#gest button").forEach(b => b.onclick = () => { const g = b.dataset.g; g === "stand" ? ASIMOV.stand() : G[g](); });
+
+/* ---------- loop ---------- */
+const clock = new THREE.Clock(); let tick = 0;
+function loop(){
+  requestAnimationFrame(loop);
+  if (!renderer) return;
+  const dt = Math.min(clock.getDelta(), .1), t = clock.elapsedTime;
+  if (robot) {
+    if (!gestureNeck && mode !== "DAMP") gazeTarget();
+    const a = 1 - Math.exp(-dt / 0.18), aArm = 1 - Math.exp(-dt / 0.24);
+    for (const k in J) {
+      const j = J[k]; let tgt = j.tgt;
+      if (k === "waist_yaw_joint" && balanceOn && mode !== "DAMP" && !RM.matches) tgt += 0.035 * Math.sin(t * 2*Math.PI / 4.5);
+      if (k === "neck_pitch_joint" && speaking && !gestureNeck && !RM.matches) tgt += 0.06 * Math.sin(t * 9);
+      j.cur += (tgt - j.cur) * (k.startsWith("neck") ? a : aArm);
+      j.obj.setJointValue(j.cur);
+    }
+  }
+  controls && controls.update();
+  renderer.render(scene, camera);
+  if (++tick % 12 === 0 && document.documentElement.dataset.th === "agent") {
+    const s = J.neck_yaw_joint ? ` neck_yaw=${J.neck_yaw_joint.cur.toFixed(2)} neck_pitch=${J.neck_pitch_joint.cur.toFixed(2)} waist_yaw=${J.waist_yaw_joint.cur.toFixed(3)}` : "";
+    $("#ticker").textContent = `>_ mode=${mode}${s} meshes=${done-failed}/${N_MESH} lang=${LANG} ${vlog.length ? "· " + vlog[vlog.length-1] : ""}`;
+  }
+}
+resize(); loop();
+
+/* ---------- brain: local intent table ---------- */
+let LANG = "es";
+const LOC = {es:"es-MX", en:"en-US", pt:"pt-BR"};
+const INTENTS = [
+ {id:"saludo", kw:["hola","buenas","buenos dias","hello","hi","hey","ola","oi","bom dia"], g:"wave",
+  a:{es:"¡Hola! Soy HANS. Pregúntame quién soy, qué puedo hacer, por el Diplomado, por GitHub o por Private Client.",
+     en:"Hi! I'm HANS. Ask me who I am, what I can do, the Diplomado, GitHub or Private Client.",
+     pt:"Olá! Sou HANS. Pergunte quem sou, o que posso fazer, sobre o Diplomado, GitHub ou Private Client."}},
+ {id:"quien", kw:["quien eres","quien sos","como te llamas","tu nombre","who are you","your name","quem e voce","quem es","seu nome","hans","asimov","menlo"],
+  a:{es:"Soy Asimov 1, el humanoide abierto de Menlo Research, aquí como asistente virtual del Instituto y de #OSW. Me llaman HANS, en honor a Hans Nielsen Hauge. Solo existo en tu pantalla.",
+     en:"I'm Asimov 1, Menlo Research's open humanoid, here as the Institute's and #OSW's virtual assistant. They call me HANS, after Hans Nielsen Hauge. I only exist on your screen.",
+     pt:"Sou o Asimov 1, o humanoide aberto da Menlo Research, aqui como assistente virtual do Instituto e da #OSW. Me chamam HANS, em honra a Hans Nielsen Hauge. Só existo na sua tela."}},
+ {id:"puedes", kw:["que puedes","que sabes","que haces","ayuda","para que sirves","what can you","help","o que voce pode","o que sabe","ajuda"],
+  a:{es:"Respondo preguntas básicas: quién soy, el Diplomado, cómo empezar en GitHub y Private Client. Saludo, asiento y pienso; te sigo con la mirada. Escucho si tocas 🎙️ y hablo en voz alta. Mi cerebro es una tabla que puedes leer abajo.",
+     en:"I answer basics: who I am, the Diplomado, starting on GitHub, Private Client. I wave, nod, think and follow you with my eyes. Tap 🎙️ to talk. My brain is a table you can read below.",
+     pt:"Respondo o básico: quem sou, o Diplomado, como começar no GitHub e Private Client. Aceno, concordo, penso e sigo você com o olhar. Toque 🎙️ para falar. Meu cérebro é uma tabela que você pode ler abaixo."}},
+ {id:"diplomado", kw:["diplomado","clase","clases","curso","horario","martes","transformacion digital","class","course","schedule","aula","curso"],
+  a:{es:"El Diplomado en Transformación Digital del Instituto se reúne los martes a las 7 pm, hora de Texas. Pregúntale a Yael por el enlace de la clase.",
+     en:"The Diplomado in Digital Transformation meets Tuesdays at 7 pm Texas time. Ask Yael for the class link.",
+     pt:"O Diplomado em Transformação Digital se reúne às terças, 7 pm, horário do Texas. Peça o link da aula a Yael."}},
+ {id:"github", kw:["github","repo","repositorio","readme","empezar","comenzar","cuenta","get started","start","comecar","repositorio"],
+  a:{es:"Para empezar en GitHub: 1) tu correo de siempre; 2) entra a Hark; 3) crea tu cuenta de GitHub; 4) haz tu primer repo con un README que diga quién eres. Nunca compartas contraseñas ni códigos, tampoco conmigo.",
+     en:"Start on GitHub: 1) your everyday email; 2) open Hark; 3) create your GitHub account; 4) make your first repo with a README. Never share passwords or codes, not even with me.",
+     pt:"Para começar no GitHub: 1) seu e-mail de sempre; 2) entre no Hark; 3) crie sua conta no GitHub; 4) faça seu primeiro repo com um README. Nunca compartilhe senhas nem códigos, nem comigo."}},
+ {id:"privateclient", kw:["private client","privateclient","cliente privado","privado","aprobar","aprueba","approve","aprovar"],
+  a:{es:"Private Client (privateclient.ai): tú escribes, se revisa, tú apruebas. Nada sale sin tu sí.",
+     en:"Private Client (privateclient.ai): you write, it gets reviewed, you approve. Nothing goes out without your yes.",
+     pt:"Private Client (privateclient.ai): você escreve, é revisado, você aprova. Nada sai sem o seu sim."}},
+ {id:"real", kw:["robot real","de verdad","te mueves","mover","moverte","real robot","move","mexer","robo real"],
+  a:{es:"No. Esta demo solo mueve un modelo en tu pantalla; nunca mueve un robot real. El agente propone, el humano comprueba y decide.",
+     en:"No. This demo only moves a model on your screen; it never moves a real robot. The agent proposes, the human checks and decides.",
+     pt:"Não. Esta demo só move um modelo na sua tela; nunca move um robô real. O agente propõe, o humano confere e decide."}},
+ {id:"gracias", kw:["gracias","thanks","thank you","obrigado","obrigada"], g:"nod",
+  a:{es:"Con gusto. Cada paso deja un recibo.", en:"You're welcome. Every step leaves a receipt.", pt:"De nada. Cada passo deixa um recibo."}}
+];
+const FALLBACK = {es:"Aún no sé eso. Pregúntale a Yael.", en:"I don't know that yet. Ask Yael.", pt:"Ainda não sei isso. Pergunte a Yael."};
+const norm = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]+/g," ").replace(/\s+/g," ").trim();
+function brain(q){
+  const n = " " + norm(q) + " "; let best = null, score = 0;
+  for (const it of INTENTS) { let s = 0; for (const k of it.kw) if (n.includes(" " + k + " ") || (k.includes(" ") && n.includes(k))) s += k.length; if (s > score) { score = s; best = it; } }
+  return best ? {id:best.id, text:best.a[LANG] || best.a.es, g:best.g} : {id:"fallback", text:FALLBACK[LANG]};
+}
+$("#brain").textContent = JSON.stringify({brain:"local intent table · no server · no API keys", fallback:FALLBACK, intents:INTENTS.map(i=>({id:i.id, keywords:i.kw, answer_es:i.a.es}))}, null, 1);
+
+async function receipt(q, a){
+  try { const h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(q + "\n" + a));
+    return [...new Uint8Array(h)].map(b => b.toString(16).padStart(2,"0")).join(""); } catch(e){ return null; }
+}
+function bubble(cls, text, en){
+  const d = document.createElement("div"); d.className = "m " + cls; d.textContent = text;
+  if (en) { const s = document.createElement("span"); s.className = "en"; s.textContent = en; d.appendChild(s); }
+  $("#log").appendChild(d); $("#log").scrollTop = 1e9; return d;
+}
+async function answer(q){
+  q = q.trim(); if (!q) return;
+  bubble("me", q);
+  const r = brain(q);
+  if (!r.g) G.think(650);
+  await new Promise(res => setTimeout(res, r.g ? 150 : 650));
+  const d = bubble("bot", r.text);
+  const h = await receipt(q, r.text);
+  const rc = document.createElement("span"); rc.className = "rc";
+  rc.textContent = h ? `recibo sha-256 · ${h.slice(0,16)}… · ${r.id} · ${new Date().toLocaleTimeString()}` : "recibo: crypto.subtle no disponible";
+  if (h) rc.title = h; d.appendChild(rc); $("#log").scrollTop = 1e9;
+  log("answer " + r.id + (h ? " " + h.slice(0,8) : ""));
+  if (r.g) G[r.g]();
+  speak(r.text, LANG);
+}
+
+/* ---------- voice out ---------- */
+let voiceOn = true;
+$("#spk").onclick = () => { voiceOn = !voiceOn; $("#spk").setAttribute("aria-pressed", voiceOn); $("#spk").textContent = voiceOn ? "🔊" : "🔇"; if (!voiceOn && window.speechSynthesis) speechSynthesis.cancel(); };
+function speak(text, lang){
+  const S = window.speechSynthesis;
+  if (!voiceOn || !S || !text) { if (text) G.nod(); return false; }
+  S.cancel();
+  const u = new SpeechSynthesisUtterance(text), loc = LOC[lang] || lang || "es-MX";
+  u.lang = loc; u.rate = 1;
+  const vs = S.getVoices(), v = vs.find(v => v.lang === loc) || vs.find(v => v.lang && v.lang.slice(0,2) === loc.slice(0,2));
+  if (v) u.voice = v;
+  u.onstart = () => { speaking = true; if (!gestureNeck) G.nod(); };
+  u.onend = u.onerror = () => { speaking = false; };
+  S.speak(u); return true;
+}
+
+/* ---------- voice in ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition; let rec = null, listening = false;
+function startListen(){
+  if (!SR) { bubble("bot", "Tu navegador no ofrece reconocimiento de voz. Escribe tu pregunta.", "No speech recognition here; please type."); return false; }
+  if (listening) { rec && rec.stop(); return false; }
+  rec = new SR(); rec.lang = LOC[LANG]; rec.interimResults = true; rec.maxAlternatives = 1;
+  rec.onstart = () => { listening = true; $("#mic").setAttribute("aria-pressed","true"); log("listen " + rec.lang); };
+  rec.onresult = e => { const r = e.results[e.results.length-1]; $("#q").value = r[0].transcript; if (r.isFinal) { const t = $("#q").value; $("#q").value = ""; answer(t); } };
+  rec.onerror = e => { if (e.error === "not-allowed") bubble("bot", "No tengo permiso para el micrófono. Puedes escribir.", "Mic permission denied."); };
+  rec.onend = () => { listening = false; $("#mic").setAttribute("aria-pressed","false"); };
+  try { rec.start(); } catch(e) {}
+  return true;
+}
+$("#mic").onclick = startListen;
+if (!SR) { $("#mic").title = "Sin reconocimiento de voz en este navegador"; $("#mic").style.opacity = .5; }
+$("#micnote").textContent = SR ? "🎙️ la voz la reconoce tu navegador (puede usar su nube) · browser speech" : "🎙️ no disponible aquí · type instead";
+
+document.querySelectorAll(".langs button").forEach(b => b.onclick = () => {
+  LANG = b.dataset.l; document.querySelectorAll(".langs button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  document.documentElement.lang = LANG; renderChips(); log("lang " + LANG);
+});
+
+/* ---------- chips + form ---------- */
+const CHIPS = {es:["¿Quién eres?","¿Qué puedes hacer?","¿Cuándo es el Diplomado?","¿Cómo empiezo en GitHub?","¿Qué es Private Client?","¿Mueves un robot real?"],
+  en:["Who are you?","What can you do?","When is the Diplomado class?","How do I start on GitHub?","What is Private Client?","Do you move a real robot?"],
+  pt:["Quem é você?","O que você pode fazer?","Quando é a aula do Diplomado?","Como começo no GitHub?","O que é Private Client?","Você move um robô real?"]};
+function renderChips(){ const c = $("#chips"); c.innerHTML = ""; CHIPS[LANG].forEach(t => { const b = document.createElement("button"); b.type = "button"; b.textContent = t; b.onclick = () => answer(t); c.appendChild(b); }); }
+renderChips();
+$("#ask").onsubmit = e => { e.preventDefault(); const t = $("#q").value; $("#q").value = ""; answer(t); };
+bubble("bot", "Hola, soy HANS: Asimov 1 de Menlo como asistente virtual del Instituto. Escribe o toca 🎙️.", "Hi, I'm HANS. Type or tap 🎙️. Screen-only demo.");
+</script>
+</body></html>
