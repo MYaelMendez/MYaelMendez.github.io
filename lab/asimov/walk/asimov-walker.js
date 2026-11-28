@@ -3,6 +3,9 @@
  * Sprites renderizados (three.js + urdf-loader) del modelo Asimov 1 25-DOF © Menlo Research,
  * sin modificar · CERN-OHL-S-2.0 · github.com/menloresearch/asimov-1
  * API: walkTo(target) point(target) wave() nod() say(text,lang) tour(steps) stop() describe(el)
+ *      play(plan) receipts()  · plan = ae.walk/0.1 from Hermes walk_plan; runs only after a human hold
+ * Attrs: lang start scale · lane="auto|always|off" (floor lane on phones ≤760px or when no side gutter fits)
+ *        reserve="off" (don't add body padding-bottom for the lane)
  * window.ASIMOV_WALKER = primer <asimov-walker> en la página. Sin dependencias.
  */
 (() => {
@@ -18,13 +21,85 @@ const LABEL = {
 };
 const VOICE = {es:"es-MX", en:"en-US", pt:"pt-BR"};
 const RM = typeof matchMedia === "function" ? matchMedia("(prefers-reduced-motion: reduce)") : {matches:false};
+const PLAN_SCHEMA = "ae.walk/0.1", AUTH = "HUMAN://ROOT", HOLD_MS = 900, MAX_STEPS = 16, MAX_TEXT = 280;
+const VERBS = {walkTo:"🚶", point:"👉", say:"💬", wave:"👋", nod:"🙂"};
+const SHEET = {
+  es: {title: n => `Asimov propone ${n} pasos · mantén presionado para aprobar`, hold: "Mantén presionado para aprobar",
+       no: "Rechazar", close: "Cerrar", bad: "Plan no válido · no se ejecuta", other: "Ojo: el plan se hizo para otra página:",
+       rc: "recibo del plan", ok: "Aprobado por ti", ko: "Rechazado por ti", hint: "Mantén 1 segundo (ratón, dedo, Espacio o Enter). Esc rechaza."},
+  en: {title: n => `Asimov proposes ${n} steps · press and hold to approve`, hold: "Press and hold to approve",
+       no: "Refuse", close: "Close", bad: "Invalid plan · not run", other: "Note: this plan was made for another page:",
+       rc: "plan receipt", ok: "Approved by you", ko: "Refused by you", hint: "Hold for 1 second (mouse, finger, Space or Enter). Esc refuses."},
+  pt: {title: n => `Asimov propõe ${n} passos · mantenha pressionado para aprovar`, hold: "Mantenha pressionado para aprovar",
+       no: "Recusar", close: "Fechar", bad: "Plano inválido · não é executado", other: "Atenção: o plano foi feito para outra página:",
+       rc: "recibo do plano", ok: "Aprovado por você", ko: "Recusado por você", hint: "Segure 1 segundo (mouse, dedo, Espaço ou Enter). Esc recusa."}
+};
+// canonical JSON: sorted keys, no spaces — byte-identical to Python json.dumps(sort_keys=True, ensure_ascii=False, separators=(",",":"))
+const canon = v => Array.isArray(v) ? "[" + v.map(canon).join(",") + "]"
+  : (v && typeof v === "object") ? "{" + Object.keys(v).sort().map(k => JSON.stringify(k) + ":" + canon(v[k])).join(",") + "}"
+  : JSON.stringify(v);
+async function sha256hex(str){
+  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join("");
+}
+function planBody(p){
+  const b = {schema: p.schema, page: p.page, dom_digest_sha256: p.dom_digest_sha256, steps: p.steps, created: p.created};
+  if (p.goal) b.goal = p.goal;
+  b.prev = (p.receipt && p.receipt.prev) || "GENESIS"; b.authority = AUTH;
+  return b;
+}
+function planErrors(p){                      // same rules as hermes/walk_plan.py validate()
+  const e = [], str = x => typeof x === "string";
+  if (!p || typeof p !== "object" || Array.isArray(p)) return ["plan must be an object"];
+  if (p.schema !== PLAN_SCHEMA) e.push("schema must be " + PLAN_SCHEMA);
+  if (!p.page || typeof p.page !== "object" || !str(p.page.url ?? "") || !str(p.page.title ?? "")) e.push("page must be {url, title}");
+  if (!/^[0-9a-f]{64}$/.test(String(p.dom_digest_sha256 || ""))) e.push("dom_digest_sha256 must be 64 hex");
+  if (!str(p.created)) e.push("created must be an ISO string");
+  const st = Array.isArray(p.steps) && p.steps.length >= 1 && p.steps.length <= MAX_STEPS ? p.steps : (e.push("steps must be 1.." + MAX_STEPS), []);
+  st.forEach((s, i) => {
+    if (!s || typeof s !== "object" || !VERBS[s.verb]) { e.push(`step ${i}: bad verb`); return; }
+    const extra = Object.keys(s).filter(k => !["verb","target","text"].includes(k)); if (extra.length) e.push(`step ${i}: unknown keys ${extra}`);
+    if ((s.verb === "walkTo" || s.verb === "point") && !s.target) e.push(`step ${i}: ${s.verb} needs a target`);
+    if (s.target != null && (!str(s.target) || !s.target.trim() || s.target.length > 200)) e.push(`step ${i}: bad target`);
+    if (s.text != null) { const t = s.text, ks = t && typeof t === "object" ? Object.keys(t) : [];
+      if (!ks.length || ks.some(k => !LABEL[k] || !str(t[k]) || t[k].length > MAX_TEXT)) e.push(`step ${i}: text must be {es,en,pt}`); }
+  });
+  const r = p.receipt;
+  if (!r || typeof r !== "object") e.push("receipt missing");
+  else { if (r.authority !== AUTH) e.push("receipt.authority must be HUMAN://ROOT");
+         if (r.state !== "AWAITING_APPROVAL") e.push("receipt.state must be AWAITING_APPROVAL"); }
+  return e;
+}
+const samePage = u => { try { const a = new URL(u, location.href), n = x => x.replace(/index\.html?$/, "");
+  return a.origin === location.origin && n(a.pathname) === n(location.pathname); } catch(e){ return false; } };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const LANE_MAX_W = 760;                      // at or below this width Asimov walks in a floor lane under the content
 
 const CSS = `
 :host{position:fixed;inset:0;pointer-events:none!important;z-index:2147483000;overflow:hidden;contain:strict;
   font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
 *{pointer-events:none!important;box-sizing:border-box}
+.sheet,.sheet *{pointer-events:auto!important}
+.sheet{position:absolute;left:50%;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);
+  width:min(440px,calc(100vw - 20px));max-height:min(62vh,520px);overflow:auto;background:var(--aw-bub-bg,#fffaf0);
+  color:var(--aw-bub-ink,#151515);border:1.5px solid var(--aw-bub-bd,#151515);border-radius:16px;padding:12px 14px;
+  box-shadow:4px 4px 0 var(--aw-bub-bd,#151515);z-index:2}
+.sheet[hidden]{display:none}
+.sheet h3{margin:0 0 4px;font:700 15px/1.3 system-ui,sans-serif}
+.sheet .pg{display:block;font:11px/1.35 ui-monospace,Menlo,monospace;opacity:.75;word-break:break-all}
+.sheet ol{margin:8px 0;padding-left:22px;font-size:13.5px;line-height:1.4}
+.sheet li{margin:3px 0}.sheet li code{font:11px ui-monospace,Menlo,monospace;opacity:.7}
+.sheet .wr{color:var(--aw-warn,#8a5a00);font:600 12px/1.35 ui-monospace,Menlo,monospace;margin:4px 0;word-break:break-all}
+.sheet .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.sheet button{font:600 15px system-ui,sans-serif;min-height:48px;min-width:44px;border-radius:12px;cursor:pointer;
+  border:1.5px solid var(--aw-ring,#00687a);background:transparent;color:var(--aw-bub-ink,#151515);padding:0 14px}
+.sheet .ok{position:relative;overflow:hidden;flex:1 1 220px;touch-action:none;user-select:none;-webkit-user-select:none}
+.sheet .ok i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--aw-ring,#00687a);opacity:.28}
+.sheet .ok span{position:relative}
+.sheet .ok.done{background:var(--aw-ring,#00687a);color:var(--aw-bub-bg,#fffaf0)}
+.sheet button:focus-visible{outline:3px solid var(--aw-ring,#00687a);outline-offset:2px}
+.sheet .hn{display:block;font-size:11.5px;opacity:.75;margin-top:6px}
 .bot{position:absolute;left:0;top:0;will-change:transform;transition:opacity .18s}
 .bot.fade{opacity:0}
 .fig{position:absolute;left:0;top:0;transform-origin:0 0}
@@ -46,6 +121,11 @@ const CSS = `
 .bub .rc{display:block;margin-top:5px;font:10.5px/1.3 ui-monospace,Menlo,monospace;opacity:.72;word-break:break-all}
 .bub .lb{display:block;margin-top:3px;font:600 10.5px ui-monospace,Menlo,monospace;color:var(--aw-warn,#8a5a00)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.sa{position:absolute;left:0;bottom:0;width:1px;height:env(safe-area-inset-bottom,0px);visibility:hidden}
+.lane{position:absolute;left:0;right:0;bottom:0;height:calc(var(--lane-h,0px) + env(safe-area-inset-bottom,0px));display:none;
+  background:rgba(127,127,127,.12);background:var(--aw-lane-bg,color-mix(in srgb,var(--aw-bub-bg,#fffaf0) 90%,transparent));
+  border-top:1px dashed var(--aw-lane-line,rgba(127,127,127,.38))}
+.lane.on{display:block}
 @media (prefers-reduced-motion: reduce){.ring.on{animation:none}.bub{transition:none}}
 `;
 
@@ -54,40 +134,72 @@ class AsimovWalker extends HTMLElement {
     super();
     const r = this.attachShadow({mode:"open"});
     r.innerHTML = `<style>${CSS}</style>
+      <div class="sa"></div><div class="lane" part="lane"></div>
       <div class="ring" part="ring"></div>
       <div class="bot" part="bot"><div class="floor"></div><div class="fig">
         <div class="s st" style="--aw-stack-o:.05"></div><div class="s st" style="--aw-stack-o:.08"></div><div class="s st" style="--aw-stack-o:.12"></div>
         <div class="s main"></div></div></div>
       <div class="bub" part="bubble"><span class="t"></span><span class="rc"></span><span class="lb"></span></div>
-      <div class="sr" role="status" aria-live="polite"></div>`;
+      <div class="sr" role="status" aria-live="polite"></div>
+      <div class="sheet" part="sheet" role="dialog" aria-modal="false" aria-labelledby="aw-sh-t" aria-describedby="aw-sh-h" hidden>
+        <h3 id="aw-sh-t"></h3><span class="pg"></span><div class="wr" hidden></div><ol></ol>
+        <div class="row"><button class="ok" type="button" aria-describedby="aw-sh-h"><i></i><span></span></button><button class="no" type="button"></button></div>
+        <span class="hn" id="aw-sh-h"></span></div>`;
     this.style.setProperty("--atlas", `url(${ATLAS})`);
     this.$ = s => r.querySelector(s);
     this.bot = this.$(".bot"); this.fig = this.$(".fig"); this.layers = [...r.querySelectorAll(".s")];
     this.ring = this.$(".ring"); this.bub = this.$(".bub"); this.sr = this.$(".sr");
     this.x = 0; this.y = 0; this.face = 1; this.frame = "idle0";
-    this.lang = "es"; this.voice = false; this.speed = 120; this.receipts = [];
+    this.lang = "es"; this.voice = false; this.speed = 120; this._rc = []; this._plan = null;
     this.token = 0; this.target = null; this.busy = false; this.idleT = null;
-    this._sy = 0; this._sx = 0;
+    this._sy = 0; this._sx = 0; this.inLane = false; this._pad = null;
   }
   connectedCallback(){
     this.lang = (this.getAttribute("lang") || document.documentElement.lang || "es").slice(0,2);
     if (!LABEL[this.lang]) this.lang = "es";
     this.sc = this._scale();
+    if (this._laneWanted()) this._enterLane();
     const start = this.getAttribute("start") || "right";
-    this.x = start === "left" ? 46 : innerWidth - 46; this.y = innerHeight - 14;
+    this.x = start === "left" ? 46 : innerWidth - 46; this.y = this.inLane ? this._laneY() : innerHeight - 14;
     this.face = start === "left" ? 1 : -1;
     this._sy = scrollY; this._sx = scrollX;
     this._onScroll = () => { const dy = this._sy - scrollY, dx = this._sx - scrollX; this._sy = scrollY; this._sx = scrollX;
-      if (this.walking) { this.x = this.wx - scrollX; this.y = this.wy - scrollY; this._place(); } else { this.y += dy; this.x += dx; this._place(); } this._ringUpdate(); this._bubPlace(); };
-    this._onResize = () => { this.sc = this._scale(); this.x = clamp(this.x, 30, innerWidth - 30); this.y = clamp(this.y, 40, innerHeight - 6); this._place(); this._ringUpdate(); this._bubPlace(); };
+      if (this.inLane) { this._place(); } else if (this.walking) { this.x = this.wx - scrollX; this.y = this.wy - scrollY; this._place(); } else { this.y += dy; this.x += dx; this._place(); } this._ringUpdate(); this._bubPlace(); };
+    this._onResize = () => {
+      if (this._laneWanted()) { this.inLane ? this._laneSync() : this._enterLane(); }
+      else { if (this.inLane) this._exitLane(); if (this._pad) this._unreserve(); }
+      this.sc = this._scale(); this.x = clamp(this.x, 30, innerWidth - 30);
+      this.y = this.inLane ? this._laneY() : clamp(this.y, 40, innerHeight - 6);
+      this.show(this.frame); this._ringUpdate(); this._bubPlace(); };
     addEventListener("scroll", this._onScroll, {passive:true});
     addEventListener("resize", this._onResize);
     this.show("idle0"); this._idle();
     if (!window.ASIMOV_WALKER) window.ASIMOV_WALKER = this;
   }
-  disconnectedCallback(){ removeEventListener("scroll", this._onScroll); removeEventListener("resize", this._onResize); this.stop(); }
+  disconnectedCallback(){ removeEventListener("scroll", this._onScroll); removeEventListener("resize", this._onResize); this.stop(); this._unreserve(); }
   _scale(){ const a = parseFloat(this.getAttribute("scale")); if (a > 0) return a;
+    if (this.inLane) return innerWidth < 520 ? 0.6 : 0.66;
     return innerWidth < 520 ? 0.68 : innerWidth < 1000 ? 0.76 : 0.85; }
+
+  /* ---------- floor lane: a bottom strip on phones (or when no side gutter fits) ---------- */
+  _laneMode(){ const m = (this.getAttribute("lane") || "auto").toLowerCase(); return m === "always" || m === "off" ? m : "auto"; }
+  _laneWanted(){ const m = this._laneMode(); return m === "always" || (m === "auto" && innerWidth <= LANE_MAX_W); }
+  _safeB(){ const s = this.$(".sa"); return s ? s.offsetHeight || 0 : 0; }
+  get laneHeight(){ return Math.round(174 * this.sc + 18); }        // strip height above the safe area
+  _laneReserve(){ return this.laneHeight + this._safeB(); }
+  _laneY(){ return innerHeight - this._safeB() - 8; }                 // feet line inside the lane
+  _laneSync(){ this.sc = this._scale(); this.style.setProperty("--lane-h", this.laneHeight + "px"); this._reserve(); }
+  _enterLane(){ if (this.inLane) return; this.inLane = true; this.$(".lane").classList.add("on"); this._laneSync(); }
+  _exitLane(){ if (!this.inLane) return; this.inLane = false; this.$(".lane").classList.remove("on"); this.sc = this._scale(); }
+  _reserve(){                                   // page keeps padding-bottom = lane height, so content never ends under it
+    if ((this.getAttribute("reserve") || "").toLowerCase() === "off" || !document.body) return;
+    const b = document.body;
+    if (!this._pad) this._pad = {inline: b.style.paddingBottom, base: getComputedStyle(b).paddingBottom || "0px"};
+    b.style.paddingBottom = `calc(${this._pad.base} + ${this.laneHeight}px + env(safe-area-inset-bottom, 0px))`;
+  }
+  _unreserve(){ if (!this._pad || !document.body) return; document.body.style.paddingBottom = this._pad.inline; this._pad = null; }
+  _noGutter(el){ const r = el.getBoundingClientRect(), hw = 40 * this._scale();
+    return !(r.right + 10 + 2*hw <= innerWidth) && !(r.left - 10 - 2*hw >= 0); }
   get reduced(){ return RM.matches; }
 
   /* ---------- drawing (pixel stacking: 3 offset dark layers + sprite) ---------- */
@@ -102,7 +214,7 @@ class AsimovWalker extends HTMLElement {
     this.fig.style.transform = `scale(${this.face*this.sc},${this.sc})`;
     this._place();
   }
-  _place(){ this.bot.style.transform = `translate(${Math.round(this.x)}px,${Math.round(this.y)}px)`; this._bubPlace(); }
+  _place(){ if (this.inLane && !this.walking) this.y = this._laneY(); this.bot.style.transform = `translate(${Math.round(this.x)}px,${Math.round(this.y)}px)`; this._bubPlace(); }
   get height(){ return 174 * this.sc; }
 
   /* ---------- helpers ---------- */
@@ -129,6 +241,18 @@ class AsimovWalker extends HTMLElement {
   }
   async _settleScroll(el){                               // returns the scrollY the page is heading to
     const r = el.getBoundingClientRect();
+    if (this.inLane) {                                   // target + its bubble must fit above the lane
+      const laneTop = innerHeight - this._laneReserve(), bh = Math.max(this.bub.offsetHeight || 0, 96), gap = 12;
+      const fits = r.top >= 10 && r.bottom <= laneTop - 10 && (laneTop - 10 - r.bottom >= bh + gap || r.top - 10 >= bh + gap);
+      if (fits) return scrollY;
+      const block = r.height + gap + bh, topWant = Math.max(10, laneTop - 10 - block);   // sit low, close to Asimov
+      const max = Math.max(0, document.documentElement.scrollHeight - innerHeight);
+      const want = clamp(Math.round(scrollY + r.top - topWant), 0, max);
+      if (Math.abs(want - scrollY) < 2) return scrollY;
+      scrollTo({top: want, behavior: this.reduced ? "auto" : "smooth"});
+      await sleep(this.reduced ? 30 : 160);
+      return want;
+    }
     const room = this.height + 24;                       // keep the robot's head on screen too
     if (r.top >= room && r.bottom <= innerHeight - 16) return scrollY;
     const max = Math.max(0, document.documentElement.scrollHeight - innerHeight);
@@ -143,6 +267,8 @@ class AsimovWalker extends HTMLElement {
   async walkTo(target, opt = {}){
     const el = this._el(target); if (!el) return false;
     const tk = opt._tk || (++this.token); this.busy = true;
+    if (this._laneWanted() || (this._laneMode() === "auto" && this._noGutter(el))) return this._laneWalk(el, tk, opt);
+    if (this.inLane) { this._exitLane(); this.show(this.frame); }
     // work in document coordinates so a scroll during the walk can't throw it off
     const sx0 = scrollX, sy0 = scrollY;
     let rx = this.x + sx0, ry = this.y + sy0;
@@ -196,6 +322,46 @@ class AsimovWalker extends HTMLElement {
     this.show("idle0", side); this.busy = false; this._idle();
     return true;
   }
+  async _laneWalk(el, tk, opt){                 // walk along the floor lane to just under the target, then face it
+    const wasLane = this.inLane; this._enterLane(); if (!wasLane) this.show(this.frame);
+    const sy = await this._settleScroll(el); if (!this._alive(tk)) return false;
+    for (let i = 0; i < 40 && Math.abs(scrollY - sy) > 2; i++) { await sleep(30); if (!this._alive(tk)) return false; }
+    const r = el.getBoundingClientRect(), hw = 40 * this.sc, h = this.height, cx = r.left + r.width/2;
+    const off = Math.min(r.width / 4, 56);
+    const x = clamp(cx + (this.x < cx ? -off : off), hw + 4, innerWidth - hw - 4), y = this._laneY();
+    const side = cx >= x ? 1 : -1;
+    this.target = el; this._ringUpdate();
+    let sx = this.x, sy0 = this.y;
+    if (sx < -40 || sx > innerWidth + 40 || sy0 < 0 || sy0 - h > innerHeight) { sx = x < innerWidth/2 ? -hw : innerWidth + hw; sy0 = y; }
+    if (this.reduced || opt.teleport) {
+      this.bot.classList.add("fade"); await sleep(180);
+      this.x = x; this.y = y; this.show("idle0", side); this.bot.classList.remove("fade"); await sleep(180);
+      this._sx = scrollX; this._sy = scrollY; this.busy = false; return this._alive(tk);
+    }
+    const dx = x - sx, dy = y - sy0, dist = Math.hypot(dx, dy), dir = dx >= 0 ? 1 : -1;
+    this.x = sx; this.y = sy0;
+    if (dist > 6) {
+      this.walking = true;
+      if (!await this._play(["turn1","turn0"], 90, tk, dir)) { this.walking = false; return false; }
+      const sp = Math.max(this.speed, dist / 3.2), t0 = performance.now(), T = dist / sp * 1000, stride = 110 * this.sc;
+      await new Promise(res => {
+        const loop = now => {
+          if (!this._alive(tk)) return res();
+          const k = Math.min(1, (now - t0) / T);
+          this.x = sx + dx * k; this.y = sy0 + dy * k; this._place(); this._ringUpdate();
+          this.show(WALK[Math.floor(k * dist / stride * 10) % 10], dir);
+          if (k < 1) requestAnimationFrame(loop); else res();
+        };
+        requestAnimationFrame(loop);
+      });
+      if (!this._alive(tk)) { this.walking = false; return false; }
+      const ok = await this._play(["turn0","turn1"], 90, tk, side);
+      this.walking = false; if (!ok) return false;
+    }
+    this._sx = scrollX; this._sy = scrollY;
+    this.show("idle0", side); this.busy = false; this._idle();
+    return true;
+  }
   async point(target, opt = {}){
     const el = this._el(target); if (!el) return false;
     const tk = opt._tk || (++this.token);
@@ -206,22 +372,23 @@ class AsimovWalker extends HTMLElement {
     this.show(v, dir);
     return v;
   }
-  async wave(){ const tk = ++this.token; this.busy = true;
+  async wave(opt = {}){ const tk = opt._tk || (++this.token); this.busy = true;
     if (this.reduced) { this.show("wave1"); await sleep(1000); }
     else await this._play(["wave0","wave1","wave2","wave1","wave0","wave1","wave2","wave3"], 170, tk, 1);
     if (this._alive(tk)) { this.busy = false; this.show("idle0"); this._idle(); } }
-  async nod(){ const tk = ++this.token; this.busy = true;
+  async nod(opt = {}){ const tk = opt._tk || (++this.token); this.busy = true;
     if (this.reduced) { this.show("nod0"); await sleep(600); }
     else await this._play(["nod0","nod1","nod0","nod1","idle0"], 230, tk);
     if (this._alive(tk)) { this.busy = false; this.show("idle0"); this._idle(); } }
 
   async receipt(target, text){
     const rec = {target: target ? this._tid(target) : "page", text: String(text||""), time: new Date().toISOString()};
+    if (this._plan) rec.plan = this._plan;
     let hex = "";
     try { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify(rec)));
       hex = [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
     catch(e){ hex = "sin-crypto"; }
-    rec.sha256 = hex; this.receipts.push(rec);
+    rec.sha256 = hex; this._rc.push(rec);
     this.dispatchEvent(new CustomEvent("asimov-receipt", {detail: rec, bubbles: true, composed: true}));
     return rec;
   }
@@ -244,6 +411,17 @@ class AsimovWalker extends HTMLElement {
   _bubPlace(){
     if (!this.bub.classList.contains("on")) return;
     const bw = this.bub.offsetWidth, bh = this.bub.offsetHeight;
+    if (this.inLane) {                         // above the lane, never over the target
+      const laneTop = innerHeight - this._laneReserve(), hi = Math.max(8, laneTop - bh - 6);
+      const el = this.target && this.target.isConnected ? this.target : null;
+      let top = hi;
+      if (el) { const r = el.getBoundingClientRect();
+        if (r.bottom + 10 + bh <= laneTop - 6) top = Math.max(8, r.bottom + 10);
+        else if (r.top - 10 - bh >= 8) top = r.top - 10 - bh; }
+      this.bub.style.left = clamp(this.x - bw/2, 8, Math.max(8, innerWidth - bw - 8)) + "px";
+      this.bub.style.top = clamp(top, 8, hi) + "px";
+      return;
+    }
     let left = clamp(this.x - bw/2, 8, innerWidth - bw - 8);
     let top = this.y - this.height - bh - 10;
     if (top < 8) top = clamp(this.y + 8, 8, innerHeight - bh - 8);
@@ -255,6 +433,91 @@ class AsimovWalker extends HTMLElement {
     const r = el.getBoundingClientRect(), p = 5;
     Object.assign(this.ring.style, {left: (r.left - p) + "px", top: (r.top - p) + "px", width: (r.width + 2*p) + "px", height: (r.height + 2*p) + "px"});
     this.ring.classList.add("on");
+  }
+  /* ---------- Hermes bridge: play(plan) · ae.walk/0.1 · runs only after a human hold ---------- */
+  receipts(){ return this._rc.slice(); }
+  async _decide(plan, decision){
+    const last = [...this._rc].reverse().find(r => r.kind === "decision");
+    const rec = {kind: "decision", decision, plan: plan.receipt.sha256, prev: last ? last.sha256 : plan.receipt.sha256,
+                 authority: AUTH, state: decision, time: new Date().toISOString()};
+    rec.sha256 = await sha256hex(canon(rec));     // sha-256 of the plan receipt + the human's decision
+    this._rc.push(rec);
+    this.dispatchEvent(new CustomEvent("asimov-receipt", {detail: rec, bubbles: true, composed: true}));
+    this.dispatchEvent(new CustomEvent("asimov-decision", {detail: rec, bubbles: true, composed: true}));
+    return rec;
+  }
+  _sheetAsk(plan, lang, errors, warn){         // resolves "APPROVED" | "REFUSED" | "CLOSED"
+    const T = SHEET[lang] || SHEET.es, sh = this.$(".sheet"), ok = this.$(".sheet .ok"), no = this.$(".sheet .no");
+    const bar = ok.querySelector("i"), list = this.$(".sheet ol"), wr = this.$(".sheet .wr");
+    const prevFocus = document.activeElement;
+    this.$("#aw-sh-t").textContent = errors ? T.bad : T.title(plan.steps.length);
+    this.$(".sheet .pg").textContent = errors ? "" : `${plan.page.title || plan.page.url || ""} · ${T.rc} ⛓ ${plan.receipt.sha256.slice(0, 16)}…`;
+    wr.hidden = !(errors || warn); wr.textContent = errors ? errors.slice(0, 6).join(" · ") : warn ? `${T.other} ${plan.page.url}` : "";
+    list.textContent = "";
+    if (!errors) plan.steps.forEach(st => { const li = document.createElement("li"), tx = st.text ? (st.text[lang] || st.text.es || Object.values(st.text)[0]) : "";
+      li.textContent = `${VERBS[st.verb]} ${st.verb}${tx ? " · " + tx : ""} `;
+      if (st.target) { const c = document.createElement("code"); c.textContent = st.target; li.append(c); }
+      list.append(li); });
+    ok.hidden = !!errors; ok.classList.remove("done"); bar.style.width = "0"; ok.querySelector("span").textContent = T.hold;
+    no.textContent = errors ? T.close : T.no; this.$("#aw-sh-h").textContent = errors ? "" : T.hint;
+    sh.hidden = false;
+    return new Promise(res => {
+      let t0 = 0, raf = 0, held = false, fin = false;
+      const end = v => { if (fin) return; fin = true; cancelAnimationFrame(raf);
+        ok.removeEventListener("pointerdown", down); ["pointerup","pointerleave","pointercancel"].forEach(ev => ok.removeEventListener(ev, up));
+        ok.removeEventListener("keydown", kd); ok.removeEventListener("keyup", up); no.removeEventListener("click", ref); sh.removeEventListener("keydown", esc);
+        setTimeout(() => { sh.hidden = true; try { prevFocus && prevFocus.focus && prevFocus.focus(); } catch(e){} }, v === "APPROVED" ? 350 : 0);
+        res(v); };
+      const tick = now => { const k = Math.min(1, (now - t0) / HOLD_MS);
+        bar.style.width = (this.reduced ? Math.floor(k * 4) / 4 : k) * 100 + "%";
+        if (k >= 1) { ok.classList.add("done"); ok.querySelector("span").textContent = T.ok; end("APPROVED"); }
+        else raf = requestAnimationFrame(tick); };
+      const down = e => { if (fin || held) return; if (e.button > 0) return; e.preventDefault(); held = true; t0 = performance.now();
+        raf = requestAnimationFrame(tick); };
+      const up = () => { if (fin) return; held = false; cancelAnimationFrame(raf); bar.style.width = "0"; };
+      const kd = e => { if ((e.key === " " || e.key === "Enter") && !e.repeat) down(e); else if (e.key === " " || e.key === "Enter") e.preventDefault(); };
+      const ref = () => end(errors ? "CLOSED" : "REFUSED");
+      const esc = e => { if (e.key === "Escape") { e.preventDefault(); ref(); } };
+      ok.addEventListener("pointerdown", down); ["pointerup","pointerleave","pointercancel"].forEach(ev => ok.addEventListener(ev, up));
+      ok.addEventListener("keydown", kd); ok.addEventListener("keyup", up); no.addEventListener("click", ref); sh.addEventListener("keydown", esc);
+      setTimeout(() => { try { (errors ? no : ok).focus({preventScroll: true}); } catch(e){} }, 30);
+    });
+  }
+  async play(plan, opt = {}){
+    if (typeof plan === "string") { try { plan = JSON.parse(plan); } catch(e){ plan = null; } }
+    const lang = (opt.lang || this.lang || "es").slice(0, 2);
+    let errors = planErrors(plan);
+    if (!errors.length) {
+      if (!(window.crypto && crypto.subtle)) errors = ["sin crypto.subtle: no puedo comprobar el recibo (usa https)"];
+      else if (await sha256hex(canon(planBody(plan))) !== plan.receipt.sha256) errors = ["receipt.sha256 no coincide con el plan canónico (¿editado? vuelve a sellarlo con walk_plan action=seal)"];
+    }
+    this.stop(); this.hush();
+    if (errors.length) { await this._sheetAsk(plan, lang, errors); return {decision: "INVALID", errors}; }
+    const decision = await this._sheetAsk(plan, lang, null, plan.page.url && !samePage(plan.page.url));
+    const receipt = await this._decide(plan, decision);
+    if (decision !== "APPROVED") { this.nod(); return {decision, receipt}; }
+    // approved by a human hold: run the steps (screen only — walk, point, speak; never click or type)
+    const tk = ++this.token, skipped = []; this._plan = plan.receipt.sha256;
+    const txt = st => st.text ? (st.text[lang] || st.text.es || Object.values(st.text)[0]) : "";
+    const talk = async (t, el) => { if (!t) return; if (el) { this.target = el; this._ringUpdate(); }
+      await this.say(t, lang); await sleep(Math.max(2400, t.length * 55)); };
+    try {
+      for (const [i, st] of plan.steps.entries()) {
+        if (!this._alive(tk)) break;
+        const el = st.target ? this._el(st.target) : null;
+        if (st.target && !el) { skipped.push(i); continue; }
+        this.hush();
+        if (st.verb === "walkTo") { if (!await this.walkTo(el, {_tk: tk})) break; if (txt(st)) { this.busy = true; await this.point(el, {_tk: tk}); await talk(txt(st), el); } }
+        else if (st.verb === "point") { this.busy = true; await this.point(el, {_tk: tk}); await talk(txt(st), el); }
+        else if (st.verb === "say") { if (!el) this.unring(); await talk(txt(st), el); }
+        else if (st.verb === "wave") { await this.wave({_tk: tk}); await talk(txt(st), el); }
+        else if (st.verb === "nod") { await this.nod({_tk: tk}); await talk(txt(st), el); }
+        if (opt.onStep) try { opt.onStep(st, i); } catch(e){}
+      }
+    } finally { this._plan = null; }
+    const done = this._alive(tk);
+    if (done) { this.busy = false; this.show("idle0"); this._idle(); }
+    return {decision, receipt, done, skipped};
   }
   async tour(steps = [], opt = {}){
     const tk = ++this.token;
