@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171c1c"><title>📟 MCP64 · MoH Mixer</title>
+<style>
+:root{color-scheme:dark;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#090d0c;color:#e8f0ea}
+*{box-sizing:border-box}body{margin:0;min-height:100dvh;display:grid;place-items:center;padding:18px}
+main{width:min(100%,350px);background:linear-gradient(145deg,#3a4343,#151a1b 26%,#111516);border:3px solid #586260;border-radius:28px;padding:17px;box-shadow:inset 0 2px 4px #ffffff24,0 22px 55px #000b}
+header,.status,.row{display:flex;align-items:center;justify-content:space-between;gap:8px}header{font-size:11px;letter-spacing:.11em;color:#d5e0da}.led{width:9px;height:9px;background:#ff9d24;border-radius:50%;box-shadow:0 0 12px #ff9d2460;display:inline-block;margin-right:7px}
+.lcd{margin:16px 0;background:linear-gradient(160deg,#b3d0ad,#86af92);color:#173a28;border:5px solid #3a5144;border-radius:13px;min-height:234px;padding:14px;box-shadow:inset 0 4px 18px #294f362b}
+.lcd .status{font-size:10px;font-weight:800}.lcd hr{border:0;border-top:1px solid #5b8a68;margin:12px 0}
+.display{min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px}
+.display h1{font-size:25px;line-height:1.15;margin:0;letter-spacing:-.04em}.display p{margin:0;font-size:12px}.meter{display:flex;gap:4px;width:100%;margin-top:12px}.meter i{height:9px;flex:1;background:#719d7a;border-radius:3px}.meter i.active{background:#1c5633}
+.controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:12px 0}button{font:inherit;cursor:pointer;min-height:46px;border:1px solid #65726d;background:linear-gradient(#353d3d,#202727);color:#eaf2eb;border-radius:12px;font-weight:700}button:focus-visible{outline:3px solid #ffb54d;outline-offset:3px}button:active{transform:translateY(1px)}button[aria-pressed=true]{border-color:#a6e5b3;color:#b5ffc9}
+button.primary{background:#a9e7b8;color:#112b1a;border-color:#d0ffda;width:100%;margin-top:10px}
+.panel{border:1px solid #46534d;background:#252c2a;padding:12px;border-radius:13px;font-size:11px}.panel .status{margin-bottom:6px}.muted{color:#a7b8ad}.tag{padding:3px 7px;border-radius:99px;border:1px solid #77877b;font-size:10px}
+footer{font-size:9px;text-align:center;color:#a7b8ad;margin-top:13px;line-height:1.5}
+.log{width:100%;text-align:left;font-size:10px;line-height:1.5;max-height:110px;overflow:auto;overflow-wrap:anywhere}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style></head><body><main aria-label="MCP64 local harness mixer">
+<header><span><span class="led"></span>Æ · MCP64</span><span>MoH MIXER</span></header>
+<section class="lcd" aria-live="polite"><div class="status"><span>📟 MIX / 064</span><span>LOCAL · DEMO</span></div><hr>
+<div id="display" class="display"></div><hr><div class="status"><span>ORP-001 · NO GRANTS</span><span>▂▄▆</span></div></section>
+<nav class="controls" aria-label="Channel selection"><button id="prev" aria-label="Previous harness">◀</button><button id="next" aria-label="Next harness">▶</button><button id="mute" aria-pressed="false" aria-label="Toggle preview mute">◖))</button></nav>
+<nav class="controls" aria-label="Mixer views"><button id="mix" aria-pressed="true">MIX</button><button id="mem" aria-pressed="false">MEM</button><button id="log" aria-pressed="false">LOG</button></nav>
+<section class="panel"><div class="status"><strong>🤳 HUMAN PRINCIPAL</strong><span class="tag">UNBOUND</span></div><div class="muted">Selection is local. No harness is connected.</div><button class="primary" id="preview">Preview mixer selection</button></section>
+<footer>💎 PROVENANCE ONLY · 🟧 NO PHYSICAL MOTION<br>Context may propagate; authority does not.</footer>
+</main><script>
+'use strict';
+const channels=[{name:'HERMES',icon:'🛸',role:'Orchestration'},{name:'OPENCLAW',icon:'🔐',role:'Coordination'},{name:'CODEX',icon:'⌨️',role:'Engineering'}];
+const state={channel:0,view:'mix',muted:false,events:['MCP64 local mixer initialized']};
+const $=id=>document.getElementById(id);
+function addEvent(message){state.events.push(message);state.events=state.events.slice(-20)}
+function render(){
+const d=$('display');d.replaceChildren();
+const heading=document.createElement('h1'),detail=document.createElement('p');
+if(state.view==='mix'){const c=channels[state.channel];heading.textContent=c.icon+' '+c.name;detail.textContent=c.role+' · CH '+(state.channel+1)+'/3 · '+(state.muted?'MUTED':'PREVIEW');d.append(heading,detail);const meter=document.createElement('div');meter.className='meter';channels.forEach((_,i)=>{const el=document.createElement('i');if(i===state.channel)el.className='active';meter.append(el)});d.append(meter)}
+else if(state.view==='mem'){heading.textContent='💎 NEUROMITOSIS';detail.textContent='Lineage: proposed · Records: local only · Authority: HUMAN://PRINCIPAL';d.append(heading,detail)}
+else{heading.textContent='EVENT MONITOR';d.append(heading);const log=document.createElement('div');log.className='log';state.events.slice(-5).forEach(e=>{const line=document.createElement('div');line.textContent='› '+e;log.append(line)});d.append(log)}
+['mix','mem','log'].forEach(id=>$(id).setAttribute('aria-pressed',String(state.view===id)));$('mute').setAttribute('aria-pressed',String(state.muted));$('mute').textContent=state.muted?'◖×':'◖))';
+}
+$('prev').addEventListener('click',()=>{state.channel=(state.channel+2)%3;state.view='mix';render()});
+$('next').addEventListener('click',()=>{state.channel=(state.channel+1)%3;state.view='mix';render()});
+$('mute').addEventListener('click',()=>{state.muted=!state.muted;addEvent('Preview '+(state.muted?'muted':'unmuted'));render()});
+['mix','mem','log'].forEach(id=>$(id).addEventListener('click',()=>{state.view=id;render()}));
+$('preview').addEventListener('click',()=>{addEvent('Preview: '+channels[state.channel].name+' selected (no external execution)');state.view='log';render()});
+render();
+</script></body></html>
