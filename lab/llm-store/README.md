@@ -15,7 +15,7 @@ The old chassis looked right but showed invented tickers, stale leaderboards and
 | tok/s meter | **MEASURED** from the actual run: (tokens − 1) ÷ time from first to last token, with the runtime's own token count. It also shows the engine-reported figure (WebLLM `decode_tokens_per_s`, Ollama `eval_count/eval_duration`). |
 | Receipts | **Real.** Each run writes a SHA-256 receipt chained to the previous one (`llm.store.receipt/0.1`). Receipts live in localStorage and can be verified and exported as JSON. Prompts are stored as hashes only. |
 | Hugging Face trending | **LIVE** on demand from the HF API. No snapshot. |
-| Cloud inference | **Not wired, on purpose.** There are no keys and no cloud rent. Model cards show a `curl` example that you run with your own key. |
+| Cloud inference | **Not wired, on purpose.** There are no keys and no cloud rent. Each model card links to its OpenRouter page. |
 | Prices, payments, checkout | None. |
 
 ## Files
