@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>PC:// LAB · Private Client, assembled</title>
+<style>
+:root{--bg:#000;--ink:#e9f6f7;--dim:#9ab8bc;--c:#00f3ff;--line:#1d4a4e;--ok:#3ee08f;--sim:#ffcf5c;--card:rgba(3,16,18,.88);--grid:rgba(0,243,255,.05)}
+html[data-th=day]{--bg:#f4efe3;--ink:#111;--dim:#55544e;--c:#0a5b8f;--line:#cfc6b1;--ok:#1d7a45;--sim:#8a5a00;--card:#fffaf0;--grid:rgba(0,0,0,.04)}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+body{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:40px 40px}
+main{max-width:620px;margin:0 auto;padding:20px 16px 64px}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--dim)}
+.top b{color:var(--ink);font-size:15px}
+.tag{border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:11px;letter-spacing:.08em;color:var(--c)}
+h1{font-size:30px;line-height:1.15;margin:22px 0 6px}
+h2{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--c);margin:40px 0 12px;font-family:ui-monospace,Menlo,monospace}
+p.lead{color:var(--dim);margin:0}
+.stage{margin-top:22px;border:1px solid var(--c);border-radius:18px;padding:16px;background:var(--card);text-align:center}
+.face{display:block;width:150px;height:160px;margin:0 auto}
+.stage b{display:block;font-size:18px;margin-top:4px}.stage span{color:var(--dim);font-size:14px}
+.cards{display:grid;gap:10px}
+a.card,.card{display:block;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--card);color:var(--ink);text-decoration:none}
+a.card:hover{border-color:var(--c)}
+.card .h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card b{font-size:16px}.card span.d{display:block;color:var(--dim);font-size:14px;margin-top:2px}
+.st{font:600 11px ui-monospace,Menlo,monospace;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.live{color:var(--ok)}.lab{color:var(--c)}.sim{color:var(--sim)}.off{color:var(--dim)}
+.sub{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px;font-size:13px}.sub a{color:var(--c)}
+ol.path{list-style:none;margin:0;padding:0;border-left:2px solid var(--line)}
+ol.path li{position:relative;padding:0 0 16px 18px}
+ol.path li:before{content:"";position:absolute;left:-7px;top:6px;width:12px;height:12px;border-radius:50%;background:#000;border:2px solid var(--line)}
+ol.path li.done:before{border-color:var(--ok);background:var(--ok)}
+ol.path li.now:before{border-color:var(--c)}
+ol.path small{display:block;color:var(--dim);font-size:13px}
+.canon{display:grid;gap:8px}
+.canon div{border-left:2px solid var(--c);padding:2px 0 2px 12px;font-size:15px}
+.left{font-size:14px;color:var(--dim)}.left b{color:var(--ink);font-weight:600}
+pre{white-space:pre-wrap;font-size:12px;color:var(--dim);border:1px dashed var(--line);border-radius:12px;padding:12px}
+footer{margin-top:44px;font-size:12px;color:var(--dim);text-align:center}
+footer a{color:var(--c)}
+.th{display:flex;gap:4px}.th button{background:none;border:1px solid var(--line);border-radius:999px;color:var(--ink);font-size:13px;padding:2px 8px;cursor:pointer}.th button[aria-pressed=true]{border-color:var(--c)}
+.tick{overflow:hidden;white-space:nowrap;border-bottom:1px solid var(--line);font:12px ui-monospace,Menlo,monospace;color:var(--c);display:none;margin-top:8px}html[data-th=agent] .tick{display:block}
+.tick span{display:inline-block;padding-left:100%;animation:tk 38s linear infinite}@keyframes tk{to{transform:translateX(-100%)}}
+@media (prefers-reduced-motion:reduce){.tick span{animation:none;padding-left:0}}
+.next{display:grid;gap:8px}.next div{border:1px dashed var(--line);border-radius:12px;padding:10px 12px;font-size:14px}.next b{color:var(--c)}
+@media (min-width:760px) and (orientation:landscape){main{max-width:1080px}.two{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}}
+</style></head>
+<body><main>
+<div class="top"><b class="mono">&gt;_PrivateClient</b><span class="th" role="group" aria-label="theme"><button data-t="night" title="night">🌙</button><button data-t="day" title="day">☀️</button><button data-t="agent" title="agent">🤖</button></span></div>
+<div class="tick" aria-hidden="true"><span id="tk"></span></div>
+
+<h1>We shipped more than we planned.</h1>
+<p class="lead">LAB → live, Oct 18, 2026. Ten surfaces run on privateclient.ai now. Every one keeps the human as root.</p>
+
+<div class="two"><div>
+<section class="stage" aria-label="Private Client">
+<svg class="face" viewBox="0 0 240 260" role="img" aria-label="æsymov face">
+ <path d="M52 78 Q52 18 120 18 Q188 18 188 78 V176 Q188 246 120 250 Q52 246 52 176 Z" fill="#141416" stroke="#3a3a3e" stroke-width="2"/>
+ <rect x="66" y="92" width="108" height="56" rx="26" fill="#030a0b" stroke="#00f3ff" stroke-width="2.5"/>
+ <path d="M88 120H106M134 120H152" stroke="#00f3ff" stroke-width="4" stroke-linecap="round"/>
+ <path d="M100 196Q120 206 140 196" fill="none" stroke="#00f3ff" stroke-width="3" stroke-linecap="round"/>
+ <path d="M52 176Q60 232 120 240Q180 232 188 176" fill="none" stroke="#b87333" stroke-opacity=".55" stroke-width="2"/>
+ <path d="M111 40 L115.5 45 L120 40 M125 31 V45" fill="none" stroke="#00f3ff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+<b>You write. I check. You approve.</b>
+<span>🇺🇸 🇪🇸 🇧🇷 🇫🇷 🇩🇪 🇸🇪 · 🌙 ☀️ 🤖 · 📱 → 🖥️</span>
+</section>
+
+<h2>Path</h2>
+<ol class="path">
+ <li class="done"><b>Approve</b><small>Sign-in, hold, post, receipt.</small></li>
+ <li class="done"><b>æQR on every card</b><small>People get the receipt. Agents get ae.manifest.</small></li>
+ <li class="done"><b>Owner console</b><small>Keys, humans, witness. Hold to revoke.</small></li>
+ <li class="done"><b>pc://mcp + Composio</b><small>Browser and content MCPs. Keys die after 7 days without a human.</small></li>
+ <li class="done"><b>pc://terminal</b><small>Live reads, no simulation. Guide ends at Write.</small></li>
+ <li class="done"><b>One design system</b><small>Night, day, agent. Portable first, full screen ready.</small></li>
+ <li class="now"><b>LinkedIn homebase</b><small>Profile link + Featured → privateclient.ai.</small></li>
+ <li><b>Six languages everywhere</b><small>Studio, receipt, mcp, labs still English.</small></li>
+ <li><b>æQR registry · væult</b><small>Stable IDs. Secrets never touch the server.</small></li>
+</ol>
+</div><div>
+
+<h2>● Live · privateclient.ai</h2>
+<div class="cards">
+ <a class="card" href="https://privateclient.ai/"><div class="h"><b>pc:// home</b><span class="st live">● live</span></div><span class="d">Sign in with LinkedIn. Write, hold, post. Receipt on every card.</span></a>
+ <a class="card" href="https://privateclient.ai/terminal"><div class="h"><b>pc://terminal</b><span class="st live">● live</span></div><span class="d">#deploy #verify #connect. private_client_æsimov shows you around.</span></a>
+ <a class="card" href="https://privateclient.ai/studio"><div class="h"><b>pc://studio</b><span class="st live">● live</span></div><span class="d">Design the card your words travel in. Template hash in the receipt.</span></a>
+ <a class="card" href="https://privateclient.ai/labs"><div class="h"><b>pc://labs</b><span class="st live">● live</span></div><span class="d">Signed archive. Check any card against its exact words.</span></a>
+ <a class="card" href="https://privateclient.ai/mcp/connect"><div class="h"><b>pc://mcp</b><span class="st live">● live</span></div><span class="d">A browser for your agents. Only while a human signed in.</span></a>
+ <div class="card"><div class="h"><b>pc://owner</b><span class="st live">● owner</span></div><span class="d">The console. daollc.ai points here. Owner session only.</span></div>
+</div>
+
+<h2>○ Lab</h2>
+<div class="cards">
+ <div class="card"><div class="h"><b>æQR</b><span class="st lab">○ lab</span></div><span class="d">A QR is an address, not permission.</span><div class="sub mono"><a href="./aeqr/">open</a><a href="https://github.com/MYaelMendez/aeqr">repo</a></div></div>
+ <div class="card"><div class="h"><b>væult</b><span class="st lab">○ lab</span></div><span class="d">scrypt → AES-256-GCM, QR air-gap. Open tool, closed secrets.</span><div class="sub mono"><a href="./vaeult/">tool</a><a href="./vaeult/app.html">app</a><a href="./vaeult/layers.html">layers</a></div></div>
+ <a class="card" href="./aesimov/"><div class="h"><b>æsimov, full size</b><span class="st lab">○ lab</span></div><span class="d">Walks the page and verifies each step.</span></a>
+ <div class="card"><div class="h"><b>Drafts that shipped</b><span class="st off">✓ shipped</span></div><span class="d">Kept for history.</span><div class="sub mono"><a href="./home-next/">home-next</a><a href="./terminal/">terminal</a><a href="./studio/">studio</a></div></div>
+</div>
+</div></div>
+
+<h2>Next · you pick</h2>
+<div class="next">
+ <div><b>🌐</b> Six languages in studio, receipt, mcp and labs.</div>
+ <div><b>🧾</b> æQR registry: one stable ID per receipt, face and page.</div>
+ <div><b>🔐</b> væult served from privateclient.ai, browser-only.</div>
+ <div><b>🇪🇺</b> EU door: human review as AI Act Art. 50(4) fit.</div>
+</div>
+
+<h2>Canon</h2>
+<div class="canon">
+ <div>Many agents. One principal.</div>
+ <div>Evidence ≠ Authority. Supervision informs, the human decides.</div>
+ <div>A QR is an address, not permission.</div>
+ <div>No dead ends. Every guide ends at a door.</div>
+</div>
+
+<h2>For agents</h2>
+<pre id="agent" class="mono"></pre>
+
+<footer class="mono">$ay$hip$ign · you say, we ship, you sign<br>source: myaelmendez.github.io · <a href="../aesimov/">$æsimov LAB</a></footer>
+</main>
+<script>
+const LAB={schema:"ae.lab/0.2",id:"pc-lab",principal:"HUMAN://ROOT",identity:"PRIVATECLIENT://",
+ live:{home:"https://privateclient.ai/",terminal:"https://privateclient.ai/terminal",studio:"https://privateclient.ai/studio",labs:"https://privateclient.ai/labs",mcp:"https://privateclient.ai/mcp",content_mcp:"https://privateclient.ai/yael/mcp",resolver:"https://privateclient.ai/.well-known/pc.json",receipt:"https://privateclient.ai/r/{rid}"},
+ lab:{aeqr:"./aeqr/",vaeult:"./vaeult/",aesimov:"./aesimov/"},shipped_drafts:["./home-next/","./terminal/","./studio/"],
+ themes:["night","day","agent"],theme_key:"pc_term_theme",languages:["en","es","pt","fr","de","sv"],
+ authority:{agents_may:["draft","read","verify"],human_only:["approve","publish"]},mcp_key_rule:"human sign-in within 7 days"};
+document.getElementById("agent").textContent=JSON.stringify(LAB,null,1);window.PC_LAB=LAB;
+const K="pc_term_theme",root=document.documentElement;
+function th(t){root.dataset.th=t;try{localStorage.setItem(K,t)}catch(e){}document.querySelectorAll(".th button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===t))}
+document.querySelectorAll(".th button").forEach(b=>b.onclick=()=>th(b.dataset.t));
+let t0="night";try{t0=localStorage.getItem(K)||"night"}catch(e){}th(t0);
+document.getElementById("tk").textContent="▸ pc://home live  ▸ pc://terminal live  ▸ pc://studio live  ▸ pc://labs live  ▸ pc://mcp human-fresh ≤7d  ▸ HUMAN://ROOT  ▸ agents draft · humans approve  ▸ receipt on every post";
+</script>
+</body></html>

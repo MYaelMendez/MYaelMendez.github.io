@@ -1,0 +1,87 @@
+-- mæchlæng · #Face v2 · "æ æ æ" robotic face for Asimov 1
+-- BOCETO / SKETCH, NOT YET RUN on a Mech runtime. Rules verified by face-ref.py (Python), see end.
+-- Written in Mech: mech-lang.org · Corey Montella · Apache-2.0 · beta v0.3.5.
+-- mæchlæng is NOT affiliated with Mech. Credit: the Mech language and its authors.
+-- Bridge: LutheranInstitute/Robot (menlo-sdk), branch ae-face, ae/face.py · read-only · robot authority æ1.
+-- Many agents. One principal. HUMAN STAYS ROOT.
+
+-- 1 · moods, in priority order (safety first)
+<mood> := :hold | :lost | :tired | :sleep | :think | :ready | :work
+<motion> := :frozen | :scan | :droop | :breathe | :drift | :blink | :track
+
+-- 2 · face-table: what each mood means and how the single-line face draws it
+face-table := | mood<mood>  means<string>                       eyes<string>  mouth<string>  motion<motion> |
+              | :hold       "fault latched · human must clear"  "▮ ▮"         "━━━"          :frozen        |
+              | :lost       "no fresh state (age > 0.5 s)"      "? ?"         "～～"          :scan          |
+              | :tired      "battery below 20 %"                "◡ ◡"         "‿"            :droop         |
+              | :sleep      "DAMP · motors soft"                "─ ─"         "·"            :breathe       |
+              | :think      "STAND · not armed"                 "◔ ◔"         "─"            :drift         |
+              | :ready      "STAND · armed"                     "◉ ◉"         "‿"            :blink         |
+              | :work       "MOVE · executing"                  "◎ ◎"         "▬"            :track         |
+
+-- 3 · #Face: mode, armed, faulted, age (s), battery (%) → mood. First match wins.
+#Face(md<string>, ar<bool>, ft<bool>, ag<f64>, sc<f64>) ⇒ <mood> :=
+  ├ :Read(md<string>, ar<bool>, ft<bool>, ag<f64>, sc<f64>)
+  └ :Show(m<mood>).
+
+#Face(md, ar, ft, ag, sc) → :Read(md, ar, ft, ag, sc)
+  :Read(md, ar, ft, ag, sc)
+    ├ ft ∨ md ⩵ "FAULT_DAMP" → :Show(:hold)     -- fault latched
+    ├ ag > 0.5 → :Show(:lost)                   -- no fresh state
+    ├ sc < 20 → :Show(:tired)                   -- battery low
+    ├ md ⩵ "DAMP" → :Show(:sleep)
+    ├ md ⩵ "STAND" ∧ ¬ar → :Show(:think)
+    ├ md ⩵ "STAND" ∧ ar → :Show(:ready)
+    ├ md ⩵ "MOVE" → :Show(:work)
+    └ * → :Show(:lost)                          -- unknown mode: no trustworthy state
+  :Show(m) ⇒ m
+.
+
+-- 4 · #Idle: blink / idle micro-state machine. motion = state; one tick = 0.1 s.
+period(mo<motion>) ⇒ <u64>
+  ├ :frozen ⇒ 0
+  ├ :scan ⇒ 8
+  ├ :droop ⇒ 30
+  ├ :breathe ⇒ 25
+  ├ :drift ⇒ 15
+  ├ :blink ⇒ 40
+  └ :track ⇒ 6.
+
+#Idle(mo<motion>, t<u64>) ⇒ <atom> :=
+  ├ :Tick(mo<motion>, t<u64>)
+  ├ :Open
+  ├ :Blink
+  └ :Still.
+
+#Idle(mo, t) → :Tick(mo, t)
+  :Tick(mo, t)
+    ├ period(mo) ⩵ 0 → :Still                   -- hold never blinks
+    ├ t % period(mo) ⩵ period(mo) - 1 → :Blink
+    └ * → :Open
+  :Open ⇒ :Open
+  :Blink ⇒ :Blink
+  :Still ⇒ :Still
+.
+
+-- 5 · ae.face/0.1 record: what the face publishes (read-only, no motor commands)
+<ae-face> := { kind<string> mood<mood> eyes<string> mouth<string> motion<motion> authority<atom> }
+
+~mood := #Face("MOVE", true, false, 0.05, 80)
+row := face-table{face-table.mood ⩵ ~mood}
+face := { kind: "ae.face/0.1"  mood: ~mood  eyes: row.eyes  mouth: row.mouth  motion: row.motion  authority: :æ1 }
+
+-- Evidence ≠ Authority: the face informs, the human decides.
+
+-- ── evidence · python3 lab/maechlang/face-ref.py (run 2026-10-16, Python reference, not Mech) ──
+-- ✓ #Face('MOVE', True, True, 0.05, 80) ⇒ :hold  (want :hold)
+-- ✓ #Face('FAULT_DAMP', False, False, 0.05, 80) ⇒ :hold  (want :hold)
+-- ✓ #Face('MOVE', True, False, 0.9, 80) ⇒ :lost  (want :lost)
+-- ✓ #Face('STAND', True, False, 0.05, 12) ⇒ :tired  (want :tired)
+-- ✓ #Face('DAMP', False, False, 0.05, 80) ⇒ :sleep  (want :sleep)
+-- ✓ #Face('STAND', False, False, 0.05, 80) ⇒ :think  (want :think)
+-- ✓ #Face('STAND', True, False, 0.05, 80) ⇒ :ready  (want :ready)
+-- ✓ #Face('MOVE', True, False, 0.05, 80) ⇒ :work  (want :work)
+-- ✓ all 7 moods covered: hold > lost > tired > sleep > think > ready > work
+-- ✓ #Idle: blink once per 40 ticks, hold stays :Still
+-- {"kind": "ae.face/0.1", "mood": "work", "means": "MOVE · executing", "eyes": "◎ ◎", "mouth": "▬", "motion": "track", "rule": "md ⩵ \"MOVE\" → :Show(:work)", "in": {"mode": "MOVE", "armed": true, "faulted": false, "age": 0.05, "battery": 80}, "authority": "æ1"}
+-- 8/8 cases · PASS

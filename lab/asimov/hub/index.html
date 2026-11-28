@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Asimov · L:// Robotics · DEMO</title>
+<script>try{var t=localStorage.getItem("pc_term_theme");if(t==="night"||t==="day")document.documentElement.dataset.th=t}catch(e){}</script>
+<style>
+:root{--bg:#000;--card:rgba(3,16,18,.94);--ink:#e9f6f7;--dim:#9fbcc0;--c:#00f3ff;--c2:#7cf8c0;--bd:#1d4a4e;--grid:rgba(0,243,255,.05);--warn:#ffcf5a;--bad:#ff6b8a;--ok:#5dffa8;
+ --chip:#082326;--lane:rgba(0,10,12,.96);--glow:drop-shadow(0 0 1px rgba(0,243,255,.8)) drop-shadow(0 0 8px rgba(0,243,255,.25));--solid:#031214;--lane-h:132px;--pw:69px;--ph:129px}
+[data-th=day]{--bg:#f4efe3;--card:#fbf8f1;--ink:#111;--dim:#4d4a44;--c:#0645ad;--c2:#0a6b3a;--bd:#c9c1ad;--grid:rgba(0,0,0,.035);--warn:#8a5a00;--bad:#b00030;--ok:#0a6b3a;
+ --chip:#ece5d4;--solid:#fbf8f1;--lane:rgba(244,239,227,.97);--glow:drop-shadow(0 1px 0 rgba(0,0,0,.15))}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+ background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+body.lane-on{padding-bottom:calc(var(--lane-h) + 12px)}
+a{color:var(--c)}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.wrap{max-width:1180px;margin:0 auto;padding:0 14px 28px}
+header.top{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--bd)}
+header.top .in{max-width:1180px;margin:0 auto;padding:6px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.brand{font:800 15px/1 ui-monospace,Menlo,monospace;letter-spacing:.04em;margin-right:auto;white-space:nowrap}
+@media (max-width:420px){.brand{font-size:13px}.brand .bl{display:none}.face{font-size:10px;padding:3px 7px;white-space:normal;line-height:1.1;max-width:calc(100vw - 250px)}header.top .in{gap:5px;padding:6px 8px}}
+.face{max-width:48vw;overflow:hidden;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:4px 10px;border:1px solid var(--bd);border-radius:999px;font:600 12px ui-monospace,Menlo,monospace;background:var(--chip)}
+.face i{width:9px;height:9px;border-radius:50%;background:var(--c);display:inline-block}
+.face[data-s=AWAITING_APPROVAL] i{background:var(--warn)} .face[data-s=APPROVED] i{background:var(--ok)}
+.face[data-s=REFUSED] i,.face[data-s=ERROR] i{background:var(--bad)} .face[data-s=SPEAKING] i{background:var(--c2)}
+.tg{display:flex;border:1px solid var(--bd);border-radius:10px;overflow:hidden}
+.tg button{min-width:44px;min-height:44px;border:0;background:transparent;color:var(--ink);font:600 13px system-ui;cursor:pointer}
+.tg button[aria-pressed=true]{background:var(--c);color:var(--bg)}
+button{font:inherit}
+.demo{display:inline-block;margin:6px 0 0;padding:3px 9px;border:1px dashed var(--warn);color:var(--warn);border-radius:6px;font:700 12px ui-monospace,Menlo,monospace}
+h1{font:900 clamp(34px,10vw,64px)/.95 "Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;letter-spacing:-.01em;margin:18px 0 6px;text-transform:uppercase}
+h1 .p{color:var(--c)}
+h2{font:900 clamp(22px,6vw,32px)/1 "Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;text-transform:uppercase;margin:0 0 10px;scroll-margin-top:70px}
+h2::before{content:">_ ";color:var(--c);font-family:ui-monospace,Menlo,monospace;font-size:.7em}
+section{margin:26px 0;scroll-margin-top:70px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px}
+.lead{font-size:19px;font-weight:650;margin:4px 0 8px}
+.small{font-size:13px;color:var(--dim)}
+.princ{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0;padding:0;list-style:none}
+.princ li{border:1px solid var(--bd);border-radius:999px;padding:4px 10px;font-size:13px;background:var(--chip)}
+.hero{display:grid;gap:12px}
+.stage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:300px;border:1px solid var(--bd);border-radius:12px;background:var(--card);overflow:hidden;padding-bottom:10px}
+.stage::after{content:"";position:absolute;left:10%;right:10%;bottom:52px;height:1px;background:var(--c);opacity:.5}
+.pet{background-image:url(spritesheet.webp);background-repeat:no-repeat;filter:var(--glow);image-rendering:auto}
+#hpet{width:146px;height:270px;margin-bottom:-6px;z-index:1}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:8px 8px 0;z-index:2}
+.chips button{min-height:44px;min-width:44px;padding:0 10px;border:1px solid var(--bd);border-radius:10px;background:var(--chip);color:var(--ink);font:600 13px ui-monospace,Menlo,monospace;cursor:pointer}
+.chips button[aria-pressed=true]{border-color:var(--c);color:var(--c)}
+.btn{min-height:48px;padding:0 16px;border-radius:12px;border:1px solid var(--c);background:var(--c);color:var(--bg);font-weight:800;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--c)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.loop{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:6px}
+.loop li{display:grid;grid-template-columns:34px 1fr;gap:8px;align-items:start;border:1px solid var(--bd);border-radius:10px;padding:8px 10px;background:var(--card)}
+.loop li b{display:block}
+.loop li .n{font:800 18px ui-monospace,Menlo,monospace;color:var(--dim)}
+.loop li.on{border-color:var(--c);box-shadow:0 0 0 1px var(--c) inset}
+.loop li.on .n{color:var(--c)}
+.loop li.done .n{color:var(--ok)}
+.kv{font:12px/1.5 ui-monospace,Menlo,monospace;color:var(--dim);word-break:break-all;margin:8px 0 0}
+#rc{list-style:none;margin:8px 0 0;padding:0;font:12px/1.5 ui-monospace,Menlo,monospace;max-height:260px;overflow:auto}
+#rc li{border-top:1px dashed var(--bd);padding:5px 0;word-break:break-all}
+#rc li b{color:var(--c)} #rc li.ko b{color:var(--bad)} #rc li.ok b{color:var(--ok)}
+.stack{display:grid;gap:6px}
+.layer{border:1px solid var(--bd);border-left:4px solid var(--c);border-radius:10px;padding:10px 12px;background:var(--card)}
+.layer.root{border-left-color:var(--warn)}
+.layer h3{margin:0 0 2px;font:800 15px ui-monospace,Menlo,monospace}
+.layer p{margin:0 0 4px}
+.badge{display:inline-flex;align-items:center;min-height:26px;padding:1px 8px;margin:2px 4px 0 0;border:1px solid var(--bd);border-radius:6px;font:600 12px ui-monospace,Menlo,monospace;background:var(--chip);text-decoration:none;color:var(--ink)}
+.tw{overflow-x:auto;border:1px solid var(--bd);border-radius:12px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--bd);text-align:left;vertical-align:top}
+th{font:700 12px ui-monospace,Menlo,monospace;color:var(--dim);text-transform:uppercase}
+td code{font-size:13px}
+.st{display:inline-block;padding:1px 7px;border-radius:999px;font:700 11px ui-monospace,Menlo,monospace;border:1px solid}
+.st.p{color:var(--c);border-color:var(--c)} .st.s{color:var(--c2);border-color:var(--c2)} .st.f{color:var(--dim);border-color:var(--dim);border-style:dashed}
+.traj{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.traj>li{border:1px solid var(--bd);border-radius:12px;padding:12px;background:var(--card)}
+.traj>li h3{margin:0 0 4px;font:800 16px ui-monospace,Menlo,monospace}
+.traj>li ul{margin:4px 0 0;padding-left:18px}
+.traj>li.nope{border-style:dashed}
+.proof{display:grid;gap:8px}
+.proof a.pc{display:block;min-height:44px;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--ink);text-decoration:none}
+.proof a.pc:hover,.proof a.pc:focus-visible{border-color:var(--c)}
+.proof .t{font:700 14px ui-monospace,Menlo,monospace;color:var(--c);display:block;word-break:break-word}
+.proof .d{display:block;font-size:14px}
+.proof .m{display:block;font:12px ui-monospace,Menlo,monospace;color:var(--dim)}
+.dropped{font-size:13px;color:var(--dim)}
+footer{margin:30px 0 0;padding-top:14px;border-top:1px solid var(--bd);font-size:13px;color:var(--dim);line-height:1.6}
+footer .p{font-size:15px;color:var(--ink);font-weight:700}
+footer a{display:inline-block;min-height:44px;line-height:44px;margin-right:10px}
+:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+@media (min-width:760px) and (min-aspect-ratio:1/1){
+ .hero{grid-template-columns:1.1fr .9fr;align-items:stretch}
+ .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+ .proof{grid-template-columns:repeat(3,1fr)}
+ :root{--lane-h:156px;--pw:84px;--ph:156px}
+}
+@media (min-width:560px){.proof{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:760px) and (min-aspect-ratio:1/1){.proof{grid-template-columns:repeat(3,1fr)}}
+/* guide lane (floor) */
+#lane{position:fixed;left:0;right:0;bottom:0;height:var(--lane-h);z-index:30;background:var(--lane);border-top:1px solid var(--c);padding-bottom:env(safe-area-inset-bottom)}
+#lane[hidden]{display:none}
+#lane .floor{position:absolute;left:0;right:0;bottom:8px;height:1px;background:var(--c);opacity:.45}
+#gpet{position:absolute;bottom:4px;left:12px;width:var(--pw);height:var(--ph)}
+#bub{position:absolute;top:22px;max-width:min(330px,calc(100vw - var(--pw) - 36px));max-height:calc(var(--lane-h) - 40px);overflow:auto;padding:8px 10px;border:1px solid var(--c);border-radius:10px;background:var(--card);font-size:15px;line-height:1.35}
+#bub[hidden]{display:none}
+#lane .x{position:absolute;right:6px;top:6px;width:44px;height:44px;border:1px solid var(--bd);border-radius:10px;background:var(--chip);color:var(--ink);cursor:pointer;z-index:2}
+#lane .tag{position:absolute;left:8px;top:4px;font:700 10px ui-monospace,Menlo,monospace;color:var(--warn)}
+#ring{position:fixed;z-index:25;border:2px solid var(--c);border-radius:10px;pointer-events:none;box-shadow:0 0 0 4px rgba(0,243,255,.15);display:none}
+#ptr{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:26;display:none}
+#ptr line{stroke:var(--c);stroke-width:1.5;stroke-dasharray:4 4;opacity:.6}
+/* approval sheet */
+#sheet{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55)}
+#sheet[hidden]{display:none}
+#sheet .bx{width:min(560px,100%);max-height:88vh;overflow:auto;background:var(--solid);border:1px solid var(--c);border-radius:16px 16px 0 0;padding:16px}
+#sheet h3{margin:0 0 4px;font:800 18px system-ui}
+#sheet ol{margin:8px 0;padding-left:20px;font-size:14px}
+#sheet ol code{font-size:12px;color:var(--dim)}
+#hold{position:relative;overflow:hidden;width:100%;min-height:56px;border-radius:12px;border:1px solid var(--c);background:transparent;color:var(--c);font-weight:800;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none}
+#hold i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--c);opacity:.35}
+#hold span{position:relative}
+#refuse{width:100%;min-height:48px;margin-top:8px;border-radius:12px;border:1px solid var(--bd);background:transparent;color:var(--ink);cursor:pointer}
+.warnline{color:var(--warn);font-size:13px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+ <span class="brand">&gt;_<span class="bl"> L://ASIMOV</span></span>
+ <span class="face" id="face" data-s="IDLE" aria-live="polite" title="HEAD_VIEWPORT state"><i></i><span id="facet">IDLE</span></span>
+ <div class="tg" role="group" aria-label="Idioma"><button data-l="es" aria-pressed="true">ES</button><button data-l="en" aria-pressed="false">EN</button><button data-l="pt" aria-pressed="false">PT</button></div>
+ <div class="tg"><button id="th" aria-label="🌙 night / ☀️ day" title="🌙 night / ☀️ day">🌙</button></div>
+</div></header>
+
+<div class="wrap">
+<main id="main">
+
+<section class="hero" id="inicio">
+ <div>
+  <h1><span class="p">&gt;_</span> L://ASIMOV</h1>
+  <p class="lead" data-en="An agent with a body. You decide every step." data-pt="Um agente com corpo. Você decide cada passo.">Un agente con cuerpo. Tú decides cada paso.</p>
+  <span class="demo" data-en="DEMO · screen only · never moves a real robot" data-pt="DEMO · só tela · nunca move um robô real">DEMO · solo pantalla · nunca mueve un robot real</span>
+  <ul class="princ">
+   <li data-en="Human stays root" data-pt="O humano é a raiz">El humano es la raíz</li>
+   <li data-en="Evidence ≠ Authority" data-pt="Evidência ≠ Autoridade">Evidencia ≠ Autoridad</li>
+   <li data-en="Humans decide, agents relay" data-pt="Humanos decidem, agentes transmitem">Los humanos deciden, los agentes transmiten</li>
+  </ul>
+  <p class="small" style="margin-top:12px" data-en="This hub gathers Yael's Asimov work: the walking guide, the Hermes plan, the CAD pet, the simulations and the proofs." data-pt="Este hub reúne o trabalho de Yael com Asimov: o guia que caminha, o plano do Hermes, o pet do CAD, as simulações e as provas.">Este hub reúne el trabajo de Yael con Asimov: la guía que camina, el plan de Hermes, la mascota del CAD, las simulaciones y las pruebas.</p>
+  <div class="row" style="margin-top:10px"><a class="btn" href="#ciclo" style="display:inline-flex;align-items:center;text-decoration:none" data-en="▶ See the loop" data-pt="▶ Ver o ciclo">▶ Ver el ciclo</a></div>
+ </div>
+ <div class="stage" aria-label="Asimov-1 · atlas">
+  <div class="chips" role="group" aria-label="estados del atlas">
+   <button data-st="idle" aria-pressed="true">idle</button><button data-st="waving">waving</button><button data-st="running">running</button><button data-st="review">review</button><button data-st="waiting">waiting</button><button data-st="jumping">jumping</button><button data-st="failed">failed</button>
+  </div>
+  <div style="flex:1"></div>
+  <div class="pet" id="hpet" role="img" aria-label="Asimov-1, sprite del CAD real"></div>
+  <p class="small" style="margin:8px 10px 0;text-align:center;z-index:1"><span data-en="Atlas from the real CAD: 1,007,041 triangles · 9 states × 6 frames · 1100 ms loop ·" data-pt="Atlas do CAD real: 1.007.041 triângulos · 9 estados × 6 quadros · ciclo de 1100 ms ·">Atlas del CAD real: 1,007,041 triángulos · 9 estados × 6 cuadros · ciclo de 1100 ms ·</span> <a href="https://github.com/MYaelMendez/asimov-pet">asimov-pet</a></p>
+ </div>
+</section>
+
+<section id="ciclo">
+ <h2 id="h-ciclo" data-en="The loop: perceive, propose, you hold" data-pt="O ciclo: percebe, propõe, você segura">El ciclo: percibe, propone, tú sostienes</h2>
+ <div class="two">
+  <div>
+   <ol class="loop" id="loop">
+    <li data-k="0"><span class="n">1</span><span><b data-en="Perceive" data-pt="Percebe">Percibe</b><span class="small" data-en="Read-only DOM digest, sealed with sha-256." data-pt="Resumo DOM só leitura, selado com sha-256.">Resumen DOM de solo lectura, sellado con sha-256.</span></span></li>
+    <li data-k="1"><span class="n">2</span><span><b data-en="Propose" data-pt="Propõe">Propone</b><span class="small" data-en="Hermes walk_plan builds an ae.walk/0.1 plan." data-pt="Hermes walk_plan monta um plano ae.walk/0.1.">Hermes walk_plan arma un plan ae.walk/0.1.</span></span></li>
+    <li data-k="2"><span class="n">3</span><span><b data-en="You hold" data-pt="Você segura">Tú sostienes</b><span class="small" data-en="Press and hold ≥ 900 ms. Esc refuses." data-pt="Segure ≥ 900 ms. Esc recusa.">Mantén presionado ≥ 900 ms. Esc rechaza.</span></span></li>
+    <li data-k="3"><span class="n">4</span><span><b data-en="Act (on screen)" data-pt="Age (na tela)">Actúa (en pantalla)</b><span class="small" data-en="Asimov walks and points. It never clicks or types." data-pt="Asimov caminha e aponta. Nunca clica nem digita.">Asimov camina y señala. Nunca hace clic ni escribe.</span></span></li>
+    <li data-k="4"><span class="n">5</span><span><b data-en="Receipt" data-pt="Recibo">Recibo</b><span class="small" data-en="Each step leaves a chained sha-256." data-pt="Cada passo deixa um sha-256 encadeado.">Cada paso deja un sha-256 encadenado.</span></span></li>
+   </ol>
+   <div class="row">
+    <button class="btn" id="btn-plan" data-en="▶ Hermes plan" data-pt="▶ Plano do Hermes">▶ Plan de Hermes</button>
+    <button class="btn ghost" id="btn-stop" data-en="■ Stop" data-pt="■ Parar">■ Parar</button>
+   </div>
+   <p class="small" data-en="The plan comes from plan.json, made by hermes/walk_plan.py from this page's HTML." data-pt="O plano vem de plan.json, feito por hermes/walk_plan.py a partir do HTML desta página.">El plan viene de plan.json, hecho por hermes/walk_plan.py con el HTML de esta página.</p>
+  </div>
+  <div class="card">
+   <b data-en="Plan and receipts" data-pt="Plano e recibos">Plan y recibos</b>
+   <div class="kv" id="plan-kv">—</div>
+   <ol id="rc" aria-live="polite"></ol>
+   <p class="small" data-en="Tamper evidence, not a digital signature. window.ASIMOV_HUB.receipts()" data-pt="Evidência de adulteração, não assinatura digital. window.ASIMOV_HUB.receipts()">Evidencia de manipulación, no firma digital. window.ASIMOV_HUB.receipts()</p>
+  </div>
+ </div>
+</section>
+
+<section id="pila">
+ <h2 id="h-pila" data-en="The stack: chassis, harness, logic" data-pt="A pilha: chassi, arnês, lógica">La pila: chasis, arnés, lógica</h2>
+ <div class="stack">
+  <div class="layer root"><h3>HUMAN://ROOT</h3><p data-en="You. Authority is never transferred." data-pt="Você. A autoridade nunca é transferida.">Tú. La autoridad nunca se transfiere.</p></div>
+  <div class="layer"><h3 data-en="Logic · æ Policy + receipts" data-pt="Lógica · æ Policy + recibos">Lógica · æ Policy + recibos</h3>
+   <p class="small" data-en="hermes-ae: ae tool, HUMAN://ROOT ledger, head states, walk_plan." data-pt="hermes-ae: ferramenta ae, ledger HUMAN://ROOT, estados da cabeça, walk_plan.">hermes-ae: herramienta ae, libro HUMAN://ROOT, estados de la cabeza, walk_plan.</p>
+   <a class="badge" href="https://github.com/MYaelMendez/hermes-ae/blob/main/LICENSE">hermes-ae · MIT</a><a class="badge" href="https://github.com/MYaelMendez/hermes-ae/blob/main/docs/RECEIPTS.md">RECEIPTS.md</a><a class="badge" href="https://github.com/LutheranInstitute/asimov-walker">asimov-walker · GPL-2.0</a></div>
+  <div class="layer"><h3 data-en="Harness · Nous Hermes Agent" data-pt="Arnês · Nous Hermes Agent">Arnés · Nous Hermes Agent</h3>
+   <p class="small" data-en="Voices: F2 root (nous girl) · M2 hermes-agent build voice, embodied in Asimov." data-pt="Vozes: F2 raiz (nous girl) · M2 hermes-agent, a voz de construção, encarnada no Asimov.">Voces: F2 raíz (nous girl) · M2 hermes-agent, la voz que construye, con cuerpo de Asimov.</p>
+   <a class="badge" href="https://github.com/NousResearch/hermes-agent">hermes-agent · MIT</a><a class="badge" href="https://github.com/LutheranInstitute/hermes-agent/tree/ae-julio-2026">fork · ae-julio-2026</a></div>
+  <div class="layer"><h3 data-en="Chassis · Menlo Asimov-1" data-pt="Chassi · Menlo Asimov-1">Chasis · Menlo Asimov-1</h3>
+   <p class="small" data-en="Official CAD, URDF, MJCF: 25 DOF, 26 links." data-pt="CAD, URDF e MJCF oficiais: 25 DOF, 26 links.">CAD, URDF y MJCF oficiales: 25 DOF, 26 links.</p>
+   <a class="badge" href="https://github.com/menloresearch/asimov-1">hardware · CERN-OHL-S-2.0</a><a class="badge" href="https://github.com/menloresearch/asimov-1">software · GPL-2.0</a><a class="badge" href="https://github.com/menloresearch/menlo-sdk">menlo-sdk · Apache-2.0</a></div>
+ </div>
+ <p class="small"><span data-en="Source:" data-pt="Fonte:">Fuente:</span> <a href="https://github.com/MYaelMendez/hermes-ae/blob/main/docs/ASIMOV_AGENT.md">docs/ASIMOV_AGENT.md</a> · <span data-en="attribution, not endorsement." data-pt="atribuição, não endosso.">atribución, no respaldo.</span></p>
+</section>
+
+<section id="verbos">
+ <h2 id="h-verbos" data-en="robot:// verbs, screen to SDK" data-pt="Verbos robot://, da tela ao SDK">Verbos robot://, de la pantalla al SDK</h2>
+ <div class="tw"><table>
+  <thead><tr><th data-en="Screen" data-pt="Tela">Pantalla</th><th>robot://asimov/…</th><th>menlo-sdk</th><th data-en="Status" data-pt="Estado">Estado</th></tr></thead>
+  <tbody>
+   <tr><td><code>play(plan)</code></td><td><code>plan</code></td><td>—</td><td><span class="st p" data-en="screen" data-pt="tela">pantalla</span></td></tr>
+   <tr><td><code>receipts()</code></td><td><code>receipt</code> · <code>ledger</code></td><td><code>get_state()</code> · Outcome</td><td><span class="st p" data-en="screen" data-pt="tela">pantalla</span></td></tr>
+   <tr><td>—</td><td><code>sim</code></td><td><code>stand</code></td><td><span class="st s">sim</span></td></tr>
+   <tr><td><code>walkTo</code></td><td><code>sim</code></td><td><code>set_velocity</code></td><td><span class="st s">sim</span></td></tr>
+   <tr><td><code>wave</code> · <code>point</code> · <code>nod</code></td><td><code>plan</code></td><td><code>set_joints</code> · <code>trajectory</code></td><td><span class="st f" data-en="future" data-pt="futuro">futuro</span></td></tr>
+   <tr><td><code>say</code></td><td>—</td><td><code>speaker.play_pcm</code></td><td><span class="st f" data-en="future" data-pt="futuro">futuro</span></td></tr>
+   <tr><td><code>stop</code></td><td>—</td><td><code>damp</code> <span class="small" data-en="(not an E-Stop)" data-pt="(não é E-Stop)">(no es E-Stop)</span></td><td><span class="st f" data-en="future" data-pt="futuro">futuro</span></td></tr>
+   <tr><td>—</td><td><code>exec</code></td><td data-en="any motion verb" data-pt="qualquer verbo de movimento">cualquier verbo de movimiento</td><td><span class="st f" data-en="future" data-pt="futuro">futuro</span></td></tr>
+  </tbody>
+ </table></div>
+ <p class="small" data-en="screen = lives here · sim = MuJoCo, no hardware · future = does not exist on hardware; needs Yael's explicit OK and a deadman." data-pt="tela = vive aqui · sim = MuJoCo, sem hardware · futuro = não existe em hardware; precisa do OK explícito de Yael e deadman.">pantalla = vive aquí · sim = MuJoCo, sin hardware · futuro = no existe en hardware; necesita el OK explícito de Yael y deadman.</p>
+ <p class="small"><span data-en="Sources:" data-pt="Fontes:">Fuentes:</span> <a href="https://myaelmendez.github.io/robots.html">robots.html</a> <span data-en="(7 verbs)" data-pt="(7 verbos)">(7 verbos)</span> · <a href="https://github.com/MYaelMendez/hermes-ae/blob/main/docs/AE_ROBOT_VERBS.md">AE_ROBOT_VERBS.md</a> · <a href="https://github.com/menloresearch/menlo-sdk">menlo-sdk</a></p>
+</section>
+
+<section id="trayectoria">
+ <h2 id="h-trayectoria" data-en="Trajectory: screen, simulation, robot" data-pt="Trajetória: tela, simulação, robô">Trayectoria: pantalla, simulación, robot</h2>
+ <ol class="traj">
+  <li><h3 data-en="① Screen · live" data-pt="① Tela · ao vivo">① Pantalla · en vivo</h3>
+   <ul>
+    <li><span data-en="This hub and" data-pt="Este hub e">Este hub y</span> <a href="../walk/">lab/asimov/walk/</a> <span data-en="(walking guide)" data-pt="(guia que caminha)">(guía que camina)</span></li>
+    <li><a href="../">lab/asimov/</a> <span data-en="3D assistant HANS from the URDF" data-pt="assistente 3D HANS a partir do URDF">asistente 3D HANS desde el URDF</span></li>
+    <li><a href="../../face/v1/">lab/face/v1/</a> <span data-en="æsymov face" data-pt="rosto æsymov">cara æsymov</span></li>
+   </ul></li>
+  <li><h3 data-en="② Simulation · exists, no hardware" data-pt="② Simulação · existe, sem hardware">② Simulación · existe, sin hardware</h3>
+   <ul>
+    <li><a href="https://myaelmendez.github.io/asimov-stand-dt005/receipt.json">Stand PASS</a>: kp=200 · kd=10 · dt 0.005 · 1000 <span data-en="steps" data-pt="passos">pasos</span> · 2.3 mm · 4.52° · nu=23</li>
+    <li><a href="https://github.com/MYaelMendez/hermes-ae/blob/main/docs/POLICY_LOCOMOTION.md">Policy gait</a>: Menlo/asimov1-locomotion-0818 ONNX + MuJoCo · 12.0 s · 600 ticks · +4.1868 m</li>
+    <li><a href="https://myaelmendez.github.io/aipodcast_me/neon-asimov.html">Neon Asimov</a>: 14 <span data-en="governed verbs · qpos replay" data-pt="verbos governados · replay de qpos">verbos gobernados · repetición qpos</span></li>
+   </ul></li>
+  <li class="nope"><h3 data-en="③ Physical robot · not yet" data-pt="③ Robô físico · ainda não">③ Robot físico · todavía no</h3>
+   <ul>
+    <li data-en="Needs Yael's explicit OK." data-pt="Precisa do OK explícito de Yael.">Necesita el OK explícito de Yael.</li>
+    <li data-en="Teleop with arm + deadman (Pi500)." data-pt="Teleop com arm + deadman (Pi500).">Teleop con arm + deadman (Pi500).</li>
+    <li data-en="Menlo's E-Stop and Edge safety stay in charge." data-pt="O E-Stop e a segurança Edge da Menlo mandam.">El E-Stop y la seguridad Edge de Menlo mandan.</li>
+   </ul></li>
+ </ol>
+</section>
+
+<section id="pruebas">
+ <h2 id="h-pruebas" data-en="Proofs: every source" data-pt="Provas: cada fonte">Pruebas: cada fuente</h2>
+ <div class="proof">
+  <a class="pc" href="https://github.com/LutheranInstitute/asimov-walker"><span class="t">asimov-walker</span><span class="d" data-en="&lt;asimov-walker&gt;, play(plan), Hermes walk_plan plugin." data-pt="&lt;asimov-walker&gt;, play(plan), plugin walk_plan do Hermes.">&lt;asimov-walker&gt;, play(plan), plugin walk_plan de Hermes.</span><span class="m">LutheranInstitute · 2026-11-27 · GPL-2.0</span></a>
+  <a class="pc" href="https://lutheraninstitute.github.io/asimov-walker/"><span class="t">asimov-walker · demo</span><span class="d" data-en="Live demo: ▶ Hermes plan, hold to approve." data-pt="Demo ao vivo: ▶ plano do Hermes, segurar para aprovar.">Demo en vivo: ▶ plan de Hermes, mantener para aprobar.</span><span class="m">GitHub Pages · 2026-11-27</span></a>
+  <a class="pc" href="https://github.com/MYaelMendez/asimov-pet"><span class="t">asimov-pet</span><span class="d" data-en="Hermes pet atlas rendered from the real CAD on an RTX 3050." data-pt="Atlas de pet Hermes renderizado do CAD real numa RTX 3050.">Atlas de mascota Hermes renderizado del CAD real en una RTX 3050.</span><span class="m">MYaelMendez · 2026-11-19 · CERN-OHL-S-2.0</span></a>
+  <a class="pc" href="https://github.com/MYaelMendez/hermes-ae/blob/main/docs/ASIMOV_AGENT.md"><span class="t">ASIMOV_AGENT.md</span><span class="d" data-en="Chassis Menlo · Harness Nous Hermes · Logic æ." data-pt="Chassi Menlo · Arnês Nous Hermes · Lógica æ.">Chasis Menlo · Arnés Nous Hermes · Lógica æ.</span><span class="m">hermes-ae · 2026-11-24</span></a>
+  <a class="pc" href="https://github.com/MYaelMendez/hermes-ae/blob/main/docs/HEAD_VIEWPORT.md"><span class="t">HEAD_VIEWPORT.md</span><span class="d" data-en="Head states IDLE…ERROR; teleop needs arm + deadman." data-pt="Estados da cabeça IDLE…ERROR; teleop exige arm + deadman.">Estados de la cabeza IDLE…ERROR; teleop exige arm + deadman.</span><span class="m">hermes-ae · 2026-11-24</span></a>
+  <a class="pc" href="https://github.com/MYaelMendez/hermes-ae/blob/main/docs/AE_ROBOT_VERBS.md"><span class="t">AE_ROBOT_VERBS.md</span><span class="d" data-en="Governed wrappers over menlo-sdk verbs." data-pt="Envoltórios governados sobre os verbos do menlo-sdk.">Envolturas gobernadas sobre los verbos de menlo-sdk.</span><span class="m">hermes-ae · 2026-11-17</span></a>
+  <a class="pc" href="https://github.com/MYaelMendez/hermes-ae/blob/main/docs/POLICY_LOCOMOTION.md"><span class="t">POLICY_LOCOMOTION.md</span><span class="d" data-en="Menlo ONNX policy walking in MuJoCo, simulation only." data-pt="Política ONNX da Menlo andando no MuJoCo, só simulação.">Política ONNX de Menlo caminando en MuJoCo, solo simulación.</span><span class="m">hermes-ae · 2026-11-17</span></a>
+  <a class="pc" href="https://github.com/MYaelMendez/hermes-ae/blob/main/docs/RECEIPTS.md"><span class="t">RECEIPTS.md</span><span class="d" data-en="Hash-chained HUMAN://ROOT ledger." data-pt="Ledger HUMAN://ROOT encadeado por hash.">Libro HUMAN://ROOT encadenado por hash.</span><span class="m">hermes-ae · 2026-11-16</span></a>
+  <a class="pc" href="https://github.com/LutheranInstitute/hermes-ae/tree/walk-plan"><span class="t">hermes-ae · walk-plan</span><span class="d" data-en="Adds ae({op:&quot;walk_plan&quot;})." data-pt="Adiciona ae({op:&quot;walk_plan&quot;}).">Agrega ae({op:"walk_plan"}).</span><span class="m">LutheranInstitute · 2026-11-27</span></a>
+  <a class="pc" href="https://github.com/LutheranInstitute/hermes-agent/tree/ae-julio-2026"><span class="t">hermes-agent · ae-julio-2026</span><span class="d" data-en="Yael's July work on the Hermes Agent fork." data-pt="O trabalho de julho de Yael no fork do Hermes Agent.">El trabajo de julio de Yael en el fork de Hermes Agent.</span><span class="m">LutheranInstitute · 2026-07-11</span></a>
+  <a class="pc" href="https://myaelmendez.github.io/waetz.html"><span class="t">wætz:// · the host</span><span class="d" data-en="The Asimov CAD pet, live in the browser." data-pt="O pet do CAD do Asimov, ao vivo no navegador.">La mascota del CAD de Asimov, en vivo en el navegador.</span><span class="m">myaelmendez.github.io · 2026-11-23</span></a>
+  <a class="pc" href="https://myaelmendez.github.io/tinymujoco.html"><span class="t">tinyMUJOCO · robot_face</span><span class="d" data-en="The live face tablet." data-pt="O tablet do rosto ao vivo.">La tableta de la cara en vivo.</span><span class="m">myaelmendez.github.io · 2026-11-23</span></a>
+  <a class="pc" href="https://myaelmendez.github.io/robots.html"><span class="t">robots.html · robot://</span><span class="d" data-en="Fleet: asimov, reachy, microduck, meshbot · 7 verbs." data-pt="Frota: asimov, reachy, microduck, meshbot · 7 verbos.">Flota: asimov, reachy, microduck, meshbot · 7 verbos.</span><span class="m">myaelmendez.github.io · 2026-11-24</span></a>
+  <a class="pc" href="https://myaelmendez.github.io/purpose.html"><span class="t">purpose.html · charter</span><span class="d">HUMAN://ROOT → æ POLICY → wætz:// → robot:// → {asimov|reachy|microduck|meshbot}:// → RECEIPT</span><span class="m">myaelmendez.github.io · 2026-11-24</span></a>
+  <a class="pc" href="https://myaelmendez.github.io/asimov-stand-dt005/"><span class="t">asimov stand · dt 0.005</span><span class="d" data-en="Stands under actuation, with its erratum. Simulation only." data-pt="Fica de pé sob atuação, com sua errata. Só simulação.">Se sostiene bajo actuación, con su fe de erratas. Solo simulación.</span><span class="m">myaelmendez.github.io · 2026-11-24 · PASS</span></a>
+  <a class="pc" href="https://myaelmendez.github.io/aipodcast_me/neon-asimov.html"><span class="t">neon asimov · governed mobility</span><span class="d" data-en="Film of the 14 governed verbs." data-pt="Filme dos 14 verbos governados.">Película de los 14 verbos gobernados.</span><span class="m">myaelmendez.github.io · 2026-11-24</span></a>
+  <a class="pc" href="https://myaelmendez.github.io/asimov-viewport/"><span class="t">Asimov Viewport</span><span class="d" data-en="qpos CAD viewer + read-only DOM awareness." data-pt="Visor qpos do CAD + leitura do DOM só leitura.">Visor qpos del CAD + lectura DOM de solo lectura.</span><span class="m">myaelmendez.github.io · 2026-11-24</span></a>
+  <a class="pc" href="https://myaelmendez.github.io/governed-robot/"><span class="t">&gt;_æ://GOVERNED_ROBOT</span><span class="d" data-en="The governed robot, built from first principles." data-pt="O robô governado, construído desde os primeiros princípios.">El robot gobernado, construido desde primeros principios.</span><span class="m">myaelmendez.github.io · 2026-11-24</span></a>
+  <a class="pc" href="https://myaelmendez.github.io/asimov-policy-walk-916.mp4"><span class="t">▶ asimov-policy-walk-916.mp4</span><span class="d" data-en="Video · ONNX policy walk, 9:16." data-pt="Vídeo · caminhada da política ONNX, 9:16.">Video · caminata de la política ONNX, 9:16.</span><span class="m">2026-11-17 · 12.0 s</span></a>
+  <a class="pc" href="https://myaelmendez.github.io/asimov-agent-build-916.mp4"><span class="t">▶ asimov-agent-build-916.mp4</span><span class="d" data-en="Video · Asimov as the hermes-agent build body." data-pt="Vídeo · Asimov como corpo do hermes-agent.">Video · Asimov como cuerpo de hermes-agent.</span><span class="m">2026-11-17 · 12.0 s</span></a>
+  <a class="pc" href="https://myaelmendez.github.io/aipodcast_me/neon-asimov-916.mp4"><span class="t">▶ neon-asimov-916.mp4</span><span class="d" data-en="Video · neon governed mobility." data-pt="Vídeo · mobilidade governada neon.">Video · movilidad gobernada neón.</span><span class="m">2026-11-24 · 4.67 s</span></a>
+  <a class="pc" href="../"><span class="t">LAB · lab/asimov/</span><span class="d" data-en="3D URDF assistant HANS." data-pt="Assistente 3D URDF HANS.">Asistente 3D URDF HANS.</span><span class="m">aeee-lab · 2026-11-27</span></a>
+  <a class="pc" href="../walk/"><span class="t">LAB · lab/asimov/walk/</span><span class="d" data-en="Walking guide over any page." data-pt="Guia que caminha sobre qualquer página.">Guía que camina sobre cualquier página.</span><span class="m">aeee-lab · 2026-11-27</span></a>
+  <a class="pc" href="../../face/v1/"><span class="t">LAB · lab/face/v1/</span><span class="d" data-en="æsymov face, read-only." data-pt="Rosto æsymov, só leitura.">Cara æsymov, solo lectura.</span><span class="m">aeee-lab</span></a>
+  <a class="pc" href="https://github.com/menloresearch/asimov-1"><span class="t">menloresearch/asimov-1</span><span class="d" data-en="The open humanoid: CAD, URDF, MJCF." data-pt="O humanoide aberto: CAD, URDF, MJCF.">El humanoide abierto: CAD, URDF, MJCF.</span><span class="m">upstream · CERN-OHL-S-2.0 / GPL-2.0</span></a>
+  <a class="pc" href="https://github.com/menloresearch/menlo-sdk"><span class="t">menloresearch/menlo-sdk</span><span class="d">stand · damp · set_velocity · trajectory · balance · set_joints</span><span class="m">upstream · Apache-2.0</span></a>
+  <a class="pc" href="https://huggingface.co/Menlo/asimov1-locomotion-0818"><span class="t">Menlo/asimov1-locomotion-0818</span><span class="d" data-en="The locomotion policy behind the walk rows." data-pt="A política de locomoção por trás das linhas de caminhada.">La política de locomoción detrás de las filas de caminata.</span><span class="m">upstream · Hugging Face</span></a>
+  <a class="pc" href="https://github.com/NousResearch/hermes-agent"><span class="t">NousResearch/hermes-agent</span><span class="d" data-en="The agent harness." data-pt="O arnês do agente.">El arnés del agente.</span><span class="m">upstream · MIT</span></a>
+ </div>
+</section>
+
+</main>
+
+<footer>
+ <div class="p" data-en="Human stays root · Evidence ≠ Authority · Humans decide, agents relay." data-pt="O humano é a raiz · Evidência ≠ Autoridade · Humanos decidem, agentes transmitem.">El humano es la raíz · Evidencia ≠ Autoridad · Los humanos deciden, los agentes transmiten.</div>
+ <div>Asimov 1 © Menlo Research · CERN-OHL-S-2.0 · <span data-en="atlas by Yael from asimov-pet, unmodified (see ATLAS-NOTICE.md)" data-pt="atlas de Yael, de asimov-pet, sem modificar (ver ATLAS-NOTICE.md)">atlas de Yael, de asimov-pet, sin modificar (ver ATLAS-NOTICE.md)</span> · Hermes Agent © Nous Research · MIT · <span data-en="not affiliated." data-pt="sem afiliação.">sin afiliación.</span></div>
+ <div><a href="ATLAS-NOTICE.md">ATLAS-NOTICE.md</a><a href="LICENSE-atlas.txt">LICENSE-atlas.txt</a><a href="plan.json">plan.json</a></div>
+ <div><a href="../">← lab/asimov/</a><a href="../walk/">lab/asimov/walk/</a><a href="../../face/v1/">lab/face/v1/</a></div>
+ <div>LAB · Instituto Luterano Latinoamericano · #OSW · DEMO</div>
+</footer>
+</div>
+
+<div id="ring" aria-hidden="true"></div>
+<svg id="ptr" aria-hidden="true"><line id="ptrl" x1="0" y1="0" x2="0" y2="0"/></svg>
+<div id="lane" hidden aria-label="Asimov guía">
+ <span class="tag">DEMO · pantalla</span>
+ <div class="floor"></div>
+ <div class="pet" id="gpet" role="img" aria-label="Asimov"></div>
+ <div id="bub" hidden aria-live="polite"></div>
+ <button class="x" id="lane-x" aria-label="Cerrar guía">✕</button>
+</div>
+
+<div id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sh-t">
+ <div class="bx">
+  <h3 id="sh-t"></h3>
+  <div class="small" id="sh-pg"></div>
+  <div class="warnline" id="sh-w" hidden></div>
+  <ol id="sh-l"></ol>
+  <button id="hold"><i></i><span id="hold-t"></span></button>
+  <button id="refuse"></button>
+  <p class="small" id="sh-h"></p>
+ </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const AUTH = "HUMAN://ROOT", SCHEMA = "ae.walk/0.1", HOLD_MS = 900, MAX_STEPS = 16, MAX_TEXT = 280;
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+let lang = "es";
+
+/* ---------- theme ---------- */
+const TK = "pc_term_theme";
+function theme(x){ document.documentElement.dataset.th = x; try{ localStorage.setItem(TK, x) }catch(e){}
+  const b = $("#th"); b.textContent = x === "day" ? "☀️" : "🌙"; b.dataset.t = x; }
+$("#th").onclick = () => theme(document.documentElement.dataset.th === "day" ? "night" : "day");
+theme(document.documentElement.dataset.th || "night");
+
+/* ---------- language (ES in the HTML; EN/PT in data-*) ---------- */
+const UI = {
+ es:{title:n=>`Asimov propone ${n} pasos`, hold:"Mantén presionado para aprobar", no:"Rechazar", close:"Cerrar", bad:"Plan no válido · no se ejecuta",
+     other:"Ojo: el plan se hizo para otra página:", rc:"recibo del plan", ok:"Aprobado por ti", hint:"Sostén 1 segundo (dedo, ratón, Espacio o Enter). Esc rechaza.",
+     src:"fuente", steps:"pasos", local:"navegador (plan.json no disponible)", hermes:"Hermes walk_plan.py", refused:"Rechazado. No me muevo.", done:"Listo. Tú decides el siguiente paso.", skip:"omitido"},
+ en:{title:n=>`Asimov proposes ${n} steps`, hold:"Press and hold to approve", no:"Refuse", close:"Close", bad:"Invalid plan · not run",
+     other:"Note: the plan was made for another page:", rc:"plan receipt", ok:"Approved by you", hint:"Hold for 1 second (finger, mouse, Space or Enter). Esc refuses.",
+     src:"source", steps:"steps", local:"browser (plan.json unavailable)", hermes:"Hermes walk_plan.py", refused:"Refused. I stay still.", done:"Done. You decide the next step.", skip:"skipped"},
+ pt:{title:n=>`Asimov propõe ${n} passos`, hold:"Mantenha pressionado para aprovar", no:"Recusar", close:"Fechar", bad:"Plano inválido · não é executado",
+     other:"Atenção: o plano foi feito para outra página:", rc:"recibo do plano", ok:"Aprovado por você", hint:"Segure 1 segundo (dedo, mouse, Espaço ou Enter). Esc recusa.",
+     src:"fonte", steps:"passos", local:"navegador (plan.json indisponível)", hermes:"Hermes walk_plan.py", refused:"Recusado. Fico parado.", done:"Pronto. Você decide o próximo passo.", skip:"pulado"}
+};
+function setLang(l){
+  lang = UI[l] ? l : "es"; document.documentElement.lang = lang;
+  $$("[data-en]").forEach(el => { if (el.dataset.es == null) el.dataset.es = el.textContent; el.textContent = lang === "es" ? el.dataset.es : (el.dataset[lang] || el.dataset.es); });
+  $$("[data-l]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.l === lang)));
+  try{ localStorage.setItem("asimov_hub_lang", lang) }catch(e){}
+}
+$$("[data-l]").forEach(b => b.onclick = () => setLang(b.dataset.l));
+try{ const s = localStorage.getItem("asimov_hub_lang"); if (s && s !== "es") setLang(s); }catch(e){}
+
+/* ---------- head state chip (HEAD_VIEWPORT states) ---------- */
+function face(s){ $("#face").dataset.s = s; $("#facet").textContent = s.replace(/_/g, "_\u200b"); }
+
+/* ---------- pet atlas driver: 1536×1872, 8×9 cells of 192×208, 6 frames, 1100 ms ---------- */
+const ROWS = {idle:0, "running-right":1, "running-left":2, waving:3, jumping:4, failed:5, waiting:6, running:7, review:8};
+const CX = 40, CW = 112;               // crop: drawn body (~58×154) lives inside x 47..149 of each cell
+class Pet {
+  constructor(el, scale){ this.el = el; this.s = scale; this.st = "idle"; this.f = 0; this.once = false;
+    el.style.backgroundSize = `${1536*scale}px ${1872*scale}px`; this.draw();
+    if (!reduced) setInterval(() => this.tick(), 1100/6); }
+  set(st, once){ if (!(st in ROWS)) return; this.st = st; this.f = 0; this.once = !!once; this.draw(); }
+  tick(){ if (this.once && this.f === 5) return; this.f = (this.f + 1) % 6; this.draw(); }
+  draw(){ const s = this.s, f = reduced ? (this.st === "failed" ? 5 : 0) : this.f;
+    this.el.style.backgroundPosition = `${-(f*192 + CX)*s}px ${-(ROWS[this.st]*208)*s}px`; }
+  setScale(scale){ this.s = scale; this.el.style.backgroundSize = `${1536*scale}px ${1872*scale}px`; this.draw(); }
+}
+const hpet = new Pet($("#hpet"), 1.3);
+$$(".chips [data-st]").forEach(b => b.onclick = () => {
+  $$(".chips [data-st]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  hpet.set(b.dataset.st, b.dataset.st === "failed");
+});
+if (!reduced) { hpet.set("waving"); setTimeout(() => { if (hpet.st === "waving") hpet.set("idle"); }, 2200); }
+
+/* ---------- guide on the floor lane ---------- */
+const lane = $("#lane"), gel = $("#gpet"), bub = $("#bub"), ring = $("#ring"), ptr = $("#ptr"), ptrl = $("#ptrl");
+const big = () => matchMedia("(min-width:760px) and (min-aspect-ratio:1/1)").matches;
+const gpet = new Pet(gel, big() ? 0.75 : 0.62);
+addEventListener("resize", () => { gpet.setScale(big() ? 0.75 : 0.62); place(); });
+let gx = 12, token = 0, target = null;
+const pw = () => gel.getBoundingClientRect().width || 69;
+function place(){ gel.style.left = gx + "px"; placeBubble(); }
+function placeBubble(){
+  if (bub.hidden) return;
+  const vw = innerWidth, w = pw(), right = gx + w/2 < vw/2;
+  bub.style.left = right ? (gx + w + 6) + "px" : "auto";
+  bub.style.right = right ? "auto" : Math.max(54, vw - gx + 6) + "px";
+  if (right) bub.style.maxWidth = `min(330px, ${vw - gx - w - 60}px)`; else bub.style.maxWidth = `min(330px, ${gx - 12}px)`;
+}
+function showLane(on){ lane.hidden = !on; document.body.classList.toggle("lane-on", on); if (on) place(); }
+function say(t){ bub.textContent = t; bub.hidden = !t; placeBubble(); if (t) face("SPEAKING"); }
+function track(){
+  if (!target || lane.hidden) { ring.style.display = "none"; ptr.style.display = "none"; return; }
+  const r = target.getBoundingClientRect(), p = 5, laneTop = innerHeight - lane.offsetHeight;
+  Object.assign(ring.style, {display:"block", left:(r.left-p)+"px", top:(r.top-p)+"px", width:(r.width+2*p)+"px", height:(r.height+2*p)+"px"});
+  const vis = r.bottom > 0 && r.top < laneTop;
+  ptr.style.display = vis ? "block" : "none";
+  if (vis) { const hx = gx + pw()/2, hy = laneTop + 14, tx = Math.min(Math.max(hx, r.left + 8), r.right - 8), ty = Math.min(r.bottom + p, laneTop - 4);
+    ptrl.setAttribute("x1", hx); ptrl.setAttribute("y1", hy); ptrl.setAttribute("x2", tx); ptrl.setAttribute("y2", ty); }
+  requestAnimationFrame(track);
+}
+function point(el){ target = el; requestAnimationFrame(track); }
+function unpoint(){ target = null; }
+async function walkTo(el, tk){
+  unpoint(); el.scrollIntoView({block:"center", behavior: reduced ? "auto" : "smooth"});
+  await sleep(reduced ? 60 : 500); if (tk !== token) return false;
+  const r = el.getBoundingClientRect(), w = pw();
+  let tr = r.right; try{ const g = document.createRange(); g.selectNodeContents(el); const q = g.getBoundingClientRect(); if (q.width) tr = Math.min(r.right, q.right); }catch(e){}
+  const to = Math.max(8, Math.min(innerWidth - w - 56, tr + 10));     // stand just past the end of the text, never on it
+  if (reduced) { gx = to; place(); return true; }
+  const from = gx, dist = Math.abs(to - from); if (dist < 4) return true;
+  gpet.set(to > from ? "running-right" : "running-left"); face("THINKING");
+  const dur = Math.max(450, dist / 0.26), t0 = performance.now();
+  while (true) { if (tk !== token) return false;
+    const k = Math.min(1, (performance.now() - t0) / dur); gx = from + (to - from) * k; place();
+    if (k >= 1) break; await new Promise(requestAnimationFrame); }
+  gpet.set("idle"); return true;
+}
+
+/* ---------- canonical JSON + sha-256 (same bytes as Python json.dumps(sort_keys, ensure_ascii=False, separators=(",",":"))) ---------- */
+const canon = v => Array.isArray(v) ? "[" + v.map(canon).join(",") + "]"
+  : (v && typeof v === "object") ? "{" + Object.keys(v).sort().map(k => JSON.stringify(k) + ":" + canon(v[k])).join(",") + "}"
+  : JSON.stringify(v);
+async function sha(str){ const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
+function planBody(p){ const b = {schema:p.schema, page:p.page, dom_digest_sha256:p.dom_digest_sha256, steps:p.steps, created:p.created};
+  if (p.goal) b.goal = p.goal; b.prev = (p.receipt && p.receipt.prev) || "GENESIS"; b.authority = AUTH; return b; }
+const VERBS = {walkTo:1, point:1, say:1, wave:1, nod:1};
+function planErrors(p){
+  const e = [], str = x => typeof x === "string";
+  if (!p || typeof p !== "object" || Array.isArray(p)) return ["plan must be an object"];
+  if (p.schema !== SCHEMA) e.push("schema must be " + SCHEMA);
+  if (!p.page || typeof p.page !== "object") e.push("page must be {url, title}");
+  if (!/^[0-9a-f]{64}$/.test(String(p.dom_digest_sha256 || ""))) e.push("dom_digest_sha256 must be 64 hex");
+  if (!str(p.created)) e.push("created must be an ISO string");
+  const st = Array.isArray(p.steps) && p.steps.length >= 1 && p.steps.length <= MAX_STEPS ? p.steps : (e.push("steps must be 1.." + MAX_STEPS), []);
+  st.forEach((s, i) => { if (!s || !VERBS[s.verb]) { e.push(`step ${i}: bad verb`); return; }
+    if (Object.keys(s).some(k => !["verb","target","text"].includes(k))) e.push(`step ${i}: unknown keys`);
+    if ((s.verb === "walkTo" || s.verb === "point") && !s.target) e.push(`step ${i}: needs a target`);
+    if (s.text != null) { const ks = Object.keys(s.text || {}); if (!ks.length || ks.some(k => !UI[k] || !str(s.text[k]) || s.text[k].length > MAX_TEXT)) e.push(`step ${i}: text must be {es,en,pt}`); } });
+  const r = p.receipt; if (!r || r.authority !== AUTH || r.state !== "AWAITING_APPROVAL") e.push("receipt must be HUMAN://ROOT · AWAITING_APPROVAL");
+  return e;
+}
+
+/* ---------- receipts ---------- */
+const RC = [];
+async function receipt(rec){
+  const last = RC[RC.length - 1]; rec.prev = last ? last.sha256 : rec.prev || "GENESIS"; rec.authority = AUTH; rec.time = new Date().toISOString();
+  rec.sha256 = await sha(canon(rec)); RC.push(rec);
+  const li = document.createElement("li"); li.className = rec.decision === "REFUSED" ? "ko" : rec.decision === "APPROVED" ? "ok" : "";
+  li.innerHTML = "<b></b> <span></span>"; li.firstChild.textContent = rec.kind === "decision" ? rec.decision : `#${rec.i} ${rec.verb}${rec.state === "SKIPPED" ? " · " + UI[lang].skip : ""}`;
+  li.lastChild.textContent = `${rec.target || ""} ⛓ ${rec.sha256.slice(0, 16)}…`; $("#rc").prepend(li);
+  dispatchEvent(new CustomEvent("asimov-receipt", {detail: rec})); return rec;
+}
+
+/* ---------- loop stage lights ---------- */
+function stage(k){ $$("#loop li").forEach(li => { const n = +li.dataset.k; li.classList.toggle("on", n === k); li.classList.toggle("done", k >= 0 && n < k); }); }
+
+/* ---------- approval sheet: hold ≥ 900 ms, Esc refuses; a short tap does nothing ---------- */
+function ask(plan, errors, warn){
+  const T = UI[lang], sh = $("#sheet"), ok = $("#hold"), no = $("#refuse"), bar = ok.querySelector("i"), prev = document.activeElement;
+  $("#sh-t").textContent = errors ? T.bad : T.title(plan.steps.length);
+  $("#sh-pg").textContent = errors ? "" : `${plan.page.title || plan.page.url || ""} · ${T.rc} ⛓ ${plan.receipt.sha256.slice(0, 16)}…`;
+  const w = $("#sh-w"); w.hidden = !(errors || warn); w.textContent = errors ? errors.slice(0, 6).join(" · ") : warn ? `${T.other} ${plan.page.url}` : "";
+  const ol = $("#sh-l"); ol.textContent = "";
+  if (!errors) plan.steps.forEach(st => { const li = document.createElement("li"), tx = st.text ? (st.text[lang] || st.text.es || "") : "";
+    li.textContent = `${st.verb}${tx ? " · " + tx : ""} `; if (st.target) { const c = document.createElement("code"); c.textContent = st.target; li.append(c); } ol.append(li); });
+  ok.hidden = !!errors; bar.style.width = "0"; $("#hold-t").textContent = T.hold; no.textContent = errors ? T.close : T.no; $("#sh-h").textContent = errors ? "" : T.hint;
+  sh.hidden = false; face(errors ? "ERROR" : "AWAITING_APPROVAL"); gpet.set(errors ? "failed" : "waiting", !!errors); stage(errors ? -1 : 2);
+  return new Promise(res => {
+    let t0 = 0, raf = 0, held = false, fin = false;
+    const end = v => { if (fin) return; fin = true; cancelAnimationFrame(raf);
+      ok.removeEventListener("pointerdown", down); ["pointerup","pointerleave","pointercancel"].forEach(ev => ok.removeEventListener(ev, up));
+      ok.removeEventListener("keydown", kd); ok.removeEventListener("keyup", up); no.removeEventListener("click", ref); document.removeEventListener("keydown", esc, true);
+      setTimeout(() => { sh.hidden = true; try{ prev && prev.focus && prev.focus({preventScroll:true}) }catch(e){} }, v === "APPROVED" ? 300 : 0); res(v); };
+    const tick = now => { const k = Math.min(1, (now - t0) / HOLD_MS); bar.style.width = (reduced ? Math.floor(k*4)/4 : k) * 100 + "%";
+      if (k >= 1 && held) { $("#hold-t").textContent = UI[lang].ok; end("APPROVED"); } else raf = requestAnimationFrame(tick); };
+    const down = e => { if (fin || held || e.button > 0) return; e.preventDefault(); held = true; t0 = performance.now();
+      try{ e.pointerId != null && ok.setPointerCapture(e.pointerId) }catch(_){} raf = requestAnimationFrame(tick); };
+    const up = () => { if (fin) return; held = false; cancelAnimationFrame(raf); bar.style.width = "0"; };
+    const kd = e => { if ((e.key === " " || e.key === "Enter") && !e.repeat) down(e); else if (e.key === " " || e.key === "Enter") e.preventDefault(); };
+    const ref = () => end(errors ? "CLOSED" : "REFUSED");
+    const esc = e => { if (e.key === "Escape") { e.preventDefault(); ref(); } };
+    ok.addEventListener("pointerdown", down); ["pointerup","pointerleave","pointercancel"].forEach(ev => ok.addEventListener(ev, up));
+    ok.addEventListener("keydown", kd); ok.addEventListener("keyup", up); no.addEventListener("click", ref); document.addEventListener("keydown", esc, true);
+    setTimeout(() => { try{ (errors ? no : ok).focus({preventScroll:true}) }catch(e){} }, 30);
+  });
+}
+
+/* ---------- local plan (fallback when plan.json is unreachable): same shape, same sealing ---------- */
+async function localPlan(){
+  const heads = $$("main h2[id]").map(h => ({tag:"h2", id:h.id, text:h.textContent.trim()}));
+  const dom = {title: document.title, url: location.href.split("#")[0], headings: heads};
+  const steps = [{verb:"say", text:{es:`Hola, soy Asimov. Propongo ${heads.length} paradas. Tú decides cada toque.`, en:`Hi, I'm Asimov. I propose ${heads.length} stops. You decide every tap.`, pt:`Olá, sou o Asimov. Proponho ${heads.length} paradas. Você decide cada toque.`}}]
+    .concat(heads.map(h => ({verb:"walkTo", target:"#" + h.id, text:{es:`Aquí: «${h.text}».`, en:`Here: “${h.text}”.`, pt:`Aqui: «${h.text}».`}}))).concat([{verb:"nod"}]);
+  const p = {schema:SCHEMA, page:{url:dom.url, title:document.title}, dom_digest_sha256: await sha(canon(dom)), steps, created:new Date().toISOString().replace(/\.\d+Z$/, "Z")};
+  p.receipt = {sha256:"", prev: RC.length ? RC[RC.length-1].sha256 : "GENESIS", authority:AUTH, state:"AWAITING_APPROVAL"};
+  p.receipt.sha256 = await sha(canon(planBody(p))); return p;
+}
+const samePage = u => { try{ const a = new URL(u, location.href); return a.origin === location.origin && a.pathname.replace(/index\.html$/, "") === location.pathname.replace(/index\.html$/, ""); }catch(e){ return false; } };
+
+/* ---------- play(plan): perceive → propose → hold → act → receipt ---------- */
+let running = false;
+async function play(plan, source){
+  const T = UI[lang], tk = ++token; running = true;
+  showLane(true); gx = 12; place(); unpoint(); say("");
+  stage(0); face("THINKING"); gpet.set("review");
+  let errors = planErrors(plan);
+  if (!errors.length && (await sha(canon(planBody(plan)))) !== plan.receipt.sha256) errors = ["receipt.sha256 ≠ canonical plan (edited?)"];
+  $("#plan-kv").textContent = errors.length ? errors.join(" · ") :
+    `${T.src}: ${source} · ${plan.steps.length} ${T.steps}\ndom ${plan.dom_digest_sha256.slice(0, 16)}… · plan ⛓ ${plan.receipt.sha256.slice(0, 16)}…`;
+  await sleep(reduced ? 0 : 500); if (tk !== token) return;
+  stage(1); await sleep(reduced ? 0 : 400); if (tk !== token) return;
+  if (errors.length) { await ask(plan, errors); face("ERROR"); running = false; return {decision:"INVALID", errors}; }
+  const decision = await ask(plan, null, plan.page.url && !samePage(plan.page.url));
+  if (tk !== token) return;
+  const dec = await receipt({kind:"decision", decision, plan: plan.receipt.sha256, prev: plan.receipt.sha256, state: decision});
+  if (decision !== "APPROVED") { gpet.set("failed", true); say(T.refused); face("REFUSED"); stage(-1); running = false;
+    setTimeout(() => { if (!running && tk === token) { gpet.set("idle"); face("IDLE"); } }, 2600); return {decision, receipt: dec}; }
+  face("APPROVED"); stage(3); await sleep(reduced ? 0 : 500);
+  const txt = st => st.text ? (st.text[lang] || st.text.es || "") : "";
+  for (const [i, st] of plan.steps.entries()) {
+    if (tk !== token) break;
+    let el = null; try{ el = st.target ? document.querySelector(st.target) : null }catch(e){}
+    if (st.target && !el) { await receipt({kind:"step", i, verb:st.verb, target:st.target, plan:plan.receipt.sha256, state:"SKIPPED"}); continue; }
+    say("");
+    if (st.verb === "walkTo" || st.verb === "point") { if (st.verb === "walkTo" && !await walkTo(el, tk)) break; point(el); gpet.set("review"); }
+    else if (st.verb === "say") { if (el) point(el); else unpoint(); gpet.set(i === 0 ? "waving" : "review"); }
+    else if (st.verb === "wave") gpet.set("waving");
+    else if (st.verb === "nod") { unpoint(); gpet.set("jumping"); }
+    const t = st.verb === "nod" && !txt(st) ? T.done : txt(st);
+    say(t); await sleep(reduced ? 1500 : Math.min(6500, Math.max(2200, t.length * 38))); if (tk !== token) break;
+    await receipt({kind:"step", i, verb:st.verb, target:st.target || null, plan:plan.receipt.sha256, state:"DONE"});
+  }
+  if (tk === token) { stage(4); gpet.set("idle"); face("IDLE"); unpoint(); }
+  running = false; return {decision, receipt: dec};
+}
+function stop(){ token++; running = false; unpoint(); say(""); gpet.set("idle"); face("IDLE"); stage(-1); }
+
+$("#btn-plan").onclick = async () => {
+  if (running) return; let plan = null, source = UI[lang].hermes;
+  try{ const r = await fetch("plan.json", {cache:"no-store"}); if (r.ok) plan = await r.json(); }catch(e){}
+  if (!plan) { plan = await localPlan(); source = UI[lang].local; }
+  play(plan, source);
+};
+$("#btn-stop").onclick = stop;
+$("#lane-x").onclick = () => { stop(); showLane(false); };
+
+window.ASIMOV_HUB = Object.freeze({ play: p => play(p, "api"), receipts: () => RC.map(r => ({...r})), stop, say: t => { showLane(true); say(t); },
+  walkTo: sel => { const el = document.querySelector(sel); if (!el) return Promise.resolve(false); showLane(true); return walkTo(el, ++token).then(ok => (ok && point(el), ok)); },
+  state: s => gpet.set(s), describe: sel => { const el = document.querySelector(sel); return el ? (el.getAttribute("aria-label") || el.textContent.trim().slice(0, 180)) : ""; },
+  demo: "screen only · never moves a real robot", authority: AUTH });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>🦞MathByte 🧮 v0.1</title>
+<style>
+:root{--cy:#00f3ff;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#000;color:#dcfff0;font-family:var(--mono);font-size:14px;line-height:1.45;padding:12px}
+main{max-width:720px;margin:0 auto}
+h1{color:#fff;font-size:22px;letter-spacing:.05em}
+.law{color:var(--cy);opacity:.8;font-size:12px;margin:4px 0 10px}
+#stage{position:relative;width:100%;aspect-ratio:1/1;max-height:70vh;border:1px solid var(--cy);background:#000}
+#gl{width:100%;height:100%;display:block;touch-action:none}
+#hud{position:absolute;top:6px;left:8px;font-size:12px;color:var(--cy);white-space:pre}
+textarea{width:100%;min-height:120px;margin-top:10px;background:#03080a;color:#fff;border:1px solid rgba(0,243,255,.5);border-radius:6px;padding:8px;font:16px/1.4 var(--mono)}
+.row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center}
+button{min-height:44px;padding:0 14px;background:#062a2e;color:#fff;border:1px solid var(--cy);border-radius:6px;font:inherit;cursor:pointer}
+label{display:flex;gap:6px;align-items:center;min-height:44px}
+input[type=range]{width:140px}
+pre{white-space:pre-wrap;word-break:break-all;background:#03080a;border:1px solid rgba(0,243,255,.25);border-radius:6px;padding:8px;margin-top:8px;font-size:12px}
+h2{color:#fff;font-size:15px;margin-top:14px}
+table{border-collapse:collapse;font-size:12px;margin-top:6px}
+td{padding:2px 10px 2px 0;border-bottom:1px solid rgba(0,243,255,.12)}
+.err{color:#ff6a3d}.dim{opacity:.65}
+</style>
+</head>
+<body><main>
+<h1>🦞MathByte 🧮</h1>
+<div class="law">v0.1 · texto → bytes → GLSL (GPU) · VM en CPU como respaldo · LAB · >_æ: Humans decide · agents relay</div>
+
+<div id="stage"><canvas id="gl"></canvas><div id="hud"></div></div>
+
+<textarea id="src" spellcheck="false" autocapitalize="off" aria-label="MathByte source">// esfera: u,v ∈ [0,1] · r radio · t tiempo
+x = r * sin(PI*v) * cos(2*PI*u);
+y = r * cos(PI*v);
+z = gpu_mul(r, sin(PI*v) * sin(2*PI*u));</textarea>
+<div class="row">
+  <button id="run">🦞 compilar</button>
+  <button id="ex">🌀 toro</button>
+  <label>r <input id="r" type="range" min="20" max="250" value="150"><span id="rv">150</span></label>
+</div>
+<pre id="out" aria-live="polite"></pre>
+
+<h2>Codificación (1 byte por instrucción)</h2>
+<table id="isa"></table>
+<p class="dim" style="margin-top:8px;font-size:12px">Cambios contra el borrador: a–z ocupa 26 bytes (0x10–0x29), así que PI y E bajan a 0x2A/0x2B para no chocar con k y l. Números: 0x60 + float32 (5 bytes). Asignación: [var] [expresión en RPN] 0x54. La “esfera” del borrador dibujaba un círculo en z=0; aquí es una esfera de verdad, sin CDN.</p>
+</main>
+
+<script>
+(()=>{
+"use strict";
+const $=id=>document.getElementById(id);
+/* ── ISA ── */
+const OP={"+":1,"-":2,"*":3,"/":4,"^":5,sin:6,cos:7,tan:8,log:9,exp:10,PI:0x2A,E:0x2B,gpu_mul:0x30,gpu_add:0x31,
+  if:0x40,else:0x41,for:0x42,while:0x43,"(":0x50,")":0x51,"{":0x52,"}":0x53,";":0x54,NUM:0x60};
+const BYTE=Object.fromEntries(Object.entries(OP).map(([k,v])=>[v,k]));
+for(let i=0;i<26;i++){const c=String.fromCharCode(97+i);OP[c]=0x10+i;BYTE[0x10+i]=c;}
+const FN1=new Set(["sin","cos","tan","log","exp"]), FN2=new Set(["gpu_mul","gpu_add"]);
+const PREC={"+":1,"-":1,"*":2,"/":2,"^":3};
+const hx=b=>"0x"+b.toString(16).padStart(2,"0").toUpperCase();
+$("isa").innerHTML=[["+ - * / ^","0x01–0x05"],["sin cos tan log exp","0x06–0x0A"],["a … z","0x10–0x29"],["PI E","0x2A 0x2B"],["gpu_mul gpu_add","0x30 0x31"],["if else for while","0x40–0x43 (reservado)"],["( ) { } ;","0x50–0x54"],["número","0x60 + float32"]]
+  .map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join("");
+
+/* ── text → bytes ── */
+function tokens(s){
+  s=s.replace(/\/\/.*$/gm,"");const re=/\s*(\d+\.?\d*|\.\d+|[A-Za-z_]+|[-+*/^(),=;])/y;const out=[];let m;
+  while(re.lastIndex<s.length){const i=re.lastIndex;m=re.exec(s);if(!m){if(/^\s*$/.test(s.slice(i)))break;throw Error("símbolo raro cerca de: "+s.slice(i,i+8));}out.push(m[1]);}
+  return out;
+}
+function compile(src){
+  const t=tokens(src),bytes=[];let i=0;
+  const f32=n=>{const b=new Uint8Array(new Float32Array([n]).buffer);bytes.push(OP.NUM,...b);};
+  while(i<t.length){
+    const tgt=t[i];if(!/^[a-z]$/.test(tgt)||t[i+1]!=="=")throw Error("esperaba  letra = expresión;  en «"+t.slice(i,i+3).join(" ")+"»");
+    bytes.push(OP[tgt]);i+=2;
+    const ops=[];let prevVal=false;
+    const pop=()=>{const o=ops.pop();bytes.push(OP[o]);};
+    for(;i<t.length&&t[i]!==";";i++){
+      const k=t[i];
+      if(/^[\d.]/.test(k)){f32(parseFloat(k));prevVal=true;}
+      else if(k==="PI"||k==="E"){bytes.push(OP[k]);prevVal=true;}
+      else if(/^[a-z]$/.test(k)){bytes.push(OP[k]);prevVal=true;}
+      else if(FN1.has(k)||FN2.has(k)){ops.push(k);prevVal=false;}
+      else if(k==="("){ops.push("(");prevVal=false;}
+      else if(k===","){while(ops.length&&ops.at(-1)!=="(")pop();prevVal=false;}
+      else if(k===")"){while(ops.length&&ops.at(-1)!=="(")pop();if(!ops.length)throw Error("falta (");ops.pop();if(ops.length&&(FN1.has(ops.at(-1))||FN2.has(ops.at(-1))))pop();prevVal=true;}
+      else if(k in PREC){
+        if(k==="-"&&!prevVal){f32(-1);ops.push("*");continue;}
+        while(ops.length&&ops.at(-1) in PREC&&(PREC[ops.at(-1)]>PREC[k]||(PREC[ops.at(-1)]===PREC[k]&&k!=="^")))pop();
+        ops.push(k);prevVal=false;
+      } else throw Error("no conozco «"+k+"»");
+    }
+    while(ops.length){if(ops.at(-1)==="(")throw Error("falta )");pop();}
+    bytes.push(OP[";"]);i++;
+  }
+  return new Uint8Array(bytes);
+}
+/* ── bytes → statements of RPN ── */
+function decode(b){
+  const st=[];let cur=null;
+  for(let i=0;i<b.length;i++){
+    const x=b[i];
+    if(!cur){if(x<0x10||x>0x29)throw Error("byte "+hx(x)+": se esperaba variable");cur={tgt:BYTE[x],rpn:[]};continue;}
+    if(x===OP[";"]){st.push(cur);cur=null;continue;}
+    if(x===OP.NUM){cur.rpn.push(new Float32Array(b.slice(i+1,i+5).buffer)[0]);i+=4;continue;}
+    if(!(x in BYTE))throw Error("byte desconocido "+hx(x));
+    cur.rpn.push(BYTE[x]);
+  }
+  return st;
+}
+/* ── GPU path: RPN → GLSL ── */
+const fl=n=>{let s=String(+n.toPrecision(7));return /[.e]/.test(s)?s:s+".0";};
+function glsl(st){
+  return st.map(({tgt,rpn})=>{const s=[];
+    for(const k of rpn){
+      if(typeof k==="number")s.push(fl(k));
+      else if(k==="PI")s.push("3.14159265");else if(k==="E")s.push("2.71828183");
+      else if(/^[a-z]$/.test(k))s.push(k);
+      else if(FN1.has(k))s.push(`${k}(${s.pop()})`);
+      else {const b=s.pop(),a=s.pop();if(a===undefined)throw Error("faltan operandos");
+        s.push(k==="^"?`pow(${a},${b})`:k==="gpu_mul"?`(${a}*${b})`:k==="gpu_add"?`(${a}+${b})`:`(${a}${k}${b})`);}
+    }
+    if(s.length!==1)throw Error("expresión incompleta en "+tgt);
+    return `  ${tgt} = ${s[0]};`;}).join("\n");
+}
+/* ── CPU path: tiny VM ── */
+function vm(st,env){
+  for(const {tgt,rpn} of st){const s=[];
+    for(const k of rpn){
+      if(typeof k==="number")s.push(k);else if(k==="PI")s.push(Math.PI);else if(k==="E")s.push(Math.E);
+      else if(/^[a-z]$/.test(k))s.push(env[k]||0);
+      else if(FN1.has(k))s.push(Math[k](s.pop()));
+      else{const b=s.pop(),a=s.pop();s.push(k==="+"||k==="gpu_add"?a+b:k==="-"?a-b:k==="*"||k==="gpu_mul"?a*b:k==="/"?a/b:Math.pow(a,b));}
+    }
+    env[tgt]=s[0];
+  }
+  return env;
+}
+
+/* ── render ── */
+const cv=$("gl"),gl=cv.getContext("webgl",{antialias:true}),N=140;
+const uv=new Float32Array(N*N*2);for(let i=0,k=0;i<N;i++)for(let j=0;j<N;j++){uv[k++]=i/(N-1);uv[k++]=j/(N-1);}
+let prog=null,st=[],mode="—",yaw=.6,pitch=.35,drag=null,c2=null;
+const VARS="abcdefghijklmnopqrstuvwxyz".split("");
+function build(st){
+  const vs=`precision highp float;attribute vec2 a_uv;uniform float u_r,u_t,u_yaw,u_pitch,u_asp;varying float vD;
+void main(){${VARS.map(c=>`float ${c}=0.0;`).join("")}
+  u=a_uv.x;v=a_uv.y;r=u_r;t=u_t;
+${glsl(st)}
+  vec3 p=vec3(x,y,z)/260.0;
+  float cy=cos(u_yaw),sy=sin(u_yaw),cp=cos(u_pitch),sp=sin(u_pitch);
+  p=vec3(cy*p.x+sy*p.z,p.y,-sy*p.x+cy*p.z);p=vec3(p.x,cp*p.y-sp*p.z,sp*p.y+cp*p.z);
+  float w=2.2-p.z;vD=clamp(.55+p.z*.8,.15,1.0);
+  gl_Position=vec4(p.x/u_asp,p.y,0.0,w*.5);gl_PointSize=2.0;}`;
+  const fs=`precision mediump float;varying float vD;void main(){gl_FragColor=vec4(0.0,0.953*vD,vD,1.0);}`;
+  const mk=(ty,s)=>{const sh=gl.createShader(ty);gl.shaderSource(sh,s);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw Error("GLSL: "+gl.getShaderInfoLog(sh));return sh;};
+  const p=gl.createProgram();gl.attachShader(p,mk(gl.VERTEX_SHADER,vs));gl.attachShader(p,mk(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);
+  if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error("link: "+gl.getProgramInfoLog(p));
+  const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,uv,gl.STATIC_DRAW);
+  const a=gl.getAttribLocation(p,"a_uv");gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);
+  return p;
+}
+function size(){const r=cv.getBoundingClientRect(),d=Math.min(3,devicePixelRatio||1);cv.width=Math.round(r.width*d);cv.height=Math.round(r.height*d);}
+new ResizeObserver(size).observe(cv);size();
+function frame(ms){
+  const t=ms/1000,R=+$("r").value;if(!drag)yaw+=.004;
+  if(gl&&prog){gl.viewport(0,0,cv.width,cv.height);gl.clearColor(0,0,0,1);gl.clear(gl.COLOR_BUFFER_BIT);gl.useProgram(prog);
+    const U=n=>gl.getUniformLocation(prog,n);gl.uniform1f(U("u_r"),R);gl.uniform1f(U("u_t"),t);gl.uniform1f(U("u_yaw"),yaw);gl.uniform1f(U("u_pitch"),pitch);gl.uniform1f(U("u_asp"),cv.width/cv.height);
+    gl.drawArrays(gl.POINTS,0,N*N);}
+  else if(st.length){c2=c2||cv.getContext("2d");const W=cv.width,H=cv.height;c2.fillStyle="#000";c2.fillRect(0,0,W,H);c2.fillStyle="#00f3ff";
+    const cy=Math.cos(yaw),sy=Math.sin(yaw);
+    for(let k=0;k<uv.length;k+=8){const e=vm(st,{u:uv[k],v:uv[k+1],r:R,t});const X=cy*(e.x||0)+sy*(e.z||0),Y=e.y||0;c2.fillRect(W/2+X*W/600,H/2-Y*W/600,2,2);}}
+  $("hud").textContent=`${mode} · ${N*N} puntos · r ${R}`;
+  requestAnimationFrame(frame);
+}
+cv.addEventListener("pointerdown",e=>{drag=[e.clientX,e.clientY];cv.setPointerCapture(e.pointerId);});
+cv.addEventListener("pointermove",e=>{if(!drag)return;yaw+=(e.clientX-drag[0])*.01;pitch=Math.max(-1.5,Math.min(1.5,pitch+(e.clientY-drag[1])*.01));drag=[e.clientX,e.clientY];});
+cv.addEventListener("pointerup",()=>drag=null);
+$("r").oninput=()=>$("rv").textContent=$("r").value;
+
+function run(){
+  const out=$("out");
+  try{
+    const bytes=compile($("src").value);st=decode(bytes);
+    const dump=[...bytes].map(hx).join(" ");
+    if(gl){prog=build(st);mode="GPU · WebGL";}else mode="CPU · VM";
+    const e=vm(st,{u:.25,v:.5,r:+$("r").value,t:0});
+    out.innerHTML=`<b>${bytes.length} bytes</b> · ${st.length} asignaciones · ${mode}\n${dump}\n\nGLSL:\n${glsl(st).replace(/</g,"&lt;")}\n\nVM (u=.25 v=.5): x ${(e.x||0).toFixed(2)} · y ${(e.y||0).toFixed(2)} · z ${(e.z||0).toFixed(2)}`;
+  }catch(err){out.innerHTML=`<span class="err">✗ ${String(err.message).replace(/</g,"&lt;")}</span>`;}
+}
+$("run").onclick=run;
+$("ex").onclick=()=>{$("src").value=`// toro que respira con t
+a = r * 0.35 * (1 + 0.15*sin(t));
+x = (r*0.7 + a*cos(2*PI*v)) * cos(2*PI*u);
+y = a * sin(2*PI*v);
+z = gpu_mul(r*0.7 + a*cos(2*PI*v), sin(2*PI*u));`;run();};
+window.MATHBYTE={compile,decode,glsl,vm,run};
+run();requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

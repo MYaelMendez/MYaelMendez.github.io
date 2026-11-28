@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en" data-th="night"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>&gt;_PrivateClient · command prompt</title>
+<meta property="og:title" content="&gt;_PrivateClient · command prompt">
+<meta property="og:description" content="Say what you mean. Private Client finds the door. You approve.">
+<meta property="og:image" content="https://privateclient.ai/og.png">
+<link rel="icon" href="https://privateclient.ai/logo.png">
+<style>
+:root{--bg:#000;--fl:rgba(3,16,18,.9);--ink:#e9f6f7;--dim:#a3c0c4;--c:#00f3ff;--g:#d4af37;--ok:#3ee08f;--warn:#ffcf5c;--stop:#ff6b6b;--bd:#1d4a4e;--grid:rgba(0,243,255,.05)}
+html[data-th=day]{--bg:#f4efe3;--fl:#fffaf0;--ink:#151515;--dim:#4c4840;--c:#00687a;--g:#7d6210;--ok:#1a7f45;--warn:#8a5a00;--stop:#b3261e;--bd:#c9c0ad;--grid:rgba(0,0,0,.045)}
+html[data-th=agent]{--fl:#020c0d;--grid:rgba(0,243,255,.09)}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+body{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:40px 40px;min-height:100vh}
+.mono,input,button,pre,.out{font-family:ui-monospace,Menlo,Consolas,monospace}
+main{max-width:620px;margin:0 auto;padding:16px 14px 64px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.top b{font-size:15px}.top small{display:block;color:var(--dim);font-size:11px;letter-spacing:.12em}
+.ctl{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.ctl button,.ctl select{background:none;border:1px solid var(--bd);border-radius:999px;color:var(--ink);font-size:13px;padding:3px 8px;cursor:pointer}
+.ctl button[aria-pressed=true]{border-color:var(--c)}
+#tk{display:none;overflow:hidden;white-space:nowrap;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);font-size:12px;color:var(--c);line-height:24px;margin-top:10px}
+html[data-th=agent] #tk{display:block}#tk span{display:inline-block;padding-left:100%;animation:tk 40s linear infinite}@keyframes tk{to{transform:translateX(-100%)}}
+.hero{display:flex;gap:12px;align-items:center;margin:18px 0 10px}
+.face{width:64px;height:70px;flex:none;cursor:pointer}
+h1{font-size:26px;line-height:1.15;margin:0}.lead{color:var(--dim);margin:2px 0 0;font-size:15px}
+#tp{display:none;min-height:2.2em;font:700 clamp(18px,4.5vw,28px)/1.2 ui-monospace,Menlo,monospace;text-align:center;border:1px solid var(--bd);border-radius:12px;padding:6px 10px;margin:6px 0}
+html[data-th=agent] #tp{display:block}
+.prompt{border:2px solid var(--c);border-radius:14px;background:var(--fl);overflow:hidden}
+.bar{display:flex;align-items:stretch;border-bottom:1px solid var(--bd)}
+.bar label{padding:14px 10px 14px 14px;color:var(--c);font-weight:700}
+.bar input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--ink);font-size:16px;padding:14px 6px;caret-color:var(--c)}
+.bar button{background:var(--c);color:#000;border:0;font-weight:700;padding:0 16px;cursor:pointer;font-size:14px}
+.out{padding:12px 14px;font-size:13.5px;min-height:120px;max-height:46vh;overflow:auto;white-space:pre-wrap}
+.out .u{color:var(--c)}.out .ok{color:var(--ok)}.out .w{color:var(--warn)}.out .x{color:var(--stop)}.out .d{color:var(--dim)}
+.out a.door{display:inline-block;margin:6px 6px 2px 0;border:1px solid var(--c);border-radius:999px;padding:3px 12px;color:var(--c);text-decoration:none;font-weight:600}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+.pills button{background:var(--fl);border:1px solid var(--bd);border-radius:999px;color:var(--ink);padding:5px 11px;font-size:13.5px;cursor:pointer}
+.pills button:hover,.pills button:focus-visible{border-color:var(--c);outline:0}
+.status{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:12px 0}
+.status div{border:1px solid var(--bd);border-radius:10px;padding:6px 10px;background:var(--fl);font-size:12.5px}
+.status b{display:block;font-size:11px;letter-spacing:.1em;color:var(--dim);font-weight:600}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--dim);margin-right:6px;vertical-align:middle}.dot.ok{background:var(--ok)}.dot.x{background:var(--stop)}
+h2{font:600 12px ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--c);margin:28px 0 10px}
+.cards{display:grid;gap:8px}
+.card{display:block;border:1px solid var(--bd);border-radius:12px;padding:10px 12px;background:var(--fl);color:var(--ink);text-decoration:none}
+a.card:hover{border-color:var(--c)}.card b{font-size:15px}.card span{display:block;color:var(--dim);font-size:13.5px}
+.canon div{border-left:2px solid var(--g);padding:2px 0 2px 10px;margin:6px 0;font-size:15px}
+.origin{font-size:13px;color:var(--dim)}
+/* guide */
+#gd{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);width:min(92vw,420px);background:var(--fl);border:2px solid var(--c);border-radius:14px;padding:12px 14px;z-index:20;display:none;box-shadow:0 10px 40px rgba(0,0,0,.4)}
+#gd b{color:var(--c)}#gd p{margin:4px 0 10px;font-size:14.5px}#gd .r{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--dim)}
+#gd button{background:var(--c);color:#000;border:0;border-radius:999px;padding:5px 14px;font-weight:700;cursor:pointer}
+#gd button.s{background:none;color:var(--dim);border:1px solid var(--bd)}
+.hl{outline:2px solid var(--c);outline-offset:3px;border-radius:12px}
+footer{margin-top:36px;text-align:center;font-size:12px;color:var(--dim)}footer a{color:var(--c)}
+@media (min-width:760px) and (orientation:landscape){main{max-width:1100px}.two{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:start}.out{max-height:60vh;min-height:220px}}
+@media (prefers-reduced-motion:reduce){#tk span{animation:none;padding-left:0}}
+</style></head>
+<body><main>
+<div class="top">
+ <div><b class="mono">&gt;_PrivateClient</b><small class="mono">COMMAND PROMPT · HUMAN://ROOT</small></div>
+ <div class="ctl">
+  <button data-t="night" title="night">🌙</button><button data-t="day" title="day">☀️</button><button data-t="agent" title="agent">🤖</button>
+  <select id="lang" aria-label="language"><option>en</option><option>es</option><option>pt</option><option>fr</option><option>de</option><option>sv</option></select>
+ </div>
+</div>
+<div id="tk" aria-hidden="true"><span id="tks"></span></div>
+
+<div class="two"><div>
+<div class="hero">
+ <svg class="face" id="face" viewBox="0 0 240 260" role="button" aria-label="private_client_æsimov · guide">
+  <path d="M52 78Q52 18 120 18Q188 18 188 78V176Q188 246 120 250Q52 246 52 176Z" fill="#141416" stroke="#3a3a3e" stroke-width="3"/>
+  <rect x="66" y="92" width="108" height="56" rx="26" fill="#030a0b" stroke="#00f3ff" stroke-width="3"/>
+  <path d="M88 120H106M134 120H152" stroke="#00f3ff" stroke-width="5" stroke-linecap="round"/>
+  <path d="M100 196Q120 206 140 196" fill="none" stroke="#00f3ff" stroke-width="4" stroke-linecap="round"/>
+  <path d="M111 40L115.5 45L120 40M125 31V45" fill="none" stroke="#00f3ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+ </svg>
+ <div><h1 data-i="h1">Say it. I find the door.</h1><p class="lead" data-i="lead">You write. I check. You approve.</p></div>
+</div>
+<div id="tp" aria-live="polite"></div>
+
+<div class="prompt" id="pr">
+ <div class="bar"><label for="cmd">&gt;_æ:</label>
+  <input id="cmd" autocomplete="off" spellcheck="false" placeholder="write a post…">
+  <button id="go">↵</button></div>
+ <div class="out" id="out" aria-live="polite"></div>
+</div>
+<div class="pills" id="pills"></div>
+
+<div class="status" id="st">
+ <div><b>HEALTH</b><span class="dot" id="d1"></span><span id="s1">…</span></div>
+ <div><b>GUARD</b><span class="dot" id="d2"></span><span id="s2">…</span></div>
+ <div><b>WITNESS</b><span id="s3" class="mono">…</span></div>
+ <div><b>PROMISE</b><span id="s4">…</span></div>
+</div>
+</div><div>
+
+<h2 data-i="doors">● Doors</h2>
+<div class="cards" id="doors"></div>
+
+<h2>Canon</h2>
+<div class="canon">
+ <div>Evidence ≠ Authority. Supervision informs, the human decides.</div>
+ <div>A QR is an address, not permission.</div>
+ <div>Many agents. One principal.</div>
+</div>
+
+<h2 data-i="origin">At the origin</h2>
+<p class="origin" data-i="origintx">EDA, GPU and Glocal Vision stay on myaelmendez.github.io. They are not wired here, so this page shows no numbers for them.</p>
+</div></div>
+
+<footer class="mono">$ay$hip$ign · <a href="../">PC:// LAB</a> · <a href="https://myaelmendez.github.io/command-prompt.html">origin</a></footer>
+</main>
+
+<div id="gd" role="dialog" aria-live="polite"><b>private_client_æsimov</b><p id="gdp"></p><div class="r"><span id="gdn"></span><span><button class="s" id="gds">skip</button> <button id="gdb">next</button></span></div></div>
+
+<script>
+const API="https://privateclient.ai",$=id=>document.getElementById(id);
+const T={
+ en:{h1:"Say it. I find the door.",lead:"You write. I check. You approve.",doors:"● Doors",origin:"At the origin",origintx:"EDA, GPU and Glocal Vision stay on myaelmendez.github.io. They are not wired here, so this page shows no numbers for them.",hi:"// say what you mean. I route it to a pc:// door.\n// nothing posts without your hold.",nf:"I don't have a door for that yet. Try:",g:["I'm private_client_æsimov. Say what you want, in plain words.","Or tap a pill. I'll type it for you.","Every answer ends at a door. No dead ends.","These lights are live reads from privateclient.ai.","Ready? Write your first post."],next:"next",done:"Write →",skip:"skip"},
+ es:{h1:"Dilo. Yo encuentro la puerta.",lead:"Tú escribes. Yo reviso. Tú apruebas.",doors:"● Puertas",origin:"En el origen",origintx:"EDA, GPU y Glocal Vision siguen en myaelmendez.github.io. Aquí no están conectados, así que no mostramos cifras.",hi:"// di lo que quieres. Lo llevo a una puerta pc://.\n// nada se publica sin que tú sostengas.",nf:"Aún no tengo puerta para eso. Prueba:",g:["Soy private_client_æsimov. Dime qué quieres, con tus palabras.","O toca una píldora. Yo la escribo.","Cada respuesta termina en una puerta. Sin callejones.","Estas luces son lecturas en vivo de privateclient.ai.","¿Listo? Escribe tu primer post."],next:"sigue",done:"Escribir →",skip:"saltar"},
+ pt:{h1:"Diga. Eu acho a porta.",lead:"Você escreve. Eu confiro. Você aprova.",doors:"● Portas",origin:"Na origem",origintx:"EDA, GPU e Glocal Vision ficam em myaelmendez.github.io. Não estão ligados aqui.",hi:"// diga o que quer. Eu levo a uma porta pc://.\n// nada é publicado sem você segurar.",nf:"Ainda não tenho porta para isso. Tente:",g:["Sou private_client_æsimov. Diga o que quer.","Ou toque numa pílula.","Toda resposta termina numa porta.","Estas luzes são leituras ao vivo.","Pronto? Escreva seu primeiro post."],next:"próximo",done:"Escrever →",skip:"pular"},
+ fr:{h1:"Dites-le. Je trouve la porte.",lead:"Vous écrivez. Je vérifie. Vous approuvez.",doors:"● Portes",origin:"À l'origine",origintx:"EDA, GPU et Glocal Vision restent sur myaelmendez.github.io. Rien n'est branché ici.",hi:"// dites ce que vous voulez. Je vous mène à une porte pc://.\n// rien ne part sans votre appui.",nf:"Pas encore de porte pour ça. Essayez :",g:["Je suis private_client_æsimov. Dites ce que vous voulez.","Ou touchez une pastille.","Chaque réponse mène à une porte.","Ces voyants sont lus en direct.","Prêt ? Écrivez votre premier post."],next:"suite",done:"Écrire →",skip:"passer"},
+ de:{h1:"Sag es. Ich finde die Tür.",lead:"Du schreibst. Ich prüfe. Du gibst frei.",doors:"● Türen",origin:"Am Ursprung",origintx:"EDA, GPU und Glocal Vision bleiben auf myaelmendez.github.io. Hier nicht verbunden.",hi:"// sag, was du willst. Ich bringe dich zu einer pc://-Tür.\n// nichts geht raus ohne dein Halten.",nf:"Dafür habe ich noch keine Tür. Versuch:",g:["Ich bin private_client_æsimov. Sag, was du willst.","Oder tippe eine Pille an.","Jede Antwort endet an einer Tür.","Diese Lichter sind live gelesen.","Bereit? Schreib deinen ersten Post."],next:"weiter",done:"Schreiben →",skip:"überspringen"},
+ sv:{h1:"Säg det. Jag hittar dörren.",lead:"Du skriver. Jag kollar. Du godkänner.",doors:"● Dörrar",origin:"Vid källan",origintx:"EDA, GPU och Glocal Vision stannar på myaelmendez.github.io. Inte kopplade här.",hi:"// säg vad du vill. Jag tar dig till en pc://-dörr.\n// inget publiceras utan att du håller.",nf:"Ingen dörr för det än. Prova:",g:["Jag är private_client_æsimov. Säg vad du vill.","Eller tryck på en pill.","Varje svar slutar vid en dörr.","Lamporna läses live.","Redo? Skriv ditt första inlägg."],next:"nästa",done:"Skriv →",skip:"hoppa över"}};
+let L=(localStorage.getItem("pc_lang")||(navigator.language||"en").slice(0,2));if(!T[L])L="en";
+const t=k=>(T[L][k]??T.en[k]);
+/* routes: plain words → pc:// door (verbs in six languages) */
+const R=[
+ {k:"write",e:"✍️",re:/write|post|draft|escrib|publica|escrev|écri|schreib|skriv|linkedin/i,say:"pc://write · write → check → hold → post. Receipt on every card.",href:API+"/?go=write"},
+ {k:"verify",e:"🧾",re:/verif|receipt|recibo|check|comprob|prüf|kvitto|reçu|[0-9a-f]{12}/i,run:verify},
+ {k:"studio",e:"🎨",re:/studio|template|plantilla|card|tarjeta|design|diseñ|modèle|vorlage|mall/i,say:"pc://studio · design the card your words travel in. Its hash goes in the receipt.",href:API+"/studio"},
+ {k:"labs",e:"🗂️",re:/lab|archive|archivo|arquivo|archiv|signed|firmad/i,say:"pc://labs · the signed archive. Check any card against its exact words.",href:API+"/labs"},
+ {k:"business",e:"∞",re:/business|negocio|empresa|llc|start|formation|formaci|entreprise|unternehm|företag/i,say:"#startabusiness · form it, then sign every word it says. Owner setups with Yæl from $1,200.",href:API+"/#startabusiness"},
+ {k:"agents",e:"🤖",re:/agent|mcp|browser|navegador|composio|tool/i,say:"pc://mcp · a browser for your agents. The key lives only while a human signed in within 7 days.",href:API+"/mcp/connect"},
+ {k:"status",e:"🩺",re:/status|health|estado|salud|guard|witness|testigo|deploy/i,run:status},
+ {k:"terminal",e:">_",re:/terminal|shell|command|comando|#help/i,say:"pc://terminal · #deploy #verify #connect, with a guide.",href:API+"/terminal"},
+ {k:"qr",e:"⊕",re:/qr|scan|escane|badge/i,say:"æQR · a QR is an address, not permission. Every card carries one to its receipt.",href:"../aeqr/"},
+ {k:"canon",e:"☰",re:/canon|manifest|principle|principio|regla|rule/i,say:"Evidence ≠ Authority.\nA QR is an address, not permission.\nMany agents. One principal.",href:API+"/terminal"},
+ {k:"setup",e:"🗝️",re:/setup|owner|own instance|family office|privad|private client for me|instalar/i,say:"pc://setup · your own Private Client, set up with Yæl. From $1,200. Family offices welcome.",href:"mailto:yaelmendez@pm.me?subject=Private%20Client%20setup"}];
+const P=[["✍️","write a post"],["🧾","verify b092dae80b2f"],["🎨","design a card"],["∞","start a business"],["🤖","connect my agents"],["🩺","status"],["🗂️","signed archive"],["☰","canon"]];
+const out=$("out");
+function line(txt,c){const s=document.createElement("div");if(c)s.className=c;s.textContent=txt;out.appendChild(s);out.scrollTop=out.scrollHeight;return s}
+function door(href,label){const a=document.createElement("a");a.className="door";a.href=href;a.textContent=label||"open →";if(/^https?:/.test(href)&&!href.startsWith(API))a.rel="noopener";out.appendChild(a);out.scrollTop=out.scrollHeight}
+async function j(p){const r=await fetch(API+p,{cache:"no-store",credentials:"omit"});return r.json()}
+async function verify(q){const m=q.match(/[0-9a-f]{12}/i);if(!m){line("paste a receipt id (12 hex), e.g. verify b092dae80b2f","w");door(API+"/labs","pc://labs →");return}
+ const rid=m[0].toLowerCase();line("reading pc://r/"+rid+" …","d");
+ try{const d=await j("/r/"+rid);if(!d.found){line("✗ not found","x");door(API+"/labs","pc://labs →");return}
+  line("✓ found · "+new Date(d.t*1000).toISOString().slice(0,16).replace("T"," ")+" UTC","ok");
+  line("text_sha "+d.text_sha.slice(0,16)+"…  ·  reviewer "+d.reviewer,"d");
+  line("human held · "+(d.ai_assisted?"AI-assisted, human-approved":"human-written"),"ok");
+  door(API+"/r/"+rid,"receipt →");if(d.post)door("https://www.linkedin.com/feed/update/"+d.post,"post →")}
+ catch(e){line("✗ privateclient.ai did not answer","x");door(API+"/r/"+rid,"try the receipt page →")}}
+async function status(){line("reading privateclient.ai …","d");await lights();line($("s1").textContent+" · "+$("s2").textContent,"ok");line("witness "+$("s3").textContent,"d");door(API+"/terminal","pc://terminal →")}
+let tpTimer;function tele(txt){const el=$("tp");clearInterval(tpTimer);if(document.documentElement.dataset.th!=="agent"){el.textContent="";return}
+ const w=txt.split(/\s+/);let i=0;el.textContent="";tpTimer=setInterval(()=>{el.textContent=w.slice(Math.max(0,i-4),i+1).join(" ");if(++i>=w.length)clearInterval(tpTimer)},matchMedia("(prefers-reduced-motion:reduce)").matches?0:260)}
+function run(q){q=(q||"").trim();if(!q)return;line("> "+q,"u");$("cmd").value="";
+ const r=R.find(x=>x.re.test(q));
+ if(!r){line(t("nf"),"w");["write a post","verify b092dae80b2f","start a business"].forEach(s=>{const a=document.createElement("a");a.className="door";a.href="#";a.textContent=s;a.onclick=e=>{e.preventDefault();run(s)};out.appendChild(a)});return}
+ if(r.run)return r.run(q);line(r.say,"ok");tele(r.say.split("·").pop());door(r.href,r.e+" "+(r.href.startsWith("mailto")?"email Yæl →":"open →"))}
+$("go").onclick=()=>run($("cmd").value);$("cmd").addEventListener("keydown",e=>{if(e.key==="Enter")run($("cmd").value)});
+function pills(){const p=$("pills");p.innerHTML="";P.forEach(([e,s])=>{const b=document.createElement("button");b.textContent=e+" "+s;b.onclick=()=>{$("cmd").value=s;run(s)};p.appendChild(b)})}
+async function doors(){const box=$("doors");try{const d=await j("/.well-known/pc.json");box.innerHTML="";
+ Object.entries(d.addresses).forEach(([k,v])=>{if(k.includes("{"))return;const a=document.createElement(v.https?"a":"div");a.className="card";if(v.https)a.href=v.https;a.innerHTML="<b class='mono'></b><span></span>";a.querySelector("b").textContent=k;a.querySelector("span").textContent=v.what||"";box.appendChild(a)})}
+ catch(e){box.innerHTML="<a class='card' href='"+API+"/'><b class='mono'>pc://</b><span>privateclient.ai</span></a>"}}
+async function lights(){let up=false;try{const h=await j("/health");up=!!h.ok}catch(e){}
+ try{const g=await j("/guard");up=true;$("d2").className="dot ok";$("s2").textContent="æsymov · "+g.mood;$("s3").textContent=(g.witness_head||"").slice(0,16)+"…";$("s4").textContent=g.promise||"";
+  $("tks").textContent="▸ health ok  ▸ guard "+g.mood+"  ▸ witness "+(g.witness_head||"").slice(0,12)+"  ▸ HUMAN://ROOT  ▸ agents draft · humans approve  ▸ receipt on every post  ▸ pc://write  ▸ pc://studio  ▸ pc://labs"}
+ catch(e){$("d2").className="dot x";$("s2").textContent="no answer"}
+ $("d1").className="dot "+(up?"ok":"x");$("s1").textContent=up?"ok · serving":"no answer"}
+function i18n(){document.documentElement.lang=L;$("lang").value=L;document.querySelectorAll("[data-i]").forEach(el=>el.textContent=t(el.dataset.i));out.innerHTML="";line(t("hi"),"d")}
+$("lang").onchange=e=>{L=e.target.value;localStorage.setItem("pc_lang",L);i18n()};
+const K="pc_term_theme";function th(x){document.documentElement.dataset.th=x;try{localStorage.setItem(K,x)}catch(e){}document.querySelectorAll(".ctl button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===x));if(x==="agent")tele(t("lead"))}
+document.querySelectorAll(".ctl button").forEach(b=>b.onclick=()=>th(b.dataset.t));
+/* guide: 5 steps, ends at Write → (no dead end) */
+const GT=["cmd","pills","out","st","go"];let gi=0;
+function gshow(){document.querySelectorAll(".hl").forEach(e=>e.classList.remove("hl"));const g=t("g");$("gd").style.display="block";$("gdp").textContent=g[gi];$("gdn").textContent=(gi+1)+"/"+g.length;$("gds").textContent=t("skip");
+ const tg=$(GT[gi]==="cmd"?"pr":GT[gi]);if(tg&&GT[gi]!=="go"){tg.classList.add("hl");tg.scrollIntoView({block:"center",behavior:"smooth"})}
+ if(gi===1){$("cmd").value="write a post"}
+ $("gdb").textContent=gi===g.length-1?t("done"):t("next")}
+function gend(go){$("gd").style.display="none";document.querySelectorAll(".hl").forEach(e=>e.classList.remove("hl"));localStorage.setItem("pc_cp_learned","1");if(go)location.href=API+"/?go=write"}
+$("gdb").onclick=()=>{if(gi===1)run("write a post");if(gi===t("g").length-1)return gend(true);gi++;gshow()};
+$("gds").onclick=()=>gend(false);$("face").onclick=()=>{gi=0;gshow()};
+let t0="night";try{t0=localStorage.getItem(K)||"night"}catch(e){}th(t0);i18n();pills();doors();lights();
+if(!localStorage.getItem("pc_cp_learned"))setTimeout(()=>{gi=0;gshow()},700);
+window.PC_PROMPT={schema:"ae.surface/0.1",id:"pc://prompt",routes:R.map(r=>r.k),reads:["/health","/guard","/.well-known/pc.json","/r/{rid}"],authority:{agents_may:["draft","read","verify"],human_only:["approve","publish"]}};
+</script>
+</body></html>

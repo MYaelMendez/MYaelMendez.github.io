@@ -1,0 +1,20 @@
+{
+  "schema": "ae.markers/0.1",
+  "doctrine": "Many agents. One principal. Markers are requests; gates decide.",
+  "default": "deny",
+  "markers": {
+    "status":   { "capability": "ui.status",       "authority": "æ0", "gate": "allow" },
+    "step":     { "capability": "ui.step",         "authority": "æ0", "gate": "allow" },
+    "notify":   { "capability": "ui.notify",       "authority": "æ0", "gate": "allow" },
+    "output":   { "capability": "artifact.write",  "authority": "æ1", "gate": "allow", "witness": true, "rule": "path must stay inside outputs/" },
+    "ask":      { "capability": "human.approve",   "authority": "æ2", "gate": "human_only", "witness": true, "single_use": true, "expires_s": 120 },
+    "login":    { "capability": "secret.use",      "authority": "æ3", "gate": "human_only", "witness": true, "rule": "vault fills by id; the agent never sees the secret" },
+    "handoff":  { "capability": "human.do",        "authority": "æ3", "gate": "human_only", "witness": true, "rule": "the agent stops; the human acts" },
+    "schedule": { "capability": "routine.add",     "authority": "æ2", "gate": "human_only", "witness": true },
+    "pay":      { "capability": "checkout.pay",    "authority": "æ2", "gate": "human_only", "witness": true, "single_use": true, "expires_s": 120 },
+    "publish":  { "capability": "publish",         "authority": "æ2", "gate": "human_only", "witness": true },
+    "done":     { "capability": "card.review",     "authority": "æ1", "gate": "allow", "witness": true, "rule": "agents move cards to review; only Yæl moves to done" }
+  },
+  "syntax": "[[name: title | detail]]",
+  "unknown_marker": "refused and witnessed"
+}

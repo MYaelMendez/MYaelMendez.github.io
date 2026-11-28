@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>línea æ · una línea, inteligencia mínima</title>
+<meta name="description" content="Motor de línea industrial æ: una intención se vuelve un solo trazo continuo. #OpenSourceWare">
+<style>
+:root{--paper:#f4efe3;--ink:#141414;--blue:#2c5aa0;--gold:#d9a400;--red:#c8352b;--green:#2f8a4b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 ui-monospace,Menlo,Consolas,monospace}
+header{padding:20px 22px 6px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.stack{display:grid;grid-template-columns:14px;gap:3px}
+.stack i{display:block;width:14px;height:14px}
+.stack i:nth-child(1){background:#f2c200}.stack i:nth-child(2){background:var(--blue)}.stack i:nth-child(3){background:var(--green)}
+h1{margin:0;font:800 30px/1 "Arial Narrow",Impact,sans-serif;letter-spacing:.02em;text-transform:uppercase}
+header p{margin:0;opacity:.7}
+main{padding:0 22px 30px;max-width:980px;margin:auto}
+.stage{position:relative;border:1.5px solid var(--ink);background:
+ linear-gradient(rgba(44,90,160,.09) 1px,transparent 1px) 0 0/24px 24px,
+ linear-gradient(90deg,rgba(44,90,160,.09) 1px,transparent 1px) 0 0/24px 24px,var(--paper);
+ margin:14px auto;width:100%;aspect-ratio:16/9;max-height:70vh}
+.stage.v{aspect-ratio:9/16;width:min(100%,46vh)}
+.stage svg{position:absolute;inset:0;width:100%;height:100%}
+.tick{position:absolute;font-size:10px;color:var(--blue);opacity:.7}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,input{font:inherit;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);padding:6px 10px;border-radius:0;cursor:pointer}
+button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+input{min-width:220px;cursor:text}
+.moods{margin-top:8px}
+.note{margin-top:18px;border-top:1.5px solid var(--ink);padding-top:10px;opacity:.85}
+code{background:rgba(0,0,0,.06);padding:0 4px}
+body.embed header,body.embed .controls,body.embed .note,body.embed .tick{display:none}
+body.embed main{padding:0;max-width:none}
+body.embed .stage{margin:0;border:0;max-height:none;height:100vh;aspect-ratio:auto;width:100%}
+@media (prefers-reduced-motion:reduce){.breathe{animation:none!important}}
+.breathe{animation:br 4.5s ease-in-out infinite;transform-origin:50% 55%}
+@keyframes br{50%{transform:scale(1.012) translateY(-1px)}}
+</style>
+</head>
+<body>
+<header>
+ <div class="stack"><i></i><i></i><i></i></div>
+ <div><h1>línea æ</h1><p>&gt;_ una intención → un solo trazo continuo · Make something agents want.</p></div>
+</header>
+<main>
+ <div class="controls">
+  <button data-mode="face" aria-pressed="true">æ æ æ cara</button>
+  <button data-mode="text" aria-pressed="false">intención</button>
+  <input id="intent" value="cli•llc" maxlength="24" aria-label="intención" placeholder="æ, cli•llc, >_ ...">
+  <button id="draw">&gt;_ dibujar</button>
+  <button id="ratio">9:16</button>
+  <button id="svg">⤓ svg</button>
+ </div>
+ <div class="controls moods" id="moods"></div>
+ <div class="stage" id="stage">
+  <svg id="s" viewBox="0 0 800 450" aria-label="dibujo de una línea"><g id="g" class="breathe"></g></svg>
+  <span class="tick" style="left:6px;top:4px">æ://línea · 1 trazo</span>
+  <span class="tick" id="meta" style="right:6px;bottom:4px"></span>
+ </div>
+ <div class="note">
+  <b>Gramática:</b> cada glifo es una lista de puntos; el motor los une en <b>una sola línea</b> (Catmull-Rom → Bézier). El trazo <i>es</i> el estado: cambiar de ánimo redibuja.
+  Glifos: <code>æ a c e i l o • &gt; _</code> y espacio. Lo desconocido se vuelve un bucle.
+  <br>#OpenSourceWare · se comparte la gramática y el motor; nunca la autoridad. Evidence ≠ Authority.
+ </div>
+</main>
+<script>
+const G={ // glifos: [ancho, puntos] en caja 100 de alto, línea base y=77
+ 'æ':[100,[[20,40],[30,32],[44,33],[50,42],[50,54],[34,52],[20,58],[18,70],[30,77],[44,74],[50,64],[50,55],[84,55],[82,40],[68,32],[56,40],[50,55],[54,70],[70,77],[86,70]]],
+ 'a':[60,[[12,40],[22,32],[36,33],[42,42],[42,54],[26,52],[12,58],[10,70],[22,77],[36,74],[42,64],[42,77],[48,77]]],
+ 'e':[60,[[10,55],[46,55],[44,40],[30,32],[16,40],[10,55],[14,70],[30,77],[48,70]]],
+ 'c':[60,[[52,40],[40,32],[24,36],[14,54],[20,72],[36,78],[52,70]]],
+ 'l':[30,[[15,8],[15,77]]],
+ 'i':[30,[[15,20],[18,24],[12,24],[15,20],[15,40],[15,77]]],
+ 'o':[60,[[30,32],[48,40],[54,56],[46,72],[30,78],[14,72],[8,56],[14,40],[30,33]]],
+ '•':[30,[[15,49],[21,55],[15,61],[9,55],[15,50]]],
+ '>':[60,[[14,36],[46,55],[14,74]]],
+ '_':[60,[[6,84],[54,84]]],
+ ' ':[40,[]],
+ '?':[50,[[25,45],[37,57],[25,69],[13,57],[25,46]]]
+};
+const MOODS={neutral:{m:1,dy:0,rot:0,ey:1,c:'gold'},feliz:{m:1.08,dy:-6,rot:0,ey:.85,c:'gold'},pensando:{m:.85,dy:4,rot:-8,ey:1,c:'gold'},
+ sorpresa:{m:.7,dy:10,rot:0,ey:1.25,c:'gold'},hold:{m:.95,dy:6,rot:0,ey:.9,c:'red'},pass:{m:1.12,dy:-8,rot:0,ey:.8,c:'green'},dormido:{m:.8,dy:6,rot:0,ey:.12,c:'gold'}};
+let mode='face',mood='neutral',vertical=false;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue('--'+n).trim();
+function place(ch,x,y,s,sy=1,rot=0){const [w,p]=G[ch]||G['?'];const cx=x+w*s/2,cy=y+55*s;const r=rot*Math.PI/180;
+ return {w:w*s,pts:p.map(([px,py])=>{let X=x+px*s-cx,Y=(py-55)*s*sy;return [cx+X*Math.cos(r)-Y*Math.sin(r),cy+X*Math.sin(r)+Y*Math.cos(r)]})}}
+function cr(pts){if(pts.length<2)return'';let d=`M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+ for(let i=0;i<pts.length-1;i++){const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2;
+  const c1=[p1[0]+(p2[0]-p0[0])/6,p1[1]+(p2[1]-p0[1])/6],c2=[p2[0]-(p3[0]-p1[0])/6,p2[1]-(p3[1]-p1[1])/6];
+  d+=`C${c1.map(v=>v.toFixed(1))} ${c2.map(v=>v.toFixed(1))} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`}return d}
+function layout(){const W=vertical?450:800,H=vertical?800:450;document.getElementById('s').setAttribute('viewBox',`0 0 ${W} ${H}`);
+ if(mode==='face'){const M=MOODS[mood],es=vertical?1.1:1.25,ms=(vertical?1.5:1.8)*M.m;
+  const eyeY=H*.32,eL=place('æ',W*.5-(vertical?150:240)-50*es,eyeY,es,M.ey),eR=place('æ',W*.5+(vertical?150:240)-50*es,eyeY,es,M.ey);
+  const mo=place('æ',W*.5-50*ms,H*.52+M.dy*2,ms,1,M.rot);
+  return {all:[...eL.pts,...mo.pts,...eR.pts],accent:mo.pts,ai:eL.pts.length,ac:M.c}}
+ const t=[...document.getElementById('intent').value||'æ'];let tw=t.reduce((a,c)=>a+(G[c]||G['?'])[0],0);
+ const s=Math.min((W*.86)/tw,vertical?3:4);let x=(W-tw*s)/2,all=[];const y=H/2-55*s;
+ for(const c of t){const g=place(c,x,y,s);all.push(...g.pts);x+=g.w}return {all,accent:[],ai:0,ac:'gold'}}
+let anims=[];
+function draw(animate=true){const g=document.getElementById('g');g.innerHTML='';anims.forEach(a=>a.cancel());anims=[];
+ const L=layout(),NS='http://www.w3.org/2000/svg';
+ const mk=(d,col,w)=>{const p=document.createElementNS(NS,'path');p.setAttribute('d',d);p.setAttribute('fill','none');p.setAttribute('stroke',col);
+  p.setAttribute('stroke-width',w);p.setAttribute('stroke-linecap','round');p.setAttribute('stroke-linejoin','round');g.appendChild(p);return p};
+ const ink=mk(cr(L.all),css('ink'),vertical?3.2:3.6);const len=ink.getTotalLength();let acc;
+ if(L.accent.length){acc=mk(cr(L.accent),css(L.ac),vertical?4.2:4.8)}
+ document.getElementById('meta').textContent=`${L.all.length} puntos · ${Math.round(len)} u · ${mode==='face'?mood:'intención'}`;
+ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;if(!animate||reduce)return;
+ const T=Math.min(3200,900+len*1.1);
+ ink.style.strokeDasharray=len;anims.push(ink.animate([{strokeDashoffset:len},{strokeDashoffset:0}],{duration:T,easing:'cubic-bezier(.45,.05,.3,1)',fill:'forwards'}));
+ if(acc){const al=acc.getTotalLength();const pre=document.createElementNS(NS,'path');pre.setAttribute('d',cr(L.all.slice(0,L.ai+1)));const f=pre.getTotalLength()/len;
+  acc.style.strokeDasharray=al;acc.style.strokeDashoffset=al;anims.push(acc.animate([{strokeDashoffset:al},{strokeDashoffset:0}],{duration:T*.42,delay:T*f,easing:'ease-in-out',fill:'forwards'}))}}
+// controles
+const mb=document.getElementById('moods');Object.keys(MOODS).forEach(k=>{const b=document.createElement('button');b.textContent=k;b.setAttribute('aria-pressed',k===mood);
+ b.onclick=()=>{mood=k;mode='face';sync();draw()};mb.appendChild(b)});
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;sync();draw()});
+document.getElementById('draw').onclick=()=>{mode='text';sync();draw()};
+document.getElementById('intent').addEventListener('keydown',e=>{if(e.key==='Enter'){mode='text';sync();draw()}});
+document.getElementById('ratio').onclick=e=>{vertical=!vertical;e.target.setAttribute('aria-pressed',vertical);document.getElementById('stage').classList.toggle('v',vertical);draw()};
+document.getElementById('svg').onclick=()=>{const s=document.getElementById('s').cloneNode(true);s.querySelectorAll('path').forEach(p=>{p.style.strokeDasharray='';p.style.strokeDashoffset=''});
+ s.setAttribute('xmlns','http://www.w3.org/2000/svg');s.insertAdjacentHTML('afterbegin',`<rect width="100%" height="100%" fill="${css('paper')}"/>`);
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s.outerHTML],{type:'image/svg+xml'}));a.download=`linea-ae-${mode==='face'?mood:'intencion'}.svg`;a.click()};
+function sync(){document.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===mode));
+ mb.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',mode==='face'&&b.textContent===mood))}
+// parpadeo: redibujo instantáneo con ojos cerrados
+setInterval(()=>{if(mode!=='face'||mood==='dormido'||matchMedia('(prefers-reduced-motion: reduce)').matches)return;if(anims.some(a=>a.playState==='running'))return;
+ const m=MOODS[mood],old=m.ey;m.ey=.1;draw(false);setTimeout(()=>{m.ey=old;draw(false)},130)},4200);
+const q=new URLSearchParams(location.search);if(q.get('embed'))document.body.classList.add('embed');if(q.get('t')){mode='text';document.getElementById('intent').value=q.get('t')}if(MOODS[q.get('mood')])mood=q.get('mood');
+sync();draw();
+</script>
+</body>
+</html>

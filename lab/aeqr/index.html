@@ -1,0 +1,32 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>æQR · inventario, un pixel a la vez</title>
+<style>
+:root{--void:#0b0b0d;--gold:#D4AF37;--ink:#f3efe4;--dim:#8a8577;--green:#4caf7d;--red:#e0574f;--blue:#4a90e2}
+*{box-sizing:border-box}body{margin:0;background:var(--void);color:var(--ink);font:15px/1.5 ui-monospace,"JetBrains Mono",Menlo,monospace}
+main{max-width:720px;margin:auto;padding:20px}h1{font-size:20px;color:var(--gold);margin:.2em 0}
+.lab{font-size:12px;color:var(--dim)}.card{border:1px solid #2a2a2e;border-radius:12px;padding:14px;margin:14px 0}
+iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:10px;background:#f3efe4}
+.state{font-size:22px;font-weight:700}.feliz{color:var(--green)}.pensando{color:var(--gold)}.hold{color:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:6px;border-bottom:1px solid #222;text-align:left}
+a{color:var(--blue)}img.qr{width:120px;background:#fff;border-radius:6px}
+</style></head><body><main>
+<p class="lab">&gt;_ aeee-lab · laboratorio · simulación, no es inventario real</p>
+<h1>æQR · inventario, un pixel a la vez</h1>
+<p>El QR impreso solo lleva el SKU. Lo que abre está vivo: la cara lee el stock.</p>
+<div class="card" id="one"></div>
+<div class="card"><b>Todos los artículos</b><table id="all"><tr><th>SKU</th><th>Artículo</th><th>Stock</th><th>Cara</th><th>æQR</th></tr></table></div>
+<p class="lab">Cambiar el stock = un commit en <code>inventory.json</code>; el commit es el recibo. Escanear abre, nunca actúa. Evidence ≠ Authority: Hark informa, Yæl decide.</p>
+</main><script>
+const L={feliz:'EN STOCK',pensando:'QUEDA POCO',hold:'AGOTADO · HOLD'};
+const mood=i=>i.stock<=0?'hold':i.stock<=i.min?'pensando':'feliz';
+const raw=(new URLSearchParams(location.search).get('sku')||decodeURIComponent(location.hash.slice(1))||'ae-001');
+const sku=/^[a-z]{2}-\d{3}$/.test(raw)?raw:null;
+const holdCard=(t)=>{const one=document.getElementById('one');one.innerHTML='<span class="state hold">HOLD</span><p></p><iframe src="../linea-ae/?embed=1&mood=hold" title="cara hold"></iframe>';one.querySelector('p').textContent=t};
+fetch('inventory.json',{cache:'no-store'}).then(r=>r.json()).then(d=>{
+ const it=d.items.find(i=>i.sku===sku);const one=document.getElementById('one');
+ if(!it){holdCard(sku?'SKU desconocido: no está en este inventario.':'SKU inválido.')}
+ else{const m=mood(it);one.innerHTML=`<div class="lab">æQR://inv/${it.sku}</div><div class="state ${m}">${L[m]}</div><p>${it.name} · stock ${it.stock} · mínimo ${it.min}</p><iframe src="../linea-ae/?embed=1&mood=${m}" title="cara ${m}"></iframe><p class="lab">actualizado ${d.updated}</p>`}
+ const t=document.getElementById('all');
+ d.items.forEach(i=>{const m=mood(i);t.insertAdjacentHTML('beforeend',`<tr><td><a href="?sku=${i.sku}">${i.sku}</a></td><td>${i.name}</td><td>${i.stock}</td><td class="${m}">${L[m]}</td><td><img class="qr" src="badges/${i.sku}.png" alt="æQR ${i.sku}"></td></tr>`)});
+}).catch(()=>holdCard('No se pudo leer inventory.json · HOLD'));
+</script></body></html>

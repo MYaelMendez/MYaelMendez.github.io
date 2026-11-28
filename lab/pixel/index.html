@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>pixel æ · la cara del robot, un pixel a la vez</title>
+<meta name="description" content="Lab: la cara æ æ æ de un solo trazo rasterizada para pantallas de robot (LED). Se dibuja un pixel a la vez y se exporta como secuencia æ.face/0.1. #OpenSourceWare">
+<style>
+:root{--paper:#f4efe3;--ink:#141414;--blue:#2c5aa0;--gold:#d9a400}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.5 ui-monospace,Menlo,Consolas,monospace}
+main{max-width:1000px;margin:auto;padding:18px}h1{font:800 30px/1 "Arial Narrow",Impact,sans-serif;text-transform:uppercase;margin:0}
+.sub{opacity:.75;margin:4px 0 10px}.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}
+button{font:inherit;color:var(--ink);-webkit-appearance:none;appearance:none;border:1.5px solid var(--ink);background:var(--paper);padding:6px 10px;cursor:pointer;border-radius:0}
+button[aria-pressed=true]{background:var(--ink);color:var(--paper)}input[type=range]{width:180px;accent-color:var(--ink)}
+.panel{border:1.5px solid var(--ink);background:#141414;padding:10px;margin-top:10px}
+canvas{display:block;width:100%;height:auto;image-rendering:pixelated}
+.meta{display:flex;justify-content:space-between;font-size:11px;color:var(--blue);margin-top:4px}
+pre{border:1.5px solid var(--ink);padding:8px;font-size:11px;max-height:160px;overflow:auto;background:rgba(255,255,255,.35)}
+.note{margin-top:14px;border-top:1.5px solid var(--ink);padding-top:8px;opacity:.85}
+</style></head><body><main>
+<h1>pixel æ 🏎️✍️</h1>
+<div class="sub">&gt;_ la cara del robot, un pixel a la vez · documento para nuestros robots</div>
+<div class="row" id="modes"></div>
+<div class="row" id="sizes"></div>
+<div class="row"><label for="sp">velocidad</label><input id="sp" type="range" min="5" max="400" value="90"><span id="spv"></span>
+<button id="play">▶ dibujar</button><button id="json">⤓ æ.face json</button></div>
+<div class="panel"><canvas id="c"></canvas></div>
+<div class="meta"><span id="m1"></span><span id="m2"></span></div>
+<pre id="seq"></pre>
+<div class="note"><b>Protocolo æ.face/0.1</b> (borrador de lab): una pantalla de <code>w×h</code> pixeles recibe una <b>secuencia ordenada</b> de pixeles <code>[x,y,c]</code> (c: 0 tinta, 1 boca dorada) y los enciende en ese orden. El orden <i>es</i> el trazo: la misma línea continua, ahora en puntos. Cualquier robot con una matriz LED puede llevar la cara; nadie hereda autoridad por llevarla.
+<br>#OpenSourceWare · laboratorio · Evidence ≠ Authority.</div>
+</main><script>
+
+
+const AE=[[20,40],[30,32],[44,33],[50,42],[50,54],[34,52],[20,58],[18,70],[30,77],[44,74],[50,64],[50,55],[84,55],[82,40],[68,32],[56,40],[50,55],[54,70],[70,77],[86,70]];
+const W=800,H=450,CX=400,CY=225;
+const MODES={
+ tras:{n:'traslación',g:'T · æ → æ → æ'},
+ espejo:{n:'espejo',g:'D₁ · σ(x)=−x · eje vertical'},
+ rot:{n:'rotación',g:'C₂ · ρ(180°) · centro'},
+ doble:{n:'espejo doble',g:'D₂ · dos ejes + C₂'},
+ triple:{n:'espejo triple',g:'D₃ · tres ejes a 120° · æææ caleidoscopio'}
+};
+let mode='espejo',brk=0;
+const glyph=(x,y,s,sy=1)=>AE.map(([px,py])=>[x+(px-50)*s,y+(py-55)*s*sy]);
+const mir=p=>[2*CX-p[0],p[1]], rot=p=>[2*CX-p[0],2*CY-p[1]], flipY=p=>[p[0],2*CY-p[1]];
+function face(m,b){ // b: ruptura 0..1
+ const es=1.25,ms=1.6,ex=CX-230,ey=CY-55,my=CY+70;
+ const L=glyph(ex,ey,es); let R,M,acc;
+ // la ruptura actúa sobre el lado derecho: guiño + comisura
+ const wink=1-.85*b, lift=-28*b;
+ if(m==='tras'){R=glyph(CX+230,ey,es,wink);M=glyph(CX,my,ms).map(p=>[p[0],p[1]+(p[0]>CX?lift*(p[0]-CX)/80:0)]);}
+ const curve=p=>[p[0],p[1]+(p[0]>CX?lift*(p[0]-CX)/70:0)];
+ const ms2=ms*.75, half=glyph(CX-36*ms2,my,ms2); // termina en (86,70) → justo en el eje
+ if(m==='espejo'||m==='doble'){
+  R=L.map(mir).reverse().map(p=>[p[0],ey+(p[1]-ey)*wink]);
+  M=[...half,...half.map(mir).reverse()];
+  if(m==='doble'){const yb=half[half.length-1][1];M=[...M,...M.slice().reverse().map(p=>[p[0],2*yb-p[1]])];M.push([CX-40,my+75],[CX+60,my+80]);}
+  M=M.map(curve);
+ }
+ if(m==='rot'){
+  R=L.map(p=>[CX+230-(p[0]-ex),ey-(p[1]-ey)*wink]);
+  const pv=half[half.length-1];M=[...half,...half.map(p=>[2*pv[0]-p[0],2*pv[1]-p[1]]).reverse()].map(curve);
+ }
+ if(m==='triple'){
+  const s=1.05,hf=glyph(-36*s,0,s),e=hf[hf.length-1];const h2=hf.map(p=>[p[0]-e[0],p[1]-e[1]+18]);
+  const U=[...h2,...h2.map(p=>[-p[0],p[1]]).reverse()];
+  const put=(th,sq=1)=>{const a=(th-90)*Math.PI/180,r=125,cx=CX+r*Math.cos(th*Math.PI/180),cy=CY+10+r*Math.sin(th*Math.PI/180);
+   return U.map(([x,y])=>{y*=sq;return [cx+x*Math.cos(a)-y*Math.sin(a),cy+x*Math.sin(a)+y*Math.cos(a)]})};
+  const A=put(210),B=put(90).map(curve),C=put(330,wink);
+  return {all:[...A,...B,...C],mouth:B,li:A.length};
+ }
+ return {all:[...L,...M,...R],mouth:M,li:L.length};
+}
+
+
+function sample(pts,n=10){const out=[];for(let i=0;i<pts.length-1;i++){const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2;
+ for(let k=0;k<n;k++){const t=k/n,t2=t*t,t3=t2*t;out.push([0,1].map(j=>.5*((2*p1[j])+(-p0[j]+p2[j])*t+(2*p0[j]-5*p1[j]+4*p2[j]-p3[j])*t2+(-p0[j]+3*p1[j]-3*p2[j]+p3[j])*t3)))}}
+ out.push(pts[pts.length-1]);return out}
+
+const SIZES={'16×16':[16,16],'32×16':[32,16],'64×32':[64,32],'128×64':[128,64]};
+let size='64×32',seq=[],step=0,playing=true,last=0,acc=0;
+function raster(){const [w,h]=SIZES[size];const F=face(mode,0);const n=12;const P=sample(F.all,n);const ms=F.li*n,me=(F.li+F.mouth.length-1)*n;
+ let xs=P.map(p=>p[0]),ys=P.map(p=>p[1]);const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+ const pad=1,s=Math.min((w-1-2*pad)/(x1-x0),(h-1-2*pad)/(y1-y0));const ox=(w-1-(x1-x0)*s)/2,oy=(h-1-(y1-y0)*s)/2;
+ const G=P.map((p,i)=>[Math.round(ox+(p[0]-x0)*s),Math.round(oy+(p[1]-y0)*s),i>=ms&&i<me?1:0]);
+ const out=[];const seen=new Set();const push=(x,y,c)=>{const k=x+','+y;const l=out[out.length-1];if(l&&l[0]===x&&l[1]===y)return;out.push([x,y,c]);seen.add(k)};
+ for(let i=0;i<G.length;i++){if(i===0){push(...G[0]);continue}let [xa,ya]=G[i-1],[xb,yb,c]=G[i];const dx=Math.abs(xb-xa),dy=-Math.abs(yb-ya),sx=xa<xb?1:-1,sy=ya<yb?1:-1;let e=dx+dy;
+  while(true){push(xa,ya,c);if(xa===xb&&ya===yb)break;const e2=2*e;if(e2>=dy){e+=dy;xa+=sx}if(e2<=dx){e+=dx;ya+=sy}}}
+ seq=out;step=0;document.getElementById('m1').textContent=`${w}×${h} · ${seq.length} pixeles · 1 trazo · ${MODES[mode].g.split(' · ')[0]}`;
+ const doc={schema:'æ.face/0.1',w,h,mode,mood:'neutral',order:'stroke',colors:{0:'tinta',1:'boca'},pixels:seq};
+ document.getElementById('seq').textContent=JSON.stringify(doc).slice(0,900)+(JSON.stringify(doc).length>900?' …':'');return doc}
+const cv=document.getElementById('c'),cx=cv.getContext('2d');
+function paint(){const [w,h]=SIZES[size],cell=Math.floor(960/w);cv.width=w*cell;cv.height=h*cell;cx.fillStyle='#141414';cx.fillRect(0,0,cv.width,cv.height);
+ const r=cell*.38;const lit=new Map();for(let i=0;i<step&&i<seq.length;i++)lit.set(seq[i][0]+','+seq[i][1],seq[i][2]);
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){const k=x+','+y;const c=lit.get(k);cx.fillStyle=c===undefined?'#2a2824':c===1?'#d9a400':'#f4efe3';
+  cx.beginPath();cx.arc(x*cell+cell/2,y*cell+cell/2,c===undefined?r*.55:r,0,7);cx.fill()}
+ if(step>0&&step<=seq.length){const [x,y]=seq[step-1];cx.strokeStyle='#2c5aa0';cx.lineWidth=Math.max(1,cell*.12);cx.beginPath();cx.arc(x*cell+cell/2,y*cell+cell/2,r*1.5,0,7);cx.stroke()}
+ document.getElementById('m2').textContent=`pixel ${Math.min(step,seq.length)}/${seq.length}`}
+function loop(t){const sp=+document.getElementById('sp').value;if(playing){acc+=(t-last)/1000*sp;const k=Math.floor(acc);if(k>0){acc-=k;step=Math.min(seq.length+Math.round(sp*1.2),step+k);
+  if(step>=seq.length+Math.round(sp*1.2))step=0;paint()}}last=t;requestAnimationFrame(loop)}
+const mb=document.getElementById('modes');[['espejo','espejo · D₁'],['triple','triple · D₃'],['rot','rotación · C₂'],['tras','traslación · T']].forEach(([k,n])=>{const b=document.createElement('button');b.textContent=n;b.dataset.k=k;b.onclick=()=>{mode=k;sync();raster();paint()};mb.appendChild(b)});
+const sb=document.getElementById('sizes');Object.keys(SIZES).forEach(k=>{const b=document.createElement('button');b.textContent=k;b.dataset.s=k;b.onclick=()=>{size=k;sync();raster();paint()};sb.appendChild(b)});
+function sync(){mb.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===mode));sb.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.s===size))}
+const spI=document.getElementById('sp');spI.oninput=()=>document.getElementById('spv').textContent=spI.value+' px/s';spI.oninput();
+document.getElementById('play').onclick=e=>{playing=!playing;e.target.textContent=playing?'❚❚ pausa':'▶ dibujar'};
+document.getElementById('json').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(raster())],{type:'application/json'}));a.download=`ae-face-${mode}-${size.replace('×','x')}.json`;a.click();step=0};
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const q=new URLSearchParams(location.search);if(MODES[q.get('m')])mode=q.get('m');if(SIZES[q.get('s')])size=q.get('s');
+sync();raster();if(reduce){playing=false;step=seq.length}document.getElementById('play').textContent=playing?'❚❚ pausa':'▶ dibujar';paint();requestAnimationFrame(t=>{last=t;loop(t)});
+</script></body></html>

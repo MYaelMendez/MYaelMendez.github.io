@@ -1,0 +1,65 @@
+# mæchlæng LAB
+
+> æ authority (æ0–æ3) and the Asimov robot face, written as Mech state machines and run live on the real Mech runtime (Mech 0.3.5 wasm, vendored, no CDN) in a static page. Evidence ≠ Authority. Many agents. One principal. Human stays root. Make something agents want.
+
+Status: LAB · beta · demo · noindex for search engines. Agents are welcome to read this file and agent.json.
+Contact: point your agents at me 🪡
+
+## Doctrine (read this first)
+
+- Evidence ≠ Authority. Agents relay context and evidence; supervision informs, the human decides.
+- Levels: æ0 public · æ1 published · æ2 operator · æ3 custody.
+- An agent may act at æ0 and æ1 on its own.
+- Only the human principal grants æ2 and æ3, and only with `pk && wr`: the principal's passkey AND a Witness receipt (SHA-256 chain from GENESIS).
+- Without `pk && wr`, #Authority ends in `:Waiting(r) ⇒ :evidence`. No agent grants æ2/æ3.
+- pk on this LAB page is SIMULATED: any caller can pass `pk: true`, so a `:Granted` here is a demo, never authority. A real æ2/æ3 grant needs the human principal's own passkey (WebAuthn), outside this page. Do not present a LAB receipt as permission.
+- The robot face is read-only, robot authority æ1: it shows state, it never moves a robot.
+
+## Machines
+
+- [authority.mec](https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/authority.mec): #Authority(req<u8>, pk<bool>, wr<bool>) ⇒ :granted | :evidence. :Context ├ r < 2u8 → :Granted · └ r > 1u8 → :Evidence; :Evidence ├ pk && wr → :Granted · └ * → :Waiting.
+- [face.mec](https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/face.mec): #Face(md, ar, ft, ag, sc) ⇒ :hold | :lost | :tired | :sleep | :think | :ready | :work. First match wins: fault ∨ FAULT_DAMP ⇒ hold · stale (ag > 0.5) ⇒ lost · battery < 20 ⇒ tired · DAMP ⇒ sleep · STAND not armed ⇒ think · STAND armed ⇒ ready · MOVE ⇒ work · else ⇒ lost.
+
+## Agent surfaces
+
+- [agent.json](https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/agent.json): manifest with doctrine, input schemas, output states, source URLs, runtime URL + sha256, license, contact.
+- [?agent](https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/?agent): the page renders a plain-text summary (current state + API + links). `?agent=json` gives JSON only. Needs JavaScript.
+- [maech-agent.js](https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/runtime/maech-agent.js): defines `window.MAECH` on the page.
+
+## window.MAECH (in a browser on the page)
+
+```js
+await MAECH.ready                      // "0.3.5" · loads the vendored wasm once, sha256-checked
+MAECH.run(src)                         // → output string · fresh WasmMech per run · throws on Mech error
+await MAECH.authority({agent: "hark-pro", level: 3, pk: false, wr: false})
+// → {state: "evidence", granted: false, fsm: ":Waiting(æ3)", needs: ["pk","wr"], simulated: true, receipt: {...}}
+await MAECH.face({md: "STAND", armed: true, fault: false, stale: false, battery: 80})
+// → {schema: "ae.face/0.1", who: "asimov", authority: "æ1", mood: "ready", means: "STAND, armed", ...}
+MAECH.witness()                        // → [{n, prev, h, event}] · h(n) = sha256(h(n-1) + "|" + JSON(event)), h(0) = sha256("GENESIS")
+await MAECH.verify()                   // → {ok, n, head}
+```
+
+Only boolean `true` counts for pk and wr. Even if an engine said otherwise, MAECH.authority never returns `granted: true` for æ2/æ3 without `pk && wr`.
+
+## How to run
+
+- Browser: open https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/ and use the console snippets above. The page re-runs the whole .mec on Mech on every input change (Δ input → Δ state).
+- Node: clone https://github.com/LutheranInstitute/aeee-lab (branch `lab`) and run `node lab/maechlang/test.mjs`. It boots the vendored runtime (`mod.initSync({module: gunzip(mech_wasm_bg.wasm.gz)})`, then `new WasmMech(); run_program(src); out_string()`).
+- Runtime: [mech_wasm.js](https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/runtime/mech_wasm.js) + [mech_wasm_bg.wasm.gz](https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/runtime/mech_wasm_bg.wasm.gz), sha256 of the decompressed wasm: 6140624668517b9a08e814453f424cfdab418261dab40359aaae8b8e6da39b89.
+
+## Mech syntax notes (learned running it)
+
+- Identifiers: kebab-case, no underscores. Unicode is fine: `:æ0`, `→`, `⇒`, `⩵`, `¬`, `∨`, `∈`, `&&`.
+- `--` comments go on their own line; a trailing comment on a `├ … → …` arm breaks the 0.3.5 parser.
+- A self-loop state never terminates; end waiting in a final state like `:Waiting(r) ⇒ :evidence`.
+
+## Related
+
+- [HARK_PRO æ × mæchlæng v1](https://lutheraninstitute.github.io/aeee-lab/lab/hark-pro/v1/): the same machines plus demos.
+- [æsymov face v1](https://lutheraninstitute.github.io/aeee-lab/lab/face/v1/): the face, standalone.
+- [ae/face.py](https://github.com/LutheranInstitute/Robot/tree/ae-face/ae): the read-only robot bridge with the same mood rules.
+
+## License and credit
+
+- Mech © Corey Montella, Apache-2.0, beta, https://mech-lang.org ([LICENSE](https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/runtime/LICENSE), [NOTICE](https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/runtime/NOTICE)). Not for critical systems.
+- mæchlæng is an Instituto Luterano Latinoamericano LAB experiment by Yæl Méndez, not affiliated with the Mech project.

@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080e14">
+<title>&gt;_ZACAPA.DAO · v0 · primeros principios</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080e14;color:#dfffee;font:13px ui-monospace,SFMono-Regular,Menlo,monospace}
+main{max-width:520px;margin:auto;padding:16px 14px 30px}
+h1{font-size:22px;color:#64ffb2;margin:8px 0 4px}
+small,.m{color:#829b9a}
+header{border-bottom:1px solid #28483d;padding-bottom:12px}
+.p{background:#101d23;border:1px solid #28483d;border-radius:12px;padding:13px;margin:12px 0}
+.r{display:flex;justify-content:space-between;gap:8px;margin:6px 0}
+b,.ok{color:#64ffb2}.g{color:#ffae45}
+button{font:inherit;background:#183c31;color:#aaffd2;border:1px solid #398b68;border-radius:8px;padding:10px 6px;cursor:pointer}
+button:active,button.on{background:#398b68;color:#04120e}
+nav{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:8px}
+label{display:block;color:#829b9a;margin:10px 0 3px}
+input{width:100%;font:inherit;background:#09131a;color:#fff;border:1px solid #36505b;border-radius:8px;padding:8px}
+input[type=range]{padding:0}
+svg{width:100%;height:auto;display:block}
+table{width:100%;border-collapse:collapse;margin-top:6px}
+td,th{padding:5px 3px;border-bottom:1px solid #1f3a33;text-align:right}
+td:first-child,th:first-child{text-align:left}
+th{color:#829b9a;font-weight:400}
+pre{white-space:pre-wrap;word-break:break-all;color:#a6c9ba;font-size:11px;max-height:220px;overflow:auto;margin:6px 0 0}
+.bars div{display:flex;align-items:center;gap:6px;margin:3px 0}
+.bars span{width:84px;color:#829b9a;font-size:11px}
+.bars i{display:block;height:7px;background:#64ffb2;border-radius:4px}
+.bot{display:flex;gap:12px;align-items:center}
+.bot svg{width:112px;flex:none}
+.say{flex:1;background:#07151a;border:1px solid #00f3ff55;border-radius:12px;padding:10px;color:#cffcff;min-height:64px;line-height:1.4}
+.say small{display:block;color:#5fb7c0;margin-top:4px;font-size:10px}
+#face .eye{transition:transform .25s}
+@media (prefers-reduced-motion:reduce){#face *{transition:none!important}}
+footer{color:#819d92;text-align:center;padding:14px;font-size:11px}
+</style>
+</head>
+<body>
+<main>
+<header>
+<small>🏭 ZACAPA.AI LAB · INSTITUTO · M🧠BILITY</small>
+<h1>&gt;_ZACAPA.DAO 🛺</h1>
+<div>11 municipios · distancias reales por carretera · 1 decisión humana</div>
+<small id="src"></small>
+</header>
+
+<section class="p">
+<div class="r"><b>🧭 RED REAL</b><span id="clock">06:00</span></div>
+<svg id="map" viewBox="0 0 360 250" role="img" aria-label="Municipios de Zacapa y red troncal">
+<g id="roads" fill="none" stroke="#2c6b59" stroke-width="1.6" stroke-linejoin="round"></g>
+<g id="nodes"></g><g id="veh"></g>
+</svg>
+<small>Cabeceras y carreteras de OpenStreetMap. Línea = red troncal mínima por km reales.</small>
+</section>
+
+<section class="p" aria-live="polite">
+<div class="r"><b>🤠🤖 æSYMOV ZACAPANECO</b><span class="m" id="mood">ready</span></div>
+<div class="bot">
+<svg id="face" viewBox="0 0 120 120" role="img" aria-label="æsymov Zacapaneco, cara virtual">
+<rect x="1" y="1" width="118" height="118" rx="14" fill="#000" stroke="#00f3ff" stroke-opacity=".5"/>
+
+<rect x="30" y="42" width="60" height="50" rx="12" fill="#06141a" stroke="#00f3ff" stroke-width="1.6"/>
+<g id="hat">
+<ellipse cx="60" cy="36" rx="50" ry="8" fill="#8a5a2b" stroke="#ffcf8a" stroke-width="1"/>
+<path d="M36 36 C36 14 46 10 60 16 C74 10 84 14 84 36 Z" fill="#a0692f" stroke="#ffcf8a" stroke-width="1"/>
+<path d="M37 31 H83" stroke="#3b2410" stroke-width="3"/>
+<text x="60" y="27" text-anchor="middle" font-size="7" fill="#ffcf8a">æ</text>
+</g>
+<g class="eye" id="eL"><rect id="lidL" x="40" y="56" width="14" height="12" rx="4" fill="#00f3ff"/></g>
+<g class="eye" id="eR"><rect id="lidR" x="66" y="56" width="14" height="12" rx="4" fill="#00f3ff"/></g>
+<path id="mouth" d="M48 80 Q60 86 72 80" stroke="#00f3ff" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+<path d="M30 70 h-6 M90 70 h6" stroke="#00f3ff" stroke-width="2"/>
+<text x="60" y="110" text-anchor="middle" font-size="7" fill="#5fb7c0">DEMO · solo lectura</text>
+</svg>
+<div class="say"><span id="say">¡Buenas! Soy æsymov, de Zacapa. Elijan la regla y denle ⚖️ COMPARAR.</span><small>Explica y señala. No decide ni despacha: la comunidad decide.</small></div>
+</div>
+</section>
+
+<section class="p">
+<b>⚙️ SUPUESTOS</b>
+<label for="fleet">🛺 Vehículos (salen de Zacapa)</label><input id="fleet" type="range" min="1" max="30" value="8">
+<div class="r"><span>Flota</span><b id="fleetL"></b></div>
+<label for="dem">🙋 Solicitudes por hora en cada municipio</label><input id="dem" type="range" min="1" max="12" value="2">
+<div class="r"><span>Demanda</span><b id="demL"></b></div>
+<label for="seed">🎲 Semilla (misma semilla = mismo día)</label><input id="seed" type="number" value="2026">
+<small>Cada solicitud va del municipio a la cabecera (hospital, mercado, juzgado). Jornada 06:00–18:00.</small>
+</section>
+
+<section class="p">
+<div class="r"><b>🗳️ HUMAN://PRINCIPAL</b><span class="ok" id="pol"></span></div>
+<p class="m">La comunidad decide la regla. El motor despacha dentro de ella.</p>
+<nav style="grid-template-columns:1fr 1fr">
+<button id="vA">🗳️ ACCESO<br><small>primero quien más espera</small></button>
+<button id="vC">🗳️ CAPACIDAD<br><small>primero el más cercano</small></button>
+</nav>
+<nav>
+<button id="run">▶ RUN</button><button id="day">⏩ DÍA</button><button id="cmp">⚖️ COMPARAR</button>
+</nav>
+</section>
+
+<section class="p">
+<b>📊 RESULTADO</b>
+<table>
+<tr><th></th><th id="hA">ACCESO</th><th id="hC">CAPACIDAD</th></tr>
+<tr><td>Viajes atendidos</td><td id="sA">–</td><td id="sC">–</td></tr>
+<tr><td>Quedan esperando</td><td id="qA">–</td><td id="qC">–</td></tr>
+<tr><td>Espera promedio*</td><td id="wA">–</td><td id="wC">–</td></tr>
+<tr><td>Espera máxima</td><td id="xA">–</td><td id="xC">–</td></tr>
+<tr><td>Km con pasajero</td><td id="lA">–</td><td id="lC">–</td></tr>
+<tr><td>Km vacíos</td><td id="eA">–</td><td id="eC">–</td></tr>
+<tr><td>η = km útil / km total</td><td id="nA">–</td><td id="nC">–</td></tr>
+</table>
+<p class="m" id="lesson"></p><small>* Incluye a quienes siguen esperando a las 18:00.</small>
+<div class="m">Atendidos por municipio (política actual)</div>
+<div class="bars" id="bars"></div>
+</section>
+
+<section class="p">
+<div class="r"><b>🧾 WITNESS · SHA-256</b><span id="head" class="m">GENESIS</span></div>
+<pre id="wit">&gt;_ cadena vacía</pre>
+<nav><button id="ver">✓ VERIFICAR</button><button id="exp">↓ JSON</button><button id="rst">■ RESET</button></nav>
+</section>
+
+<footer>Escenario, no pronóstico · sin tráfico, carga ni tarifas · votación demostrativa local<br>CONTEXT MAY PROPAGATE · AUTHORITY DOES NOT · &gt;_</footer>
+</main>
+<script>
+"use strict";
+const D={"source":"OpenStreetMap (Nominatim) + OSRM, consultado 2026-10-17","nodes":[{"n":"Zacapa","lat":14.97072,"lon":-89.52974},{"n":"Estanzuela","lat":14.99725,"lon":-89.5731},{"n":"Río Hondo","lat":15.04427,"lon":-89.58529},{"n":"Teculután","lat":14.99019,"lon":-89.7181},{"n":"Usumatlán","lat":14.94755,"lon":-89.77693},{"n":"Gualán","lat":15.11356,"lon":-89.35766},{"n":"La Unión","lat":14.96647,"lon":-89.29026},{"n":"Huité","lat":14.92713,"lon":-89.71531},{"n":"Cabañas","lat":14.93442,"lon":-89.79899},{"n":"San Diego","lat":14.78969,"lon":-89.77633},{"n":"San Jorge","lat":14.92438,"lon":-89.58971}],"km":[[0.0,7.9,13.5,27.7,36.1,44.3,70.8,24.7,35.1,57.9,9.5],[7.9,0.0,6.8,21.0,29.5,37.6,64.1,21.7,32.1,54.9,12.1],[13.6,6.8,0.0,16.3,24.8,31.2,57.7,23.6,33.9,56.7,17.8],[27.7,20.9,16.3,0.0,8.6,47.1,73.6,18.5,28.9,51.7,31.9],[36.2,29.4,24.8,8.6,0.0,55.6,82.1,27.0,31.0,46.5,40.4],[44.2,37.5,31.1,47.0,55.5,0.0,26.9,54.2,64.6,87.4,48.4],[70.9,64.1,57.7,73.6,82.1,26.7,0.0,80.9,91.2,99.5,75.1],[24.7,21.7,23.6,18.5,27.0,54.3,80.9,0.0,11.5,34.3,22.5],[35.1,32.1,33.9,28.9,30.9,64.7,91.2,11.5,0.0,22.8,32.9],[57.9,54.9,56.7,51.7,46.5,87.5,99.2,34.3,22.8,0.0,42.0],[9.5,12.1,17.8,31.9,40.4,48.5,75.1,22.5,32.9,42.0,0.0]],"min":[[0,8,13,30,43,56,84,36,47,81,15],[8,0,7,24,37,50,78,29,40,74,15],[13,7,0,21,34,45,74,29,39,73,20],[30,24,21,0,13,64,93,22,33,67,37],[43,37,34,13,0,77,106,35,38,66,50],[56,49,45,64,77,0,30,72,82,116,63],[84,78,74,93,106,29,0,100,111,130,91],[36,29,29,22,35,71,100,0,13,47,36],[47,40,39,33,37,82,111,13,0,34,47],[81,74,73,67,66,116,130,47,34,0,73],[15,15,20,37,50,62,91,36,47,72,0]],"edges":[{"a":0,"b":1,"km":7.9,"pts":[[-89.5299,14.9708],[-89.5299,14.9713],[-89.5338,14.9712],[-89.5359,14.9711],[-89.5373,14.9705],[-89.5421,14.9652],[-89.5423,14.9649],[-89.5419,14.9642],[-89.542,14.9636],[-89.5456,14.9611],[-89.547,14.9607],[-89.5681,14.9988],[-89.5704,14.9984],[-89.5725,14.9973],[-89.5731,14.9974]]},{"a":1,"b":2,"km":6.8,"pts":[[-89.5731,14.9974],[-89.5725,14.9973],[-89.5704,14.9984],[-89.5681,14.9988],[-89.586,15.0305],[-89.5871,15.0351],[-89.5876,15.0357],[-89.5913,15.0377],[-89.5916,15.0383],[-89.5916,15.0389],[-89.591,15.0394],[-89.5866,15.041],[-89.5861,15.0437],[-89.5851,15.0443]]},{"a":0,"b":10,"km":9.5,"pts":[[-89.5299,14.9708],[-89.5299,14.9713],[-89.5338,14.9712],[-89.5359,14.9711],[-89.5373,14.9705],[-89.5421,14.9652],[-89.5423,14.9649],[-89.5419,14.9642],[-89.542,14.9636],[-89.5466,14.9606],[-89.547,14.9607],[-89.5476,14.9617],[-89.5506,14.9601],[-89.554,14.9622],[-89.5587,14.9621],[-89.5612,14.9607],[-89.5641,14.9574],[-89.5674,14.9553],[-89.571,14.952],[-89.5722,14.9513],[-89.5756,14.9457],[-89.5793,14.942],[-89.5843,14.9325],[-89.5874,14.9292],[-89.5885,14.9286],[-89.5888,14.9269],[-89.5898,14.9257],[-89.5901,14.9246],[-89.5898,14.9247]]},{"a":2,"b":3,"km":16.3,"pts":[[-89.5851,15.0443],[-89.5861,15.0437],[-89.5866,15.041],[-89.5875,15.0406],[-89.5962,15.0376],[-89.6052,15.037],[-89.611,15.0333],[-89.6221,15.0316],[-89.6395,15.0246],[-89.6544,15.0155],[-89.6555,15.0139],[-89.6567,15.0098],[-89.6589,15.008],[-89.7011,14.9955],[-89.7183,14.9928],[-89.7183,14.9902]]},{"a":3,"b":4,"km":8.6,"pts":[[-89.7183,14.9902],[-89.7184,14.9892],[-89.7214,14.9885],[-89.7246,14.9862],[-89.7244,14.9825],[-89.7254,14.9814],[-89.7256,14.9802],[-89.7275,14.9786],[-89.7279,14.9762],[-89.7298,14.9757],[-89.7348,14.9717],[-89.7389,14.9691],[-89.7505,14.965],[-89.7516,14.9637],[-89.7522,14.9617],[-89.7522,14.9599],[-89.7544,14.958],[-89.7572,14.9569],[-89.763,14.954],[-89.7635,14.9535],[-89.7666,14.9523],[-89.7712,14.9496],[-89.7739,14.9486],[-89.7766,14.9482],[-89.7766,14.9473],[-89.7769,14.9473]]},{"a":3,"b":7,"km":18.5,"pts":[[-89.7183,14.9902],[-89.7183,14.9928],[-89.702,14.9953],[-89.6701,15.0047],[-89.6678,15.0013],[-89.6675,14.9988],[-89.6683,14.9974],[-89.6674,14.9922],[-89.6686,14.9864],[-89.6785,14.9826],[-89.68,14.9815],[-89.683,14.9813],[-89.6888,14.9796],[-89.695,14.9794],[-89.6971,14.9752],[-89.6952,14.9742],[-89.6939,14.9716],[-89.6954,14.9634],[-89.699,14.9624],[-89.6993,14.9602],[-89.7018,14.9585],[-89.703,14.9565],[-89.7112,14.9569],[-89.7129,14.9516],[-89.7144,14.9497],[-89.7168,14.9442],[-89.7174,14.9312],[-89.7152,14.9272]]},{"a":7,"b":8,"km":11.5,"pts":[[-89.7152,14.9272],[-89.7174,14.9312],[-89.7173,14.9318],[-89.719,14.9321],[-89.7204,14.9333],[-89.7211,14.9348],[-89.7225,14.936],[-89.7267,14.9376],[-89.7273,14.9375],[-89.7291,14.9364],[-89.7305,14.9359],[-89.735,14.9375],[-89.7357,14.9392],[-89.7353,14.9398],[-89.7356,14.9405],[-89.737,14.9422],[-89.7381,14.9443],[-89.7411,14.9473],[-89.7425,14.9465],[-89.7459,14.9437],[-89.7467,14.9407],[-89.7489,14.9379],[-89.7521,14.938],[-89.7539,14.9385],[-89.7572,14.936],[-89.7603,14.9328],[-89.7618,14.9322],[-89.7653,14.9322],[-89.7691,14.9316],[-89.7712,14.9318],[-89.7726,14.9323],[-89.7734,14.9333],[-89.776,14.9345],[-89.7769,14.9342],[-89.7782,14.9328],[-89.7798,14.9323],[-89.7811,14.9315],[-89.7857,14.9314],[-89.7904,14.9326],[-89.7947,14.9342],[-89.799,14.9346]]},{"a":8,"b":9,"km":22.8,"pts":[[-89.799,14.9346],[-89.8093,14.9329],[-89.8078,14.9268],[-89.8158,14.913],[-89.8154,14.9101],[-89.8177,14.9039],[-89.8175,14.8969],[-89.8159,14.8948],[-89.8165,14.8917],[-89.8108,14.8879],[-89.8086,14.883],[-89.8095,14.8782],[-89.8071,14.8745],[-89.8118,14.8582],[-89.8159,14.8561],[-89.8103,14.8502],[-89.8119,14.8413],[-89.8075,14.8431],[-89.8051,14.8384],[-89.7999,14.8366],[-89.8025,14.8321],[-89.8002,14.8297],[-89.8009,14.8279],[-89.7961,14.8261],[-89.795,14.8224],[-89.7927,14.8225],[-89.79,14.8208],[-89.7887,14.8179],[-89.7895,14.8146],[-89.7828,14.8152],[-89.7773,14.8025],[-89.7762,14.7897]]},{"a":2,"b":5,"km":31.2,"pts":[[-89.5851,15.0443],[-89.5841,15.0425],[-89.5768,15.0429],[-89.5605,15.0533],[-89.494,15.0768],[-89.4781,15.0847],[-89.4652,15.0867],[-89.458,15.0859],[-89.432,15.0945],[-89.4266,15.1047],[-89.4176,15.1146],[-89.4045,15.1152],[-89.4008,15.1181],[-89.3917,15.1215],[-89.3854,15.1195],[-89.3796,15.1225],[-89.3692,15.1308],[-89.361,15.1284],[-89.3556,15.132],[-89.3533,15.1318],[-89.3535,15.1288],[-89.3576,15.1273],[-89.3582,15.1213],[-89.3552,15.1157],[-89.357,15.113],[-89.3576,15.1136]]},{"a":5,"b":6,"km":26.9,"pts":[[-89.3576,15.1136],[-89.3566,15.1138],[-89.3585,15.11],[-89.3539,15.1096],[-89.3532,15.1071],[-89.354,15.1039],[-89.3568,15.1019],[-89.3582,15.0958],[-89.353,15.0913],[-89.3532,15.0873],[-89.351,15.0841],[-89.3525,15.0834],[-89.3521,15.0825],[-89.3425,15.0755],[-89.343,15.0716],[-89.3412,15.0696],[-89.3419,15.0675],[-89.3383,15.0592],[-89.3353,15.056],[-89.3306,15.0538],[-89.33,15.0521],[-89.3286,15.055],[-89.3242,15.0557],[-89.3218,15.053],[-89.3206,15.0539],[-89.3166,15.0512],[-89.3117,15.0503],[-89.3111,15.0445],[-89.2995,15.0322],[-89.301,15.0231],[-89.2959,15.0196],[-89.2919,15.0143],[-89.2934,15.0115],[-89.2935,15.0058],[-89.2901,15.0017],[-89.2899,14.997],[-89.2868,14.9914],[-89.289,14.9874],[-89.2871,14.9857],[-89.2839,14.9865],[-89.2829,14.9839],[-89.2845,14.9829],[-89.283,14.9814],[-89.2872,14.9782],[-89.2853,14.976],[-89.287,14.9749],[-89.2863,14.9732],[-89.288,14.9717],[-89.2858,14.9681],[-89.2882,14.9692],[-89.2906,14.9681],[-89.2903,14.9664]]}]};
+const $=id=>document.getElementById(id);
+const N=D.nodes.length, KM=D.km, MIN=D.min, HUB=0, T0=360, T1=1080;
+$("src").textContent="Datos: "+D.source;
+
+/* ---- proyección equirectangular, primeros principios ---- */
+const all=D.nodes.map(n=>[n.lon,n.lat]).concat(...D.edges.map(e=>e.pts));
+const lo0=Math.min(...all.map(p=>p[0])),lo1=Math.max(...all.map(p=>p[0]));
+const la0=Math.min(...all.map(p=>p[1])),la1=Math.max(...all.map(p=>p[1]));
+const k=Math.cos(15*Math.PI/180), W=360,H=250,pad=26;
+const s=Math.min((W-2*pad)/((lo1-lo0)*k),(H-2*pad)/(la1-la0));
+const P=([lo,la])=>[pad+(lo-lo0)*k*s,H-pad-(la-la0)*s];
+const NS="http://www.w3.org/2000/svg";
+const el=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const x in a)e.setAttribute(x,a[x]);p.appendChild(e);return e};
+D.edges.forEach(e=>el("polyline",{points:e.pts.map(p=>P(p).map(v=>v.toFixed(1)).join(",")).join(" ")},$("roads")));
+D.nodes.forEach((n,i)=>{const[x,y]=P([n.lon,n.lat]);
+ el("circle",{cx:x,cy:y,r:i===HUB?6:4,fill:i===HUB?"#ffae45":"#64ffb2"},$("nodes"));
+ const t=el("text",{x:x+6,y:y-6,fill:"#c5e6da","font-size":8},$("nodes"));t.textContent=n.n});
+
+/* ---- rutas sobre la red troncal (para dibujar) ---- */
+const adj=Array.from({length:N},()=>[]);
+D.edges.forEach((e,i)=>{adj[e.a].push([e.b,i,false]);adj[e.b].push([e.a,i,true])});
+const pathCache={};
+function path(a,b){const key=a+">"+b;if(pathCache[key])return pathCache[key];
+ const prev=Array(N).fill(null);prev[a]=[-1];const q=[a];
+ while(q.length){const u=q.shift();for(const[v,ei,rev]of adj[u])if(!prev[v]){prev[v]=[u,ei,rev];q.push(v)}}
+ let pts=[],v=b;const segs=[];while(v!==a){const[u,ei,rev]=prev[v];segs.unshift([ei,!rev]);v=u}
+ segs.forEach(([ei,fwd])=>{let p=D.edges[ei].pts.map(P);if(!fwd)p=p.slice().reverse();pts=pts.concat(p)});
+ if(!pts.length)pts=[P([D.nodes[a].lon,D.nodes[a].lat])];
+ const L=[0];for(let i=1;i<pts.length;i++)L.push(L[i-1]+Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]));
+ return pathCache[key]={pts,L}}
+function along(a,b,f){const{pts,L}=path(a,b),d=f*L[L.length-1];let i=1;while(i<L.length-1&&L[i]<d)i++;
+ const seg=L[i]-L[i-1]||1,t=Math.max(0,Math.min(1,(d-L[i-1])/seg));
+ const p=pts[i-1],q=pts[i]||p;return[p[0]+(q[0]-p[0])*t,p[1]+(q[1]-p[1])*t]}
+
+/* ---- PRNG determinista ---- */
+function rng(seed){let a=seed>>>0;return()=>{a=a+0x6D2B79F5>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+
+/* ---- motor ---- */
+function makeSim(p){
+ const r=rng(p.seed),S={t:T0,q:[],served:Array(N).fill(0),wait:[],kmL:0,kmE:0,
+  v:Array.from({length:p.fleet},()=>({at:HUB,st:"idle",a:HUB,b:HUB,t0:0,t1:0,req:null}))};
+ S.step=()=>{const t=S.t;
+  if(t<T1)for(let i=0;i<N;i++)if(i!==HUB&&r()<p.dem/120)S.q.push({o:i,t});
+  for(const v of S.v){
+   if(v.st!=="idle"&&t>=v.t1){
+    if(v.st==="pick"){S.wait.push(t-v.req.t);v.st="load";v.a=v.req.o;v.b=HUB;v.t0=t;v.t1=t+Math.max(1,MIN[v.req.o][HUB]);S.kmL+=KM[v.req.o][HUB]}
+    else{S.served[v.req.o]++;v.st="idle";v.at=HUB;v.req=null}}
+   if(v.st==="idle"&&S.q.length){
+    let j=0;
+    if(p.policy==="C"){let best=1e9;S.q.forEach((q,i)=>{const d=KM[v.at][q.o];if(d<best){best=d;j=i}})}
+    const q=S.q.splice(j,1)[0];v.req=q;v.st="pick";v.a=v.at;v.b=q.o;v.t0=t;v.t1=t+Math.max(1,MIN[v.at][q.o]);S.kmE+=KM[v.at][q.o]}}
+  S.t++};
+ S.stats=()=>{const tot=S.served.reduce((a,b)=>a+b,0),w=S.wait.concat(S.q.map(q=>S.t-q.t),S.v.filter(v=>v.st==="pick").map(v=>S.t-v.req.t));
+  return{served:tot,pending:S.q.length+S.v.filter(v=>v.st==="pick").length,
+   avgWait:w.length?Math.round(w.reduce((a,b)=>a+b,0)/w.length):0,maxWait:w.length?Math.max(...w):0,
+   kmLoaded:Math.round(S.kmL),kmEmpty:Math.round(S.kmE),eta:+(S.kmL/((S.kmL+S.kmE)||1)).toFixed(2),
+   byMunicipio:Object.fromEntries(D.nodes.map((n,i)=>[n.n,S.served[i]]).filter((x,i)=>i!==HUB))}};
+ return S}
+function runDay(p){const S=makeSim(p);while(S.t<T1)S.step();return S}
+
+/* ---- witness: cadena SHA-256 canónica (sin marcas de tiempo) ---- */
+const GEN="0".repeat(64);let chain=[],head=GEN,qq=Promise.resolve();
+const canon=o=>Array.isArray(o)?"["+o.map(canon).join(",")+"]":o&&typeof o==="object"?"{"+Object.keys(o).sort().map(k=>JSON.stringify(k)+":"+canon(o[k])).join(",")+"}":JSON.stringify(o);
+async function sha(x){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(x));return[...new Uint8Array(b)].map(v=>v.toString(16).padStart(2,"0")).join("")}
+function witness(type,data){qq=qq.then(async()=>{const e={seq:chain.length+1,type,data,prev:head};e.hash=await sha(canon({seq:e.seq,type,data,prev:e.prev}));chain.push(e);head=e.hash;showW()}).catch(()=>{});return qq}
+function showW(){$("head").textContent=head.slice(0,12)+"…";$("wit").textContent=chain.map(e=>"#"+e.seq+" "+e.type+" "+e.hash.slice(0,16)+"\n  "+canon(e.data)).join("\n")}
+async function verify(){let h=GEN;for(const e of chain){if(e.prev!==h)return false;const x=await sha(canon({seq:e.seq,type:e.type,data:e.data,prev:e.prev}));if(x!==e.hash)return false;h=x}return true}
+
+
+/* ---- æsymov Zacapaneco: cara virtual, solo lectura ---- */
+const MOODS={ready:{h:12,m:"M48 80 Q60 86 72 80"},work:{h:9,m:"M50 81 H70"},think:{h:7,m:"M50 82 Q58 79 70 82"},
+ hold:{h:12,m:"M48 84 Q60 77 72 84"},sleep:{h:2,m:"M54 82 H66"},lost:{h:12,m:"M52 82 Q60 78 68 84"},tired:{h:5,m:"M50 83 H70"}};
+let idleT=null;
+function bot(mood,text){const M=MOODS[mood]||MOODS.ready;
+ ["L","R"].forEach(k=>{const r=$("lid"+k);r.setAttribute("height",M.h);r.setAttribute("y",62-M.h/2)});
+ $("mouth").setAttribute("d",M.m);$("mood").textContent=mood;if(text)$("say").textContent=text;
+ clearTimeout(idleT);if(mood!=="sleep")idleT=setTimeout(()=>bot("sleep","Zzz… aquí ando, a la sombra del sombrero. Toquen algo y despierto."),90000)}
+document.addEventListener("pointermove",e=>{if(reduced)return;const r=$("face").getBoundingClientRect();
+ const dx=Math.max(-3,Math.min(3,(e.clientX-(r.left+r.width/2))/60)),dy=Math.max(-2,Math.min(2,(e.clientY-(r.top+r.height/2))/80));
+ $("eL").style.transform=$("eR").style.transform=`translate(${dx}px,${dy}px)`});
+function worst(st){const v=Object.entries(st.byMunicipio).sort((a,b)=>a[1]-b[1]);return v[0]}
+
+/* ---- UI ---- */
+let policy="A",anim=null,sim=null;
+const params=()=>({fleet:+$("fleet").value,dem:+$("dem").value,seed:(+$("seed").value|0)||1,policy});
+const hhmm=t=>String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0");
+function labels(){$("fleetL").textContent=$("fleet").value;$("demL").textContent=($("dem").value/2)+"/h × 10 municipios = "+($("dem").value*5)+"/h";
+ $("pol").textContent="ROUTE_PRIORITY = "+(policy==="A"?"ACCESO":"CAPACIDAD");$("vA").classList.toggle("on",policy==="A");$("vC").classList.toggle("on",policy==="C")}
+function fill(col,st){$("s"+col).textContent=st.served;$("q"+col).textContent=st.pending;$("w"+col).textContent=st.avgWait+" min";
+ $("x"+col).textContent=st.maxWait+" min";$("l"+col).textContent=st.kmLoaded;$("e"+col).textContent=st.kmEmpty;$("n"+col).textContent=st.eta.toFixed(2)}
+function bars(st){const v=Object.entries(st.byMunicipio),m=Math.max(1,...v.map(x=>x[1]));
+ $("bars").innerHTML="";v.forEach(([n,c])=>{const d=document.createElement("div");d.innerHTML="<span></span><i></i><small></small>";
+ d.querySelector("span").textContent=n;d.querySelector("i").style.width=(c/m*55)+"%";d.querySelector("small").textContent=c;$("bars").appendChild(d)})}
+function drawV(S){$("veh").replaceChildren();if(!S)return;S.v.forEach(v=>{let xy;
+ if(v.st==="idle")xy=P([D.nodes[v.at].lon,D.nodes[v.at].lat]);else xy=along(v.a,v.b,Math.min(1,(S.t-v.t0)/(v.t1-v.t0||1)));
+ el("circle",{cx:xy[0],cy:xy[1],r:3.2,fill:v.st==="load"?"#ffbb66":v.st==="pick"?"#7fd8ff":"#64ffb2",stroke:"#080e14","stroke-width":.8},$("veh"))})}
+function stop(){if(anim){clearInterval(anim);anim=null}$("run").textContent="▶ RUN"}
+function finish(S){const st=S.stats();fill(policy,st);bars(st);const w=worst(st);bot(w[1]===0?"hold":"ready",w[1]===0?`Ojo: ${w[0]} se quedó sin un solo viaje hoy. ${st.served} atendidos en total.`:`Listo el día: ${st.served} viajes. El que menos recibió fue ${w[0]}, con ${w[1]}.`);witness("RESULT",{policy,stats:{served:st.served,pending:st.pending,avgWait:st.avgWait,maxWait:st.maxWait,kmLoaded:st.kmLoaded,kmEmpty:st.kmEmpty,eta:st.eta}})}
+const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
+$("run").onclick=()=>{if(anim){stop();return}
+ if(!sim||sim.t>=T1){sim=makeSim(params());witness("PARAMS",params())}
+ if(reduced){$("day").onclick();return}
+ $("run").textContent="Ⅱ PAUSA";bot("work","Ahí van los tuk-tuks por las carreteras de Zacapa. Amarillo lleva pasajero, celeste va por uno.");
+ anim=setInterval(()=>{for(let i=0;i<3;i++)if(sim.t<T1)sim.step();$("clock").textContent=hhmm(sim.t);drawV(sim);
+  const st=sim.stats();fill(policy,st);if(sim.t>=T1){stop();finish(sim)}},60)};
+$("day").onclick=()=>{stop();const p=params();witness("PARAMS",p);sim=runDay(p);$("clock").textContent=hhmm(sim.t);drawV(sim);finish(sim)};
+$("cmp").onclick=()=>{stop();const base=params();witness("PARAMS",{...base,policy:"COMPARE"});
+ const a=runDay({...base,policy:"A"}).stats(),c=runDay({...base,policy:"C"}).stats();fill("A",a);fill("C",c);bars(policy==="A"?a:c);
+ const more=c.served-a.served,wait=c.maxWait-a.maxWait;
+ $("lesson").textContent=`Con la misma flota y el mismo día: CAPACIDAD atiende ${more>=0?more+" viajes más":(-more)+" viajes menos"}, pero la espera máxima ${wait>=0?"sube "+wait:"baja "+(-wait)} min. Esa diferencia la decide la comunidad, no el motor.`;
+ bot("think",more>0?`Púchica, la decisión es suya: CAPACIDAD da ${more} viajes más, pero alguien espera ${wait} min más. ¿Qué vale más para Zacapa?`:`Esta vez ACCESO no cuesta viajes. Prueben con menos vehículos.`);
+ witness("COMPARE",{A:{served:a.served,maxWait:a.maxWait,eta:a.eta},C:{served:c.served,maxWait:c.maxWait,eta:c.eta}})};
+const vote=x=>{stop();policy=x;sim=null;labels();bot("ready",x==="A"?"Anotado: primero quien más espera. Así nadie de San Diego ni La Unión se queda atrás.":"Anotado: primero el más cercano. Más viajes, pero vean quién se queda esperando.");witness("POLICY",{route_priority:x==="A"?"ACCESS":"CAPACITY",status:"LOCAL_PROPOSAL_NOT_RATIFIED"})};
+$("vA").onclick=()=>vote("A");$("vC").onclick=()=>vote("C");
+["fleet","dem"].forEach(id=>$(id).oninput=()=>{labels();stop();sim=null});
+$("ver").onclick=async()=>{const ok=await verify();$("head").textContent=(ok?"✓ VÁLIDA ":"✕ ROTA ")+head.slice(0,10)+"…"};
+$("exp").onclick=async()=>{await qq;const blob=new Blob([JSON.stringify({project:"ZACAPA.DAO",version:"0.2",data_source:D.source,genesis:GEN,head,chain,
+ note:"Cadena reproducible: hash = SHA-256(canon({seq,type,data,prev})). Simulación local; no es un libro mayor autenticado."},null,2)],{type:"application/json"});
+ const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="zacapa-dao-witness.json";a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)};
+$("rst").onclick=()=>{stop();sim=null;chain=[];head=GEN;$("wit").textContent=">_ cadena vacía";$("head").textContent="GENESIS";$("clock").textContent="06:00";drawV(null);
+ ["s","q","w","x","l","e","n"].forEach(r=>["A","C"].forEach(c=>$(r+c).textContent="–"));$("lesson").textContent="";$("bars").innerHTML=""};
+labels();bot("ready");
+</script>
+</body>
+</html>

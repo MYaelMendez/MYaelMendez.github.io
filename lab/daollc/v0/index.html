@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#000000">
+<title>DAOLLC.ai · LAB v0 · gobernanza simulada</title>
+<style>
+:root{--cy:#00f3ff;--cyd:#00f3ff55;--ink:#d8fdff;--mut:#7fa9ae;--ok:#64ffb2;--warn:#ffcf5a;--bad:#ff6b8a;--bg:#000;--card:#03090b}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+main{max-width:620px;margin:auto;padding:14px 12px 34px}
+h1{font-size:22px;color:var(--cy);margin:6px 0 2px;letter-spacing:.5px}
+h2{font-size:14px;color:var(--cy);margin:0 0 6px;letter-spacing:.6px}
+small,.m{color:var(--mut)}
+.demo{border:1px dashed var(--warn);color:var(--warn);border-radius:10px;padding:8px 10px;margin:10px 0;font-size:12px}
+.flow{color:var(--cy);font-size:12px;word-break:break-word;margin:6px 0}
+.p{background:var(--card);border:1px solid var(--cyd);border-radius:12px;padding:12px;margin:12px 0}
+.r{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:4px 0;flex-wrap:wrap}
+button{font:inherit;font-size:14px;min-height:44px;min-width:44px;background:#001a1d;color:var(--cy);border:1px solid var(--cy);border-radius:9px;padding:8px 10px;cursor:pointer}
+button:hover{background:#00282c}button:active,button.on{background:var(--cy);color:#001014}
+button:disabled{opacity:.35;cursor:not-allowed}
+button.h{border-color:var(--warn);color:var(--warn)}button.h.on,button.h:active{background:var(--warn);color:#111}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--warn);outline-offset:2px}
+.row{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.row>*{flex:1 1 auto}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+label{display:block;color:var(--mut);margin:8px 0 3px;font-size:12px}
+input,select{width:100%;font:inherit;font-size:16px;min-height:44px;background:#000;color:#fff;border:1px solid #2b5257;border-radius:8px;padding:8px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+td,th{padding:5px 3px;border-bottom:1px solid #0d2d31;text-align:right}
+td:first-child,th:first-child{text-align:left}th{color:var(--mut);font-weight:400}
+.card{border:1px solid #0f3b40;border-radius:10px;padding:10px;margin:8px 0}
+.tag{display:inline-block;border:1px solid var(--cyd);border-radius:6px;padding:0 6px;font-size:11px;margin-right:4px}
+.st{color:var(--warn)}.st.ok{color:var(--ok)}.st.bad{color:var(--bad)}
+pre{white-space:pre-wrap;word-break:break-all;color:#9fd3d8;font-size:11px;max-height:240px;overflow:auto;margin:6px 0 0}
+.bot{display:flex;gap:12px;align-items:center}
+.bot svg{width:96px;height:96px;flex:none}
+.say{flex:1;border:1px solid var(--cyd);border-radius:12px;padding:10px;min-height:64px}
+.say small{display:block;margin-top:4px;font-size:11px}
+.human{border-color:var(--warn)}
+.human h2{color:var(--warn)}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cmp div{border:1px solid #0f3b40;border-radius:10px;padding:9px;font-size:12px}
+.cmp b{color:var(--cy)}
+.err{color:var(--bad);min-height:1.2em;font-size:12px}
+#face .eye,#face #mouth{transition:all .25s}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+footer{color:var(--mut);text-align:center;padding:14px;font-size:11px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<main id="app">
+<header>
+<small>🏭 æ:// LAB · INSTITUTO · #OSW</small>
+<h1>DAOLLC.ai · LAB v0</h1>
+<div class="flow">&gt;_æ:#startabusiness → ORGANIZE → capability://formation → LLC://ACTIVE</div>
+<div class="demo" role="note"><b>DEMO · simulación · no es asesoría legal ni despliega contratos.</b> Todo ocurre en tu navegador: miembros ficticios, dinero ficticio (USDx), reloj simulado.</div>
+</header>
+
+<section class="p" aria-live="polite">
+<div class="r"><h2>🤖 æSYMOV · solo lectura</h2><span class="m" id="mood">listo</span></div>
+<div class="bot">
+<svg id="face" viewBox="0 0 120 120" role="img" aria-label="æsymov, cara virtual de solo lectura">
+<rect x="2" y="2" width="116" height="116" rx="16" fill="#000" stroke="#00f3ff" stroke-opacity=".45"/>
+<rect x="26" y="30" width="68" height="62" rx="14" fill="#001114" stroke="#00f3ff" stroke-width="1.6"/>
+<text x="60" y="25" text-anchor="middle" font-size="10" fill="#00f3ff">æ</text>
+<rect class="eye" id="eL" x="40" y="50" width="12" height="12" rx="4" fill="#00f3ff"/>
+<rect class="eye" id="eR" x="68" y="50" width="12" height="12" rx="4" fill="#00f3ff"/>
+<path id="mouth" d="M46 76 Q60 84 74 76" stroke="#00f3ff" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+<path d="M26 62 h-7 M94 62 h7" stroke="#00f3ff" stroke-width="2"/>
+<text x="60" y="108" text-anchor="middle" font-size="7" fill="#7fa9ae">recomienda · no ejecuta</text>
+</svg>
+<div class="say"><span id="say">Hola. Soy æsymov. Explico cada paso; la comunidad decide.</span><small>Evidence ≠ Authority · Humans decide, agents relay.</small></div>
+</div>
+</section>
+
+<section class="p">
+<div class="r"><h2>⏱ RELOJ SIMULADO</h2><b id="clock">bloque 0</b></div>
+<div class="row"><button id="t1">+1 bloque</button><button id="t3">+3 bloques</button></div>
+<small id="params"></small>
+<label for="actor">🧑 Actúas como (elige quién firma cada acción)</label>
+<select id="actor"></select>
+</section>
+
+<section class="p">
+<h2>👥 MIEMBROS · BANCO DEL GREMIO</h2>
+<table id="mem"></table>
+<div class="r"><span>Banco del gremio (GUILD)</span><b id="bank"></b></div>
+<div class="r"><span>Escrow (depósitos y tributos)</span><b id="escrow"></b></div>
+<small>shares = voto + parte del banco · loot = sólo parte del banco (no vota) · "interno" = saldo acreditado que se retira con patrón pull.</small>
+</section>
+
+<section class="p">
+<div class="tabs" role="tablist">
+<button id="tabM" role="tab" aria-selected="true" class="on">MOLOCH v2</button>
+<button id="tabG" role="tab" aria-selected="false">GOVERNOR (OZ)</button>
+</div>
+<div id="paneM" role="tabpanel">
+<p class="m">submit (cualquiera) → sponsor (miembro, deposita) → voto Sí/No (sólo shares) → gracia (quien no votó Sí puede hacer ragequit) → process.</p>
+<div class="g2">
+<div><label for="mApp">Solicitante</label><select id="mApp"></select></div>
+<div><label for="mDet">Detalle</label><input id="mDet" value="Aporte y membresía"></div>
+<div><label for="mSh">Shares pedidas</label><input id="mSh" type="number" min="0" value="10" inputmode="numeric"></div>
+<div><label for="mLo">Loot pedido</label><input id="mLo" type="number" min="0" value="0" inputmode="numeric"></div>
+<div><label for="mTr">Tributo (USDx)</label><input id="mTr" type="number" min="0" value="1000" inputmode="numeric"></div>
+<div><label for="mPay">Pago pedido al banco</label><input id="mPay" type="number" min="0" value="0" inputmode="numeric"></div>
+</div>
+<div class="row"><button id="mSubmit">＋ submitProposal</button></div>
+<h2 style="margin-top:12px">🚪 SALIDA · ragequit</h2>
+<div class="g2">
+<div><label for="rqS">Shares a quemar</label><input id="rqS" type="number" min="0" value="0" inputmode="numeric"></div>
+<div><label for="rqL">Loot a quemar</label><input id="rqL" type="number" min="0" value="0" inputmode="numeric"></div>
+</div>
+<div class="row"><button id="rq" class="h">ragequit (HUMAN://)</button><button id="wd" class="h">withdraw (HUMAN://)</button></div>
+<h2 style="margin-top:12px">⚖️ guildKick → jail → ragekick</h2>
+<label for="gkM">Miembro</label><select id="gkM"></select>
+<div class="row"><button id="gk">＋ submitGuildKick</button><button id="rk" class="h">ragekick (HUMAN://)</button></div>
+</div>
+<div id="paneG" role="tabpanel" hidden>
+<p class="m">propose → votingDelay → Active (A favor / En contra / Abstención, peso = shares en el snapshot) → quorum → Succeeded/Defeated → queue en Timelock (minDelay) → Ready → execute.</p>
+<div class="g2">
+<div><label for="gTo">Pagar a</label><select id="gTo"></select></div>
+<div><label for="gAmt">Monto (USDx)</label><input id="gAmt" type="number" min="1" value="3000" inputmode="numeric"></div>
+</div>
+<label for="gDesc">Descripción (su hash entra al proposalId)</label><input id="gDesc" value="Pago por diseño del sitio">
+<div class="row"><button id="gProp">＋ propose</button></div>
+</div>
+<div class="err" id="err" role="alert"></div>
+</section>
+
+<section class="p">
+<h2>📜 PROPUESTAS · lista compartida</h2>
+<div id="list"><small>Sin propuestas todavía.</small></div>
+</section>
+
+<section class="p human" id="humanBox" aria-live="assertive">
+<h2>🫵 HUMAN:// · autorización humana</h2>
+<p class="m">Mover fondos (process, execute, ragequit, ragekick, withdraw) nunca es automático. Un agente sólo puede recomendar. Pulsa el botón de la acción, escribe <b>APRUEBO</b> y confirma con un toque real.</p>
+<div id="hReq"><small>Nada pendiente.</small></div>
+<label for="hType">Escribe APRUEBO</label><input id="hType" autocomplete="off" autocapitalize="characters" spellcheck="false">
+<div class="row"><button id="hOk" class="h" disabled>🫵 APRUEBO · confirmar</button><button id="hNo" disabled>✕ rechazar</button></div>
+</section>
+
+<section class="p">
+<h2>🔍 MOLOCH vs GOVERNOR</h2>
+<div class="cmp">
+<div><b>MOLOCH v2</b><br>Mínimo. Protección de salida: <b>ragequit</b> = te vas con tu parte proporcional del banco si no te gusta lo que viene. Gracia antes de procesar. Cola estricta. Dilution bound.</div>
+<div><b>GOVERNOR (OZ)</b><br>Modular, estándar de producción. <b>quorum</b> (fracción de shares) + <b>timelock</b> (minDelay antes de ejecutar). For/Against/Abstain. proposalId = hash del contenido.</div>
+</div>
+<small>Ambos comparten aquí los mismos miembros y el mismo banco; cambia sólo la regla de decisión.</small>
+</section>
+
+<section class="p">
+<h2>🏛 DAO LLC · cómo se mapea</h2>
+<table>
+<tr><th>Gobernanza (simulada)</th><th>Envoltura LLC</th></tr>
+<tr><td>Reglas del contrato (periodos, quorum, depósitos)</td><td>Acuerdo operativo (operating agreement)</td></tr>
+<tr><td>Shares / loot</td><td>Participación de miembros: voto y derecho económico</td></tr>
+<tr><td>Ejecutores del timelock / quien procesa</td><td>Managers o personas autorizadas a actuar</td></tr>
+<tr><td>Banco del gremio</td><td>Cuenta y activos de la compañía</td></tr>
+<tr><td>Ragequit</td><td>Salida / retiro de un miembro</td></tr>
+<tr><td>Witness SHA-256</td><td>Libro de actas reproducible</td></tr>
+</table>
+<p class="m">Idea de MolochLAO: una DAO envuelta en una LLC. Esto <b>sólo simula la gobernanza</b>. Formar una LLC real requiere un abogado y un agente registrado; las reglas cambian según la jurisdicción. Para fundadores globales existe doola; daollc.ai es la ruta local.</p>
+</section>
+
+<section class="p">
+<div class="r"><h2>🧾 WITNESS · SHA-256</h2><span id="head" class="m">GENESIS</span></div>
+<pre id="wit">&gt;_ cadena vacía</pre>
+<div class="row"><button id="ver">✓ Verificar</button><button id="exp">↓ Export JSON</button><button id="rst">■ Reset</button></div>
+<small id="verOut"></small>
+</section>
+
+<footer>DEMO · simulación · no es asesoría legal ni despliega contratos<br>Patrones: MolochVentures/moloch v2 · OpenZeppelin Governor + TimelockController (MIT)<br>CONTEXT MAY PROPAGATE · AUTHORITY DOES NOT · &gt;_</footer>
+</main>
+<script>
+/* ================= DAOLLC ENGINE · puro, sin DOM =================
+   Port de patrones: MolochVentures/moloch (Moloch.sol v2) +
+   OpenZeppelin governance (Governor, CountingSimple, VotesQuorumFraction, TimelockController).
+   Simulación local. No despliega contratos. No mueve dinero real. */
+const DAOLLC_ENGINE=(function(){
+"use strict";
+const PHRASE="APRUEBO";
+const GENESIS="GENESIS";
+const canon=o=>Array.isArray(o)?"["+o.map(canon).join(",")+"]":o&&typeof o==="object"?"{"+Object.keys(o).sort().map(k=>JSON.stringify(k)+":"+canon(o[k])).join(",")+"}":JSON.stringify(o===undefined?null:o);
+async function sha(x){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(x));return[...new Uint8Array(b)].map(v=>v.toString(16).padStart(2,"0")).join("")}
+function rng(seed){let a=seed>>>0;return()=>{a=a+0x6D2B79F5>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+const clone=o=>JSON.parse(JSON.stringify(o));
+function fail(msg){throw new Error(msg)}
+async function verifyChain(chain){let h=GENESIS;for(const e of chain){if(e.prev!==h)return{ok:false,at:e.seq};const x=await sha(canon({seq:e.seq,type:e.type,data:e.data,prev:e.prev}));if(x!==e.hash)return{ok:false,at:e.seq};h=x}return{ok:true,head:h,n:chain.length}}
+
+function createDAO(seed){
+ seed=(seed===undefined?2026:seed)>>>0;
+ const r=rng(seed);
+ /* parámetros (en "bloques" del reloj simulado; 1 bloque = 1 periodo Moloch) */
+ const P=Object.freeze({seed,unit:"USDx",
+  votingPeriodLength:3,gracePeriodLength:2,proposalDeposit:1000,processingReward:100,dilutionBound:3,
+  votingDelay:1,votingPeriod:3,quorumNumerator:40,quorumDenominator:100,minDelay:2,timelockGrace:6});
+ const NAMES=["Ana","Beto","Carla","Darío","Elena"];
+ const S={t:0,members:{},wallet:{},bal:{GUILD:0,ESCROW:0},totalShares:0,totalLoot:0,
+  props:[],queue:[],proposedToKick:{},ops:{},chain:[],head:GENESIS,last:null};
+ NAMES.forEach(n=>{const sh=10+Math.floor(r()*41),lo=Math.floor(r()*16);
+  S.members[n]={shares:sh,loot:lo,exists:true,highestIndexYesVote:-1,jailed:0};
+  S.totalShares+=sh;S.totalLoot+=lo;S.wallet[n]=5000;S.bal[n]=0});
+ S.wallet["Fausto"]=5000;S.bal["Fausto"]=0; /* externo: no miembro */
+ S.bal.GUILD=100000;
+
+ /* ---- witness: cadena SHA-256 canónica, sin marcas de tiempo ---- */
+ let qq=Promise.resolve();const listeners=[];
+ function witness(type,data){const d=clone(data);
+  qq=qq.then(async()=>{const e={seq:S.chain.length+1,type,data:d,prev:S.head};
+   e.hash=await sha(canon({seq:e.seq,type:e.type,data:e.data,prev:e.prev}));S.chain.push(e);S.head=e.hash;S.last={type,data:d};listeners.forEach(f=>{try{f(e)}catch(_){}})});
+  return qq}
+
+ /* ---- HUMAN:// · una autorización humana, de un solo uso, ligada a una acción ----
+    No existe execute(id,true): el permiso es un objeto opaco emitido sólo por approve()
+    tras escribir la frase; se consume una vez y sólo sirve para la acción exacta. */
+ const pending=new Map(),grants=new Set();let gseq=0;
+ function request(action){const a=clone(action);gseq++;const nonce="H"+gseq;pending.set(nonce,{key:canon(a),action:a});
+  witness("HUMAN_REQUEST",{nonce,action:a});return nonce}
+ function approve(nonce,typed){const p=pending.get(nonce);if(!p)fail("HUMAN:// solicitud inexistente o ya usada");
+  if(String(typed||"").trim()!==PHRASE)fail("HUMAN:// escribe "+PHRASE+" para autorizar");
+  pending.delete(nonce);const g=Object.freeze({nonce,key:p.key});grants.add(g);
+  witness("HUMAN_APPROVE",{nonce,action:p.action});return g}
+ function deny(nonce){const p=pending.get(nonce);if(!p)return;pending.delete(nonce);witness("HUMAN_DENY",{nonce,action:p.action})}
+ function useGrant(g,action){if(!g||typeof g!=="object"||!grants.has(g))fail("HUMAN:// requerido: un agente no puede autorizarse a sí mismo");
+  if(g.key!==canon(action))fail("HUMAN:// la autorización no corresponde a esta acción");grants.delete(g)}
+
+ /* ---- helpers contables (Moloch: userTokenBalances, patrón pull) ---- */
+ const isMember=a=>S.members[a]&&S.members[a].exists&&(S.members[a].shares>0||S.members[a].loot>0);
+ const isShareholder=a=>S.members[a]&&S.members[a].shares>0;
+ function xfer(from,to,amt){if(amt<0)fail("monto inválido");if((S.bal[from]||0)<amt)fail("saldo interno insuficiente");S.bal[from]-=amt;S.bal[to]=(S.bal[to]||0)+amt}
+ function pullFromWallet(who,to,amt){if((S.wallet[who]||0)<amt)fail(who+": saldo de cartera insuficiente");S.wallet[who]-=amt;S.bal[to]=(S.bal[to]||0)+amt}
+ const N=v=>{v=Math.floor(Number(v));if(!isFinite(v)||v<0)fail("número inválido");return v};
+ const get=id=>S.props.find(p=>p.id===id)||fail("propuesta no existe: "+id);
+
+ /* =================== MOLOCH v2 =================== */
+ let mCount=0;
+ function _submitM(actor,o,kind){const id="M"+(mCount++);
+  const p={id,engine:"MOLOCH",kind,proposer:actor,sponsor:null,applicant:o.applicant,sharesRequested:o.sharesRequested||0,lootRequested:o.lootRequested||0,
+   tributeOffered:o.tributeOffered||0,paymentRequested:o.paymentRequested||0,details:String(o.details||"").slice(0,140),
+   startingPeriod:0,yesVotes:0,noVotes:0,votesByMember:{},maxTotalSharesAndLootAtYesVote:0,index:-1,
+   flags:{sponsored:false,processed:false,didPass:false,cancelled:false,guildkick:kind==="guildkick"}};
+  S.props.push(p);return p}
+ function submitProposal(actor,o){const applicant=String(o.applicant||actor);
+  if(S.members[applicant]&&S.members[applicant].jailed)fail("el solicitante está en jail");
+  const q={applicant,sharesRequested:N(o.sharesRequested),lootRequested:N(o.lootRequested),tributeOffered:N(o.tributeOffered),paymentRequested:N(o.paymentRequested),details:o.details};
+  if(q.tributeOffered>0)pullFromWallet(actor,"ESCROW",q.tributeOffered); /* tributo en escrow hasta procesar */
+  const p=_submitM(actor,q,"standard");
+  return witness("M_SUBMIT",{id:p.id,proposer:actor,applicant,shares:q.sharesRequested,loot:q.lootRequested,tribute:q.tributeOffered,payment:q.paymentRequested,details:p.details,t:S.t}).then(()=>p.id)}
+ function submitGuildKick(actor,o){const m=String(o.member);
+  if(!isMember(m))fail("sólo se puede expulsar a un miembro con shares o loot");if(S.members[m].jailed)fail("ya está en jail");
+  const p=_submitM(actor,{applicant:m,details:o.details||("guildKick "+m)},"guildkick");
+  return witness("M_SUBMIT_GUILDKICK",{id:p.id,proposer:actor,member:m,t:S.t}).then(()=>p.id)}
+ function sponsorProposal(actor,id){const p=get(id);if(p.engine!=="MOLOCH")fail("no es Moloch");
+  if(!isShareholder(actor))fail("sólo un miembro con shares puede patrocinar");
+  if(p.flags.sponsored)fail("ya patrocinada");if(p.flags.cancelled)fail("cancelada");
+  if(S.members[p.applicant]&&S.members[p.applicant].jailed)fail("el solicitante está en jail");
+  if(p.flags.guildkick){if(S.proposedToKick[p.applicant])fail("ya hay una expulsión en curso");S.proposedToKick[p.applicant]=true}
+  pullFromWallet(actor,"ESCROW",P.proposalDeposit); /* depósito de patrocinio en escrow */
+  const lastStart=S.queue.length?get(S.queue[S.queue.length-1]).startingPeriod:0;
+  p.startingPeriod=Math.max(S.t,lastStart)+1;p.sponsor=actor;p.flags.sponsored=true;S.queue.push(id);p.index=S.queue.length-1;
+  return witness("M_SPONSOR",{id,sponsor:actor,deposit:P.proposalDeposit,index:p.index,startingPeriod:p.startingPeriod,t:S.t})}
+ function cancelProposal(actor,id){const p=get(id);if(p.engine==="GOVERNOR")return gCancel(actor,id);
+  if(p.flags.sponsored)fail("ya patrocinada");if(p.flags.cancelled)fail("ya cancelada");if(actor!==p.proposer)fail("sólo quien propuso puede cancelar");
+  p.flags.cancelled=true;if(p.tributeOffered){xfer("ESCROW",p.proposer,p.tributeOffered)}
+  return witness("M_CANCEL",{id,by:actor,t:S.t})}
+ const votingExpired=p=>S.t>=p.startingPeriod+P.votingPeriodLength;
+ function submitVote(actor,id,v){const p=get(id);if(p.engine!=="MOLOCH")fail("no es Moloch");
+  if(!p.flags.sponsored)fail("no patrocinada");if(!isShareholder(actor))fail("sólo votan las shares (loot no vota)");
+  if(S.t<p.startingPeriod)fail("la votación aún no empieza");if(votingExpired(p))fail("la votación terminó");
+  if(p.votesByMember[actor])fail("ya votó");if(v!=="Yes"&&v!=="No")fail("voto Yes o No");
+  const m=S.members[actor];p.votesByMember[actor]=v;
+  if(v==="Yes"){p.yesVotes+=m.shares;if(p.index>m.highestIndexYesVote)m.highestIndexYesVote=p.index;
+   const tot=S.totalShares+S.totalLoot;if(tot>p.maxTotalSharesAndLootAtYesVote)p.maxTotalSharesAndLootAtYesVote=tot}
+  else p.noVotes+=m.shares;
+  return witness("M_VOTE",{id,member:actor,vote:v,weight:m.shares,t:S.t})}
+ function mReady(p){return p.flags.sponsored&&!p.flags.processed&&S.t>=p.startingPeriod+P.votingPeriodLength+P.gracePeriodLength&&(p.index===0||get(S.queue[p.index-1]).flags.processed)}
+ function dilutionOk(p){return (S.totalShares+S.totalLoot)*P.dilutionBound>=p.maxTotalSharesAndLootAtYesVote}
+ function _didPass(p){let ok=p.yesVotes>p.noVotes;const dil=dilutionOk(p);if(!dil)ok=false;
+  if(S.members[p.applicant]&&S.members[p.applicant].jailed&&!p.flags.guildkick)ok=false;return{ok,dil}}
+ function processProposal(actor,id,grant){const p=get(id);if(p.engine!=="MOLOCH")fail("no es Moloch");
+  if(!p.flags.sponsored)fail("no patrocinada");if(p.flags.processed)fail("ya procesada");
+  if(S.t<p.startingPeriod+P.votingPeriodLength+P.gracePeriodLength)fail("aún no termina el periodo de gracia");
+  if(p.index>0&&!get(S.queue[p.index-1]).flags.processed)fail("primero procesa la propuesta anterior de la cola");
+  useGrant(grant,{op:"M_PROCESS",id});
+  p.flags.processed=true;let {ok,dil}=_didPass(p);const why=[];if(!dil)why.push("dilutionBound");
+  if(p.flags.guildkick){
+   if(ok){const m=S.members[p.applicant];m.jailed=p.index+1;m.loot+=m.shares;S.totalShares-=m.shares;S.totalLoot+=m.shares;m.shares=0;p.flags.didPass=true}
+   S.proposedToKick[p.applicant]=false;
+  }else{
+   if(p.paymentRequested>S.bal.GUILD){ok=false;why.push("banco insuficiente")}
+   if(ok){p.flags.didPass=true;const a=p.applicant;
+    if(S.members[a]&&S.members[a].exists){S.members[a].shares+=p.sharesRequested;S.members[a].loot+=p.lootRequested}
+    else{S.members[a]={shares:p.sharesRequested,loot:p.lootRequested,exists:true,highestIndexYesVote:-1,jailed:0};if(!(a in S.wallet))S.wallet[a]=0;if(!(a in S.bal))S.bal[a]=0}
+    S.totalShares+=p.sharesRequested;S.totalLoot+=p.lootRequested;
+    xfer("ESCROW","GUILD",p.tributeOffered);xfer("GUILD",a,p.paymentRequested); /* pago acreditado: pull */
+   }else{xfer("ESCROW",p.proposer,p.tributeOffered)}
+  }
+  /* devolver depósito: recompensa a quien procesa, resto al patrocinador (acreditado, pull) */
+  xfer("ESCROW",actor,P.processingReward);xfer("ESCROW",p.sponsor,P.proposalDeposit-P.processingReward);
+  return witness("M_PROCESS",{id,kind:p.kind,didPass:p.flags.didPass,yes:p.yesVotes,no:p.noVotes,dilutionOk:dil,why,processor:actor,human:grant.nonce,t:S.t})}
+ function canRagequit(m){const i=S.members[m].highestIndexYesVote;return i<0||get(S.queue[i]).flags.processed}
+ function _ragequit(who,sh,lo){const m=S.members[who];const tot=S.totalShares+S.totalLoot;
+  if(m.shares<sh)fail("shares insuficientes");if(m.loot<lo)fail("loot insuficiente");
+  if(!canRagequit(who))fail("no puedes hacer ragequit hasta que se procese la última propuesta a la que votaste Yes");
+  if(sh+lo<=0)fail("nada que quemar");
+  m.shares-=sh;m.loot-=lo;S.totalShares-=sh;S.totalLoot-=lo;
+  const amt=Math.floor(S.bal.GUILD*(sh+lo)/tot); /* fairShare */
+  S.bal.GUILD-=amt;S.bal[who]=(S.bal[who]||0)+amt;return amt}
+ function ragequit(actor,sh,lo,grant){if(!isMember(actor))fail("no eres miembro");sh=N(sh);lo=N(lo);
+  useGrant(grant,{op:"M_RAGEQUIT",member:actor,shares:sh,loot:lo});const amt=_ragequit(actor,sh,lo);
+  return witness("M_RAGEQUIT",{member:actor,sharesBurned:sh,lootBurned:lo,amount:amt,human:grant.nonce,t:S.t})}
+ function ragekick(actor,who,grant){const m=S.members[who];if(!m||!m.jailed)fail("debe estar en jail");if(m.loot<=0)fail("sin loot");
+  useGrant(grant,{op:"M_RAGEKICK",member:who});const lo=m.loot;const amt=_ragequit(who,0,lo);
+  return witness("M_RAGEKICK",{member:who,lootBurned:lo,amount:amt,by:actor,human:grant.nonce,t:S.t})}
+ function withdraw(actor,grant){const amt=S.bal[actor]||0;if(amt<=0)fail("no hay saldo interno para retirar");
+  useGrant(grant,{op:"WITHDRAW",member:actor});S.bal[actor]=0;S.wallet[actor]=(S.wallet[actor]||0)+amt;
+  return witness("WITHDRAW",{member:actor,amount:amt,human:grant.nonce,t:S.t})}
+ function mState(p){if(p.flags.cancelled)return"Cancelada";if(p.flags.processed)return p.flags.didPass?"Procesada · aprobada":"Procesada · rechazada";
+  if(!p.flags.sponsored)return"Enviada";if(S.t<p.startingPeriod)return"En cola";if(!votingExpired(p))return"Votación";
+  if(S.t<p.startingPeriod+P.votingPeriodLength+P.gracePeriodLength)return"Gracia";return"Lista para procesar"}
+
+ /* =================== OPENZEPPELIN GOVERNOR + TIMELOCK =================== */
+ async function gPropose(actor,o){if(!isShareholder(actor))fail("sólo miembros con shares proponen en este demo");
+  const to=String(o.to),amount=N(o.amount),description=String(o.description||"").slice(0,140);
+  if(!S.wallet.hasOwnProperty(to))fail("destinatario desconocido");if(amount<=0)fail("monto > 0");
+  const targets=["GUILD_BANK"],values=[amount],calldatas=["transfer("+to+","+amount+")"];
+  const descriptionHash=await sha(description);
+  const full=await sha(canon({targets,values,calldatas,descriptionHash})); /* proposalId = hash(contenido) */
+  const id="G"+full.slice(0,12);
+  if(S.props.some(p=>p.id===id))fail("propuesta idéntica ya existe (mismo hash): cambia la descripción");
+  const p={id,engine:"GOVERNOR",proposalId:full,proposer:actor,to,amount,targets,values,calldatas,description,descriptionHash,
+   voteStart:S.t+P.votingDelay,voteDuration:P.votingPeriod,snapshot:null,votes:{against:0,for:0,abstain:0},hasVoted:{},
+   executed:false,canceled:false,eta:0,opId:null};
+  S.props.push(p);
+  await witness("G_PROPOSE",{id,proposalId:full,proposer:actor,targets,values,calldatas,descriptionHash,voteStart:p.voteStart,voteEnd:p.voteStart+p.voteDuration,t:S.t});
+  return id}
+ const quorumOf=p=>p.snapshot?Math.floor(p.snapshot.totalSupply*P.quorumNumerator/P.quorumDenominator):Math.floor(S.totalShares*P.quorumNumerator/P.quorumDenominator);
+ const quorumReached=p=>quorumOf(p)<=p.votes.for+p.votes.abstain;
+ const voteSucceeded=p=>p.votes.for>p.votes.against;
+ function opState(p){if(!p.opId)return"Unset";const ts=S.ops[p.opId];if(ts===1)return"Done";if(ts>S.t)return"Waiting";return"Ready"}
+ function gState(p){if(p.executed)return"Executed";if(p.canceled)return"Canceled";
+  if(p.voteStart>=S.t)return"Pending";if(p.voteStart+p.voteDuration>=S.t)return"Active";
+  if(!quorumReached(p)||!voteSucceeded(p))return"Defeated";if(p.eta===0)return"Succeeded";
+  if(S.t>p.eta+P.timelockGrace)return"Expired"; /* estilo Compound: ventana de ejecución */
+  return"Queued"}
+ function castVote(actor,id,support){const p=get(id);if(p.engine!=="GOVERNOR")fail("no es Governor");
+  if(gState(p)!=="Active")fail("sólo se vota en estado Active");if(p.hasVoted[actor])fail("ya votó");
+  const w=(p.snapshot&&p.snapshot.weights[actor])||0;if(w<=0)fail("sin peso de voto en el snapshot");
+  const k=["against","for","abstain"][support];if(!k)fail("voto inválido");
+  p.hasVoted[actor]=k;p.votes[k]+=w;
+  return witness("G_VOTE",{id,voter:actor,support:k,weight:w,t:S.t})}
+ async function gQueue(actor,id){const p=get(id);if(gState(p)!=="Succeeded")fail("sólo se encola una propuesta Succeeded");
+  const opId=await sha(canon({targets:p.targets,values:p.values,payloads:p.calldatas,predecessor:"0x0",salt:p.descriptionHash}));
+  if(S.ops[opId])fail("operación ya existe en el timelock");
+  S.ops[opId]=S.t+P.minDelay;p.opId=opId;p.eta=S.t+P.minDelay;
+  return witness("G_QUEUE",{id,opId,minDelay:P.minDelay,eta:p.eta,by:actor,t:S.t})}
+ function gExecute(actor,id,grant){const p=get(id);if(p.engine!=="GOVERNOR")fail("no es Governor");
+  if(gState(p)!=="Queued")fail("sólo se ejecuta una propuesta Queued (estado: "+gState(p)+")");
+  if(opState(p)!=="Ready")fail("timelock: la operación aún no está Ready (minDelay)");
+  useGrant(grant,{op:"G_EXECUTE",id});
+  if(S.bal.GUILD<p.amount)fail("banco insuficiente");
+  p.executed=true;S.bal.GUILD-=p.amount;S.wallet[p.to]=(S.wallet[p.to]||0)+p.amount;S.ops[p.opId]=1;
+  return witness("G_EXECUTE",{id,opId:p.opId,to:p.to,amount:p.amount,human:grant.nonce,t:S.t})}
+ function gCancel(actor,id){const p=get(id);if(gState(p)!=="Pending"||actor!==p.proposer)fail("sólo quien propuso cancela, y sólo en Pending");
+  p.canceled=true;return witness("G_CANCEL",{id,by:actor,t:S.t})}
+
+ /* =================== reloj simulado =================== */
+ function tick(n){n=Math.max(1,Math.min(50,N(n||1)));const from=S.t;
+  for(let i=0;i<n;i++){S.t++;
+   S.props.forEach(p=>{if(p.engine==="GOVERNOR"&&!p.snapshot&&S.t>=p.voteStart){const w={};
+    Object.keys(S.members).forEach(k=>{if(S.members[k].shares>0)w[k]=S.members[k].shares});p.snapshot={at:p.voteStart,weights:w,totalSupply:S.totalShares}}})}
+  return witness("TICK",{from,to:S.t})}
+
+ function stateOf(p){return p.engine==="MOLOCH"?mState(p):gState(p)}
+ function view(){const v=clone({t:S.t,params:P,members:S.members,wallet:S.wallet,bal:S.bal,totalShares:S.totalShares,totalLoot:S.totalLoot,
+  queue:S.queue,ops:S.ops,head:S.head,witnessLength:S.chain.length,pending:[...pending.keys()]});
+  v.proposals=S.props.map(p=>{const o=clone(p);o.state=stateOf(p);if(p.engine==="MOLOCH"){o.readyToProcess=mReady(p);o.dilutionOk=dilutionOk(p)}else{o.quorum=quorumOf(p);o.quorumReached=quorumReached(p);o.opState=opState(p)}return o});
+  v.canRagequit={};Object.keys(S.members).forEach(k=>{if(isMember(k))v.canRagequit[k]=canRagequit(k)});return v}
+ function settled(){return qq}
+ witness("SUMMON",{dao:"DAOLLC.ai LAB v0",seed,params:P,members:S.members,guildBank:S.bal.GUILD});
+ return{P,view,settled,chain:()=>clone(S.chain),head:()=>S.head,last:()=>S.last&&clone(S.last),onWitness:f=>listeners.push(f),
+  human:{request,approve,deny,pending:()=>[...pending.entries()].map(([n,p])=>({nonce:n,action:clone(p.action)}))},
+  tick,moloch:{submitProposal,submitGuildKick,sponsorProposal,cancelProposal,submitVote,processProposal,ragequit,ragekick,withdraw},
+  governor:{propose:gPropose,castVote,queue:gQueue,execute:gExecute,cancel:gCancel}}}
+return Object.freeze({createDAO,canon,sha,verifyChain,PHRASE,GENESIS});
+})();
+
+/* ================= UI · DOM ================= */
+(function(){
+"use strict";
+if(typeof document==="undefined")return;
+const E=DAOLLC_ENGINE,$=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=n=>Number(n).toLocaleString("es-MX");
+let dao=E.createDAO(2026),tab="M",hold=null;
+
+/* ---- æsymov: explica, no ejecuta ---- */
+const MOODS={ok:{h:12,m:"M46 76 Q60 84 74 76"},think:{h:6,m:"M48 78 H72"},warn:{h:12,m:"M46 80 Q60 72 74 80"},human:{h:14,m:"M50 76 Q60 80 70 76"}};
+function bot(mood,text){const M=MOODS[mood]||MOODS.ok;["eL","eR"].forEach(k=>{const r=$(k);r.setAttribute("height",M.h);r.setAttribute("y",56-M.h/2)});
+ $("mouth").setAttribute("d",M.m);$("mood").textContent=mood;if(text)$("say").textContent=text}
+const LINES={
+ SUMMON:d=>["ok","La DAO nace con "+Object.keys(d.members).length+" miembros y "+fmt(d.guildBank)+" USDx en el banco. La comunidad decide."],
+ TICK:d=>["think","Avanza el reloj al bloque "+d.to+". Los estados cambian solos; las decisiones no."],
+ M_SUBMIT:d=>["ok",d.proposer+" envía "+d.id+". Cualquiera propone; un miembro debe patrocinar."],
+ M_SUBMIT_GUILDKICK:d=>["warn","Propuesta de expulsión contra "+d.member+". Igual pasa por voto y gracia."],
+ M_SPONSOR:d=>["ok",d.sponsor+" patrocina "+d.id+" y deja "+fmt(d.deposit)+" en escrow. Vota desde el bloque "+d.startingPeriod+"."],
+ M_CANCEL:d=>["think",d.id+" cancelada; el tributo regresa."],
+ M_VOTE:d=>["ok",d.member+" vota "+(d.vote==="Yes"?"Sí":"No")+" con "+d.weight+" shares. Sólo las shares votan."],
+ M_PROCESS:d=>[d.didPass?"ok":"warn",d.id+(d.didPass?" aprobada":" rechazada")+(d.dilutionOk?"":" por dilutionBound")+". Lo autorizó un humano."],
+ M_RAGEQUIT:d=>["warn",d.member+" hace ragequit y sale con "+fmt(d.amount)+" USDx. Derecho de salida, no castigo."],
+ M_RAGEKICK:d=>["warn",d.member+" sale por ragekick con "+fmt(d.amount)+" USDx de su parte."],
+ WITHDRAW:d=>["ok",d.member+" retira "+fmt(d.amount)+" a su cartera (patrón pull)."],
+ G_PROPOSE:d=>["ok","Nueva propuesta "+d.id+". Su id es el hash del contenido. Votación desde el bloque "+(d.voteStart+1)+"."],
+ G_VOTE:d=>["ok",d.voter+" vota "+({for:"a favor",against:"en contra",abstain:"abstención"})[d.support]+" con peso "+d.weight+"."],
+ G_QUEUE:d=>["think",d.id+" en el timelock. Espera "+d.minDelay+" bloques: tiempo para salir si no estás de acuerdo."],
+ G_EXECUTE:d=>["ok",d.id+" ejecutada: "+fmt(d.amount)+" a "+d.to+". Decidió un humano, no yo."],
+ G_CANCEL:d=>["think",d.id+" cancelada en Pending."],
+ HUMAN_REQUEST:d=>["human","Necesito tu autorización para "+d.action.op+". Yo sólo recomiendo."],
+ HUMAN_APPROVE:d=>["ok","Autorización humana "+d.nonce+" registrada en el witness."],
+ HUMAN_DENY:d=>["think","Rechazado. Nada se movió."]};
+function wire(){dao.onWitness(e=>{const f=LINES[e.type];if(f){const[m,t]=f(e.data);bot(m,t)}showW()})}
+wire();
+
+/* ---- render ---- */
+function opts(sel,list,keep){const cur=sel.value;sel.innerHTML=list.map(n=>`<option>${esc(n)}</option>`).join("");if(keep&&list.includes(cur))sel.value=cur}
+function stClass(s){return /aprobada|Executed|Succeeded|Ready/.test(s)?"st ok":/rechazada|Defeated|Canceled|Cancelada|Expired/.test(s)?"st bad":"st"}
+function render(){const v=dao.view(),P=v.params,actor=$("actor").value;
+ $("clock").textContent="bloque "+v.t;
+ $("params").textContent=`Moloch: votación ${P.votingPeriodLength} · gracia ${P.gracePeriodLength} · depósito ${P.proposalDeposit} · dilutionBound ${P.dilutionBound} | Governor: votingDelay ${P.votingDelay} · votingPeriod ${P.votingPeriod} · quorum ${P.quorumNumerator}% · minDelay ${P.minDelay}`;
+ const people=Object.keys(v.wallet);opts($("actor"),people,true);opts($("mApp"),people,true);opts($("gTo"),people,true);
+ const mems=Object.keys(v.members).filter(k=>v.members[k].shares>0||v.members[k].loot>0);opts($("gkM"),mems.length?mems:["—"],true);
+ $("mem").innerHTML="<tr><th>Persona</th><th>shares</th><th>loot</th><th>interno</th><th>cartera</th></tr>"+people.map(k=>{const m=v.members[k];
+  const tag=!m?" <small>(externo)</small>":m.jailed?" <small>(jail)</small>":(m.shares+m.loot===0?" <small>(salió)</small>":"");
+  return`<tr><td>${esc(k)}${tag}</td><td>${m?m.shares:0}</td><td>${m?m.loot:0}</td><td>${fmt(v.bal[k]||0)}</td><td>${fmt(v.wallet[k]||0)}</td></tr>`}).join("")+
+  `<tr><td><b>Total</b></td><td><b>${v.totalShares}</b></td><td><b>${v.totalLoot}</b></td><td></td><td></td></tr>`;
+ $("bank").textContent=fmt(v.bal.GUILD)+" USDx";$("escrow").textContent=fmt(v.bal.ESCROW)+" USDx";
+ const L=$("list");if(!v.proposals.length){L.innerHTML="<small>Sin propuestas todavía.</small>"}else{
+ L.innerHTML=v.proposals.slice().reverse().map(p=>{let h,btn=[];
+  if(p.engine==="MOLOCH"){
+   h=`<div class="r"><span><span class="tag">MOLOCH</span><b>${p.id}</b> ${p.kind==="guildkick"?"· guildKick "+esc(p.applicant):"· "+esc(p.applicant)}</span><span class="${stClass(p.state)}">${p.state}</span></div>
+   <small>${esc(p.details)}</small><br><small>shares ${p.sharesRequested} · loot ${p.lootRequested} · tributo ${fmt(p.tributeOffered)} · pago ${fmt(p.paymentRequested)}${p.flags.sponsored?` · vota bloques ${p.startingPeriod}–${p.startingPeriod+P.votingPeriodLength-1} · gracia hasta ${p.startingPeriod+P.votingPeriodLength+P.gracePeriodLength-1}`:""}</small><br>
+   <small>Sí ${p.yesVotes} · No ${p.noVotes} · dilución ${p.dilutionOk?"ok":"EXCEDIDA"}${p.flags.sponsored?" · patrocina "+esc(p.sponsor):""}</small>`;
+   if(p.state==="Enviada"){btn.push(["sp","Patrocinar (+"+P.proposalDeposit+")"]);btn.push(["mc","Cancelar"])}
+   if(p.state==="Votación"){btn.push(["yes","Sí"]);btn.push(["no","No"])}
+   if(p.state==="Lista para procesar")btn.push(["proc","Procesar (HUMAN://)",1,!p.readyToProcess]);
+  }else{
+   h=`<div class="r"><span><span class="tag">GOVERNOR</span><b>${p.id}</b> · pagar ${fmt(p.amount)} a ${esc(p.to)}</span><span class="${stClass(p.state)}">${p.state}</span></div>
+   <small>${esc(p.description)}</small><br><small>A favor ${p.votes.for} · En contra ${p.votes.against} · Abst. ${p.votes.abstain} · quorum ${p.quorum} ${p.quorumReached?"✓":"✗"} · vota bloques ${p.voteStart+1}–${p.voteStart+p.voteDuration}</small><br>
+   <small>Timelock: ${p.opState}${p.eta?" · eta bloque "+p.eta:""} · id ${p.proposalId.slice(0,16)}…</small>`;
+   if(p.state==="Pending")btn.push(["gc","Cancelar"]);
+   if(p.state==="Active"){btn.push(["for","A favor"]);btn.push(["against","En contra"]);btn.push(["abstain","Abstención"])}
+   if(p.state==="Succeeded")btn.push(["queue","Encolar en Timelock"]);
+   if(p.state==="Queued")btn.push(["exec","Ejecutar (HUMAN://)",1,p.opState!=="Ready"]);
+  }
+  return`<div class="card">${h}${btn.length?`<div class="row">${btn.map(b=>`<button data-a="${b[0]}" data-id="${p.id}"${b[2]?' class="h"':""}${b[3]?" disabled":""}>${b[1]}</button>`).join("")}</div>`:""}</div>`}).join("")}
+ const m=v.members[actor];$("rqS").max=m?m.shares:0;$("rqL").max=m?m.loot:0;
+ renderHuman();}
+function renderHuman(){if(hold){$("hReq").innerHTML=`<div class="card"><b>${esc(hold.label)}</b><br><small>${esc(E.canon(hold.action))} · solicitud ${hold.nonce}</small></div>`;$("hOk").disabled=false;$("hNo").disabled=false}
+ else{$("hReq").innerHTML="<small>Nada pendiente.</small>";$("hOk").disabled=true;$("hNo").disabled=true}}
+function showW(){const c=dao.chain();$("head").textContent=dao.head()==="GENESIS"?"GENESIS":dao.head().slice(0,12)+"…";
+ $("wit").textContent=c.slice(-40).map(e=>"#"+e.seq+" "+e.type+" "+e.hash.slice(0,16)+"\n  "+E.canon(e.data).slice(0,220)).join("\n")}
+function recommend(){const v=dao.view();const r=v.proposals.find(p=>p.engine==="MOLOCH"&&p.readyToProcess);
+ const q=v.proposals.find(p=>p.state==="Queued"&&p.opState==="Ready");
+ if(hold)return;if(r)bot("human","Recomiendo procesar "+r.id+". Necesita tu APRUEBO; yo no puedo.");
+ else if(q)bot("human","El timelock de "+q.id+" ya está Ready. Ejecutar requiere tu APRUEBO.")}
+
+/* ---- acciones ---- */
+async function act(f){$("err").textContent="";try{await f();await dao.settled()}catch(e){$("err").textContent="⚠ "+e.message;bot("warn",e.message)}render();recommend()}
+function askHuman(action,label,run){if(hold)dao.human.deny(hold.nonce);
+ const nonce=dao.human.request(action);hold={nonce,action,label,run};$("hType").value="";render();
+ const box=$("humanBox");if(box.scrollIntoView)box.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"center"})}
+const A=()=>$("actor").value,num=id=>Number($(id).value||0);
+$("t1").onclick=()=>act(()=>dao.tick(1));$("t3").onclick=()=>act(()=>dao.tick(3));
+$("actor").onchange=render;
+$("mSubmit").onclick=()=>act(()=>dao.moloch.submitProposal(A(),{applicant:$("mApp").value,sharesRequested:num("mSh"),lootRequested:num("mLo"),tributeOffered:num("mTr"),paymentRequested:num("mPay"),details:$("mDet").value}));
+$("gk").onclick=()=>act(()=>dao.moloch.submitGuildKick(A(),{member:$("gkM").value}));
+$("gProp").onclick=()=>act(()=>dao.governor.propose(A(),{to:$("gTo").value,amount:num("gAmt"),description:$("gDesc").value}));
+$("rq").onclick=()=>act(()=>{const who=A(),sh=Math.floor(num("rqS")),lo=Math.floor(num("rqL"));
+ askHuman({op:"M_RAGEQUIT",member:who,shares:sh,loot:lo},`${who}: ragequit ${sh} shares + ${lo} loot`,g=>dao.moloch.ragequit(who,sh,lo,g))});
+$("wd").onclick=()=>act(()=>{const who=A();askHuman({op:"WITHDRAW",member:who},`${who}: retirar saldo interno a cartera`,g=>dao.moloch.withdraw(who,g))});
+$("rk").onclick=()=>act(()=>{const who=$("gkM").value,by=A();askHuman({op:"M_RAGEKICK",member:who},`ragekick de ${who}`,g=>dao.moloch.ragekick(by,who,g))});
+$("list").onclick=e=>{const b=e.target.closest("button[data-a]");if(!b)return;const id=b.dataset.id,a=b.dataset.a,who=A();
+ act(()=>{switch(a){
+  case"sp":return dao.moloch.sponsorProposal(who,id);case"mc":return dao.moloch.cancelProposal(who,id);
+  case"yes":return dao.moloch.submitVote(who,id,"Yes");case"no":return dao.moloch.submitVote(who,id,"No");
+  case"proc":return askHuman({op:"M_PROCESS",id},`${who}: procesar ${id}`,g=>dao.moloch.processProposal(who,id,g));
+  case"for":return dao.governor.castVote(who,id,1);case"against":return dao.governor.castVote(who,id,0);case"abstain":return dao.governor.castVote(who,id,2);
+  case"queue":return dao.governor.queue(who,id);case"gc":return dao.governor.cancel(who,id);
+  case"exec":return askHuman({op:"G_EXECUTE",id},`${who}: ejecutar ${id} desde el timelock`,g=>dao.governor.execute(who,id,g));}})};
+/* HUMAN:// — sólo un toque real (isTrusted) + frase escrita emiten el permiso */
+$("hOk").onclick=ev=>act(async()=>{if(!hold)throw new Error("nada pendiente");
+ if(!ev.isTrusted)throw new Error("HUMAN:// requiere un toque humano real; un script no puede aprobar");
+ const h=hold;const g=dao.human.approve(h.nonce,$("hType").value);hold=null;$("hType").value="";await h.run(g)});
+$("hNo").onclick=()=>act(()=>{if(hold){dao.human.deny(hold.nonce);hold=null}});
+function setTab(t){tab=t;$("tabM").classList.toggle("on",t==="M");$("tabG").classList.toggle("on",t==="G");
+ $("tabM").setAttribute("aria-selected",t==="M");$("tabG").setAttribute("aria-selected",t==="G");$("paneM").hidden=t!=="M";$("paneG").hidden=t!=="G";
+ bot("think",t==="M"?"Moloch: mínimo. Si no te gusta lo que viene, ragequit y te vas con tu parte.":"Governor: quorum y timelock. Modular, el estándar de producción.")}
+$("tabM").onclick=()=>setTab("M");$("tabG").onclick=()=>setTab("G");
+$("ver").onclick=async()=>{await dao.settled();const r=await E.verifyChain(dao.chain());$("verOut").textContent=r.ok?`✓ ${r.n} eventos · head ${r.head.slice(0,16)}… recalculado desde GENESIS`:`✗ cadena rota en #${r.at}`;bot(r.ok?"ok":"warn",r.ok?"La cadena cuadra. Evidencia, no autoridad.":"La cadena no cuadra.")};
+$("exp").onclick=async()=>{await dao.settled();const blob=new Blob([JSON.stringify({dao:"DAOLLC.ai LAB v0",seed:dao.P.seed,genesis:"GENESIS",head:dao.head(),
+ note:"hash = SHA-256(canon({seq,type,data,prev})). Sin marcas de tiempo. Simulación local; no es un libro mayor autenticado.",events:dao.chain()},null,2)],{type:"application/json"});
+ const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="daollc-lab-v0-witness.json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000)};
+$("rst").onclick=()=>{hold=null;dao=E.createDAO(2026);wire();$("verOut").textContent="";$("err").textContent="";render();dao.settled().then(showW)};
+
+/* ---- lectura para agentes: window.DAOLLC (sólo lectura) y ?agent ---- */
+function summary(){const v=dao.view(),P=v.params;const L=[];
+ L.push("DAOLLC.ai · LAB v0 · DEMO · simulación · no es asesoría legal ni despliega contratos");
+ L.push("Patrones: MolochVentures/moloch v2 + OpenZeppelin Governor/TimelockController. Reloj simulado: bloque "+v.t+".");
+ L.push("Parámetros: Moloch votación "+P.votingPeriodLength+", gracia "+P.gracePeriodLength+", depósito "+P.proposalDeposit+", dilutionBound "+P.dilutionBound+"; Governor votingDelay "+P.votingDelay+", votingPeriod "+P.votingPeriod+", quorum "+P.quorumNumerator+"%, minDelay "+P.minDelay+".");
+ L.push("Banco del gremio: "+v.bal.GUILD+" USDx · escrow "+v.bal.ESCROW+" · shares "+v.totalShares+" · loot "+v.totalLoot);
+ L.push("Miembros:");Object.keys(v.members).forEach(k=>{const m=v.members[k];L.push("  - "+k+": shares "+m.shares+", loot "+m.loot+(m.jailed?" (jail)":""))});
+ L.push("Propuestas:");if(!v.proposals.length)L.push("  (ninguna)");
+ v.proposals.forEach(p=>L.push("  - "+p.id+" ["+p.engine+"] "+p.state+(p.engine==="MOLOCH"?" · Sí "+p.yesVotes+" / No "+p.noVotes:" · for "+p.votes.for+" / against "+p.votes.against+" / abstain "+p.votes.abstain+" · timelock "+p.opState)));
+ L.push("Witness: "+v.witnessLength+" eventos · head "+v.head);
+ L.push("Autoridad: HUMAN:// requerido para mover fondos (process, execute, ragequit, ragekick, withdraw). Los agentes sólo leen y recomiendan. Evidence ≠ Authority.");
+ return L.join("\n")}
+Object.defineProperty(window,"DAOLLC",{value:Object.freeze({version:"lab/daollc/v0",readOnly:true,
+ get state(){return dao.view()},witness:()=>dao.chain(),head:()=>dao.head(),summary,
+ verify:async()=>{await dao.settled();return E.verifyChain(dao.chain())},
+ authority:"HUMAN:// · un agente no puede autorizarse a sí mismo"}),writable:false,configurable:false});
+
+render();showW();setTab("M");bot("ok","Hola. Soy æsymov. Explico cada paso; la comunidad decide.");
+if(new URLSearchParams(location.search).has("agent")){dao.settled().then(()=>{document.title="DAOLLC.ai LAB v0 · agent";
+ document.body.innerHTML="";const pre=document.createElement("pre");pre.id="agent";pre.style.cssText="white-space:pre-wrap;color:#d8fdff;background:#000;margin:0;padding:14px;font:13px ui-monospace,monospace;max-height:none";pre.textContent=summary();document.body.appendChild(pre)})}
+})();
+
+</script>
+</body>
+</html>

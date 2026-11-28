@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>simetrías æ · la cara en una línea</title>
+<meta name="description" content="Lab: la cara æ æ æ bajo grupos de simetría — traslación, espejo, rotación — y la emoción como ruptura de simetría. Un solo trazo. #OpenSourceWare">
+<style>
+:root{--paper:#f4efe3;--ink:#141414;--blue:#2c5aa0;--gold:#d9a400;--red:#c8352b;--green:#2f8a4b}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.5 ui-monospace,Menlo,Consolas,monospace}
+main{max-width:1000px;margin:auto;padding:18px}
+h1{font:800 30px/1 "Arial Narrow",Impact,sans-serif;text-transform:uppercase;margin:0}
+.sub{opacity:.75;margin:4px 0 12px}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}
+button{font:inherit;border:1.5px solid var(--ink);background:var(--paper);padding:6px 10px;cursor:pointer;border-radius:0}
+button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+input[type=range]{width:220px;accent-color:var(--ink)}
+.stage{position:relative;border:1.5px solid var(--ink);aspect-ratio:16/9;margin-top:10px;background:
+ linear-gradient(rgba(44,90,160,.09) 1px,transparent 1px) 0 0/24px 24px,linear-gradient(90deg,rgba(44,90,160,.09) 1px,transparent 1px) 0 0/24px 24px,var(--paper)}
+svg{position:absolute;inset:0;width:100%;height:100%}
+.lab{position:absolute;font-size:11px;color:var(--blue)}
+.grid4{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}@media(max-width:700px){.grid4{grid-template-columns:repeat(2,1fr)}}
+.mini{border:1.5px solid var(--ink);cursor:pointer;background:var(--paper)}.mini svg{position:static;display:block;aspect-ratio:16/9;height:auto}
+.mini div{padding:4px 6px;font-size:11px;border-top:1px solid var(--ink)}
+.note{margin-top:14px;border-top:1.5px solid var(--ink);padding-top:8px;opacity:.85}
+</style>
+</head>
+<body><main>
+<h1>simetrías æ</h1>
+<div class="sub">&gt;_ la cara es un grupo de simetría · la emoción es romperlo · un solo trazo</div>
+<div class="row" id="modes"></div>
+<div class="row"><label for="br">ruptura</label><input id="br" type="range" min="0" max="100" value="0"><span id="brv">0%</span><button id="redraw">&gt;_ redibujar</button></div>
+<div class="stage"><svg id="s" viewBox="0 0 800 450"><g id="axes"></g><g id="g"></g></svg>
+ <span class="lab" style="left:6px;top:4px" id="grp"></span><span class="lab" style="right:6px;bottom:4px" id="meta"></span></div>
+<div class="grid4" id="minis"></div>
+<div class="note"><b>Idea:</b> una cara en reposo es casi simétrica; sentir es <i>romper</i> la simetría (guiño, ceja, comisura). El deslizador mide cuánto se rompe.
+Traslación: æ se repite (T). Espejo: el ojo derecho es el reflejo del izquierdo, y la boca son dos medias æ que se encuentran en el eje (D₁). Rotación: el lado derecho es el izquierdo girado 180° (C₂). Espejo triple: tres æ simétricas a 120°, tres ejes; el nombre æææ se vuelve caleidoscopio (D₃).
+<br>#OpenSourceWare · laboratorio · Evidence ≠ Authority.</div>
+</main>
+<script>
+const AE=[[20,40],[30,32],[44,33],[50,42],[50,54],[34,52],[20,58],[18,70],[30,77],[44,74],[50,64],[50,55],[84,55],[82,40],[68,32],[56,40],[50,55],[54,70],[70,77],[86,70]];
+const W=800,H=450,CX=400,CY=225;
+const MODES={
+ tras:{n:'traslación',g:'T · æ → æ → æ'},
+ espejo:{n:'espejo',g:'D₁ · σ(x)=−x · eje vertical'},
+ rot:{n:'rotación',g:'C₂ · ρ(180°) · centro'},
+ doble:{n:'espejo doble',g:'D₂ · dos ejes + C₂'},
+ triple:{n:'espejo triple',g:'D₃ · tres ejes a 120° · æææ caleidoscopio'}
+};
+let mode='espejo',brk=0;
+const glyph=(x,y,s,sy=1)=>AE.map(([px,py])=>[x+(px-50)*s,y+(py-55)*s*sy]);
+const mir=p=>[2*CX-p[0],p[1]], rot=p=>[2*CX-p[0],2*CY-p[1]], flipY=p=>[p[0],2*CY-p[1]];
+function face(m,b){ // b: ruptura 0..1
+ const es=1.25,ms=1.6,ex=CX-230,ey=CY-55,my=CY+70;
+ const L=glyph(ex,ey,es); let R,M,acc;
+ // la ruptura actúa sobre el lado derecho: guiño + comisura
+ const wink=1-.85*b, lift=-28*b;
+ if(m==='tras'){R=glyph(CX+230,ey,es,wink);M=glyph(CX,my,ms).map(p=>[p[0],p[1]+(p[0]>CX?lift*(p[0]-CX)/80:0)]);}
+ const curve=p=>[p[0],p[1]+(p[0]>CX?lift*(p[0]-CX)/70:0)];
+ const ms2=ms*.75, half=glyph(CX-36*ms2,my,ms2); // termina en (86,70) → justo en el eje
+ if(m==='espejo'||m==='doble'){
+  R=L.map(mir).reverse().map(p=>[p[0],ey+(p[1]-ey)*wink]);
+  M=[...half,...half.map(mir).reverse()];
+  if(m==='doble'){const yb=half[half.length-1][1];M=[...M,...M.slice().reverse().map(p=>[p[0],2*yb-p[1]])];M.push([CX-40,my+75],[CX+60,my+80]);}
+  M=M.map(curve);
+ }
+ if(m==='rot'){
+  R=L.map(p=>[CX+230-(p[0]-ex),ey-(p[1]-ey)*wink]);
+  const pv=half[half.length-1];M=[...half,...half.map(p=>[2*pv[0]-p[0],2*pv[1]-p[1]]).reverse()].map(curve);
+ }
+ if(m==='triple'){
+  const s=1.05,hf=glyph(-36*s,0,s),e=hf[hf.length-1];const h2=hf.map(p=>[p[0]-e[0],p[1]-e[1]+18]);
+  const U=[...h2,...h2.map(p=>[-p[0],p[1]]).reverse()];
+  const put=(th,sq=1)=>{const a=(th-90)*Math.PI/180,r=125,cx=CX+r*Math.cos(th*Math.PI/180),cy=CY+10+r*Math.sin(th*Math.PI/180);
+   return U.map(([x,y])=>{y*=sq;return [cx+x*Math.cos(a)-y*Math.sin(a),cy+x*Math.sin(a)+y*Math.cos(a)]})};
+  const A=put(210),B=put(90).map(curve),C=put(330,wink);
+  return {all:[...A,...B,...C],mouth:B,li:A.length};
+ }
+ return {all:[...L,...M,...R],mouth:M,li:L.length};
+}
+function cr(pts){let d=`M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;for(let i=0;i<pts.length-1;i++){const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2;
+ d+=`C${(p1[0]+(p2[0]-p0[0])/6).toFixed(1)},${(p1[1]+(p2[1]-p0[1])/6).toFixed(1)} ${(p2[0]-(p3[0]-p1[0])/6).toFixed(1)},${(p2[1]-(p3[1]-p1[1])/6).toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`}return d}
+const NS='http://www.w3.org/2000/svg';
+function paths(g,F,col,anim){g.innerHTML='';const mk=(d,c,w)=>{const p=document.createElementNS(NS,'path');p.setAttribute('d',d);p.setAttribute('fill','none');p.setAttribute('stroke',c);p.setAttribute('stroke-width',w);p.setAttribute('stroke-linecap','round');p.setAttribute('stroke-linejoin','round');g.appendChild(p);return p};
+ const ink=mk(cr(F.all),'#141414',3.6),mo=mk(cr(F.mouth),col,4.8);
+ if(!anim||matchMedia('(prefers-reduced-motion: reduce)').matches)return ink.getTotalLength?Math.round(ink.getTotalLength()):0;
+ const len=ink.getTotalLength(),ml=mo.getTotalLength(),T=Math.min(3000,900+len);
+ const pre=document.createElementNS(NS,'path');pre.setAttribute('d',cr(F.all.slice(0,F.li+1)));const f=pre.getTotalLength()/len;
+ ink.style.strokeDasharray=len;ink.animate([{strokeDashoffset:len},{strokeDashoffset:0}],{duration:T,easing:'cubic-bezier(.45,.05,.3,1)',fill:'forwards'});
+ mo.style.strokeDasharray=ml;mo.style.strokeDashoffset=ml;mo.animate([{strokeDashoffset:ml},{strokeDashoffset:0}],{duration:T*.4,delay:T*f,fill:'forwards'});return Math.round(len)}
+function axes(m){const a=document.getElementById('axes');a.innerHTML='';const ln=(x1,y1,x2,y2)=>{const l=document.createElementNS(NS,'line');Object.entries({x1,y1,x2,y2,stroke:'#2c5aa0','stroke-width':1.2,'stroke-dasharray':'6 6',opacity:.7}).forEach(([k,v])=>l.setAttribute(k,v));a.appendChild(l)};
+ if(m==='espejo'||m==='doble')ln(CX,20,CX,H-20);if(m==='doble')ln(40,CY+36,W-40,CY+36);
+ if(m==='rot'){const c=document.createElementNS(NS,'circle');Object.entries({cx:CX,cy:CY,r:6,fill:'none',stroke:'#2c5aa0','stroke-width':1.5}).forEach(([k,v])=>c.setAttribute(k,v));a.appendChild(c)}
+ if(m==='tras'){ln(CX-230,CY-120,CX+230,CY-120)}
+ if(m==='triple'){[90,210,330].forEach(t=>{const r=t*Math.PI/180,R=215;ln(CX-R*Math.cos(r),CY+10-R*Math.sin(r),CX+R*Math.cos(r),CY+10+R*Math.sin(r))})}}
+function color(b){return b>.66?'#c8352b':b>.01?'#d9a400':'#2f8a4b'}
+function draw(anim=true){const b=brk/100,F=face(mode,b);axes(mode);const len=paths(document.getElementById('g'),F,color(b),anim);
+ document.getElementById('grp').textContent=MODES[mode].g+(b>0?` · roto ${Math.round(b*100)}%`:' · intacto');
+ document.getElementById('meta').textContent=`1 trazo · ${F.all.length} puntos · ${len} u`}
+const mb=document.getElementById('modes');Object.entries(MODES).forEach(([k,v])=>{const b=document.createElement('button');b.textContent=v.n;b.dataset.k=k;b.onclick=()=>{mode=k;sync();draw()};mb.appendChild(b)});
+function sync(){mb.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===mode))}
+const br=document.getElementById('br');br.oninput=()=>{brk=+br.value;document.getElementById('brv').textContent=brk+'%';draw(false)};
+document.getElementById('redraw').onclick=()=>draw();
+// miniaturas
+const minis=document.getElementById('minis');Object.entries(MODES).forEach(([k,v])=>{const d=document.createElement('div');d.className='mini';
+ d.innerHTML=`<svg viewBox="0 0 800 450"><g></g></svg><div>${v.n} · ${v.g.split(' · ')[0]}</div>`;d.onclick=()=>{mode=k;sync();draw()};minis.appendChild(d);
+ paths(d.querySelector('g'),face(k,0),'#2f8a4b',false)});
+const q=new URLSearchParams(location.search);if(MODES[q.get('m')])mode=q.get('m');if(q.get('r')){brk=+q.get('r');br.value=brk;document.getElementById('brv').textContent=brk+'%'}
+sync();draw();
+</script>
+</body></html>

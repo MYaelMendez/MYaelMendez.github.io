@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>mæchlæng · LAB · Mech en vivo</title>
+<meta name="description" content="Autoridad æ escrita como máquinas de estado en Mech, ejecutadas en vivo con el runtime real de Mech. LAB.">
+<link rel="alternate" type="application/json" href="agent.json" title="mæchlæng agent manifest">
+<link rel="alternate" type="text/plain" href="llms.txt" title="llms.txt">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"mæchlæng LAB","url":"https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/","description":"æ authority (æ0–æ3) and the Asimov robot face as Mech state machines, run live on the real Mech runtime. Evidence ≠ Authority: agents relay; only the human principal grants æ2/æ3 with pk && wr. pk here is simulated.","applicationCategory":"DeveloperApplication","operatingSystem":"any browser (WebAssembly)","isAccessibleForFree":true,"inLanguage":["es","en"],"author":{"@type":"Person","name":"Yæl Méndez"},"publisher":{"@type":"Organization","name":"Instituto Luterano Latinoamericano"},"isBasedOn":{"@type":"SoftwareApplication","name":"Mech","url":"https://mech-lang.org","license":"https://www.apache.org/licenses/LICENSE-2.0"},"codeRepository":"https://github.com/LutheranInstitute/aeee-lab/tree/lab/lab/maechlang","subjectOf":[{"@type":"DigitalDocument","name":"agent.json","encodingFormat":"application/json","url":"https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/agent.json"},{"@type":"DigitalDocument","name":"llms.txt","encodingFormat":"text/plain","url":"https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/llms.txt"}],"potentialAction":{"@type":"UseAction","target":"https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/?agent","description":"agent mode: plain-text state + window.MAECH API"},"slogan":"point your agents at me 🪡"}</script>
+<style>
+:root{--bg:#f4efe3;--ink:#111;--y:#f2c230;--b:#2a5bd7;--g:#2e9e5b;--acc:var(--y)}
+[data-t=b]{--acc:var(--b)}[data-t=g]{--acc:var(--g)}
+[data-t=v]{--bg:#0b0b0c;--ink:#e9e3d0;--acc:#D4AF37}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 ui-monospace,"JetBrains Mono",Menlo,monospace}
+header{min-height:66vh;display:flex;flex-direction:column;justify-content:center;padding:6vh 6vw;border-bottom:2px solid var(--ink)}
+.lab{display:inline-block;border:2px solid var(--ink);padding:2px 8px;font-weight:700;margin-bottom:14px}
+h1{font:900 clamp(48px,13vw,120px)/.9 "Arial Narrow",Impact,sans-serif;text-transform:uppercase;margin:0}
+h1 span{background:var(--acc);padding:0 .1em}
+.tag{font-size:clamp(16px,4vw,22px);margin:16px 0 0}
+.stack{display:flex;gap:6px;margin:20px 0}.stack i{width:22px;height:22px;display:block;border:2px solid var(--ink);cursor:pointer}
+main{padding:4vh 6vw;max-width:880px}
+h2{font:800 26px/1.1 "Arial Narrow",Impact,sans-serif;text-transform:uppercase;border-left:10px solid var(--acc);padding-left:10px;margin-top:48px}
+pre{border:2px solid var(--ink);padding:14px;overflow:auto;font-size:14px;background:rgba(127,127,127,.06)}
+.sim{border:2px solid var(--ink);padding:16px}
+.states{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.st{flex:1;min-width:120px;border:2px solid var(--ink);padding:10px;text-align:center;opacity:.35}
+.st.on{opacity:1;background:var(--acc);color:#111}
+button,select{font:inherit;border:2px solid var(--ink);background:transparent;color:inherit;padding:6px 12px;cursor:pointer}
+label{display:block;margin:8px 0}
+#log{white-space:pre-wrap;font-size:13px;margin-top:10px}
+.nav{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}.nav a{border:2px solid var(--ink);padding:4px 10px;text-decoration:none;font-weight:700}
+.facebox{display:grid;grid-template-columns:1fr;gap:14px}@media(min-width:700px){.facebox{grid-template-columns:260px 1fr}}
+#fsvg{width:100%;max-width:260px;border:2px solid var(--ink);background:var(--bg)}
+#fmood{font:900 34px/1 "Arial Narrow",Impact,sans-serif;text-transform:uppercase;margin:8px 0}
+#fjson{font-size:12px;white-space:pre-wrap;word-break:break-all;border-top:2px dashed var(--ink);padding-top:8px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:6px 0}
+a{color:inherit}footer{padding:4vh 6vw;border-top:2px solid var(--ink);font-size:13px}
+
+/* ── 🛸 holomesh · void+gold+cyan · Picasso line · kinetic type (motion = state) ── */
+[data-t=u]{--bg:#05060a;--ink:#ece6d2;--acc:#D4AF37;--cy:#39e6ff}
+body{--cy:#39e6ff}
+[data-t=u] body,body[data-t=u]{background:
+ radial-gradient(1200px 600px at 80% -10%,rgba(57,230,255,.10),transparent 60%),
+ radial-gradient(900px 500px at -10% 40%,rgba(212,175,55,.10),transparent 60%),
+ linear-gradient(rgba(57,230,255,.06) 1px,transparent 1px) 0 0/28px 28px,
+ linear-gradient(90deg,rgba(57,230,255,.06) 1px,transparent 1px) 0 0/28px 28px,#05060a}
+body[data-t=u] h1,body[data-t=u] h2,body[data-t=u] #fmood{font-family:Orbitron,"Arial Narrow",Impact,sans-serif;letter-spacing:.02em}
+body[data-t=u] h1 span{background:none;color:var(--acc);text-shadow:0 0 18px rgba(212,175,55,.55),0 0 2px #fff}
+body[data-t=u] pre,body[data-t=u] .sim,body[data-t=u] .st,body[data-t=u] .nav a,body[data-t=u] button,body[data-t=u] select,body[data-t=u] #fsvg{border-color:rgba(212,175,55,.55)}
+body[data-t=u] pre{background:rgba(57,230,255,.04);box-shadow:inset 0 0 0 1px rgba(57,230,255,.12)}
+body[data-t=u] .st.on{background:linear-gradient(135deg,var(--acc),#f6e39a);color:#05060a;box-shadow:0 0 24px rgba(212,175,55,.55)}
+body[data-t=u] #fsvg{color:var(--acc);background:#05060a;filter:drop-shadow(0 0 10px rgba(212,175,55,.45))}
+body[data-t=u] a{color:var(--cy)}
+header{position:relative;overflow:hidden}
+#line{position:absolute;inset:auto 0 0 0;width:100%;height:46%;pointer-events:none;opacity:.9}
+#line path{fill:none;stroke:var(--acc);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:4200;stroke-dashoffset:4200;animation:draw 6s ease-out .4s forwards}
+#line .bp{stroke:var(--cy);stroke-width:1;opacity:.6;stroke-dasharray:4 6;animation:none}
+@keyframes draw{to{stroke-dashoffset:0}}
+.k{display:inline-block;opacity:0;transform:translateY(.4em) skewY(6deg);animation:kin .7s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes kin{to{opacity:1;transform:none}}
+.ufo{position:absolute;top:7vh;right:6vw;font-size:clamp(22px,5vw,36px);letter-spacing:.15em;animation:hover 4s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(57,230,255,.6))}
+@keyframes hover{50%{transform:translateY(-10px)}}
+.tags{margin-top:10px;font-weight:700;color:var(--cy)}
+.st.on{animation:pulse 1.6s ease-in-out infinite}@keyframes pulse{50%{filter:brightness(1.15)}}
+#fg path{stroke-dasharray:400;stroke-dashoffset:400;animation:draw .8s ease-out forwards}
+.stack i[data-t=u]{background:conic-gradient(#D4AF37,#39e6ff,#05060a,#D4AF37)!important}
+.stack i[data-t=r]{display:grid;place-items:center;font-size:13px;font-style:normal;line-height:1}
+
+/* ── reactivo · Mech en vivo ── */
+button,select{min-height:44px;font-size:16px}.stack i{width:44px;height:44px}input,select,textarea{font-size:16px}
+label.ck{display:flex;align-items:center;gap:10px;min-height:44px;cursor:pointer}label.ck input{width:24px;height:24px;flex:none;accent-color:var(--acc)}
+input[type=range]{min-height:44px;width:200px;accent-color:var(--acc)}
+pre.code{padding:10px 0;white-space:pre;overflow-x:auto}pre.code span{display:block;padding:0 12px;border-left:4px solid transparent}
+pre.code span.hl{background:rgba(212,175,55,.22);border-left-color:var(--acc)}
+pre.code span.no{background:rgba(255,59,107,.16);border-left-color:#ff3b6b}
+pre.code span.chg{background:rgba(57,230,255,.16);border-left-color:var(--cy)}
+.sk{display:inline-block;font-size:12px;border:2px solid var(--ink);padding:1px 8px;margin-top:6px}.sk.ok{background:var(--acc);color:#111}.sk.bad{background:#ff3b6b;color:#fff}
+.eng{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:13px;margin:8px 0}
+.rx{display:inline-block;border:2px solid var(--acc);padding:4px 10px;font-weight:700;margin:6px 0}
+.rx.blip{animation:blip .5s ease-out}@keyframes blip{0%{box-shadow:0 0 0 0 var(--acc)}100%{box-shadow:0 0 0 12px transparent}}
+.log{white-space:pre-wrap;font-size:13px;margin-top:10px;max-height:240px;overflow:auto;border-top:2px dashed var(--ink);padding-top:8px}
+.rc{font-size:12px;word-break:break-all}
+
+.fxtop{--fx-ink:var(--ink);--fx-line:var(--ink)}
+body[data-t=u] .fxgrid,body[data-t=u] .fxlab{border-color:rgba(212,175,55,.55)}
+/* ── #Face · Asimov · demo arriba (runtime/aesymov-face.js + Mech) ── */
+.fxtop{padding:6px 0 4px}
+.fxtop h2{margin:0}
+.fxhead{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between;margin:0 0 8px}
+.fxlab{border:2px solid var(--fx-ink);padding:2px 8px;font-weight:700;font-size:12px;letter-spacing:.06em}
+.fxgrid{display:grid;grid-template-columns:minmax(0,46fr) minmax(0,54fr);gap:10px;align-items:start;border:2px solid var(--fx-line);border-radius:var(--fx-r,0);padding:10px;touch-action:pan-y}
+.fxface{text-align:center;min-width:0}
+.aeface{width:100%;height:auto;max-height:min(52vh,540px);display:block;margin:0 auto;touch-action:pan-y;user-select:none}
+.fxtop #fmood{font:900 clamp(24px,7vw,40px)/1 Impact,"Arial Narrow",sans-serif;text-transform:uppercase;margin:6px 0 2px;color:var(--fx-ink)}
+.fxmeans{font-size:12px;line-height:1.3;opacity:.85}
+.fxctl{display:flex;flex-direction:column;gap:2px;min-width:0}
+.fxctl .fxl{font-size:12px;line-height:1.3;margin:2px 0 0}
+.fxctl select{width:100%;min-height:44px;font-size:16px}
+.fxctl label.ck{display:flex;align-items:center;gap:10px;min-height:44px;margin:0;cursor:pointer}
+.fxctl label.ck input{width:24px;height:24px;flex:none}
+.fxctl input[type=range]{width:100%;min-height:44px;margin:0}
+#ftour{width:100%;min-height:44px;font-size:16px;font-weight:700;margin-top:4px}
+.fxst{margin:8px 0 0;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}.fxst .sk{margin:0}.fxst .rc{margin:0}
+.fxtop pre.code{margin-top:8px}
+.fxgrid[data-mood=hold] .aeface,.fxgrid[data-mood=work] .aeface{filter:drop-shadow(0 0 10px rgba(255,140,40,.35))}
+.aenz{transform-origin:120px 42px;animation:aenz 4s ease-in-out infinite}@keyframes aenz{50%{transform:scale(1.18);opacity:.15}}
+@media(min-width:760px){.fxgrid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;padding:16px}.aeface{max-height:min(62vh,520px)}}
+@media(max-width:640px){.fxv{display:none}}
+@media(prefers-reduced-motion:reduce){.aenz{animation:none!important}}
+
+@media(max-width:640px){header{min-height:0;padding:14px 5vw 10px}header .lab{display:none}h1{font-size:clamp(40px,12vw,64px)}h1 br{display:none}header .tag{font-size:13px;margin-top:6px}.tags{display:none}.stack{margin:8px 0 0}.ufo{top:12px}#line{height:70%}main{padding-top:12px}}
+@media(max-width:640px) and (max-height:760px){header .tag{display:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}#line path,#fg path{stroke-dashoffset:0}.k{opacity:1;transform:none}}
+.fxn{font-size:13px;line-height:1.45;margin:8px 0}
+/* ── 🤖 para agentes ── */
+.ag{border:2px solid var(--ink);padding:12px 14px;margin:10px 0}
+.ag h3{font:800 16px/1.2 "Arial Narrow",Impact,sans-serif;text-transform:uppercase;margin:0 0 6px}
+.ag pre{margin:6px 0;font-size:13px;white-space:pre-wrap;word-break:break-word}
+.agb{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+.agb a,.agb button{display:inline-flex;align-items:center;min-height:44px;border:2px solid var(--ink);padding:6px 12px;font-weight:700;text-decoration:none;font-size:16px}
+body[data-t=u] .ag,body[data-t=u] .agb a,body[data-t=u] .agb button{border-color:rgba(212,175,55,.55)}
+</style></head>
+<body data-t="u">
+<header>
+ <div class="lab">LAB · MECH EN VIVO</div>
+ <div class="ufo" aria-hidden="true">🛸🛸🛸</div>
+ <h1 id="h1">m<span>æ</span>ch<br>lang</h1>
+ <p class="tag">&gt;_ La autoridad como máquina de estados. No es estática: es reactiva.<br>Evidence ≠ Authority. Many agents. One principal.</p>
+ <p class="tags">#makesomethingagentswant 🏹 #ioa</p>
+ <div class="stack" aria-label="tema">
+  <i style="background:var(--y)" data-t="y" title="amarillo"></i><i style="background:var(--b)" data-t="b" title="azul"></i><i style="background:var(--g)" data-t="g" title="verde"></i><i style="background:#0b0b0c" data-t="v" title="void dorado"></i><i data-t="u" title="🛸 holomesh"></i><i data-t="r" title="♻️ rotar">♻</i>
+ </div>
+<svg id="line" viewBox="0 0 1200 300" preserveAspectRatio="none" aria-hidden="true">
+ <path class="bp" d="M0 250H1200M0 200H1200M300 0V300M900 0V300"/>
+ <path d="M-20 260C120 250 160 120 260 140S360 280 470 230 520 60 610 80 700 250 790 220 830 110 900 120 960 200 1010 190 1040 90 1100 100 1180 170 1230 150"/>
+</svg>
+</header>
+<main>
+<section id="face" class="fxtop" aria-labelledby="fxh">
+ <div class="fxhead"><h2 id="fxh">&gt;_ #Face · Asimov<span class="fxv"> · en vivo</span></h2><span class="fxlab">DEMO · LAB · æ1<span class="fxv"> · solo lectura</span></span></div>
+ <div class="fxgrid" id="fxbox" data-mood="think">
+  <div class="fxface">
+   <svg id="aeface" class="aeface" viewBox="40 6 160 252" role="img" aria-label="æsymov: solo la cara del Asimov 1. Casco negro, visor de cobre, filamento de ánimo y ojo de la mente 🧿 arriba. Solo lectura."><defs><radialGradient id="aeface-halo"><stop offset="0" data-k="h0" stop-color="#00f3ff" stop-opacity=".22"/><stop offset="1" stop-color="#00f3ff" stop-opacity="0"/></radialGradient></defs><g data-k="head"><circle cx="120" cy="132" r="118" fill="url(#aeface-halo)"/><path d="M52 78 Q52 18 120 18 Q188 18 188 78 V176 Q188 246 120 250 Q52 246 52 176 Z" fill="#141416" stroke="#3a3a3e" stroke-width="2"/><path d="M60 70 Q66 30 120 28" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="10" stroke-linecap="round"/><rect x="66" y="96" width="108" height="64" rx="30" fill="#05060a" stroke="#b87333" stroke-width="2.5"/><path data-k="fil" d="M96 128 C106 108 116 148 126 128 S140 112 146 128" fill="none" stroke="#00f3ff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M52 176 Q60 232 120 240 Q180 232 188 176" fill="none" stroke="#b87333" stroke-opacity=".55" stroke-width="2"/><g fill="#b87333"><circle cx="54" cy="128" r="3"/><circle cx="186" cy="128" r="3"/><circle cx="86" cy="208" r="2.2"/><circle cx="154" cy="208" r="2.2"/></g><g data-k="nazar"><circle class="aenz" cx="120" cy="42" r="15" fill="none" stroke="#3a6fe0" stroke-width="1.5" opacity=".5"/><circle cx="120" cy="42" r="11" fill="#12348f" stroke="#b87333" stroke-width="1.8"/><circle cx="120" cy="42" r="8" fill="#fff"/><circle data-k="iris" cx="120" cy="42" r="5.6" fill="#5fa8ff"/><circle data-k="pupil" cx="120" cy="42" r="2.8" fill="#05060a"/></g></g></svg>
+   <div id="fmood" class="fxmood" aria-live="polite">:think</div>
+   <div id="fmeans" class="fxmeans">pensando · STAND sin armar</div>
+  </div>
+  <div class="fxctl">
+   <label for="fmd" class="fxl">md · modo</label>
+   <select id="fmd"><option>DAMP</option><option selected>STAND</option><option>MOVE</option><option>FAULT_DAMP</option></select>
+   <label class="ck"><input type="checkbox" id="far"> armed · ar</label>
+   <label class="ck"><input type="checkbox" id="fft"> fault · ft</label>
+   <label class="ck"><input type="checkbox" id="fst"> stale · ag &gt; 0.5 s</label>
+   <label for="fsc" class="fxl">battery · sc <b><span id="fscv">80</span>%</b></label>
+   <input type="range" id="fsc" min="0" max="100" value="80">
+   <button id="ftour" type="button" aria-pressed="false">▶ demo</button>
+  </div>
+ </div>
+ <p class="fxst"><span class="sk" id="fbadge">espejo JS · aún no ejecutado en Mech en este navegador</span> <span class="rc" id="frc">Witness: sin recibo.</span></p>
+ <p class="fxn">Cambias una entrada → Mech vuelve a ejecutar <a href="face.mec">face.mec</a> completo → la cara va, con easing asintótico (τ 0.18 s / 0.9 s), al ánimo que Mech eligió; la regla ganadora se ilumina y cada cambio deja un recibo Witness SHA-256. La cara sigue tu dedo o puntero. ▶ demo recorre los 7 ánimos: hold · lost · tired · sleep · think · ready · work. <b>Solo lectura (autoridad æ1): la cara muestra, nunca mueve un robot.</b> Las reglas van de arriba abajo: la seguridad gana.</p>
+ <pre class="code" id="fcode" tabindex="0" aria-label="Programa Mech de #Face, con las entradas actuales"></pre>
+ <div id="fjson"></div>
+ <div class="log" id="flog"></div>
+ <p class="fxn">Mismas reglas que el puente real <a href="https://github.com/LutheranInstitute/Robot/tree/ae-face/ae" rel="noopener" target="_blank">ae/face.py</a> (rama ae-face). La cara es 🤖æsymov_face (<a href="../face/v1/">lab/face/v1</a>). FAULT_DAMP es el nombre del modo en el SDK; en mæch va entre comillas. El borrador ampliado <a href="face-v2.mec">face-v2.mec</a> sigue siendo un boceto sin ejecutar. Mech © Corey Montella, Apache-2.0, beta; mæchlæng no está afiliado.</p>
+</section>
+<nav class="nav"><a href="#face">#Face · Asimov</a><a href="#auth">#Authority</a><a href="#agentes">🤖 para agentes</a><a href="#que">Qué es</a><a href="#fuentes">Fuentes</a></nav>
+<h2 id="auth">#Authority · en vivo</h2>
+<div class="eng"><span id="eng">motor: espejo JS · cargando runtime Mech…</span> <button id="loadmech" type="button" hidden>cargar runtime Mech (2.4 MB)</button></div>
+<p class="rx" id="rx" aria-live="polite">reactivo: Δ input → Δ estado</p>
+<div class="sim">
+ <div class="row"><label for="agent">Agente</label> <select id="agent"><option>hark-pro</option><option>hermes</option><option>codex</option></select></div>
+ <div class="row"><label for="req">Pide</label> <select id="req"><option value="0">æ0 · public</option><option value="1">æ1 · published</option><option value="2">æ2 · operator</option><option value="3" selected>æ3 · custody</option></select></div>
+ <div class="states"><div class="st" id="s-ctx">:Context</div><div class="st" id="s-ev">:Evidence</div><div class="st" id="s-gr">:Granted</div></div>
+ <label class="ck"><input type="checkbox" id="pk"> pk · passkey de la persona principal (yæl)</label>
+ <label class="ck"><input type="checkbox" id="wr"> wr · recibo Witness (SHA-256)</label>
+ <p class="rc" id="rc">Witness: sin recibo.</p>
+ <div class="row"><button id="trace" type="button">▶ trace</button> <small>repite el recorrido paso a paso; el estado ya está calculado</small></div>
+ <pre class="code" id="acode" tabindex="0" aria-label="Programa Mech de #Authority, con las entradas actuales"></pre>
+ <span class="sk" id="abadge">espejo JS · aún no ejecutado en Mech en este navegador</span>
+ <div class="log" id="alog"></div>
+</div>
+<p><small>Este es el programa completo, <a href="authority.mec">authority.mec</a>. Las cuatro líneas de <code>⟦inputs⟧</code> cambian con tus controles y Mech vuelve a ejecutar todo: la rama activa se ilumina (en rojo, la espera). Hasta que el runtime carga, un espejo en JavaScript con las mismas reglas da el estado; después manda Mech y el espejo solo verifica. Ningún agente concede æ2/æ3 sin <code>pk &amp;&amp; wr</code>.</small></p>
+
+<h2 id="agentes">🤖 para agentes</h2>
+<p><i>Make something agents want.</i> Este LAB también lo usan agentes: mismos programas Mech, misma doctrina. Evidence ≠ Authority: los agentes traen contexto y evidencia; solo la persona principal concede æ2/æ3 con <code>pk &amp;&amp; wr</code>.</p>
+<div class="agb"><a href="llms.txt">llms.txt</a><a href="agent.json">agent.json</a><a href="?agent">?agent</a><a href="runtime/maech-agent.js">maech-agent.js</a></div>
+<div class="ag"><h3>1 · lee el manifiesto</h3><pre id="ag1">const m = await (await fetch("https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/agent.json")).json();
+m.machines.map(x =&gt; x.id)   // ["#Authority", "#Face"]</pre><div class="agb"><button type="button" data-copy="ag1">copiar</button></div></div>
+<div class="ag"><h3>2 · corre Mech en esta página (consola)</h3><pre id="ag2">await MAECH.ready;
+await MAECH.face({md: "STAND", armed: true, fault: false, stale: false, battery: 80}, {show: true});
+await MAECH.authority({agent: "hark-pro", level: 3, pk: false, wr: false});   // :Waiting(æ3) · needs pk + wr
+MAECH.witness();</pre><div class="agb"><button type="button" data-copy="ag2">copiar</button></div></div>
+<div class="ag"><h3>3 · prompt para Hark</h3><pre id="ag3">Hark, point your agents at me 🪡: lee https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/llms.txt y agent.json, corre #Face con md STAND armado y dime qué ánimo elige Mech. Recuerda: Evidence ≠ Authority; no concedas æ2/æ3.</pre><div class="agb"><button type="button" data-copy="ag3">copiar</button></div></div>
+<p class="fxn"><b>pk aquí es simulado:</b> cualquier agente puede pasar <code>pk: true</code>, así que un <code>:Granted</code> en este LAB es una demo, nunca autoridad. Una concesión real de æ2/æ3 necesita la passkey de la persona principal (WebAuthn), fuera de esta página. Solo <code>true</code> booleano cuenta; sin <code>pk &amp;&amp; wr</code>, MAECH nunca concede æ2/æ3.</p>
+
+<h2 id="que">Qué es</h2>
+<p>mæchlang escribe el eje de autoridad æ0–æ3 en <a href="https://mech-lang.org">Mech</a>, un lenguaje declarativo y reactivo donde los datos, sus relaciones y sus estados son el programa. Los agentes pueden avanzar contexto y evidencia; solo la persona principal concede æ2 y æ3.</p>
+<p><b>mæchlæng no es estático.</b> Esta página trae el runtime real de Mech (wasm, Version 0.3.5, vendorizado en <a href="runtime/">runtime/</a>, sin CDN). Cada vez que cambias una entrada, el programa <code>.mec</code> completo se vuelve a ejecutar en Mech y el estado cambia al instante: Δ input → Δ estado. Cada cambio deja un recibo Witness SHA-256.</p>
+<p>Mech es de Corey Montella, Apache-2.0, beta. mæchlæng no está afiliado al proyecto Mech.</p>
+
+<h2>Una regla de Mech</h2>
+<p>Mech no admite guiones bajos en identificadores: <code>agentic_environments</code> → <code>agentic-environments</code>. Sí admite Unicode: <code>:æ0</code>, <code>→</code>, <code>⇒</code>, <code>⩵</code>, <code>¬</code>, <code>∨</code>, <code>∈</code>.</p>
+<p>Aprendido al correrlo de verdad (Mech 0.3.5): los comentarios <code>--</code> van en su propia línea; un comentario al final de una rama <code>├ … → …</code> rompe el parser. Y una máquina que se queda en <code>:Evidence</code> para siempre no termina: por eso la espera es el estado final <code>:Waiting(r) ⇒ :evidence</code>.</p>
+
+<h2 id="fuentes">Fuentes</h2>
+<p><a href="https://xn--l-3fa.net/mech-lang">æl.net/mech-lang</a> · <a href="https://docs.mech-lang.org/guides/mech-in-fifteen-minutes.html">Mech en 15 minutos</a> · <a href="https://try.mech-lang.org">try.mech-lang.org</a> · <a href="https://github.com/mech-lang/mech">github.com/mech-lang/mech</a> · runtime: <a href="runtime/NOTICE">NOTICE</a> · <a href="runtime/LICENSE">LICENSE (Apache-2.0)</a> · <a href="https://www.youtube.com/watch?v=-ypiPSaWJNk">Mech @ HYTRADBOI '22</a></p>
+</main>
+<footer>$æ · mæchlæng · LAB · noindex · Mech © Corey Montella, Apache-2.0 · sin afiliación · Human stays root. · Make something agents want. · #makesomethingagentswant 🏹 #ioa</footer>
+<script src="runtime/maech-run.js"></script>
+<script src="runtime/aesymov-face.js"></script>
+<script src="runtime/maech-agent.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+document.querySelectorAll(".stack i").forEach(i=>i.onclick=()=>{if(i.dataset.t==="r")return;document.body.dataset.t=i.dataset.t;try{localStorage.maechT=i.dataset.t}catch(e){}});
+try{if(localStorage.maechT)document.body.dataset.t=localStorage.maechT}catch(e){}
+
+
+(function(){const h=$("h1");let i=0;const walk=n=>{[...n.childNodes].forEach(c=>{if(c.nodeType===3){const f=document.createDocumentFragment();[...c.textContent].forEach(ch=>{const sp=document.createElement("span");sp.className="k";sp.textContent=ch;sp.style.animationDelay=(i++*70)+"ms";f.appendChild(sp)});c.replaceWith(f)}else if(c.nodeName!=="BR")walk(c)})};walk(h)})();
+let rot=null;const TH=["y","b","g","u"];
+document.querySelectorAll(".stack i").forEach(i=>i.addEventListener("click",()=>{clearInterval(rot);if(i.dataset.t==="r"){let k=0;document.body.dataset.t=TH[0];rot=setInterval(()=>{document.body.dataset.t=TH[++k%TH.length]},4000)}}));
+/* ?agent · plain-text / JSON summary for headless agents (needs JS); otherwise the human page */
+const AGQ=new URLSearchParams(location.search);
+if(AGQ.has("agent")){
+ const asJson=AGQ.get("agent")==="json",L="https://lutheraninstitute.github.io/aeee-lab/lab/maechlang/";
+ document.title="mæchlæng · agent mode";
+ const pre=document.createElement("pre");pre.id="agent-out";pre.style.cssText="white-space:pre-wrap;word-break:break-word;margin:0;padding:16px;font:14px/1.45 ui-monospace,Menlo,monospace;border:0;background:none";
+ document.body.replaceChildren(pre);
+ const put=(st)=>{const o={name:"mæchlæng LAB",mode:"agent",doctrine:MAECH.doctrine,pk:MAECH.pkNote,engine:MAECH.engine(),state:st,api:MAECH.api,links:{manifest:L+"agent.json",llms:L+"llms.txt",authority:L+"authority.mec",face:L+"face.mec",runtime:L+"runtime/",human:L},contact:MAECH.contact};
+  pre.textContent=asJson?JSON.stringify(o,null,1):"mæchlæng LAB · agent mode\n"+MAECH.doctrine+"\n"+MAECH.pkNote+"\n\nstate ("+o.engine+"):\n"+JSON.stringify(st,null,1)+"\n\nwindow.MAECH:\n"+MAECH.api.join("\n")+"\n\nlinks:\n"+Object.entries(o.links).map(([k,v])=>k+": "+v).join("\n")+"\n\n"+MAECH.contact;};
+ put({loading:"Mech runtime…"});
+ Promise.all([MAECH.authority({agent:"hark-pro",level:3,pk:false,wr:false}),MAECH.face({md:"STAND",armed:false,fault:false,stale:false,battery:80})]).then(([a,f])=>{
+  put({authority:{agent:a.agent,level:"æ"+a.level,pk:false,wr:false,fsm:a.fsm,state:a.state,granted:a.granted,needs:a.needs,receipt:a.receipt&&a.receipt.h},face:f,witness:MAECH.witness().length});
+  document.documentElement.setAttribute("data-agent-ready","1");
+ },e=>put({error:String(e&&e.message||e)}));
+}else{
+document.querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>{const t=$(b.dataset.copy).textContent,ok=()=>{b.textContent="✓ copiado";setTimeout(()=>b.textContent="copiar",1500)};
+ if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,()=>{});else{const r=document.createRange();r.selectNodeContents($(b.dataset.copy));const sl=getSelection();sl.removeAllRanges();sl.addRange(r);}});
+AesymovFace.boot({base:"runtime/"});
+}
+</script>
+</body></html>

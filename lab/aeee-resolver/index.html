@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>æææ resolver · lab</title>
+<meta name="description" content="Simulación: (æææ).(com) como resolvedor. subdominio = quién lleva la cara, ruta = ánimo; respuesta = cara + ae.json + recibo. #OpenSourceWare">
+<style>
+:root{--paper:#f4efe3;--ink:#141414;--blue:#2c5aa0;--gold:#d9a400;--red:#c8352b;--green:#2f8a4b}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.5 ui-monospace,Menlo,Consolas,monospace}
+main{max-width:980px;margin:auto;padding:18px}
+h1{font:800 28px/1 "Arial Narrow",Impact,sans-serif;text-transform:uppercase;margin:0 0 4px}
+.sim{display:inline-block;border:1.5px solid var(--red);color:var(--red);padding:0 6px;font-size:11px;margin-left:6px;vertical-align:middle}
+.bar{display:flex;gap:6px;margin:14px 0 6px;flex-wrap:wrap}
+input,button{font:inherit;border:1.5px solid var(--ink);background:var(--paper);padding:8px 10px;border-radius:0}
+input{flex:1;min-width:240px}button{cursor:pointer}
+.ex{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.ex button{font-size:12px;padding:4px 8px}
+.dns{color:var(--blue);margin:6px 0 12px}
+.grid{display:grid;grid-template-columns:1.2fr 1fr;gap:14px}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+iframe{width:100%;aspect-ratio:16/9;border:1.5px solid var(--ink);background:var(--paper)}
+pre{margin:0;border:1.5px solid var(--ink);padding:10px;overflow:auto;font-size:12px;max-height:340px;background:rgba(255,255,255,.35)}
+.rc{margin-top:10px;border-top:1.5px solid var(--ink);padding-top:8px}
+.hold{color:var(--red)}.pass{color:var(--green)}
+.note{margin-top:16px;opacity:.8}
+</style>
+</head>
+<body><main>
+<h1>(æææ).(com) resolver <span class="sim">SIMULACIÓN · LAB</span></h1>
+<div>subdominio = quién lleva la cara · ruta = ánimo · respuesta = cara + ae.json + recibo</div>
+<div class="bar"><input id="addr" value="hermes.æææ.com/pass" aria-label="dirección"><button id="go">&gt;_ resolver</button></div>
+<div class="ex" id="ex"></div>
+<div class="dns" id="dns"></div>
+<div class="grid">
+ <div><iframe id="face" title="cara æææ" loading="eager"></iframe></div>
+ <div><pre id="man"></pre><div class="rc" id="rc"></div></div>
+</div>
+<div class="note">Nada aquí toca DNS real ni æææ.com: es una simulación en el lab. Cualquiera puede llevar la cara (fork); solo el titular del dominio decide a dónde apunta. Evidence ≠ Authority.</div>
+</main>
+<script>
+const MOODS=['neutral','feliz','pensando','sorpresa','hold','pass','dormido'];
+const WEARERS={
+ '':{name:'origen',role:'principal',axis:'æ3',agents_may:['leer'],human_only:['todo lo demás']},
+ 'yael':{name:'Yæl',role:'principal (humano)',axis:'æ3',agents_may:[],human_only:['decidir','verificar','merge','dinero','secretos']},
+ 'hark':{name:'Hark',role:'agente',axis:'æ2',agents_may:['leer','preparar PR','informar ánimo'],human_only:['merge','verify','dinero','secretos','publicar']},
+ 'hermes':{name:'Hermes æ',role:'agente',axis:'æ2',agents_may:['leer','preparar PR','OCR','informar ánimo'],human_only:['merge','verify','dinero','secretos','publicar']},
+ 'asimov':{name:'Asimov 1',role:'robot',axis:'æ1',agents_may:['informar estado (DAMP/STAND/MOVE)'],human_only:['moverse fuera de guardas','todo lo demás']}
+};
+const EX=['æææ.com','hermes.æææ.com/pass','hark.æææ.com/pensando','asimov.æææ.com/dormido','yael.æææ.com/feliz','fork.æææ.com/hold'];
+const ex=document.getElementById('ex');EX.forEach(a=>{const b=document.createElement('button');b.textContent=a;b.onclick=()=>{addr.value=a;resolve()};ex.appendChild(b)});
+const puny={'æææ.com':'xn--6caaa.com'};
+async function sha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+async function resolve(){
+ let a=addr.value.trim().toLowerCase().replace(/^https?:\/\//,'').replace('xn--6caaa.com','æææ.com');
+ let [host,...p]=a.split('/');let path=(p[0]||'neutral');
+ if(!host.endsWith('æææ.com')){host=host+'.æææ.com'}
+ const sub=host.replace(/\.?æææ\.com$/,'');
+ const known=WEARERS[sub];
+ const w=known||{name:sub,role:'fork',axis:'æ0',agents_may:['llevar la cara en su propio dominio'],human_only:['todo: sin autoridad aquí']};
+ let mood=MOODS.includes(path)?path:'pensando',note=MOODS.includes(path)?'':'ruta desconocida → pensando';
+ if(!known){mood='hold';note='portador desconocido → HOLD (fork sin autoridad en este dominio)'}
+ const ascii=(sub?sub+'.':'')+'xn--6caaa.com';
+ document.getElementById('dns').textContent=`DNS lee ← : . (raíz) → com → æææ (${ascii})${sub?' → '+sub:''} · ruta /${mood}`;
+ document.getElementById('face').src='../linea-ae/?embed=1&mood='+mood;
+ const manifest={schema:'ae.manifest/0.1',address:host+'/'+mood,machine:ascii,wearer:w.name,role:w.role,authority_axis:w.axis,state:{mood},
+  authority:{agents_may:w.agents_may,human_only:w.human_only},provenance:'LutheranInstitute/aeee-lab · lab/aeee-resolver',simulation:true};
+ document.getElementById('man').textContent=JSON.stringify(manifest,null,2);
+ const ts=new Date().toISOString(),h=await sha(JSON.stringify(manifest)+ts);
+ const cls=mood==='hold'?'hold':mood==='pass'?'pass':'';
+ document.getElementById('rc').innerHTML=`<b>recibo</b> · ${ts}<br>sha256 <code>${h.slice(0,16)}…${h.slice(-8)}</code><br><span class="${cls}">estado: ${mood.toUpperCase()}</span>${note?' · '+note:''}<br>Hark informa; Yæl decide.`;
+ history.replaceState(null,'','#'+encodeURIComponent(host+'/'+mood));
+}
+const addr=document.getElementById('addr');document.getElementById('go').onclick=resolve;addr.onkeydown=e=>{if(e.key==='Enter')resolve()};
+if(location.hash)addr.value=decodeURIComponent(location.hash.slice(1));resolve();
+</script>
+</body></html>

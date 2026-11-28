@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#050505">
+<title>llm.store · LAB — models you can read, run and receipt</title>
+<meta name="description" content="llm.store LAB: a live model catalog (OpenRouter public API, snapshot fallback), in-browser WebGPU inference with WebLLM, your own Ollama node, and SHA-256 receipts for every run. No invented numbers.">
+<link rel="alternate" type="text/plain" title="llms.txt" href="llms.txt">
+<link rel="alternate" type="application/json" title="ae.json" href="ae.json">
+<style>
+:root{--void:#050505;--panel:#0c0b08;--panel2:#12100a;--gold:#D4AF37;--gold2:#f0d26a;--ink:#ece6d2;--dim:#8d8672;--line:rgba(212,175,55,.22);--ok:#7fd08a;--warn:#e3a34a;--bad:#e06a5a;
+--mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--void);color:var(--ink);font:14px/1.5 var(--mono);min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
+a{color:var(--gold)}
+button,input,select,textarea{font:inherit;color:inherit}
+.lab{background:var(--gold);color:#000;font-weight:700;font-size:11px;letter-spacing:.08em;text-align:center;padding:5px 8px;text-transform:uppercase}
+.lab span{font-weight:400}
+header{position:relative;top:0;z-index:20;background:rgba(5,5,5,.96);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px 0}
+.brand{font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand b{color:var(--gold);font-weight:600}
+.lang{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;flex:none}
+.lang button{background:none;border:0;padding:4px 9px;font-size:12px;color:var(--dim);cursor:pointer;min-height:30px}
+.lang button.on{background:var(--gold);color:#000;font-weight:700}
+.cli{display:flex;align-items:center;gap:6px;padding:8px 12px 10px}
+.cli label{color:var(--gold);white-space:nowrap;font-size:13px}
+.cli input{flex:1;min-width:0;background:#000;border:1px solid var(--line);border-radius:6px;padding:10px;font-size:16px;color:var(--ink);outline:none}
+.cli input:focus{border-color:var(--gold)}
+.cli button{background:var(--gold);color:#000;border:0;border-radius:6px;padding:10px 12px;font-weight:700;cursor:pointer;min-height:44px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:0 12px 10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:6px 11px;font-size:12px;cursor:pointer;min-height:32px}
+.chip:hover,.chip.on{border-color:var(--gold);color:var(--gold)}
+#term{max-height:32vh;overflow:auto;margin:0 12px 10px;background:#000;border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:12.5px;white-space:pre-wrap;word-break:break-word;display:none}
+#term.show{display:block}
+#term .in{color:var(--gold)}#term .err{color:var(--bad)}#term .ok{color:var(--ok)}#term .dim{color:var(--dim)}
+main{max-width:980px;margin:0 auto;padding:14px 12px 40px}
+.origin{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;margin:4px 0 16px;color:var(--dim);font-size:12px}
+.origin b{color:var(--gold);font-size:18px;font-weight:600}
+h1{font-size:22px;line-height:1.25;color:var(--ink);margin:4px 0 6px;font-weight:700;letter-spacing:-.01em}
+h1 em{font-style:normal;color:var(--gold)}
+.lede{color:var(--dim);margin-bottom:14px;max-width:60ch}
+section{border:1px solid var(--line);border-radius:10px;background:var(--panel);margin:14px 0;overflow:hidden}
+section>h2{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);padding:10px 12px;border-bottom:1px solid var(--line);background:var(--panel2)}
+section>h2 small{font-size:11px;letter-spacing:0;text-transform:none;color:var(--dim);font-weight:400;text-align:right}
+.pad{padding:12px}
+.badge{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;padding:2px 6px;border-radius:4px;vertical-align:1px}
+.b-live{background:var(--gold);color:#000}.b-snap{border:1px solid var(--gold);color:var(--gold)}.b-off{border:1px solid var(--dim);color:var(--dim)}.b-meas{background:var(--ok);color:#000}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
+@media(min-width:640px){.stats{grid-template-columns:repeat(4,1fr)}}
+.stat{border:1px solid var(--line);border-radius:8px;padding:8px}
+.stat b{display:block;font-size:18px;color:var(--ink)}
+.stat span{font-size:11px;color:var(--dim)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row input[type=search],.row select,.row input[type=text]{background:#000;border:1px solid var(--line);border-radius:6px;padding:9px;font-size:16px;min-width:0;flex:1}
+.btn{background:none;border:1px solid var(--gold);color:var(--gold);border-radius:6px;padding:9px 12px;cursor:pointer;min-height:44px;font-weight:600}
+.btn.solid{background:var(--gold);color:#000}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.list{margin-top:10px;display:grid;gap:8px}
+.m{border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:#080705;cursor:pointer}
+.m:hover{border-color:var(--gold)}
+.m .n{color:var(--ink);font-weight:600;word-break:break-word}
+.m .id{color:var(--dim);font-size:11.5px;word-break:break-all}
+.m .k{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:4px;font-size:12px;color:var(--dim)}
+.m .k b{color:var(--ink);font-weight:500}
+.m .free{color:var(--ok);font-weight:700}
+.m .x{display:none;margin-top:8px;border-top:1px dashed var(--line);padding-top:8px;font-size:12px;color:var(--dim)}
+.m.open .x{display:block}
+.m pre,.code{background:#000;border:1px solid var(--line);border-radius:6px;padding:8px;overflow:auto;font-size:11.5px;color:var(--ink);white-space:pre-wrap;word-break:break-all}
+.note{font-size:12px;color:var(--dim);margin-top:8px}
+.note b{color:var(--ink)}
+.warn{color:var(--warn)}.bad{color:var(--bad)}.okc{color:var(--ok)}
+.bar{height:6px;background:#1b1810;border-radius:3px;overflow:hidden;margin:8px 0 4px}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .2s}
+#chatlog{min-height:90px;max-height:46vh;overflow:auto;background:#000;border:1px solid var(--line);border-radius:6px;padding:10px;white-space:pre-wrap;word-break:break-word;font-size:13.5px}
+#chatlog .u{color:var(--gold)}#chatlog .a{color:var(--ink)}#chatlog .s{color:var(--dim);font-size:12px}
+textarea{width:100%;background:#000;border:1px solid var(--line);border-radius:6px;padding:10px;font-size:16px;resize:vertical;min-height:64px}
+.meter{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+@media(min-width:640px){.meter{grid-template-columns:repeat(4,1fr)}}
+.rc{border:1px solid var(--line);border-radius:8px;padding:8px;font-size:12px;margin-top:8px;word-break:break-all}
+.rc b{color:var(--gold)}
+footer{border-top:1px solid var(--line);padding:18px 12px 30px;text-align:center;color:var(--dim);font-size:12px}
+footer nav{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 10px;margin-bottom:8px}
+footer a{text-decoration:none}
+.sr{position:absolute;left:-9999px}
+@media(min-width:640px){header{position:sticky}}
+</style>
+</head>
+<body>
+<div class="lab" role="note">LAB · DEMO — <span data-i18n="labstrip">not production · nothing here is invented: every number is LIVE, SNAPSHOT or MEASURED</span></div>
+
+<header>
+  <div class="top">
+    <div class="brand"><b>æææ</b>:///llm.store · <span data-i18n="tag">read · run · receipt</span></div>
+    <div class="lang" role="group" aria-label="language"><button id="lang-en" class="on">EN</button><button id="lang-es">ES</button></div>
+  </div>
+  <form class="cli" id="cliform" autocomplete="off">
+    <label for="cmd">æææ:///llm.store ⫸</label>
+    <input id="cmd" type="text" spellcheck="false" autocapitalize="off" autocorrect="off" enterkeyhint="go" placeholder="help">
+    <button type="submit" aria-label="run command">⏎</button>
+  </form>
+  <div class="chips" id="quick">
+    <button class="chip" data-cmd="help">help</button>
+    <button class="chip" data-cmd="ls models free">ls models free</button>
+    <button class="chip" data-cmd="ls models open">ls models open</button>
+    <button class="chip" data-cmd="ls models cheap">ls models cheap</button>
+    <button class="chip" data-cmd="search qwen">search qwen</button>
+    <button class="chip" data-cmd="local">local</button>
+    <button class="chip" data-cmd="run qwen3-0.6b">run qwen3-0.6b</button>
+    <button class="chip" data-cmd="receipts">receipts</button>
+    <button class="chip" data-cmd="agents">agents</button>
+  </div>
+  <div id="term" aria-live="polite"></div>
+</header>
+
+<main>
+  <div class="origin"><b>x₀y₀z₀</b><span data-i18n="origin">origin · your device is the store</span></div>
+  <h1 data-i18n-html="h1">Models you can <em>read</em>, <em>run</em> on your own silicon, and <em>receipt</em>.</h1>
+  <p class="lede" data-i18n="lede">A live catalog from public APIs, inference inside your browser (WebGPU) or on your own node (Ollama), and a SHA-256 receipt for every run. Zero cloud rent. Evidence ≠ Authority: the page measures, you decide.</p>
+
+  <!-- 1 CATALOG -->
+  <section id="catalog">
+    <h2><span data-i18n="s1">01 · Catalog</span><small id="srcline">loading…</small></h2>
+    <div class="pad">
+      <div class="stats" id="stats"></div>
+      <div class="row">
+        <input type="search" id="q" placeholder="search models…" aria-label="search models" data-i18n-ph="searchph">
+        <select id="sort" aria-label="sort">
+          <option value="new" data-i18n="sort_new">newest</option>
+          <option value="cheap" data-i18n="sort_cheap">cheapest</option>
+          <option value="ctx" data-i18n="sort_ctx">longest context</option>
+          <option value="name" data-i18n="sort_name">name</option>
+        </select>
+      </div>
+      <div class="chips" style="padding:10px 0 0" id="filters">
+        <button class="chip on" data-f="all" data-i18n="f_all">all</button>
+        <button class="chip" data-f="free" data-i18n="f_free">free</button>
+        <button class="chip" data-f="open" data-i18n="f_open">open weights*</button>
+        <button class="chip" data-f="long" data-i18n="f_long">≥1M context</button>
+        <button class="chip" data-f="cheap" data-i18n="f_cheap">cheapest paid</button>
+      </div>
+      <div class="list" id="list"></div>
+      <div class="row" style="margin-top:10px"><button class="btn" id="more" data-i18n="more">show more</button><span class="note" id="shown"></span></div>
+      <p class="note" data-i18n-html="catnote">Source: <a href="https://openrouter.ai/api/v1/models" target="_blank" rel="noopener">OpenRouter public models API</a> (no key). Prices are list prices in USD per 1M tokens. *“open weights” = OpenRouter lists a Hugging Face repo for it — a hint, not a license check. Cloud inference is <b>not wired</b> here on purpose: no keys, no rent.</p>
+    </div>
+  </section>
+
+  <!-- 2 RUN IN BROWSER -->
+  <section id="webgpu">
+    <h2><span data-i18n="s2">02 · Run in your browser</span><small id="gpustate">WebGPU: checking…</small></h2>
+    <div class="pad">
+      <p class="note" style="margin-top:0" data-i18n="s2lede">WebLLM compiles a small open model to WebGPU and runs it on this device. Weights download once from Hugging Face and are cached by your browser; prompts and answers never leave the device.</p>
+      <div class="row" style="margin-top:10px">
+        <select id="wmodel" aria-label="WebLLM model"></select>
+        <button class="btn solid" id="wload" data-i18n="load">load</button>
+      </div>
+      <div class="bar"><i id="wbar"></i></div>
+      <div class="note" id="wprog" data-i18n="notloaded">not loaded · nothing downloaded yet</div>
+      <div class="note" id="gpuinfo"></div>
+    </div>
+  </section>
+
+  <!-- 3 OWN NODE -->
+  <section id="node">
+    <h2><span data-i18n="s3">03 · Your own node</span><small id="nodestate">Ollama: not connected</small></h2>
+    <div class="pad">
+      <div class="row">
+        <input type="text" id="ourl" value="http://localhost:11434" aria-label="Ollama URL" spellcheck="false" autocapitalize="off">
+        <button class="btn" id="oconn" data-i18n="connect">connect</button>
+      </div>
+      <div class="row" style="margin-top:8px"><select id="omodel" aria-label="Ollama model" disabled><option>—</option></select><button class="btn" id="ouse" disabled data-i18n="use">use</button></div>
+      <p class="note" data-i18n-html="ollamanote">Optional. Start Ollama allowing this page: <code>OLLAMA_ORIGINS="https://lutheraninstitute.github.io" ollama serve</code>. Chrome/Edge may ask permission for local-network access; Safari blocks http://localhost from an https page — use Chrome, or open this file locally. Nothing is sent anywhere except your own node.</p>
+    </div>
+  </section>
+
+  <!-- 4 CHAT -->
+  <section id="chat">
+    <h2><span data-i18n="s4">04 · Chat</span><small id="rtline">runtime: none</small></h2>
+    <div class="pad">
+      <div id="chatlog"><span class="s" data-i18n="chatempty">Load a model in 02 or connect a node in 03. Then type below — or `ask &lt;text&gt;` in the command line.</span></div>
+      <textarea id="prompt" style="margin-top:8px" placeholder="Ask something…" data-i18n-ph="askph"></textarea>
+      <div class="row" style="margin-top:8px"><button class="btn solid" id="send" disabled data-i18n="send">send</button><button class="btn" id="stop" disabled data-i18n="stop">stop</button><button class="btn" id="reset" data-i18n="reset">reset chat</button></div>
+      <div class="meter">
+        <div class="stat"><b id="m_tps">—</b><span data-i18n="m_tps">tok/s (measured, decode)</span></div>
+        <div class="stat"><b id="m_ttft">—</b><span data-i18n="m_ttft">time to first token</span></div>
+        <div class="stat"><b id="m_tok">—</b><span data-i18n="m_tok">tokens out</span></div>
+        <div class="stat"><b id="m_eng">—</b><span data-i18n="m_eng">engine-reported tok/s</span></div>
+      </div>
+      <p class="note" data-i18n="meternote">MEASURED on this device from the last run: wall-clock from first token to last, using the runtime’s own token count. Blank until you run something.</p>
+    </div>
+  </section>
+
+  <!-- 5 RECEIPTS -->
+  <section id="receipts">
+    <h2><span data-i18n="s5">05 · Receipts</span><small id="rccount">0</small></h2>
+    <div class="pad">
+      <p class="note" style="margin-top:0" data-i18n="rclede">Every run writes a SHA-256 receipt chained to the previous one (prev → hash), stored only in this browser (localStorage). Prompts are stored as hashes, not text.</p>
+      <div class="row" style="margin-top:8px"><button class="btn" id="rverify" data-i18n="verify">verify chain</button><button class="btn" id="rexport" data-i18n="export">export JSON</button><button class="btn" id="rclear" data-i18n="clear">clear</button></div>
+      <div id="rclist"></div>
+    </div>
+  </section>
+
+  <!-- 6 AGENTS -->
+  <section id="agents">
+    <h2><span data-i18n="s6">06 · For agents</span><small><a href="llms.txt">llms.txt</a> · <a href="ae.json">ae.json</a> · <a href="models.snapshot.json">snapshot</a></small></h2>
+    <div class="pad">
+      <p class="note" style="margin-top:0" data-i18n-html="aglede">Make something agents want. Agents can read <a href="llms.txt">llms.txt</a>, the <a href="ae.json">ae.json</a> manifest and <a href="models.snapshot.json">models.snapshot.json</a>, or drive this page with <code>window.LLMSTORE.run("ls models free")</code>.</p>
+      <pre class="code" id="llmstxt" style="margin-top:8px;max-height:40vh">…</pre>
+    </div>
+  </section>
+
+  <!-- 7 HF -->
+  <section id="hf">
+    <h2><span data-i18n="s7">07 · Trending on Hugging Face</span><small id="hfline">not loaded</small></h2>
+    <div class="pad">
+      <button class="btn" id="hfload" data-i18n="hfload">load trending text-generation</button>
+      <div class="list" id="hflist"></div>
+      <p class="note" data-i18n="hfnote">LIVE from huggingface.co/api/models (sort=trendingScore). No snapshot is kept for this list.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <nav>
+    <a href="https://xn--6caaa.com" target="_blank" rel="noopener">æææ.com</a>•
+    <a href="http://llm.store" target="_blank" rel="noopener">llm.store</a>•
+    <a href="https://xn--l-3fa.net" target="_blank" rel="noopener">æl.net</a>•
+    <a href="https://privateclient.ai" target="_blank" rel="noopener">privateclient.ai</a>•
+    <a href="https://mobility.foundation" target="_blank" rel="noopener">mobility.foundation</a>
+  </nav>
+  <div>LALM · 501(c)3 · Est. 1936 · L:// R&amp;D LAB</div>
+  <div style="margin-top:4px" data-i18n="foot">Make something agents want. · Evidence ≠ Authority — supervision informs, the human decides.</div>
+</footer>
+
+<script type="module">
+// ---------- i18n ----------
+const I18N={es:{
+labstrip:"no es producción · nada aquí es inventado: cada número es LIVE, SNAPSHOT o MEDIDO",tag:"leer · correr · recibo",origin:"origen · tu dispositivo es la tienda",
+h1:'Modelos que puedes <em>leer</em>, <em>correr</em> en tu propio silicio y <em>recibir</em> con recibo.',
+lede:"Catálogo en vivo desde APIs públicas, inferencia dentro de tu navegador (WebGPU) o en tu propio nodo (Ollama), y un recibo SHA-256 por cada ejecución. Cero renta de nube. Evidencia ≠ Autoridad: la página mide, tú decides.",
+s1:"01 · Catálogo",searchph:"buscar modelos…",sort_new:"más nuevos",sort_cheap:"más baratos",sort_ctx:"contexto más largo",sort_name:"nombre",f_all:"todos",f_free:"gratis",f_open:"pesos abiertos*",f_long:"contexto ≥1M",f_cheap:"pagos más baratos",more:"ver más",
+catnote:'Fuente: <a href="https://openrouter.ai/api/v1/models" target="_blank" rel="noopener">API pública de modelos de OpenRouter</a> (sin llave). Precios de lista en USD por 1M de tokens. *“pesos abiertos” = OpenRouter indica un repo de Hugging Face — una pista, no una verificación de licencia. La inferencia en la nube <b>no está conectada</b> a propósito: sin llaves, sin renta.',
+s2:"02 · Corre en tu navegador",s2lede:"WebLLM compila un modelo abierto pequeño a WebGPU y lo corre en este dispositivo. Los pesos se descargan una vez desde Hugging Face y tu navegador los guarda; tus prompts y respuestas nunca salen del dispositivo.",load:"cargar",notloaded:"sin cargar · nada descargado todavía",
+s3:"03 · Tu propio nodo",connect:"conectar",use:"usar",
+ollamanote:'Opcional. Inicia Ollama permitiendo esta página: <code>OLLAMA_ORIGINS="https://lutheraninstitute.github.io" ollama serve</code>. Chrome/Edge pueden pedir permiso de red local; Safari bloquea http://localhost desde una página https — usa Chrome, o abre este archivo localmente. Nada se envía a ningún lado salvo a tu propio nodo.',
+s4:"04 · Chat",chatempty:"Carga un modelo en 02 o conecta un nodo en 03. Luego escribe abajo — o `ask <texto>` en la línea de comandos.",askph:"Pregunta algo…",send:"enviar",stop:"detener",reset:"reiniciar chat",
+m_tps:"tok/s (medido, decodificación)",m_ttft:"tiempo al primer token",m_tok:"tokens generados",m_eng:"tok/s según el motor",meternote:"MEDIDO en este dispositivo en la última ejecución: tiempo real del primer al último token, con el conteo de tokens del propio runtime. Vacío hasta que corras algo.",
+s5:"05 · Recibos",rclede:"Cada ejecución escribe un recibo SHA-256 encadenado al anterior (prev → hash), guardado solo en este navegador (localStorage). Los prompts se guardan como hash, no como texto.",verify:"verificar cadena",export:"exportar JSON",clear:"borrar",
+s6:"06 · Para agentes",aglede:'Make something agents want. Los agentes pueden leer <a href="llms.txt">llms.txt</a>, el manifiesto <a href="ae.json">ae.json</a> y <a href="models.snapshot.json">models.snapshot.json</a>, o manejar esta página con <code>window.LLMSTORE.run("ls models free")</code>.',
+s7:"07 · Tendencias en Hugging Face",hfload:"cargar tendencias de generación de texto",hfnote:"LIVE desde huggingface.co/api/models (sort=trendingScore). No se guarda snapshot de esta lista.",
+foot:"Make something agents want. · Evidencia ≠ Autoridad — la supervisión informa, el humano decide.",
+st_models:"modelos",st_free:"gratis",st_open:"con repo HF",st_med:"mediana USD/1M entrada (pagos)",shown:"mostrando {a} de {b}",
+help:`comandos:
+  help                     esta ayuda
+  ls models [free|open|long|cheap]   listar / filtrar catálogo
+  search <texto>           buscar en el catálogo
+  run <modelo>             correr local (WebLLM o tu Ollama)
+  ask <texto>              preguntar al runtime activo
+  local                    revisar WebGPU + tu nodo Ollama
+  node [url]               conectar Ollama (por defecto localhost:11434)
+  receipts [verify|export|clear]
+  agents                   mostrar llms.txt
+  hf                       tendencias de Hugging Face (LIVE)
+  lang en|es · clear`,
+nocloud:"inferencia en la nube no conectada en este LAB (sin llaves, cero renta). Prueba `run qwen3-0.6b` para correr local.",
+nogpu:"Este navegador no expone WebGPU. En iPhone: Safari 26 / iOS 26 incluye WebGPU; si falta, revisa Ajustes › Apps › Safari › Avanzado › Feature Flags › WebGPU. En computadora: Chrome o Edge recientes.",
+},en:{}};
+const EN_DYNAMIC={st_models:"models",st_free:"free",st_open:"with HF repo",st_med:"median USD/1M input (paid)",shown:"showing {a} of {b}",
+help:`commands:
+  help                     this help
+  ls models [free|open|long|cheap]   list / filter the catalog
+  search <text>            search the catalog
+  run <model>              run locally (WebLLM or your Ollama)
+  ask <text>               ask the active runtime
+  local                    check WebGPU + your Ollama node
+  node [url]               connect Ollama (default localhost:11434)
+  receipts [verify|export|clear]
+  agents                   show llms.txt
+  hf                       Hugging Face trending (LIVE)
+  lang en|es · clear`,
+nocloud:"cloud inference is not wired in this LAB (no keys, zero cloud rent). Try `run qwen3-0.6b` to run locally.",
+nogpu:"This browser doesn't expose WebGPU. On iPhone: Safari 26 / iOS 26 includes WebGPU; if it's missing, check Settings › Apps › Safari › Advanced › Feature Flags › WebGPU. On a computer: a recent Chrome or Edge."};
+const ORIG={};
+let LANG=(new URLSearchParams(location.search).get('lang')||localStorage.getItem('llmstore.lang')||'en').startsWith('es')?'es':'en';
+const t=(k,v={})=>{let s=(LANG==='es'&&I18N.es[k])||EN_DYNAMIC[k]||ORIG[k]||k;for(const x in v)s=s.replace('{'+x+'}',v[x]);return s};
+function applyLang(){
+  document.documentElement.lang=LANG;
+  document.querySelectorAll('[data-i18n]').forEach(e=>{const k=e.dataset.i18n;if(!(k in ORIG))ORIG[k]=e.textContent;e.textContent=LANG==='es'&&I18N.es[k]?I18N.es[k]:ORIG[k]});
+  document.querySelectorAll('[data-i18n-html]').forEach(e=>{const k=e.dataset.i18nHtml;if(!(k in ORIG))ORIG[k]=e.innerHTML;e.innerHTML=LANG==='es'&&I18N.es[k]?I18N.es[k]:ORIG[k]});
+  document.querySelectorAll('[data-i18n-ph]').forEach(e=>{const k=e.dataset.i18nPh;if(!(k in ORIG))ORIG[k]=e.placeholder;e.placeholder=LANG==='es'&&I18N.es[k]?I18N.es[k]:ORIG[k]});
+  $('#lang-en').classList.toggle('on',LANG==='en');$('#lang-es').classList.toggle('on',LANG==='es');
+  localStorage.setItem('llmstore.lang',LANG);
+  if(CAT.models.length){renderStats();renderList()}
+}
+// ---------- utils ----------
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtCtx=n=>!n?'—':n>=1e6?(n/1e6).toFixed(n%1e6?2:0).replace(/\.?0+$/,'')+'M':n>=1e3?Math.round(n/1e3)+'K':String(n);
+const fmtP=v=>v==null?'—':v===0?'0':v<0.01?v.toFixed(4):v<1?v.toFixed(3).replace(/0$/,''):v.toFixed(2);
+const fmtTs=iso=>{try{return new Date(iso).toLocaleString(LANG==='es'?'es':'en',{dateStyle:'medium',timeStyle:'short'})}catch{return iso}};
+async function sha256(s){if(!crypto.subtle)return null;const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+// ---------- terminal ----------
+const term=$('#term');
+function out(text,cls=''){term.classList.add('show');const d=document.createElement('div');if(cls)d.className=cls;d.textContent=text;term.appendChild(d);term.scrollTop=term.scrollHeight}
+// ---------- catalog ----------
+const CAT={models:[],source:null,at:null,filter:'all',q:'',sort:'new',limit:40};
+function norm(m){const pm=x=>{const v=parseFloat(x);return isNaN(v)||v<0?null:Math.round(v*1e6*1e4)/1e4};const p=m.pricing||{},a=m.architecture||{};
+  return{id:m.id,name:m.name,ctx:m.context_length,mod:a.modality,in:pm(p.prompt),out:pm(p.completion),hf:m.hugging_face_id||null,created:m.created,max_out:(m.top_provider||{}).max_completion_tokens}}
+async function loadCatalog(){
+  $('#srcline').textContent='fetching LIVE…';
+  try{
+    const ac=new AbortController();const to=setTimeout(()=>ac.abort(),9000);
+    const r=await fetch('https://openrouter.ai/api/v1/models',{signal:ac.signal});clearTimeout(to);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const j=await r.json();if(!Array.isArray(j.data)||!j.data.length)throw new Error('empty');
+    CAT.models=j.data.map(norm);CAT.source='LIVE';CAT.at=new Date().toISOString();
+  }catch(e){
+    try{const r=await fetch('models.snapshot.json');const j=await r.json();CAT.models=j.models;CAT.source='SNAPSHOT';CAT.at=j.fetched_at;CAT.err=String(e.message||e)}
+    catch(e2){$('#srcline').innerHTML='<span class="bad">catalog unavailable</span>';return}
+  }
+  renderStats();renderList();
+}
+function srcBadge(){return `<span class="badge ${CAT.source==='LIVE'?'b-live':'b-snap'}">${CAT.source}</span> ${esc(fmtTs(CAT.at))}`}
+function renderStats(){
+  const M=CAT.models,free=M.filter(isFree).length,open=M.filter(m=>m.hf).length;
+  const paid=M.filter(m=>m.in>0).map(m=>m.in).sort((a,b)=>a-b);const med=paid.length?paid[Math.floor(paid.length/2)]:null;
+  $('#srcline').innerHTML=srcBadge()+(CAT.err?` <span class="warn" title="${esc(CAT.err)}">(live fetch failed)</span>`:'');
+  $('#stats').innerHTML=[[M.length,t('st_models')],[free,t('st_free')],[open,t('st_open')],['$'+fmtP(med),t('st_med')]].map(([b,s])=>`<div class="stat"><b>${esc(b)}</b><span>${esc(s)} · ${CAT.source}</span></div>`).join('');
+}
+const isFree=m=>m.in===0&&m.out===0;
+function filtered(){
+  let M=CAT.models.slice();const q=CAT.q.trim().toLowerCase();
+  if(q)M=M.filter(m=>(m.id+' '+m.name+' '+(m.hf||'')+' '+(m.mod||'')).toLowerCase().includes(q));
+  if(CAT.filter==='free')M=M.filter(isFree);
+  if(CAT.filter==='open')M=M.filter(m=>m.hf);
+  if(CAT.filter==='long')M=M.filter(m=>(m.ctx||0)>=1e6);
+  if(CAT.filter==='cheap')M=M.filter(m=>m.in>0&&m.out!=null);
+  const blend=m=>m.in==null||m.out==null?1e9:(m.in+m.out)/2;
+  const sort=CAT.filter==='cheap'?'cheap':CAT.sort;
+  if(sort==='new')M.sort((a,b)=>(b.created||0)-(a.created||0));
+  if(sort==='cheap')M.sort((a,b)=>blend(a)-blend(b));
+  if(sort==='ctx')M.sort((a,b)=>(b.ctx||0)-(a.ctx||0));
+  if(sort==='name')M.sort((a,b)=>String(a.name).localeCompare(b.name));
+  return M;
+}
+function card(m){
+  const price=isFree(m)?'<span class="free">FREE</span>':`$${fmtP(m.in)} in · $${fmtP(m.out)} out <span style="opacity:.7">/1M</span>`;
+  const created=m.created?new Date(m.created*1000).toISOString().slice(0,10):'—';
+  return `<div class="m" data-id="${esc(m.id)}"><div class="n">${esc(m.name)}</div><div class="id">${esc(m.id)}</div>
+  <div class="k"><span>ctx <b>${fmtCtx(m.ctx)}</b></span><span>${price}</span><span>${esc(m.mod||'')}</span>${m.hf?'<span>HF*</span>':''}</div>
+  <div class="x">listed ${created} · max out ${fmtCtx(m.max_out)}${m.hf?` · <a href="https://huggingface.co/${esc(m.hf)}" target="_blank" rel="noopener">hf.co/${esc(m.hf)}</a>`:''} · ${srcBadge()}
+  <div><a href="https://openrouter.ai/${esc(m.id)}" target="_blank" rel="noopener">openrouter.ai/${esc(m.id)}</a> · ${LANG==='es'?'inferencia en la nube no conectada aquí (sin llaves, cero renta).':'cloud inference not wired here (no keys, zero cloud rent).'}</div></div></div>`;
+}
+function renderList(){
+  const M=filtered();$('#list').innerHTML=M.slice(0,CAT.limit).map(card).join('')||'<div class="note">0</div>';
+  $('#shown').textContent=t('shown',{a:Math.min(CAT.limit,M.length),b:M.length});$('#more').style.display=M.length>CAT.limit?'':'none';
+  document.querySelectorAll('#filters .chip').forEach(c=>c.classList.toggle('on',c.dataset.f===CAT.filter));
+}
+$('#list').addEventListener('click',e=>{if(e.target.closest('a,pre'))return;const c=e.target.closest('.m');if(c)c.classList.toggle('open')});
+$('#q').addEventListener('input',e=>{CAT.q=e.target.value;CAT.limit=40;renderList()});
+$('#sort').addEventListener('change',e=>{CAT.sort=e.target.value;renderList()});
+$('#filters').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;CAT.filter=c.dataset.f;CAT.limit=40;renderList()});
+$('#more').addEventListener('click',()=>{CAT.limit+=40;renderList()});
+// ---------- WebGPU / WebLLM ----------
+const WEBLLM_VER='0.2.89';
+const WMODELS=[ // from @mlc-ai/web-llm 0.2.89 prebuiltAppConfig (vram_required_MB)
+ {k:'qwen3-0.6b',f16:'Qwen3-0.6B-q4f16_1-MLC',f32:'Qwen3-0.6B-q4f32_1-MLC',vram:1403,label:'Qwen3 0.6B',qwen3:true},
+ {k:'qwen3.5-0.8b',f16:'Qwen3.5-0.8B-q4f16_1-MLC',f32:'Qwen3.5-0.8B-q4f32_1-MLC',vram:1629,label:'Qwen3.5 0.8B'},
+ {k:'llama-3.2-1b',f16:'Llama-3.2-1B-Instruct-q4f16_1-MLC',f32:'Llama-3.2-1B-Instruct-q4f32_1-MLC',vram:879,label:'Llama 3.2 1B'},
+ {k:'qwen2.5-0.5b',f16:'Qwen2.5-0.5B-Instruct-q4f16_1-MLC',f32:'Qwen2.5-0.5B-Instruct-q4f32_1-MLC',vram:945,label:'Qwen2.5 0.5B'},
+ {k:'qwen3-1.7b',f16:'Qwen3-1.7B-q4f16_1-MLC',f32:'Qwen3-1.7B-q4f32_1-MLC',vram:2037,label:'Qwen3 1.7B',qwen3:true},
+];
+const GPU={ok:false,f16:false,info:''};
+const RT={kind:null,model:null,engine:null,ollamaUrl:null,history:[],busy:false,abort:null};
+async function detectGPU(){
+  fillWModels();
+  if(!('gpu' in navigator)){$('#gpustate').innerHTML='<span class="bad">WebGPU: unavailable</span>';$('#gpuinfo').innerHTML=esc(t('nogpu'));$('#wload').disabled=true;return GPU}
+  try{const a=await navigator.gpu.requestAdapter();if(!a)throw new Error('no adapter');GPU.ok=true;GPU.f16=a.features.has('shader-f16');
+    const i=a.info||{};GPU.info=[i.vendor,i.architecture,i.description].filter(Boolean).join(' · ');
+    $('#gpustate').innerHTML=`<span class="okc">WebGPU: ready</span>`;
+    $('#gpuinfo').textContent=`adapter: ${GPU.info||'(browser hides details)'} · shader-f16: ${GPU.f16?'yes':'no → using q4f32 builds'}`;
+  }catch(e){$('#gpustate').innerHTML='<span class="bad">WebGPU: no adapter</span>';$('#gpuinfo').textContent=t('nogpu')+' ('+e.message+')';$('#wload').disabled=true}
+  fillWModels();return GPU;
+}
+const wid=m=>GPU.ok&&!GPU.f16?m.f32:m.f16;
+function fillWModels(){$('#wmodel').innerHTML=WMODELS.map(m=>`<option value="${m.k}">${m.label} · ${wid(m)} · ~${m.vram} MB VRAM</option>`).join('')}
+async function loadWebLLM(key){
+  const m=WMODELS.find(x=>x.k===key)||WMODELS[0];$('#wmodel').value=m.k;
+  if(!GPU.ok){out(t('nogpu'),'err');return false}
+  if(RT.busy){out('busy','err');return false}
+  const id=wid(m);$('#wload').disabled=true;$('#wprog').textContent='importing WebLLM '+WEBLLM_VER+'…';
+  try{
+    const webllm=await import(`https://esm.run/@mlc-ai/web-llm@${WEBLLM_VER}`);
+    if(RT.engine&&RT.engine.unload){try{await RT.engine.unload()}catch{}}
+    const t0=performance.now();
+    const engine=await webllm.CreateMLCEngine(id,{initProgressCallback:p=>{$('#wbar').style.width=Math.round((p.progress||0)*100)+'%';$('#wprog').textContent=p.text||''}});
+    const secs=((performance.now()-t0)/1000).toFixed(1);
+    Object.assign(RT,{kind:'webgpu',model:id,engine,qwen3:!!m.qwen3,history:[]});
+    $('#wbar').style.width='100%';$('#wprog').innerHTML=`<span class="okc">loaded ${esc(id)}</span> in ${secs}s (MEASURED, includes download if not cached)`;
+    setRuntime();out(`✓ webgpu · ${id} ready (${secs}s)`,'ok');return true;
+  }catch(e){$('#wprog').innerHTML=`<span class="bad">load failed: ${esc(e.message||e)}</span>`;out('load failed: '+(e.message||e),'err');return false}
+  finally{$('#wload').disabled=!GPU.ok}
+}
+$('#wload').addEventListener('click',()=>loadWebLLM($('#wmodel').value));
+// ---------- Ollama ----------
+async function connectOllama(url){
+  url=(url||$('#ourl').value||'http://localhost:11434').replace(/\/+$/,'');$('#ourl').value=url;
+  $('#nodestate').textContent='Ollama: connecting…';
+  try{const ac=new AbortController();setTimeout(()=>ac.abort(),5000);
+    const r=await fetch(url+'/api/tags',{signal:ac.signal});if(!r.ok)throw new Error('HTTP '+r.status);
+    const j=await r.json();const ms=(j.models||[]).map(x=>x.name);
+    RT.ollamaUrl=url;RT.ollamaModels=ms;
+    $('#omodel').innerHTML=ms.length?ms.map(n=>`<option>${esc(n)}</option>`).join(''):'<option>(no models — ollama pull qwen3:0.6b)</option>';
+    $('#omodel').disabled=!ms.length;$('#ouse').disabled=!ms.length;
+    $('#nodestate').innerHTML=`<span class="okc">Ollama: ${ms.length} model(s)</span>`;out(`✓ node ${url} · ${ms.length} model(s): ${ms.join(', ')||'none'}`,'ok');return ms;
+  }catch(e){$('#nodestate').innerHTML='<span class="bad">Ollama: unreachable</span>';out(`node ${url} unreachable (${e.message||e}). Check that Ollama runs and OLLAMA_ORIGINS includes ${location.origin}.`,'err');return null}
+}
+function useOllama(name){Object.assign(RT,{kind:'ollama',model:name,history:[]});setRuntime();out(`✓ runtime ollama · ${name}`,'ok')}
+$('#oconn').addEventListener('click',()=>connectOllama());
+$('#ouse').addEventListener('click',()=>useOllama($('#omodel').value));
+// ---------- chat ----------
+function setRuntime(){$('#rtline').textContent=RT.kind?`runtime: ${RT.kind} · ${RT.model}`:'runtime: none';$('#send').disabled=!RT.kind}
+const log=$('#chatlog');
+function addLog(cls,text){if(log.querySelector('[data-i18n]'))log.innerHTML='';const d=document.createElement('div');d.className=cls;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;return d}
+const stripThink=s=>s.replace(/<think>[\s\S]*?(<\/think>|$)/g,'').replace(/^\s+/,'');
+async function ask(text){
+  text=(text||'').trim();if(!text)return;
+  if(!RT.kind){out(LANG==='es'?'sin runtime: `run qwen3-0.6b` o `node`':'no runtime yet: try `run qwen3-0.6b` or `node`','err');return}
+  if(RT.busy)return;RT.busy=true;$('#send').disabled=true;$('#stop').disabled=false;
+  addLog('u','› '+text);const a=addLog('a','');RT.history.push({role:'user',content:text});
+  const tStart=performance.now();let tFirst=null,tLast=null,raw='',tokens=null,engTps=null,pTok=null,chunks=0;
+  try{
+    if(RT.kind==='webgpu'){
+      const req={messages:RT.history.slice(-8),stream:true,stream_options:{include_usage:true},temperature:0.7,max_tokens:512};
+      if(RT.qwen3)req.extra_body={enable_thinking:false};
+      const stream=await RT.engine.chat.completions.create(req);
+      RT.abort=()=>RT.engine.interruptGenerate();
+      for await(const ch of stream){const d=ch.choices?.[0]?.delta?.content;if(d){if(tFirst==null)tFirst=performance.now();tLast=performance.now();chunks++;raw+=d;a.textContent=stripThink(raw)}
+        if(ch.usage){tokens=ch.usage.completion_tokens;pTok=ch.usage.prompt_tokens;engTps=ch.usage.extra?.decode_tokens_per_s??null}}
+    }else{
+      const ac=new AbortController();RT.abort=()=>ac.abort();
+      const r=await fetch(RT.ollamaUrl+'/api/chat',{method:'POST',signal:ac.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({model:RT.model,messages:RT.history.slice(-8),stream:true})});
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const rd=r.body.getReader(),dec=new TextDecoder();let buf='';
+      while(true){const{done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});let i;
+        while((i=buf.indexOf('\n'))>=0){const line=buf.slice(0,i).trim();buf=buf.slice(i+1);if(!line)continue;const j=JSON.parse(line);
+          const d=j.message?.content;if(d){if(tFirst==null)tFirst=performance.now();tLast=performance.now();chunks++;raw+=d;a.textContent=stripThink(raw)}
+          if(j.done){tokens=j.eval_count??null;pTok=j.prompt_eval_count??null;if(j.eval_count&&j.eval_duration)engTps=j.eval_count/(j.eval_duration/1e9)}}}
+    }
+  }catch(e){if(e.name!=='AbortError')addLog('s','error: '+(e.message||e))}
+  finally{RT.busy=false;RT.abort=null;$('#send').disabled=!RT.kind;$('#stop').disabled=true}
+  const answer=stripThink(raw);RT.history.push({role:'assistant',content:answer});
+  const nTok=tokens??chunks;const decodeS=tFirst&&tLast&&tLast>tFirst?(tLast-tFirst)/1000:null;
+  const tps=decodeS&&decodeS>=0.25&&nTok>4?(nTok-1)/decodeS:null;/* too short or batched = not measurable */const ttft=tFirst?(tFirst-tStart)/1000:null;
+  $('#m_tps').textContent=tps?tps.toFixed(1):'—';$('#m_ttft').textContent=ttft!=null?ttft.toFixed(2)+'s':'—';
+  $('#m_tok').textContent=nTok+(tokens==null?' (chunks)':'');$('#m_eng').textContent=engTps?engTps.toFixed(1):'—';
+  addLog('s',`⟂ ${RT.kind} · ${RT.model} · ${nTok} tok · ${tps?tps.toFixed(1)+' tok/s MEASURED':'tok/s n/a'}`);
+  if(raw)await addReceipt({model:RT.model,runtime:RT.kind,prompt:text,output:answer,prompt_tokens:pTok,completion_tokens:nTok,tok_s:tps?+tps.toFixed(2):null,engine_tok_s:engTps?+engTps.toFixed(2):null,ttft_s:ttft!=null?+ttft.toFixed(3):null});
+  if(tps)out(`⟂ ${nTok} tok · ${tps.toFixed(1)} tok/s (measured) · receipt #${RC.length}`,'ok');
+}
+$('#send').addEventListener('click',()=>{const v=$('#prompt').value;$('#prompt').value='';ask(v)});
+$('#prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();$('#send').click()}});
+$('#stop').addEventListener('click',()=>RT.abort&&RT.abort());
+$('#reset').addEventListener('click',()=>{RT.history=[];log.innerHTML='';if(RT.engine&&RT.kind==='webgpu')RT.engine.resetChat?.()});
+// ---------- receipts ----------
+const RKEY='llmstore.receipts.v0';let RC=[];try{RC=JSON.parse(localStorage.getItem(RKEY)||'[]')}catch{RC=[]}
+const body=r=>JSON.stringify({v:r.v,i:r.i,ts:r.ts,origin:r.origin,runtime:r.runtime,model:r.model,prompt_sha256:r.prompt_sha256,output_sha256:r.output_sha256,prompt_tokens:r.prompt_tokens,completion_tokens:r.completion_tokens,tok_s:r.tok_s,engine_tok_s:r.engine_tok_s,ttft_s:r.ttft_s,ua:r.ua,prev:r.prev});
+async function addReceipt(x){
+  const prev=RC.length?RC[RC.length-1].hash:'0'.repeat(64);
+  const r={v:'llm.store.receipt/0.1',i:RC.length,ts:new Date().toISOString(),origin:location.origin+location.pathname,runtime:x.runtime,model:x.model,prompt_sha256:await sha256(x.prompt),output_sha256:await sha256(x.output),prompt_tokens:x.prompt_tokens??null,completion_tokens:x.completion_tokens??null,tok_s:x.tok_s,engine_tok_s:x.engine_tok_s,ttft_s:x.ttft_s,ua:navigator.userAgent.slice(0,160),prev};
+  r.hash=await sha256(body(r));RC.push(r);localStorage.setItem(RKEY,JSON.stringify(RC));renderReceipts();return r;
+}
+function renderReceipts(){
+  $('#rccount').textContent=RC.length+(LANG==='es'?' recibo(s)':' receipt(s)');
+  $('#rclist').innerHTML=RC.slice(-8).reverse().map(r=>`<div class="rc"><b>#${r.i}</b> ${esc(r.ts)} · ${esc(r.runtime)} · ${esc(r.model)}<br>${r.completion_tokens??'—'} tok · ${r.tok_s??'—'} tok/s <span class="badge b-meas">MEASURED</span><br>prompt ${esc((r.prompt_sha256||'unhashed').slice(0,16))}… · prev ${esc(r.prev.slice(0,12))}… → <b>${esc((r.hash||'').slice(0,16))}…</b></div>`).join('')||`<div class="note">${LANG==='es'?'Aún no hay recibos. Corre un modelo.':'No receipts yet. Run a model.'}</div>`;
+}
+async function verifyReceipts(){let prev='0'.repeat(64);for(const r of RC){if(r.prev!==prev||await sha256(body(r))!==r.hash)return{ok:false,at:r.i};prev=r.hash}return{ok:true,n:RC.length}}
+function exportReceipts(){const b=new Blob([JSON.stringify({schema:'llm.store.receipts/0.1',exported_at:new Date().toISOString(),receipts:RC},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='llm-store-receipts.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)}
+$('#rverify').addEventListener('click',async()=>{const v=await verifyReceipts();out(v.ok?`✓ chain intact · ${v.n} receipt(s)`:`✗ chain broken at #${v.at}`,v.ok?'ok':'err')});
+$('#rexport').addEventListener('click',exportReceipts);
+$('#rclear').addEventListener('click',()=>{if(confirm(LANG==='es'?'¿Borrar todos los recibos de este navegador?':'Delete all receipts in this browser?')){RC=[];localStorage.removeItem(RKEY);renderReceipts()}});
+// ---------- agents / HF ----------
+let LLMSTXT='';
+async function loadLlms(){try{LLMSTXT=await (await fetch('llms.txt')).text();$('#llmstxt').textContent=LLMSTXT}catch{$('#llmstxt').textContent='llms.txt unavailable'}}
+async function loadHF(){
+  $('#hfline').textContent='fetching LIVE…';
+  try{const r=await fetch('https://huggingface.co/api/models?pipeline_tag=text-generation&sort=trendingScore&limit=15');if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();
+    const at=new Date().toISOString();$('#hfline').innerHTML=`<span class="badge b-live">LIVE</span> ${esc(fmtTs(at))}`;
+    $('#hflist').innerHTML=j.map(m=>`<a class="m" style="display:block;text-decoration:none" href="https://huggingface.co/${esc(m.id)}" target="_blank" rel="noopener"><div class="n">${esc(m.id)}</div><div class="k"><span>♥ <b>${m.likes??'—'}</b></span><span>↓ <b>${m.downloads??'—'}</b></span><span>trend <b>${m.trendingScore??'—'}</b></span><span>${esc(m.library_name||'')}</span></div></a>`).join('');
+    return j;
+  }catch(e){$('#hfline').innerHTML='<span class="bad">unavailable</span>';$('#hflist').innerHTML=`<div class="note">${esc(e.message||e)}</div>`;return null}
+}
+$('#hfload').addEventListener('click',loadHF);
+// ---------- command line ----------
+async function run(line){
+  line=String(line||'').trim();if(!line)return;out('⫸ '+line,'in');
+  const [c,...rest]=line.split(/\s+/);const arg=rest.join(' ');const cmd=c.toLowerCase();
+  const go=id=>document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});
+  switch(cmd){
+    case 'help':case '?':out(t('help'));break;
+    case 'clear':term.innerHTML='';term.classList.remove('show');break;
+    case 'lang':LANG=arg.startsWith('es')?'es':'en';applyLang();out('lang '+LANG,'ok');break;
+    case 'ls':case 'models':case 'filter':{
+      const f=(cmd==='ls'?rest.slice(1):rest).join(' ').toLowerCase();
+      CAT.filter=['free','open','long','cheap'].includes(f)?f:'all';CAT.q='';$('#q').value='';CAT.limit=40;renderList();
+      const M=filtered();out(`${M.length} model(s) · filter ${CAT.filter} · ${CAT.source} ${CAT.at}`,'dim');
+      M.slice(0,10).forEach(m=>out(`  ${m.id.padEnd(42)} ctx ${fmtCtx(m.ctx).padStart(5)}  ${isFree(m)?'FREE':'$'+fmtP(m.in)+'/$'+fmtP(m.out)}`));go('catalog');break}
+    case 'search':case 'find':{CAT.q=arg;$('#q').value=arg;CAT.filter='all';CAT.limit=40;renderList();const M=filtered();out(`${M.length} match(es) for "${arg}"`,'dim');M.slice(0,10).forEach(m=>out(`  ${m.id}  ·  ctx ${fmtCtx(m.ctx)}`));go('catalog');break}
+    case 'run':{
+      const q=arg.toLowerCase();if(!q){out('run <model> — local: '+WMODELS.map(m=>m.k).join(', '),'dim');break}
+      const w=WMODELS.find(m=>m.k===q||m.f16.toLowerCase()===q||m.f32.toLowerCase()===q)||WMODELS.find(m=>m.k.startsWith(q)||m.f16.toLowerCase().includes(q));
+      const o=(RT.ollamaModels||[]).find(n=>n.toLowerCase()===q||n.toLowerCase().startsWith(q));
+      if(o){useOllama(o);go('chat');break}
+      if(w){go('webgpu');out(`loading ${wid(w)} via WebLLM ${WEBLLM_VER} (WebGPU)…`,'dim');if(await loadWebLLM(w.k))go('chat');break}
+      const c2=CAT.models.find(m=>m.id.toLowerCase()===q)||CAT.models.find(m=>m.id.toLowerCase().includes(q));
+      if(c2){out(`${c2.name} · ${c2.id} · ctx ${fmtCtx(c2.ctx)} · ${isFree(c2)?'FREE':'$'+fmtP(c2.in)+' in / $'+fmtP(c2.out)+' out per 1M'} [${CAT.source}]`);out(t('nocloud'),'err')}
+      else out('unknown model: '+arg+' — local options: '+WMODELS.map(m=>m.k).join(', '),'err');break}
+    case 'ask':await ask(arg);break;
+    case 'local':{const g=await detectGPU();out(g.ok?`WebGPU ✓ ${g.info||''} · shader-f16 ${g.f16?'yes':'no'}`:'WebGPU ✗ — '+t('nogpu'),g.ok?'ok':'err');
+      out('local models (WebLLM '+WEBLLM_VER+'): '+WMODELS.map(m=>`${m.k} (~${m.vram}MB)`).join(', '),'dim');await connectOllama();break}
+    case 'node':case 'ollama':await connectOllama(arg||undefined);go('node');break;
+    case 'receipts':case 'receipt':{
+      if(arg==='export'){exportReceipts();out('exported '+RC.length,'ok')}
+      else if(arg==='verify'){const v=await verifyReceipts();out(v.ok?`✓ chain intact · ${v.n}`:`✗ broken at #${v.at}`,v.ok?'ok':'err')}
+      else if(arg==='clear'){$('#rclear').click()}
+      else{out(RC.length?`${RC.length} receipt(s):`:'no receipts yet','dim');RC.slice(-5).forEach(r=>out(`  #${r.i} ${r.ts} ${r.runtime} ${r.model} ${r.tok_s??'—'} tok/s  ${r.hash.slice(0,16)}…`))}
+      go('receipts');break}
+    case 'agents':case 'llms.txt':if(!LLMSTXT)await loadLlms();out(LLMSTXT||'llms.txt unavailable');go('agents');break;
+    case 'hf':case 'trending':{const j=await loadHF();if(j)j.slice(0,10).forEach(m=>out(`  ${m.id}  ♥${m.likes}`));go('hf');break}
+    default:out(`unknown: ${cmd} — try help`,'err');
+  }
+}
+$('#cliform').addEventListener('submit',e=>{e.preventDefault();const v=$('#cmd').value;$('#cmd').value='';run(v)});
+$('#quick').addEventListener('click',e=>{const c=e.target.closest('.chip');if(c)run(c.dataset.cmd)});
+$('#lang-en').addEventListener('click',()=>{LANG='en';applyLang()});
+$('#lang-es').addEventListener('click',()=>{LANG='es';applyLang()});
+window.LLMSTORE={run,ask,catalog:()=>({source:CAT.source,at:CAT.at,count:CAT.models.length}),receipts:()=>RC.slice(),verify:verifyReceipts,version:'lab-0.1'};
+// ---------- boot ----------
+applyLang();renderReceipts();detectGPU();loadLlms();loadCatalog();
+const hq=new URLSearchParams(location.search).get('cmd');if(hq)run(hq);
+</script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="es" data-th="night"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Asimov camina · guía DOM-aware · DEMO</title>
+<meta name="description" content="DEMO · solo guía. Asimov 1 camina por la página y señala cada paso; tú haces cada toque.">
+<script>try{var t=localStorage.getItem("pc_term_theme");if(t==="night"||t==="day"||t==="agent")document.documentElement.dataset.th=t}catch(e){}</script>
+<style>
+:root{--bg:#000;--fl:rgba(3,16,18,.92);--ink:#e9f6f7;--dim:#a3c0c4;--c:#00f3ff;--bd:#1d4a4e;--grid:rgba(0,243,255,.05);--me:#0b2a2d;--warn:#ffcf5a;
+ --aw-glow:drop-shadow(0 0 1px rgba(0,243,255,.85)) drop-shadow(0 0 6px rgba(0,243,255,.25));--aw-floor:rgba(0,243,255,.28);--aw-stack-c:#00f3ff;
+ --aw-bub-bg:#031012;--aw-bub-ink:#e9f6f7;--aw-bub-bd:#00f3ff;--aw-warn:#ffcf5a;--aw-ring:#00f3ff}
+html[data-th=day]{--bg:#f4efe3;--fl:#fffaf0;--ink:#151515;--dim:#4c4840;--c:#00687a;--bd:#c9c0ad;--grid:rgba(0,0,0,.045);--me:#e9e1cf;--warn:#8a5a00;
+ --aw-glow:drop-shadow(0 1px 0 rgba(0,0,0,.25));--aw-floor:rgba(0,0,0,.28);--aw-bub-bg:#fffaf0;--aw-bub-ink:#151515;--aw-bub-bd:#151515;--aw-warn:#8a5a00;--aw-ring:#00687a;--aw-ring-soft:rgba(0,104,122,.18)}
+html[data-th=agent]{--fl:#020c0d;--grid:rgba(0,243,255,.09)}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+body{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:40px 40px}
+.mono,code{font-family:ui-monospace,Menlo,Consolas,monospace}
+a{color:var(--c)}
+button{font:inherit;color:var(--ink);cursor:pointer}
+.stage{width:min(100vw,480px);margin:0 auto;padding:max(10px,env(safe-area-inset-top)) 14px 24px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.top b{font-size:14px;letter-spacing:.02em}.top small{display:block;color:var(--dim);font:12px ui-monospace,Menlo,monospace}
+.pills{display:flex;gap:4px;flex-wrap:wrap}
+.pills button{background:none;border:1px solid var(--bd);border-radius:999px;min-width:44px;min-height:44px;font-size:15px}
+.pills button[aria-pressed=true]{border-color:var(--c);color:var(--c)}
+.demo{margin:8px 0 0;border:1px dashed var(--warn);color:var(--warn);border-radius:10px;padding:5px 10px;font:600 12px ui-monospace,Menlo,monospace;text-align:center}
+.bar{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 4px;align-items:center}
+.go{min-height:48px;padding:0 18px;border-radius:14px;border:1.5px solid var(--c);background:var(--c);color:var(--bg);font-weight:700;font-size:16px}
+.ghost{min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--bd);background:var(--fl);font-size:14px}
+.ghost[aria-pressed=true]{border-color:var(--c);color:var(--c)}
+.lead{color:var(--dim);font-size:14px;margin:6px 0 0}
+.cols{display:flex;flex-direction:column;gap:18px;margin-top:14px}
+h2{font:700 13px ui-monospace,Menlo,monospace;letter-spacing:.06em;text-transform:uppercase;margin:0 0 8px;color:var(--c)}
+.steps{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+.card{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;border:1px solid var(--bd);border-radius:16px;background:var(--fl);padding:12px 14px;min-height:76px;transition:border-color .15s}
+.card:hover,.card:focus-visible{border-color:var(--c);outline:none}
+.card .n{flex:0 0 34px;height:34px;border-radius:50%;border:1.5px solid var(--c);color:var(--c);display:grid;place-items:center;font:700 14px ui-monospace,Menlo,monospace}
+.card b{display:block;font-size:16px}
+.card span.d{display:block;color:var(--dim);font-size:14px;margin-top:2px;padding-right:34px}
+.warn{border:1.5px solid var(--warn);color:var(--ink);border-radius:16px;padding:12px 14px;background:var(--fl);font-size:15px}
+.warn b{color:var(--warn)}
+.flow .arrow{text-align:center;color:var(--dim);font:13px ui-monospace,Menlo,monospace;margin:-4px 0}
+textarea{width:100%;min-height:64px;font:16px/1.4 system-ui,sans-serif;color:var(--ink);background:transparent;border:1px solid var(--bd);border-radius:12px;padding:8px 10px;margin-top:8px;resize:vertical}
+.hold{position:relative;overflow:hidden;width:100%;min-height:52px;border-radius:14px;border:1.5px solid var(--c);background:none;color:var(--c);font-weight:700;margin-top:8px;touch-action:none;user-select:none;-webkit-user-select:none}
+.hold i{position:absolute;inset:0;width:0;background:var(--c);opacity:.22}
+.hold.ok{background:var(--c);color:var(--bg)}
+details{border:1px solid var(--bd);border-radius:12px;padding:6px 12px;margin-top:18px;background:var(--fl);font-size:14px}
+summary{cursor:pointer;min-height:40px;display:flex;align-items:center;color:var(--c);font:600 13px ui-monospace,Menlo,monospace}
+#rcpt{margin:6px 0;padding:0;list-style:none;font:11px/1.45 ui-monospace,Menlo,monospace;color:var(--dim);max-height:220px;overflow:auto}
+#rcpt li{border-top:1px dashed var(--bd);padding:4px 0;word-break:break-all}
+footer{margin-top:22px;text-align:center;font-size:12px;color:var(--dim);line-height:1.6}
+footer .p{font-size:15px;color:var(--ink);font-weight:600}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (min-width:760px){
+ .stage{width:min(100vw,1040px);padding-left:28px;padding-right:28px;padding-bottom:calc(140px + env(safe-area-inset-bottom))}
+ .cols{flex-direction:row;align-items:flex-start;gap:28px}
+ .cols>section{flex:1}
+ .cols>section:first-child{padding-right:110px}
+ .cols>section:last-child{padding-right:110px}
+}
+</style>
+</head><body>
+<div class="stage">
+ <div class="top">
+  <div><b class="mono">&gt;_L://ASIMOV CAMINA</b><small>guía DOM-aware · Asimov 1 · #OSW LAB</small></div>
+  <div class="pills" role="group" aria-label="Tema / theme"><button data-t="night" title="Noche / night">🌙</button><button data-t="day" title="Día / day">☀️</button></div>
+ </div>
+ <p class="demo" id="demo">DEMO · solo guía · tú haces cada toque</p>
+ <div class="bar">
+  <button class="go" id="guide">▶ <span data-i="guide">Guíame</span></button>
+  <button class="ghost" id="wave">👋 <span data-i="wave">Saluda</span></button>
+  <button class="ghost" id="nod">🙂 <span data-i="nod">Asiente</span></button>
+  <button class="ghost" id="voice" aria-pressed="false" title="Voz / voice">🔊</button>
+  <button class="ghost" id="hplan" aria-describedby="hplan-d">▶ <span data-i="hplan">Plan de Hermes</span></button>
+ </div>
+ <p class="lead" id="hplan-d" data-i="hplanD" style="margin-top:0">Hermes propone un plan (walk_plan · ae.walk/0.1); tú lo revisas y lo apruebas manteniendo presionado.</p>
+ <div class="bar pills" role="group" aria-label="Idioma / language"><button data-l="es" aria-pressed="true">ES</button><button data-l="en" aria-pressed="false">EN</button><button data-l="pt" aria-pressed="false">PT</button>
+  <button class="ghost" id="stop" style="margin-left:auto">⏹ <span data-i="stop">Parar</span></button></div>
+ <p class="lead" data-i="lead">Toca un paso y Asimov camina hasta él y lo señala. Él nunca toca nada: cada toque es tuyo.</p>
+
+ <div class="cols">
+  <section aria-labelledby="h-gh">
+   <h2 id="h-gh" data-i="h1">Tu primer GitHub</h2>
+   <ol class="steps">
+    <li><button class="card" id="gh1" data-k="gh1"><span class="n">1</span><span><b data-i="gh1t">Correo</b><span class="d" data-i="gh1d">Usa un correo que sea tuyo y que puedas abrir hoy.</span></span></button></li>
+    <li><button class="card" id="gh2" data-k="gh2"><span class="n">2</span><span><b data-i="gh2t">Hark</b><span class="d" data-i="gh2d">Tu asistente te acompaña paso a paso. Tú decides.</span></span></button></li>
+    <li><button class="card" id="gh3" data-k="gh3"><span class="n">3</span><span><b data-i="gh3t">GitHub</b><span class="d" data-i="gh3d">Crea tu cuenta en github.com con ese correo.</span></span></button></li>
+    <li><button class="card" id="gh4" data-k="gh4"><span class="n">4</span><span><b data-i="gh4t">Primer repo + README</b><span class="d" data-i="gh4d">Un repositorio público y un README que diga quién eres.</span></span></button></li>
+    <li><div class="warn" id="ghw" tabindex="0" data-k="ghw"><b data-i="ghwt">Nunca compartas contraseñas ni códigos.</b> <span data-i="ghwd">Ni con Asimov, ni con Hark, ni con nadie.</span></div></li>
+   </ol>
+  </section>
+  <section aria-labelledby="h-pc" class="flow">
+   <h2 id="h-pc" data-i="h2">Private Client · flujo</h2>
+   <ol class="steps">
+    <li><div class="card" id="pc1" data-k="pc1" tabindex="0" role="group" aria-labelledby="pc1t"><span class="n">1</span><span style="flex:1"><b id="pc1t" data-i="pc1t">Escribe</b><span class="d" data-i="pc1d">Tu mensaje, con tus palabras.</span>
+      <label class="sr" for="msg">Mensaje</label><textarea id="msg" data-ph="ph">Hola, quiero inscribirme al Diplomado.</textarea></span></div></li>
+    <li class="arrow" aria-hidden="true">↓</li>
+    <li><button class="card" id="pc2" data-k="pc2"><span class="n">2</span><span><b data-i="pc2t">Revisa</b><span class="d" data-i="pc2d">Lee lo que se enviaría. El agente propone; tú compruebas.</span></span></button></li>
+    <li class="arrow" aria-hidden="true">↓</li>
+    <li><div class="card" id="pc3" data-k="pc3" tabindex="0" role="group" aria-labelledby="pc3t"><span class="n">3</span><span style="flex:1"><b id="pc3t" data-i="pc3t">Sostén</b><span class="d" data-i="pc3d">Mantén presionado para aprobar. Solo tu dedo aprueba.</span>
+      <button class="hold" id="hold"><i></i><span>I approve this message</span></button></span></div></li>
+    <li class="arrow" aria-hidden="true">↓</li>
+    <li><button class="card" id="pc4" data-k="pc4"><span class="n">4</span><span><b data-i="pc4t">Recibo</b><span class="d" id="pc4d" data-i="pc4d">Un recibo sha-256 de lo que aprobaste. Nada se envía en esta DEMO.</span></span></button></li>
+   </ol>
+  </section>
+ </div>
+
+ <details id="paste"><summary>&gt;_ <span data-i="paste">Pegar plan</span> · ae.walk/0.1</summary>
+  <p style="margin:4px 0;color:var(--dim)" data-i="pasteD">Pega aquí el JSON que devolvió la herramienta walk_plan de Hermes. Asimov lo comprueba (sha-256) y te pide aprobarlo antes de caminar.</p>
+  <label class="sr" for="plantxt">Plan JSON</label><textarea id="plantxt" spellcheck="false" style="min-height:120px;font:12px/1.4 ui-monospace,Menlo,monospace" placeholder='{"schema":"ae.walk/0.1", …}'></textarea>
+  <div class="bar"><button class="ghost" id="planpaste">▶ <span data-i="pasteGo">Proponer este plan</span></button><span id="planmsg" class="mono" style="font-size:12px;color:var(--dim)" role="status"></span></div>
+ </details>
+
+ <details><summary>&gt;_ recibos sha-256 · window.ASIMOV_WALKER</summary>
+  <p style="margin:4px 0;color:var(--dim)" data-i="rdesc">Cada paso de la guía deja un recibo sha-256 de {target, text, time}, calculado en tu navegador.</p>
+  <ul id="rcpt"></ul>
+  <p style="margin:4px 0;color:var(--dim)">API: <code>ASIMOV_WALKER.walkTo("#gh3")</code> <code>.point(el)</code> <code>.wave()</code> <code>.nod()</code> <code>.say("hola","es")</code> <code>.tour([{target,text}])</code> <code>.stop()</code> <code>.play(plan)</code> <code>.receipts()</code></p>
+ </details>
+
+ <footer>
+  <div class="p">El agente propone. El humano comprueba y decide.</div>
+  <div>The agent proposes. The human checks and decides.</div>
+  <div>Modelo: Asimov 1 © Menlo Research · CERN-OHL-S-2.0 · <a href="https://github.com/menloresearch/asimov-1">github.com/menloresearch/asimov-1</a> (sprites renderizados del modelo sin modificar)</div>
+  <div><a href="../">← Asimov 3D · asistente virtual</a></div>
+  <div>LAB · Instituto Luterano Latinoamericano · #OSW</div>
+ </footer>
+</div>
+
+<asimov-walker start="right"></asimov-walker>
+<script src="./asimov-walker.js"></script>
+<script>
+(() => {
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const W = document.querySelector("asimov-walker");
+const T = {
+ es:{guide:"Guíame",wave:"Saluda",nod:"Asiente",stop:"Parar",lead:"Toca un paso y Asimov camina hasta él y lo señala. Él nunca toca nada: cada toque es tuyo.",
+  h1:"Tu primer GitHub",h2:"Private Client · flujo",demo:"DEMO · solo guía · tú haces cada toque",
+  gh1t:"Correo",gh1d:"Usa un correo que sea tuyo y que puedas abrir hoy.",gh2t:"Hark",gh2d:"Tu asistente te acompaña paso a paso. Tú decides.",
+  gh3t:"GitHub",gh3d:"Crea tu cuenta en github.com con ese correo.",gh4t:"Primer repo + README",gh4d:"Un repositorio público y un README que diga quién eres.",
+  ghwt:"Nunca compartas contraseñas ni códigos.",ghwd:"Ni con Asimov, ni con Hark, ni con nadie.",
+  pc1t:"Escribe",pc1d:"Tu mensaje, con tus palabras.",pc2t:"Revisa",pc2d:"Lee lo que se enviaría. El agente propone; tú compruebas.",
+  pc3t:"Sostén",pc3d:"Mantén presionado para aprobar. Solo tu dedo aprueba.",pc4t:"Recibo",pc4d:"Un recibo sha-256 de lo que aprobaste. Nada se envía en esta DEMO.",
+  rdesc:"Cada paso de la guía deja un recibo sha-256 de {target, text, time}, calculado en tu navegador.",
+  hi:"Hola, soy Asimov. Te guío; tú haces cada toque.",ok:"Aprobado por ti · recibo",
+  hplan:"Plan de Hermes",hplanD:"Hermes propone un plan (walk_plan · ae.walk/0.1); tú lo revisas y lo apruebas manteniendo presionado.",
+  paste:"Pegar plan",pasteD:"Pega aquí el JSON que devolvió la herramienta walk_plan de Hermes. Asimov lo comprueba (sha-256) y te pide aprobarlo antes de caminar.",pasteGo:"Proponer este plan",
+  noplan:"No pude leer el plan",dec:{APPROVED:"aprobado",REFUSED:"rechazado",INVALID:"no válido"},
+  say:{gh1:"Paso 1: tu correo. Que sea tuyo y lo puedas abrir hoy.",gh2:"Paso 2: Hark te acompaña. Tú decides cada paso.",gh3:"Paso 3: crea tu cuenta en GitHub con ese correo.",gh4:"Paso 4: tu primer repo con un README que diga quién eres.",ghw:"Importante: nunca compartas contraseñas ni códigos. Ni conmigo.",
+   pc1:"Escribe tu mensaje con tus palabras.",pc2:"Revisa lo que se enviaría. Yo propongo; tú compruebas.",pc3:"Sostén el botón para aprobar. Solo tu dedo aprueba.",pc4:"Aquí queda tu recibo sha-256. En esta demo nada se envía."}},
+ en:{guide:"Guide me",wave:"Wave",nod:"Nod",stop:"Stop",lead:"Tap a step and Asimov walks to it and points. It never taps anything: every tap is yours.",
+  h1:"Your first GitHub",h2:"Private Client · flow",demo:"DEMO · guide only · you make every tap",
+  gh1t:"Email",gh1d:"Use an email that is yours and that you can open today.",gh2t:"Hark",gh2d:"Your assistant walks with you step by step. You decide.",
+  gh3t:"GitHub",gh3d:"Create your account on github.com with that email.",gh4t:"First repo + README",gh4d:"A public repository and a README that says who you are.",
+  ghwt:"Never share passwords or codes.",ghwd:"Not with Asimov, not with Hark, not with anyone.",
+  pc1t:"Write",pc1d:"Your message, in your own words.",pc2t:"Review",pc2d:"Read what would be sent. The agent proposes; you check.",
+  pc3t:"Hold",pc3d:"Press and hold to approve. Only your finger approves.",pc4t:"Receipt",pc4d:"A sha-256 receipt of what you approved. Nothing is sent in this DEMO.",
+  rdesc:"Every guide step leaves a sha-256 receipt of {target, text, time}, computed in your browser.",
+  hi:"Hi, I'm Asimov. I guide; you make every tap.",ok:"Approved by you · receipt",
+  hplan:"Hermes plan",hplanD:"Hermes proposes a plan (walk_plan · ae.walk/0.1); you review it and approve it by pressing and holding.",
+  paste:"Paste plan",pasteD:"Paste the JSON returned by Hermes' walk_plan tool. Asimov checks it (sha-256) and asks you to approve before walking.",pasteGo:"Propose this plan",
+  noplan:"Could not read the plan",dec:{APPROVED:"approved",REFUSED:"refused",INVALID:"invalid"},
+  say:{gh1:"Step 1: your email. Make it yours, one you can open today.",gh2:"Step 2: Hark walks with you. You decide every step.",gh3:"Step 3: create your GitHub account with that email.",gh4:"Step 4: your first repo, with a README that says who you are.",ghw:"Important: never share passwords or codes. Not even with me.",
+   pc1:"Write your message in your own words.",pc2:"Review what would be sent. I propose; you check.",pc3:"Hold the button to approve. Only your finger approves.",pc4:"Your sha-256 receipt lives here. Nothing is sent in this demo."}},
+ pt:{guide:"Guie-me",wave:"Acene",nod:"Concorde",stop:"Parar",lead:"Toque um passo e o Asimov caminha até ele e aponta. Ele nunca toca em nada: cada toque é seu.",
+  h1:"Seu primeiro GitHub",h2:"Private Client · fluxo",demo:"DEMO · só guia · você faz cada toque",
+  gh1t:"E-mail",gh1d:"Use um e-mail que seja seu e que você possa abrir hoje.",gh2t:"Hark",gh2d:"Seu assistente acompanha passo a passo. Você decide.",
+  gh3t:"GitHub",gh3d:"Crie sua conta em github.com com esse e-mail.",gh4t:"Primeiro repo + README",gh4d:"Um repositório público e um README que diga quem você é.",
+  ghwt:"Nunca compartilhe senhas nem códigos.",ghwd:"Nem com o Asimov, nem com a Hark, nem com ninguém.",
+  pc1t:"Escreva",pc1d:"Sua mensagem, com suas palavras.",pc2t:"Revise",pc2d:"Leia o que seria enviado. O agente propõe; você confere.",
+  pc3t:"Segure",pc3d:"Mantenha pressionado para aprovar. Só o seu dedo aprova.",pc4t:"Recibo",pc4d:"Um recibo sha-256 do que você aprovou. Nada é enviado nesta DEMO.",
+  rdesc:"Cada passo do guia deixa um recibo sha-256 de {target, text, time}, calculado no seu navegador.",
+  hi:"Olá, sou o Asimov. Eu guio; você faz cada toque.",ok:"Aprovado por você · recibo",
+  hplan:"Plano do Hermes",hplanD:"O Hermes propõe um plano (walk_plan · ae.walk/0.1); você revisa e aprova mantendo pressionado.",
+  paste:"Colar plano",pasteD:"Cole aqui o JSON devolvido pela ferramenta walk_plan do Hermes. O Asimov confere (sha-256) e pede sua aprovação antes de caminhar.",pasteGo:"Propor este plano",
+  noplan:"Não consegui ler o plano",dec:{APPROVED:"aprovado",REFUSED:"recusado",INVALID:"inválido"},
+  say:{gh1:"Passo 1: seu e-mail. Que seja seu e que você possa abrir hoje.",gh2:"Passo 2: a Hark acompanha você. Você decide cada passo.",gh3:"Passo 3: crie sua conta no GitHub com esse e-mail.",gh4:"Passo 4: seu primeiro repo, com um README que diga quem você é.",ghw:"Importante: nunca compartilhe senhas nem códigos. Nem comigo.",
+   pc1:"Escreva sua mensagem com suas palavras.",pc2:"Revise o que seria enviado. Eu proponho; você confere.",pc3:"Segure o botão para aprovar. Só o seu dedo aprova.",pc4:"Aqui fica seu recibo sha-256. Nesta demo nada é enviado."}}
+};
+let L = "es";
+const ORDER = ["gh1","gh2","gh3","gh4","ghw","pc1","pc2","pc3","pc4"];
+function lang(l){ L = T[l] ? l : "es"; document.documentElement.lang = L; W.lang = L;
+  $$("[data-i]").forEach(e => { const v = T[L][e.dataset.i]; if (v) e.textContent = v; });
+  $("#demo").textContent = T[L].demo;
+  $$("[data-l]").forEach(b => b.setAttribute("aria-pressed", b.dataset.l === L)); }
+$$("[data-l]").forEach(b => b.onclick = () => lang(b.dataset.l));
+
+const K = "pc_term_theme";
+function th(x){ document.documentElement.dataset.th = x; try{ localStorage.setItem(K, x) }catch(e){}
+  $$("[data-t]").forEach(b => b.setAttribute("aria-pressed", b.dataset.t === x)); }
+$$("[data-t]").forEach(b => b.onclick = () => th(b.dataset.t));
+th(document.documentElement.dataset.th === "day" ? "day" : "night");
+
+// tour = the whole journey, step by step (Asimov walks, points, speaks; never taps)
+$("#guide").onclick = () => { W.stop(); W.tour(ORDER.map(k => ({target: "#" + k, text: T[L].say[k]})), {lang: L}); };
+$("#wave").onclick = () => { W.stop(); W.hush(); W.wave(); W.say(T[L].hi, L); };
+$("#nod").onclick = () => { W.stop(); W.nod(); };
+$("#stop").onclick = () => { W.stop(); W.hush(); W.unring(); W.show("idle0"); };
+$("#voice").onclick = e => { W.voice = !W.voice; e.currentTarget.setAttribute("aria-pressed", W.voice); if (!W.voice && window.speechSynthesis) speechSynthesis.cancel(); };
+
+// tapping a step: Asimov walks there and points (the tap is the human's, not the robot's)
+async function visit(k){ W.stop(); const el = document.getElementById(k); W.hush();
+  if (!await W.walkTo(el)) return;            // false = another tap/tour took over
+  await W.point(el); await W.say(T[L].say[k] || W.describe(el), L); }
+$$("[data-k]").forEach(c => c.addEventListener("click", e => {
+  if (e.target.closest("textarea,.hold")) return;   // writing and approving are the human's own taps
+  visit(c.dataset.k); }));
+$$("[data-k][tabindex]").forEach(c => c.addEventListener("keydown", e => { if (e.key === "Enter" && e.target === c) visit(c.dataset.k); }));
+
+// receipts list (step receipts and the human's APPROVED/REFUSED decisions)
+document.addEventListener("asimov-receipt", e => { const r = e.detail, li = document.createElement("li");
+  li.textContent = r.kind === "decision" ? `${r.time} · ${r.decision} · plan ${r.plan.slice(0,12)}… · ${r.sha256}` : `${r.time} · ${r.target} · ${r.sha256}`;
+  $("#rcpt").prepend(li); });
+
+// Hermes bridge: a plan only proposes; play() shows it and waits for a human hold
+async function propose(plan){ const out = await W.play(plan, {lang: L});
+  $("#planmsg").textContent = (T[L].dec[out.decision] || out.decision) + (out.receipt ? " · ⛓ " + out.receipt.sha256.slice(0,16) + "…" : out.errors ? " · " + out.errors[0] : "");
+  return out; }
+async function loadPlan(u){ // same-origin only: a link must not make Asimov say someone else's words on this page
+  const url = new URL(u, location.href); if (url.origin !== location.origin) throw new Error("same-origin only");
+  const r = await fetch(url, {credentials: "omit", cache: "no-store"}); if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }
+$("#hplan").onclick = async () => { try { await propose(await loadPlan("examples/plan-demo.json")); } catch(e){ W.say(T[L].noplan + ": " + e.message, L); } };
+$("#planpaste").onclick = async () => { let p; try { p = JSON.parse($("#plantxt").value); } catch(e){ $("#planmsg").textContent = T[L].noplan; return; } await propose(p); };
+window.ASIMOV_DEMO = {propose, loadPlan};
+
+// hold-to-approve (human only; DEMO: nothing is sent)
+const hold = $("#hold"), bar = hold.querySelector("i"); let t0 = 0, raf = 0;
+function down(e){ e.preventDefault(); if (hold.classList.contains("ok")) return; t0 = performance.now();
+  const tick = now => { const k = Math.min(1, (now - t0) / 1200); bar.style.width = (k*100) + "%";
+    if (k < 1) raf = requestAnimationFrame(tick); else done(); }; raf = requestAnimationFrame(tick); }
+function up(){ cancelAnimationFrame(raf); if (!hold.classList.contains("ok")) bar.style.width = "0"; }
+async function done(){ hold.classList.add("ok"); const text = $("#msg").value;
+  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify({approved: text, by: "human", time: new Date().toISOString()})));
+  const hex = [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,"0")).join("");
+  $("#pc4d").textContent = T[L].ok + " " + hex.slice(0, 16) + "… (DEMO)"; W.nod(); }
+hold.addEventListener("pointerdown", down); ["pointerup","pointerleave","pointercancel"].forEach(ev => hold.addEventListener(ev, up));
+hold.addEventListener("keydown", e => { if ((e.key === " " || e.key === "Enter") && !e.repeat) down(e); });
+hold.addEventListener("keyup", up);
+
+lang("es");
+const qp = new URLSearchParams(location.search).get("plan");
+if (qp) setTimeout(async () => { try { await propose(await loadPlan(qp)); } catch(e){ W.say(T[L].noplan + ": " + e.message, L); } }, 500);
+else setTimeout(() => { W.wave(); W.say(T[L].hi, L); setTimeout(() => { if (!W.busy && W.$(".t").textContent === T[L].hi) W.hush(); }, 3800); }, 600);
+})();
+</script>
+</body></html>

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>cli•llc · la carita · LAB</title>
+<link rel="icon" href="face.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&family=Orbitron:wght@800&display=swap" rel="stylesheet">
+<style>
+:root{--g:#D4AF37;--bg:#050505;--ink:#e8e2cf;--dim:#8a8370}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "JetBrains Mono",monospace}
+.lab{background:var(--g);color:#000;text-align:center;font:800 12px "JetBrains Mono";letter-spacing:.2em;padding:6px}
+main{max-width:760px;margin:0 auto;padding:24px 18px 70px}
+h1{font:800 clamp(28px,7vw,48px)/1 Orbitron;color:var(--g);margin:14px 0 4px}
+.dim{color:var(--dim)}
+h2{font:800 14px Orbitron;color:var(--g);letter-spacing:.14em;margin:34px 0 10px}
+
+/* ===== the face: lives inside one line of text ===== */
+.cf{display:inline-flex;align-items:baseline;font-family:"JetBrains Mono",monospace;font-weight:800;line-height:1;white-space:nowrap;vertical-align:baseline;color:inherit}
+.cf span{display:inline-block;transform-origin:50% 70%;transition:transform .25s,color .25s}
+.cf .nose{color:var(--g);margin:0 .02em}
+.cf.skin-ae{gap:.12em}
+.cf.skin-ae .nose{font-size:.8em}
+.cf.feliz.skin-ae .nose{transform:scaleX(1.25)}
+.cf.sorpresa.skin-ae .nose{transform:scale(1.4)}
+.cf.hold.skin-ae .nose{transform:scaleY(.6)}
+/* blink: the l's are the eyes */
+.cf .eye{animation:blink 4.2s infinite}
+.cf .eye.r{animation-delay:.04s}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.12)}}
+/* breathing nose */
+.cf .nose{animation:breathe 2.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-.08em)}}
+
+/* moods */
+.cf.feliz .ch{transform:rotate(-12deg)}
+.cf.feliz .ch.r{transform:rotate(12deg)}
+.cf.feliz .eye{animation:blink 4.2s infinite, hop 1.1s ease-in-out infinite}
+@keyframes hop{0%,100%{translate:0 0}50%{translate:0 -.1em}}
+
+.cf.pensando .eye{animation:none;transform:scaleY(.55) translateY(-.15em)}
+.cf.pensando .eye.r{transform:scaleY(1) translateY(-.15em)}
+.cf.pensando .nose{animation:think 1.4s steps(3) infinite}
+@keyframes think{0%{opacity:1}50%{opacity:.25}100%{opacity:1}}
+
+.cf.sorpresa .eye{animation:none;transform:scale(1.25,1.25)}
+.cf.sorpresa .nose{animation:none;transform:scale(1.8)}
+.cf.sorpresa .ch{transform:scaleX(.7)}
+
+.cf.dormido .eye{animation:none;transform:scaleY(.1)}
+.cf.dormido .nose{animation:breathe 4s ease-in-out infinite}
+.cf.dormido::after{content:"z";font-size:.45em;color:var(--dim);margin-left:.1em;animation:zz 2.4s infinite}
+@keyframes zz{0%{opacity:0;transform:translate(0,0)}50%{opacity:1}100%{opacity:0;transform:translate(.4em,-.8em)}}
+
+.cf.trabajando .i{animation:type .35s steps(2) infinite}
+.cf.trabajando .eye{animation:none;transform:translateX(.06em)}
+@keyframes type{0%{transform:translateY(0)}50%{transform:translateY(.06em)}}
+
+.cf.hold .eye{animation:none;transform:scaleY(.5) rotate(-8deg)}
+.cf.hold .eye.r{transform:scaleY(.5) rotate(8deg)}
+.cf.hold .nose{color:#e2574c;animation:none}
+
+.cf.pass .nose{color:#5fd38d}
+.cf.pass .ch{transform:rotate(-14deg)}
+.cf.pass .ch.r{transform:rotate(14deg)}
+
+@media (prefers-reduced-motion:reduce){.cf *{animation:none!important}}
+
+.stage{font-size:clamp(64px,20vw,150px);text-align:center;padding:30px 0 10px;cursor:pointer}
+.moods{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+button{background:transparent;color:var(--g);border:1px solid var(--g);padding:9px 13px;font:800 12px "JetBrains Mono";border-radius:4px;cursor:pointer}
+button.on{background:var(--g);color:#000}
+.line{border-top:1px dashed #3a3420;border-bottom:1px dashed #3a3420;padding:4px 0;margin:10px 0}
+pre{background:#0b0a06;border:1px solid #3a3420;border-left:3px solid var(--g);padding:14px;white-space:pre-wrap;word-break:break-all;font-size:13px}
+.note{color:var(--dim);font-size:12px;border:1px dashed #3a3420;padding:10px;margin-top:26px}
+a{color:var(--g)}
+</style>
+</head>
+<body>
+<div class="lab">LAB · cli•llc TIENE CARA</div>
+<main>
+<div class="dim">&gt;_ æ://cli.llc/cara</div>
+<h1>cli•llc · æææ</h1>
+<p class="dim">Dos caras: en cli•llc las c son mejillas, las l ojos y el • nariz; en æ æ æ los æ de afuera son ojos y el del centro, dorado, es la boca. Un robot cuya cara cabe en la altura de una línea.</p>
+
+<div class="stage" id="stage" title="tócalo"></div>
+<div class="moods" id="moods"></div>
+
+<h2>&gt;_ EN UNA LÍNEA</h2>
+<p class="line">Hermes recibió <b>[æ:008] ping</b> y el taller contestó <span class="cf pass" data-cf></span> PASS · mientras tanto Victus duerme <span class="cf dormido" data-cf></span> y el broker piensa <span class="cf pensando" data-cf></span>.</p>
+<p class="line" style="font-size:12px">Hasta en letra chica: <span class="cf feliz" data-cf></span> sigue vivo, y su hermano <span class="cf feliz" data-cf data-skin="ae"></span> también.</p>
+
+<h2>&gt;_ ESTADOS = MOVIMIENTO</h2>
+<p class="dim">Kinetic typography: el movimiento es el estado. Los recibos de Codæ Mail pueden traer su carita: <b>pass</b> cuando la puerta abre, <b>hold</b> cuando espera a Yæl, <b>trabajando</b> mientras corre, <b>dormido</b> si un nodo está caído.</p>
+
+<h2>&gt;_ ÚSALO EN CUALQUIER PÁGINA</h2>
+<pre id="snip"></pre>
+
+<div class="note">#opensourceware · sin imágenes, solo letras y CSS · respeta “reducir movimiento”. Favicon animado: <a href="face.svg">face.svg</a>. Evidence ≠ Authority.</div>
+</main>
+<script>
+const AE='<span class="eye">æ</span><span class="nose ae">æ</span><span class="eye r">æ</span>';
+const FACE='<span class="ch">c</span><span class="eye">l</span><span class="i">i</span><span class="nose">•</span><span class="i2">l</span><span class="eye r">l</span><span class="ch r">c</span>';
+// "cli•llc" es simétrico alrededor del •: c|c mejillas, l|l ojos, i|l junto a la nariz
+function face(el,k){k=k||el.dataset.skin||'cli';el.innerHTML=k==='ae'?AE:FACE;el.classList.toggle('skin-ae',k==='ae');el.setAttribute('aria-label',k==='ae'?'æææ':'cli•llc');el.setAttribute('role','img')}
+document.querySelectorAll('[data-cf]').forEach(face);
+const stage=document.getElementById('stage');const big=document.createElement('span');big.className='cf';face(big);stage.appendChild(big);
+const MOODS=['neutral','feliz','pensando','trabajando','sorpresa','hold','pass','dormido'];
+const box=document.getElementById('moods');
+function set(m){const ae=big.classList.contains('skin-ae');big.className='cf'+(ae?' skin-ae':'')+(m==='neutral'?'':' '+m);[...box.children].forEach(b=>b.classList.toggle('on',b.textContent===m))}
+MOODS.forEach(m=>{const b=document.createElement('button');b.textContent=m;b.onclick=()=>set(m);box.appendChild(b)});
+set('neutral');
+const sk=document.createElement('div');sk.className='moods';sk.style.marginBottom='10px';
+[['cli','cli•llc'],['ae','æ æ æ']].forEach(([k,t])=>{const b=document.createElement('button');b.textContent=t;b.onclick=()=>{const m=big.className;face(big,k);big.className=m;big.classList.toggle('skin-ae',k==='ae');[...sk.children].forEach(x=>x.classList.toggle('on',x===b))};sk.appendChild(b)});
+box.before(sk);sk.children[1].click();
+let i=0;stage.onclick=()=>{i=(i+1)%MOODS.length;set(MOODS[i])};
+document.getElementById('snip').textContent=
+`<!-- 1. copia el <style> .cf de esta página -->
+<span class="cf feliz"><span class="ch">c</span><span class="eye">l</span><span class="i">i</span><span class="nose">•</span><span class="i2">l</span><span class="eye r">l</span><span class="ch r">c</span></span>
+<!-- estados: feliz · pensando · trabajando · sorpresa · hold · pass · dormido -->`;
+</script>
+</body>
+</html>

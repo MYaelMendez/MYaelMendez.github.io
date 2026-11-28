@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050607">
+<title>pc://terminal · &gt;_PrivateClient</title>
+<meta name="description" content="pc://terminal: every answer is read live from privateclient.ai. Human stays root.">
+<style>
+:root{--c:#00f3ff;--g:#d4af37;--ink:#e9f6f7;--dim:#7d9a9e;--ok:#3ddc84;--warn:#ffc53d;--stop:#ff5d5d;--bd:#1d4a4e;--bg0:#050607;--bg:#000;--fl:#06191b;--fl2:#031416;--bd2:#0e3b3f;--grid:.06}
+[data-theme=day]{--c:#00747c;--g:#8a6d12;--ink:#161616;--dim:#48443d;--ok:#1a7f45;--warn:#8a5a00;--stop:#b3261e;--bd:#c9c0ad;--bg0:#e9e3d4;--bg:#f4efe3;--fl:#fffaf0;--fl2:#fffaf0;--bd2:#c9c0ad;--grid:.09}
+[data-theme=agent]{--c:#00f3ff;--g:#d4af37;--bg0:#000;--bg:#000;--fl:#020c0d;--fl2:#020c0d;--grid:.1}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg0);color:var(--ink);font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+body{display:grid;place-items:center;min-height:100dvh}
+#st{position:relative;width:min(100vw,calc(100dvh*9/16));height:min(100dvh,calc(100vw*16/9));background:var(--bg);border:1px solid var(--bd2);display:flex;flex-direction:column;padding:max(14px,env(safe-area-inset-top)) 18px max(14px,env(safe-area-inset-bottom));overflow:hidden}
+#st::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:var(--grid);background:linear-gradient(var(--c) 1px,transparent 1px) 0 0/28px 28px,linear-gradient(90deg,var(--c) 1px,transparent 1px) 0 0/28px 28px}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;z-index:1;font-size:12px;color:var(--dim);min-height:44px}
+header b{color:var(--c);font-size:15px}header .ae{color:var(--g)}
+#mode{border:1px solid var(--bd);border-radius:20px;padding:2px 10px}
+#mode.live{color:var(--ok);border-color:#1f5a3a}
+#o{flex:1;overflow-y:auto;z-index:1;padding:8px 0;min-height:0}
+.l{padding:1px 0;white-space:pre-wrap;word-break:break-word;animation:in .18s ease}
+@keyframes in{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.cmd{color:var(--c);margin-top:12px}.cmd .ae{color:var(--g)}
+.sys{color:var(--ink)}.meta{color:var(--dim);font-size:12px}
+.r{display:grid;grid-template-columns:11em 1fr;gap:8px}.r i{font-style:normal;color:var(--dim)}
+.ok{color:var(--ok)}.warn{color:var(--warn)}.stop{color:var(--stop)}.gold{color:var(--g)}
+.l a{color:var(--c)}
+#sg{display:flex;flex-wrap:wrap;gap:6px;padding:8px 0;z-index:1}
+#sg button{min-height:44px;padding:0 12px;border:1px solid var(--bd);border-radius:22px;background:none;color:var(--dim);font:13px ui-monospace,Menlo,monospace;cursor:pointer}
+#sg button:hover,#sg button:focus{border-color:var(--c);color:var(--ink);outline:none}
+form{display:flex;align-items:center;gap:6px;border:1px solid var(--bd);border-radius:12px;padding:0 12px;min-height:50px;background:var(--fl);z-index:1}
+form b{color:var(--c)}form b .ae{color:var(--g)}
+form input{flex:1;min-width:0;background:none;border:0;outline:none;color:var(--ink);font:16px ui-monospace,Menlo,monospace}
+#boot{position:absolute;inset:0;z-index:5;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:opacity .6s}
+#boot.out{opacity:0;pointer-events:none}#boot .ae{font:700 64px/1 Georgia,serif;color:var(--g)}#boot p{color:var(--dim);min-height:1.5em}#boot .gr{color:var(--ok);opacity:0;transition:opacity .4s}#boot .gr.on{opacity:1}
+#th{min-width:44px;min-height:44px;border:1px solid var(--bd);border-radius:22px;background:none;color:var(--ink);font-size:16px;cursor:pointer}
+#tk,#tp{display:none;z-index:1}
+[data-theme=agent] #tk{display:block;overflow:hidden;white-space:nowrap;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);font-size:12px;color:var(--c);min-height:26px;line-height:24px}
+#tkr{display:inline-block;padding-left:100%;animation:tick 28s linear infinite}
+@keyframes tick{to{transform:translateX(-100%)}}
+[data-theme=agent] #tp{display:flex;align-items:baseline;justify-content:center;gap:.4em;min-height:2.4em;font:700 clamp(18px,4.5vw,30px)/1.2 ui-monospace,Menlo,monospace;color:var(--ink);border:1px solid var(--bd);border-radius:12px;margin:6px 0 0;padding:6px 10px;text-align:center}
+#tp i{font-style:normal;color:var(--c);font-size:.55em;font-weight:400}
+[data-theme=agent] .r span{color:var(--c)}
+#bot{position:absolute;left:0;top:0;z-index:6;width:48px;height:54px;border:0;background:none;cursor:pointer;padding:0;transition:transform .7s cubic-bezier(.3,1.3,.5,1)}
+#bot svg{width:48px;height:54px;filter:drop-shadow(0 0 6px #00f3ff66)}#bot .eyes{transition:transform .35s}
+#tip{position:absolute;z-index:7;width:min(82%,320px);background:var(--fl2);border:1px solid var(--c);border-radius:14px;padding:10px 12px;font:14px/1.45 system-ui,-apple-system,sans-serif;display:none;box-shadow:0 8px 30px #000a}
+#tip.on{display:block;animation:in .25s ease}#tip p{margin:0 0 8px}#tip small{color:var(--dim);font:11px ui-monospace,Menlo,monospace}
+#tip .r{display:flex;gap:8px;justify-content:flex-end;align-items:center}#tip .r span{flex:1}
+#tip button{min-height:44px;border-radius:10px;border:1px solid var(--bd);background:none;color:var(--dim);font:13px system-ui,sans-serif;padding:0 12px;cursor:pointer}#tip button.y{border-color:var(--c);color:var(--ink)}
+.hit{box-shadow:0 0 0 2px var(--c)!important;border-radius:12px}
+@media (min-width:760px) and (orientation:landscape){
+ body{display:block}#st{width:100%;height:100dvh;border:0;padding:24px clamp(24px,6vw,96px)}
+ header,#o,#sg,form{width:100%;max-width:860px;margin-left:auto;margin-right:auto}
+ html,body{font-size:15px}.r{grid-template-columns:14em 1fr}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<div id="st">
+ <div id="boot" aria-hidden="true"><div class="ae">æ</div><p id="bt"></p><p class="gr" id="bg">✓ pc://terminal</p></div>
+ <header><span><b>pc://</b>terminal <span class="ae">æ</span></span><span id="clk">--:--:--</span><span id="mode">…</span><button type="button" id="th" aria-label="theme">🌙</button></header>
+ <div id="tk" aria-hidden="true"><span id="tkr">pc:// · human stays root</span></div>
+ <main id="o" aria-live="polite"></main>
+ <div id="tp" aria-hidden="true"></div>
+ <div id="sg"></div>
+ <form id="f" autocomplete="off"><b>&gt;_<span class="ae">æ</span>|</b><input id="i" aria-label="command" placeholder="#help" spellcheck="false" autocapitalize="off"></form>
+<button id="bot" type="button" aria-label="private_client_æsimov · guide" title="private_client_æsimov"><svg viewBox="0 0 240 270" aria-hidden="true"><path d="M52 78 Q52 18 120 18 Q188 18 188 78 V176 Q188 246 120 250 Q52 246 52 176 Z" fill="#141416" stroke="#3a3a3e" stroke-width="5"/><rect x="66" y="92" width="108" height="56" rx="26" fill="#030a0b" stroke="#00f3ff" stroke-width="6"/><g class="eyes"><path d="M88 120 h18 M134 120 h18" stroke="#00f3ff" stroke-width="10" stroke-linecap="round"/></g><path d="M100 196 Q120 206 140 196" fill="none" stroke="#00f3ff" stroke-width="7" stroke-linecap="round"/><path d="M112 34 l6 10 l4 -16" fill="none" stroke="#00f3ff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+ <div id="tip" role="dialog" aria-live="polite"><small>private_client_æsimov</small><p id="tipt"></p><div class="r"><span id="tipn" class="meta"></span><button type="button" id="tiph"></button><button type="button" class="y" id="tipy"></button></div></div>
+</div>
+<script>
+// pc://terminal · rescued from myaelmendez.github.io/privateclient/terminal.html
+// Rule: every answer is read live from privateclient.ai, or says plainly that it can't be.
+const SAME=location.hostname==="privateclient.ai"||location.hostname==="localhost"||location.hostname==="127.0.0.1";
+const API=SAME?"":"https://privateclient.ai";
+const $=id=>document.getElementById(id),O=$("o");
+const SUG=["#help","#connect","#deploy","#verify","#owner","#formation","^cash","$OS250","#manifesto"];
+const RID="b092dae80b2f";
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+function line(cls,html){const d=document.createElement("div");d.className="l "+cls;d.innerHTML=html;O.appendChild(d);O.scrollTop=O.scrollHeight;return d}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const FEED=[],TPQ=[];let TPON=0;
+const plain=h=>{const d=document.createElement("div");d.innerHTML=h;return d.textContent};
+function feed(k,v){FEED.push(k+" "+v);while(FEED.length>14)FEED.shift();const t=$("tkr");if(t)t.textContent=FEED.join("   ·   ")+"   ·   human stays root";TPQ.push([k,v]);if(!TPON)prompter()}
+async function prompter(){TPON=1;const tp=$("tp");while(TPQ.length){const[k,v]=TPQ.shift();if(document.documentElement.dataset.theme!=="agent"){continue}
+ const rm=matchMedia("(prefers-reduced-motion:reduce)").matches;if(rm){tp.innerHTML=`<i>${esc(k)}</i> ${esc(v)}`;continue}
+ for(const w of String(v).split(/\s+/).filter(Boolean)){tp.innerHTML=`<i>${esc(k)}</i> ${esc(w)}`;await wait(Math.min(420,180+w.length*22))}}TPON=0}
+const row=(k,v,c="")=>{feed(k,plain(v));return line("r",`<i>${esc(k)}</i><span class="${c}">${v}</span>`)};
+const link=(u,t)=>`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t||u)}</a>`;
+async function j(p,cred){try{const r=await fetch(API+p,{credentials:cred&&SAME?"same-origin":"omit",cache:"no-store"});return{s:r.status,d:await r.json()}}catch(e){return{s:0,d:null}}}
+const day=t=>new Date(t*1000).toISOString().slice(0,10);
+let ME=null;
+const C={
+ "#help":async()=>{for(const[k,v]of[["#connect","your MCP keys + human freshness"],["#deploy","service health + witness head"],["#verify <rid>","a public receipt"],["#owner","owner door"],["#formation","#startabusiness rail"],["^cash","payments"],["$OS250","mission"],["#manifesto","+æ ^æ >_æ"],["#clear","clear"]])row(k,esc(v));row("pc://write",link((SAME?"":"https://privateclient.ai")+"/?go=write",T("write · check · hold","escribe · revisa · sostén")),"gold")},
+ "#connect":async()=>{
+  const p=await j("/.well-known/pc.json");
+  if(p.d){row("pc://mcp",esc(p.d.addresses["pc://mcp"].mcp));row("pc://yael",esc(p.d.addresses["pc://yael"].mcp));row("auth",esc("Bearer pck_ · human ≤ 7 days"))}else row("resolver","unreachable","stop");
+  if(!SAME){row("your keys","sign in at "+link("https://privateclient.ai/","privateclient.ai"),"warn");return}
+  const k=await j("/mcp/keys",1);
+  if(!k.d||!k.d.signed_in){row("your keys","sign in with LinkedIn first","warn");return}
+  row("you",esc(k.d.name));row("keys",String((k.d.keys||[]).length),"ok");
+  if(k.d.human_until){const fresh=k.d.human_until*1000>Date.now();row("human until",day(k.d.human_until),fresh?"ok":"stop")}
+  row("mint",link((API||"")+"/mcp/connect","pc://mcp/connect"))},
+ "#deploy":async()=>{
+  const g=await j("/guard");const h=SAME?await j("/health"):{d:{ok:!!g.d}};
+  row("privateclient",h.d&&h.d.ok?"✓ ok":"✗ unreachable",h.d&&h.d.ok?"ok":"stop");
+  if(g.d){row("guard",esc(g.d.guard+" · "+g.d.mood),g.d.mood==="ready"?"ok":"warn");row("uptime",Math.round(g.d.uptime_s/3600*10)/10+" h");row("blocked 1h",String(g.d.blocked_last_hour));row("witness head",esc(g.d.witness_head.slice(0,16))+"…","gold");row("promise",esc(g.d.promise))}
+  else row("guard","unreachable","stop")},
+ "#verify":async a=>{
+  const rid=(a||RID).toLowerCase();
+  if(!/^[0-9a-f]{12}$/.test(rid)){row("rid","12 hex chars","stop");return}
+  const r=await j("/r/"+rid);
+  if(!r.d||!r.d.found){row("pc://r/"+rid,"not found","stop");return}
+  const m=r.d.manifest||{};
+  row("pc://r/"+rid,"✓ found","ok");
+  if(r.d.t)row("signed",new Date(r.d.t*1000).toISOString().slice(0,16).replace("T"," ")+" UTC");
+  for(const k of["post","text_sha","card_sha","witness"])if(r.d[k])row(k,esc(String(r.d[k]).slice(0,24))+(String(r.d[k]).length>24?"…":""));
+  row("ai_assisted",String(!!r.d.ai_assisted));
+  const root=JSON.stringify(m).match(/HUMAN:\/\/ROOT/);if(root)row("root","HUMAN://ROOT","gold");
+  if(r.d.means)row("means",esc(r.d.means));
+  row("open",link((API||location.origin)+"/r/"+rid,"pc://r/"+rid))},
+ "#owner":async()=>{
+  if(!SAME){row("owner","owner only · "+link("https://privateclient.ai/owner","pc://owner"),"warn");return}
+  if(ME&&ME.owner){row("owner","✓ you",'ok');row("door",link("/owner","pc://owner"))}else row("owner","owner only","stop")},
+ "#formation":async()=>{row("rail","^doola","gold");row("entity","you form it · you own it");row("bookend","Private Client");row("setup",link((API||"")+"/#startabusiness","#startabusiness")+" · from $1,200")},
+ "^cash":async()=>{row("payments","not connected","warn");row("rule","no card · no charge · until you say")},
+ "$OS250":async()=>{row("mission","250 businesses","gold");row("method","one command · one person");row("nature","#opensourceware")},
+ "#manifesto":async()=>{row("+æ","adds context","gold");row("^æ","compresses language","gold");row(">_æ","executes","ok");row("HUMAN://ROOT","approves · publishes","gold")},
+ "#clear":async()=>{O.innerHTML=""}
+};
+async function run(raw){
+ const s=raw.trim();if(!s)return;
+ const[c,...a]=s.split(/\s+/);const k=Object.keys(C).find(x=>x.toLowerCase()===c.toLowerCase());
+ line("cmd",`&gt;_<span class="ae">æ</span>|${esc(s)}`);
+ if(!k){row(c,"unknown · #help","warn");return}
+ await C[k](a[0]);
+}
+$("f").onsubmit=e=>{e.preventDefault();const v=$("i").value;$("i").value="";run(v)};
+for(const s of SUG){const b=document.createElement("button");b.type="button";b.textContent=s;b.onclick=()=>run(s);$("sg").appendChild(b)}
+
+// private_client_æsimov · DOM-aware guide: looks at each part, types the command, reads what came back.
+const ES=(navigator.language||"").toLowerCase().startsWith("es");
+const T=(en,es)=>ES?es:en;
+const ST=[
+ {el:"i",say:T("This is the prompt. >_æ| means: you ask, I read it live.","Este es el prompt. >_æ| significa: tú preguntas, yo leo en vivo.")},
+ {el:"sg",say:T("Pills are shortcuts. Same words in every language.","Las píldoras son atajos. Mismas palabras en todo idioma.")},
+ {el:"th",say:T("🌙 night · ☀️ day · 🤖 agent. Agent turns answers into tickers and a nano teleprompter.","🌙 noche · ☀️ día · 🤖 agente. Agente convierte respuestas en tickers y un nano teleprompter.")},
+ {el:"i",cmd:"#deploy",say:T("#deploy: is the door up? The witness head is the latest link in the log.","#deploy: ¿está arriba la puerta? El witness head es el último eslabón del registro.")},
+ {el:"i",cmd:"#verify",say:T("#verify: a public receipt. HUMAN://ROOT means a person approved it.","#verify: un recibo público. HUMAN://ROOT significa que lo aprobó una persona.")},
+ {el:"i",cmd:"#connect",say:T("#connect: where agents plug in. Keys work only while you sign in weekly.","#connect: donde se conectan los agentes. Las claves funcionan si entras cada semana.")},
+ {el:"i",cmd:"#manifesto",say:T("+æ context. ^æ compress. >_æ execute. You approve.","+æ contexto. ^æ comprime. >_æ ejecuta. Tú apruebas.")},
+ {el:"bot",last:1,say:T("Your turn: write it, I check it, you hold to approve. Tap me anytime.","Tu turno: tú escribes, yo reviso, tú sostienes para aprobar. Tócame cuando quieras.")}
+];
+let SI=-1;const bot=$("bot"),tip=$("tip"),stage=$("st");
+function place(el){
+ const sr=stage.getBoundingClientRect(),r=el.getBoundingClientRect();
+ let x=Math.min(sr.width-56,Math.max(4,r.left-sr.left+r.width/2-24)),y=r.top-sr.top-62;if(y<50)y=r.bottom-sr.top+8;
+ bot.style.transform=`translate(${x}px,${y}px)`;
+ const eyes=bot.querySelector(".eyes"),dx=Math.max(-6,Math.min(6,(r.left+r.width/2-(sr.left+x+24))/30));eyes.style.transform=`translate(${dx}px,${y>r.top-sr.top?-4:4}px)`;
+ const tw=Math.min(sr.width*.82,320);let tx=Math.min(sr.width-tw-8,Math.max(8,x-tw/2+24)),ty=y>r.top-sr.top?y+60:y-8;
+ tip.style.left=tx+"px";tip.classList.add("on");const th=tip.offsetHeight;tip.style.top=(y>r.top-sr.top?ty:Math.max(50,ty-th))+"px";
+}
+async function typeIn(c){const i=$("i");i.value="";for(const ch of c){i.value+=ch;await wait(matchMedia("(prefers-reduced-motion:reduce)").matches?0:70)}await wait(200);i.value="";await run(c)}
+async function step(n){
+ document.querySelectorAll(".hit").forEach(e=>e.classList.remove("hit"));
+ if(n<0||n>=ST.length){tip.classList.remove("on");SI=-1;localStorage.setItem("pc_term_learned","1");bot.style.transform="";place0();return}
+ SI=n;const s=ST[n],el=$(s.el);const tgt=s.el==="i"?$("f"):el;
+ if(s.el!=="bot")tgt.classList.add("hit");
+ $("tipt").textContent=s.say;$("tipn").textContent=(n+1)+"/"+ST.length;
+ $("tiph").textContent=s.last?"#help":T("Skip","Saltar");$("tipy").textContent=s.last?T("Write →","Escribir →"):s.cmd?T("Run "+s.cmd,"Ejecutar "+s.cmd):T("Next","Siguiente");
+ place(tgt);
+}
+function place0(){const sr=stage.getBoundingClientRect(),f=$("f").getBoundingClientRect();bot.style.transform=`translate(${Math.min(sr.width-60,f.right-sr.left-52)}px,${f.top-sr.top-62}px)`;bot.querySelector(".eyes").style.transform=""}
+const WRITE=(SAME?"":"https://privateclient.ai")+"/?go=write";
+$("tipy").onclick=async()=>{const s=ST[SI];if(s&&s.last){localStorage.setItem("pc_term_learned","1");location.href=WRITE;return}if(s&&s.cmd&&!s.ran){s.ran=1;$("tipy").disabled=true;await typeIn(s.cmd);$("tipy").disabled=false;$("tipy").textContent=T("Next","Siguiente");$("tipt").textContent=s.say+" ✓";place($("f"));return}step(SI+1)};
+$("tiph").onclick=async()=>{const s=ST[SI];step(ST.length);if(s&&s.last)await typeIn("#help")};
+bot.onclick=()=>{ST.forEach(s=>delete s.ran);step(SI>=0?ST.length:0)};
+addEventListener("resize",()=>SI>=0?place(ST[SI].el==="i"?$("f"):$(ST[SI].el)):place0());
+
+const THEMES=["night","day","agent"],TI={night:"🌙",day:"☀️",agent:"🤖"};
+function theme(t){document.documentElement.dataset.theme=t;$("th").textContent=TI[t];$("th").title=t;try{localStorage.setItem("pc_term_theme",t)}catch(e){};const m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==="day"?"#f4efe3":"#050607"}
+theme(localStorage.getItem("pc_term_theme")||(matchMedia("(prefers-color-scheme:light)").matches?"day":"night"));
+$("th").onclick=()=>theme(THEMES[(THEMES.indexOf(document.documentElement.dataset.theme)+1)%3]);
+setInterval(()=>$("clk").textContent=new Date().toTimeString().slice(0,8),1000);
+(async()=>{
+ const rm=matchMedia("(prefers-reduced-motion:reduce)").matches;
+ const t="pc:// private client";
+ if(!rm)for(const ch of t){$("bt").textContent+=ch;await wait(38)}else $("bt").textContent=t;
+ if(SAME){const m=await j("/me",1);ME=m.d}
+ $("bg").classList.add("on");await wait(rm?0:500);$("boot").classList.add("out");
+ const md=$("mode");
+ if(SAME&&ME&&ME.signed_in){md.textContent="human ✓";md.className="live"}else if(SAME){md.textContent="signed out"}else{md.textContent="LAB · public reads";}
+ line("sys","pc:// private client · terminal");
+ line("meta",(ME&&ME.signed_in?esc(ME.name.split(" ")[0])+" · ":"")+new Date().toISOString().slice(0,10)+" · live reads, no simulation");
+ line("meta","human stays root");
+ $("i").focus({preventScroll:true});
+ place0();if(!localStorage.getItem("pc_term_learned"))setTimeout(()=>step(0),600);
+})();
+</script>
+</body></html>

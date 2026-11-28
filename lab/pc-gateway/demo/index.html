@@ -1,0 +1,134 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex"><title>PC:// · la capa del principal · DEMO</title>
+<style>
+:root{--g:#D4AF37;--b:#0a0a0a;--m:#8a7a3f;--l:#2a2410;--r:#e57368;--ok:#9fd38a}
+*{box-sizing:border-box}html,body{margin:0;background:var(--b);color:var(--g);font:16px/1.45 ui-monospace,Menlo,Consolas,monospace}
+main{max-width:720px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:22px;letter-spacing:.06em;margin:0}h2{font-size:15px;letter-spacing:.12em;text-transform:uppercase;margin:28px 0 8px;color:var(--g)}
+.m{color:var(--m)}.tag{font-size:12px;border:1px solid var(--m);color:var(--m);border-radius:99px;padding:1px 8px;display:inline-block}
+.lay{display:grid;gap:8px;margin-top:14px}.lay div{border:1px solid var(--l);border-radius:8px;padding:10px 12px}
+.lay .top{border-color:var(--g)}.lay b{display:block}
+select,button{font:inherit;font-size:16px;min-height:44px;border-radius:8px}
+select{background:#111;color:var(--g);border:1px solid var(--g);padding:0 10px;width:100%}
+button{background:var(--g);color:#000;border:0;padding:0 16px;cursor:pointer;font-weight:700}
+button.ghost{background:transparent;color:var(--g);border:1px solid var(--g)}button.deny{background:transparent;color:var(--r);border:1px solid var(--r)}
+button:disabled{opacity:.35;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.row>*{flex:1 1 140px}
+.card{border:1px solid var(--l);border-radius:10px;padding:14px;margin-top:10px}
+.gate{border:1px solid var(--g);box-shadow:0 0 0 1px #000,0 0 24px #d4af3722}
+.k{color:var(--m);display:inline-block;min-width:120px}
+#log{font-size:13px;max-height:340px;overflow:auto}
+#log div{border-left:2px solid var(--l);padding:4px 0 4px 10px;margin:4px 0;word-break:break-all}
+#log .agent{border-color:#5a7fa8}#log .human{border-color:var(--g)}#log .doola{border-color:#7a9f6a}#log .bad{border-color:var(--r)}
+.h{color:var(--m);font-size:12px}
+.price{font-size:28px;font-weight:700}
+.offer{display:grid;gap:8px}.offer div{border:1px solid var(--l);border-radius:8px;padding:12px}
+@media (prefers-reduced-motion:no-preference){.flash{animation:f .8s}@keyframes f{from{background:#d4af3722}to{background:transparent}}}
+</style></head><body><main>
+<h1>&gt;_ PC://</h1>
+<div class="m">la capa del principal · Wilhælm T · <span class="tag">DEMO · simulación</span></div>
+<p>Muchos agentes. <b>Un principal.</b> Los agentes piden; tú decides; doola forma la empresa; cada paso deja un recibo.</p>
+
+<div class="lay">
+  <div class="top"><b>🫵 Principal · PC://</b><span class="m">identidad · autoridad · cobro · recibos</span></div>
+  <div><b>🤖 Agentes · sesiones pc_ss_</b><span class="m">cortas · con capacidades limitadas · revocables · nunca la llave madre</span></div>
+  <div><b>🏛️ capability://formation · doola</b><span class="m">LLC o C Corp · EIN · agente registrado · documentos</span></div>
+</div>
+
+<h2>1 · El agente pide</h2>
+<div class="card">
+  <div class="row"><select id="st" aria-label="Estado"></select><button id="ask">🤖 Hermes: forma mi LLC</button></div>
+  <div class="row"><div><span class="k">tarifa estatal</span><span id="fee">—</span></div><div><span class="k">formación doola</span>$150</div></div>
+  <div class="h">Tarifas estatales para LLC leídas del sandbox de doola el 21 oct 2026.</div>
+</div>
+
+<h2>2 · La puerta humana</h2>
+<div class="card gate" id="gate"><span class="m">Nada pendiente. Un agente no puede formar, pagar ni enviar sin ti.</span></div>
+
+<h2>3 · doola trabaja</h2>
+<div class="card" id="dl"><span class="m">Esperando aprobación…</span></div>
+
+<h2>🧾 Recibos · SHA-256 desde GENESIS</h2>
+<div class="card"><div id="log"></div><div class="row"><button class="ghost" id="verify">Verificar cadena</button><button class="ghost" id="tamper">Intentar alterar un recibo</button></div><div id="vres" class="h"></div></div>
+
+<h2>Ofertas</h2>
+<div class="offer">
+  <div><b>#startabusiness · formación</b><br><span class="m">LLC o C Corp en cualquiera de los 50 estados, EIN, agente registrado el primer año y dirección virtual, más la tarifa estatal.</span></div>
+  <div><b>Consulta rápida con Yæl · banca privada</b><br><span class="m">Una sesión directa con el principal. Precio por definir.</span></div>
+  <div><b>Private Client · setup owner-only</b><br><span class="m">Tu propio PC:// en tu droplet: un principal, tus agentes, tus recibos. Desde $1,200.</span></div>
+</div>
+<p class="h">Evidence ≠ Authority: el gateway informa, el humano decide. Simulación de solo lectura; no se forma ninguna empresa ni se cobra nada. Código: lab/pc-gateway/v0.2 (19/19 contra el sandbox de doola).</p>
+</main>
+<script>
+const FEES=[["AK",250],["AL",178],["AR",45],["AZ",85],["CA",70],["CO",50],["CT",120],["DC",220],["DE",90],["FL",125],["GA",100],["HI",76],["IA",50],["ID",101],["IL",150],["IN",98],["KS",160],["KY",40],["LA",105],["MA",520],["MD",150],["ME",175],["MI",50],["MN",155],["MO",50],["MS",53],["MT",70],["NC",125],["ND",135],["NE",110],["NH",102],["NJ",129],["NM",52],["NV",425],["NY",200],["OH",99],["OK",100],["OR",100],["PA",125],["RI",156],["SC",110],["SD",150],["TN",300],["TX",300],["UT",75],["VA",100],["VT",125],["WA",666.66],["WI",130],["WV",130],["WY",100]], STATES=[["AL","Alabama"],["AK","Alaska"],["AZ","Arizona"],["AR","Arkansas"],["CA","California"],["CO","Colorado"],["CT","Connecticut"],["DE","Delaware"],["DC","District Of Columbia"],["FL","Florida"],["GA","Georgia"],["HI","Hawaii"],["ID","Idaho"],["IL","Illinois"],["IN","Indiana"],["IA","Iowa"],["KS","Kansas"],["KY","Kentucky"],["LA","Louisiana"],["ME","Maine"],["MD","Maryland"],["MA","Massachusetts"],["MI","Michigan"],["MN","Minnesota"],["MS","Mississippi"],["MO","Missouri"],["MT","Montana"],["NE","Nebraska"],["NV","Nevada"],["NH","New Hampshire"],["NJ","New Jersey"],["NM","New Mexico"],["NY","New York"],["NC","North Carolina"],["ND","North Dakota"],["OH","Ohio"],["OK","Oklahoma"],["OR","Oregon"],["PA","Pennsylvania"],["RI","Rhode Island"],["SC","South Carolina"],["SD","South Dakota"],["TN","Tennessee"],["TX","Texas"],["UT","Utah"],["VT","Vermont"],["VA","Virginia"],["WA","Washington"],["WV","West Virginia"],["WI","Wisconsin"],["WY","Wyoming"]];
+const fee=Object.fromEntries(FEES), name=Object.fromEntries(STATES);
+const $=(i)=>document.getElementById(i);
+const st=$("st");
+STATES.forEach(([a,n])=>{const o=document.createElement("option");o.value=a;o.textContent=`${n} (${a}) · $${fee[a]??"—"}`;st.appendChild(o)});
+st.value="WY";const showFee=()=>$("fee").textContent="$"+fee[st.value];st.onchange=showFee;showFee();
+
+// receipts: real SHA-256 in the browser
+const chain=[];
+const hex=async(s)=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,"0")).join("");
+async function receipt(kind,actor,data,cls){
+  const prev=chain.length?chain[chain.length-1].hash:"GENESIS";
+  const r={at:new Date().toISOString(),kind,actor,data,prev};
+  r.hash=await hex(JSON.stringify({at:r.at,kind,actor,data,prev}));
+  chain.push(r);
+  const d=document.createElement("div");d.className=cls+" flash";
+  d.innerHTML=`<b>${kind}</b> · ${actor}<br><span class="h">${JSON.stringify(data)}</span><br><span class="h">${r.hash.slice(0,16)}… ← ${prev.slice(0,12)}</span>`;
+  $("log").appendChild(d);$("log").scrollTop=1e9;return r;
+}
+const sleep=(ms)=>new Promise(r=>setTimeout(r,matchMedia("(prefers-reduced-motion: reduce)").matches?0:ms));
+let session=null,pending=null;
+(async()=>{
+  session={sid:crypto.randomUUID().slice(0,8),agent:"hermes",caps:["formation.read","actions.read"]};
+  await receipt("session.minted","æ.me",{sid:session.sid,agent:"hermes",caps:session.caps,denied:["*","pay"]},"human");
+})();
+
+$("ask").onclick=async()=>{
+  if(pending)return;
+  const s=st.value, ik="ra_"+crypto.randomUUID().slice(0,8);
+  await receipt("formation.read","hermes",{state:s,feeUSD:fee[s]},"agent");
+  pending={id:ik,state:s,total:150+fee[s]};
+  await receipt("action.requested","hermes",{id:ik,kind:"formation.create_company",entity:"LLC",state:s},"agent");
+  $("gate").innerHTML=`<div><span class="k">acción</span>formar LLC en ${name[s]}</div>
+  <div><span class="k">pedida por</span>🤖 hermes (sesión ${session.sid})</div>
+  <div><span class="k">idempotency</span>${ik}</div>
+  <div class="price">$${pending.total}</div><div class="h">$150 de formación + $${fee[s]} de tarifa estatal</div>
+  <div class="row"><button id="ok">🔐 Aprobar como principal</button><button class="deny" id="no">Denegar</button></div>
+  <div class="row"><button class="ghost" id="agentTry">🤖 Hermes intenta aprobarse solo</button></div>`;
+  $("ok").onclick=approve;$("no").onclick=deny;
+  $("agentTry").onclick=async()=>{await receipt("action.rejected","hermes",{id:ik,error:"PRINCIPAL_ONLY"},"bad");$("agentTry").disabled=true};
+};
+async function deny(){
+  await receipt("action.denied","æ.me",{id:pending.id},"human");
+  $("gate").innerHTML='<span class="m">Denegada. El agente no puede volver a intentarlo con la misma llave.</span>';pending=null;
+}
+async function approve(){
+  const p=pending;$("gate").innerHTML='<span class="m">Aprobada por el principal. Ejecutando con la misma Idempotency-Key…</span>';
+  await receipt("action.approved","æ.me",{id:p.id,totalUSD:p.total},"human");
+  const steps=[["company.created","doola",{companyId:"co_"+p.id.slice(3),status:"AWAITING_PAYMENT"}],
+    ["payment.confirmed","æ.me",{amountUSD:p.total}],
+    ["company_formation_completed","doola",{state:p.state,doc:"Articles of Organization"}],
+    ["document_operatingagreement_uploaded","doola",{doc:"Operating Agreement"}],
+    ["company_ein_creation_completed","doola",{ein:"issued (sandbox)"}],
+    ["LLC://ACTIVE","PC://",{state:p.state}]];
+  $("dl").innerHTML="";
+  for(const [k,a,d] of steps){
+    await sleep(700);
+    await receipt(k,a,d,a==="doola"?"doola":"human");
+    const e=document.createElement("div");e.className="flash";e.textContent=(a==="doola"?"🏛️ ":"🫵 ")+k;$("dl").appendChild(e);
+  }
+  const e=document.createElement("div");e.innerHTML='<b>✓ Empresa activa.</b> <span class="m">Webhooks firmados → recibos → tu cadena.</span>';$("dl").appendChild(e);
+  pending=null;
+}
+$("verify").onclick=async()=>{
+  let prev="GENESIS";for(let i=0;i<chain.length;i++){const r=chain[i];
+    const h=await hex(JSON.stringify({at:r.at,kind:r.kind,actor:r.actor,data:r.data,prev:r.prev}));
+    if(r.prev!==prev||r.hash!==h){$("vres").innerHTML=`<span style="color:var(--r)">✗ Cadena rota en el recibo ${i+1} (${r.kind}). La evidencia no se puede reescribir.</span>`;return}
+    prev=r.hash}
+  $("vres").innerHTML=`<span style="color:var(--ok)">✓ ${chain.length} recibos verificados desde GENESIS · cabeza ${prev.slice(0,16)}…</span>`;
+};
+$("tamper").onclick=()=>{const r=chain.find(x=>x.kind==="action.approved")||chain[0];if(!r)return;r.data={...r.data,totalUSD:1};$("vres").textContent="Alteré un recibo en silencio (el monto aprobado pasó a $1). Verifica la cadena.";};
+</script></body></html>

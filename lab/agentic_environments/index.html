@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>>_ agentic_environments · æ:// iteración ↺2</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="Many agents. One principal. Una iteración recursiva de myaelmendez.github.io: la superficie se lee a sí misma desde su manifiesto.">
+<meta property="og:title" content=">_ agentic_environments · æ://">
+<meta property="og:description" content="chat^(æ^CLI) · Many agents. One principal. · point your agents at me">
+<meta property="og:image" content="https://lutheraninstitute.github.io/aeee-lab/lab/agentic_environments/card-4x5.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#F4EEDF">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F4EEDF;--ink:#111;--ink2:#555;--line:#111;--card:#fffaf0;--y:#F2C200;--b:#1E5BD8;--g:#1FA45A;--acc:#111;
+--cond:"Oswald","Arial Narrow",Impact,sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace}
+html[data-th="y"]{--bg:#FFF3C2;--acc:#B88A00}
+html[data-th="b"]{--bg:#E3ECFF;--acc:#1E5BD8}
+html[data-th="g"]{--bg:#E2F5E8;--acc:#1FA45A}
+html[data-th="v"]{--bg:#05060a;--ink:#f3eedd;--ink2:#9a978c;--line:#D4AF37;--card:#0d0f16;--acc:#D4AF37}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);transition:background .5s}
+body{color:var(--ink);font:400 15px/1.55 var(--mono);background:radial-gradient(circle at 1px 1px,rgba(0,0,0,.05) 1px,transparent 0) 0 0/6px 6px;min-height:100dvh}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--b);outline-offset:3px}
+.wrap{max-width:760px;margin:0 auto;padding:0 20px 60px}
+/* top bar */
+.bar{display:flex;justify-content:space-between;align-items:center;padding:14px 0;font:700 12px/1 var(--mono)}
+.bar a{text-decoration:none}
+.th{display:flex;gap:6px;align-items:center}
+.th button{width:18px;height:18px;border:2px solid var(--line);border-radius:2px;cursor:pointer;opacity:.5;padding:0;transition:transform .2s,opacity .2s}
+.th button[aria-pressed="true"]{opacity:1;transform:scale(1.2)}
+.th .y{background:var(--y)}.th .b{background:var(--b)}.th .g{background:var(--g)}.th .v{background:#05060a;border-color:#D4AF37}
+.th .rc{width:auto;height:auto;border:0;background:none;font-size:16px;opacity:.75}
+.th .rc[aria-pressed="true"]{animation:spin 6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* hero: everything in top two-thirds */
+.hero{min-height:66vh;display:flex;flex-direction:column;justify-content:center;padding:10px 0 20px}
+.id{display:flex;gap:16px;align-items:flex-start}
+.stack{display:grid;border:3px solid var(--line);flex:0 0 auto}
+.stack i{width:40px;height:40px;display:grid;place-items:center;font:700 26px/1 var(--cond);color:#111}
+.stack i:nth-child(1){background:var(--y)}.stack i:nth-child(2){background:var(--b)}.stack i:nth-child(3){background:var(--g)}
+.id p{font-weight:700;font-size:clamp(16px,4vw,20px)}
+.id small{display:block;color:var(--ink2);font-weight:400;font-size:13px;margin-top:4px}
+h1{font:700 clamp(68px,19vw,150px)/.86 var(--cond);letter-spacing:-.02em;text-transform:uppercase;margin-top:22px}
+h1 span{display:block;font-size:.62em;letter-spacing:-.01em}
+.line{display:block;width:100%;height:90px;margin:14px 0 6px}
+.line path{fill:none;stroke:var(--line);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1400;stroke-dashoffset:1400;animation:draw 3.2s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.tower{font:700 clamp(22px,6vw,32px)/1.2 var(--mono)}
+.tower sup{font-size:.6em}
+.motto{font:700 clamp(24px,6.4vw,38px)/1.1 var(--cond);text-transform:uppercase;margin-top:6px}
+.point{color:var(--ink2);margin-top:6px}
+.prompt{margin-top:18px;display:flex;border:3px solid var(--line);background:var(--card)}
+.prompt label{padding:12px;font-weight:700;color:var(--acc)}
+.prompt input{flex:1;border:0;background:none;font:400 15px var(--mono);color:var(--ink);min-width:0}
+.prompt input:focus{outline:none}
+.prompt button{border:0;border-left:3px solid var(--line);background:var(--y);font:700 13px var(--mono);padding:0 14px;cursor:pointer;color:#111}
+/* sections */
+h2{font:700 13px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;margin:44px 0 14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+h2 .ar{display:flex;gap:6px}
+h2 .ar button{width:34px;height:34px;border:3px solid var(--line);background:var(--card);font:700 15px var(--mono);cursor:pointer;color:var(--ink)}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:10px}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:0 0 auto;border:2px solid var(--line);background:var(--card);color:var(--ink);font:700 11px/1 var(--mono);padding:8px 10px;cursor:pointer;text-transform:uppercase}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.track{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -20px;padding:4px 20px 8px;scroll-padding:0 20px}
+.track::-webkit-scrollbar{display:none}
+.env{flex:0 0 80%;scroll-snap-align:start;border:3px solid var(--line);background:var(--card);padding:18px;display:flex;flex-direction:column;min-height:240px;position:relative;text-decoration:none;box-shadow:6px 6px 0 var(--k)}
+.env .a{font:700 11px/1.3 var(--mono);color:var(--ink2);word-break:break-all}
+.env h3{font:700 30px/1 var(--cond);text-transform:uppercase;margin:12px 0 8px}
+.env p{font-size:14px}
+.env .caps{margin-top:auto;padding-top:12px;display:flex;flex-wrap:wrap;gap:4px}
+.env .caps span{font-size:10px;border:1.5px solid var(--line);padding:3px 6px}
+.env .lvl{position:absolute;top:14px;right:14px;font:700 11px var(--mono);background:var(--k);color:#111;padding:3px 7px;border:2px solid var(--line)}
+@media(min-width:640px){.env{flex-basis:44%}}
+.dots{display:flex;justify-content:center;gap:6px;margin-top:12px;flex-wrap:wrap}
+.dots button{width:12px;height:12px;border:2px solid var(--line);padding:0;cursor:pointer;opacity:.35;background:var(--k)}
+.dots button[aria-current="true"]{opacity:1;transform:scale(1.25)}
+.axis{display:grid;grid-template-columns:repeat(4,1fr);border:3px solid var(--line)}
+.axis div{padding:14px 10px;border-right:3px solid var(--line);background:var(--card)}
+.axis div:last-child{border-right:0}
+.axis b{display:block;font:700 26px/1 var(--cond)}
+.axis small{font-size:11px;color:var(--ink2)}
+.axis div:nth-child(3){background:var(--y);color:#111}.axis div:nth-child(4){background:var(--ink);color:var(--bg)}
+.axis div:nth-child(3) small{color:#333}.axis div:nth-child(4) small{color:var(--bg);opacity:.75}
+.note{font-size:13px;color:var(--ink2);margin-top:10px}
+.video{border:3px solid var(--line);aspect-ratio:9/16;max-width:320px;margin:0 auto;background:#000}
+.video iframe{width:100%;height:100%;border:0;display:block}
+.fork{border:3px solid var(--line);padding:18px;background:var(--card)}
+.fork p{margin-bottom:12px}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn{text-decoration:none;font:700 14px/1 var(--mono);padding:13px 16px;border:3px solid var(--line);background:var(--ink);color:var(--bg)}
+.btn.o{background:var(--card);color:var(--ink)}
+.ref{font-size:11px;color:var(--ink2);margin-top:8px}
+footer{margin-top:50px;padding-top:16px;border-top:3px dashed var(--line);font-size:12px;line-height:1.9;color:var(--ink2);text-align:center}
+footer b{color:var(--ink)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.line path{stroke-dashoffset:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="bar"><a href="https://myaelmendez.github.io/">← x0:y0:z0:æ0</a>
+<span class="th" role="group" aria-label="Tono"><button class="y" data-t="y" aria-label="Amarillo"></button><button class="b" data-t="b" aria-label="Azul"></button><button class="g" data-t="g" aria-label="Verde"></button><button class="v" data-t="v" aria-label="Void dorado"></button><button class="rc" data-t="rc" aria-label="Ciclo de tonos">♻️</button></span></div>
+
+<section class="hero" aria-label="agentic_environments">
+  <div class="id"><div class="stack" aria-hidden="true"><i>æ</i><i></i><i></i></div>
+  <p>&gt;_ agentic_environments<small>æ://ioa · #opensourceware · 🧪 LAB · iteración ↺2</small></p></div>
+  <h1>Agentic<span>Environments</span></h1>
+  <svg class="line" viewBox="0 0 760 90" preserveAspectRatio="none" aria-hidden="true"><path d="M6 20 h150 q14 0 14 14 v26 q0 14 -14 14 h-96 l-26 14 v-14 h-28 q-14 0 -14 -14 v-26 q0 -14 14 -14 M170 46 C240 46 250 6 320 6 h110 v80 h-110 v-40 h220 M430 6 v80 M540 46 C600 46 620 20 680 20 L752 4"/></svg>
+  <p class="tower">chat^(æ^CLI)</p>
+  <p class="motto">Many agents. One principal.</p>
+  <p class="point">point your agents at me 🪡</p>
+  <form class="prompt" id="omni" role="search"><label for="q">&gt;_</label><input id="q" placeholder="vault, cuda, qr, mcp…" autocomplete="off" aria-label="Buscar entorno"><button>RUN</button></form>
+</section>
+
+<h2><span>🎠 <span id="count">22</span> entornos · leídos del manifiesto</span><span class="ar"><button id="pv" aria-label="Anterior">←</button><button id="nx" aria-label="Siguiente">→</button></span></h2>
+<div class="chips" id="chips"></div>
+<div class="track" id="track" aria-live="polite"></div>
+<div class="dots" id="dots"></div>
+<p class="note" id="src">Fuente: surface-manifest.json de myaelmendez.github.io · la superficie se describe a sí misma ↺</p>
+
+<h2><span>Eje de autoridad</span></h2>
+<div class="axis"><div><b>æ0</b><small>public</small></div><div><b>æ1</b><small>published</small></div><div><b>æ2</b><small>operator</small></div><div><b>æ3</b><small>custody</small></div></div>
+<p class="note">Evidence ≠ Authority. El contexto se hereda; la autoridad no. Subir a æ2/æ3 requiere la llave del principal y un recibo Witness.</p>
+
+<h2><span>▶ Build the Future with Agentic Web #ioa</span></h2>
+<div class="video"><iframe src="https://www.youtube-nocookie.com/embed/wxhh9M16w9E" title="Build the Future with Agentic Web #ioa · æLLM🫆STORE" loading="lazy" allow="encrypted-media; picture-in-picture; web-share" allowfullscreen></iframe></div>
+
+<h2><span>🍴 Haz fork de tu entorno</span></h2>
+<div class="fork">
+  <p>No code? No problem. Haz fork, reclama tu propio x0:y0:z0:æ0 y trae tu agente. Hacer fork te da un entorno, nunca la autoridad de otro.</p>
+  <div class="btns"><a class="btn" href="https://github.com/MYaelMendez">GitHub · MYaelMendez</a><a class="btn o" href="https://portal.nousresearch.com/r/opensource">Hermes Agent · Nous</a><a class="btn o" href="https://www.youtube.com/@Llmstore">@Llmstore</a></div>
+  <p class="ref">El enlace de Nous es un referido: $5 el primer mes para cuentas nuevas, luego $20/mes.</p>
+</div>
+
+<footer><b>Many agents. One principal.</b><br>Iteración ↺2 de <a href="https://myaelmendez.github.io/">myaelmendez.github.io</a> · laboratorio, no producción · Yæl decide<br>#OSW · #IoA · æ://</footer>
+</div>
+
+<script>
+(function(){
+var COL=['var(--y)','var(--b)','var(--g)'],LV={read:'æ1',write:'æ2',custody:'æ3'};
+var FALLBACK={base_url:"https://myaelmendez.github.io",surfaces:[{id:"aeqr",name:"ÆQR",url:"/aeqr.html",description:"Resource addressing, verification & audit",category:"sovereign",capabilities:["address","verify","audit"],agent_access:"read"},{id:"webmcp",name:"WEBMCP",url:"/webmcp.html",description:"Browser-as-MCP · real WebMCP tool registration",category:"runtime",capabilities:["webmcp"],agent_access:"read"},{id:"code-mode",name:"CODE-MODE",url:"/code.html",description:"Code-mode terminal I/O · the manifest as a typed API",category:"runtime",capabilities:["terminal"],agent_access:"read"}]};
+var all=[],cat='all',q='',tr=document.getElementById('track'),dots=document.getElementById('dots'),chips=document.getElementById('chips');
+function esc(s){return String(s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function url(base,u){return /^https?:/.test(u)?u:base.replace(/\/$/,'')+u}
+function view(){var list=all.filter(function(s){return (cat==='all'||s.category===cat)&&(!q||(s.name+' '+s.description+' '+(s.capabilities||[]).join(' ')+' '+s.category).toLowerCase().indexOf(q)>-1)});
+ document.getElementById('count').textContent=list.length;
+ tr.innerHTML=list.length?list.map(function(s,i){var k=COL[i%3];return '<a class="env" style="--k:'+k+'" href="'+esc(s._u)+'"><span class="lvl">'+esc(LV[s.agent_access]||'æ0')+'</span><span class="a">æ://'+esc(s.id)+' · '+esc(s.category)+'</span><h3>'+esc(s.name)+'</h3><p>'+esc(s.description)+'</p><span class="caps">'+(s.capabilities||[]).slice(0,4).map(function(c){return '<span>'+esc(c)+'</span>'}).join('')+'</span></a>'}).join(''):'<p class="note">Ningún entorno coincide. Prueba otra intención.</p>';
+ dots.innerHTML=list.map(function(s,i){return '<button style="--k:'+COL[i%3]+'" aria-label="'+(i+1)+'"'+(i===0?' aria-current="true"':'')+'></button>'}).join('');
+ dots.querySelectorAll('button').forEach(function(b,i){b.onclick=function(){go(i)}});tr.scrollLeft=0}
+function cur(){var c=tr.children,b=0,d=1e9;for(var i=0;i<c.length;i++){var x=Math.abs(c[i].offsetLeft-tr.offsetLeft-20-tr.scrollLeft);if(x<d){d=x;b=i}}return b}
+function go(i){var c=tr.children;if(!c.length)return;i=(i+c.length)%c.length;tr.scrollTo({left:c[i].offsetLeft-tr.offsetLeft-20,behavior:'smooth'})}
+tr.addEventListener('scroll',function(){var i=cur();dots.querySelectorAll('button').forEach(function(b,j){b.setAttribute('aria-current',j===i)})},{passive:true});
+document.getElementById('pv').onclick=function(){go(cur()-1)};document.getElementById('nx').onclick=function(){go(cur()+1)};
+function chipsR(){var cs=['all'].concat(Array.from(new Set(all.map(function(s){return s.category}))).sort());
+ chips.innerHTML=cs.map(function(c){return '<button aria-pressed="'+(c===cat)+'" data-c="'+esc(c)+'">'+(c==='all'?'todos':esc(c))+'</button>'}).join('');
+ chips.querySelectorAll('button').forEach(function(b){b.onclick=function(){cat=b.getAttribute('data-c');chipsR();view()}})}
+function load(d,live){var base=d.base_url||'https://myaelmendez.github.io';all=(d.surfaces||[]).map(function(s){s._u=url(base,s.url||'/');return s});
+ if(!live)document.getElementById('src').textContent='Sin conexión al manifiesto: mostrando una copia mínima.';chipsR();view()}
+fetch('https://myaelmendez.github.io/surface-manifest.json',{cache:'no-store'}).then(function(r){return r.json()}).then(function(d){load(d,true)}).catch(function(){load(FALLBACK,false)});
+document.getElementById('omni').onsubmit=function(e){e.preventDefault();q=document.getElementById('q').value.trim().toLowerCase();cat='all';chipsR();view();document.getElementById('track').scrollIntoView({behavior:'smooth',block:'center'})};
+document.getElementById('q').oninput=function(e){q=e.target.value.trim().toLowerCase();view()};
+// tonos
+var ths=['y','b','g','v'],cyc=null,root=document.documentElement;
+function setTh(t){root.setAttribute('data-th',t);document.querySelectorAll('.th button').forEach(function(b){var d=b.getAttribute('data-t');b.setAttribute('aria-pressed',d==='rc'?!!cyc:d===t)})}
+function pick(t){clearInterval(cyc);cyc=null;if(t==='rc'){var i=0;cyc=setInterval(function(){i=(i+1)%ths.length;setTh(ths[i])},5000);setTh(ths[0]);localStorage.removeItem('ae-th');return}
+ if(root.getAttribute('data-th')===t)t='';localStorage.setItem('ae-th',t);setTh(t)}
+document.querySelectorAll('.th button').forEach(function(b){b.onclick=function(){pick(b.getAttribute('data-t'))}});
+setTh(localStorage.getItem('ae-th')||'');
+})();
+</script>
+</body>
+</html>

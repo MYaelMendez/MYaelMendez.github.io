@@ -1,0 +1,76 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Nano^SVG · a nano vector interface · lab</title>
+<meta name="theme-color" content="#07070a">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--g:#D4AF37;--v:#07070a;--i:#e9e4d4;--m:#8a8270}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:var(--v);color:var(--i);font:15px/1.5 "JetBrains Mono",monospace;display:flex;justify-content:center}
+main{width:min(560px,100%);padding:28px 18px 60px}
+.lbl{color:var(--m);font-size:11px;letter-spacing:.18em;text-transform:uppercase}
+h1{font:700 26px/1.15 Orbitron,sans-serif;color:var(--g);margin:6px 0 4px;letter-spacing:.02em}
+.sub{color:var(--i);opacity:.85;margin:0 0 22px}
+.stage{border:1px solid #2a2618;border-radius:14px;padding:18px;background:#0c0b08}
+#nano{display:block;width:100%;height:auto;transition:max-width .5s ease}
+.mode-nano #nano{max-width:300px}.mode-widget #nano{max-width:440px}.mode-site #nano{max-width:100%}
+.verb{cursor:pointer}.verb rect{fill:#0c0b08;stroke:#3a3320;stroke-width:1.5;transition:all .2s}
+.verb text{fill:var(--i);font-family:"JetBrains Mono",monospace;text-anchor:middle}
+.verb.on rect{stroke:var(--g);fill:#1a1608}.verb.on .ic{fill:var(--g)}
+.verb:focus{outline:none}.verb:focus-visible rect{stroke:#fff}
+.cmd{margin:16px 0 6px;color:var(--g);font-weight:700;font-size:17px}
+.cmd i{font-style:normal;animation:b 1s steps(1) infinite}@keyframes b{50%{opacity:0}}
+.desc{margin:0 0 14px;min-height:3em}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+button.b{font:700 13px "JetBrains Mono",monospace;color:var(--v);background:var(--g);border:0;border-radius:8px;padding:10px 14px;cursor:pointer}
+button.o{background:transparent;color:var(--g);border:1px solid var(--g)}
+pre{white-space:pre-wrap;word-break:break-word;background:#000;border:1px solid #2a2618;border-radius:8px;padding:12px;font-size:12px;color:#cfc6a8;display:none;margin-top:12px}
+pre.on{display:block}
+.grow{margin-top:18px;color:var(--m);font-size:13px}
+.grow b{color:var(--g)}
+.note{color:var(--m);font-size:13px;margin-top:22px}
+footer{margin-top:28px;color:var(--g);font-size:13px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body><main class="mode-nano" id="m">
+<div class="lbl">&gt;_ æ://NANO · NATIVE SVG · 01 · lab</div>
+<h1>Nano^SVG · æ Pico Interface</h1>
+<p class="sub"><b style="color:var(--g)">A nano vector interface.</b><br>Smaller than a widget. Composable like a command. 🧬</p>
+<div class="stage">
+<svg id="nano" viewBox="0 0 360 74" role="toolbar" aria-label="æ nano interface">
+  <rect x="1" y="1" width="358" height="72" rx="14" fill="#07070a" stroke="#D4AF37" stroke-width="1.5"/>
+  <text x="34" y="44" font-size="17" text-anchor="middle">💬◫⌘</text>
+  <line x1="66" y1="14" x2="66" y2="60" stroke="#3a3320"/>
+</svg>
+<div class="cmd" id="cmd">&gt;_ SITE://RESUME<i>_</i></div>
+<p class="desc" id="desc"></p>
+<div class="row"><button class="b" id="go">Invoke nano command</button><button class="b o" id="sz">grow ↗</button></div>
+<pre id="out" aria-live="polite"></pre>
+<div class="grow" id="gr">&gt;_ <b>nano^svg</b> → widget^æ → site^CHAT ↺</div>
+</div>
+<p class="note">The SVG is the visual primitive; the surrounding nano controls supply interaction. The same compact interface can grow into a larger site-mode panel without changing its command identity.<br><br>Lab: commands here only prepare and show; nothing is sent or executed. Evidence ≠ Authority.</p>
+<footer>Small surface. Exponential composition. One principal.</footer>
+</main>
+<script>
+const V=[
+ {k:"discover",ic:"🔍",n:"Discover",c:"SITE://DISCOVER",d:"List what this surface can do: its capabilities, links and manifest."},
+ {k:"compose",ic:"æ",n:"Compose",c:"SITE://COMPOSE",d:"Draft an intent from the chosen pieces. A proposal only; the human decides."},
+ {k:"witness",ic:"✓",n:"Witness",c:"SITE://WITNESS",d:"Record a SHA-256 receipt of the current state as evidence, not authority."},
+ {k:"resume",ic:"↺",n:"Resume",c:"SITE://RESUME",d:"Prepare a portable æSTATE checkpoint for explicit handoff."}];
+const S=document.getElementById('nano'),NS="http://www.w3.org/2000/svg";let cur=3,mode=0;
+V.forEach((v,i)=>{const g=document.createElementNS(NS,'g');g.setAttribute('class','verb');g.setAttribute('tabindex','0');g.setAttribute('role','button');g.setAttribute('aria-label',v.n);
+ const x=76+i*70;g.innerHTML=`<rect x="${x}" y="10" width="62" height="54" rx="10"/><text class="ic" x="${x+31}" y="36" font-size="${v.ic==='æ'?20:17}">${v.ic}</text><text x="${x+31}" y="55" font-size="9.5">${v.n}</text>`;
+ g.onclick=()=>sel(i);g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();sel(i)}};S.appendChild(g)});
+function sel(i){cur=i;[...S.querySelectorAll('.verb')].forEach((g,j)=>g.classList.toggle('on',j===i));
+ document.getElementById('cmd').innerHTML='&gt;_ '+V[i].c+'<i>_</i>';document.getElementById('desc').textContent=V[i].d;document.getElementById('out').className=''}
+async function sha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+document.getElementById('go').onclick=async()=>{const v=V[cur],o=document.getElementById('out');
+ const state={schema:"aestate/0.1",command:v.c,surface:["nano^svg","widget^æ","site^CHAT"][mode],page:location.href.split('?')[0],at:new Date().toISOString(),authority:{inherits:false,principal:"human"}};
+ let r;
+ if(v.k==='discover')r={capabilities:V.map(x=>x.c),executes:false};
+ else if(v.k==='compose')r={intent:"(empty) · choose pieces, then a human approves",executes:false};
+ else if(v.k==='witness')r={receipt:"sha256:"+await sha(JSON.stringify(state))};
+ else{r={checkpoint:state,receipt:"sha256:"+await sha(JSON.stringify(state)),handoff:"explicit · copy and paste where you choose"};try{await navigator.clipboard.writeText(JSON.stringify(r,null,2));r.copied=true}catch(e){r.copied=false}}
+ o.textContent=JSON.stringify(r,null,2);o.className='on'};
+const L=['nano','widget','site'];document.getElementById('sz').onclick=()=>{mode=(mode+1)%3;document.getElementById('m').className='mode-'+L[mode];
+ document.getElementById('gr').innerHTML='&gt;_ '+['nano^svg','widget^æ','site^CHAT'].map((t,j)=>j===mode?'<b>'+t+'</b>':t).join(' → ')+' ↺';document.getElementById('sz').textContent=mode<2?'grow ↗':'shrink ↙'};
+sel(3);
+</script></body></html>

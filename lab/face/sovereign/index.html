@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en" data-th="night"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Soværeign æsymovs · one face per domain</title>
+<meta property="og:image" content="https://privateclient.ai/og.png">
+<style>
+:root{--bg:#000;--fl:rgba(3,16,18,.9);--ink:#e9f6f7;--dim:#a3c0c4;--c:#00f3ff;--bd:#1d4a4e;--grid:rgba(0,243,255,.05)}
+html[data-th=day]{--bg:#f4efe3;--fl:#fffaf0;--ink:#151515;--dim:#4c4840;--c:#00687a;--bd:#c9c0ad;--grid:rgba(0,0,0,.045)}
+html[data-th=agent]{--fl:#020c0d;--grid:rgba(0,243,255,.09)}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+body{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:40px 40px}
+.mono,pre{font-family:ui-monospace,Menlo,Consolas,monospace}
+main{max-width:640px;margin:0 auto;padding:16px 14px 64px}
+.top{display:flex;justify-content:space-between;align-items:center}
+.top button,.moods button{background:none;border:1px solid var(--bd);border-radius:999px;color:var(--ink);font-size:13px;padding:3px 10px;cursor:pointer;min-height:34px}
+.top button[aria-pressed=true],.moods button[aria-pressed=true]{border-color:var(--c);color:var(--c)}
+h1{font-size:30px;line-height:1.1;margin:20px 0 4px}.lead{color:var(--dim);margin:0}
+.moods{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.f{display:flex;flex-direction:column;align-items:center;gap:2px;border:1px solid var(--bd);border-radius:14px;padding:10px 6px 8px;background:var(--fl);text-decoration:none;color:var(--ink);transition:border-color .3s}
+.f:hover,.f.ping{border-color:var(--c)}.f.off{border-style:dashed}
+.f b{font:600 13px ui-monospace,Menlo,monospace;text-align:center;overflow-wrap:anywhere}
+.f small{color:var(--dim);font-size:11.5px;text-align:center;line-height:1.3}
+h2{font:600 12px ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--c);margin:30px 0 10px}
+.rules div{border-left:2px solid var(--c);padding:2px 0 2px 10px;margin:6px 0;font-size:15px}
+pre{white-space:pre-wrap;font-size:12px;color:var(--dim);border:1px dashed var(--bd);border-radius:12px;padding:12px;max-height:340px;overflow:auto}
+footer{margin-top:36px;text-align:center;font-size:12px;color:var(--dim)}footer a{color:var(--c)}
+@media (min-width:760px) and (orientation:landscape){main{max-width:1180px}.grid{grid-template-columns:repeat(6,1fr)}}
+</style>
+<script src="../lang/pc-face.js"></script>
+</head><body><main>
+<div class="top"><b class="mono">&gt;_soværeign æsymovs</b><span><button data-t="night">🌙</button> <button data-t="day">☀️</button> <button data-t="agent">🤖</button></span></div>
+<h1>Every domain has a face.</h1>
+<p class="lead">Same head, same moods. Its own crown and color. One network that reads at a glance.</p>
+<div class="moods" id="moods" role="group" aria-label="mood for every face"></div>
+<div class="grid" id="grid"></div>
+
+<h2>Rules</h2>
+<div class="rules">
+ <div>One head. The family reads as one.</div>
+ <div>Crown + color = the domain. Mood = the real state.</div>
+ <div>The face travels with its domain.</div>
+ <div>It shows. It never decides. Human stays root.</div>
+</div>
+
+<h2>Use on any domain</h2>
+<pre class="mono">&lt;script src="pc-face.js"&gt;&lt;/script&gt;
+&lt;pc-face domain="teologia.ai" mood="ready"&gt;&lt;/pc-face&gt;</pre>
+
+<h2>For agents · registry</h2>
+<pre id="agent" class="mono"></pre>
+<footer class="mono">$🤖osw · <a href="../lang/">face language</a> · <a href="../../privateclient/">PC:// LAB</a></footer>
+</main>
+<script>
+/* door check 2026-10-19 01:05 CDT: null = no working page yet (no dead ends), string = verified URL */
+const GO={"æ.store":null,"teologia.ai":"http://teologia.ai/","yæl.com":null,"æ.me":null,"zacapa.ai":null,"teologia.live":null,"molt.earth":null,"moltcontextprotocol.org":null,"iaamano.com":null};
+const D=PC_FACE.domains,M=Object.keys(PC_FACE.moods),grid=document.getElementById("grid");
+Object.entries(D).forEach(([d,v])=>{const go=d in GO?GO[d]:"https://"+d+"/",a=document.createElement(go?"a":"div");a.className="f"+(go?"":" off");if(go){a.href=go;a.rel="noopener"}else{a.title=d+" · face ready, page not live yet"}
+ a.innerHTML=`<pc-face domain="${d}" mood="ready" size="78"></pc-face><b></b><small></small>`;a.querySelector("b").innerHTML=d.replace(/[&<>]/g,"").replace(/\./g,"<wbr>.");a.querySelector("small").textContent=v.role+(go?"":" · ◌ not live yet");grid.appendChild(a)});
+const faces=[...grid.querySelectorAll("pc-face")];
+function wave(m,from){const rm=matchMedia("(prefers-reduced-motion:reduce)").matches;faces.forEach((f,i)=>{const d=rm?0:Math.abs(i-(from||0))*55;setTimeout(()=>{f.mood=m;const c=f.parentElement;c.classList.add("ping");setTimeout(()=>c.classList.remove("ping"),400)},d)})}
+const mb=document.getElementById("moods");M.forEach(m=>{const b=document.createElement("button");b.textContent=m;b.setAttribute("aria-pressed",m==="ready");b.onclick=()=>{wave(m,0);mb.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b))};mb.appendChild(b)});
+const K="pc_term_theme";function th(x){document.documentElement.dataset.th=x;try{localStorage.setItem(K,x)}catch(e){}document.querySelectorAll(".top button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===x))}
+document.querySelectorAll(".top button").forEach(b=>b.onclick=()=>th(b.dataset.t));let t0="night";try{t0=localStorage.getItem(K)||"night"}catch(e){}th(t0);
+document.getElementById("agent").textContent=JSON.stringify({schema:"ae.face.registry/0.1",checked:"2026-10-19",live:Object.keys(D).filter(d=>!(d in GO)||GO[d]),not_live:Object.keys(D).filter(d=>d in GO&&!GO[d]),name:"soværeign æsymovs",count:Object.keys(D).length,source:"../lang/pc-face.js",moods:PC_FACE.moods,domains:D,authority:{face:"shows",human:"decides"}},null,1);
+</script>
+</body></html>
