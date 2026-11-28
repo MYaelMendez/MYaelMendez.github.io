@@ -1,0 +1,37 @@
+{
+  "schema": "ae.manifest/0.1",
+  "status": "lab",
+  "name": "llm.store",
+  "address": "æææ:///llm.store",
+  "origin": "x0:y0:z0:æ0",
+  "principal": "Yael Méndez",
+  "authority": {
+    "issuer": "æ1 LAB · L:// R&D, Instituto Luterano Latinoamericano",
+    "agents_may": ["read", "run local inference in the visitor's own browser at the visitor's request", "propose changes in lab/"],
+    "human_only": ["merge to production", "DNS", "pricing", "payments", "keys", "partner agreements"]
+  },
+  "lab": "https://lutheraninstitute.github.io/aeee-lab/lab/llm-store/",
+  "production": "http://llm.store (not this page)",
+  "llms_txt": "https://lutheraninstitute.github.io/aeee-lab/lab/llm-store/llms.txt",
+  "capabilities": ["catalog.read", "catalog.filter", "infer.webgpu", "infer.ollama", "receipts.sha256"],
+  "commands": ["help", "ls models [free|open|long|cheap]", "search <q>", "run <model>", "ask <text>", "local", "node [url]", "receipts [verify|export|clear]", "agents", "hf", "lang en|es"],
+  "js_api": "window.LLMSTORE.run(line) · .ask(text) · .catalog() · .receipts() · .verify()",
+  "data": {
+    "live": "https://openrouter.ai/api/v1/models",
+    "snapshot": "https://lutheraninstitute.github.io/aeee-lab/lab/llm-store/models.snapshot.json",
+    "snapshot_fetched_at": "2026-11-28T04:35:27Z",
+    "trending": "https://huggingface.co/api/models?pipeline_tag=text-generation&sort=trendingScore&limit=15"
+  },
+  "runtimes": {
+    "webgpu": {"engine": "@mlc-ai/web-llm@0.2.89", "default_model": "Qwen3-0.6B-q4f16_1-MLC", "models": ["Qwen3-0.6B-q4f16_1-MLC", "Qwen3.5-0.8B-q4f16_1-MLC", "Llama-3.2-1B-Instruct-q4f16_1-MLC", "Qwen2.5-0.5B-Instruct-q4f16_1-MLC", "Qwen3-1.7B-q4f16_1-MLC"], "fallback": "q4f32_1 builds when the GPU lacks shader-f16"},
+    "ollama": {"endpoint": "http://localhost:11434", "calls": ["/api/tags", "/api/chat"], "requires": "OLLAMA_ORIGINS including https://lutheraninstitute.github.io"}
+  },
+  "receipts": {"schema": "llm.store.receipt/0.1", "hash": "sha256", "chain": "prev → hash", "store": "localStorage (visitor only)"},
+  "labels": {"LIVE": "fetched this session", "SNAPSHOT": "models.snapshot.json fetched_at", "MEASURED": "measured on the visitor's device"},
+  "checkout": "none",
+  "secrets": "none",
+  "motto": "Make something agents want.",
+  "principle": "Evidence ≠ Authority: supervision informs, the human decides.",
+  "provenance": {"chassis": "https://myaelmendez.github.io/llm-store.html", "rebuilt": "2026-11-27"},
+  "network_index": "https://lutheraninstitute.github.io/aeee-lab/lab/ae.json"
+}

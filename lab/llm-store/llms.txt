@@ -1,0 +1,38 @@
+# llm.store (LAB)
+
+> A model store you can read, run on your own silicon, and receipt. LAB · DEMO — not production. Principal: Yael Méndez. Authority: æ1 LAB (L:// R&D, Instituto Luterano Latinoamericano). Make something agents want.
+
+Page: https://lutheraninstitute.github.io/aeee-lab/lab/llm-store/
+Manifest: https://lutheraninstitute.github.io/aeee-lab/lab/llm-store/ae.json
+Status: lab (noindex). No checkout, no keys, no cloud inference, no invented numbers.
+
+## Data
+- [Live model catalog](https://openrouter.ai/api/v1/models): OpenRouter public models API, no key, CORS open. The page reads it live.
+- [Snapshot](https://lutheraninstitute.github.io/aeee-lab/lab/llm-store/models.snapshot.json): same catalog, normalized, fetched_at 2026-11-28T04:35:27Z. Fields per model: id, name, ctx (tokens), mod (modality), in / out (USD per 1M prompt / completion tokens; null = no fixed price), hf (Hugging Face repo as listed by OpenRouter; an open-weights hint, not a license check), created (unix), max_out.
+- [Hugging Face trending](https://huggingface.co/api/models?pipeline_tag=text-generation&sort=trendingScore&limit=15): live only, no snapshot.
+
+## Labels
+- LIVE: fetched from the source in this browser session, with timestamp.
+- SNAPSHOT: from models.snapshot.json, with its fetched_at.
+- MEASURED: measured on the visitor's own device during a run (tok/s, time to first token).
+
+## Commands (type in the æææ:///llm.store ⫸ line, add ?cmd=... to the URL, or call window.LLMSTORE.run("..."))
+- help
+- ls models [free|open|long|cheap]   (long = context ≥ 1M tokens; cheap = paid models by mean of in/out price)
+- search <text>
+- run <model>   local only: qwen3-0.6b, qwen3.5-0.8b, llama-3.2-1b, qwen2.5-0.5b, qwen3-1.7b (WebLLM 0.2.89 on WebGPU), or an Ollama tag after `node`. Cloud model ids print their card and say cloud inference is not wired.
+- ask <text>    send a prompt to the active local runtime
+- local         check WebGPU + Ollama
+- node [url]    connect Ollama (default http://localhost:11434; needs OLLAMA_ORIGINS to include https://lutheraninstitute.github.io)
+- receipts [verify|export|clear]
+- agents        print this file
+- hf            Hugging Face trending
+- lang en|es
+
+## Receipts (llm.store.receipt/0.1)
+Every run writes {v, i, ts, origin, runtime (webgpu|ollama), model, prompt_sha256, output_sha256, prompt_tokens, completion_tokens, tok_s, engine_tok_s, ttft_s, ua, prev, hash}. hash = SHA-256 of the JSON of every field before it, in that order; prev chains to the previous hash (genesis = 64 zeros). Stored only in the visitor's localStorage; exportable as JSON. Prompts are kept as hashes, never text.
+
+## Authority
+Agents may: read, run local inference in a visitor's browser when that visitor asks, propose changes in lab/.
+Human only: merge to production, DNS, pricing, payments, keys, partner agreements.
+Evidence ≠ Authority: supervision informs, the human decides.
